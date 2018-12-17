@@ -14,11 +14,8 @@ func TestAccDataSourceGoogleCloudFunctionsFunction_basic(t *testing.T) {
 	t.Parallel()
 
 	funcDataNameHttp := "data.google_cloudfunctions_function.function_http"
-	funcDataNamePubSub := "data.google_cloudfunctions_function.function_pubsub"
-	funcDataNameBucket := "data.google_cloudfunctions_function.function_bucket"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
-	topicName := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
 	zipFilePath, err := createZIPArchiveForIndexJs(testHTTPTriggerPath)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -32,14 +29,10 @@ func TestAccDataSourceGoogleCloudFunctionsFunction_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleCloudFunctionsFunctionConfig(functionName,
-					bucketName, zipFilePath, topicName),
+					bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleCloudFunctionsFunctionCheck(funcDataNameHttp,
 						"google_cloudfunctions_function.function_http"),
-					testAccDataSourceGoogleCloudFunctionsFunctionCheck(funcDataNamePubSub,
-						"google_cloudfunctions_function.function_pubsub"),
-					testAccDataSourceGoogleCloudFunctionsFunctionCheck(funcDataNameBucket,
-						"google_cloudfunctions_function.function_bucket"),
 				),
 			},
 		},
@@ -71,8 +64,6 @@ func testAccDataSourceGoogleCloudFunctionsFunctionCheck(dataSourceName string, r
 			"storage_object",
 			"entry_point",
 			"trigger_http",
-			"trigger_bucket",
-			"trigger_topic",
 		}
 
 		for _, attr := range cloudFuncAttrToCheck {
@@ -90,8 +81,7 @@ func testAccDataSourceGoogleCloudFunctionsFunctionCheck(dataSourceName string, r
 	}
 }
 
-func testAccDataSourceGoogleCloudFunctionsFunctionConfig(functionName string,
-	bucketName string, zipFilePath string, topicName string) string {
+func testAccDataSourceGoogleCloudFunctionsFunctionConfig(functionName, bucketName, zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
@@ -114,41 +104,8 @@ resource "google_cloudfunctions_function" "function_http" {
   entry_point           = "helloGET"
 }
 
-resource "google_cloudfunctions_function" "function_bucket" {
-  name                  = "%s-bucket"
-  available_memory_mb   = 128
-  source_archive_bucket = "${google_storage_bucket.bucket.name}"
-  source_archive_object = "${google_storage_bucket_object.archive.name}"
-  trigger_bucket        = "${google_storage_bucket.bucket.name}"
-  timeout               = 61
-  entry_point           = "helloGET"
-}
-
-resource "google_pubsub_topic" "sub" {
-  name = "%s"
-}
-
-resource "google_cloudfunctions_function" "function_pubsub" {
-  name                  = "%s-pubsub"
-  available_memory_mb   = 128
-  source_archive_bucket = "${google_storage_bucket.bucket.name}"
-  source_archive_object = "${google_storage_bucket_object.archive.name}"
-  trigger_topic         = "${google_pubsub_topic.sub.name}"
-  timeout               = 61
-  entry_point           = "helloGET"
-}
-
 data "google_cloudfunctions_function" "function_http" {
   name = "${google_cloudfunctions_function.function_http.name}"
 }
-
-data "google_cloudfunctions_function" "function_bucket" {
-  name = "${google_cloudfunctions_function.function_bucket.name}"
-}
-
-data "google_cloudfunctions_function" "function_pubsub" {
-  name = "${google_cloudfunctions_function.function_pubsub.name}"
-}
-`, bucketName, zipFilePath, functionName, functionName,
-		topicName, functionName)
+`, bucketName, zipFilePath, functionName)
 }

@@ -7,14 +7,19 @@ description: |-
 ---
 
 # `google` provider reference
-The `google` provider block is used to configure default values for your GCP
-project and location (`zone` and `region`), and add your credentials.
+
+-> We recently introduced the `google-beta` provider. See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
+for more details on how to use `google-beta`.
+
+The `google` and `google-beta` provider blocks are used to configure default values for
+your GCP project and location (`zone` and `region`), and add your credentials.
 
 -> You can avoid using a provider block by using environment variables. Every
-field of the `google` provider is optional. If you want to share configs between
-environments and deploy to different projects, try it out!
+field of `google` and `google-beta` is inferred from your environment when it
+has not been explicitly set. Even better - the GA and beta providers will both
+share the same values.
 
-## Example Usage
+## Example Usage - Basic provider blocks
 
 ```hcl
 provider "google" {
@@ -25,9 +30,40 @@ provider "google" {
 }
 ```
 
+```hcl
+provider "google-beta" {
+  credentials = "${file("account.json")}"
+  project     = "my-project-id"
+  region      = "us-central1"
+  zone        = "us-central1-c"
+}
+```
+
+## Example Usage - Using beta features with `google-beta` 
+
+To use Google Cloud Platform features that are in beta, explicitly set the provider for your
+resource to `google-beta`. See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
+for a full reference on how to use different GCP versions with the Google provider.
+
+```hcl
+resource "google_compute_instance" "ga-instance" {
+  provider = "google"
+
+  # ...
+}
+
+resource "google_compute_instance" "beta-instance" {
+  provider = "google-beta"
+
+  # ...
+}
+```
+
+
 ## Configuration Reference
 
-The following keys can be used to configure the provider.
+The following keys can be used to configure the provider. Both `google` and `google-beta`
+share the same configuration.
 
 * `credentials` - (Optional) The path or contents of a file that contains your
   service account private key in JSON format. You can download your existing

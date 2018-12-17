@@ -8,6 +8,9 @@ description: |-
 
 # Google Cloud Platform Provider
 
+-> We recently introduced the `google-beta` provider. See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
+for more details on how to use `google-beta`.
+
 The Google provider is used to configure your [Google Cloud Platform](https://cloud.google.com/) infrastructure. 
 See the [Getting Started](/docs/providers/google/getting_started.html) page for an introduction to using the provider.
 
@@ -73,8 +76,11 @@ the issue!
 ## Contributing
 
 If you'd like to help extend the Google provider, we gladly accept community
-contributions! Check out the [provider README](https://github.com/terraform-providers/terraform-provider-google)
-for instructions about getting started developing, the [HashiCorp contribution guidelines](https://github.com/hashicorp/terraform/blob/master/.github/CONTRIBUTING.md)
+contributions! Pull requests should be made against [Magic Modules](https://github.com/GoogleCloudPlatform/magic-modules)
+to ensure they are applied to both `google` and `google-beta`.
+
+Check out the [Magic Modules setup guide](https://github.com/GoogleCloudPlatform/magic-modules#one-time-setup) to get set up, the [provider README](https://github.com/terraform-providers/terraform-provider-google)
+for instructions about running your generated code, the [HashiCorp contribution guidelines](https://github.com/hashicorp/terraform/blob/master/.github/CONTRIBUTING.md)
 for a Terraform provider development overview, and the [Google provider contribution guidelines](https://github.com/terraform-providers/terraform-provider-google/blob/master/.github/CONTRIBUTING.md)
 for our provider-specific advice.
 
@@ -82,7 +88,7 @@ for our provider-specific advice.
 
 The Google provider supports generally available (GA) and Beta GCP features. We
 are focusing on filling out general GA feature coverage and on adding support
-for beta features that customers request. So if you need us to support a feature
+for beta features that customers request. If you need us to support a feature
 whether GA or beta, please [file a feature request](https://github.com/terraform-providers/terraform-provider-google/issues/new?template=enhancement.md)!
 
 If you're interested in using Alpha GCP features, you should still [file a feature request](https://github.com/terraform-providers/terraform-provider-google/issues/new?template=enhancement.md)
@@ -90,14 +96,3 @@ or thumbs up [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull
 the existing request if one exists. By filing and reacting to requests, we can
 gauge your interest in yet-to-be-supported GCP features and make sure that we
 prioritize support for them when they enter Beta.
-
-### Beta Features
-Some resources contain Beta features; Beta GCP Features have no
-deprecation policy, and no SLA, but are otherwise considered to be feature-complete
-with only minor outstanding issues after their Alpha period. Beta is when GCP
-features are publicly announced, and is when they generally become publicly
-available. For more information see [the official documentation on GCP launch stages](https://cloud.google.com/terms/launch-stages).
-
-Terraform resources that support Beta features will always use the Beta APIs to provision
-the resource. Importing a resource that supports Beta features will always import those
-features, even if the resource was created in a matter that was not explicitly Beta.

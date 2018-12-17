@@ -29,28 +29,30 @@ To get more information about VpnGateway, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/targetVpnGateways)
 
-## Example Usage
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=target_vpn_gateway_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Target Vpn Gateway Basic
+
 
 ```hcl
-resource "google_compute_network" "network1" {
-  name       = "network1"
-  ipv4_range = "10.120.0.0/16"
-}
-
 resource "google_compute_vpn_gateway" "target_gateway" {
   name    = "vpn1"
   network = "${google_compute_network.network1.self_link}"
-  region  = "${var.region}"
+}
+
+resource "google_compute_network" "network1" {
+  name       = "network1"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
   name   = "vpn-static-ip"
-  region = "${var.region}"
 }
 
 resource "google_compute_forwarding_rule" "fr_esp" {
   name        = "fr-esp"
-  region      = "${var.region}"
   ip_protocol = "ESP"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
   target      = "${google_compute_vpn_gateway.target_gateway.self_link}"
@@ -58,7 +60,6 @@ resource "google_compute_forwarding_rule" "fr_esp" {
 
 resource "google_compute_forwarding_rule" "fr_udp500" {
   name        = "fr-udp500"
-  region      = "${var.region}"
   ip_protocol = "UDP"
   port_range  = "500"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
@@ -67,7 +68,6 @@ resource "google_compute_forwarding_rule" "fr_udp500" {
 
 resource "google_compute_forwarding_rule" "fr_udp4500" {
   name        = "fr-udp4500"
-  region      = "${var.region}"
   ip_protocol = "UDP"
   port_range  = "4500"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
@@ -76,7 +76,6 @@ resource "google_compute_forwarding_rule" "fr_udp4500" {
 
 resource "google_compute_vpn_tunnel" "tunnel1" {
   name          = "tunnel1"
-  region        = "${var.region}"
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 

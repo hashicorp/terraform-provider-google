@@ -1,8 +1,52 @@
 package google
 
 import (
+	"regexp"
+	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform/terraform"
 )
+
+// This function isn't a test of transport.go; instead, it is used as an alternative
+// to replaceVars inside tests.
+func replaceVarsForTest(rs *terraform.ResourceState, linkTmpl string) (string, error) {
+	re := regexp.MustCompile("{{([[:word:]]+)}}")
+	var project, region, zone string
+
+	if strings.Contains(linkTmpl, "{{project}}") {
+		project = rs.Primary.Attributes["project"]
+	}
+
+	if strings.Contains(linkTmpl, "{{region}}") {
+		region = rs.Primary.Attributes["region"]
+	}
+
+	if strings.Contains(linkTmpl, "{{zone}}") {
+		zone = rs.Primary.Attributes["zone"]
+	}
+
+	replaceFunc := func(s string) string {
+		m := re.FindStringSubmatch(s)[1]
+		if m == "project" {
+			return project
+		}
+		if m == "region" {
+			return region
+		}
+		if m == "zone" {
+			return zone
+		}
+
+		if v, ok := rs.Primary.Attributes[m]; ok {
+			return v
+		}
+
+		return ""
+	}
+
+	return re.ReplaceAllStringFunc(linkTmpl, replaceFunc), nil
+}
 
 func TestReplaceVars(t *testing.T) {
 	cases := map[string]struct {

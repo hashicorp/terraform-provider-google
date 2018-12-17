@@ -78,7 +78,7 @@ output "cluster_ca_certificate" {
 * `region` (Optional)
     The region to create the cluster in, for
     [Regional Clusters](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-zone-and-regional-clusters#regional).
-    In a Regional Cluster, the number of nodes specified in `initial_node_count` is 
+    In a Regional Cluster, the number of nodes specified in `initial_node_count` is
     created in three zones of the region (this can be changed by setting `additional_zones`).
 
 * `additional_zones` - (Optional) The list of additional Google Compute Engine
@@ -92,16 +92,21 @@ output "cluster_ca_certificate" {
 * `cluster_ipv4_cidr` - (Optional) The IP address range of the kubernetes pods in
     this cluster. Default is an automatically assigned CIDR.
 
+* `cluster_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
+    Configuration for cluster autoscaling (also called autoprovisioning), as described in
+    [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning).
+    Structure is documented below.
+
 * `description` - (Optional) Description of the cluster.
 
-* `enable_binary_authorization` - (Optional) Enable Binary Authorization for this cluster.
+* `enable_binary_authorization` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Enable Binary Authorization for this cluster.
     If enabled, all container images will be validated by Google Binary Authorization.
 
 * `enable_kubernetes_alpha` - (Optional) Whether to enable Kubernetes Alpha features for
     this cluster. Note that when this option is enabled, the cluster cannot be upgraded
     and will be automatically deleted after 30 days.
 
-* `enable_tpu` - (Optional) Whether to enable Cloud TPU resources in this cluster.
+* `enable_tpu` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Whether to enable Cloud TPU resources in this cluster.
     See the [official documentation](https://cloud.google.com/tpu/docs/kubernetes-engine-setup).
 
 * `enable_legacy_abac` - (Optional) Whether the ABAC authorizer is enabled for this cluster.
@@ -130,15 +135,18 @@ output "cluster_ca_certificate" {
     for master authorized networks. Omit the nested `cidr_blocks` attribute to disallow
     external access (except the cluster node IPs, which GKE automatically whitelists).
 
-* `master_ipv4_cidr_block` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Specifies a private
-    [RFC1918](https://tools.ietf.org/html/rfc1918) block for the master's VPC. The master range must not overlap with any subnet in your cluster's VPC.
-    The master and your cluster use VPC peering. Must be specified in CIDR notation and must be `/28` subnet.
-
 * `min_master_version` - (Optional) The minimum version of the master. GKE
     will auto-update the master to new versions, so this does not guarantee the
     current master version--use the read-only `master_version` field to obtain that.
     If unset, the cluster's version will be set by GKE to the version of the most recent
-    official release (which is not necessarily the latest version).
+    official release (which is not necessarily the latest version).  Most users will find
+    the `google_container_engine_versions` data source useful - it indicates which versions
+    are available.  If you intend to specify versions manually, [the docs](https://cloud.google.com/kubernetes-engine/versioning-and-upgrades#specifying_cluster_version)
+    describe the various acceptable formats for this field.
+
+-> If you are using the `google_container_engine_versions` datasource with a regional cluster, ensure that you have provided a `region`
+to the datasource. A `region` can have a different set of supported versions than its corresponding `zone`s, and not all `zone`s in a
+`region` are guaranteed to support the same version.
 
 * `monitoring_service` - (Optional) The monitoring service that the cluster
     should write metrics to.
@@ -161,19 +169,21 @@ output "cluster_ca_certificate" {
 
 * `node_pool` - (Optional) List of node pools associated with this cluster.
     See [google_container_node_pool](container_node_pool.html) for schema.
+    **Warning:** node pools defined inside a cluster can't be changed (or added/removed) after
+    cluster creation without deleting and recreating the entire cluster. Unless you absolutely need the ability
+    to say "these are the _only_ node pools associated with this cluster", use the
+    [google_container_node_pool](container_node_pool.html) resource instead of this property.
 
 * `node_version` - (Optional) The Kubernetes version on the nodes. Must either be unset
     or set to the same value as `min_master_version` on create. Defaults to the default
     version set by GKE which is not necessarily the latest version.
 
-* `pod_security_policy_config` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) Configuration for the
+* `pod_security_policy_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Configuration for the
     [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
     Structure is documented below.
 
-* `private_cluster` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) If true, a
-    [private cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters) will be created, meaning
-    nodes do not get public IP addresses. It is mandatory to specify `master_ipv4_cidr_block` and 
-    `ip_allocation_policy` with this option.
+* `private_cluster_config` - (Optional) A set of options for creating
+    a private cluster. Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -216,6 +226,21 @@ addons_config {
   }
 }
 ```
+
+The `cluster_autoscaling` block supports:
+* `enabled` - (Required) Whether cluster autoscaling (also called autoprovisioning) is
+    enabled.  To set this to true, make sure your config meets the rest of the
+    requirements.  Notably, you'll need `min_master_version` of at least `1.11.2`.
+* `resource_limits` - (Optional) A list of limits on the autoprovisioning.
+    See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
+    for an explanation of what options are available.  If enabling autoprovisioning, make
+    sure to set at least `cpu` and `memory`.  Structure is documented below.
+
+The `resource_limits` block supports:
+* `resource_type` - (Required) See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
+    for a list of permitted types - `cpu`, `memory`, and others.
+* `minimum` - (Optional) The minimum value for the resource type specified.
+* `maximum` - (Optional) The maximum value for the resource type specified.
 
 The `maintenance_policy` block supports:
 
@@ -262,11 +287,11 @@ The `ip_allocation_policy` block supports:
 
 The `master_auth` block supports:
 
-* `password` - (Required) The password to use for HTTP basic authentication when accessing
-    the Kubernetes master endpoint
+* `password` - (Optional) The password to use for HTTP basic authentication when accessing
+    the Kubernetes master endpoint.
 
-* `username` - (Required) The username to use for HTTP basic authentication when accessing
-    the Kubernetes master endpoint
+* `username` - (Optional) The username to use for HTTP basic authentication when accessing
+    the Kubernetes master endpoint. If not present basic auth will be disabled.
 
 * `client_certificate_config` - (Optional) Whether client certificate authorization is enabled for this cluster.  For example:
 
@@ -349,15 +374,20 @@ The `node_config` block supports:
 
 * `service_account` - (Optional) The service account to be used by the Node VMs.
     If not specified, the "default" service account is used.
+    In order to use the configured `oauth_scopes` for logging and monitoring, the service account being used needs the
+    [roles/logging.logWriter](https://cloud.google.com/iam/docs/understanding-roles#stackdriver_logging_roles) and
+    [roles/monitoring.metricWriter](https://cloud.google.com/iam/docs/understanding-roles#stackdriver_monitoring_roles) roles.
+
+     -> Projects that enable the [Cloud Compute Engine API](https://cloud.google.com/compute/) with Terraform may need these roles added manually to the service account. Projects that enable the API in the Cloud Console should have them added automatically.
 
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
 
-* `taint` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) List of
+* `taint` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) List of
     [kubernetes taints](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
     to apply to each node. Structure is documented below.
 
-* `workload_metadata_config` - (Optional) Metadata configuration to expose to workloads on the node pool.
+* `workload_metadata_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Metadata configuration to expose to workloads on the node pool.
     Structure is documented below.
 
 The `guest_accelerator` block supports:
@@ -370,6 +400,23 @@ The `pod_security_policy_config` block supports:
 
 * `enabled` (Required) - Enable the PodSecurityPolicy controller for this cluster.
     If enabled, pods must be valid under a PodSecurityPolicy to be created.
+
+The `private_cluster_config` block supports:
+
+* `enable_private_endpoint` (Optional) - Whether the master's internal IP address is used as the cluster endpoint.
+
+* `enable_private_nodes` (Optional) - Whether nodes have internal IP addresses only. If enabled, all nodes are given only RFC 1918 private
+    addresses and communicate with the master via private networking.
+
+* `master_ipv4_cidr_block` (Optional) - The IP range in CIDR notation to use for the hosted master network. This range will be used for
+    assigning internal IP addresses to the master or set of masters, as well as the ILB VIP. This range must not overlap with any other ranges
+    in use within the cluster's network.
+
+In addition, the `private_cluster_config` allows access to the following read-only fields:
+
+* `private_endpoint` - The internal IP address of this cluster's master endpoint.
+
+* `public_endpoint` - The external IP address of this cluster's master endpoint.
 
 The `taint` block supports:
 
@@ -414,6 +461,10 @@ exported:
     be different than the `min_master_version` set in the config if the master
     has been updated by GKE.
 
+* `tpu_ipv4_cidr_block` - ([Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The IP address range of the Cloud TPUs in this cluster, in
+    [CIDR](http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)
+    notation (e.g. `1.2.3.4/29`).
+
 <a id="timeouts"></a>
 ## Timeouts
 
@@ -426,8 +477,8 @@ exported:
 
 ## Import
 
-GKE clusters can be imported using the `project` , `zone` or `region`, and `name`. If
-the project is omitted, the default provider value will be used. Examples:
+GKE clusters can be imported using the `project` , `zone` or `region`, and `name`. If the project is omitted, the default
+provider value will be used. Examples:
 
 ```
 $ terraform import google_container_cluster.mycluster my-gcp-project/us-east1-a/my-cluster

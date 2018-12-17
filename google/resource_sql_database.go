@@ -21,37 +21,37 @@ func resourceSqlDatabase() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"instance": &schema.Schema{
+			"instance": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"charset": &schema.Schema{
+			"charset": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"collation": &schema.Schema{
+			"collation": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -86,8 +86,12 @@ func resourceSqlDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 
 	mutexKV.Lock(instanceMutexKey(project, instance_name))
 	defer mutexKV.Unlock(instanceMutexKey(project, instance_name))
-	op, err := config.clientSqlAdmin.Databases.Insert(project, instance_name,
-		db).Do()
+
+	var op *sqladmin.Operation
+	err = retryTime(func() error {
+		op, err = config.clientSqlAdmin.Databases.Insert(project, instance_name, db).Do()
+		return err
+	}, 5 /* minutes */)
 
 	if err != nil {
 		return fmt.Errorf("Error, failed to insert "+
@@ -123,8 +127,11 @@ func resourceSqlDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	instance_name := s[0]
 	database_name := s[1]
 
-	db, err := config.clientSqlAdmin.Databases.Get(project, instance_name,
-		database_name).Do()
+	var db *sqladmin.Database
+	err = retryTime(func() error {
+		db, err = config.clientSqlAdmin.Databases.Get(project, instance_name, database_name).Do()
+		return err
+	}, 5 /* minutes */)
 
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SQL Database %q in instance %q", database_name, instance_name))
@@ -161,8 +168,12 @@ func resourceSqlDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	mutexKV.Lock(instanceMutexKey(project, instance_name))
 	defer mutexKV.Unlock(instanceMutexKey(project, instance_name))
-	op, err := config.clientSqlAdmin.Databases.Update(project, instance_name, database_name,
-		db).Do()
+
+	var op *sqladmin.Operation
+	err = retryTime(func() error {
+		op, err = config.clientSqlAdmin.Databases.Update(project, instance_name, database_name, db).Do()
+		return err
+	}, 5 /* minutes */)
 
 	if err != nil {
 		return fmt.Errorf("Error, failed to update "+
@@ -193,8 +204,12 @@ func resourceSqlDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 
 	mutexKV.Lock(instanceMutexKey(project, instance_name))
 	defer mutexKV.Unlock(instanceMutexKey(project, instance_name))
-	op, err := config.clientSqlAdmin.Databases.Delete(project, instance_name,
-		database_name).Do()
+
+	var op *sqladmin.Operation
+	err = retryTime(func() error {
+		op, err = config.clientSqlAdmin.Databases.Delete(project, instance_name, database_name).Do()
+		return err
+	}, 5 /* minutes */)
 
 	if err != nil {
 		return fmt.Errorf("Error, failed to delete"+

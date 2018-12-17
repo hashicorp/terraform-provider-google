@@ -36,7 +36,7 @@ func TestAccStorageObject_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsObjectBasic(bucketName, testFile.Name()),
 				Check:  testAccCheckGoogleStorageObject(bucketName, objectName, data_md5),
 			},
@@ -67,11 +67,11 @@ func TestAccStorageObject_recreate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsObjectBasic(bucketName, testFile.Name()),
 				Check:  testAccCheckGoogleStorageObject(bucketName, objectName, data_md5),
 			},
-			resource.TestStep{
+			{
 				PreConfig: func() {
 					err := os.Rename(updatedName, testFile.Name())
 					if err != nil {
@@ -101,7 +101,7 @@ func TestAccStorageObject_content(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsObjectContent(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObject(bucketName, objectName, data_md5),
@@ -132,7 +132,7 @@ func TestAccStorageObject_withContentCharacteristics(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsObject_optionalContentFields(
 					bucketName, disposition, encoding, language, content_type),
 				Check: resource.ComposeTestCheckFunc(
@@ -159,7 +159,7 @@ func TestAccStorageObject_dynamicContent(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsObjectDynamicContent(testBucketName()),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -189,7 +189,7 @@ func TestAccStorageObject_cacheControl(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsObject_cacheControl(bucketName, testFile.Name(), cacheControl),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObject(bucketName, objectName, data_md5),
@@ -218,7 +218,7 @@ func TestAccStorageObject_storageClass(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleStorageBucketsObject_storageClass(bucketName, storageClass),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleStorageObject(bucketName, objectName, data_md5),

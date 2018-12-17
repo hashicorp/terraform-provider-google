@@ -106,7 +106,7 @@ func TestAccStorageSignedUrl_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleSignedUrlConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccSignedUrlExists("data.google_storage_object_signed_url.blerg"),
@@ -130,7 +130,7 @@ func TestAccStorageSignedUrl_accTest(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccTestGoogleStorageObjectSignedURL(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccSignedUrlRetrieval("data.google_storage_object_signed_url.story_url", nil),

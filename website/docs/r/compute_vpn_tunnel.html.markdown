@@ -35,29 +35,40 @@ To get more information about VpnTunnel, see:
 state as plain-text.
 [Read more about sensitive data in state](/docs/state/sensitive-data.html).
 
-## Example Usage
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vpn_tunnel_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vpn Tunnel Basic
+
 
 ```hcl
-resource "google_compute_network" "network1" {
-  name = "network1"
-}
+resource "google_compute_vpn_tunnel" "tunnel1" {
+  name          = "tunnel1"
+  peer_ip       = "15.0.0.120"
+  shared_secret = "a secret message"
 
-resource "google_compute_subnetwork" "subnet1" {
-  name          = "subnet1"
-  network       = "${google_compute_network.network1.self_link}"
-  ip_cidr_range = "10.120.0.0/16"
-  region        = "us-central1"
+  target_vpn_gateway = "${google_compute_vpn_gateway.target_gateway.self_link}"
+
+  depends_on = [
+    "google_compute_forwarding_rule.fr_esp",
+    "google_compute_forwarding_rule.fr_udp500",
+    "google_compute_forwarding_rule.fr_udp4500",
+  ]
 }
 
 resource "google_compute_vpn_gateway" "target_gateway" {
   name    = "vpn1"
   network = "${google_compute_network.network1.self_link}"
-  region  = "${google_compute_subnetwork.subnet1.region}"
+}
+
+resource "google_compute_network" "network1" {
+  name       = "network1"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
   name   = "vpn-static-ip"
-  region = "${google_compute_subnetwork.subnet1.region}"
 }
 
 resource "google_compute_forwarding_rule" "fr_esp" {
@@ -70,7 +81,7 @@ resource "google_compute_forwarding_rule" "fr_esp" {
 resource "google_compute_forwarding_rule" "fr_udp500" {
   name        = "fr-udp500"
   ip_protocol = "UDP"
-  port_range  = "500-500"
+  port_range  = "500"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
   target      = "${google_compute_vpn_gateway.target_gateway.self_link}"
 }
@@ -78,26 +89,9 @@ resource "google_compute_forwarding_rule" "fr_udp500" {
 resource "google_compute_forwarding_rule" "fr_udp4500" {
   name        = "fr-udp4500"
   ip_protocol = "UDP"
-  port_range  = "4500-4500"
+  port_range  = "4500"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
   target      = "${google_compute_vpn_gateway.target_gateway.self_link}"
-}
-
-resource "google_compute_vpn_tunnel" "tunnel1" {
-  name          = "tunnel1"
-  peer_ip       = "15.0.0.120"
-  shared_secret = "a secret message"
-
-  target_vpn_gateway = "${google_compute_vpn_gateway.target_gateway.self_link}"
-
-  local_traffic_selector  = ["${google_compute_subnetwork.subnet1.ip_cidr_range}"]
-  remote_traffic_selector = ["172.16.0.0/12"]
-
-  depends_on = [
-    "google_compute_forwarding_rule.fr_esp",
-    "google_compute_forwarding_rule.fr_udp500",
-    "google_compute_forwarding_rule.fr_udp4500",
-  ]
 }
 
 resource "google_compute_route" "route1" {
@@ -177,7 +171,7 @@ The following arguments are supported:
 
 * `region` -
   (Optional)
-  The region where the tunnel is located.
+  The region where the tunnel is located. If unset, is set to the region of `target_vpn_gateway`.
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

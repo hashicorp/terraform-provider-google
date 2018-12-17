@@ -41,5 +41,10 @@ func dataSourceGoogleCloudFunctionsFunctionRead(d *schema.ResourceData, meta int
 
 	d.SetId(cloudFuncId.terraformId())
 
-	return resourceCloudFunctionsRead(d, meta)
+	err = resourceCloudFunctionsRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

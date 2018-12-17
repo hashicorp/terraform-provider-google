@@ -15,7 +15,7 @@ and [API](https://cloud.google.com/compute/docs/reference/latest/regionInstanceG
 
 ~> **Note:** Use [google_compute_instance_group_manager](/docs/providers/google/r/compute_instance_group_manager.html) to create a single-zone instance group manager.
 
-## Example Usage with top level instance template
+## Example Usage with top level instance template (`google` provider)
 
 ```hcl
 resource "google_compute_health_check" "autohealing" {
@@ -55,7 +55,7 @@ resource "google_compute_region_instance_group_manager" "appserver" {
 
 ```
 
-## Example Usage with multiple Versions
+## Example Usage with multiple versions (`google-beta` provider)
 ```hcl
 resource "google_compute_region_instance_group_manager" "appserver" {
   name = "appserver-igm"
@@ -91,14 +91,12 @@ The following arguments are supported:
     name.
 
 * `instance_template` - (Optional) The full URL to an instance template from
-    which all new instances will be created. Conflicts with `version` (see [documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups#relationship_between_instancetemplate_properties_for_a_managed_instance_group))
+    which all new instances will be created. This field is only present in the
+    `google` provider.
 
-* `version` - (Optional) Application versions managed by this instance group. Each
+* `version` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Application versions managed by this instance group. Each
     version deals with a specific instance template, allowing canary release scenarios.
-    Conflicts with `instance_template`. Structure is documented below. Beware that
-    exactly one version must not specify a target size. It means that versions with
-    a target size will respect the setting, and the one without target size will
-    be applied to all remaining Instances (top level target_size - each version target_size).
+    Structure is documented below.
 
 * `name` - (Required) The name of the instance group manager. Must be 1-63
     characters long and comply with
@@ -118,12 +116,6 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `update_strategy` - (Optional, Default `"NONE"`) If the `instance_template`
-    resource is modified, a value of `"NONE"` will prevent any of the managed
-    instances from being restarted by Terraform. A value of `"ROLLING_UPDATE"`
-    is supported as [Beta feature]. A value of `"ROLLING_UPDATE"` requires
-    `rolling_update_policy` block to be set
-
 * `target_size` - (Optional) The target number of running instances for this managed
     instance group. This value should always be explicitly set unless this resource is attached to
      an autoscaler, in which case it should never be set. Defaults to `0`.
@@ -138,19 +130,21 @@ The following arguments are supported:
 
 ---
 
-* `auto_healing_policies` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The autohealing policies for this managed instance
+* `auto_healing_policies` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 
-* `rolling_update_policy` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/regionInstanceGroupManagers/patch)
 
-* `distribution_policy_zones` - (Optional, [Beta](/docs/providers/google/index.html#beta-features)) The distribution policy for this managed instance
+* `update_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/regionInstanceGroupManagers/patch)
+
+
+* `distribution_policy_zones` - (Optional) The distribution policy for this managed instance
 group. You can specify one or more values. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups#selectingzones).
 - - -
 
-The **rolling_update_policy** block supports:
+The `update_policy` block supports:
 
 ```hcl
-rolling_update_policy{
+update_policy{
   type = "PROACTIVE"
   minimal_action = "REPLACE"
   max_surge_percent = 20
@@ -174,21 +168,21 @@ rolling_update_policy{
 * `min_ready_sec` - (Optional), Minimum number of seconds to wait for after a newly created instance becomes available. This value must be from range [0, 3600]
 - - -
 
-The **named_port** block supports: (Include a `named_port` block for each named-port required).
+The `named_port` block supports: (Include a `named_port` block for each named-port required).
 
 * `name` - (Required) The name of the port.
 
 * `port` - (Required) The port number.
 - - -
 
-The **auto_healing_policies** block supports:
+The `auto_healing_policies` block supports:
 
 * `health_check` - (Required) The health check resource that signals autohealing.
 
 * `initial_delay_sec` - (Required) The number of seconds that the managed instance group waits before
  it applies autohealing policies to new instances or recently recreated instances. Between 0 and 3600.
 
-The **version** block supports:
+The `version` block supports:
 
 ```hcl
 version {
@@ -216,11 +210,16 @@ version {
 
 * `target_size` - (Optional) - The number of instances calculated as a fixed number or a percentage depending on the settings. Structure is documented below.
 
-The **target_size** block supports:
+-> Exactly one `version` you specify must not have a `target_size` specified. During a rolling update, the instance group manager will fulfill the `target_size`
+constraints of every other `version`, and any remaining instances will be provisioned with the version where `target_size` is unset.
+
+The `target_size` block supports:
 
 * `fixed` - (Optional), The number of instances which are managed for this version. Conflicts with `percent`.
 
 * `percent` - (Optional), The number of instances (calculated as percentage) which are managed for this version. Conflicts with `fixed`.
+Note that when using `percent`, rounding will be in favor of explicitly set `target_size` values; a managed instance group with 2 instances and 2 `version`s,
+one of which has a `target_size.percent` of `60` will create 2 instances of that `version`.
 
 ## Attributes Reference
 

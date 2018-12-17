@@ -10,6 +10,12 @@ description: |-
 
 Provides access to available Google Container Engine versions in a zone or region for a given project.
 
+-> If you are using the `google_container_engine_versions` datasource with a regional cluster, ensure that you have provided a `region`
+to the datasource. A `region` can have a different set of supported versions than its corresponding `zone`s, and not all `zone`s in a 
+`region` are guaranteed to support the same version.
+
+## Example Usage
+
 ```hcl
 data "google_container_engine_versions" "central1b" {
   zone = "us-central1-b"
@@ -33,9 +39,9 @@ resource "google_container_cluster" "foo" {
 The following arguments are supported:
 
 * `zone` (optional) - Zone to list available cluster versions for. Should match the zone the cluster will be deployed in.
-    If not specified, the provider-level zone is used. One of zone, region, or provider-level zone is required.
+    If not specified, the provider-level zone is used. One of zone or provider-level zone is required.
 
-* `region` (optional) - Region to list available cluster versions for. Should match the region the cluster will be deployed in.
+* `region` (optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) - Region to list available cluster versions for. Should match the region the cluster will be deployed in.
     For regional clusters, this value must be specified and cannot be inferred from provider-level region. One of zone,
     region, or provider-level zone is required.
 

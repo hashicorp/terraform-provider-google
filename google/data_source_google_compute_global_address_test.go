@@ -21,7 +21,7 @@ func TestAccDataSourceComputeGlobalAddress(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourceComputeGlobalAddressConfig(rsName, dsName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceComputeGlobalAddressCheck(dsFullName, rsFullName),

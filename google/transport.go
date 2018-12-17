@@ -3,11 +3,13 @@ package google
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"reflect"
 	"regexp"
 	"strings"
+	"time"
 
 	"google.golang.org/api/googleapi"
 )
@@ -31,37 +33,65 @@ func isEmptyValue(v reflect.Value) bool {
 }
 
 func sendRequest(config *Config, method, rawurl string, body map[string]interface{}) (map[string]interface{}, error) {
+	return sendRequestWithTimeout(config, method, rawurl, body, 0)
+}
+
+func sendRequestWithTimeout(config *Config, method, rawurl string, body map[string]interface{}, timeout time.Duration) (map[string]interface{}, error) {
 	reqHeaders := make(http.Header)
 	reqHeaders.Set("User-Agent", config.userAgent)
 	reqHeaders.Set("Content-Type", "application/json")
 
-	var buf bytes.Buffer
-	if body != nil {
-		err := json.NewEncoder(&buf).Encode(body)
-		if err != nil {
-			return nil, err
-		}
+	var res *http.Response
+	err := retryTimeDuration(
+		func() error {
+			var buf bytes.Buffer
+			if body != nil {
+				err := json.NewEncoder(&buf).Encode(body)
+				if err != nil {
+					return err
+				}
+			}
+
+			u, err := addQueryParams(rawurl, map[string]string{"alt": "json"})
+			if err != nil {
+				return err
+			}
+			req, err := http.NewRequest(method, u, &buf)
+			if err != nil {
+				return err
+			}
+
+			req.Header = reqHeaders
+			res, err = config.client.Do(req)
+			if err != nil {
+				return err
+			}
+
+			if err := googleapi.CheckResponse(res); err != nil {
+				googleapi.CloseBody(res)
+				return err
+			}
+
+			return nil
+		},
+		timeout,
+	)
+	if err != nil {
+		return nil, err
 	}
 
-	u, err := addQueryParams(rawurl, map[string]string{"alt": "json"})
-	if err != nil {
-		return nil, err
+	if res == nil {
+		return nil, fmt.Errorf("Unable to parse server response. This is most likely a terraform problem, please file a bug at https://github.com/terraform-providers/terraform-provider-google/issues.")
 	}
 
-	req, err := http.NewRequest(method, u, &buf)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = reqHeaders
-	res, err := config.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
+	// The defer call must be made outside of the retryFunc otherwise it's closed too soon.
 	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
 
+	// 204 responses will have no body, so we're going to error with "EOF" if we
+	// try to parse it. Instead, we can just return nil.
+	if res.StatusCode == 204 {
+		return nil, nil
+	}
 	result := make(map[string]interface{})
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
 		return nil, err

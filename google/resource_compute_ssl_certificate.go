@@ -60,12 +60,11 @@ func resourceComputeSslCertificate() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:          schema.TypeString,
-				Computed:      true,
-				Optional:      true,
-				ForceNew:      true,
-				ValidateFunc:  validateGCPName,
-				ConflictsWith: []string{"name_prefix"},
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateGCPName,
 			},
 			"certificate_id": {
 				Type:     schema.TypeInt,
@@ -141,7 +140,7 @@ func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating new SslCertificate: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating SslCertificate: %s", err)
 	}
@@ -191,29 +190,30 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeSslCertificate %q", d.Id()))
 	}
 
-	if err := d.Set("certificate", flattenComputeSslCertificateCertificate(res["certificate"])); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeSslCertificateCreationTimestamp(res["creationTimestamp"])); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
-	}
-	if err := d.Set("description", flattenComputeSslCertificateDescription(res["description"])); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
-	}
-	if err := d.Set("certificate_id", flattenComputeSslCertificateCertificate_id(res["id"])); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
-	}
-	if err := d.Set("name", flattenComputeSslCertificateName(res["name"])); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
-	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
-	}
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+
+	if err := d.Set("certificate", flattenComputeSslCertificateCertificate(res["certificate"], d)); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+	if err := d.Set("creation_timestamp", flattenComputeSslCertificateCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+	if err := d.Set("description", flattenComputeSslCertificateDescription(res["description"], d)); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+	if err := d.Set("certificate_id", flattenComputeSslCertificateCertificate_id(res["id"], d)); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+	if err := d.Set("name", flattenComputeSslCertificateName(res["name"], d)); err != nil {
+		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	}
+	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading SslCertificate: %s", err)
 	}
 
@@ -230,7 +230,7 @@ func resourceComputeSslCertificateDelete(d *schema.ResourceData, meta interface{
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting SslCertificate %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "SslCertificate")
 	}
@@ -271,19 +271,19 @@ func resourceComputeSslCertificateImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeSslCertificateCertificate(v interface{}) interface{} {
+func flattenComputeSslCertificateCertificate(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeSslCertificateCreationTimestamp(v interface{}) interface{} {
+func flattenComputeSslCertificateCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeSslCertificateDescription(v interface{}) interface{} {
+func flattenComputeSslCertificateDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeSslCertificateCertificate_id(v interface{}) interface{} {
+func flattenComputeSslCertificateCertificate_id(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -293,7 +293,7 @@ func flattenComputeSslCertificateCertificate_id(v interface{}) interface{} {
 	return v
 }
 
-func flattenComputeSslCertificateName(v interface{}) interface{} {
+func flattenComputeSslCertificateName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 

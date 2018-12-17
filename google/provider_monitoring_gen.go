@@ -17,5 +17,8 @@ package google
 import "github.com/hashicorp/terraform/helper/schema"
 
 var GeneratedMonitoringResourcesMap = map[string]*schema.Resource{
-	"google_monitoring_alert_policy": resourceMonitoringAlertPolicy(),
+	"google_monitoring_alert_policy":         resourceMonitoringAlertPolicy(),
+	"google_monitoring_group":                resourceMonitoringGroup(),
+	"google_monitoring_notification_channel": resourceMonitoringNotificationChannel(),
+	"google_monitoring_uptime_check_config":  resourceMonitoringUptimeCheckConfig(),
 }

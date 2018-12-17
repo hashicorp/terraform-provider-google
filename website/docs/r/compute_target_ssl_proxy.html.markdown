@@ -34,31 +34,37 @@ To get more information about TargetSslProxy, see:
 * How-to Guides
     * [Setting Up SSL proxy for Google Cloud Load Balancing](https://cloud.google.com/compute/docs/load-balancing/tcp-ssl/)
 
-## Example Usage
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=target_ssl_proxy_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Target Ssl Proxy Basic
+
 
 ```hcl
 resource "google_compute_target_ssl_proxy" "default" {
-  name = "test"
-  backend_service = "${google_compute_backend_service.default.self_link}"
+  name             = "test-proxy"
+  backend_service  = "${google_compute_backend_service.default.self_link}"
   ssl_certificates = ["${google_compute_ssl_certificate.default.self_link}"]
 }
 
 resource "google_compute_ssl_certificate" "default" {
-  name = "default-cert"
-  private_key = "${file("path/to/test.key")}"
-  certificate = "${file("path/to/test.crt")}"
+  name        = "default-cert"
+  private_key = "${file("path/to/private.key")}"
+  certificate = "${file("path/to/certificate.crt")}"
 }
 
 resource "google_compute_backend_service" "default" {
-  name = "default-backend"
-  protocol    = "SSL"
+  name          = "backend-service"
+  protocol      = "SSL"
   health_checks = ["${google_compute_health_check.default.self_link}"]
 }
 
 resource "google_compute_health_check" "default" {
-  name = "default-health-check"
+  name               = "health-check"
   check_interval_sec = 1
-  timeout_sec = 1
+  timeout_sec        = 1
   tcp_health_check {
     port = "443"
   }

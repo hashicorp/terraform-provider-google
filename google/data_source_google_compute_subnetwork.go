@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -13,58 +12,58 @@ func dataSourceGoogleComputeSubnetwork() *schema.Resource {
 		Read: dataSourceGoogleComputeSubnetworkRead,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"ip_cidr_range": &schema.Schema{
+			"ip_cidr_range": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"private_ip_google_access": &schema.Schema{
+			"private_ip_google_access": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
-			"secondary_ip_range": &schema.Schema{
+			"secondary_ip_range": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"range_name": &schema.Schema{
+						"range_name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"ip_cidr_range": &schema.Schema{
+						"ip_cidr_range": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
 				},
 			},
-			"network": &schema.Schema{
+			"network": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"gateway_address": &schema.Schema{
+			"gateway_address": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
@@ -122,9 +121,5 @@ func flattenSecondaryRanges(secondaryRanges []*compute.SubnetworkSecondaryRange)
 }
 
 func createSubnetID(s *compute.Subnetwork) string {
-	return fmt.Sprintf("%s/%s", s.Region, s.Name)
-}
-
-func createSubnetIDBeta(s *computeBeta.Subnetwork) string {
 	return fmt.Sprintf("%s/%s", s.Region, s.Name)
 }

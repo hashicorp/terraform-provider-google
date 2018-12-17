@@ -21,7 +21,7 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeGlobalAddress_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeGlobalAddressExists(
@@ -31,7 +31,7 @@ func TestAccComputeGlobalAddress_basic(t *testing.T) {
 					testAccCheckComputeGlobalAddressIpVersion("google_compute_global_address.foobar", ""),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_global_address.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -50,7 +50,7 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeGlobalAddress_ipv6(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeGlobalAddressExists(
@@ -58,51 +58,13 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 					testAccCheckComputeGlobalAddressIpVersion("google_compute_global_address.foobar", "IPV6"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_global_address.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 		},
 	})
-}
-
-func TestAccComputeGlobalAddress_internal(t *testing.T) {
-	t.Parallel()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeGlobalAddress_internal(),
-			},
-			resource.TestStep{
-				ResourceName:      "google_compute_global_address.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func testAccCheckComputeGlobalAddressDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_global_address" {
-			continue
-		}
-
-		_, err := config.clientCompute.GlobalAddresses.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("Address still exists")
-		}
-	}
-
-	return nil
 }
 
 func testAccCheckComputeGlobalAddressExists(n string, addr *compute.Address) resource.TestCheckFunc {
@@ -175,20 +137,4 @@ resource "google_compute_global_address" "foobar" {
 	description = "Created for Terraform acceptance testing"
 	ip_version = "IPV6"
 }`, acctest.RandString(10))
-}
-
-func testAccComputeGlobalAddress_internal() string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "foobar" {
-  name = "address-test-%s"
-}
-
-
-resource "google_compute_global_address" "foobar" {
-  name = "address-test-%s"
-  address_type = "INTERNAL"
-  purpose = "VPC_PEERING"
-  prefix_length = 24
-  network = "${google_compute_network.foobar.self_link}"
-}`, acctest.RandString(10), acctest.RandString(10))
 }

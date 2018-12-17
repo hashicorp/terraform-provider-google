@@ -3,15 +3,24 @@ layout: "google"
 page_title: "Google: google_storage_default_object_acl"
 sidebar_current: "docs-google-storage-default-object-acl"
 description: |-
-  Creates a new default object ACL in Google Cloud Storage.
+  Authoritatively manages the default object ACLs for a Google Cloud Storage bucket
 ---
 
 # google\_storage\_default\_object\_acl
 
-Creates a new default object ACL in Google Cloud Storage service (GCS). For more information see
+Authoritatively manages the default object ACLs for a Google Cloud Storage bucket
+without managing the bucket itself.
+
+-> Note that for each object, its creator will have the `"OWNER"` role in addition
+to the default ACL that has been defined.
+
+For more information see
 [the official documentation](https://cloud.google.com/storage/docs/access-control/lists) 
 and 
 [API](https://cloud.google.com/storage/docs/json_api/v1/defaultObjectAccessControls).
+
+-> Want fine-grained control over default object ACLs? Use `google_storage_default_object_access_control`
+to control individual role entity pairs.
 
 ## Example Usage
 
@@ -36,7 +45,11 @@ resource "google_storage_default_object_acl" "image-store-default-acl" {
 
 * `bucket` - (Required) The name of the bucket it applies to.
 
-* `role_entity` - (Required) List of role/entity pairs in the form `ROLE:entity`. See [GCS Object ACL documentation](https://cloud.google.com/storage/docs/json_api/v1/objectAccessControls) for more details.
+---
+
+* `role_entity` - (Optional) List of role/entity pairs in the form `ROLE:entity`.
+See [GCS Object ACL documentation](https://cloud.google.com/storage/docs/json_api/v1/objectAccessControls) for more details.
+Omitting the field is the same as providing an empty list.
 
 ## Attributes Reference
 

@@ -24,7 +24,7 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
@@ -34,7 +34,7 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplate, "my_label", "foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -53,14 +53,14 @@ func TestAccComputeInstanceTemplate_imageShorthand(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_imageShorthand(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
 						"google_compute_instance_template.foobar", &instanceTemplate),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -79,7 +79,7 @@ func TestAccComputeInstanceTemplate_preemptible(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_preemptible(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
@@ -88,7 +88,7 @@ func TestAccComputeInstanceTemplate_preemptible(t *testing.T) {
 					testAccCheckComputeInstanceTemplatePreemptible(&instanceTemplate, true),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -107,7 +107,7 @@ func TestAccComputeInstanceTemplate_IP(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_ip(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
@@ -115,7 +115,7 @@ func TestAccComputeInstanceTemplate_IP(t *testing.T) {
 					testAccCheckComputeInstanceTemplateNetwork(&instanceTemplate),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -132,10 +132,10 @@ func TestAccComputeInstanceTemplate_networkTier(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_networkTier(),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -155,7 +155,7 @@ func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_networkIP(networkIP),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
@@ -165,7 +165,7 @@ func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 						"google_compute_instance_template.foobar", networkIP, &instanceTemplate),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -184,7 +184,7 @@ func TestAccComputeInstanceTemplate_networkIPAddress(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_networkIPAddress(ipAddress),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
@@ -194,7 +194,7 @@ func TestAccComputeInstanceTemplate_networkIPAddress(t *testing.T) {
 						"google_compute_instance_template.foobar", ipAddress, &instanceTemplate),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -211,10 +211,10 @@ func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_disks(),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -231,10 +231,10 @@ func TestAccComputeInstanceTemplate_regionDisks(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_regionDisks(),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -254,7 +254,7 @@ func TestAccComputeInstanceTemplate_subnet_auto(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_subnet_auto(network),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
@@ -262,7 +262,7 @@ func TestAccComputeInstanceTemplate_subnet_auto(t *testing.T) {
 					testAccCheckComputeInstanceTemplateNetworkName(&instanceTemplate, network),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -281,7 +281,7 @@ func TestAccComputeInstanceTemplate_subnet_custom(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_subnet_custom(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
@@ -289,7 +289,7 @@ func TestAccComputeInstanceTemplate_subnet_custom(t *testing.T) {
 					testAccCheckComputeInstanceTemplateSubnetwork(&instanceTemplate),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -311,7 +311,7 @@ func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExistsInProject(
@@ -334,7 +334,7 @@ func TestAccComputeInstanceTemplate_metadata_startup_script(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_startup_script(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
@@ -355,14 +355,14 @@ func TestAccComputeInstanceTemplate_primaryAliasIpRange(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_primaryAliasIpRange(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateHasAliasIpRange(&instanceTemplate, "", "/24"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -381,14 +381,14 @@ func TestAccComputeInstanceTemplate_secondaryAliasIpRange(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_secondaryAliasIpRange(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateHasAliasIpRange(&instanceTemplate, "inst-test-secondary", "/24"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -407,14 +407,14 @@ func TestAccComputeInstanceTemplate_guestAccelerator(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_guestAccelerator(acctest.RandString(10), 1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateHasGuestAccelerator(&instanceTemplate, "nvidia-tesla-k80", 1),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -434,7 +434,7 @@ func TestAccComputeInstanceTemplate_guestAcceleratorSkip(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_guestAccelerator(acctest.RandString(10), 0),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
@@ -456,14 +456,46 @@ func TestAccComputeInstanceTemplate_minCpuPlatform(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstanceTemplate_minCpuPlatform(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateHasMinCpuPlatform(&instanceTemplate, DEFAULT_MIN_CPU_TEST_VALUE),
 				),
 			},
-			resource.TestStep{
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_EncryptKMS(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	org := getTestOrgFromEnv(t)
+	pid := "tf-test-" + acctest.RandString(10)
+	billingAccount := getTestBillingAccountFromEnv(t)
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	keyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_encryptionKMS(pid, pname, org, billingAccount, diskName, keyRingName, keyName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+				),
+			},
+			{
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -1389,4 +1421,88 @@ resource "google_compute_instance_template" "foobar" {
 
 	min_cpu_platform = "%s"
 }`, i, DEFAULT_MIN_CPU_TEST_VALUE)
+}
+
+func testAccComputeInstanceTemplate_encryptionKMS(pid, pname, org, billing, diskName, keyRingName, keyName string) string {
+	return fmt.Sprintf(`
+resource "google_project" "project" {
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_project_services" "apis" {
+  project = "${google_project.project.project_id}"
+
+  services = [
+    "oslogin.googleapis.com",
+    "compute.googleapis.com",
+    "cloudkms.googleapis.com",
+    "appengine.googleapis.com",
+  ]
+}
+
+resource "google_project_iam_member" "kms-project-binding" {
+  project = "${google_project.project.project_id}"
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:service-${google_project.project.number}@compute-system.iam.gserviceaccount.com"
+
+  depends_on = ["google_project_services.apis"]
+}
+
+resource "google_kms_crypto_key_iam_binding" "kms-key-binding" {
+  crypto_key_id = "${google_kms_crypto_key.my_crypto_key.self_link}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  members = [
+    "serviceAccount:service-${google_project.project.number}@compute-system.iam.gserviceaccount.com",
+  ]
+
+  depends_on = ["google_project_services.apis"]
+}
+
+resource "google_kms_key_ring" "my_key_ring" {
+  name     = "%s"
+  project  = "${google_project.project.project_id}"
+  location = "us-central1"
+
+  depends_on = ["google_project_services.apis"]
+}
+
+resource "google_kms_crypto_key" "my_crypto_key" {
+  name     = "%s"
+  key_ring = "${google_kms_key_ring.my_key_ring.self_link}"
+}
+
+
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+	can_ip_forward = false
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		disk_encryption_key {
+      kms_key_self_link = "${google_kms_crypto_key.my_crypto_key.self_link}"
+    }
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+
+    labels {
+        my_label = "foobar"
+    }
+}`, pid, pname, org, billing, keyRingName, keyName, acctest.RandString(10))
 }

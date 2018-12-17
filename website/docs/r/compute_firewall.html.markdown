@@ -42,7 +42,13 @@ To get more information about Firewall, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/vpc/docs/firewalls)
 
-## Example Usage
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=firewall_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Firewall Basic
+
 
 ```hcl
 resource "google_compute_firewall" "default" {
@@ -123,15 +129,7 @@ The following arguments are supported:
   Denotes whether the firewall rule is disabled, i.e not applied to the
   network it is associated with. When set to true, the firewall rule is
   not enforced and the network behaves as if it did not exist. If this
-  is unspecified, the firewall rule will be enabled.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
-
-* `enable_logging` -
-  (Optional)
-  This field denotes whether to enable logging for a particular
-  firewall rule. If logging is enabled, logs will be exported to
-  Stackdriver.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](http://terraform.io/docs/provider/google/provider_versions.html) for more details on beta fields.
+  is unspecified, the firewall rule will be enabled.
 
 * `priority` -
   (Optional)

@@ -108,6 +108,42 @@ resource "google_sql_database_instance" "postgres" {
 }
 ```
 
+### Private IP Instance
+
+
+```hcl
+resource "google_compute_network" "private_network" {
+	name       = "private_network"
+}
+
+resource "google_compute_global_address" "private_ip_address" {
+	name          = "private_ip_address"
+	purpose       = "VPC_PEERING"
+	address_type = "INTERNAL"
+	prefix_length = 16
+	network       = "${google_compute_network.private_network.self_link}"
+}
+
+resource "google_service_networking_connection" "private_vpc_connection" {
+	network       = "${google_compute_network.private_network.self_link}"
+	service       = "servicenetworking.googleapis.com"
+	reserved_peering_ranges = ["${google_compute_global_address.private_ip_address.name}"]
+}
+
+resource "google_sql_database_instance" "instance" {
+	depends_on = ["google_service_networking_connection.private_vpc_connection"]
+	name = "private_instance"
+	region = "us-central1"
+	settings {
+		tier = "db-f1-micro"
+		ip_configuration {
+			ipv4_enabled = "false"
+			private_network = "${google_compute_network.private_network.self_link}"
+		}
+	}
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -129,7 +165,7 @@ The following arguments are supported:
     use. Can be `MYSQL_5_6`, `MYSQL_5_7` or `POSTGRES_9_6` for second-generation
     instances, or `MYSQL_5_5` or `MYSQL_5_6` for first-generation instances.
     See [Second Generation Capabilities](https://cloud.google.com/sql/docs/1st-2nd-gen-differences)
-    for more information. `POSTGRES_9_6` support is in [Beta](/docs/providers/google/index.html#beta-features).
+    for more information. `POSTGRES_9_6` support is in beta.
 
 * `name` - (Optional, Computed) The name of the instance. If the name is left
     blank, Terraform will randomly generate one when the instance is first
@@ -204,6 +240,8 @@ The optional `settings.ip_configuration` subblock supports:
 
 * `require_ssl` - (Optional) True if mysqld should default to `REQUIRE X509`
     for users connecting over IP.
+
+* `private_network` - (Optional) The resource link for the VPC network from which the Cloud SQL instance is accessible for private IP.
 
 The optional `settings.ip_configuration.authorized_networks[]` sublist supports:
 
@@ -285,6 +323,8 @@ when the resource is configured with a `count`.
 
 * `ip_address.0.time_to_retire` - The time this IP address will be retired, in RFC
     3339 format.
+
+* `ip_address.0.type` - The type of this IP address. A PRIMARY address is an address that can accept incoming connections. An OUTGOING address is the source address of connections originating from the instance, if supported. A PRIVATE address is an address for an instance which has been configured to use private networking see: [Private IP](https://cloud.google.com/sql/docs/mysql/private-ip).
 
 * `self_link` - The URI of the created resource.
 

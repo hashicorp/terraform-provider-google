@@ -30,32 +30,38 @@ To get more information about Instance, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/memorystore/docs/redis/)
 
-## Example Usage
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=redis_instance_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Instance Basic
 
-### Basic Usage
+
 ```hcl
-resource "google_redis_instance" "test" {
-  name           = "%s"
+resource "google_redis_instance" "cache" {
+  name           = "memory-cache"
   memory_size_gb = 1
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=redis_instance_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Instance Full
 
-### Full Usage
+
 ```hcl
-resource "google_compute_network" "test" {
-  name = "%s"
-}
-
-resource "google_redis_instance" "test" {
-  name           = "%s"
+resource "google_redis_instance" "cache" {
+  name           = "ha-memory-cache"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
 
-  region                  = "us-central1"
   location_id             = "us-central1-a"
   alternative_location_id = "us-central1-f"
-  
-  authorized_network = "${google_compute_network.test.self_link}"
+
+  authorized_network = "${google_compute_network.auto-network.self_link}"
 
   redis_version     = "REDIS_3_2"
   display_name      = "Terraform Test Instance"
@@ -65,6 +71,10 @@ resource "google_redis_instance" "test" {
     my_key    = "my_val"
     other_key = "other_val"
   }
+}
+
+resource "google_compute_network" "auto-network" {
+  name = "authorized-network"
 }
 ```
 
@@ -109,6 +119,8 @@ The following arguments are supported:
 * `redis_configs` -
   (Optional)
   Redis configuration parameters, according to http://redis.io/topics/config.
+  Please check Memorystore documentation for the list of supported parameters:
+  https://cloud.google.com/memorystore/docs/redis/reference/rest/v1/projects.locations.instances#Instance.FIELDS.redis_configs
 
 * `location_id` -
   (Optional)
@@ -176,8 +188,8 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 6 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `update` - Default is 6 minutes.
+- `delete` - Default is 6 minutes.
 
 ## Import
 

@@ -2,9 +2,10 @@ package google
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	"strings"
 )
 
 var schemaOrganizationPolicy = map[string]*schema.Schema{
@@ -82,6 +83,10 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
+				},
+				"inherit_from_parent": {
+					Type:     schema.TypeBool,
+					Optional: true,
 				},
 			},
 		},
@@ -263,7 +268,7 @@ func flattenRestoreOrganizationPolicy(restore_policy *cloudresourcemanager.Resto
 }
 
 func expandBooleanOrganizationPolicy(configured []interface{}) *cloudresourcemanager.BooleanPolicy {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
 
@@ -274,7 +279,7 @@ func expandBooleanOrganizationPolicy(configured []interface{}) *cloudresourceman
 }
 
 func expandRestoreOrganizationPolicy(configured []interface{}) (*cloudresourcemanager.RestoreDefault, error) {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil, nil
 	}
 
@@ -295,7 +300,10 @@ func flattenListOrganizationPolicy(policy *cloudresourcemanager.ListPolicy) []ma
 		return lPolicies
 	}
 
-	listPolicy := map[string]interface{}{}
+	listPolicy := map[string]interface{}{
+		"suggested_value":     policy.SuggestedValue,
+		"inherit_from_parent": policy.InheritFromParent,
+	}
 	switch {
 	case policy.AllValues == "ALLOW":
 		listPolicy["allow"] = []interface{}{map[string]interface{}{
@@ -321,7 +329,7 @@ func flattenListOrganizationPolicy(policy *cloudresourcemanager.ListPolicy) []ma
 }
 
 func expandListOrganizationPolicy(configured []interface{}) (*cloudresourcemanager.ListPolicy, error) {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil, nil
 	}
 
@@ -359,10 +367,12 @@ func expandListOrganizationPolicy(configured []interface{}) (*cloudresourcemanag
 
 	listPolicy := configured[0].(map[string]interface{})
 	return &cloudresourcemanager.ListPolicy{
-		AllValues:      allValues,
-		AllowedValues:  allowedValues,
-		DeniedValues:   deniedValues,
-		SuggestedValue: listPolicy["suggested_value"].(string),
+		AllValues:         allValues,
+		AllowedValues:     allowedValues,
+		DeniedValues:      deniedValues,
+		SuggestedValue:    listPolicy["suggested_value"].(string),
+		InheritFromParent: listPolicy["inherit_from_parent"].(bool),
+		ForceSendFields:   []string{"InheritFromParent"},
 	}, nil
 }
 

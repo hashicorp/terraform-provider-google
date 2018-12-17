@@ -104,6 +104,9 @@ The `list_policy` block supports:
 
 * `suggested_values` - (Optional) The Google Cloud Console will try to default to a configuration that matches the value specified in this field.
 
+* `inherit_from_parent` - (Optional) If set to true, the values from the effective Policy of the parent resource
+are inherited, meaning the values set in this Policy are added to the values inherited up the hierarchy.
+
 The `allow` or `deny` blocks support:
 
 * `all` - (Optional) The policy allows or denies all values.

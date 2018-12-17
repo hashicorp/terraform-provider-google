@@ -20,7 +20,7 @@ func TestAccComputeImage_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_basic("image-test-" + acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
@@ -46,7 +46,7 @@ func TestAccComputeImage_withLicense(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_license("image-test-" + acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
@@ -75,7 +75,7 @@ func TestAccComputeImage_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
@@ -85,7 +85,7 @@ func TestAccComputeImage_update(t *testing.T) {
 					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
@@ -96,11 +96,11 @@ func TestAccComputeImage_update(t *testing.T) {
 					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "google_compute_image.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"raw_disk", "create_timeout"},
+				ImportStateVerifyIgnore: []string{"raw_disk"},
 			},
 		},
 	})
@@ -116,7 +116,7 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_basedondisk(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
@@ -124,7 +124,7 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 					testAccCheckComputeImageHasSourceDisk(&image),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_image.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -274,7 +274,6 @@ resource "google_compute_image" "foobar" {
 	raw_disk {
 	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
 	}
-	create_timeout = 5
 	labels = {
 		my-label = "my-label-value"
 		empty-label = ""
@@ -291,7 +290,6 @@ resource "google_compute_image" "foobar" {
 	raw_disk {
 	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
 	}
-	create_timeout = 5
 	labels = {
 		my-label = "my-label-value"
 		empty-label = ""
@@ -311,7 +309,6 @@ resource "google_compute_image" "foobar" {
 	raw_disk {
 	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
 	}
-	create_timeout = 5
 	labels = {
 		empty-label = "oh-look-theres-a-label-now"
 		new-field = "only-shows-up-when-updated"

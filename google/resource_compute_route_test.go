@@ -21,7 +21,7 @@ func TestAccComputeRoute_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouteDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRoute_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRouteExists(
@@ -30,7 +30,7 @@ func TestAccComputeRoute_basic(t *testing.T) {
 						"google_compute_route.foobar", "description", regexp.MustCompile("This is a route")),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_route.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -49,14 +49,14 @@ func TestAccComputeRoute_defaultInternetGateway(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouteDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRoute_defaultInternetGateway(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRouteExists(
 						"google_compute_route.foobar", &route),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_route.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -77,7 +77,7 @@ func TestAccComputeRoute_hopInstance(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouteDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRoute_hopInstance(instanceName, zone),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRouteExists(
@@ -86,31 +86,13 @@ func TestAccComputeRoute_hopInstance(t *testing.T) {
 					resource.TestMatchResourceAttr("google_compute_route.foobar", "next_hop_instance", instanceNameRegexp),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_route.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 		},
 	})
-}
-
-func testAccCheckComputeRouteDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_route" {
-			continue
-		}
-
-		_, err := config.clientCompute.Routes.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("Route still exists")
-		}
-	}
-
-	return nil
 }
 
 func testAccCheckComputeRouteExists(n string, route *compute.Route) resource.TestCheckFunc {

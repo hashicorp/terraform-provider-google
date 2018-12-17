@@ -105,7 +105,7 @@ The IP Version that will be used by this resource's address. One of `"IPV4"` or 
 
 - - -
 
-* `labels` - (Optional, [Beta](/docs/providers/google/index.html#beta-features))
+* `labels` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
 A set of key/value label pairs to assign to the resource.
 
 
@@ -116,7 +116,7 @@ exported:
 
 * `self_link` - The URI of the created resource.
 
-* `label_fingerprint` - ([Beta](/docs/providers/google/index.html#beta-features)) The current label fingerprint.
+* `label_fingerprint` ([Beta](https://terraform.io/docs/providers/google/provider_versions.html)) - The current label fingerprint.
 
 ## Import
 

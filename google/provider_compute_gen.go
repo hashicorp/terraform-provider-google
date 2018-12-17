@@ -32,6 +32,7 @@ var GeneratedComputeResourcesMap = map[string]*schema.Resource{
 	"google_compute_region_disk":             resourceComputeRegionDisk(),
 	"google_compute_route":                   resourceComputeRoute(),
 	"google_compute_router":                  resourceComputeRouter(),
+	"google_compute_snapshot":                resourceComputeSnapshot(),
 	"google_compute_ssl_certificate":         resourceComputeSslCertificate(),
 	"google_compute_ssl_policy":              resourceComputeSslPolicy(),
 	"google_compute_subnetwork":              resourceComputeSubnetwork(),
@@ -40,5 +41,6 @@ var GeneratedComputeResourcesMap = map[string]*schema.Resource{
 	"google_compute_target_ssl_proxy":        resourceComputeTargetSslProxy(),
 	"google_compute_target_tcp_proxy":        resourceComputeTargetTcpProxy(),
 	"google_compute_vpn_gateway":             resourceComputeVpnGateway(),
+	"google_compute_url_map":                 resourceComputeUrlMap(),
 	"google_compute_vpn_tunnel":              resourceComputeVpnTunnel(),
 }

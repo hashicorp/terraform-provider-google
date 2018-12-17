@@ -77,10 +77,6 @@ The following arguments are supported:
   How to combine the results of multiple conditions to
   determine if an incident should be opened.
 
-* `enabled` -
-  (Required)
-  Whether or not the policy is enabled.
-
 * `conditions` -
   (Required)
   A list of conditions for the policy. The conditions are combined by
@@ -573,6 +569,10 @@ The `aggregations` block supports:
 - - -
 
 
+* `enabled` -
+  (Optional)
+  Whether or not the policy is enabled. The default is true.
+
 * `notification_channels` -
   (Optional)
   Identifies the notification channels to which notifications should be
@@ -586,9 +586,30 @@ The `aggregations` block supports:
 * `labels` -
   (Optional)
   User-supplied key/value data to be used for organizing AlertPolicy objects.
+
+* `documentation` -
+  (Optional)
+  A short name or phrase used to identify the policy in dashboards,
+  notifications, and incidents. To avoid confusion, don't use the same
+  display name for multiple policies in the same project. The name is
+  limited to 512 Unicode characters.  Structure is documented below.
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `documentation` block supports:
+
+* `content` -
+  (Optional)
+  The text of the documentation, interpreted according to mimeType.
+  The content may not exceed 8,192 Unicode characters and may not
+  exceed more than 10,240 bytes when encoded in UTF-8 format,
+  whichever is smaller.
+
+* `mime_type` -
+  (Optional)
+  The format of the content field. Presently, only the value
+  "text/markdown" is supported.
 
 ## Attributes Reference
 
@@ -613,6 +634,14 @@ The `creation_record` block contains:
 * `mutated_by` -
   The email address of the user making the change.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
 
 ## Import
 
