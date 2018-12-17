@@ -36,10 +36,6 @@ func (w *RedisOperationWaiter) Conf() *resource.StateChangeConf {
 	}
 }
 
-func redisOperationWait(service *redis.Service, op *redis.Operation, project, activity string) error {
-	return redisOperationWaitTime(service, op, project, activity, 4)
-}
-
 func redisOperationWaitTime(service *redis.Service, op *redis.Operation, project, activity string, timeoutMin int) error {
 	if op.Done {
 		if op.Error != nil {

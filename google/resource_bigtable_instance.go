@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 
@@ -16,13 +15,7 @@ func resourceBigtableInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigtableInstanceCreate,
 		Read:   resourceBigtableInstanceRead,
-		// TODO: Update is only needed because we're doing forcenew in customizediff
-		// when we're done with the deprecation, we can drop customizediff and make cluster forcenew
-		Update: schema.Noop,
 		Delete: resourceBigtableInstanceDestroy,
-		CustomizeDiff: customdiff.All(
-			resourceBigTableInstanceClusterCustomizeDiff,
-		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -31,50 +24,38 @@ func resourceBigtableInstance() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"cluster_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Deprecated:    "Use cluster instead.",
-				ConflictsWith: []string{"cluster"},
-			},
-
 			"cluster": {
-				Type:          schema.TypeSet,
-				Optional:      true,
-				MaxItems:      1,
-				ConflictsWith: []string{"cluster_id", "zone", "num_nodes", "storage_type"},
+				Type:     schema.TypeSet,
+				Required: true,
+				ForceNew: true,
+				MaxItems: 2,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cluster_id": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
+							ForceNew: true,
 						},
 						"zone": {
 							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Required: true,
+							ForceNew: true,
 						},
 						"num_nodes": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.IntAtLeast(3),
 						},
 						"storage_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "SSD",
+							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"SSD", "HDD"}, false),
 						},
 					},
 				},
-			},
-
-			"zone": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				Deprecated:    "Use cluster instead.",
-				ConflictsWith: []string{"cluster"},
 			},
 
 			"display_name": {
@@ -82,13 +63,6 @@ func resourceBigtableInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
-			},
-
-			"num_nodes": {
-				Type:          schema.TypeInt,
-				Optional:      true,
-				Deprecated:    "Use cluster instead.",
-				ConflictsWith: []string{"cluster"},
 			},
 
 			"instance_type": {
@@ -99,67 +73,42 @@ func resourceBigtableInstance() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"DEVELOPMENT", "PRODUCTION"}, false),
 			},
 
-			"storage_type": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Default:       "SSD",
-				ValidateFunc:  validation.StringInSlice([]string{"SSD", "HDD"}, false),
-				Deprecated:    "Use cluster instead.",
-				ConflictsWith: []string{"cluster"},
-			},
-
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
+
+			"cluster_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Removed:  "Use cluster instead.",
+			},
+
+			"zone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Removed:  "Use cluster instead.",
+			},
+
+			"num_nodes": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+				Removed:  "Use cluster instead.",
+			},
+
+			"storage_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Removed:  "Use cluster instead.",
+			},
 		},
 	}
-}
-
-func resourceBigTableInstanceClusterCustomizeDiff(d *schema.ResourceDiff, meta interface{}) error {
-	if d.Get("cluster_id").(string) == "" && d.Get("cluster.#").(int) == 0 {
-		return fmt.Errorf("At least one cluster must be set.")
-	}
-	if !d.HasChange("cluster_id") && !d.HasChange("zone") && !d.HasChange("num_nodes") &&
-		!d.HasChange("storage_type") && !d.HasChange("cluster") {
-		return nil
-	}
-	if d.Get("cluster.#").(int) == 1 {
-		// if we have exactly one cluster, and it has the same values as the old top-level
-		// values, we can assume the user is trying to go from the deprecated values to the
-		// new values, and we shouldn't ForceNew. We know that the top-level values aren't
-		// set, because they ConflictWith cluster.
-		oldID, _ := d.GetChange("cluster_id")
-		oldNodes, _ := d.GetChange("num_nodes")
-		oldZone, _ := d.GetChange("zone")
-		oldStorageType, _ := d.GetChange("storage_type")
-		new := d.Get("cluster").(*schema.Set).List()[0].(map[string]interface{})
-
-		if oldID.(string) == new["cluster_id"].(string) &&
-			oldNodes.(int) == new["num_nodes"].(int) &&
-			oldZone.(string) == new["zone"].(string) &&
-			oldStorageType.(string) == new["storage_type"].(string) {
-			return nil
-		}
-	}
-	if d.HasChange("cluster_id") {
-		d.ForceNew("cluster_id")
-	}
-	if d.HasChange("cluster") {
-		d.ForceNew("cluster")
-	}
-	if d.HasChange("zone") {
-		d.ForceNew("zone")
-	}
-	if d.HasChange("num_nodes") {
-		d.ForceNew("num_nodes")
-	}
-	if d.HasChange("storage_type") {
-		d.ForceNew("storage_type")
-	}
-	return nil
 }
 
 func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) error {
@@ -188,31 +137,9 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		conf.InstanceType = bigtable.PRODUCTION
 	}
 
-	if d.Get("cluster.#").(int) > 0 {
-		// expand cluster
-		conf.Clusters = expandBigtableClusters(d.Get("cluster").(*schema.Set).List(), conf.InstanceID, config.Zone)
-		if err != nil {
-			return fmt.Errorf("error expanding clusters: %s", err.Error())
-		}
-	} else {
-		// TODO: remove this when we're done with the deprecation period
-		zone, err := getZone(d, config)
-		if err != nil {
-			return err
-		}
-		cluster := bigtable.ClusterConfig{
-			InstanceID: conf.InstanceID,
-			NumNodes:   int32(d.Get("num_nodes").(int)),
-			Zone:       zone,
-			ClusterID:  d.Get("cluster_id").(string),
-		}
-		switch d.Get("storage_type").(string) {
-		case "HDD":
-			cluster.StorageType = bigtable.HDD
-		case "SSD":
-			cluster.StorageType = bigtable.SSD
-		}
-		conf.Clusters = append(conf.Clusters, cluster)
+	conf.Clusters = expandBigtableClusters(d.Get("cluster").(*schema.Set).List(), conf.InstanceID)
+	if err != nil {
+		return fmt.Errorf("error expanding clusters: %s", err.Error())
 	}
 
 	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
@@ -256,37 +183,27 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.Set("project", project)
-	if d.Get("cluster.#").(int) > 0 {
-		clusters := d.Get("cluster").(*schema.Set).List()
-		clusterState := []map[string]interface{}{}
-		for _, cl := range clusters {
-			cluster := cl.(map[string]interface{})
-			clus, err := c.GetCluster(ctx, instance.Name, cluster["cluster_id"].(string))
-			if err != nil {
-				if isGoogleApiErrorWithCode(err, 404) {
-					log.Printf("[WARN] Cluster %q not found, not setting it in state", cluster["cluster_id"].(string))
-					continue
-				}
-				return fmt.Errorf("Error retrieving cluster %q: %s", cluster["cluster_id"].(string), err.Error())
+
+	clusters := d.Get("cluster").(*schema.Set).List()
+	clusterState := []map[string]interface{}{}
+	for _, cl := range clusters {
+		cluster := cl.(map[string]interface{})
+		clus, err := c.GetCluster(ctx, instance.Name, cluster["cluster_id"].(string))
+		if err != nil {
+			if isGoogleApiErrorWithCode(err, 404) {
+				log.Printf("[WARN] Cluster %q not found, not setting it in state", cluster["cluster_id"].(string))
+				continue
 			}
-			clusterState = append(clusterState, flattenBigtableCluster(clus, cluster["storage_type"].(string)))
+			return fmt.Errorf("Error retrieving cluster %q: %s", cluster["cluster_id"].(string), err.Error())
 		}
-		err = d.Set("cluster", clusterState)
-		if err != nil {
-			return fmt.Errorf("Error setting clusters in state: %s", err.Error())
-		}
-		d.Set("cluster_id", "")
-		d.Set("zone", "")
-		d.Set("num_nodes", 0)
-		d.Set("storage_type", "SSD")
-	} else {
-		// TODO remove this when we're done with our deprecation period
-		zone, err := getZone(d, config)
-		if err != nil {
-			return err
-		}
-		d.Set("zone", zone)
+		clusterState = append(clusterState, flattenBigtableCluster(clus, cluster["storage_type"].(string)))
 	}
+
+	err = d.Set("cluster", clusterState)
+	if err != nil {
+		return fmt.Errorf("Error setting clusters in state: %s", err.Error())
+	}
+
 	d.Set("name", instance.Name)
 	d.Set("display_name", instance.DisplayName)
 
@@ -329,14 +246,11 @@ func flattenBigtableCluster(c *bigtable.ClusterInfo, storageType string) map[str
 	}
 }
 
-func expandBigtableClusters(clusters []interface{}, instanceID string, defaultZone string) []bigtable.ClusterConfig {
+func expandBigtableClusters(clusters []interface{}, instanceID string) []bigtable.ClusterConfig {
 	results := make([]bigtable.ClusterConfig, 0, len(clusters))
 	for _, c := range clusters {
 		cluster := c.(map[string]interface{})
-		zone := defaultZone
-		if confZone, ok := cluster["zone"]; ok {
-			zone = confZone.(string)
-		}
+		zone := cluster["zone"].(string)
 		var storageType bigtable.StorageType
 		switch cluster["storage_type"].(string) {
 		case "SSD":

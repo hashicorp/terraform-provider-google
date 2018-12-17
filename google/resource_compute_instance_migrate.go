@@ -283,7 +283,7 @@ func migrateStateV3toV4(is *terraform.InstanceState, meta interface{}) (*terrafo
 		}
 	}
 
-	for k, _ := range is.Attributes {
+	for k := range is.Attributes {
 		if !strings.HasPrefix(k, "disk.") {
 			continue
 		}

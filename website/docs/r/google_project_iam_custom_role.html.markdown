@@ -52,6 +52,13 @@ The following arguments are supported:
 
 * `description` - (Optional) A human-readable description for the role.
 
+## Attributes Reference
+
+ In addition to the arguments listed above, the following computed attributes are
+exported:
+
+ * `deleted` - (Optional) The current deleted state of the role.
+
 ## Import
 
 Customized IAM project role can be imported using their URI, e.g.

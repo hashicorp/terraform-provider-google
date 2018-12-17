@@ -49,7 +49,13 @@ To get more information about Disk, see:
 state as plain-text.
 [Read more about sensitive data in state](/docs/state/sensitive-data.html).
 
-## Example Usage
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=disk_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Disk Basic
+
 
 ```hcl
 resource "google_compute_disk" "default" {
@@ -191,11 +197,6 @@ The `source_snapshot_encryption_key` block supports:
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
 
-* (Deprecated) `disk_encryption_key_raw`:  This is an alias for
-  `disk_encryption_key.raw_key`.  It is deprecated to enhance
-  consistency with `source_image_encryption_key` and
-  `source_snapshot_encryption_key`.
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -234,11 +235,6 @@ In addition to the arguments listed above, the following computed attributes are
   used.
 * `self_link` - The URI of the created resource.
 
-
-* (Deprecated) `disk_encryption_key_sha256`: This is an alias for
-  `disk_encryption_key.sha256`.  It is deprecated to enhance
-  consistency with `source_image_encryption_key` and
-  `source_snapshot_encryption_key`.
 
 ## Timeouts
 

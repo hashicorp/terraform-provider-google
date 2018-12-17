@@ -30,55 +30,55 @@ func resourceComputeImage() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			// TODO(cblecker): one of source_disk or raw_disk is required
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"family": &schema.Schema{
+			"family": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"source_disk": &schema.Schema{
+			"source_disk": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"raw_disk": &schema.Schema{
+			"raw_disk": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"source": &schema.Schema{
+						"source": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"sha1": &schema.Schema{
+						"sha1": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
-						"container_type": &schema.Schema{
+						"container_type": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "TAR",
@@ -88,25 +88,25 @@ func resourceComputeImage() *schema.Resource {
 				},
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"create_timeout": &schema.Schema{
-				Type:       schema.TypeInt,
-				Optional:   true,
-				Deprecated: "Use timeouts block instead. See https://www.terraform.io/docs/configuration/resources.html#timeouts.",
+			"create_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Removed:  "Use timeouts block instead. See https://www.terraform.io/docs/configuration/resources.html#timeouts.",
 			},
 
-			"labels": &schema.Schema{
+			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
 
-			"licenses": &schema.Schema{
+			"licenses": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
@@ -114,7 +114,7 @@ func resourceComputeImage() *schema.Resource {
 				Computed: true,
 			},
 
-			"label_fingerprint": &schema.Schema{
+			"label_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -172,12 +172,7 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Read create timeout
-	var createTimeout int
-	if v, ok := d.GetOk("create_timeout"); ok {
-		createTimeout = v.(int)
-	} else {
-		createTimeout = int(d.Timeout(schema.TimeoutCreate).Minutes())
-	}
+	createTimeout := int(d.Timeout(schema.TimeoutCreate).Minutes())
 
 	// Insert the image
 	op, err := config.clientCompute.Images.Insert(

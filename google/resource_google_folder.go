@@ -21,27 +21,27 @@ func resourceGoogleFolder() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			// Format is either folders/{folder_id} or organizations/{org_id}.
-			"parent": &schema.Schema{
+			"parent": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			// Must be unique amongst its siblings.
-			"display_name": &schema.Schema{
+			"display_name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
 			// Format is 'folders/{folder_id}.
 			// The terraform id holds the same value.
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"lifecycle_state": &schema.Schema{
+			"lifecycle_state": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"create_time": &schema.Schema{
+			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

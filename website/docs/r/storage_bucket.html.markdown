@@ -10,7 +10,9 @@ description: |-
 
 Creates a new bucket in Google cloud storage service (GCS).
 Once a bucket has been created, its location can't be changed.
-[ACLs](https://cloud.google.com/storage/docs/access-control/lists) can be applied using the `google_storage_bucket_acl` resource.
+[ACLs](https://cloud.google.com/storage/docs/access-control/lists) can be applied
+using the [`google_storage_bucket_acl` resource](/docs/providers/google/r/storage_bucket_acl.html).
+
 For more information see
 [the official documentation](https://cloud.google.com/storage/docs/overview)
 and
@@ -65,6 +67,8 @@ The following arguments are supported:
 * `logging` - (Optional) The bucket's [Access & Storage Logs](https://cloud.google.com/storage/docs/access-logs) configuration.
 
 * `encryption` - (Optional) The bucket's encryption configuration.
+
+* `requester_pays` - (Optional, Default: false) Enables [Requester Pays](https://cloud.google.com/storage/docs/requester-pays) on a storage bucket.
 
 The `lifecycle_rule` block supports:
 

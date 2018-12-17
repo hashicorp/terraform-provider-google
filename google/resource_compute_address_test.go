@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeAddress_basic(t *testing.T) {
@@ -17,10 +16,10 @@ func TestAccComputeAddress_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeAddress_basic(acctest.RandString(10)),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_address.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -37,10 +36,10 @@ func TestAccComputeAddress_networkTier(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeAddress_networkTier(acctest.RandString(10)),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_address.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -55,48 +54,28 @@ func TestAccComputeAddress_internal(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeAddress_internal(acctest.RandString(10)),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_address.internal",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_address.internal_with_subnet",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_address.internal_with_subnet_and_address",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 		},
 	})
-}
-
-func testAccCheckComputeAddressDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_address" {
-			continue
-		}
-
-		addressId, err := parseComputeAddressId(rs.Primary.ID, config)
-
-		_, err = config.clientCompute.Addresses.Get(
-			config.Project, addressId.Region, addressId.Name).Do()
-		if err == nil {
-			return fmt.Errorf("Address still exists")
-		}
-	}
-
-	return nil
 }
 
 func testAccComputeAddress_basic(i string) string {

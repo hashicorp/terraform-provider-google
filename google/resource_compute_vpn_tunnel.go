@@ -44,7 +44,7 @@ func validatePeerAddr(i interface{}, val string) ([]string, []error) {
 	return nil, nil
 }
 
-// invalidPeerAddrs is a collection of IP addres ranges that represent
+// invalidPeerAddrs is a collection of IP address ranges that represent
 // a conflict with RFC 5735 (https://tools.ietf.org/html/rfc5735#page-3).
 // CIDR range notations in the RFC were converted to a (from, to) pair
 // for easy checking with bytes.Compare.
@@ -313,6 +313,12 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
+	labelFingerprintProp, err := expandComputeVpnTunnelLabelFingerprint(d.Get("label_fingerprint"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("label_fingerprint"); !isEmptyValue(reflect.ValueOf(labelFingerprintProp)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+		obj["labelFingerprint"] = labelFingerprintProp
+	}
 	regionProp, err := expandComputeVpnTunnelRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
@@ -320,13 +326,18 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 		obj["region"] = regionProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/vpnTunnels")
+	obj, err = resourceComputeVpnTunnelEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/vpnTunnels")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Creating new VpnTunnel: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating VpnTunnel: %s", err)
 	}
@@ -366,7 +377,7 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}")
+	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -376,56 +387,57 @@ func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) erro
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeVpnTunnel %q", d.Id()))
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeVpnTunnelCreationTimestamp(res["creationTimestamp"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("name", flattenComputeVpnTunnelName(res["name"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("description", flattenComputeVpnTunnelDescription(res["description"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("target_vpn_gateway", flattenComputeVpnTunnelTargetVpnGateway(res["targetVpnGateway"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("router", flattenComputeVpnTunnelRouter(res["router"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("peer_ip", flattenComputeVpnTunnelPeerIp(res["peerIp"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("shared_secret_hash", flattenComputeVpnTunnelSharedSecretHash(res["sharedSecretHash"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("ike_version", flattenComputeVpnTunnelIkeVersion(res["ikeVersion"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("local_traffic_selector", flattenComputeVpnTunnelLocalTrafficSelector(res["localTrafficSelector"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("remote_traffic_selector", flattenComputeVpnTunnelRemoteTrafficSelector(res["remoteTrafficSelector"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("labels", flattenComputeVpnTunnelLabels(res["labels"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeVpnTunnelLabelFingerprint(res["labelFingerprint"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("detailed_status", flattenComputeVpnTunnelDetailedStatus(res["detailedStatus"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("region", flattenComputeVpnTunnelRegion(res["region"])); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+
+	if err := d.Set("creation_timestamp", flattenComputeVpnTunnelCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("name", flattenComputeVpnTunnelName(res["name"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("description", flattenComputeVpnTunnelDescription(res["description"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("target_vpn_gateway", flattenComputeVpnTunnelTargetVpnGateway(res["targetVpnGateway"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("router", flattenComputeVpnTunnelRouter(res["router"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("peer_ip", flattenComputeVpnTunnelPeerIp(res["peerIp"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("shared_secret_hash", flattenComputeVpnTunnelSharedSecretHash(res["sharedSecretHash"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("ike_version", flattenComputeVpnTunnelIkeVersion(res["ikeVersion"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("local_traffic_selector", flattenComputeVpnTunnelLocalTrafficSelector(res["localTrafficSelector"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("remote_traffic_selector", flattenComputeVpnTunnelRemoteTrafficSelector(res["remoteTrafficSelector"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("labels", flattenComputeVpnTunnelLabels(res["labels"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("label_fingerprint", flattenComputeVpnTunnelLabelFingerprint(res["labelFingerprint"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("detailed_status", flattenComputeVpnTunnelDetailedStatus(res["detailedStatus"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("region", flattenComputeVpnTunnelRegion(res["region"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
 
@@ -445,14 +457,18 @@ func resourceComputeVpnTunnelUpdate(d *schema.ResourceData, meta interface{}) er
 		} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 			obj["labels"] = labelsProp
 		}
-		labelFingerprintProp := d.Get("label_fingerprint")
-		obj["labelFingerprint"] = labelFingerprintProp
+		labelFingerprintProp, err := expandComputeVpnTunnelLabelFingerprint(d.Get("label_fingerprint"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("label_fingerprint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+			obj["labelFingerprint"] = labelFingerprintProp
+		}
 
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}/setLabels")
+		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}/setLabels")
 		if err != nil {
 			return err
 		}
-		res, err := sendRequest(config, "POST", url, obj)
+		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating VpnTunnel %q: %s", d.Id(), err)
 		}
@@ -487,14 +503,14 @@ func resourceComputeVpnTunnelUpdate(d *schema.ResourceData, meta interface{}) er
 func resourceComputeVpnTunnelDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}")
+	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting VpnTunnel %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "VpnTunnel")
 	}
@@ -535,41 +551,41 @@ func resourceComputeVpnTunnelImport(d *schema.ResourceData, meta interface{}) ([
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeVpnTunnelCreationTimestamp(v interface{}) interface{} {
+func flattenComputeVpnTunnelCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeVpnTunnelName(v interface{}) interface{} {
+func flattenComputeVpnTunnelName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeVpnTunnelDescription(v interface{}) interface{} {
+func flattenComputeVpnTunnelDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeVpnTunnelTargetVpnGateway(v interface{}) interface{} {
+func flattenComputeVpnTunnelTargetVpnGateway(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeVpnTunnelRouter(v interface{}) interface{} {
+func flattenComputeVpnTunnelRouter(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeVpnTunnelPeerIp(v interface{}) interface{} {
+func flattenComputeVpnTunnelPeerIp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeVpnTunnelSharedSecretHash(v interface{}) interface{} {
+func flattenComputeVpnTunnelSharedSecretHash(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeVpnTunnelIkeVersion(v interface{}) interface{} {
+func flattenComputeVpnTunnelIkeVersion(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -579,33 +595,33 @@ func flattenComputeVpnTunnelIkeVersion(v interface{}) interface{} {
 	return v
 }
 
-func flattenComputeVpnTunnelLocalTrafficSelector(v interface{}) interface{} {
+func flattenComputeVpnTunnelLocalTrafficSelector(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeVpnTunnelRemoteTrafficSelector(v interface{}) interface{} {
+func flattenComputeVpnTunnelRemoteTrafficSelector(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeVpnTunnelLabels(v interface{}) interface{} {
+func flattenComputeVpnTunnelLabels(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeVpnTunnelLabelFingerprint(v interface{}) interface{} {
+func flattenComputeVpnTunnelLabelFingerprint(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeVpnTunnelDetailedStatus(v interface{}) interface{} {
+func flattenComputeVpnTunnelDetailedStatus(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeVpnTunnelRegion(v interface{}) interface{} {
+func flattenComputeVpnTunnelRegion(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -672,10 +688,29 @@ func expandComputeVpnTunnelLabels(v interface{}, d *schema.ResourceData, config 
 	return m, nil
 }
 
+func expandComputeVpnTunnelLabelFingerprint(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeVpnTunnelRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func resourceComputeVpnTunnelEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	config := meta.(*Config)
+	f, err := parseRegionalFieldValue("targetVpnGateways", d.Get("target_vpn_gateway").(string), "project", "region", "zone", d, config, true)
+	if err != nil {
+		return nil, err
+	}
+	if _, ok := d.GetOk("project"); !ok {
+		d.Set("project", f.Project)
+	}
+	if _, ok := d.GetOk("region"); !ok {
+		d.Set("region", f.Region)
+	}
+	return obj, nil
 }

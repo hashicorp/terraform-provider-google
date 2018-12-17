@@ -25,7 +25,7 @@ func TestAccFolder_rename(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckGoogleFolderDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFolder_basic(folderDisplayName, parent),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderExists("google_folder.folder1", &folder),
@@ -33,14 +33,14 @@ func TestAccFolder_rename(t *testing.T) {
 					testAccCheckGoogleFolderDisplayName(&folder, folderDisplayName),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccFolder_basic(newFolderDisplayName, parent),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderExists("google_folder.folder1", &folder),
 					testAccCheckGoogleFolderParent(&folder, parent),
 					testAccCheckGoogleFolderDisplayName(&folder, newFolderDisplayName),
 				)},
-			resource.TestStep{
+			{
 				ResourceName:      "google_folder.folder1",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -64,7 +64,7 @@ func TestAccFolder_moveParent(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckGoogleFolderDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFolder_basic(folder1DisplayName, parent),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderExists("google_folder.folder1", &folder1),
@@ -72,7 +72,7 @@ func TestAccFolder_moveParent(t *testing.T) {
 					testAccCheckGoogleFolderDisplayName(&folder1, folder1DisplayName),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccFolder_move(folder1DisplayName, folder2DisplayName, parent),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderExists("google_folder.folder1", &folder1),

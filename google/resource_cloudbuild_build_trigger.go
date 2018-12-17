@@ -17,6 +17,7 @@ func resourceCloudBuildTrigger() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudbuildBuildTriggerCreate,
 		Read:   resourceCloudbuildBuildTriggerRead,
+		Update: resourceCloudbuildBuildTriggerUpdate,
 		Delete: resourceCloudbuildBuildTriggerDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceCloudBuildTriggerImportState,
@@ -30,107 +31,105 @@ func resourceCloudBuildTrigger() *schema.Resource {
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"filename": &schema.Schema{
+			"filename": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ForceNew:      true,
 				ConflictsWith: []string{"build"},
 			},
 			"build": {
 				Type:        schema.TypeList,
 				Description: "Contents of the build template.",
 				Optional:    true,
-				ForceNew:    true,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"images": &schema.Schema{
+						"images": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
-						"step": &schema.Schema{
+						"step": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"name": &schema.Schema{
+									"name": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 									},
-									"args": &schema.Schema{
+									"args": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 									},
 								},
 							},
 						},
-						"tags": &schema.Schema{
+						"tags": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
-			"substitutions": &schema.Schema{
+			"substitutions": {
 				Optional: true,
 				Type:     schema.TypeMap,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"included_files": {
+				Optional: true,
+				Type:     schema.TypeList,
+				MaxItems: 50,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"trigger_template": &schema.Schema{
+			"ignored_files": {
+				Optional: true,
+				Type:     schema.TypeList,
+				MaxItems: 50,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"trigger_template": {
 				Optional: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"branch_name": &schema.Schema{
+						"branch_name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
-						"commit_sha": &schema.Schema{
+						"commit_sha": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
-						"dir": &schema.Schema{
+						"dir": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
-						"project": &schema.Schema{
+						"project": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
-						"repo_name": &schema.Schema{
+						"repo_name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
-						"tag_name": &schema.Schema{
+						"tag_name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -147,21 +146,13 @@ func resourceCloudbuildBuildTriggerCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	// Build the address parameter
-	buildTrigger := &cloudbuild.BuildTrigger{}
-
-	if v, ok := d.GetOk("description"); ok {
-		buildTrigger.Description = v.(string)
+	buildTrigger, err := expandCloudbuildBuildTrigger(d, meta)
+	if err != nil {
+		return err
 	}
 
-	if v, ok := d.GetOk("filename"); ok {
-		buildTrigger.Filename = v.(string)
-	} else {
-		buildTrigger.Build = expandCloudbuildBuildTriggerBuild(d)
-	}
-
-	buildTrigger.TriggerTemplate = expandCloudbuildBuildTriggerTemplate(d, project)
-	buildTrigger.Substitutions = expandStringMap(d, "substitutions")
+	buildTrigger.IgnoredFiles = expandStringSlice(d, "ignored_files")
+	buildTrigger.IncludedFiles = expandStringSlice(d, "included_files")
 
 	tstr, err := json.Marshal(buildTrigger)
 	if err != nil {
@@ -194,6 +185,8 @@ func resourceCloudbuildBuildTriggerRead(d *schema.ResourceData, meta interface{}
 
 	d.Set("description", buildTrigger.Description)
 	d.Set("substitutions", buildTrigger.Substitutions)
+	d.Set("ignored_files", buildTrigger.IgnoredFiles)
+	d.Set("included_files", buildTrigger.IncludedFiles)
 
 	if buildTrigger.TriggerTemplate != nil {
 		d.Set("trigger_template", flattenCloudbuildBuildTriggerTemplate(d, config, buildTrigger.TriggerTemplate))
@@ -206,6 +199,56 @@ func resourceCloudbuildBuildTriggerRead(d *schema.ResourceData, meta interface{}
 	}
 
 	return nil
+}
+
+func resourceCloudbuildBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	buildTrigger, err := expandCloudbuildBuildTrigger(d, meta)
+	if err != nil {
+		return err
+	}
+
+	id := d.Id()
+
+	log.Printf("[INFO] Updating Cloud Build Trigger: %s", id)
+
+	if _, err = config.clientBuild.Projects.Triggers.Patch(project, id, buildTrigger).Do(); err != nil {
+		return err
+	}
+
+	return resourceCloudbuildBuildTriggerRead(d, meta)
+}
+
+func expandCloudbuildBuildTrigger(d *schema.ResourceData, meta interface{}) (*cloudbuild.BuildTrigger, error) {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	t := &cloudbuild.BuildTrigger{}
+
+	if v, ok := d.GetOk("description"); ok {
+		t.Description = v.(string)
+	}
+
+	if v, ok := d.GetOk("filename"); ok {
+		t.Filename = v.(string)
+	} else {
+		t.Build = expandCloudbuildBuildTriggerBuild(d)
+	}
+
+	t.Substitutions = expandStringMap(d, "substitutions")
+	t.TriggerTemplate = expandCloudbuildBuildTriggerTemplate(d, project)
+
+	return t, nil
 }
 
 func expandCloudbuildBuildTriggerTemplate(d *schema.ResourceData, project string) *cloudbuild.RepoSource {

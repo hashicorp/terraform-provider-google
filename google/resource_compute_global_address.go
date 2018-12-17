@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -30,7 +29,6 @@ func resourceComputeGlobalAddress() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeGlobalAddressCreate,
 		Read:   resourceComputeGlobalAddressRead,
-		Update: resourceComputeGlobalAddressUpdate,
 		Delete: resourceComputeGlobalAddressDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -39,7 +37,6 @@ func resourceComputeGlobalAddress() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
 			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
 
@@ -47,6 +44,12 @@ func resourceComputeGlobalAddress() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
+			},
+			"address": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
 				ForceNew: true,
 			},
 			"address_type": {
@@ -69,49 +72,7 @@ func resourceComputeGlobalAddress() *schema.Resource {
 				ValidateFunc:     validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
 				DiffSuppressFunc: emptyOrDefaultStringSuppress("IPV4"),
 			},
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Deprecated: `This field is in beta and will be removed from this provider.
-Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta fields.`,
-				Elem: &schema.Schema{Type: schema.TypeString},
-			},
-			"network": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Deprecated: `This field is in beta and will be removed from this provider.
-Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta fields.`,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-			},
-			"prefix_length": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-				Deprecated: `This field is in beta and will be removed from this provider.
-Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta fields.`,
-			},
-			"purpose": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Deprecated: `This field is in beta and will be removed from this provider.
-Use the terraform-provider-google-beta provider to continue using it.
-See https://terraform.io/docs/provider/google/provider_versions.html for more details on beta fields.`,
-				ValidateFunc: validation.StringInSlice([]string{"VPC_PEERING", ""}, false),
-			},
-			"address": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"label_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -133,6 +94,12 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
+	addressProp, err := expandComputeGlobalAddressAddress(d.Get("address"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("address"); !isEmptyValue(reflect.ValueOf(addressProp)) && (ok || !reflect.DeepEqual(v, addressProp)) {
+		obj["address"] = addressProp
+	}
 	descriptionProp, err := expandComputeGlobalAddressDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -145,23 +112,11 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	labelsProp, err := expandComputeGlobalAddressLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	ipVersionProp, err := expandComputeGlobalAddressIpVersion(d.Get("ip_version"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("ip_version"); !isEmptyValue(reflect.ValueOf(ipVersionProp)) && (ok || !reflect.DeepEqual(v, ipVersionProp)) {
 		obj["ipVersion"] = ipVersionProp
-	}
-	prefixLengthProp, err := expandComputeGlobalAddressPrefixLength(d.Get("prefix_length"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("prefix_length"); !isEmptyValue(reflect.ValueOf(prefixLengthProp)) && (ok || !reflect.DeepEqual(v, prefixLengthProp)) {
-		obj["prefixLength"] = prefixLengthProp
 	}
 	addressTypeProp, err := expandComputeGlobalAddressAddressType(d.Get("address_type"), d, config)
 	if err != nil {
@@ -169,26 +124,14 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("address_type"); !isEmptyValue(reflect.ValueOf(addressTypeProp)) && (ok || !reflect.DeepEqual(v, addressTypeProp)) {
 		obj["addressType"] = addressTypeProp
 	}
-	purposeProp, err := expandComputeGlobalAddressPurpose(d.Get("purpose"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("purpose"); !isEmptyValue(reflect.ValueOf(purposeProp)) && (ok || !reflect.DeepEqual(v, purposeProp)) {
-		obj["purpose"] = purposeProp
-	}
-	networkProp, err := expandComputeGlobalAddressNetwork(d.Get("network"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
-		obj["network"] = networkProp
-	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/global/addresses")
+	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/addresses")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Creating new GlobalAddress: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating GlobalAddress: %s", err)
 	}
@@ -222,51 +165,13 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 
 	log.Printf("[DEBUG] Finished creating GlobalAddress %q: %#v", d.Id(), res)
 
-	if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		// Labels cannot be set in a create.  We'll have to set them here.
-		err = resourceComputeGlobalAddressRead(d, meta)
-		if err != nil {
-			return err
-		}
-
-		obj := make(map[string]interface{})
-		// d.Get("labels") will have been overridden by the Read call.
-		labelsProp, err := expandComputeGlobalAddressLabels(v, d, config)
-		obj["labels"] = labelsProp
-		labelFingerprintProp := d.Get("label_fingerprint")
-		obj["labelFingerprint"] = labelFingerprintProp
-
-		url, err = replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/global/addresses/{{name}}/setLabels")
-		if err != nil {
-			return err
-		}
-		res, err = sendRequest(config, "POST", url, obj)
-		if err != nil {
-			return fmt.Errorf("Error adding labels to ComputeGlobalAddress %q: %s", d.Id(), err)
-		}
-
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
-		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating ComputeGlobalAddress Labels",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
-		if err != nil {
-			return err
-		}
-
-	}
-
 	return resourceComputeGlobalAddressRead(d, meta)
 }
 
 func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/global/addresses/{{name}}")
+	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/addresses/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -276,42 +181,6 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeGlobalAddress %q", d.Id()))
 	}
 
-	if err := d.Set("address", flattenComputeGlobalAddressAddress(res["address"])); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeGlobalAddressCreationTimestamp(res["creationTimestamp"])); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("description", flattenComputeGlobalAddressDescription(res["description"])); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("name", flattenComputeGlobalAddressName(res["name"])); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("labels", flattenComputeGlobalAddressLabels(res["labels"])); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeGlobalAddressLabelFingerprint(res["labelFingerprint"])); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("ip_version", flattenComputeGlobalAddressIpVersion(res["ipVersion"])); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("prefix_length", flattenComputeGlobalAddressPrefixLength(res["prefixLength"])); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("address_type", flattenComputeGlobalAddressAddressType(res["addressType"])); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("purpose", flattenComputeGlobalAddressPurpose(res["purpose"])); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("network", flattenComputeGlobalAddressNetwork(res["network"])); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading GlobalAddress: %s", err)
-	}
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -320,72 +189,42 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
 
-	return nil
-}
-
-func resourceComputeGlobalAddressUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-
-	d.Partial(true)
-
-	if d.HasChange("labels") || d.HasChange("label_fingerprint") {
-		obj := make(map[string]interface{})
-		labelsProp, err := expandComputeGlobalAddressLabels(d.Get("labels"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-			obj["labels"] = labelsProp
-		}
-		labelFingerprintProp := d.Get("label_fingerprint")
-		obj["labelFingerprint"] = labelFingerprintProp
-
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/global/addresses/{{name}}/setLabels")
-		if err != nil {
-			return err
-		}
-		res, err := sendRequest(config, "POST", url, obj)
-		if err != nil {
-			return fmt.Errorf("Error updating GlobalAddress %q: %s", d.Id(), err)
-		}
-
-		project, err := getProject(d, config)
-		if err != nil {
-			return err
-		}
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
-		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating GlobalAddress",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("labels")
-		d.SetPartial("label_fingerprint")
+	if err := d.Set("address", flattenComputeGlobalAddressAddress(res["address"], d)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err := d.Set("creation_timestamp", flattenComputeGlobalAddressCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err := d.Set("description", flattenComputeGlobalAddressDescription(res["description"], d)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err := d.Set("name", flattenComputeGlobalAddressName(res["name"], d)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err := d.Set("ip_version", flattenComputeGlobalAddressIpVersion(res["ipVersion"], d)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err := d.Set("address_type", flattenComputeGlobalAddressAddressType(res["addressType"], d)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
 
-	d.Partial(false)
-
-	return resourceComputeGlobalAddressRead(d, meta)
+	return nil
 }
 
 func resourceComputeGlobalAddressDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/beta/projects/{{project}}/global/addresses/{{name}}")
+	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/addresses/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting GlobalAddress %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "GlobalAddress")
 	}
@@ -426,57 +265,32 @@ func resourceComputeGlobalAddressImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeGlobalAddressAddress(v interface{}) interface{} {
+func flattenComputeGlobalAddressAddress(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeGlobalAddressCreationTimestamp(v interface{}) interface{} {
+func flattenComputeGlobalAddressCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeGlobalAddressDescription(v interface{}) interface{} {
+func flattenComputeGlobalAddressDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeGlobalAddressName(v interface{}) interface{} {
+func flattenComputeGlobalAddressName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeGlobalAddressLabels(v interface{}) interface{} {
+func flattenComputeGlobalAddressIpVersion(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeGlobalAddressLabelFingerprint(v interface{}) interface{} {
+func flattenComputeGlobalAddressAddressType(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeGlobalAddressIpVersion(v interface{}) interface{} {
-	return v
-}
-
-func flattenComputeGlobalAddressPrefixLength(v interface{}) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
-			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
-	}
-	return v
-}
-
-func flattenComputeGlobalAddressAddressType(v interface{}) interface{} {
-	return v
-}
-
-func flattenComputeGlobalAddressPurpose(v interface{}) interface{} {
-	return v
-}
-
-func flattenComputeGlobalAddressNetwork(v interface{}) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+func expandComputeGlobalAddressAddress(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeGlobalAddressDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
@@ -487,37 +301,10 @@ func expandComputeGlobalAddressName(v interface{}, d *schema.ResourceData, confi
 	return v, nil
 }
 
-func expandComputeGlobalAddressLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
-}
-
 func expandComputeGlobalAddressIpVersion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeGlobalAddressPrefixLength(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandComputeGlobalAddressAddressType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandComputeGlobalAddressPurpose(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeGlobalAddressNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for network: %s", err)
-	}
-	return f.RelativeLink(), nil
 }

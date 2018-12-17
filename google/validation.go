@@ -186,3 +186,25 @@ func validateProjectName() schema.SchemaValidateFunc {
 		return
 	}
 }
+
+// StringNotInSlice returns a SchemaValidateFunc which tests if the provided value
+// is of type string and that it matches none of the element in the invalid slice.
+// if ignorecase is true, case is ignored.
+func StringNotInSlice(invalid []string, ignoreCase bool) schema.SchemaValidateFunc {
+	return func(i interface{}, k string) (s []string, es []error) {
+		v, ok := i.(string)
+		if !ok {
+			es = append(es, fmt.Errorf("expected type of %s to be string", k))
+			return
+		}
+
+		for _, str := range invalid {
+			if v == str || (ignoreCase && strings.ToLower(v) == strings.ToLower(str)) {
+				es = append(es, fmt.Errorf("expected %s to not match any of %v, got %s", k, invalid, v))
+				return
+			}
+		}
+
+		return
+	}
+}

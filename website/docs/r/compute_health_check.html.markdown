@@ -40,7 +40,13 @@ To get more information about HealthCheck, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/load-balancing/docs/health-checks)
 
-## Example Usage
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Basic
+
 
 ```hcl
 resource "google_compute_health_check" "internal-health-check" {
@@ -132,6 +138,12 @@ The `http_health_check` block supports:
   The request path of the HTTP health check request.
   The default value is /.
 
+* `response` -
+  (Optional)
+  The bytes to match against the beginning of the response data. If left empty
+  (the default value), any response will indicate health. The response data
+  can only be ASCII.
+
 * `port` -
   (Optional)
   The TCP port number for the HTTP health check request.
@@ -154,6 +166,12 @@ The `https_health_check` block supports:
   (Optional)
   The request path of the HTTPS health check request.
   The default value is /.
+
+* `response` -
+  (Optional)
+  The bytes to match against the beginning of the response data. If left empty
+  (the default value), any response will indicate health. The response data
+  can only be ASCII.
 
 * `port` -
   (Optional)

@@ -19,10 +19,10 @@ func TestAccComputeSecurityPolicy_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSecurityPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSecurityPolicy_basic(spName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_security_policy.policy",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -41,10 +41,10 @@ func TestAccComputeSecurityPolicy_withRule(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSecurityPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSecurityPolicy_withRule(spName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_security_policy.policy",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -63,28 +63,28 @@ func TestAccComputeSecurityPolicy_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSecurityPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeSecurityPolicy_withRule(spName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_security_policy.policy",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 
-			resource.TestStep{
+			{
 				Config: testAccComputeSecurityPolicy_update(spName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_security_policy.policy",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 
-			resource.TestStep{
+			{
 				Config: testAccComputeSecurityPolicy_withRule(spName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_security_policy.policy",
 				ImportState:       true,
 				ImportStateVerify: true,

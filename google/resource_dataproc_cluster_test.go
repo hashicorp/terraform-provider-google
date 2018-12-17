@@ -134,6 +134,66 @@ func TestAccDataprocCluster_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withAccelerators(t *testing.T) {
+	t.Parallel()
+
+	rnd := acctest.RandString(10)
+	var cluster dataproc.Cluster
+
+	project := getTestProjectFromEnv()
+	zone := "us-central1-a"
+	acceleratorType := "nvidia-tesla-k80"
+	acceleratorLink := fmt.Sprintf("https://www.googleapis.com/compute/beta/projects/%s/zones/%s/acceleratorTypes/%s", project, zone, acceleratorType)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withAccelerators(rnd, zone, acceleratorType),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists("google_dataproc_cluster.accelerated_cluster", &cluster),
+					testAccCheckDataprocClusterAccelerator(&cluster, 1, acceleratorLink, 1, acceleratorLink),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckDataprocClusterAccelerator(cluster *dataproc.Cluster, masterCount int, masterAccelerator string, workerCount int, workerAccelerator string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		master := cluster.Config.MasterConfig.Accelerators
+		if len(master) != 1 {
+			return fmt.Errorf("Saw %d master accelerator types instead of 1", len(master))
+		}
+
+		if int(master[0].AcceleratorCount) != masterCount {
+			return fmt.Errorf("Saw %d master accelerators instead of %d", int(master[0].AcceleratorCount), masterCount)
+		}
+
+		if master[0].AcceleratorTypeUri != masterAccelerator {
+			return fmt.Errorf("Saw %s master accelerator type instead of %s", master[0].AcceleratorTypeUri, masterAccelerator)
+		}
+
+		worker := cluster.Config.WorkerConfig.Accelerators
+		if len(worker) != 1 {
+			return fmt.Errorf("Saw %d worker accelerator types instead of 1", len(worker))
+		}
+
+		if int(worker[0].AcceleratorCount) != workerCount {
+			return fmt.Errorf("Saw %d worker accelerators instead of %d", int(worker[0].AcceleratorCount), workerCount)
+		}
+
+		if worker[0].AcceleratorTypeUri != workerAccelerator {
+			return fmt.Errorf("Saw %s worker accelerator type instead of %s", worker[0].AcceleratorTypeUri, workerAccelerator)
+		}
+
+		return nil
+	}
+}
+
 func TestAccDataprocCluster_withInternalIpOnlyTrue(t *testing.T) {
 	t.Parallel()
 
@@ -157,7 +217,7 @@ func TestAccDataprocCluster_withInternalIpOnlyTrue(t *testing.T) {
 	})
 }
 
-func TestAccDataprocCluster_withMetadata(t *testing.T) {
+func TestAccDataprocCluster_withMetadataAndTags(t *testing.T) {
 	t.Parallel()
 
 	var cluster dataproc.Cluster
@@ -168,12 +228,13 @@ func TestAccDataprocCluster_withMetadata(t *testing.T) {
 		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withMetadata(rnd),
+				Config: testAccDataprocCluster_withMetadataAndTags(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists("google_dataproc_cluster.basic", &cluster),
 
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.metadata.foo", "bar"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.metadata.baz", "qux"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.tags.#", "4"),
 				),
 			},
 		},
@@ -630,6 +691,35 @@ resource "google_dataproc_cluster" "basic" {
 `, rnd)
 }
 
+func testAccDataprocCluster_withAccelerators(rnd, zone, acceleratorType string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "accelerated_cluster" {
+	name                  = "dproc-cluster-test-%s"
+	region                = "us-central1"
+
+	cluster_config {
+		gce_cluster_config {
+			zone = "%s"
+		}
+
+		master_config {
+			accelerators {
+				accelerator_type  = "%s"
+				accelerator_count = "1"
+			}
+		}
+
+		worker_config {
+			accelerators {
+				accelerator_type  = "%s"
+				accelerator_count = "1"
+			}
+		}
+	}
+}
+`, rnd, zone, acceleratorType, acceleratorType)
+}
+
 func testAccDataprocCluster_withInternalIpOnlyTrue(rnd string) string {
 	return fmt.Sprintf(`
 variable subnetwork_cidr {
@@ -696,7 +786,7 @@ resource "google_dataproc_cluster" "basic" {
 `, rnd, rnd, rnd)
 }
 
-func testAccDataprocCluster_withMetadata(rnd string) string {
+func testAccDataprocCluster_withMetadataAndTags(rnd string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
 	name   = "dproc-cluster-test-%s"
@@ -708,6 +798,7 @@ resource "google_dataproc_cluster" "basic" {
 				foo = "bar"
 				baz = "qux"
 			}
+			tags = ["my-tag", "your-tag", "our-tag", "their-tag"]
 		}
 	}
 }

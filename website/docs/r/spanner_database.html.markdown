@@ -6,7 +6,7 @@ description: |-
   Creates a Google Spanner Database within a Spanner Instance.
 ---
 
-# google\_spanner\_instance
+# google\_spanner\_database
 
 Creates a Google Spanner Database within a Spanner Instance. For more information, see the [official documentation](https://cloud.google.com/spanner/), or the [JSON API](https://cloud.google.com/spanner/docs/reference/rest/v1/projects.instances.databases).
 

@@ -123,16 +123,16 @@ func TestAccKmsCryptoKey_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleKmsCryptoKey_basic(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_kms_crypto_key.crypto_key",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
-			resource.TestStep{
+			{
 				Config: testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleKmsCryptoKeyWasRemovedFromState("google_kms_crypto_key.crypto_key"),
@@ -159,32 +159,32 @@ func TestAccKmsCryptoKey_rotation(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleKmsCryptoKey_rotation(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, rotationPeriod),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_kms_crypto_key.crypto_key",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testGoogleKmsCryptoKey_rotation(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, updatedRotationPeriod),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_kms_crypto_key.crypto_key",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testGoogleKmsCryptoKey_rotationRemoved(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_kms_crypto_key.crypto_key",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
-			resource.TestStep{
+			{
 				Config: testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleKmsCryptoKeyWasRemovedFromState("google_kms_crypto_key.crypto_key"),

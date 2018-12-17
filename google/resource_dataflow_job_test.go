@@ -16,7 +16,7 @@ func TestAccDataflowJobCreate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataflowJobDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataflowJob,
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataflowJobExists(
@@ -34,7 +34,7 @@ func TestAccDataflowJobRegionCreate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataflowJobRegionDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataflowJobRegion,
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataflowJobRegionExists(

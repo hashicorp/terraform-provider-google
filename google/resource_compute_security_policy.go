@@ -29,55 +29,55 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateGCPName,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"rule": &schema.Schema{
+			"rule": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true, // If no rules are set, a default rule is added
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"action": &schema.Schema{
+						"action": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"allow", "deny(403)", "deny(404)", "deny(502)"}, false),
 						},
 
-						"priority": &schema.Schema{
+						"priority": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
 
-						"match": &schema.Schema{
+						"match": {
 							Type:     schema.TypeList,
 							Required: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"config": &schema.Schema{
+									"config": {
 										Type:     schema.TypeList,
 										Required: true,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"src_ip_ranges": &schema.Schema{
+												"src_ip_ranges": {
 													Type:     schema.TypeSet,
 													Required: true,
 													MinItems: 1,
@@ -88,7 +88,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 										},
 									},
 
-									"versioned_expr": &schema.Schema{
+									"versioned_expr": {
 										Type:         schema.TypeString,
 										Required:     true,
 										ValidateFunc: validation.StringInSlice([]string{"SRC_IPS_V1"}, false),
@@ -97,12 +97,12 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 							},
 						},
 
-						"description": &schema.Schema{
+						"description": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 
-						"preview": &schema.Schema{
+						"preview": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
@@ -110,12 +110,12 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 				},
 			},
 
-			"fingerprint": &schema.Schema{
+			"fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -317,9 +317,10 @@ func expandSecurityPolicyRule(raw interface{}) *compute.SecurityPolicyRule {
 }
 
 func expandSecurityPolicyMatch(configured []interface{}) *compute.SecurityPolicyRuleMatcher {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
+
 	data := configured[0].(map[string]interface{})
 	return &compute.SecurityPolicyRuleMatcher{
 		VersionedExpr: data["versioned_expr"].(string),
@@ -328,9 +329,10 @@ func expandSecurityPolicyMatch(configured []interface{}) *compute.SecurityPolicy
 }
 
 func expandSecurityPolicyMatchConfig(configured []interface{}) *compute.SecurityPolicyRuleMatcherConfig {
-	if len(configured) == 0 {
+	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
+
 	data := configured[0].(map[string]interface{})
 	return &compute.SecurityPolicyRuleMatcherConfig{
 		SrcIpRanges: convertStringArr(data["src_ip_ranges"].(*schema.Set).List()),

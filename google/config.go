@@ -10,7 +10,8 @@ import (
 
 	"github.com/hashicorp/terraform/helper/logging"
 	"github.com/hashicorp/terraform/helper/pathorcontents"
-	"github.com/hashicorp/terraform/version"
+	"github.com/hashicorp/terraform/httpclient"
+	"github.com/terraform-providers/terraform-provider-google/version"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -24,7 +25,7 @@ import (
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
-	"google.golang.org/api/composer/v1"
+	"google.golang.org/api/composer/v1beta1"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
@@ -156,9 +157,10 @@ func (c *Config) loadAndValidate() error {
 
 	client.Transport = logging.NewTransport("Google", client.Transport)
 
-	projectURL := "https://www.terraform.io"
-	userAgent := fmt.Sprintf("Terraform/%s (+%s)",
-		version.String(), projectURL)
+	terraformVersion := httpclient.UserAgentString()
+	providerVersion := fmt.Sprintf("terraform-provider-google/%s", version.ProviderVersion)
+	terraformWebsite := "(+https://www.terraform.io)"
+	userAgent := fmt.Sprintf("%s %s %s", terraformVersion, terraformWebsite, providerVersion)
 
 	c.client = client
 	c.userAgent = userAgent

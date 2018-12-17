@@ -26,23 +26,16 @@ resource "google_service_account" "object_viewer" {
 
 The following arguments are supported:
 
-* `account_id` - (Required) The service account ID.
-    Changing this forces a new service account to be created.
+* `account_id` - (Required) The account id that is used to generate the service
+    account email address and a stable unique id. It is unique within a project,
+    must be 6-30 characters long, and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])`
+    to comply with RFC1035. Changing this forces a new service account to be created.
 
 * `display_name` - (Optional) The display name for the service account.
     Can be updated without creating a new resource.
 
 * `project` - (Optional) The ID of the project that the service account will be created in.
     Defaults to the provider project configuration.
-
-* `policy_data` - (DEPRECATED, Optional) The `google_iam_policy` data source that represents
-    the IAM policy that will be applied to the service account. The policy will be
-    merged with any existing policy.
-
-    This attribute has been deprecated. Use the [google_service_account_iam_* resources](google_service_account_iam.html) instead.
-
-    Deleting this removes the policy declared in Terraform. Any policy bindings
-    associated with the project before Terraform was used are not deleted.
 
 ## Attributes Reference
 

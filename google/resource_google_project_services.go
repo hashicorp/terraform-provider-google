@@ -23,7 +23,7 @@ func resourceGoogleProjectServices() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -32,10 +32,13 @@ func resourceGoogleProjectServices() *schema.Resource {
 			"services": {
 				Type:     schema.TypeSet,
 				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: StringNotInSlice(ignoredProjectServices, false),
+				},
 			},
-			"disable_on_destroy": &schema.Schema{
+			"disable_on_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
@@ -44,13 +47,11 @@ func resourceGoogleProjectServices() *schema.Resource {
 	}
 }
 
+var ignoredProjectServices = []string{"dataproc-control.googleapis.com", "source.googleapis.com", "stackdriverprovisioning.googleapis.com"}
+
 // These services can only be enabled as a side-effect of enabling other services,
 // so don't bother storing them in the config or using them for diffing.
-var ignoreProjectServices = map[string]struct{}{
-	"dataproc-control.googleapis.com":        struct{}{},
-	"source.googleapis.com":                  struct{}{},
-	"stackdriverprovisioning.googleapis.com": struct{}{},
-}
+var ignoreProjectServices = golangSetFromStringSlice(ignoredProjectServices)
 
 func resourceGoogleProjectServicesCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
@@ -150,7 +151,7 @@ func reconcileServices(cfgServices, apiServices []string, config *Config, pid st
 	cfgMap := m(cfgServices)
 	apiMap := m(apiServices)
 
-	for k, _ := range apiMap {
+	for k := range apiMap {
 		if _, ok := cfgMap[k]; !ok {
 			// The service in the API is not in the config; disable it.
 			err := disableService(k, pid, config)
@@ -165,7 +166,7 @@ func reconcileServices(cfgServices, apiServices []string, config *Config, pid st
 	}
 
 	keys := make([]string, 0, len(cfgMap))
-	for k, _ := range cfgMap {
+	for k := range cfgMap {
 		keys = append(keys, k)
 	}
 	err := enableServices(keys, pid, config)

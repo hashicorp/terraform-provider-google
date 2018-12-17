@@ -8,13 +8,14 @@ description: |-
 
 # google\_compute\_project\_metadata
 
-Manages metadata common to all instances for a project in GCE. For more information see
+Authoritatively manages metadata common to all instances for a project in GCE. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/storing-retrieving-metadata)
 and
 [API](https://cloud.google.com/compute/docs/reference/latest/projects/setCommonInstanceMetadata).
 
-~> **Note:**  If you want to manage only single key/value pairs within the project metadata
-rather than the entire set, then use
+~> **Note:**  This resource manages all project-level metadata including project-level ssh keys.
+Keys unset in config but set on the server will be removed. If you want to manage only single
+key/value pairs within the project metadata rather than the entire set, then use
 [google_compute_project_metadata_item](compute_project_metadata_item.html).
 
 ## Example Usage
@@ -33,8 +34,7 @@ resource "google_compute_project_metadata" "default" {
 
 The following arguments are supported:
 
-* `metadata` - (Required) A series of key value pairs. Changing this resource
-    updates the GCE state.
+* `metadata` - (Required) A series of key value pairs.
 
 - - -
 
@@ -44,3 +44,9 @@ The following arguments are supported:
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.
+
+## Import
+
+This resource can be imported using the project ID:
+
+`terraform import google_compute_project_metadata.foo my-project-id`

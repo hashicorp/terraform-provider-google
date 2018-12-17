@@ -42,40 +42,40 @@ func resourceComputeInstance() *schema.Resource {
 		// template. Please attempt to maintain consistency with the
 		// resource_compute_instance_template schema when updating this one.
 		Schema: map[string]*schema.Schema{
-			"boot_disk": &schema.Schema{
+			"boot_disk": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"auto_delete": &schema.Schema{
+						"auto_delete": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  true,
 							ForceNew: true,
 						},
 
-						"device_name": &schema.Schema{
+						"device_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
 
-						"disk_encryption_key_raw": &schema.Schema{
+						"disk_encryption_key_raw": {
 							Type:      schema.TypeString,
 							Optional:  true,
 							ForceNew:  true,
 							Sensitive: true,
 						},
 
-						"disk_encryption_key_sha256": &schema.Schema{
+						"disk_encryption_key_sha256": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 
-						"initialize_params": &schema.Schema{
+						"initialize_params": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Computed: true,
@@ -83,7 +83,7 @@ func resourceComputeInstance() *schema.Resource {
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"size": &schema.Schema{
+									"size": {
 										Type:         schema.TypeInt,
 										Optional:     true,
 										Computed:     true,
@@ -91,7 +91,7 @@ func resourceComputeInstance() *schema.Resource {
 										ValidateFunc: validation.IntAtLeast(1),
 									},
 
-									"type": &schema.Schema{
+									"type": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										Computed:     true,
@@ -99,7 +99,7 @@ func resourceComputeInstance() *schema.Resource {
 										ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd"}, false),
 									},
 
-									"image": &schema.Schema{
+									"image": {
 										Type:             schema.TypeString,
 										Optional:         true,
 										Computed:         true,
@@ -110,7 +110,7 @@ func resourceComputeInstance() *schema.Resource {
 							},
 						},
 
-						"source": &schema.Schema{
+						"source": {
 							Type:             schema.TypeString,
 							Optional:         true,
 							Computed:         true,
@@ -122,24 +122,24 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
-			"machine_type": &schema.Schema{
+			"machine_type": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"network_interface": &schema.Schema{
+			"network_interface": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"network": &schema.Schema{
+						"network": {
 							Type:             schema.TypeString,
 							Optional:         true,
 							Computed:         true,
@@ -147,7 +147,7 @@ func resourceComputeInstance() *schema.Resource {
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 						},
 
-						"subnetwork": &schema.Schema{
+						"subnetwork": {
 							Type:             schema.TypeString,
 							Optional:         true,
 							Computed:         true,
@@ -155,61 +155,50 @@ func resourceComputeInstance() *schema.Resource {
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 						},
 
-						"subnetwork_project": &schema.Schema{
+						"subnetwork_project": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
 
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 
-						"address": &schema.Schema{
-							Type:       schema.TypeString,
-							Optional:   true,
-							ForceNew:   true,
-							Computed:   true,
-							Deprecated: "Please use network_ip",
-						},
-
-						"network_ip": &schema.Schema{
+						"network_ip": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 							Computed: true,
 						},
 
-						"access_config": &schema.Schema{
+						"access_config": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"nat_ip": &schema.Schema{
+									"nat_ip": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
 									},
 
-									"network_tier": &schema.Schema{
+									"network_tier": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										Computed:     true,
 										ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
 									},
 
-									// It's unclear why this field exists, as
-									// nat_ip can be both optional and computed.
-									// Consider deprecating it.
-									"assigned_nat_ip": &schema.Schema{
-										Type:       schema.TypeString,
-										Computed:   true,
-										Deprecated: "Use network_interface.access_config.nat_ip instead.",
+									"assigned_nat_ip": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Removed:  "Use network_interface.access_config.nat_ip instead.",
 									},
 
-									"public_ptr_domain_name": &schema.Schema{
+									"public_ptr_domain_name": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
@@ -217,63 +206,71 @@ func resourceComputeInstance() *schema.Resource {
 							},
 						},
 
-						"alias_ip_range": &schema.Schema{
+						"alias_ip_range": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"ip_cidr_range": &schema.Schema{
+									"ip_cidr_range": {
 										Type:             schema.TypeString,
 										Required:         true,
 										DiffSuppressFunc: ipCidrRangeDiffSuppress,
 									},
-									"subnetwork_range_name": &schema.Schema{
+									"subnetwork_range_name": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
 								},
 							},
+						},
+
+						"address": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+							Removed:  "Please use network_ip",
 						},
 					},
 				},
 			},
 
-			"allow_stopping_for_update": &schema.Schema{
+			"allow_stopping_for_update": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
 
-			"attached_disk": &schema.Schema{
+			"attached_disk": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"source": &schema.Schema{
+						"source": {
 							Type:             schema.TypeString,
 							Required:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 						},
 
-						"device_name": &schema.Schema{
+						"device_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 						},
 
-						"mode": &schema.Schema{
+						"mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "READ_WRITE",
 							ValidateFunc: validation.StringInSlice([]string{"READ_WRITE", "READ_ONLY"}, false),
 						},
 
-						"disk_encryption_key_raw": &schema.Schema{
+						"disk_encryption_key_raw": {
 							Type:      schema.TypeString,
 							Optional:  true,
 							Sensitive: true,
 						},
 
-						"disk_encryption_key_sha256": &schema.Schema{
+						"disk_encryption_key_sha256": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -281,33 +278,32 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
-			"can_ip_forward": &schema.Schema{
+			"can_ip_forward": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 				ForceNew: true,
 			},
 
-			"create_timeout": &schema.Schema{
-				Type:       schema.TypeInt,
-				Optional:   true,
-				Default:    4,
-				Deprecated: "Use timeouts block instead.",
+			"create_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Removed:  "Use timeouts block instead.",
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"deletion_protection": &schema.Schema{
+			"deletion_protection": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
 
-			"disk": &schema.Schema{
+			"disk": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
@@ -316,56 +312,56 @@ func resourceComputeInstance() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						// TODO(mitchellh): one of image or disk is required
 
-						"disk": &schema.Schema{
+						"disk": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
 
-						"image": &schema.Schema{
+						"image": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
 
-						"type": &schema.Schema{
+						"type": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
 
-						"scratch": &schema.Schema{
+						"scratch": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							ForceNew: true,
 						},
 
-						"auto_delete": &schema.Schema{
+						"auto_delete": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  true,
 							ForceNew: true,
 						},
 
-						"size": &schema.Schema{
+						"size": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							ForceNew: true,
 						},
 
-						"device_name": &schema.Schema{
+						"device_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 
-						"disk_encryption_key_raw": &schema.Schema{
+						"disk_encryption_key_raw": {
 							Type:      schema.TypeString,
 							Optional:  true,
 							ForceNew:  true,
 							Sensitive: true,
 						},
 
-						"disk_encryption_key_sha256": &schema.Schema{
+						"disk_encryption_key_sha256": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -373,19 +369,19 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
-			"guest_accelerator": &schema.Schema{
+			"guest_accelerator": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"count": &schema.Schema{
+						"count": {
 							Type:     schema.TypeInt,
 							Required: true,
 							ForceNew: true,
 						},
-						"type": &schema.Schema{
+						"type": {
 							Type:             schema.TypeString,
 							Required:         true,
 							ForceNew:         true,
@@ -395,94 +391,57 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
-			"labels": &schema.Schema{
+			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
 
-			"metadata": &schema.Schema{
+			"metadata": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"metadata_startup_script": &schema.Schema{
+			"metadata_startup_script": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"min_cpu_platform": &schema.Schema{
+			"min_cpu_platform": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
-			"network": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				Removed:  "Please use network_interface",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"source": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-
-						"address": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-						},
-
-						"name": &schema.Schema{
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-
-						"internal_address": &schema.Schema{
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-
-						"external_address": &schema.Schema{
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
-
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"scheduling": &schema.Schema{
+			"scheduling": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"on_host_maintenance": &schema.Schema{
+						"on_host_maintenance": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 						},
 
-						"automatic_restart": &schema.Schema{
+						"automatic_restart": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  true,
 						},
 
-						"preemptible": &schema.Schema{
+						"preemptible": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
@@ -492,13 +451,13 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
-			"scratch_disk": &schema.Schema{
+			"scratch_disk": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"interface": &schema.Schema{
+						"interface": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "SCSI",
@@ -508,19 +467,19 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
-			"service_account": &schema.Schema{
+			"service_account": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"email": &schema.Schema{
+						"email": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 						},
 
-						"scopes": &schema.Schema{
+						"scopes": {
 							Type:     schema.TypeSet,
 							Required: true,
 							Elem: &schema.Schema{
@@ -535,46 +494,46 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
-			"tags": &schema.Schema{
+			"tags": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
 
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"cpu_platform": &schema.Schema{
+			"cpu_platform": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"instance_id": &schema.Schema{
+			"instance_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"label_fingerprint": &schema.Schema{
+			"label_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"metadata_fingerprint": &schema.Schema{
+			"metadata_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"tags_fingerprint": &schema.Schema{
+			"tags_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -666,12 +625,22 @@ func expandComputeInstance(project string, zone *compute.Zone, d *schema.Resourc
 		disks = append(disks, disk)
 	}
 
-	prefix := "scheduling.0"
-	scheduling := &computeBeta.Scheduling{
-		AutomaticRestart:  googleapi.Bool(d.Get(prefix + ".automatic_restart").(bool)),
-		Preemptible:       d.Get(prefix + ".preemptible").(bool),
-		OnHostMaintenance: d.Get(prefix + ".on_host_maintenance").(string),
-		ForceSendFields:   []string{"AutomaticRestart", "Preemptible"},
+	sch := d.Get("scheduling").([]interface{})
+	var scheduling *computeBeta.Scheduling
+	if len(sch) == 0 {
+		// TF doesn't do anything about defaults inside of nested objects, so if
+		// scheduling hasn't been set, then send it with its default values.
+		scheduling = &computeBeta.Scheduling{
+			AutomaticRestart: googleapi.Bool(true),
+		}
+	} else {
+		prefix := "scheduling.0"
+		scheduling = &computeBeta.Scheduling{
+			AutomaticRestart:  googleapi.Bool(d.Get(prefix + ".automatic_restart").(bool)),
+			Preemptible:       d.Get(prefix + ".preemptible").(bool),
+			OnHostMaintenance: d.Get(prefix + ".on_host_maintenance").(string),
+			ForceSendFields:   []string{"AutomaticRestart", "Preemptible"},
+		}
 	}
 
 	metadata, err := resourceInstanceMetadata(d)
@@ -735,11 +704,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Read create timeout
-	// Until "create_timeout" is removed, use that timeout if set.
 	createTimeout := int(d.Timeout(schema.TimeoutCreate).Minutes())
-	if v, ok := d.GetOk("create_timeout"); ok && v != 4 {
-		createTimeout = v.(int)
-	}
 
 	log.Printf("[INFO] Requesting instance creation")
 	op, err := config.clientComputeBeta.Instances.Insert(project, zone.Name, instance).Do()
@@ -789,17 +754,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		delete(md, "startup-script")
 	}
 
-	// Delete any keys not explicitly set in our config file
-	for k := range md {
-		if _, ok := existingMetadata[k]; !ok {
-			delete(md, k)
-		}
-	}
-
 	if err = d.Set("metadata", md); err != nil {
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
 
+	d.Set("metadata_fingerprint", instance.Metadata.Fingerprint)
 	d.Set("can_ip_forward", instance.CanIpForward)
 	d.Set("machine_type", GetResourceNameFromSelfLink(instance.MachineType))
 
@@ -826,11 +785,6 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		"type": "ssh",
 		"host": sshIP,
 	})
-
-	// Set the metadata fingerprint if there is one.
-	if instance.Metadata != nil {
-		d.Set("metadata_fingerprint", instance.Metadata.Fingerprint)
-	}
 
 	// Set the tags fingerprint if there is one.
 	if instance.Tags != nil {
@@ -966,59 +920,28 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	// Enable partial mode for the resource since it is possible
 	d.Partial(true)
 
-	// If the Metadata has changed, then update that.
 	if d.HasChange("metadata") {
-		o, n := d.GetChange("metadata")
-		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists && script != "" {
-			if _, ok := n.(map[string]interface{})["startup-script"]; ok {
-				return fmt.Errorf("Only one of metadata.startup-script and metadata_startup_script may be defined")
-			}
-
-			if err = d.Set("metadata", n); err != nil {
-				return err
-			}
-			n.(map[string]interface{})["startup-script"] = script
+		metadata, err := resourceInstanceMetadata(d)
+		if err != nil {
+			return fmt.Errorf("Error parsing metadata: %s", err)
 		}
 
-		updateMD := func() error {
-			// Reload the instance in the case of a fingerprint mismatch
-			instance, err = getInstance(config, d)
-			if err != nil {
-				return err
-			}
-
-			md := instance.Metadata
-
-			BetaMetadataUpdate(o.(map[string]interface{}), n.(map[string]interface{}), md)
-
-			if err != nil {
-				return fmt.Errorf("Error updating metadata: %s", err)
-			}
-
-			mdV1 := &compute.Metadata{}
-			err = Convert(md, mdV1)
-			if err != nil {
-				return err
-			}
-
-			op, err := config.clientCompute.Instances.SetMetadata(
-				project, zone, d.Id(), mdV1).Do()
-			if err != nil {
-				return fmt.Errorf("Error updating metadata: %s", err)
-			}
-
-			opErr := computeOperationWaitTime(config.clientCompute, op, project, "metadata to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-			if opErr != nil {
-				return opErr
-			}
-
-			d.SetPartial("metadata")
-
-			return nil
+		metadataV1 := &compute.Metadata{}
+		if err := Convert(metadata, metadataV1); err != nil {
+			return err
 		}
 
-		MetadataRetryWrapper(updateMD)
+		op, err := config.clientCompute.Instances.SetMetadata(project, zone, d.Id(), metadataV1).Do()
+		if err != nil {
+			return fmt.Errorf("Error updating metadata: %s", err)
+		}
 
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "metadata to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		if opErr != nil {
+			return opErr
+		}
+
+		d.SetPartial("metadata")
 	}
 
 	if d.HasChange("tags") {
