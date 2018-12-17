@@ -298,7 +298,6 @@ resource "google_cloudbuild_trigger" "filename_build_trigger" {
   description = "acceptance test build trigger"
   trigger_template {
     branch_name = "master"
-    project     = "${google_project_services.acceptance.project}"
     repo_name   = "some-repo"
   }
   substitutions {
