@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
@@ -64,30 +63,6 @@ func getProjectFromDiff(d *schema.ResourceDiff, config *Config) (string, error) 
 }
 
 func getZonalResourceFromRegion(getResource func(string) (interface{}, error), region string, compute *compute.Service, project string) (interface{}, error) {
-	zoneList, err := compute.Zones.List(project).Do()
-	if err != nil {
-		return nil, err
-	}
-	var resource interface{}
-	for _, zone := range zoneList.Items {
-		if strings.Contains(zone.Name, region) {
-			resource, err = getResource(zone.Name)
-			if err != nil {
-				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-					// Resource was not found in this zone
-					continue
-				}
-				return nil, fmt.Errorf("Error reading Resource: %s", err)
-			}
-			// Resource was found
-			return resource, nil
-		}
-	}
-	// Resource does not exist in this region
-	return nil, nil
-}
-
-func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error), region string, compute *computeBeta.Service, project string) (interface{}, error) {
 	zoneList, err := compute.Zones.List(project).Do()
 	if err != nil {
 		return nil, err
