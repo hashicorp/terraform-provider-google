@@ -33,13 +33,17 @@ func isEmptyValue(v reflect.Value) bool {
 }
 
 func sendRequest(config *Config, method, rawurl string, body map[string]interface{}) (map[string]interface{}, error) {
-	return sendRequestWithTimeout(config, method, rawurl, body, 0)
+	return sendRequestWithTimeout(config, method, rawurl, body, 5*time.Minute)
 }
 
 func sendRequestWithTimeout(config *Config, method, rawurl string, body map[string]interface{}, timeout time.Duration) (map[string]interface{}, error) {
 	reqHeaders := make(http.Header)
 	reqHeaders.Set("User-Agent", config.userAgent)
 	reqHeaders.Set("Content-Type", "application/json")
+
+	if timeout == 0 {
+		timeout = time.Duration(1) * time.Hour
+	}
 
 	var res *http.Response
 	err := retryTimeDuration(
