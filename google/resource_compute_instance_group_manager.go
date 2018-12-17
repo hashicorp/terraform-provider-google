@@ -361,6 +361,7 @@ func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.Instance
 	if err != nil {
 		return nil, err
 	}
+
 	if zonalID.Project == "" {
 		project, err := getProject(d, config)
 		if err != nil {
@@ -368,34 +369,14 @@ func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.Instance
 		}
 		zonalID.Project = project
 	}
+
 	if zonalID.Zone == "" {
 		zonalID.Zone, _ = getZone(d, config)
 	}
 
-	getInstanceGroupManager := func(zone string) (interface{}, error) {
-		return config.clientComputeBeta.InstanceGroupManagers.Get(zonalID.Project, zone, zonalID.Name).Do()
-	}
-
-	var manager *computeBeta.InstanceGroupManager
-	if zonalID.Zone == "" {
-		// If the resource was imported, the only info we have is the ID. Try to find the resource
-		// by searching in the region of the project.
-		region, err := getRegion(d, config)
-		if err != nil {
-			return nil, err
-		}
-		resource, err := getZonalBetaResourceFromRegion(getInstanceGroupManager, region, config.clientComputeBeta, zonalID.Project)
-		if err != nil {
-			return nil, err
-		}
-		if resource != nil {
-			manager = resource.(*computeBeta.InstanceGroupManager)
-		}
-	} else {
-		manager, err = config.clientComputeBeta.InstanceGroupManagers.Get(zonalID.Project, zonalID.Zone, zonalID.Name).Do()
-		if err != nil {
-			return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance Group Manager %q", zonalID.Name))
-		}
+	manager, err := config.clientComputeBeta.InstanceGroupManagers.Get(zonalID.Project, zonalID.Zone, zonalID.Name).Do()
+	if err != nil {
+		return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance Group Manager %q", zonalID.Name))
 	}
 
 	if manager == nil {
