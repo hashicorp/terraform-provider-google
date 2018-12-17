@@ -15,6 +15,7 @@ BACKWARDS INCOMPATIBILITIES:
 * compute: `google_compute_instance_group_manager` is no longer imported by the provider-level region. Set the appropriate provider-level zone instead. [GH-2693]
 * compute: `google_compute_region_instance_group_manager.update_strategy` in the `google-beta` provider has been removed. [GH-2594]
 * compute: `google_compute_instance`, `google_compute_instance_template`, `google_compute_instance_from_template` have had the `network_interface.address` field removed. [GH-2595]
+* compute: `google_compute_disk` is no longer imported by the provider-level region. Set the appropriate provider-level zone instead. [GH-2694]
 * container: `google_container_cluster` fields (`private_cluster`, `master_ipv4_cidr_block`) are removed. Use `private_cluster_config` and `private_cluster_config.master_ipv4_cidr_block` instead. [GH-2395]
 * container: `google_container_cluster` fields (`enable_binary_authorization`, `enable_tpu`, `pod_security_policy_config`) are removed from the `google` provider and must be used in the `google-beta` provider. [GH-2395]
 * container: `google_container_cluster.node_config` fields (`taints`, `workload_metadata_config`) are removed from the `google` provider and must be used in the `google-beta` provider. [GH-2601]
