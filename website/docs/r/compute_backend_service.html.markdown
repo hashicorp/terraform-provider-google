@@ -107,6 +107,10 @@ but still work to finish started ones). Defaults to `300`.
     affinity), `CLIENT_IP` (hash of the source/dest addresses / ports), and
     `GENERATED_COOKIE` (distribute load using a generated session cookie).
 
+* `affinity_cookie_ttl_sec` - (Optional) Lifetime of cookies in seconds if session_affinity is
+    `GENERATED_COOKIE`. If set to 0, the cookie is non-persistent and lasts only until the end of
+    the browser session (or equivalent). The maximum allowed value for TTL is one day.
+
 * `timeout_sec` - (Optional) The number of secs to wait for a backend to respond
     to a request before considering the request failed. Defaults to `30`.
 
