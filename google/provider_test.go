@@ -70,6 +70,13 @@ func TestProvider_impl(t *testing.T) {
 	var _ terraform.ResourceProvider = Provider()
 }
 
+func TestProvider_noDuplicatesInResourceMap(t *testing.T) {
+	_, err := ResourceMapWithErrors()
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("GOOGLE_CREDENTIALS_FILE"); v != "" {
 		creds, err := ioutil.ReadFile(v)
