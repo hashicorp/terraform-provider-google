@@ -817,32 +817,6 @@ func resourceComputeDiskImport(d *schema.ResourceData, meta interface{}) ([]*sch
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-	// In the end, it's possible that someone has tried to import
-	// a disk using only the region.  To find out what zone the
-	// disk is in, we need to check every zone in the region, to
-	// see if we can find a disk with the same name.  This will
-	// find the first disk in the specified region with a matching
-	// name.  There might be multiple matching disks - we're not
-	// considering that an error case here.  We don't check for it.
-	if zone, err := getZone(d, config); err != nil || zone == "" {
-		project, err := getProject(d, config)
-		if err != nil {
-			return nil, err
-		}
-		region, err := getRegion(d, config)
-		if err != nil {
-			return nil, err
-		}
-
-		getDisk := func(zone string) (interface{}, error) {
-			return config.clientCompute.Disks.Get(project, zone, d.Id()).Do()
-		}
-		resource, err := getZonalResourceFromRegion(getDisk, region, config.clientCompute, project)
-		if err != nil {
-			return nil, err
-		}
-		d.Set("zone", resource.(*compute.Disk).Zone)
-	}
 
 	return []*schema.ResourceData{d}, nil
 }
