@@ -46,6 +46,7 @@ import (
 	"google.golang.org/api/spanner/v1"
 	"google.golang.org/api/sqladmin/v1beta4"
 	"google.golang.org/api/storage/v1"
+	"google.golang.org/api/storagetransfer/v1"
 )
 
 // Config is the configuration structure used to instantiate the Google
@@ -91,6 +92,7 @@ type Config struct {
 	clientCloudFunctions         *cloudfunctions.Service
 	clientCloudIoT               *cloudiot.Service
 	clientAppEngine              *appengine.APIService
+	clientStorageTransfer        *storagetransfer.Service
 
 	bigtableClientFactory *BigtableClientFactory
 }
@@ -378,6 +380,13 @@ func (c *Config) loadAndValidate() error {
 		return err
 	}
 	c.clientComposer.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud Storage Transfer Client...")
+	c.clientStorageTransfer, err = storagetransfer.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientStorageTransfer.UserAgent = userAgent
 
 	return nil
 }
