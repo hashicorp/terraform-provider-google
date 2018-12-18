@@ -113,3 +113,6 @@ $ terraform import google_dns_managed_zone.default projects/{{project}}/managedZ
 $ terraform import google_dns_managed_zone.default {{project}}/{{name}}
 $ terraform import google_dns_managed_zone.default {{name}}
 ```
+
+-> If you're importing a resource with beta features, make sure to include `provider=google-beta"
+as an argument so that Terraform uses the correct provider to import your resource.
