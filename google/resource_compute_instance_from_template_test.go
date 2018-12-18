@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -31,6 +32,93 @@ func TestAccComputeInstanceFromTemplate_basic(t *testing.T) {
 					// Check that fields were set based on the template
 					resource.TestCheckResourceAttr(resourceName, "machine_type", "n1-standard-1"),
 					resource.TestCheckResourceAttr(resourceName, "attached_disk.#", "1"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceFromTemplate_overrideBootDisk(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	templateName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	templateDisk := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	overrideDisk := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	resourceName := "google_compute_instance_from_template.inst"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplate_overrideBootDisk(templateDisk, overrideDisk, templateName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+
+					// Check that fields were set based on the template
+					resource.TestCheckResourceAttr(resourceName, "boot_disk.#", "1"),
+					resource.TestMatchResourceAttr(resourceName, "boot_disk.0.source", regexp.MustCompile(overrideDisk)),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceFromTemplate_overrideAttachedDisk(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	templateName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	templateDisk := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	overrideDisk := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	resourceName := "google_compute_instance_from_template.inst"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplate_overrideAttachedDisk(templateDisk, overrideDisk, templateName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+
+					// Check that fields were set based on the template
+					resource.TestCheckResourceAttr(resourceName, "attached_disk.#", "1"),
+					resource.TestMatchResourceAttr(resourceName, "attached_disk.0.source", regexp.MustCompile(overrideDisk)),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceFromTemplate_overrideScratchDisk(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	templateName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	templateDisk := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	overrideDisk := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	resourceName := "google_compute_instance_from_template.inst"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplate_overrideScratchDisk(templateDisk, overrideDisk, templateName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+
+					// Check that fields were set based on the template
+					resource.TestCheckResourceAttr(resourceName, "scratch_disk.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "scratch_disk.0.interface", "NVME"),
 				),
 			},
 		},
@@ -111,4 +199,194 @@ resource "google_compute_instance_from_template" "foobar" {
 	}
 }
 `, template, template, instance)
+}
+
+func testAccComputeInstanceFromTemplate_overrideBootDisk(templateDisk, overrideDisk, template, instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "template_disk" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_disk" "override_disk" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 20
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance_template" "template" {
+	name = "%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		auto_delete = true
+		disk_size_gb = 100
+		boot = true
+	}
+
+	disk {
+		source = "${google_compute_disk.template_disk.name}"
+		auto_delete = false
+		boot = false
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	metadata {
+		foo = "bar"
+	}
+
+	can_ip_forward = true
+}
+
+resource "google_compute_instance_from_template" "inst" {
+	name           = "%s"
+	zone           = "us-central1-a"
+
+	source_instance_template = "${google_compute_instance_template.template.self_link}"
+
+	// Overrides
+	boot_disk {
+		source = "${google_compute_disk.override_disk.self_link}"
+	}
+}
+`, templateDisk, overrideDisk, template, instance)
+}
+
+func testAccComputeInstanceFromTemplate_overrideAttachedDisk(templateDisk, overrideDisk, template, instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "template_disk" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_disk" "override_disk" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 20
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance_template" "template" {
+	name = "%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		auto_delete = true
+		disk_size_gb = 100
+		boot = true
+	}
+
+	disk {
+		source = "${google_compute_disk.template_disk.name}"
+		auto_delete = false
+		boot = false
+	}
+
+	disk {
+		source_image = "debian-cloud/debian-9"
+		auto_delete = true
+		boot = false
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+
+resource "google_compute_instance_from_template" "inst" {
+	name           = "%s"
+	zone           = "us-central1-a"
+
+	source_instance_template = "${google_compute_instance_template.template.self_link}"
+
+	// Overrides
+	attached_disk {
+		source = "${google_compute_disk.override_disk.name}"
+	}
+}
+`, templateDisk, overrideDisk, template, instance)
+}
+
+func testAccComputeInstanceFromTemplate_overrideScratchDisk(templateDisk, overrideDisk, template, instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "template_disk" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_disk" "override_disk" {
+	name = "%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 20
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance_template" "template" {
+	name = "%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		auto_delete = true
+		disk_size_gb = 100
+		boot = true
+	}
+
+	disk {
+		type = "SCRATCH"
+		interface = "SCSI"
+		auto_delete = true
+		boot = false
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+
+resource "google_compute_instance_from_template" "inst" {
+	name           = "%s"
+	zone           = "us-central1-a"
+
+	source_instance_template = "${google_compute_instance_template.template.self_link}"
+
+	// Overrides
+	scratch_disk {
+		interface = "NVME"
+	}
+}
+`, templateDisk, overrideDisk, template, instance)
 }
