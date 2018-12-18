@@ -19,7 +19,7 @@ func dataSourceGoogleComputeZones() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,

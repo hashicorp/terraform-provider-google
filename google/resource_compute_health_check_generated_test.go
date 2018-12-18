@@ -20,6 +20,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeHealthCheck_healthCheckBasicExample(t *testing.T) {
@@ -56,4 +57,26 @@ resource "google_compute_health_check" "internal-health-check" {
 }
 `, val,
 	)
+}
+
+func testAccCheckComputeHealthCheckDestroy(s *terraform.State) error {
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "google_compute_health_check" {
+			continue
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/healthChecks/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		_, err = sendRequest(config, "GET", url, nil)
+		if err == nil {
+			return fmt.Errorf("ComputeHealthCheck still exists at %s", url)
+		}
+	}
+
+	return nil
 }

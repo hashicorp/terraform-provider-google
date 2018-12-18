@@ -113,7 +113,7 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Creating new BackendBucket: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating BackendBucket: %s", err)
 	}
@@ -163,29 +163,30 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeBackendBucket %q", d.Id()))
 	}
 
-	if err := d.Set("bucket_name", flattenComputeBackendBucketBucketName(res["bucketName"])); err != nil {
-		return fmt.Errorf("Error reading BackendBucket: %s", err)
-	}
-	if err := d.Set("creation_timestamp", flattenComputeBackendBucketCreationTimestamp(res["creationTimestamp"])); err != nil {
-		return fmt.Errorf("Error reading BackendBucket: %s", err)
-	}
-	if err := d.Set("description", flattenComputeBackendBucketDescription(res["description"])); err != nil {
-		return fmt.Errorf("Error reading BackendBucket: %s", err)
-	}
-	if err := d.Set("enable_cdn", flattenComputeBackendBucketEnableCdn(res["enableCdn"])); err != nil {
-		return fmt.Errorf("Error reading BackendBucket: %s", err)
-	}
-	if err := d.Set("name", flattenComputeBackendBucketName(res["name"])); err != nil {
-		return fmt.Errorf("Error reading BackendBucket: %s", err)
-	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading BackendBucket: %s", err)
-	}
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+
+	if err := d.Set("bucket_name", flattenComputeBackendBucketBucketName(res["bucketName"], d)); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+	if err := d.Set("creation_timestamp", flattenComputeBackendBucketCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+	if err := d.Set("description", flattenComputeBackendBucketDescription(res["description"], d)); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+	if err := d.Set("enable_cdn", flattenComputeBackendBucketEnableCdn(res["enableCdn"], d)); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+	if err := d.Set("name", flattenComputeBackendBucketName(res["name"], d)); err != nil {
+		return fmt.Errorf("Error reading BackendBucket: %s", err)
+	}
+	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
 
@@ -227,7 +228,7 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Updating BackendBucket %q: %#v", d.Id(), obj)
-	res, err := sendRequest(config, "PUT", url, obj)
+	res, err := sendRequestWithTimeout(config, "PUT", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating BackendBucket %q: %s", d.Id(), err)
@@ -264,7 +265,7 @@ func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting BackendBucket %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "BackendBucket")
 	}
@@ -305,23 +306,23 @@ func resourceComputeBackendBucketImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeBackendBucketBucketName(v interface{}) interface{} {
+func flattenComputeBackendBucketBucketName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeBackendBucketCreationTimestamp(v interface{}) interface{} {
+func flattenComputeBackendBucketCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeBackendBucketDescription(v interface{}) interface{} {
+func flattenComputeBackendBucketDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeBackendBucketEnableCdn(v interface{}) interface{} {
+func flattenComputeBackendBucketEnableCdn(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeBackendBucketName(v interface{}) interface{} {
+func flattenComputeBackendBucketName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 

@@ -19,7 +19,7 @@ func TestAccDataSourceComputeInstance_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourceComputeInstanceConfig(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceComputeInstanceCheck("data.google_compute_instance.bar", "google_compute_instance.foo"),
@@ -114,8 +114,6 @@ resource "google_compute_instance" "foo" {
 		foo = "bar"
 		baz = "qux"
 	}
-
-	create_timeout = 5
 
 	metadata {
 		startup-script = "echo Hello"

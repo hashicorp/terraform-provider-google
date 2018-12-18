@@ -52,7 +52,12 @@ The following arguments are supported:
 
 * `description` - (Optional) A human-readable description for the role.
 
-* `deleted` - (Optional) The current deleted state of the role. Defaults to `false`.
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are
+exported:
+
+* `deleted` - (Optional) The current deleted state of the role.
 
 ## Import
 

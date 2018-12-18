@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
-	composer "google.golang.org/api/composer/v1"
+	composer "google.golang.org/api/composer/v1beta1"
 )
 
 type ComposerOperationWaiter struct {
@@ -34,10 +34,6 @@ func (w *ComposerOperationWaiter) Conf() *resource.StateChangeConf {
 		Target:  []string{"true"},
 		Refresh: w.RefreshFunc(),
 	}
-}
-
-func composerOperationWait(service *composer.Service, op *composer.Operation, project, activity string) error {
-	return composerOperationWaitTime(service, op, project, activity, 10)
 }
 
 func composerOperationWaitTime(service *composer.Service, op *composer.Operation, project, activity string, timeoutMin int) error {

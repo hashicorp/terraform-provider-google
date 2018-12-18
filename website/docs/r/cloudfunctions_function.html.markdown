@@ -50,10 +50,6 @@ The following arguments are supported:
 
 * `name` - (Required) A user-defined name of the function. Function names must be unique globally.
 
-* `source_archive_bucket` - (Required) The GCS bucket containing the zip archive which contains the function.
-
-* `source_archive_object` - (Required) The source archive object (file) in archive bucket.
-
 - - -
 
 * `description` - (Optional) Description of the function.
@@ -62,30 +58,32 @@ The following arguments are supported:
 
 * `timeout` - (Optional) Timeout (in seconds) for the function. Default value is 60 seconds. Cannot be more than 540 seconds.
 
-* `entry_point` - (Optional) Name of a JavaScript function that will be executed when the Google Cloud Function is triggered.
+* `entry_point` - (Optional) Name of the function that will be executed when the Google Cloud Function is triggered.
 
 * `event_trigger` - (Optional) A source that fires events in response to a condition in another service. Structure is documented below. Cannot be used with `trigger_http`.
 
 * `trigger_http` - (Optional) Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as `https_trigger_url`. Cannot be used with `trigger_bucket` and `trigger_topic`.
 
-* `trigger_bucket` - (Optional) Google Cloud Storage bucket name. Every change in files in this bucket will trigger function execution. Cannot be used with `trigger_http` and `trigger_topic`.
-Deprecated. Use `event_trigger` instead.
-
-* `trigger_topic` - (Optional) Name of Pub/Sub topic. Every message published in this topic will trigger function execution with message contents passed as input data. Cannot be used with `trigger_http` and `trigger_bucket`.
-Deprecated. Use `event_trigger` instead.
-
 * `labels` - (Optional) A set of key/value label pairs to assign to the function.
+
+* `runtime` - (Optional) The runtime in which the function is going to run. If empty, defaults to `"nodejs6"`.
 
 * `environment_variables` - (Optional) A set of key/value environment variable pairs to assign to the function.
 
-* `retry_on_failure` - (Optional) Whether the function should be retried on failure. This only applies to bucket and topic triggers, not HTTPS triggers.
-Deprecated. Use `event_trigger.failure_policy.retry` instead.
+* `source_archive_bucket` - (Optional) The GCS bucket containing the zip archive which contains the function.
+
+* `source_archive_object` - (Optional) The source archive object (file) in archive bucket.
+
+* `source_repository` - (Optional) Represents parameters related to source repository where a function is hosted.
+  Cannot be set alongside `source_archive_bucket` or `source_archive_object`. Structure is documented below.
 
 The `event_trigger` block supports:
 
-* `event_type` - (Required) The type of event to observe. For example: `"providers/cloud.storage/eventTypes/object.change"`
-    and `"providers/cloud.pubsub/eventTypes/topic.publish"`. See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/)
-    for a full reference. Only Cloud Storage and Cloud Pub/Sub triggers are supported at this time.
+* `event_type` - (Required) The type of event to observe. For example: `"google.storage.object.finalize"`.
+See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/) for a full reference.
+Cloud Storage, Cloud Pub/Sub and Cloud Firestore triggers are supported at this time.
+Legacy triggers are supported, such as `"providers/cloud.storage/eventTypes/object.change"`, 
+`"providers/cloud.pubsub/eventTypes/topic.publish"` and `"providers/cloud.firestore/eventTypes/document.create"`.
 
 * `resource` - (Required) Required. The name of the resource from which to observe events, for example, `"myBucket"`   
 
@@ -95,12 +93,22 @@ The `failure_policy` block supports:
 
 * `retry` - (Required) Whether the function should be retried on failure. Defaults to `false`.
 
+The `source_reposoitory` block supports:
+
+* `url` - (Required) The URL pointing to the hosted repository where the function is defined. There are supported Cloud Source Repository URLs in the following formats:
+
+    * To refer to a specific commit: `https://source.developers.google.com/projects/*/repos/*/revisions/*/paths/*`
+    * To refer to a moveable alias (branch): `https://source.developers.google.com/projects/*/repos/*/moveable-aliases/*/paths/*`. To refer to HEAD, use the `master` moveable alias.
+    * To refer to a specific fixed alias (tag): `https://source.developers.google.com/projects/*/repos/*/fixed-aliases/*/paths/*`
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `https_trigger_url` - URL which triggers function execution. Returned only if `trigger_http` is used.
+
+* `source_reposoitory.0.deployed_url` - The URL pointing to the hosted repository where the function was defined at the time of deployment.
 
 * `project` - Project of the function. If it is not provided, the provider project is used.
 

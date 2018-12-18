@@ -17,7 +17,7 @@ func TestAccComputeTargetPool_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetPoolDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetPool_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetPoolExists(
@@ -28,10 +28,53 @@ func TestAccComputeTargetPool_basic(t *testing.T) {
 					testAccCheckComputeTargetPoolHealthCheck("google_compute_target_pool.bar", "google_compute_http_health_check.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_target_pool.foo",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeTargetPool_update(t *testing.T) {
+	t.Parallel()
+
+	tpname := fmt.Sprintf("tptest-%s", acctest.RandString(10))
+	name1 := fmt.Sprintf("tptest-%s", acctest.RandString(10))
+	name2 := fmt.Sprintf("tptest-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeTargetPoolDestroy,
+		Steps: []resource.TestStep{
+			{
+				// Create target pool with no instances attached
+				Config: testAccComputeTargetPool_update(tpname, "", name1, name2),
+			},
+			{
+				ResourceName:      "google_compute_target_pool.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Add the two instances to the pool
+				Config: testAccComputeTargetPool_update(tpname,
+					`"${google_compute_instance.foo.self_link}", "${google_compute_instance.bar.self_link}"`,
+					name1, name2),
+			},
+			{
+				ResourceName:      "google_compute_target_pool.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Reversing the order of instances or changing import format shouldn't matter
+				Config: testAccComputeTargetPool_update(tpname,
+					fmt.Sprintf(`"${google_compute_instance.bar.self_link}", "us-central1-a/%s"`, name1),
+					name1, name2),
+				PlanOnly: true,
 			},
 		},
 	})
@@ -148,4 +191,46 @@ resource "google_compute_target_pool" "bar" {
 		"${google_compute_http_health_check.foobar.self_link}"
 	]
 }`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+}
+
+func testAccComputeTargetPool_update(tpname, instances, name1, name2 string) string {
+	return fmt.Sprintf(`
+resource "google_compute_target_pool" "foo" {
+	description = "Resource created for Terraform acceptance testing"
+	name = "tpool-test-%s"
+	instances = [%s]
+}
+
+resource "google_compute_instance" "foo" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+	network_interface {
+		network = "default"
+	}
+}
+
+resource "google_compute_instance" "bar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+	network_interface {
+		network = "default"
+	}
+}
+`, tpname, instances, name1, name2)
 }

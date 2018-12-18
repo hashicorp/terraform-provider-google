@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeRouter_basic(t *testing.T) {
@@ -19,10 +18,10 @@ func TestAccComputeRouter_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterBasic(testId, resourceRegion),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -41,10 +40,10 @@ func TestAccComputeRouter_noRegion(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterNoRegion(testId, providerRegion),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -62,10 +61,10 @@ func TestAccComputeRouter_full(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterFull(testId),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -84,65 +83,32 @@ func TestAccComputeRouter_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterBasic(testId, region),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterFull(testId),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeRouterBasic(testId, region),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_router.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 		},
 	})
-}
-
-func testAccCheckComputeRouterDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	routersService := config.clientCompute.Routers
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_router" {
-			continue
-		}
-
-		project, err := getTestProject(rs.Primary, config)
-		if err != nil {
-			return err
-		}
-
-		region, err := getTestRegion(rs.Primary, config)
-		if err != nil {
-			return err
-		}
-
-		name := rs.Primary.Attributes["name"]
-
-		_, err = routersService.Get(project, region, name).Do()
-
-		if err == nil {
-			return fmt.Errorf("Error, Router %s in region %s still exists",
-				name, region)
-		}
-	}
-
-	return nil
 }
 
 func testAccComputeRouterBasic(testId, resourceRegion string) string {

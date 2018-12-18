@@ -72,7 +72,26 @@ func resourceBigQueryDataset() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				Default:      "US",
-				ValidateFunc: validation.StringInSlice([]string{"US", "EU", "asia-northeast1"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"US", "EU", "asia-northeast1", "europe-west2", "australia-southeast1"}, false),
+			},
+
+			// defaultPartitionExpirationMs: [Optional] The default partition
+			// expiration for all partitioned tables in the dataset, in
+			// milliseconds. Once this property is set, all newly-created
+			// partitioned tables in the dataset will have an expirationMs
+			// property in the timePartitioning settings set to this value, and
+			// changing the value will only affect new tables, not existing ones.
+			// The storage in a partition will have an expiration time of its
+			// partition time plus this value. Setting this property overrides the
+			// use of defaultTableExpirationMs for partitioned tables: only one of
+			// defaultTableExpirationMs and defaultPartitionExpirationMs will be used
+			// for any new partitioned table. If you provide an explicit
+			// timePartitioning.expirationMs when creating or updating a partitioned
+			// table, that value takes precedence over the default partition expiration
+			// time indicated by this property.
+			"default_partition_expiration_ms": {
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 
 			// DefaultTableExpirationMs: [Optional] The default lifetime of all
@@ -102,7 +121,7 @@ func resourceBigQueryDataset() *schema.Resource {
 			// Labels: [Experimental] The labels associated with this dataset. You
 			// can use these to organize and group your datasets. You can set this
 			// property when inserting or updating a dataset.
-			"labels": &schema.Schema{
+			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -112,35 +131,35 @@ func resourceBigQueryDataset() *schema.Resource {
 			// for one or more entities. You can set this property when inserting
 			// or updating a dataset in order to control who is allowed to access
 			// the data.
-			"access": &schema.Schema{
-				Type:     schema.TypeList,
+			"access": {
+				Type:     schema.TypeSet,
 				Optional: true,
 				// Computed because if unset, BQ adds 4 entries automatically
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"role": &schema.Schema{
+						"role": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"OWNER", "WRITER", "READER"}, false),
 						},
-						"domain": &schema.Schema{
+						"domain": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"group_by_email": &schema.Schema{
+						"group_by_email": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"special_group": &schema.Schema{
+						"special_group": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"user_by_email": &schema.Schema{
+						"user_by_email": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"view": &schema.Schema{
+						"view": {
 							Type:     schema.TypeList,
 							Optional: true,
 							MaxItems: 1,
@@ -223,6 +242,10 @@ func resourceDataset(d *schema.ResourceData, meta interface{}) (*bigquery.Datase
 		dataset.Location = v.(string)
 	}
 
+	if v, ok := d.GetOk("default_partition_expiration_ms"); ok {
+		dataset.DefaultPartitionExpirationMs = int64(v.(int))
+	}
+
 	if v, ok := d.GetOk("default_table_expiration_ms"); ok {
 		dataset.DefaultTableExpirationMs = int64(v.(int))
 	}
@@ -239,7 +262,8 @@ func resourceDataset(d *schema.ResourceData, meta interface{}) (*bigquery.Datase
 
 	if v, ok := d.GetOk("access"); ok {
 		access := []*bigquery.DatasetAccess{}
-		for _, m := range v.([]interface{}) {
+		vs := v.(*schema.Set)
+		for _, m := range vs.List() {
 			da := bigquery.DatasetAccess{}
 			accessMap := m.(map[string]interface{})
 			da.Role = accessMap["role"].(string)
@@ -336,6 +360,7 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("creation_time", res.CreationTime)
 	d.Set("last_modified_time", res.LastModifiedTime)
 	d.Set("dataset_id", res.DatasetReference.DatasetId)
+	d.Set("default_partition_expiration_ms", res.DefaultPartitionExpirationMs)
 	d.Set("default_table_expiration_ms", res.DefaultTableExpirationMs)
 
 	// Older Tables in BigQuery have no Location set in the API response. This may be an issue when importing

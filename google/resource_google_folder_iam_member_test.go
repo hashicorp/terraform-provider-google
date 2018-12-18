@@ -30,7 +30,7 @@ func TestAccFolderIamMember_basic(t *testing.T) {
 			{
 				Config: testAccFolderAssociateMemberBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_member.acceptance", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
 						Members: []string{"user:admin@hashicorptest.com"},
 					}, org, fname),
@@ -61,7 +61,7 @@ func TestAccFolderIamMember_multiple(t *testing.T) {
 			{
 				Config: testAccFolderAssociateMemberBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_member.acceptance", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
 						Members: []string{"user:admin@hashicorptest.com"},
 					}, org, fname),
@@ -71,7 +71,7 @@ func TestAccFolderIamMember_multiple(t *testing.T) {
 			{
 				Config: testAccFolderAssociateMemberMultiple(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_member.multiple", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
 						Members: []string{"user:admin@hashicorptest.com", "user:paddy@hashicorp.com"},
 					}, org, fname),
@@ -102,7 +102,7 @@ func TestAccFolderIamMember_remove(t *testing.T) {
 			{
 				Config: testAccFolderAssociateMemberMultiple(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleFolderIamBindingExists("google_folder_iam_member.acceptance", &cloudresourcemanager.Binding{
+					testAccCheckGoogleFolderIamBindingExists(&cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
 						Members: []string{"user:admin@hashicorptest.com", "user:paddy@hashicorp.com"},
 					}, org, fname),

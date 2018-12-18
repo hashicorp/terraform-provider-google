@@ -22,14 +22,14 @@ func TestAccComputeBackendBucket_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendBucket_basic(backendName, storageName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendBucketExists(
 						"google_compute_backend_bucket.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_backend_bucket.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -55,14 +55,14 @@ func TestAccComputeBackendBucket_basicModified(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendBucket_basic(backendName, storageName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendBucketExists(
 						"google_compute_backend_bucket.foobar", &svc),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendBucket_basicModified(
 					backendName, storageName, secondStorageName),
 				Check: resource.ComposeTestCheckFunc(
@@ -76,24 +76,6 @@ func TestAccComputeBackendBucket_basicModified(t *testing.T) {
 	if svc.BucketName != secondStorageName {
 		t.Errorf("Expected BucketName to be %q, got %q", secondStorageName, svc.BucketName)
 	}
-}
-
-func testAccCheckComputeBackendBucketDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_backend_bucket" {
-			continue
-		}
-
-		_, err := config.clientCompute.BackendBuckets.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("Backend bucket %s still exists", rs.Primary.ID)
-		}
-	}
-
-	return nil
 }
 
 func testAccCheckComputeBackendBucketExists(n string, svc *compute.BackendBucket) resource.TestCheckFunc {
@@ -137,7 +119,7 @@ func TestAccComputeBackendBucket_withCdnEnabled(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeBackendBucket_withCdnEnabled(
 					backendName, storageName),
 				Check: resource.ComposeTestCheckFunc(

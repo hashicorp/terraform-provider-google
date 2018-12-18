@@ -28,19 +28,19 @@ func resourceStorageBucket() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"encryption": &schema.Schema{
+			"encryption": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"default_kms_key_name": &schema.Schema{
+						"default_kms_key_name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -48,19 +48,24 @@ func resourceStorageBucket() *schema.Resource {
 				},
 			},
 
-			"force_destroy": &schema.Schema{
+			"requester_pays": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
+			"force_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
 
-			"labels": &schema.Schema{
+			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"location": &schema.Schema{
+			"location": {
 				Type:     schema.TypeString,
 				Default:  "US",
 				Optional: true,
@@ -70,31 +75,31 @@ func resourceStorageBucket() *schema.Resource {
 				},
 			},
 
-			"predefined_acl": &schema.Schema{
+			"predefined_acl": {
 				Type:     schema.TypeString,
 				Removed:  "Please use resource \"storage_bucket_acl.predefined_acl\" instead.",
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"url": &schema.Schema{
+			"url": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"storage_class": &schema.Schema{
+			"storage_class": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "STANDARD",
@@ -163,7 +168,7 @@ func resourceStorageBucket() *schema.Resource {
 				},
 			},
 
-			"versioning": &schema.Schema{
+			"versioning": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
@@ -178,16 +183,16 @@ func resourceStorageBucket() *schema.Resource {
 				},
 			},
 
-			"website": &schema.Schema{
+			"website": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"main_page_suffix": &schema.Schema{
+						"main_page_suffix": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"not_found_page": &schema.Schema{
+						"not_found_page": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -195,50 +200,50 @@ func resourceStorageBucket() *schema.Resource {
 				},
 			},
 
-			"cors": &schema.Schema{
+			"cors": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"origin": &schema.Schema{
+						"origin": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
-						"method": &schema.Schema{
+						"method": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
-						"response_header": &schema.Schema{
+						"response_header": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
-						"max_age_seconds": &schema.Schema{
+						"max_age_seconds": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
 					},
 				},
 			},
-			"logging": &schema.Schema{
+			"logging": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"log_bucket": &schema.Schema{
+						"log_bucket": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"log_object_prefix": &schema.Schema{
+						"log_object_prefix": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
@@ -313,6 +318,12 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		sb.Encryption = expandBucketEncryption(v.([]interface{}))
 	}
 
+	if v, ok := d.GetOk("requester_pays"); ok {
+		sb.Billing = &storage.BucketBilling{
+			RequesterPays: v.(bool),
+		}
+	}
+
 	var res *storage.Bucket
 
 	err = retry(func() error {
@@ -342,6 +353,14 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
+	if d.HasChange("requester_pays") {
+		v := d.Get("requester_pays")
+		sb.Billing = &storage.BucketBilling{
+			RequesterPays:   v.(bool),
+			ForceSendFields: []string{"RequesterPays"},
+		}
+	}
+
 	if d.HasChange("versioning") {
 		if v, ok := d.GetOk("versioning"); ok {
 			sb.Versioning = expandBucketVersioning(v)
@@ -358,7 +377,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 			// Setting fields to "" to be explicit that the PATCH call will
 			// delete this field.
-			if len(websites) == 0 {
+			if len(websites) == 0 || websites[0] == nil {
 				sb.Website.NotFoundPage = ""
 				sb.Website.MainPageSuffix = ""
 			} else {
@@ -471,6 +490,13 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
 	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
 	d.Set("labels", res.Labels)
+
+	if res.Billing == nil {
+		d.Set("requester_pays", nil)
+	} else {
+		d.Set("requester_pays", res.Billing.RequesterPays)
+	}
+
 	d.SetId(res.Id)
 	return nil
 }

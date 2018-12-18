@@ -43,13 +43,27 @@ To get more information about Address, see:
     * [Reserving a Static External IP Address](https://cloud.google.com/compute/docs/instances-and-network)
     * [Reserving a Static Internal IP Address](https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address)
 
-## Example Usage
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=address_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Address Basic
+
 
 ```hcl
 resource "google_compute_address" "ip_address" {
   name = "my-address"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=address_with_subnetwork&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Address With Subnetwork
+
+
 ```hcl
 resource "google_compute_network" "default" {
   name = "my-network"
@@ -70,6 +84,14 @@ resource "google_compute_address" "internal_with_subnet_and_address" {
   region       = "us-central1"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=instance_with_ip&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Instance With Ip
+
+
 ```hcl
 resource "google_compute_address" "static" {
   name = "ipv4-address"
@@ -147,11 +169,6 @@ The following arguments are supported:
   This field can only be used with INTERNAL type with
   GCE_ENDPOINT/DNS_RESOLVER purposes.
 
-* `labels` -
-  (Optional)
-  Labels to apply to this address.  A list of key->value pairs.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
-
 * `region` -
   (Optional)
   The Region in which the created address should reside.
@@ -170,11 +187,6 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `users` -
   The URLs of the resources that are using this address.
-
-* `label_fingerprint` -
-  The fingerprint used for optimistic locking of this resource.  Used
-  internally during updates.  This property is in beta, and should be used with the terraform-provider-google-beta provider.
-  See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta fields.
 * `self_link` - The URI of the created resource.
 
 
@@ -186,7 +198,6 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import

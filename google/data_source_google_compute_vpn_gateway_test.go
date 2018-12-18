@@ -17,7 +17,7 @@ func TestAccDataSourceGoogleVpnGateway(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourceGoogleVpnGatewayConfig(vpnGatewayName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleVpnGatewayCheck("data.google_compute_vpn_gateway.my_vpn_gateway", "google_compute_vpn_gateway.foobar"),

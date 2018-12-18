@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccComputeForwardingRule_update(t *testing.T) {
@@ -20,18 +19,18 @@ func TestAccComputeForwardingRule_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeForwardingRule_basic(poolName, ruleName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeForwardingRule_update(poolName, ruleName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -51,10 +50,10 @@ func TestAccComputeForwardingRule_singlePort(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeForwardingRule_singlePort(poolName, ruleName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -75,10 +74,10 @@ func TestAccComputeForwardingRule_ip(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeForwardingRule_ip(addrName, poolName, ruleName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -101,15 +100,15 @@ func TestAccComputeForwardingRule_internalLoadBalancing(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeForwardingRule_internalLoadBalancing(serviceName, checkName, networkName, ruleName1, ruleName2),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar2",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -129,35 +128,17 @@ func TestAccComputeForwardingRule_networkTier(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeForwardingRule_networkTier(poolName, ruleName),
 			},
 
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_forwarding_rule.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 		},
 	})
-}
-
-func testAccCheckComputeForwardingRuleDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_forwarding_rule" {
-			continue
-		}
-
-		_, err := config.clientCompute.ForwardingRules.Get(
-			config.Project, config.Region, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("ForwardingRule still exists")
-		}
-	}
-
-	return nil
 }
 
 func testAccComputeForwardingRule_basic(poolName, ruleName string) string {
@@ -173,7 +154,6 @@ resource "google_compute_forwarding_rule" "foobar" {
   name        = "%s"
   port_range  = "80-81"
   target      = "${google_compute_target_pool.foo-tp.self_link}"
-  labels      = {"foo" = "bar"}
 }
 `, poolName, ruleName)
 }
@@ -196,7 +176,6 @@ resource "google_compute_forwarding_rule" "foobar" {
   name        = "%s"
   port_range  = "80-81"
   target      = "${google_compute_target_pool.bar-tp.self_link}"
-  labels      = {"baz" = "qux"}
 }
 `, poolName, poolName, ruleName)
 }

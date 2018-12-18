@@ -12,7 +12,7 @@ func TestAccDataSourceGoogleNetblockIpRanges_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccNetblockIpRangesConfig,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.some",

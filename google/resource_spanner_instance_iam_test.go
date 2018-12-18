@@ -23,7 +23,7 @@ func TestAccSpannerInstanceIamBinding(t *testing.T) {
 			{
 				Config: testAccSpannerInstanceIamBinding_basic(account, instance, role),
 			},
-			resource.TestStep{
+			{
 				ResourceName: "google_spanner_instance_iam_binding.foo",
 				ImportStateId: fmt.Sprintf("%s %s", spannerInstanceId{
 					Project:  project,
@@ -36,7 +36,7 @@ func TestAccSpannerInstanceIamBinding(t *testing.T) {
 				// Test Iam Binding update
 				Config: testAccSpannerInstanceIamBinding_update(account, instance, role),
 			},
-			resource.TestStep{
+			{
 				ResourceName: "google_spanner_instance_iam_binding.foo",
 				ImportStateId: fmt.Sprintf("%s %s", spannerInstanceId{
 					Project:  project,
@@ -65,7 +65,7 @@ func TestAccSpannerInstanceIamMember(t *testing.T) {
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccSpannerInstanceIamMember_basic(account, instance, role),
 			},
-			resource.TestStep{
+			{
 				ResourceName: "google_spanner_instance_iam_member.foo",
 				ImportStateId: fmt.Sprintf("%s %s serviceAccount:%s@%s.iam.gserviceaccount.com", spannerInstanceId{
 					Instance: instance,
@@ -94,7 +94,7 @@ func TestAccSpannerInstanceIamPolicy(t *testing.T) {
 				Config: testAccSpannerInstanceIamPolicy_basic(account, instance, role),
 			},
 			// Test a few import formats
-			resource.TestStep{
+			{
 				ResourceName: "google_spanner_instance_iam_policy.foo",
 				ImportStateId: fmt.Sprintf("%s", spannerInstanceId{
 					Instance: instance,

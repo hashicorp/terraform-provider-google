@@ -23,7 +23,7 @@ func TestAccComputeHealthCheck_tcp(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeHealthCheck_tcp(hckName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeHealthCheckExists(
@@ -33,7 +33,7 @@ func TestAccComputeHealthCheck_tcp(t *testing.T) {
 					testAccCheckComputeHealthCheckTcpPort(80, &healthCheck),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_health_check.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -54,7 +54,7 @@ func TestAccComputeHealthCheck_tcp_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeHealthCheck_tcp(hckName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeHealthCheckExists(
@@ -64,7 +64,7 @@ func TestAccComputeHealthCheck_tcp_update(t *testing.T) {
 					testAccCheckComputeHealthCheckTcpPort(80, &healthCheck),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeHealthCheck_tcp_update(hckName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeHealthCheckExists(
@@ -90,7 +90,7 @@ func TestAccComputeHealthCheck_ssl(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeHealthCheck_ssl(hckName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeHealthCheckExists(
@@ -99,7 +99,7 @@ func TestAccComputeHealthCheck_ssl(t *testing.T) {
 						3, 3, &healthCheck),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_health_check.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -120,7 +120,7 @@ func TestAccComputeHealthCheck_http(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeHealthCheck_http(hckName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeHealthCheckExists(
@@ -129,7 +129,7 @@ func TestAccComputeHealthCheck_http(t *testing.T) {
 						3, 3, &healthCheck),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_health_check.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -150,7 +150,7 @@ func TestAccComputeHealthCheck_https(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeHealthCheck_https(hckName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeHealthCheckExists(
@@ -159,7 +159,7 @@ func TestAccComputeHealthCheck_https(t *testing.T) {
 						3, 3, &healthCheck),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_health_check.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -178,19 +178,19 @@ func TestAccComputeHealthCheck_typeTransition(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeHealthCheck_https(hckName),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeHealthCheck_http(hckName),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeHealthCheck_ssl(hckName),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeHealthCheck_tcp(hckName),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeHealthCheck_https(hckName),
 			},
 		},
@@ -207,30 +207,12 @@ func TestAccComputeHealthCheck_tcpAndSsl_shouldFail(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config:      testAccComputeHealthCheck_tcpAndSsl_shouldFail(hckName),
 				ExpectError: regexp.MustCompile("conflicts with tcp_health_check"),
 			},
 		},
 	})
-}
-
-func testAccCheckComputeHealthCheckDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_health_check" {
-			continue
-		}
-
-		_, err := config.clientCompute.HealthChecks.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("HealthCheck %s still exists", rs.Primary.ID)
-		}
-	}
-
-	return nil
 }
 
 func testAccCheckComputeHealthCheckExists(n string, healthCheck *compute.HealthCheck) resource.TestCheckFunc {

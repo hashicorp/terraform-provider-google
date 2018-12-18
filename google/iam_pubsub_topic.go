@@ -10,13 +10,13 @@ import (
 )
 
 var IamPubsubTopicSchema = map[string]*schema.Schema{
-	"topic": &schema.Schema{
+	"topic": {
 		Type:             schema.TypeString,
 		Required:         true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
-	"project": &schema.Schema{
+	"project": {
 		Type:     schema.TypeString,
 		Optional: true,
 		Computed: true,
