@@ -85,6 +85,16 @@ resource "google_compute_instance" "beta-instance" {
 }
 ```
 
+## Importing resources with `google-beta`
+By default, Terraform will always import resources using the `google` provider.
+To import resources with `google-beta`, you need to explicitly specify a provider
+with the `-provider` flag, similarly to if you were using a provider alias.
+
+
+```bash
+terraform import -provider=google-beta google_compute_instance.beta-instance my-instance
+```
+
 ## Converting resources between versions
 
 Resources can safely be converted from one version to the other without needing to rebuild infrastructure.
