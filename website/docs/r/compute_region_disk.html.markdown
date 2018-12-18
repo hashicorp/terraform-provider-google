@@ -236,3 +236,6 @@ $ terraform import google_compute_region_disk.default projects/{{project}}/regio
 $ terraform import google_compute_region_disk.default {{project}}/{{region}}/{{name}}
 $ terraform import google_compute_region_disk.default {{name}}
 ```
+
+-> If you're importing a resource with beta features, make sure to include `provider=google-beta"
+as an argument so that Terraform uses the correct provider to import your resource.
