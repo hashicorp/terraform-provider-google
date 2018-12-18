@@ -20,14 +20,14 @@ func TestAccComputeNetwork_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeNetworkDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeNetwork_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(
 						"google_compute_network.foobar", &network),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_network.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -46,7 +46,7 @@ func TestAccComputeNetwork_auto_subnet(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeNetworkDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeNetwork_auto_subnet(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(
@@ -55,7 +55,7 @@ func TestAccComputeNetwork_auto_subnet(t *testing.T) {
 						"google_compute_network.bar", &network),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_network.bar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -74,7 +74,7 @@ func TestAccComputeNetwork_custom_subnet(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeNetworkDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeNetwork_custom_subnet(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(
@@ -83,7 +83,7 @@ func TestAccComputeNetwork_custom_subnet(t *testing.T) {
 						"google_compute_network.baz", &network),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_network.baz",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -102,7 +102,7 @@ func TestAccComputeNetwork_routing_mode(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeNetworkDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeNetwork_routing_mode("GLOBAL"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(
@@ -112,7 +112,7 @@ func TestAccComputeNetwork_routing_mode(t *testing.T) {
 				),
 			},
 			// Test updating the routing field (only updateable field).
-			resource.TestStep{
+			{
 				Config: testAccComputeNetwork_routing_mode("REGIONAL"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(
@@ -137,7 +137,7 @@ func TestAccComputeNetwork_default_routing_mode(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeNetworkDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeNetwork_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(

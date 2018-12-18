@@ -24,14 +24,14 @@ func TestAccComputeRegionAutoscaler_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionAutoscalerExists(
 						"google_compute_region_autoscaler.foobar", &ascaler),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_region_autoscaler.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -53,14 +53,14 @@ func TestAccComputeRegionAutoscaler_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionAutoscalerExists(
 						"google_compute_region_autoscaler.foobar", &ascaler),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeRegionAutoscaler_update(it_name, tp_name, igm_name, autoscaler_name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionAutoscalerExists(
@@ -71,25 +71,6 @@ func TestAccComputeRegionAutoscaler_update(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckComputeRegionAutoscalerDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_region_autoscaler" {
-			continue
-		}
-
-		idParts := strings.Split(rs.Primary.ID, "/")
-		region, name := idParts[0], idParts[1]
-		_, err := config.clientCompute.RegionAutoscalers.Get(config.Project, region, name).Do()
-		if err == nil {
-			return fmt.Errorf("Autoscaler still exists")
-		}
-	}
-
-	return nil
 }
 
 func testAccCheckComputeRegionAutoscalerExists(n string, ascaler *compute.Autoscaler) resource.TestCheckFunc {

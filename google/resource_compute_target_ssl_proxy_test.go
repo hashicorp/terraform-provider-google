@@ -21,14 +21,14 @@ func TestAccComputeTargetSslProxy_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetSslProxyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetSslProxy_basic1(target, sslPolicy, cert, backend, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetSslProxy(
 						"google_compute_target_ssl_proxy.foobar", "NONE", cert),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_compute_target_ssl_proxy.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -51,14 +51,14 @@ func TestAccComputeTargetSslProxy_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetSslProxyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetSslProxy_basic1(target, sslPolicy, cert1, backend1, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetSslProxy(
 						"google_compute_target_ssl_proxy.foobar", "NONE", cert1),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeTargetSslProxy_basic2(target, sslPolicy, cert1, cert2, backend1, backend2, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetSslProxy(
@@ -67,24 +67,6 @@ func TestAccComputeTargetSslProxy_update(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckComputeTargetSslProxyDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_target_ssl_proxy" {
-			continue
-		}
-
-		_, err := config.clientCompute.TargetSslProxies.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("TargetSslProxy still exists")
-		}
-	}
-
-	return nil
 }
 
 func testAccCheckComputeTargetSslProxy(n, proxyHeader, sslCert string) resource.TestCheckFunc {

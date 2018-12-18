@@ -23,80 +23,81 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"target": &schema.Schema{
+			"target": {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"ip_address": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
-
-			"ip_protocol": &schema.Schema{
+			"ip_address": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
 
-			"labels": &schema.Schema{
-				Deprecated: "This field is in beta and will be removed from this provider. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
-				Type:       schema.TypeMap,
-				Optional:   true,
-				Elem:       &schema.Schema{Type: schema.TypeString},
-				Set:        schema.HashString,
+			"ip_protocol": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 
-			"label_fingerprint": &schema.Schema{
+			"labels": {
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
+			"label_fingerprint": {
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"port_range": &schema.Schema{
+			"port_range": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: portRangeDiffSuppress,
 			},
 
-			"ip_version": &schema.Schema{
+			"ip_version": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6"}, false),
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Removed:  "Please remove this attribute (it was never used)",
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -135,21 +136,6 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	// If we have labels to set, try to set those too
-	if _, ok := d.GetOk("labels"); ok {
-		labels := expandLabels(d)
-		// Do a read to get the fingerprint value so we can update
-		fingerprint, err := resourceComputeGlobalForwardingRuleReadLabelFingerprint(config, project, frule.Name)
-		if err != nil {
-			return err
-		}
-
-		err = resourceComputeGlobalForwardingRuleSetLabels(config, project, frule.Name, labels, fingerprint)
-		if err != nil {
-			return err
-		}
-	}
-
 	return resourceComputeGlobalForwardingRuleRead(d, meta)
 }
 
@@ -180,17 +166,6 @@ func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta inte
 
 		d.SetPartial("target")
 	}
-	if d.HasChange("labels") {
-		labels := expandLabels(d)
-		fingerprint := d.Get("label_fingerprint").(string)
-
-		err = resourceComputeGlobalForwardingRuleSetLabels(config, project, d.Get("name").(string), labels, fingerprint)
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("labels")
-	}
 
 	d.Partial(false)
 
@@ -218,8 +193,8 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 	d.Set("ip_protocol", frule.IPProtocol)
 	d.Set("ip_version", frule.IpVersion)
 	d.Set("self_link", ConvertSelfLinkToV1(frule.SelfLink))
-	d.Set("labels", frule.Labels)
-	d.Set("label_fingerprint", frule.LabelFingerprint)
+	// removed lists need something set
+	d.Set("labels", nil)
 	d.Set("project", project)
 
 	return nil
@@ -245,35 +220,5 @@ func resourceComputeGlobalForwardingRuleDelete(d *schema.ResourceData, meta inte
 	}
 
 	d.SetId("")
-	return nil
-}
-
-// resourceComputeGlobalForwardingRuleReadLabelFingerprint performs a read on the remote resource and returns only the
-// fingerprint. Used on create when setting labels as we don't know the label fingerprint initially.
-func resourceComputeGlobalForwardingRuleReadLabelFingerprint(config *Config, project, name string) (string, error) {
-	frule, err := config.clientComputeBeta.GlobalForwardingRules.Get(project, name).Do()
-	if err != nil {
-		return "", fmt.Errorf("Unable to read global forwarding rule to update labels: %s", err)
-	}
-
-	return frule.LabelFingerprint, nil
-}
-
-// resourceComputeGlobalForwardingRuleSetLabels sets the Labels attribute on a forwarding rule.
-func resourceComputeGlobalForwardingRuleSetLabels(config *Config, project, name string, labels map[string]string, fingerprint string) error {
-	setLabels := computeBeta.GlobalSetLabelsRequest{
-		Labels:           labels,
-		LabelFingerprint: fingerprint,
-	}
-	op, err := config.clientComputeBeta.GlobalForwardingRules.SetLabels(project, name, &setLabels).Do()
-	if err != nil {
-		return err
-	}
-
-	err = computeSharedOperationWait(config.clientCompute, op, project, "Setting labels on Global Forwarding Rule")
-	if err != nil {
-		return err
-	}
-
 	return nil
 }

@@ -66,8 +66,9 @@ func TestAccOrganizationIamCustomRole_undelete(t *testing.T) {
 			},
 			// Soft-delete
 			{
-				Config: testAccCheckGoogleOrganizationIamCustomRole_deleted(org, roleId),
-				Check:  testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus("google_organization_iam_custom_role.foo", true),
+				Config:  testAccCheckGoogleOrganizationIamCustomRole_basic(org, roleId),
+				Check:   testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus("google_organization_iam_custom_role.foo", true),
+				Destroy: true,
 			},
 			// Undelete
 			{
@@ -214,19 +215,6 @@ resource "google_organization_iam_custom_role" "foo" {
   title       = "My Custom Role"
   description = "foo"
   permissions = ["resourcemanager.projects.list"]
-}
-`, roleId, orgId)
-}
-
-func testAccCheckGoogleOrganizationIamCustomRole_deleted(orgId, roleId string) string {
-	return fmt.Sprintf(`
-resource "google_organization_iam_custom_role" "foo" {
-  role_id     = "%s"
-  org_id      = "%s"
-  title       = "My Custom Role"
-  description = "foo"
-  permissions = ["resourcemanager.projects.list"]
-  deleted     = true
 }
 `, roleId, orgId)
 }

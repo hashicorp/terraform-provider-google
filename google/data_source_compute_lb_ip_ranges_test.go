@@ -12,7 +12,7 @@ func TestAccDataSourceComputeLbIpRanges_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeLbIpRangesConfig,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr("data.google_compute_lb_ip_ranges.some",

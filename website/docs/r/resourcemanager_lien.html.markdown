@@ -25,7 +25,8 @@ A Lien represents an encumbrance on the actions that can be performed on a resou
 
 
 
-## Example Usage
+## Example Usage - Resource Manager Lien
+
 
 ```hcl
 resource "google_resource_manager_lien" "lien" {
@@ -89,6 +90,13 @@ In addition to the arguments listed above, the following computed attributes are
   Time of creation
 
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
 
 ## Import
 

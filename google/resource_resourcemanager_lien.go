@@ -20,6 +20,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -32,6 +33,11 @@ func resourceResourceManagerLien() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: resourceResourceManagerLienImport,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(240 * time.Second),
+			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -105,7 +111,7 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Creating new Lien: %#v", obj)
-	res, err := sendRequest(config, "POST", url, obj)
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Lien: %s", err)
 	}
@@ -126,8 +132,8 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	// us to know the server-side generated name of the object we're
 	// trying to fetch, and the only way to know that is to capture
 	// it here.  The following two lines do that.
-	d.SetId(flattenResourceManagerLienName(res["name"]).(string))
-	d.Set("name", flattenResourceManagerLienName(res["name"]))
+	d.SetId(flattenResourceManagerLienName(res["name"], d).(string))
+	d.Set("name", flattenResourceManagerLienName(res["name"], d))
 
 	return resourceResourceManagerLienRead(d, meta)
 }
@@ -158,7 +164,7 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 	res = nil
 	for _, item := range listObj {
 		thisName := d.Get("name")
-		thatName := flattenResourceManagerLienName(item["name"])
+		thatName := flattenResourceManagerLienName(item["name"], d)
 		log.Printf("[DEBUG] Checking equality of %#v, %#v", thatName, thisName)
 		if !reflect.DeepEqual(thatName, thisName) {
 			continue
@@ -177,22 +183,22 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	if err := d.Set("name", flattenResourceManagerLienName(res["name"])); err != nil {
+	if err := d.Set("name", flattenResourceManagerLienName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("reason", flattenResourceManagerLienReason(res["reason"])); err != nil {
+	if err := d.Set("reason", flattenResourceManagerLienReason(res["reason"], d)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("origin", flattenResourceManagerLienOrigin(res["origin"])); err != nil {
+	if err := d.Set("origin", flattenResourceManagerLienOrigin(res["origin"], d)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("create_time", flattenResourceManagerLienCreateTime(res["createTime"])); err != nil {
+	if err := d.Set("create_time", flattenResourceManagerLienCreateTime(res["createTime"], d)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("parent", flattenResourceManagerLienParent(res["parent"])); err != nil {
+	if err := d.Set("parent", flattenResourceManagerLienParent(res["parent"], d)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("restrictions", flattenResourceManagerLienRestrictions(res["restrictions"])); err != nil {
+	if err := d.Set("restrictions", flattenResourceManagerLienRestrictions(res["restrictions"], d)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
 
@@ -213,7 +219,7 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	log.Printf("[DEBUG] Deleting Lien %q", d.Id())
-	res, err := sendRequest(config, "DELETE", url, obj)
+	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Lien")
 	}
@@ -241,30 +247,30 @@ func resourceResourceManagerLienImport(d *schema.ResourceData, meta interface{})
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenResourceManagerLienName(v interface{}) interface{} {
+func flattenResourceManagerLienName(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenResourceManagerLienReason(v interface{}) interface{} {
+func flattenResourceManagerLienReason(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenResourceManagerLienOrigin(v interface{}) interface{} {
+func flattenResourceManagerLienOrigin(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenResourceManagerLienCreateTime(v interface{}) interface{} {
+func flattenResourceManagerLienCreateTime(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenResourceManagerLienParent(v interface{}) interface{} {
+func flattenResourceManagerLienParent(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenResourceManagerLienRestrictions(v interface{}) interface{} {
+func flattenResourceManagerLienRestrictions(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 

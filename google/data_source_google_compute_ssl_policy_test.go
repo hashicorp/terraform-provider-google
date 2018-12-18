@@ -16,7 +16,7 @@ func TestAccDataSourceGoogleSslPolicy(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourceGoogleSslPolicy(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleSslPolicyCheck("data.google_compute_ssl_policy.ssl_policy", "google_compute_ssl_policy.foobar"),

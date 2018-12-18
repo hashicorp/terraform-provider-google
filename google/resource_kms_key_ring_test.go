@@ -82,15 +82,15 @@ func TestAccKmsKeyRing_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckGoogleKmsKeyRingWasRemovedFromState("google_kms_key_ring.key_ring"),
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testGoogleKmsKeyRing_basic(projectId, projectOrg, projectBillingAccount, keyRingName),
 			},
-			resource.TestStep{
+			{
 				ResourceName:      "google_kms_key_ring.key_ring",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			resource.TestStep{
+			{
 				Config: testGoogleKmsKeyRing_removed(projectId, projectOrg, projectBillingAccount),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleKmsKeyRingWasRemovedFromState("google_kms_key_ring.key_ring"),

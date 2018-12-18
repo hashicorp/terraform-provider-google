@@ -35,7 +35,7 @@ func TestAccFolderIamPolicy_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFolderIamPolicy_basic(folderDisplayName, parent, policy),
 				Check:  testAccCheckGoogleFolderIamPolicy("google_folder_iam_policy.test", policy),
 			},
@@ -82,11 +82,11 @@ func TestAccFolderIamPolicy_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFolderIamPolicy_basic(folderDisplayName, parent, policy1),
 				Check:  testAccCheckGoogleFolderIamPolicy("google_folder_iam_policy.test", policy1),
 			},
-			resource.TestStep{
+			{
 				Config: testAccFolderIamPolicy_basic(folderDisplayName, parent, policy2),
 				Check:  testAccCheckGoogleFolderIamPolicy("google_folder_iam_policy.test", policy2),
 			},

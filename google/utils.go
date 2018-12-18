@@ -11,9 +11,6 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
-	computeBeta "google.golang.org/api/compute/v0.beta"
-	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
 
@@ -43,20 +40,6 @@ func getRegion(d TerraformResourceData, config *Config) (string, error) {
 	return getRegionFromSchema("region", "zone", d, config)
 }
 
-func getRegionFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
-	res, ok := is.Attributes["region"]
-
-	if ok && res != "" {
-		return res, nil
-	}
-
-	if config.Region != "" {
-		return config.Region, nil
-	}
-
-	return "", fmt.Errorf("region: required field is not set")
-}
-
 // getProject reads the "project" field from the given resource data and falls
 // back to the provider's value if not given. If the provider's value is not
 // given, an error is returned.
@@ -76,68 +59,6 @@ func getProjectFromDiff(d *schema.ResourceDiff, config *Config) (string, error) 
 		return config.Project, nil
 	}
 	return "", fmt.Errorf("%s: required field is not set", "project")
-}
-
-func getProjectFromInstanceState(is *terraform.InstanceState, config *Config) (string, error) {
-	res, ok := is.Attributes["project"]
-
-	if ok && res != "" {
-		return res, nil
-	}
-
-	if config.Project != "" {
-		return config.Project, nil
-	}
-
-	return "", fmt.Errorf("project: required field is not set")
-}
-
-func getZonalResourceFromRegion(getResource func(string) (interface{}, error), region string, compute *compute.Service, project string) (interface{}, error) {
-	zoneList, err := compute.Zones.List(project).Do()
-	if err != nil {
-		return nil, err
-	}
-	var resource interface{}
-	for _, zone := range zoneList.Items {
-		if strings.Contains(zone.Name, region) {
-			resource, err = getResource(zone.Name)
-			if err != nil {
-				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-					// Resource was not found in this zone
-					continue
-				}
-				return nil, fmt.Errorf("Error reading Resource: %s", err)
-			}
-			// Resource was found
-			return resource, nil
-		}
-	}
-	// Resource does not exist in this region
-	return nil, nil
-}
-
-func getZonalBetaResourceFromRegion(getResource func(string) (interface{}, error), region string, compute *computeBeta.Service, project string) (interface{}, error) {
-	zoneList, err := compute.Zones.List(project).Do()
-	if err != nil {
-		return nil, err
-	}
-	var resource interface{}
-	for _, zone := range zoneList.Items {
-		if strings.Contains(zone.Name, region) {
-			resource, err = getResource(zone.Name)
-			if err != nil {
-				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-					// Resource was not found in this zone
-					continue
-				}
-				return nil, fmt.Errorf("Error reading Resource: %s", err)
-			}
-			// Resource was found
-			return resource, nil
-		}
-	}
-	// Resource does not exist in this region
-	return nil, nil
 }
 
 func getRouterLockName(region string, router string) string {
@@ -291,6 +212,19 @@ func expandEnvironmentVariables(d *schema.ResourceData) map[string]string {
 	return expandStringMap(d, "environment_variables")
 }
 
+// expandStringSlice pulls the value of key out of schema.ResourceData as a []string
+func expandStringSlice(d *schema.ResourceData, key string) []string {
+	var strings []string
+
+	if interfaceStrings, ok := d.GetOk(key); ok {
+		for _, str := range interfaceStrings.([]interface{}) {
+			strings = append(strings, str.(string))
+		}
+	}
+
+	return strings
+}
+
 // expandStringMap pulls the value of key out of a schema.ResourceData as a map[string]string.
 func expandStringMap(d *schema.ResourceData, key string) map[string]string {
 	v, ok := d.GetOk(key)
@@ -341,6 +275,15 @@ func convertStringSet(set *schema.Set) []string {
 	return s
 }
 
+func golangSetFromStringSlice(strings []string) map[string]struct{} {
+	set := map[string]struct{}{}
+	for _, v := range strings {
+		set[v] = struct{}{}
+	}
+
+	return set
+}
+
 func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 	merged := make(map[string]*schema.Schema)
 
@@ -355,16 +298,26 @@ func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 	return merged
 }
 
-func mergeResourceMaps(ms ...map[string]*schema.Resource) map[string]*schema.Resource {
+func mergeResourceMaps(ms ...map[string]*schema.Resource) (map[string]*schema.Resource, error) {
 	merged := make(map[string]*schema.Resource)
+	duplicates := []string{}
 
 	for _, m := range ms {
 		for k, v := range m {
+			if _, ok := merged[k]; ok {
+				duplicates = append(duplicates, k)
+			}
+
 			merged[k] = v
 		}
 	}
 
-	return merged
+	var err error
+	if len(duplicates) > 0 {
+		err = fmt.Errorf("saw duplicates in mergeResourceMaps: %v", duplicates)
+	}
+
+	return merged, err
 }
 
 func retry(retryFunc func() error) error {

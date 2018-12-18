@@ -1,3 +1,4 @@
+---
 layout: "google"
 page_title: "Google: google_composer_environment"
 sidebar_current: "docs-google-composer-environment"
@@ -271,6 +272,20 @@ The `software_config` block supports:
   SQL_USER
   ```
 
+* `image_version` (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) -
+  The version of the software running in the environment. This encapsulates both the version of Cloud Composer
+  functionality and the version of Apache Airflow. It must match the regular expression 
+  `composer-[0-9]+\.[0-9]+(\.[0-9]+)?-airflow-[0-9]+\.[0-9]+(\.[0-9]+.*)?`.
+  The Cloud Composer portion of the version is a semantic version. 
+  The portion of the image version following 'airflow-' is an official Apache Airflow repository release name.
+  See [documentation](https://cloud.google.com/composer/docs/reference/rest/v1beta1/projects.locations.environments#softwareconfig)
+  for allowed release names. This field can only be set in the [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
+  provider, but is an output-only attribute in the GA provider.
+
+* `python_version` (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) -
+  The major version of Python used to run the Apache Airflow scheduler, worker, and webserver processes.
+  Can be set to '2' or '3'. If not specified, the default is '2'. Cannot be updated.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -288,13 +303,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `config.airflow_uri` -
   The URI of the Apache Airflow Web UI hosted within this
   environment.
-
-* `config.software_config.image_version` -
-  The version of the software running in the environment. This encapsulates both the version of Cloud Composer
-  functionality and the version of Apache Airflow. It must match the regular expression 
-  `composer-[0-9]+\.[0-9]+(\.[0-9]+)?-airflow-[0-9]+\.[0-9]+(\.[0-9]+.*)?`.
-  The Cloud Composer portion of the version is a semantic version. 
-  The portion of the image version following 'airflow-' is an official Apache Airflow repository release name.
 
 ## Timeouts
 

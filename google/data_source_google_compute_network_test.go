@@ -17,7 +17,7 @@ func TestAccDataSourceGoogleNetwork(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourceGoogleNetworkConfig(networkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleNetworkCheck("data.google_compute_network.my_network", "google_compute_network.foobar"),

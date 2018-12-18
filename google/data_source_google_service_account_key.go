@@ -15,8 +15,7 @@ func dataSourceGoogleServiceAccountKey() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
+				Required:     true,
 				ValidateFunc: validateRegexp(ServiceAccountKeyNameRegex),
 			},
 			"public_key_type": {
@@ -38,10 +37,10 @@ func dataSourceGoogleServiceAccountKey() *schema.Resource {
 				Computed: true,
 			},
 			"service_account_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"name"},
-				Deprecated:    "Please use name to specify full service account key path projects/{project}/serviceAccounts/{serviceAccount}/keys/{keyId}",
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Removed:  "Please use name to specify full service account key path projects/{project}/serviceAccounts/{serviceAccount}/keys/{keyId}",
 			},
 		},
 	}
@@ -50,9 +49,13 @@ func dataSourceGoogleServiceAccountKey() *schema.Resource {
 func dataSourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	keyName, err := getDataSourceServiceAccountKeyName(d)
-	if err != nil {
-		return err
+	keyName := d.Get("name").(string)
+
+	// Validate name since interpolated values (i.e from a key or service
+	// account resource) will not get validated at plan time.
+	r := regexp.MustCompile(ServiceAccountKeyNameRegex)
+	if !r.MatchString(keyName) {
+		return fmt.Errorf("invalid key name %q does not match regexp %q", keyName, ServiceAccountKeyNameRegex)
 	}
 
 	publicKeyType := d.Get("public_key_type").(string)
@@ -70,29 +73,4 @@ func dataSourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interfac
 	d.Set("public_key", sak.PublicKeyData)
 
 	return nil
-}
-
-func getDataSourceServiceAccountKeyName(d *schema.ResourceData) (string, error) {
-	keyName := d.Get("name").(string)
-	keyFromSAId := d.Get("service_account_id").(string)
-
-	// Neither name nor service_account_id specified
-	if keyName == "" && keyFromSAId == "" {
-		return "", fmt.Errorf("please use name to specify service account key being added as this data source")
-	}
-
-	fullKeyName := keyName
-	if fullKeyName == "" {
-		// Key name specified as incorrectly named, deprecated service account ID field
-		fullKeyName = keyFromSAId
-	}
-
-	// Validate name since interpolated values (i.e from a key or service
-	// account resource) will not get validated at plan time.
-	r := regexp.MustCompile(ServiceAccountKeyNameRegex)
-	if r.MatchString(fullKeyName) {
-		return fullKeyName, nil
-	}
-
-	return "", fmt.Errorf("invalid key name %q does not match regexp %q", fullKeyName, ServiceAccountKeyNameRegex)
 }
