@@ -151,3 +151,6 @@ $ terraform import google_compute_ssl_policy.default projects/{{project}}/global
 $ terraform import google_compute_ssl_policy.default {{project}}/{{name}}
 $ terraform import google_compute_ssl_policy.default {{name}}
 ```
+
+-> If you're importing a resource with beta features, make sure to include `provider=google-beta"
+as an argument so that Terraform uses the correct provider to import your resource.

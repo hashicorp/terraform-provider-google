@@ -228,3 +228,6 @@ $ terraform import google_compute_forwarding_rule.default projects/{{project}}/r
 $ terraform import google_compute_forwarding_rule.default {{project}}/{{region}}/{{name}}
 $ terraform import google_compute_forwarding_rule.default {{name}}
 ```
+
+-> If you're importing a resource with beta features, make sure to include `provider=google-beta"
+as an argument so that Terraform uses the correct provider to import your resource.

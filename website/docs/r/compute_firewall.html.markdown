@@ -260,3 +260,6 @@ $ terraform import google_compute_firewall.default projects/{{project}}/global/f
 $ terraform import google_compute_firewall.default {{project}}/{{name}}
 $ terraform import google_compute_firewall.default {{name}}
 ```
+
+-> If you're importing a resource with beta features, make sure to include `provider=google-beta"
+as an argument so that Terraform uses the correct provider to import your resource.

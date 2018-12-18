@@ -214,3 +214,6 @@ $ terraform import google_compute_vpn_tunnel.default projects/{{project}}/region
 $ terraform import google_compute_vpn_tunnel.default {{project}}/{{region}}/{{name}}
 $ terraform import google_compute_vpn_tunnel.default {{name}}
 ```
+
+-> If you're importing a resource with beta features, make sure to include `provider=google-beta"
+as an argument so that Terraform uses the correct provider to import your resource.
