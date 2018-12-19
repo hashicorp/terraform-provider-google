@@ -26,13 +26,17 @@ import (
 func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeForwardingRule_forwardingRuleBasicExample(acctest.RandString(10)),
+				Config: testAccComputeForwardingRule_forwardingRuleBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_forwarding_rule.default",
@@ -43,19 +47,18 @@ func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeForwardingRule_forwardingRuleBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeForwardingRule_forwardingRuleBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_forwarding_rule" "default" {
-  name       = "website-forwarding-rule-%s"
+  name       = "website-forwarding-rule-%{random}"
   target     = "${google_compute_target_pool.default.self_link}"
   port_range = "80"
 }
 
 resource "google_compute_target_pool" "default" {
-  name = "website-target-pool-%s"
+  name = "website-target-pool-%{random}"
 }
-`, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeForwardingRuleDestroy(s *terraform.State) error {

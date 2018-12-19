@@ -230,7 +230,9 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 
 func resourceResourceManagerLienImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	parseImportId([]string{"(?P<parent>[^/]+)/(?P<name>[^/]+)"}, d, config)
+	if err := parseImportId([]string{"(?P<parent>[^/]+)/(?P<name>[^/]+)"}, d, config); err != nil {
+		return nil, err
+	}
 
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{name}}")

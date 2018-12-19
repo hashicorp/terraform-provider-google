@@ -26,13 +26,17 @@ import (
 func TestAccComputeSnapshot_snapshotBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSnapshotDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSnapshot_snapshotBasicExample(acctest.RandString(10)),
+				Config: testAccComputeSnapshot_snapshotBasicExample(context),
 			},
 			{
 				ResourceName:            "google_compute_snapshot.snapshot",
@@ -44,10 +48,10 @@ func TestAccComputeSnapshot_snapshotBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeSnapshot_snapshotBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeSnapshot_snapshotBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
-	name = "my-snapshot-%s"
+	name = "my-snapshot-%{random}"
 	source_disk = "${google_compute_disk.persistent.name}"
 	zone = "us-central1-a"
 	labels = {
@@ -61,14 +65,13 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-	name = "debian-disk-%s"
+	name = "debian-disk-%{random}"
 	image = "${data.google_compute_image.debian.self_link}"
 	size = 10
 	type = "pd-ssd"
 	zone = "us-central1-a"
 }
-`, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeSnapshotDestroy(s *terraform.State) error {

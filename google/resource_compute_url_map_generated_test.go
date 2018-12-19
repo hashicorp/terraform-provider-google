@@ -26,13 +26,17 @@ import (
 func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeUrlMap_urlMapBasicExample(acctest.RandString(10)),
+				Config: testAccComputeUrlMap_urlMapBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_url_map.urlmap",
@@ -43,10 +47,10 @@ func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeUrlMap_urlMapBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeUrlMap_urlMapBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_url_map" "urlmap" {
-  name        = "urlmap-%s"
+  name        = "urlmap-%{random}"
   description = "a description"
 
   default_service = "${google_compute_backend_service.home.self_link}"
@@ -84,7 +88,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "login" {
-  name        = "login-%s"
+  name        = "login-%{random}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -93,7 +97,7 @@ resource "google_compute_backend_service" "login" {
 }
 
 resource "google_compute_backend_service" "home" {
-  name        = "home-%s"
+  name        = "home-%{random}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -102,24 +106,23 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "health-check-%s"
+  name               = "health-check-%{random}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_backend_bucket" "static" {
-  name        = "static-asset-backend-bucket-%s"
+  name        = "static-asset-backend-bucket-%{random}"
   bucket_name = "${google_storage_bucket.static.name}"
   enable_cdn  = true
 }
 
 resource "google_storage_bucket" "static" {
-  name     = "static-asset-bucket-%s"
+  name     = "static-asset-bucket-%{random}"
   location = "US"
 }
-`, val, val, val, val, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeUrlMapDestroy(s *terraform.State) error {

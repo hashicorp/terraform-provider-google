@@ -26,13 +26,17 @@ import (
 func TestAccComputeSslCertificate_sslCertificateBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSslCertificate_sslCertificateBasicExample(acctest.RandString(10)),
+				Config: testAccComputeSslCertificate_sslCertificateBasicExample(context),
 			},
 			{
 				ResourceName:            "google_compute_ssl_certificate.default",
@@ -44,8 +48,8 @@ func TestAccComputeSslCertificate_sslCertificateBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeSslCertificate_sslCertificateBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeSslCertificate_sslCertificateBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_ssl_certificate" "default" {
   name_prefix = "my-certificate-"
   description = "a description"
@@ -56,12 +60,15 @@ resource "google_compute_ssl_certificate" "default" {
     create_before_destroy = true
   }
 }
-`,
-	)
+`, context)
 }
 
 func TestAccComputeSslCertificate_sslCertificateRandomProviderExample(t *testing.T) {
 	t.Parallel()
+
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -69,7 +76,7 @@ func TestAccComputeSslCertificate_sslCertificateRandomProviderExample(t *testing
 		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSslCertificate_sslCertificateRandomProviderExample(acctest.RandString(10)),
+				Config: testAccComputeSslCertificate_sslCertificateRandomProviderExample(context),
 			},
 			{
 				ResourceName:            "google_compute_ssl_certificate.default",
@@ -81,8 +88,8 @@ func TestAccComputeSslCertificate_sslCertificateRandomProviderExample(t *testing
 	})
 }
 
-func testAccComputeSslCertificate_sslCertificateRandomProviderExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeSslCertificate_sslCertificateRandomProviderExample(context map[string]interface{}) string {
+	return Nprintf(`
 # You may also want to control name generation explicitly:
 resource "google_compute_ssl_certificate" "default" {
   # The name will contain 8 random hex digits,
@@ -106,12 +113,15 @@ resource "random_id" "certificate" {
     certificate = "${base64sha256(file("test-fixtures/ssl_cert/test.crt"))}"
   }
 }
-`,
-	)
+`, context)
 }
 
 func TestAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(t *testing.T) {
 	t.Parallel()
+
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -119,7 +129,7 @@ func TestAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(t *tes
 		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(acctest.RandString(10)),
+				Config: testAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(context),
 			},
 			{
 				ResourceName:            "google_compute_ssl_certificate.default",
@@ -131,8 +141,8 @@ func TestAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(t *tes
 	})
 }
 
-func testAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(context map[string]interface{}) string {
+	return Nprintf(`
 // Using with Target HTTPS Proxies
 //
 // SSL certificates cannot be updated after creation. In order to apply
@@ -154,13 +164,13 @@ resource "google_compute_ssl_certificate" "default" {
 }
 
 resource "google_compute_target_https_proxy" "default" {
-  name             = "test-proxy-%s"
+  name             = "test-proxy-%{random}"
   url_map          = "${google_compute_url_map.default.self_link}"
   ssl_certificates = ["${google_compute_ssl_certificate.default.self_link}"]
 }
 
 resource "google_compute_url_map" "default" {
-  name        = "url-map-%s"
+  name        = "url-map-%{random}"
   description = "a description"
 
   default_service = "${google_compute_backend_service.default.self_link}"
@@ -182,7 +192,7 @@ resource "google_compute_url_map" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  name        = "backend-service-%s"
+  name        = "backend-service-%{random}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -191,13 +201,12 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "http-health-check-%s"
+  name               = "http-health-check-%{random}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
-`, val, val, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeSslCertificateDestroy(s *terraform.State) error {

@@ -26,13 +26,17 @@ import (
 func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionDiskDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRegionDisk_regionDiskBasicExample(acctest.RandString(10)),
+				Config: testAccComputeRegionDisk_regionDiskBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_region_disk.regiondisk",
@@ -43,10 +47,10 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeRegionDisk_regionDiskBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeRegionDisk_regionDiskBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_region_disk" "regiondisk" {
-  name = "my-region-disk-%s"
+  name = "my-region-disk-%{random}"
   snapshot = "${google_compute_snapshot.snapdisk.self_link}"
   type = "pd-ssd"
   region = "us-central1"
@@ -55,7 +59,7 @@ resource "google_compute_region_disk" "regiondisk" {
 }
 
 resource "google_compute_disk" "disk" {
-  name = "my-disk-%s"
+  name = "my-disk-%{random}"
   image = "debian-cloud/debian-9"
   size = 50
   type = "pd-ssd"
@@ -63,12 +67,11 @@ resource "google_compute_disk" "disk" {
 }
 
 resource "google_compute_snapshot" "snapdisk" {
-  name = "my-snapshot-%s"
+  name = "my-snapshot-%{random}"
   source_disk = "${google_compute_disk.disk.name}"
   zone = "us-central1-a"
 }
-`, val, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeRegionDiskDestroy(s *terraform.State) error {

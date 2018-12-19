@@ -26,13 +26,17 @@ import (
 func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeBackendBucket_backendBucketBasicExample(acctest.RandString(10)),
+				Config: testAccComputeBackendBucket_backendBucketBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_backend_bucket.image_backend",
@@ -43,21 +47,20 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeBackendBucket_backendBucketBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeBackendBucket_backendBucketBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
-  name        = "image-backend-bucket-%s"
+  name        = "image-backend-bucket-%{random}"
   description = "Contains beautiful images"
   bucket_name = "${google_storage_bucket.image_bucket.name}"
   enable_cdn  = true
 }
 
 resource "google_storage_bucket" "image_bucket" {
-  name     = "image-store-bucket-%s"
+  name     = "image-store-bucket-%{random}"
   location = "EU"
 }
-`, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeBackendBucketDestroy(s *terraform.State) error {

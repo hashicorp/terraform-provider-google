@@ -26,13 +26,17 @@ import (
 func TestAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlPublicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckStorageDefaultObjectAccessControlDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlPublicExample(acctest.RandString(10)),
+				Config: testAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlPublicExample(context),
 			},
 			{
 				ResourceName:            "google_storage_default_object_access_control.public_rule",
@@ -44,8 +48,8 @@ func TestAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlP
 	})
 }
 
-func testAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlPublicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlPublicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_storage_default_object_access_control" "public_rule" {
   bucket = "${google_storage_bucket.bucket.name}"
   role   = "READER"
@@ -53,10 +57,9 @@ resource "google_storage_default_object_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-	name = "static-content-bucket-%s"
+	name = "static-content-bucket-%{random}"
 }
-`, val,
-	)
+`, context)
 }
 
 func testAccCheckStorageDefaultObjectAccessControlDestroy(s *terraform.State) error {

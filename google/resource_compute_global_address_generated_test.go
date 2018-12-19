@@ -26,13 +26,17 @@ import (
 func TestAccComputeGlobalAddress_globalAddressBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeGlobalAddress_globalAddressBasicExample(acctest.RandString(10)),
+				Config: testAccComputeGlobalAddress_globalAddressBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_global_address.default",
@@ -43,13 +47,12 @@ func TestAccComputeGlobalAddress_globalAddressBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeGlobalAddress_globalAddressBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeGlobalAddress_globalAddressBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_global_address" "default" {
-  name = "global-appserver-ip-%s"
+  name = "global-appserver-ip-%{random}"
 }
-`, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeGlobalAddressDestroy(s *terraform.State) error {

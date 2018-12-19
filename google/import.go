@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -25,7 +26,40 @@ func parseImportId(idRegexes []string, d TerraformResourceData, config *Config) 
 			// Starting at index 1, the first match is the full string.
 			for i := 1; i < len(fieldValues); i++ {
 				fieldName := re.SubexpNames()[i]
-				d.Set(fieldName, fieldValues[i])
+				// This part looks confusing.  Because there is no way to know at
+				// this point whether 'fieldName' corresponds to a TypeString or a
+				// TypeInteger in the resource schema, we need to determine
+				// whether to call d.Set() with 'fieldValues[i]', or with an integer
+				// parsed from 'fieldValues[i]'.  Normally, we would be able to just
+				// use a try/catch pattern - try as a string, and if that doesn't
+				// work, try as an integer, and if that doesn't work, return the
+				// error.  Unfortunately, this is not possible here - during tests,
+				// d.Set(...) will panic if there is an error.  So we need to check
+				// first whether the value can be parsed as an integer.
+				if atoi, atoiErr := strconv.Atoi(fieldValues[i]); atoiErr == nil {
+					// If the value can be parsed as an integer, we try to set the
+					// value as an integer.  *This is a problem*.  During tests, if there
+					// is a TypeString which is being parsed from the import id whose value
+					// is purely numeric, there will be a panic from this line.  The fix,
+					// if you are reaching this comment from that situation, is either
+					// to turn off TF_SCHEMA_PANIC_ON_ERROR in the test, or to
+					// add a non-numeric element to the TypeString which is being imported,
+					// or to swap the TypeString to a TypeInteger.
+					if err = d.Set(fieldName, atoi); err != nil {
+						// We catch errors, if they occur, and try to set the value as
+						// a string.
+						if err = d.Set(fieldName, fieldValues[i]); err != nil {
+							// If that does not work, we return the error.
+							return err
+						}
+					}
+				} else {
+					// If the value cannot be parsed as an integer, we just set
+					// it as a string; this is the normal case.
+					if err = d.Set(fieldName, fieldValues[i]); err != nil {
+						return err
+					}
+				}
 			}
 
 			// The first id format is applied first and contains all the fields.

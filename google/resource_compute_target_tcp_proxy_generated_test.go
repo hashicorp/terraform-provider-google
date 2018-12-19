@@ -26,13 +26,17 @@ import (
 func TestAccComputeTargetTcpProxy_targetTcpProxyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetTcpProxyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeTargetTcpProxy_targetTcpProxyBasicExample(acctest.RandString(10)),
+				Config: testAccComputeTargetTcpProxy_targetTcpProxyBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_target_tcp_proxy.default",
@@ -43,15 +47,15 @@ func TestAccComputeTargetTcpProxy_targetTcpProxyBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeTargetTcpProxy_targetTcpProxyBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeTargetTcpProxy_targetTcpProxyBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_target_tcp_proxy" "default" {
-  name            = "test-proxy-%s"
+  name            = "test-proxy-%{random}"
   backend_service = "${google_compute_backend_service.default.self_link}"
 }
 
 resource "google_compute_backend_service" "default" {
-  name          = "backend-service-%s"
+  name          = "backend-service-%{random}"
   protocol      = "TCP"
   timeout_sec   = 10
 
@@ -59,7 +63,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "health-check-%s"
+  name               = "health-check-%{random}"
   timeout_sec        = 1
   check_interval_sec = 1
 
@@ -67,8 +71,7 @@ resource "google_compute_health_check" "default" {
     port = "443"
   }
 }
-`, val, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeTargetTcpProxyDestroy(s *terraform.State) error {

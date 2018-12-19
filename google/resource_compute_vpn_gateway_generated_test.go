@@ -26,13 +26,17 @@ import (
 func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeVpnGatewayDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeVpnGateway_targetVpnGatewayBasicExample(acctest.RandString(10)),
+				Config: testAccComputeVpnGateway_targetVpnGatewayBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_vpn_gateway.target_gateway",
@@ -43,30 +47,30 @@ func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeVpnGateway_targetVpnGatewayBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeVpnGateway_targetVpnGatewayBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_vpn_gateway" "target_gateway" {
-  name    = "vpn1-%s"
+  name    = "vpn1-%{random}"
   network = "${google_compute_network.network1.self_link}"
 }
 
 resource "google_compute_network" "network1" {
-  name       = "network1-%s"
+  name       = "network1-%{random}"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
-  name   = "vpn-static-ip-%s"
+  name   = "vpn-static-ip-%{random}"
 }
 
 resource "google_compute_forwarding_rule" "fr_esp" {
-  name        = "fr-esp-%s"
+  name        = "fr-esp-%{random}"
   ip_protocol = "ESP"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
   target      = "${google_compute_vpn_gateway.target_gateway.self_link}"
 }
 
 resource "google_compute_forwarding_rule" "fr_udp500" {
-  name        = "fr-udp500-%s"
+  name        = "fr-udp500-%{random}"
   ip_protocol = "UDP"
   port_range  = "500"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
@@ -74,7 +78,7 @@ resource "google_compute_forwarding_rule" "fr_udp500" {
 }
 
 resource "google_compute_forwarding_rule" "fr_udp4500" {
-  name        = "fr-udp4500-%s"
+  name        = "fr-udp4500-%{random}"
   ip_protocol = "UDP"
   port_range  = "4500"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
@@ -82,7 +86,7 @@ resource "google_compute_forwarding_rule" "fr_udp4500" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel1" {
-  name          = "tunnel1-%s"
+  name          = "tunnel1-%{random}"
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 
@@ -96,15 +100,14 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 }
 
 resource "google_compute_route" "route1" {
-  name       = "route1-%s"
+  name       = "route1-%{random}"
   network    = "${google_compute_network.network1.name}"
   dest_range = "15.0.0.0/24"
   priority   = 1000
 
   next_hop_vpn_tunnel = "${google_compute_vpn_tunnel.tunnel1.self_link}"
 }
-`, val, val, val, val, val, val, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeVpnGatewayDestroy(s *terraform.State) error {

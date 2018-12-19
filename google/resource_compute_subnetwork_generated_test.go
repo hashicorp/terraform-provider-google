@@ -26,13 +26,17 @@ import (
 func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSubnetwork_subnetworkBasicExample(acctest.RandString(10)),
+				Config: testAccComputeSubnetwork_subnetworkBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_subnetwork.network-with-private-secondary-ip-ranges",
@@ -43,10 +47,10 @@ func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeSubnetwork_subnetworkBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeSubnetwork_subnetworkBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
-  name          = "test-subnetwork-%s"
+  name          = "test-subnetwork-%{random}"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
   network       = "${google_compute_network.custom-test.self_link}"
@@ -57,11 +61,10 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
 }
 
 resource "google_compute_network" "custom-test" {
-  name                    = "test-network-%s"
+  name                    = "test-network-%{random}"
   auto_create_subnetworks = false
 }
-`, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeSubnetworkDestroy(s *terraform.State) error {

@@ -26,13 +26,17 @@ import (
 func TestAccMonitoringGroup_monitoringGroupBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringGroup_monitoringGroupBasicExample(acctest.RandString(10)),
+				Config: testAccMonitoringGroup_monitoringGroupBasicExample(context),
 			},
 			{
 				ResourceName:      "google_monitoring_group.basic",
@@ -43,19 +47,22 @@ func TestAccMonitoringGroup_monitoringGroupBasicExample(t *testing.T) {
 	})
 }
 
-func testAccMonitoringGroup_monitoringGroupBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccMonitoringGroup_monitoringGroupBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_monitoring_group" "basic" {
-  display_name = "New Test Group-%s"
+  display_name = "New Test Group-%{random}"
 
   filter = "resource.metadata.region=\"europe-west2\""
 }
-`, val,
-	)
+`, context)
 }
 
 func TestAccMonitoringGroup_monitoringGroupSubgroupExample(t *testing.T) {
 	t.Parallel()
+
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -63,7 +70,7 @@ func TestAccMonitoringGroup_monitoringGroupSubgroupExample(t *testing.T) {
 		CheckDestroy: testAccCheckMonitoringGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringGroup_monitoringGroupSubgroupExample(acctest.RandString(10)),
+				Config: testAccMonitoringGroup_monitoringGroupSubgroupExample(context),
 			},
 			{
 				ResourceName:      "google_monitoring_group.subgroup",
@@ -74,20 +81,19 @@ func TestAccMonitoringGroup_monitoringGroupSubgroupExample(t *testing.T) {
 	})
 }
 
-func testAccMonitoringGroup_monitoringGroupSubgroupExample(val string) string {
-	return fmt.Sprintf(`
+func testAccMonitoringGroup_monitoringGroupSubgroupExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_monitoring_group" "parent" {
-  display_name = "New Test SubGroup-%s"
+  display_name = "New Test SubGroup-%{random}"
   filter = "resource.metadata.region=\"europe-west2\""
 }
 
 resource "google_monitoring_group" "subgroup" {
-  display_name = "New Test SubGroup-%s"
+  display_name = "New Test SubGroup-%{random}"
   filter = "resource.metadata.region=\"europe-west2\""
   parent_name =  "${google_monitoring_group.parent.name}"
 }
-`, val, val,
-	)
+`, context)
 }
 
 func testAccCheckMonitoringGroupDestroy(s *terraform.State) error {

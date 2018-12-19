@@ -23,23 +23,24 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccComputeRouter_routerBasicExample(t *testing.T) {
+func TestAccAppengineFirewallRule_appengineFirewallRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"org_id": getTestOrgFromEnv(t),
 		"random": acctest.RandString(10),
 	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouterDestroy,
+		CheckDestroy: testAccCheckAppengineFirewallRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRouter_routerBasicExample(context),
+				Config: testAccAppengineFirewallRule_appengineFirewallRuleBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_router.foobar",
+				ResourceName:      "google_appengine_firewall_rule.rule",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -47,47 +48,44 @@ func TestAccComputeRouter_routerBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeRouter_routerBasicExample(context map[string]interface{}) string {
+func testAccAppengineFirewallRule_appengineFirewallRuleBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_compute_router" "foobar" {
-  name    = "my-router-%{random}"
-  network = "${google_compute_network.foobar.name}"
-  bgp {
-    asn               = 64514
-    advertise_mode    = "CUSTOM"
-    advertised_groups = ["ALL_SUBNETS"]
-    advertised_ip_ranges {
-      range = "1.2.3.4"
-    }
-    advertised_ip_ranges {
-      range = "6.7.0.0/16"
-    }
-  }
+resource "google_project" "my_project" {
+  name       = "tf-test-project"
+  project_id = "test-project-%{random}"
+  org_id     = "%{org_id}"
 }
 
-resource "google_compute_network" "foobar" {
-  name = "my-network-%{random}"
-  auto_create_subnetworks = false
+resource "google_app_engine_application" "app" {
+  project     = "${google_project.my_project.project_id}"
+  location_id = "us-central"
+}
+
+resource "google_appengine_firewall_rule" "rule" {
+  project = "${google_app_engine_application.app.project}"
+  priority = 1000
+  action = "ALLOW"
+  source_range = "*"
 }
 `, context)
 }
 
-func testAccCheckComputeRouterDestroy(s *terraform.State) error {
+func testAccCheckAppengineFirewallRuleDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_router" {
+		if rs.Type != "google_appengine_firewall_rule" {
 			continue
 		}
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/routers/{{name}}")
+		url, err := replaceVarsForTest(rs, "https://appengine.googleapis.com/v1/apps/{{project}}/firewall/ingressRules/{{priority}}")
 		if err != nil {
 			return err
 		}
 
 		_, err = sendRequest(config, "GET", url, nil)
 		if err == nil {
-			return fmt.Errorf("ComputeRouter still exists at %s", url)
+			return fmt.Errorf("AppengineFirewallRule still exists at %s", url)
 		}
 	}
 

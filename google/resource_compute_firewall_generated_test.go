@@ -26,13 +26,17 @@ import (
 func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeFirewallDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeFirewall_firewallBasicExample(acctest.RandString(10)),
+				Config: testAccComputeFirewall_firewallBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_firewall.default",
@@ -43,10 +47,10 @@ func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeFirewall_firewallBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeFirewall_firewallBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_firewall" "default" {
-  name    = "test-firewall-%s"
+  name    = "test-firewall-%{random}"
   network = "${google_compute_network.default.name}"
 
   allow {
@@ -62,10 +66,9 @@ resource "google_compute_firewall" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name = "test-network-%s"
+  name = "test-network-%{random}"
 }
-`, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeFirewallDestroy(s *terraform.State) error {

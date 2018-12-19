@@ -26,13 +26,17 @@ import (
 func TestAccComputeRoute_routeBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouteDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRoute_routeBasicExample(acctest.RandString(10)),
+				Config: testAccComputeRoute_routeBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_route.default",
@@ -43,10 +47,10 @@ func TestAccComputeRoute_routeBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeRoute_routeBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeRoute_routeBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_route" "default" {
-  name        = "network-route-%s"
+  name        = "network-route-%{random}"
   dest_range  = "15.0.0.0/24"
   network     = "${google_compute_network.default.name}"
   next_hop_ip = "10.132.1.5"
@@ -54,10 +58,9 @@ resource "google_compute_route" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name = "compute-network-%s"
+  name = "compute-network-%{random}"
 }
-`, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeRouteDestroy(s *terraform.State) error {

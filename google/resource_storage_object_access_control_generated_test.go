@@ -26,13 +26,17 @@ import (
 func TestAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckStorageObjectAccessControlDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExample(acctest.RandString(10)),
+				Config: testAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExample(context),
 			},
 			{
 				ResourceName:      "google_storage_object_access_control.public_rule",
@@ -43,8 +47,8 @@ func TestAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExa
 	})
 }
 
-func testAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExample(val string) string {
-	return fmt.Sprintf(`
+func testAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_storage_object_access_control" "public_rule" {
   object = "${google_storage_bucket_object.object.name}"
   bucket = "${google_storage_bucket.bucket.name}"
@@ -53,16 +57,15 @@ resource "google_storage_object_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-	name = "static-content-bucket-%s"
+	name = "static-content-bucket-%{random}"
 }
 
  resource "google_storage_bucket_object" "object" {
-	name   = "public-object-%s"
+	name   = "public-object-%{random}"
 	bucket = "${google_storage_bucket.bucket.name}"
 	source = "test-fixtures/header-logo.png"
 }
-`, val, val,
-	)
+`, context)
 }
 
 func testAccCheckStorageObjectAccessControlDestroy(s *terraform.State) error {

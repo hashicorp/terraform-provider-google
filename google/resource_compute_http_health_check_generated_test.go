@@ -26,13 +26,17 @@ import (
 func TestAccComputeHttpHealthCheck_httpHealthCheckBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeHttpHealthCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeHttpHealthCheck_httpHealthCheckBasicExample(acctest.RandString(10)),
+				Config: testAccComputeHttpHealthCheck_httpHealthCheckBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_http_health_check.default",
@@ -43,17 +47,16 @@ func TestAccComputeHttpHealthCheck_httpHealthCheckBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeHttpHealthCheck_httpHealthCheckBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeHttpHealthCheck_httpHealthCheckBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_http_health_check" "default" {
-  name         = "authentication-health-check-%s"
+  name         = "authentication-health-check-%{random}"
   request_path = "/health_check"
 
   timeout_sec        = 1
   check_interval_sec = 1
 }
-`, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeHttpHealthCheckDestroy(s *terraform.State) error {

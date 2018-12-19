@@ -26,13 +26,17 @@ import (
 func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeAddress_addressBasicExample(acctest.RandString(10)),
+				Config: testAccComputeAddress_addressBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_address.ip_address",
@@ -43,17 +47,20 @@ func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeAddress_addressBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeAddress_addressBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_address" "ip_address" {
-  name = "my-address-%s"
+  name = "my-address-%{random}"
 }
-`, val,
-	)
+`, context)
 }
 
 func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 	t.Parallel()
+
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -61,7 +68,7 @@ func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeAddress_addressWithSubnetworkExample(acctest.RandString(10)),
+				Config: testAccComputeAddress_addressWithSubnetworkExample(context),
 			},
 			{
 				ResourceName:      "google_compute_address.internal_with_subnet_and_address",
@@ -72,32 +79,35 @@ func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 	})
 }
 
-func testAccComputeAddress_addressWithSubnetworkExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeAddress_addressWithSubnetworkExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_network" "default" {
-  name = "my-network-%s"
+  name = "my-network-%{random}"
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "my-subnet-%s"
+  name          = "my-subnet-%{random}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = "${google_compute_network.default.self_link}"
 }
 
 resource "google_compute_address" "internal_with_subnet_and_address" {
-  name         = "my-internal-address-%s"
+  name         = "my-internal-address-%{random}"
   subnetwork   = "${google_compute_subnetwork.default.self_link}"
   address_type = "INTERNAL"
   address      = "10.0.42.42"
   region       = "us-central1"
 }
-`, val, val, val,
-	)
+`, context)
 }
 
 func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 	t.Parallel()
+
+	context := map[string]interface{}{
+		"random": acctest.RandString(10),
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -105,7 +115,7 @@ func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAddressDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeAddress_instanceWithIpExample(acctest.RandString(10)),
+				Config: testAccComputeAddress_instanceWithIpExample(context),
 			},
 			{
 				ResourceName:      "google_compute_address.static",
@@ -116,10 +126,10 @@ func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 	})
 }
 
-func testAccComputeAddress_instanceWithIpExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeAddress_instanceWithIpExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_address" "static" {
-  name = "ipv4-address-%s"
+  name = "ipv4-address-%{random}"
 }
 
 data "google_compute_image" "debian_image" {
@@ -128,7 +138,7 @@ data "google_compute_image" "debian_image" {
 }
 
 resource "google_compute_instance" "instance_with_ip" {
-	name         = "vm-instance-%s"
+	name         = "vm-instance-%{random}"
 	machine_type = "f1-micro"
 	zone         = "us-central1-a"
 
@@ -145,8 +155,7 @@ resource "google_compute_instance" "instance_with_ip" {
 		}
 	}
 }
-`, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeAddressDestroy(s *terraform.State) error {
