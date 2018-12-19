@@ -74,7 +74,7 @@ resource "google_compute_router" "router" {
 
 resource "google_compute_address" "address" {
   count  = 2
-  name   = "nat-external-address-${var.count}"
+  name   = "nat-external-address-${count.index}"
   region = "us-central1"
 }
 
@@ -83,7 +83,7 @@ resource "google_compute_router_nat" "advanced-nat" {
   router                             = "${google_compute_router.router.name}"
   region                             = "us-central1"
   nat_ip_allocate_option             = "MANUAL_ONLY"
-  nat_ips                            = ["${google_compute_address.*.address.self_link}"]
+  nat_ips                            = ["${google_compute_address.address.*.self_link}"]
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
   subnetwork {
     name = "${google_compute_subnetwork.subnetwork.self_link}"
