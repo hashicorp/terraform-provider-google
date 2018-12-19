@@ -188,6 +188,68 @@ func TestAccContainerCluster_withMasterAuthConfig_NoCert(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withIstioEnabled(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withIstioEnabled(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_istio_enabled", "addons_config.0.istio_config.0.disabled", "false"),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_istio_enabled",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_withIstioAuthEnabled(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_istio_enabled", "addons_config.0.istio_config.0.auth", "AUTH_MUTUAL_TLS"),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_istio_enabled",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withCloudRunEnabled(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withCloudRunEnabled(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_cloudrun_enabled", "addons_config.0.cloudrun_config.0.disabled", "false"),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_cloudrun_enabled",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 	t.Parallel()
 
@@ -1416,6 +1478,55 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 	addons_config {
 		network_policy_config {
 			disabled = true
+		}
+	}
+}`, clusterName)
+}
+
+func testAccContainerCluster_withIstioEnabled(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_istio_enabled" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	addons_config {
+		istio_config {
+			disabled = false
+		}
+	}
+}`, clusterName)
+}
+
+func testAccContainerCluster_withIstioAuthEnabled(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_istio_enabled" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	addons_config {
+		istio_config {
+			disabled = false
+			auth = "AUTH_MUTUAL_TLS"
+		}
+	}
+}`, clusterName)
+}
+
+func testAccContainerCluster_withCloudRunEnabled(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_cloudrun_enabled" {
+	name = "%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	addons_config {
+		istio_config {
+			disabled = false
+		}
+		cloudrun_config {
+			disabled = false
 		}
 	}
 }`, clusterName)

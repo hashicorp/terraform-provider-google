@@ -182,6 +182,42 @@ func resourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"istio_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"disabled": {
+										Type:     schema.TypeBool,
+										Default:  false,
+										Optional: true,
+									},
+									"auth": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"AUTH_MUTUAL_TLS"}, false),
+									},
+								},
+							},
+						},
+						"cloudrun_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"disabled": {
+										Type:     schema.TypeBool,
+										Default:  false,
+										Optional: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1413,6 +1449,23 @@ func expandClusterAddonsConfig(configured interface{}) *containerBeta.AddonsConf
 		}
 	}
 
+	if v, ok := config["istio_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.IstioConfig = &containerBeta.IstioConfig{
+			Disabled:        addon["disabled"].(bool),
+			Auth:            addon["auth"].(string),
+			ForceSendFields: []string{"Disabled"},
+		}
+	}
+
+	if v, ok := config["cloudrun_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.CloudRunConfig = &containerBeta.CloudRunConfig{
+			Disabled:        addon["disabled"].(bool),
+			ForceSendFields: []string{"Disabled"},
+		}
+	}
+
 	return ac
 }
 
@@ -1591,6 +1644,22 @@ func flattenClusterAddonsConfig(c *containerBeta.AddonsConfig) []map[string]inte
 		}
 	}
 
+	if c.IstioConfig != nil {
+		result["istio_config"] = []map[string]interface{}{
+			{
+				"disabled": c.IstioConfig.Disabled,
+				"auth":     c.IstioConfig.Auth,
+			},
+		}
+	}
+
+	if c.CloudRunConfig != nil {
+		result["cloudrun_config"] = []map[string]interface{}{
+			{
+				"disabled": c.CloudRunConfig.Disabled,
+			},
+		}
+	}
 	return []map[string]interface{}{result}
 }
 
