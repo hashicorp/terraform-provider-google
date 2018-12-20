@@ -237,6 +237,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_storage_object_acl":         resourceStorageObjectAcl(),
 			"google_storage_default_object_acl": resourceStorageDefaultObjectAcl(),
 			"google_storage_notification":       resourceStorageNotification(),
+			"google_storage_transfer_job":       resourceStorageTransferJob(),
 		},
 	)
 }
