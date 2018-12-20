@@ -12,7 +12,7 @@
   "baseUrl": "https://container.googleapis.com/",
   "batchPath": "batch",
   "canonicalName": "Container",
-  "description": "The Google Kubernetes Engine API is used for building and managing container based applications, powered by the open source Kubernetes technology.",
+  "description": "Builds and manages container-based applications, powered by the open source Kubernetes technology.",
   "discoveryVersion": "v1",
   "documentationLink": "https://cloud.google.com/container-engine/",
   "fullyEncodeReservedExpansion": true,
@@ -193,7 +193,7 @@
               ]
             },
             "list": {
-              "description": "",
+              "description": "Used to fetch locations that offer GKE.",
               "flatPath": "v1beta1/projects/{projectsId}/locations",
               "httpMethod": "GET",
               "id": "container.projects.locations.list",
@@ -2435,7 +2435,7 @@
       }
     }
   },
-  "revision": "20180917",
+  "revision": "20181113",
   "rootUrl": "https://container.googleapis.com/",
   "schemas": {
     "AcceleratorConfig": {
@@ -2458,6 +2458,10 @@
       "description": "Configuration for the addons that can be automatically spun up in the\ncluster, enabling additional functionality.",
       "id": "AddonsConfig",
       "properties": {
+        "cloudRunConfig": {
+          "$ref": "CloudRunConfig",
+          "description": "Configuration for the Cloud Run addon. The `IstioConfig` addon must be\nenabled in order to enable Cloud Run addon. This option can only be enabled\nat cluster creation time."
+        },
         "horizontalPodAutoscaling": {
           "$ref": "HorizontalPodAutoscaling",
           "description": "Configuration for the horizontal pod autoscaling feature, which\nincreases or decreases the number of replica pods a replication controller\nhas based on the resource usage of the existing pods."
@@ -2465,6 +2469,10 @@
         "httpLoadBalancing": {
           "$ref": "HttpLoadBalancing",
           "description": "Configuration for the HTTP (L7) load balancing controller addon, which\nmakes it easy to set up HTTP load balancers for services in a cluster."
+        },
+        "istioConfig": {
+          "$ref": "IstioConfig",
+          "description": "Configuration for Istio, an open platform to connect, manage, and secure\nmicroservices."
         },
         "kubernetesDashboard": {
           "$ref": "KubernetesDashboard",
@@ -2487,6 +2495,17 @@
         },
         "description": {
           "description": "[Output only] This field is set when upgrades are about to commence\nwith the description of the upgrade.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "BigQueryDestination": {
+      "description": "Parameters for using BigQuery as the destination of resource usage export.",
+      "id": "BigQueryDestination",
+      "properties": {
+        "datasetId": {
+          "description": "The ID of a BigQuery Dataset.",
           "type": "string"
         }
       },
@@ -2552,6 +2571,17 @@
       },
       "type": "object"
     },
+    "CloudRunConfig": {
+      "description": "Configuration options for the Cloud Run feature.",
+      "id": "CloudRunConfig",
+      "properties": {
+        "disabled": {
+          "description": "Whether Cloud Run addon is enabled for this cluster.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
     "Cluster": {
       "description": "A Google Kubernetes Engine cluster.",
       "id": "Cluster",
@@ -2588,7 +2618,7 @@
           "type": "string"
         },
         "currentNodeCount": {
-          "description": "[Output only] The number of nodes currently in the cluster.",
+          "description": "[Output only]  The number of nodes currently in the cluster. Deprecated.\nCall Kubernetes API directly to retrieve node information.",
           "format": "int32",
           "type": "integer"
         },
@@ -2653,7 +2683,7 @@
           "type": "string"
         },
         "locations": {
-          "description": "The list of Google Compute Engine\n[locations](/compute/docs/zones#available) in which the cluster's nodes\nshould be located.",
+          "description": "The list of Google Compute Engine\n[zones](/compute/docs/zones#available) in which the cluster's nodes\nshould be located.",
           "items": {
             "type": "string"
           },
@@ -2669,7 +2699,7 @@
         },
         "masterAuth": {
           "$ref": "MasterAuth",
-          "description": "The authentication information for accessing the master endpoint."
+          "description": "The authentication information for accessing the master endpoint.\nIf unspecified, the defaults are used:\nFor clusters before v1.12, if master_auth is unspecified, `username` will\nbe set to \"admin\", a random password will be generated, and a client\ncertificate will be issued."
         },
         "masterAuthorizedNetworksConfig": {
           "$ref": "MasterAuthorizedNetworksConfig",
@@ -2734,6 +2764,10 @@
           "description": "The resource labels for the cluster to use to annotate any related\nGoogle Compute Engine resources.",
           "type": "object"
         },
+        "resourceUsageExportConfig": {
+          "$ref": "ResourceUsageExportConfig",
+          "description": "Configuration for exporting resource usages. Resource usage export is\ndisabled when this config unspecified."
+        },
         "selfLink": {
           "description": "[Output only] Server-defined URL for the resource.",
           "type": "string"
@@ -2775,6 +2809,10 @@
         "tpuIpv4CidrBlock": {
           "description": "[Output only] The IP address range of the Cloud TPUs in this cluster, in\n[CIDR](http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)\nnotation (e.g. `1.2.3.4/29`).",
           "type": "string"
+        },
+        "verticalPodAutoscaling": {
+          "$ref": "VerticalPodAutoscaling",
+          "description": "Cluster-level Vertical Pod Autoscaling configuration."
         },
         "zone": {
           "description": "[Output only] The name of the Google Compute Engine\n[zone](/compute/docs/zones#available) in which the cluster\nresides.\nThis field is deprecated, use location instead.",
@@ -2822,7 +2860,7 @@
           "type": "string"
         },
         "desiredLocations": {
-          "description": "The desired list of Google Compute Engine\n[locations](/compute/docs/zones#available) in which the cluster's nodes\nshould be located. Changing the locations a cluster is in will result\nin nodes being either created or removed from the cluster, depending on\nwhether locations are being added or removed.\n\nThis list must always include the cluster's primary zone.",
+          "description": "The desired list of Google Compute Engine\n[zones](/compute/docs/zones#available) in which the cluster's nodes\nshould be located. Changing the locations a cluster is in will result\nin nodes being either created or removed from the cluster, depending on\nwhether locations are being added or removed.\n\nThis list must always include the cluster's primary zone.",
           "items": {
             "type": "string"
           },
@@ -2859,6 +2897,14 @@
         "desiredPodSecurityPolicyConfig": {
           "$ref": "PodSecurityPolicyConfig",
           "description": "The desired configuration options for the PodSecurityPolicy feature."
+        },
+        "desiredResourceUsageExportConfig": {
+          "$ref": "ResourceUsageExportConfig",
+          "description": "The desired configuration for exporting resource usage."
+        },
+        "desiredVerticalPodAutoscaling": {
+          "$ref": "VerticalPodAutoscaling",
+          "description": "Cluster-level Vertical Pod Autoscaling configuration."
         }
       },
       "type": "object"
@@ -3038,6 +3084,29 @@
       },
       "type": "object"
     },
+    "IstioConfig": {
+      "description": "Configuration options for Istio addon.",
+      "id": "IstioConfig",
+      "properties": {
+        "auth": {
+          "description": "The specified Istio auth mode, either none, or mutual TLS.",
+          "enum": [
+            "AUTH_NONE",
+            "AUTH_MUTUAL_TLS"
+          ],
+          "enumDescriptions": [
+            "auth not enabled",
+            "auth mutual TLS enabled"
+          ],
+          "type": "string"
+        },
+        "disabled": {
+          "description": "Whether Istio is enabled for this cluster.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
     "KubernetesDashboard": {
       "description": "Configuration for the Kubernetes Dashboard.",
       "id": "KubernetesDashboard",
@@ -3161,7 +3230,7 @@
           "type": "string"
         },
         "recommended": {
-          "description": "Recommended is a bool combining the drain state of the location (ie- has\nthe region been drained manually?), and the stockout status of any zone\naccording to Zone Advisor. This will be internal only for use by pantheon.",
+          "description": "Whether the location is recomended for GKE cluster scheduling.",
           "type": "boolean"
         },
         "type": {
@@ -3228,7 +3297,7 @@
           "type": "string"
         },
         "username": {
-          "description": "The username to use for HTTP basic authentication to the master endpoint.\nFor clusters v1.6.0 and later, you can disable basic authentication by\nproviding an empty username.",
+          "description": "The username to use for HTTP basic authentication to the master endpoint.\nFor clusters v1.6.0 and later, basic authentication can be disabled by\nleaving username unspecified (or setting it to the empty string).",
           "type": "string"
         }
       },
@@ -3803,6 +3872,21 @@
       },
       "type": "object"
     },
+    "ResourceUsageExportConfig": {
+      "description": "Configuration for exporting cluster resource usages.",
+      "id": "ResourceUsageExportConfig",
+      "properties": {
+        "bigqueryDestination": {
+          "$ref": "BigQueryDestination",
+          "description": "Configuration to use BigQuery as usage export destination."
+        },
+        "enableNetworkEgressMetering": {
+          "description": "Whether to enable network egress metering for this cluster. If enabled, a\ndaemonset will be created in the cluster to meter network egress traffic.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
     "RollbackNodePoolUpgradeRequest": {
       "description": "RollbackNodePoolUpgradeRequest rollbacks the previously Aborted or Failed\nNodePool upgrade. This will be an no-op if the last upgrade successfully\ncompleted.",
       "id": "RollbackNodePoolUpgradeRequest",
@@ -3963,7 +4047,7 @@
           "type": "string"
         },
         "locations": {
-          "description": "The desired list of Google Compute Engine\n[locations](/compute/docs/zones#available) in which the cluster's nodes\nshould be located. Changing the locations a cluster is in will result\nin nodes being either created or removed from the cluster, depending on\nwhether locations are being added or removed.\n\nThis list must always include the cluster's primary zone.",
+          "description": "The desired list of Google Compute Engine\n[zones](/compute/docs/zones#available) in which the cluster's nodes\nshould be located. Changing the locations a cluster is in will result\nin nodes being either created or removed from the cluster, depending on\nwhether locations are being added or removed.\n\nThis list must always include the cluster's primary zone.",
           "items": {
             "type": "string"
           },
@@ -4266,13 +4350,15 @@
             "UNKNOWN",
             "GCE_STOCKOUT",
             "GKE_SERVICE_ACCOUNT_DELETED",
-            "GCE_QUOTA_EXCEEDED"
+            "GCE_QUOTA_EXCEEDED",
+            "SET_BY_OPERATOR"
           ],
           "enumDescriptions": [
             "UNKNOWN indicates a generic condition.",
-            "GCE_STOCKOUT indicates a GCE stockout.",
+            "GCE_STOCKOUT indicates a Google Compute Engine stockout.",
             "GKE_SERVICE_ACCOUNT_DELETED indicates that the user deleted their robot\nservice account.",
-            "GCE quota was exceeded.\nMore codes TBA"
+            "Google Compute Engine quota was exceeded.",
+            "Cluster state was manually changed by an SRE due to a system logic error.\nMore codes TBA"
           ],
           "type": "string"
         },
@@ -4431,6 +4517,17 @@
             "IN_USE_MANAGED_POD denotes this range was created by GKE and is claimed\nfor pods. It cannot be used for other clusters."
           ],
           "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "VerticalPodAutoscaling": {
+      "description": "VerticalPodAutoscaling contains global, per-cluster information\nrequired by Vertical Pod Autoscaler to automatically adjust\nthe resources of pods controlled by it.",
+      "id": "VerticalPodAutoscaling",
+      "properties": {
+        "enabled": {
+          "description": "Enables vertical pod autoscaling.",
+          "type": "boolean"
         }
       },
       "type": "object"

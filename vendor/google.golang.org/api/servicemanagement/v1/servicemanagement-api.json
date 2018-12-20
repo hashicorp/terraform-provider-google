@@ -876,7 +876,7 @@
       }
     }
   },
-  "revision": "20181005",
+  "revision": "20181210",
   "rootUrl": "https://servicemanagement.googleapis.com/",
   "schemas": {
     "Advice": {
@@ -999,7 +999,7 @@
           "type": "string"
         },
         "authorizationUrl": {
-          "description": "Redirect URL if JWT token is required but no present or is expired.\nImplement authorizationUrl of securityDefinitions in OpenAPI spec.",
+          "description": "Redirect URL if JWT token is required but not present or is expired.\nImplement authorizationUrl of securityDefinitions in OpenAPI spec.",
           "type": "string"
         },
         "id": {
@@ -1119,6 +1119,11 @@
         },
         "minDeadline": {
           "description": "Minimum deadline in seconds needed for this method. Calls having deadline\nvalue lower than this will be rejected.",
+          "format": "double",
+          "type": "number"
+        },
+        "operationDeadline": {
+          "description": "The number of seconds to wait for the completion of a long running\noperation. The default is no deadline.",
           "format": "double",
           "type": "number"
         },

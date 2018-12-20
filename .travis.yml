@@ -17,8 +17,10 @@ install:
 script:
 - make lint
 - make test
-- make vendor-status
 - make website-test
+
+env:
+  - GO111MODULE=off
 
 branches:
   only:
