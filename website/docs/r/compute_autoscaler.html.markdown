@@ -266,5 +266,5 @@ $ terraform import google_compute_autoscaler.default {{project}}/{{zone}}/{{name
 $ terraform import google_compute_autoscaler.default {{name}}
 ```
 
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta"
+-> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
