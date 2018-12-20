@@ -35,6 +35,12 @@ var regionEnvVars = []string{
 	"CLOUDSDK_COMPUTE_REGION",
 }
 
+var zoneEnvVars = []string{
+	"GOOGLE_ZONE",
+	"GCLOUD_ZONE",
+	"CLOUDSDK_COMPUTE_ZONE",
+}
+
 var orgEnvVars = []string{
 	"GOOGLE_ORG",
 }
@@ -96,6 +102,10 @@ func testAccPreCheck(t *testing.T) {
 
 	if v := multiEnvSearch(regionEnvVars); v != "us-central1" {
 		t.Fatalf("One of %s must be set to us-central1 for acceptance tests", strings.Join(regionEnvVars, ", "))
+	}
+
+	if v := multiEnvSearch(zoneEnvVars); v != "us-central1-a" {
+		t.Fatalf("One of %s must be set to us-central1-a for acceptance tests", strings.Join(zoneEnvVars, ", "))
 	}
 }
 
