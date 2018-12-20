@@ -280,7 +280,7 @@ func enableServices(s []string, pid string, config *Config) error {
 
 			// Poll for the API to return
 			activity := fmt.Sprintf("apis %q to be enabled for %s", services, pid)
-			_, waitErr := serviceUsageOperationWait(config, sop, activity)
+			waitErr := serviceUsageOperationWait(config, sop, activity)
 			if waitErr != nil {
 				return waitErr
 			}
@@ -342,7 +342,7 @@ func disableService(s, pid string, config *Config) error {
 			return err
 		}
 		// Wait for the operation to complete
-		_, waitErr := serviceUsageOperationWait(config, sop, "api to disable")
+		waitErr := serviceUsageOperationWait(config, sop, "api to disable")
 		if waitErr != nil {
 			return waitErr
 		}
