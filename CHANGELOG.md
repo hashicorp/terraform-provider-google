@@ -93,6 +93,7 @@ BUG FIXES:
 * compute: `google_compute_disk.snapshot`, `google_compute_region_disk.snapshot` properly allow partial URIs. ([#2450](https://github.com/terraform-providers/terraform-provider-google/issues/2450))
 * pubsub: fix issue where not all attributes were saved in state ([#2469](https://github.com/terraform-providers/terraform-provider-google/issues/2469))
 
+
 ## 1.19.1 (October 12, 2018)
 
 BUG FIXES:
@@ -119,7 +120,6 @@ FEATURES:
 * **New Resource**: `google_compute_interconnect_attachment` ([#1140](https://github.com/terraform-providers/terraform-provider-google/issues/1140))
 * **New Resource**: `google_filestore_instance` ([#2088](https://github.com/terraform-providers/terraform-provider-google/issues/2088))
 * **New Resource**: `google_app_engine_application` ([#2147](https://github.com/terraform-providers/terraform-provider-google/issues/2147))
-* **New Resource**: `google_monitoring_alert_policy` ([#1044](https://github.com/terraform-providers/terraform-provider-google/issues/1044))
 
 ENHANCEMENTS:
 * container: Add `enable_tpu` flag to google_container_cluster ([#1974](https://github.com/terraform-providers/terraform-provider-google/issues/1974))
