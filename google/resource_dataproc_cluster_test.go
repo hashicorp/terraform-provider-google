@@ -610,6 +610,8 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 
 			{"cluster_config.0.preemptible_worker_config.0.num_instances", "1", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.NumInstances))},
 			{"cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_size_gb", "12", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb))},
+			{"cluster_config.0.preemptible_worker_config.0.disk_config.0.num_local_ssds", "1", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.DiskConfig.NumLocalSsds))},
+			{"cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_type", "pd-ssd", cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskType},
 			{"cluster_config.0.preemptible_worker_config.0.instance_names.#", "1", strconv.Itoa(len(cluster.Config.SecondaryWorkerConfig.InstanceNames))},
 		}
 
@@ -853,7 +855,9 @@ resource "google_dataproc_cluster" "with_config_overrides" {
 		preemptible_worker_config {
 			num_instances     = 1
 			disk_config {
+				boot_disk_type    = "pd-ssd"
 				boot_disk_size_gb = 12
+				num_local_ssds    = 1
 			}
 		}
 	}
