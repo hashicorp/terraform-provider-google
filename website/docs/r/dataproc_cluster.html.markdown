@@ -343,7 +343,9 @@ The `cluster_config.preemptible_worker_config` block supports:
         preemptible_worker_config {
             num_instances     = 1
             disk_config {
+                boot_disk_type    = "pd-standard"
                 boot_disk_size_gb = 10
+                num_local_ssds    = 1
             }
         }
     }
@@ -357,10 +359,16 @@ will be set for you based on whatever was set for the `worker_config.machine_typ
 
 * `disk_config` (Optional) Disk Config
 
+    * `boot_disk_type` - (Optional) The disk type of the primary disk attached to each preemptible worker node.
+	One of `"pd-ssd"` or `"pd-standard"`. Defaults to `"pd-standard"`.
+
     * `boot_disk_size_gb` - (Optional, Computed) Size of the primary disk attached to each preemptible worker node, specified
     in GB. The smallest allowed disk size is 10GB. GCP will default to a predetermined
     computed value if not set (currently 500GB). Note: If SSDs are not
 	attached, it also contains the HDFS data blocks and Hadoop working directories.
+
+	* `num_local_ssds` - (Optional) The amount of local SSD disks that will be
+	attached to each preemptible worker node. Defaults to 0.
 
 - - -
 
