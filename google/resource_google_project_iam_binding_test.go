@@ -22,7 +22,7 @@ func TestAccProjectIamBinding_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	role := "roles/compute.instanceAdmin"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -49,7 +49,7 @@ func TestAccProjectIamBinding_multiple(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	role := "roles/compute.instanceAdmin"
 	role2 := "roles/viewer"
 
@@ -83,7 +83,7 @@ func TestAccProjectIamBinding_multipleAtOnce(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	role := "roles/compute.instanceAdmin"
 	role2 := "roles/viewer"
 
@@ -113,7 +113,7 @@ func TestAccProjectIamBinding_update(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	role := "roles/compute.instanceAdmin"
 
 	resource.Test(t, resource.TestCase{
@@ -153,7 +153,7 @@ func TestAccProjectIamBinding_remove(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	role := "roles/compute.instanceAdmin"
 	role2 := "roles/viewer"
 

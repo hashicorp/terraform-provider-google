@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	pname          = "Terraform Acceptance Tests"
+	pname          = "Test Project for TPG"
 	originalPolicy *cloudresourcemanager.Policy
 )
 
@@ -29,7 +29,7 @@ func TestAccProject_createWithoutOrg(t *testing.T) {
 		t.Skip("Service accounts cannot create projects without a parent. Requires user credentials.")
 	}
 
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -51,7 +51,7 @@ func TestAccProject_create(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -75,7 +75,7 @@ func TestAccProject_billing(t *testing.T) {
 	skipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT_2")
 	billingId2 := os.Getenv("GOOGLE_BILLING_ACCOUNT_2")
 	billingId := getTestBillingAccountFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -116,7 +116,7 @@ func TestAccProject_labels(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -157,7 +157,7 @@ func TestAccProject_deleteDefaultNetwork(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	billingId := getTestBillingAccountFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -174,7 +174,7 @@ func TestAccProject_parentFolder(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	folderDisplayName := "tf-test-" + acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

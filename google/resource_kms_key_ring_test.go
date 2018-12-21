@@ -72,7 +72,7 @@ func TestKeyRingIdParsing(t *testing.T) {
 }
 
 func TestAccKmsKeyRing_basic(t *testing.T) {
-	projectId := "terraform-" + acctest.RandString(10)
+	projectId := "tf-acctest-" + acctest.RandString(10)
 	projectOrg := getTestOrgFromEnv(t)
 	projectBillingAccount := getTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -141,7 +141,7 @@ resource "google_kms_key_ring" "key_ring" {
 	name     = "%s"
 	location = "us-central1"
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName)
+	`, pname, projectId, projectOrg, projectBillingAccount, keyRingName)
 }
 
 func testGoogleKmsKeyRing_removed(projectId, projectOrg, projectBillingAccount string) string {
@@ -159,5 +159,5 @@ resource "google_project_services" "acceptance" {
 		"cloudkms.googleapis.com"
 	]
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount)
+	`, pname, projectId, projectOrg, projectBillingAccount)
 }

@@ -12,7 +12,7 @@ import (
 func TestAccDataSourceGoogleProjectServices_basic(t *testing.T) {
 	t.Parallel()
 	org := getTestOrgFromEnv(t)
-	project := "terraform-" + acctest.RandString(10)
+	project := "tf-acctest-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -78,5 +78,5 @@ resource "google_project_services" "project_services" {
 
 data "google_project_services" "project_services" {
 	project = "${google_project.project.id}"
-}`, project, project, org)
+}`, project, pname, org)
 }

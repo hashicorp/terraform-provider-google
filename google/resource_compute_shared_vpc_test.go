@@ -13,8 +13,8 @@ func TestAccComputeSharedVpc_basic(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
 
-	hostProject := "xpn-host-" + acctest.RandString(10)
-	serviceProject := "xpn-service-" + acctest.RandString(10)
+	hostProject := "tf-acctest-" + acctest.RandString(10)
+	serviceProject := "tf-acctest-" + acctest.RandString(10)
 
 	hostProjectResourceName := "google_compute_shared_vpc_host_project.host"
 	serviceProjectResourceName := "google_compute_shared_vpc_service_project.service"
@@ -128,7 +128,7 @@ resource "google_compute_shared_vpc_service_project" "service" {
 	host_project    = "${google_project.host.project_id}"
 	service_project = "${google_project.service.project_id}"
 	depends_on      = ["google_compute_shared_vpc_host_project.host", "google_project_service.service"]
-}`, hostProject, hostProject, org, billing, serviceProject, serviceProject, org, billing)
+}`, hostProject, pname, org, billing, serviceProject, pname, org, billing)
 }
 
 func testAccComputeSharedVpc_disabled(hostProject, serviceProject, org, billing string) string {
@@ -156,5 +156,5 @@ resource "google_project_service" "service" {
 	project  = "${google_project.service.project_id}"
 	service = "compute.googleapis.com"
 }
-`, hostProject, hostProject, org, billing, serviceProject, serviceProject, org, billing)
+`, hostProject, pname, org, billing, serviceProject, pname, org, billing)
 }

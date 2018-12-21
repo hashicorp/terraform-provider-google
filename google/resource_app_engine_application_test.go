@@ -12,7 +12,7 @@ func TestAccAppEngineApplication_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
+	pid := acctest.RandomWithPrefix("tf-acctest")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -57,7 +57,7 @@ resource "google_app_engine_application" "acceptance" {
   auth_domain     = "hashicorptest.com"
   location_id     = "us-central"
   serving_status  = "SERVING"
-}`, pid, pid, org)
+}`, pid, pname, org)
 }
 
 func testAccAppEngineApplication_update(pid, org string) string {
@@ -73,5 +73,5 @@ resource "google_app_engine_application" "acceptance" {
   auth_domain     = "tf-test.club"
   location_id     = "us-central"
   serving_status  = "USER_DISABLED"
-}`, pid, pid, org)
+}`, pid, pname, org)
 }

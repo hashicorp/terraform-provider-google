@@ -12,7 +12,7 @@ func TestAccComputeResourceUsageExportBucket(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
 
-	baseProject := "ub-" + acctest.RandString(10)
+	baseProject := "tf-acctest-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -35,7 +35,7 @@ func testAccResourceUsageExportBucket(baseProject, org, billingId string) string
 	return fmt.Sprintf(`
 resource "google_project" "base" {
 	project_id      = "%s"
-	name            = "Export Bucket Base"
+	name            = "Test Project for TPG"
 	org_id          = "%s"
 	billing_account = "%s"
 }

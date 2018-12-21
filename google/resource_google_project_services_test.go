@@ -18,7 +18,7 @@ func TestAccProjectServices_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	services1 := []string{"logging.googleapis.com", "cloudresourcemanager.googleapis.com"}
 	services2 := []string{"cloudresourcemanager.googleapis.com"}
 	oobService := "logging.googleapis.com"
@@ -68,7 +68,7 @@ func TestAccProjectServices_authoritative(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	services := []string{"cloudresourcemanager.googleapis.com"}
 	oobService := "logging.googleapis.com"
 	resource.Test(t, resource.TestCase{
@@ -105,7 +105,7 @@ func TestAccProjectServices_authoritative2(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	oobServices := []string{"logging.googleapis.com", "cloudresourcemanager.googleapis.com"}
 	services := []string{"logging.googleapis.com"}
 
@@ -146,7 +146,7 @@ func TestAccProjectServices_ignoreUnenablableServices(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	services := []string{
 		"dataproc.googleapis.com",
 		// The following services are enabled as a side-effect of dataproc's enablement
@@ -183,7 +183,7 @@ func TestAccProjectServices_pagination(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 
 	// we need at least 50 services (doesn't matter what they are) to exercise the
 	// pagination handling code.

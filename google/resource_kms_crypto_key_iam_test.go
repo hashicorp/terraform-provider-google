@@ -15,7 +15,7 @@ func TestAccKmsCryptoKeyIamBinding(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
-	projectId := acctest.RandomWithPrefix("tf-test")
+	projectId := acctest.RandomWithPrefix("tf-acctest")
 	billingAccount := getTestBillingAccountFromEnv(t)
 	account := acctest.RandomWithPrefix("tf-test")
 	roleId := "roles/cloudkms.cryptoKeyDecrypter"
@@ -66,7 +66,7 @@ func TestAccKmsCryptoKeyIamMember(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
-	projectId := acctest.RandomWithPrefix("tf-test")
+	projectId := acctest.RandomWithPrefix("tf-acctest")
 	billingAccount := getTestBillingAccountFromEnv(t)
 	account := acctest.RandomWithPrefix("tf-test")
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
@@ -175,7 +175,7 @@ func testAccCheckGoogleKmsCryptoKeyIamMemberExists(n, role, member string) resou
 func testAccKmsCryptoKeyIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
-  name            = "Test project"
+  name            = "%s"
   project_id      = "%s"
   org_id          = "%s"
   billing_account = "%s"
@@ -213,13 +213,13 @@ resource "google_kms_crypto_key_iam_binding" "foo" {
   role          = "%s"
   members       = ["serviceAccount:${google_service_account.test_account.email}"]
 }
-`, projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId)
+`, pname, projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId)
 }
 
 func testAccKmsCryptoKeyIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
-  name            = "Test project"
+  name            = "%s"
   project_id      = "%s"
   org_id          = "%s"
   billing_account = "%s"
@@ -266,13 +266,13 @@ resource "google_kms_crypto_key_iam_binding" "foo" {
     "serviceAccount:${google_service_account.test_account_2.email}"
   ]
 }
-`, projectId, orgId, billingAccount, account, account, keyRingName, cryptoKeyName, roleId)
+`, pname, projectId, orgId, billingAccount, account, account, keyRingName, cryptoKeyName, roleId)
 }
 
 func testAccKmsCryptoKeyIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
-  name            = "Test project"
+  name            = "%s"
   project_id      = "%s"
   org_id          = "%s"
   billing_account = "%s"
@@ -309,5 +309,5 @@ resource "google_kms_crypto_key_iam_member" "foo" {
   role          = "%s"
   member        = "serviceAccount:${google_service_account.test_account.email}"
 }
-`, projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId)
+`, pname, projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId)
 }

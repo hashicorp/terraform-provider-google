@@ -14,7 +14,7 @@ func TestAccProjectService_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	services := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -67,7 +67,7 @@ func TestAccProjectService_handleNotFound(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	service := "iam.googleapis.com"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

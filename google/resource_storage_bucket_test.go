@@ -611,7 +611,7 @@ func TestAccStorageBucket_cors(t *testing.T) {
 func TestAccStorageBucket_encryption(t *testing.T) {
 	t.Parallel()
 
-	projectId := "terraform-" + acctest.RandString(10)
+	projectId := "tf-acctest-" + acctest.RandString(10)
 	projectOrg := getTestOrgFromEnv(t)
 	projectBillingAccount := getTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -1033,7 +1033,7 @@ resource "google_storage_bucket" "bucket" {
 		default_kms_key_name = "${google_kms_crypto_key.crypto_key.self_link}"
 	}
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, bucketName)
+	`, pname, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, bucketName)
 }
 
 func testAccStorageBucket_updateLabels(bucketName string) string {

@@ -13,7 +13,7 @@ import (
 func TestAccCloudBuildTrigger_basic(t *testing.T) {
 	t.Parallel()
 
-	projectID := "terraform-" + acctest.RandString(10)
+	projectID := "tf-acctest-" + acctest.RandString(10)
 	projectOrg := getTestOrgFromEnv(t)
 	projectBillingAccount := getTestBillingAccountFromEnv(t)
 
@@ -56,7 +56,7 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 func TestAccCloudBuildTrigger_filename(t *testing.T) {
 	t.Parallel()
 
-	projectID := "terraform-" + acctest.RandString(10)
+	projectID := "tf-acctest-" + acctest.RandString(10)
 	projectOrg := getTestOrgFromEnv(t)
 	projectBillingAccount := getTestBillingAccountFromEnv(t)
 
@@ -216,7 +216,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     }
   }
 }
-  `, projectID, projectID, projectOrg, projectBillingAccount)
+  `, pname, projectID, projectOrg, projectBillingAccount)
 }
 
 func testGoogleCloudBuildTrigger_updated(projectID, projectOrg, projectBillingAccount string) string {
@@ -269,7 +269,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     }
   }
 }
-  `, projectID, projectID, projectOrg, projectBillingAccount)
+  `, pname, projectID, projectOrg, projectBillingAccount)
 }
 
 func testGoogleCloudBuildTrigger_filename(projectID, projectOrg, projectBillingAccount string) string {
@@ -306,7 +306,7 @@ resource "google_cloudbuild_trigger" "filename_build_trigger" {
   }
   filename = "cloudbuild.yaml"
 }
-  `, projectID, projectID, projectOrg, projectBillingAccount)
+  `, pname, projectID, projectOrg, projectBillingAccount)
 }
 
 func testGoogleCloudBuildTrigger_removed(projectID, projectOrg, projectBillingAccount string) string {
@@ -329,5 +329,5 @@ resource "google_project_services" "acceptance" {
     "storage-api.googleapis.com",
   ]
 }
-  `, projectID, projectID, projectOrg, projectBillingAccount)
+  `, pname, projectID, projectOrg, projectBillingAccount)
 }

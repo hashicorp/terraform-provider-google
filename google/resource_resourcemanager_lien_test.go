@@ -14,7 +14,7 @@ import (
 func TestAccResourceManagerLien_basic(t *testing.T) {
 	t.Parallel()
 
-	projectName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	projectId := fmt.Sprintf("tf-acctest-%s", acctest.RandString(10))
 	org := getTestOrgFromEnv(t)
 	var lien resourceManager.Lien
 
@@ -24,10 +24,10 @@ func TestAccResourceManagerLien_basic(t *testing.T) {
 		CheckDestroy: testAccCheckResourceManagerLienDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceManagerLien_basic(projectName, org),
+				Config: testAccResourceManagerLien_basic(projectId, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckResourceManagerLienExists(
-						"google_resource_manager_lien.lien", projectName, &lien),
+						"google_resource_manager_lien.lien", projectId, &lien),
 				),
 			},
 			{
@@ -38,7 +38,7 @@ func TestAccResourceManagerLien_basic(t *testing.T) {
 					// This has to be a function to close over lien.Name, which is necessary
 					// because Name is a Computed attribute.
 					return fmt.Sprintf("%s/%s",
-						projectName,
+						projectId,
 						strings.Split(lien.Name, "/")[1]), nil
 				},
 			},
@@ -46,7 +46,7 @@ func TestAccResourceManagerLien_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckResourceManagerLienExists(n, projectName string, lien *resourceManager.Lien) resource.TestCheckFunc {
+func testAccCheckResourceManagerLienExists(n, projectId string, lien *resourceManager.Lien) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -59,7 +59,7 @@ func testAccCheckResourceManagerLienExists(n, projectName string, lien *resource
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.clientResourceManager.Liens.List().Parent(fmt.Sprintf("projects/%s", projectName)).Do()
+		found, err := config.clientResourceManager.Liens.List().Parent(fmt.Sprintf("projects/%s", projectId)).Do()
 		if err != nil {
 			return err
 		}
@@ -90,11 +90,11 @@ func testAccCheckResourceManagerLienDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccResourceManagerLien_basic(projectName, org string) string {
+func testAccResourceManagerLien_basic(projectId, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "project" {
   project_id = "%s"
-  name = "some test project"
+  name = "%s"
   org_id = "%s"
 }
 
@@ -104,5 +104,5 @@ resource "google_resource_manager_lien" "lien" {
   origin = "something"
   reason = "something else"
 }
-`, projectName, org)
+`, projectId, pname, org)
 }

@@ -722,7 +722,7 @@ func TestAccComputeInstance_subnet_xpn(t *testing.T) {
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	projectName := fmt.Sprintf("tf-xpntest-%d", time.Now().Unix())
+	projectId := fmt.Sprintf("tf-acctest-%d", time.Now().Unix())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -730,10 +730,10 @@ func TestAccComputeInstance_subnet_xpn(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstance_subnet_xpn(org, billingId, projectName, instanceName),
+				Config: testAccComputeInstance_subnet_xpn(org, billingId, projectId, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExistsInProject(
-						"google_compute_instance.foobar", fmt.Sprintf("%s-service", projectName),
+						"google_compute_instance.foobar", fmt.Sprintf("%s-service", projectId),
 						&instance),
 					testAccCheckComputeInstanceHasSubnet(&instance),
 				),
@@ -2496,7 +2496,7 @@ resource "google_compute_instance" "foobar" {
 `, acctest.RandString(10), acctest.RandString(10), instance)
 }
 
-func testAccComputeInstance_subnet_xpn(org, billingId, projectName, instance string) string {
+func testAccComputeInstance_subnet_xpn(org, billingId, projectId, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
@@ -2504,7 +2504,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_project" "host_project" {
-	name = "Test Project XPN Host"
+	name = "%s"
 	project_id = "%s-host"
 	org_id = "%s"
 	billing_account = "%s"
@@ -2520,7 +2520,7 @@ resource "google_compute_shared_vpc_host_project" "host_project" {
 }
 
 resource "google_project" "service_project" {
-	name = "Test Project XPN Service"
+	name = "%s"
 	project_id = "%s-service"
 	org_id = "%s"
 	billing_account = "%s"
@@ -2571,7 +2571,7 @@ resource "google_compute_instance" "foobar" {
 	}
 
 }
-`, projectName, org, billingId, projectName, org, billingId, acctest.RandString(10), acctest.RandString(10), instance)
+`, pname, projectId, org, billingId, pname, projectId, org, billingId, acctest.RandString(10), acctest.RandString(10), instance)
 }
 
 func testAccComputeInstance_networkIPAuto(instance string) string {

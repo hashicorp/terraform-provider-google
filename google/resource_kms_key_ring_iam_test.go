@@ -17,9 +17,9 @@ func TestAccKmsKeyRingIamBinding(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
-	projectId := acctest.RandomWithPrefix("tf-test")
+	projectId := acctest.RandomWithPrefix("tf-acctest")
 	billingAccount := getTestBillingAccountFromEnv(t)
-	account := acctest.RandomWithPrefix("tf-test")
+	account := acctest.RandomWithPrefix("tf-acctest")
 	roleId := "roles/cloudkms.cryptoKeyDecrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
@@ -68,9 +68,9 @@ func TestAccKmsKeyRingIamMember(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
-	projectId := acctest.RandomWithPrefix("tf-test")
+	projectId := acctest.RandomWithPrefix("tf-acctest")
 	billingAccount := getTestBillingAccountFromEnv(t)
-	account := acctest.RandomWithPrefix("tf-test")
+	account := acctest.RandomWithPrefix("tf-acctest")
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
@@ -105,9 +105,9 @@ func TestAccKmsKeyRingIamPolicy(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
-	projectId := acctest.RandomWithPrefix("tf-test")
+	projectId := acctest.RandomWithPrefix("tf-acctest")
 	billingAccount := getTestBillingAccountFromEnv(t)
-	account := acctest.RandomWithPrefix("tf-test")
+	account := acctest.RandomWithPrefix("tf-acctest")
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
@@ -167,7 +167,7 @@ func testAccCheckGoogleKmsKeyRingIam(keyRingId, role string, members []string) r
 func testAccKmsKeyRingIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
-  name            = "Test project"
+  name            = "Test Project for TPG"
   project_id      = "%s"
   org_id          = "%s"
   billing_account = "%s"
@@ -206,7 +206,7 @@ resource "google_kms_key_ring_iam_binding" "foo" {
 func testAccKmsKeyRingIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
-  name            = "Test project"
+  name            = "Test Project for TPG"
   project_id      = "%s"
   org_id          = "%s"
   billing_account = "%s"
@@ -254,7 +254,7 @@ resource "google_kms_key_ring_iam_binding" "foo" {
 func testAccKmsKeyRingIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
-  name            = "Test project"
+  name            = "Test Project for TPG"
   project_id      = "%s"
   org_id          = "%s"
   billing_account = "%s"
@@ -293,7 +293,7 @@ resource "google_kms_key_ring_iam_member" "foo" {
 func testAccKmsKeyRingIamPolicy_basic(projectId, orgId, billingAccount, account, keyRingName, roleId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "test_project" {
-  name            = "Test project"
+  name            = "Test Project for TPG"
   project_id      = "%s"
   org_id          = "%s"
   billing_account = "%s"

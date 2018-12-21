@@ -304,7 +304,7 @@ func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
 	var instanceTemplate compute.InstanceTemplate
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	projectName := fmt.Sprintf("tf-xpntest-%d", time.Now().Unix())
+	projectId := fmt.Sprintf("tf-acctest-%d", time.Now().Unix())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -312,10 +312,10 @@ func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName),
+				Config: testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExistsInProject(
-						"google_compute_instance_template.foobar", fmt.Sprintf("%s-service", projectName),
+						"google_compute_instance_template.foobar", fmt.Sprintf("%s-service", projectId),
 						&instanceTemplate),
 					testAccCheckComputeInstanceTemplateSubnetwork(&instanceTemplate),
 				),
@@ -478,7 +478,7 @@ func TestAccComputeInstanceTemplate_EncryptKMS(t *testing.T) {
 	var instanceTemplate compute.InstanceTemplate
 
 	org := getTestOrgFromEnv(t)
-	pid := "tf-test-" + acctest.RandString(10)
+	pid := "tf-acctest-" + acctest.RandString(10)
 	billingAccount := getTestBillingAccountFromEnv(t)
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -1169,10 +1169,10 @@ resource "google_compute_instance_template" "foobar" {
 }`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
 }
 
-func testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName string) string {
+func testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectId string) string {
 	return fmt.Sprintf(`
 	resource "google_project" "host_project" {
-		name = "Test Project XPN Host"
+		name = "%s"
 		project_id = "%s-host"
 		org_id = "%s"
 		billing_account = "%s"
@@ -1188,7 +1188,7 @@ func testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName strin
 	}
 	
 	resource "google_project" "service_project" {
-		name = "Test Project XPN Service"
+		name = "%s"
 		project_id = "%s-service"
 		org_id = "%s"
 		billing_account = "%s"
@@ -1244,7 +1244,7 @@ func testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName strin
 			foo = "bar"
 		}
 		project = "${google_compute_shared_vpc_service_project.service_project.service_project}"
-	}`, projectName, org, billingId, projectName, org, billingId, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+	}`, pname, projectId, org, billingId, pname, projectId, org, billingId, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_startup_script() string {

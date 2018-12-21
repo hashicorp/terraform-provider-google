@@ -112,7 +112,7 @@ func TestCryptoKeyNextRotationCalculation_validation(t *testing.T) {
 func TestAccKmsCryptoKey_basic(t *testing.T) {
 	t.Parallel()
 
-	projectId := "terraform-" + acctest.RandString(10)
+	projectId := "tf-acctest-" + acctest.RandString(10)
 	projectOrg := getTestOrgFromEnv(t)
 	location := getTestRegionFromEnv()
 	projectBillingAccount := getTestBillingAccountFromEnv(t)
@@ -146,7 +146,7 @@ func TestAccKmsCryptoKey_basic(t *testing.T) {
 func TestAccKmsCryptoKey_rotation(t *testing.T) {
 	t.Parallel()
 
-	projectId := "terraform-" + acctest.RandString(10)
+	projectId := "tf-acctest-" + acctest.RandString(10)
 	projectOrg := getTestOrgFromEnv(t)
 	location := getTestRegionFromEnv()
 	projectBillingAccount := getTestBillingAccountFromEnv(t)
@@ -271,7 +271,7 @@ resource "google_kms_crypto_key" "crypto_key" {
 	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
 	rotation_period = "1000000s"
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
+	`, pname, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
 }
 
 func testGoogleKmsCryptoKey_rotation(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, rotationPeriod string) string {
@@ -302,7 +302,7 @@ resource "google_kms_crypto_key" "crypto_key" {
 	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
 	rotation_period = "%s"
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, rotationPeriod)
+	`, pname, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, rotationPeriod)
 }
 
 func testGoogleKmsCryptoKey_rotationRemoved(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName string) string {
@@ -332,7 +332,7 @@ resource "google_kms_crypto_key" "crypto_key" {
 	name            = "%s"
 	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
+	`, pname, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
 }
 
 func testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName string) string {
@@ -357,5 +357,5 @@ resource "google_kms_key_ring" "key_ring" {
 	name     = "%s"
 	location = "us-central1"
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName)
+	`, pname, projectId, projectOrg, projectBillingAccount, keyRingName)
 }
