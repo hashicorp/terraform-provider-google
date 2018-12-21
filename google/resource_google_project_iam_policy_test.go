@@ -63,6 +63,56 @@ func TestAccProjectIamPolicy_expanded(t *testing.T) {
 	})
 }
 
+// Test that an IAM policy with an audit config can be applied to a project
+func TestAccProjectIamPolicy_basicAuditConfig(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := "tf-acctest-" + acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			// Create a new project
+			{
+				Config: testAccProject_create(pid, pname, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccProjectExistingPolicy(pid),
+				),
+			},
+			// Apply an IAM policy from a data source. The application
+			// merges policies, so we validate the expected state.
+			{
+				Config: testAccProjectAssociatePolicyAuditConfigBasic(pid, pname, org),
+			},
+			{
+				ResourceName: "google_project_iam_policy.acceptance",
+				ImportState:  true,
+			},
+		},
+	})
+}
+
+// Test that a non-collapsed IAM policy with AuditConfig doesn't perpetually diff
+func TestAccProjectIamPolicy_expandedAuditConfig(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := "tf-acctest-" + acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProjectAssociatePolicyAuditConfigExpanded(pid, pname, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleProjectIamPolicyExists("google_project_iam_policy.acceptance", "data.google_iam_policy.expanded", pid),
+				),
+			},
+		},
+	})
+}
+
 func getStatePrimaryResource(s *terraform.State, res, expectedID string) (*terraform.InstanceState, error) {
 	// Get the project resource
 	resource, ok := s.RootModule().Resources[res]
@@ -95,14 +145,6 @@ func getGoogleProjectIamPolicyFromState(s *terraform.State, res, expectedID stri
 	return getGoogleProjectIamPolicyFromResource(project)
 }
 
-func compareBindings(a, b []*cloudresourcemanager.Binding) bool {
-	a = mergeBindings(a)
-	b = mergeBindings(b)
-	sort.Sort(sortableBindings(a))
-	sort.Sort(sortableBindings(b))
-	return reflect.DeepEqual(derefBindings(a), derefBindings(b))
-}
-
 func testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		projectPolicy, err := getGoogleProjectIamPolicyFromState(s, projectRes, pid)
@@ -117,6 +159,11 @@ func testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid string)
 		// The bindings in both policies should be identical
 		if !compareBindings(projectPolicy.Bindings, policyPolicy.Bindings) {
 			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", derefBindings(projectPolicy.Bindings), derefBindings(policyPolicy.Bindings))
+		}
+
+		// The audit configs in both policies should be identical
+		if !compareAuditConfigs(projectPolicy.AuditConfigs, policyPolicy.AuditConfigs) {
+			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", projectPolicy.AuditConfigs, policyPolicy.AuditConfigs)
 		}
 		return nil
 	}
@@ -235,16 +282,6 @@ func TestIamMergeBindings(t *testing.T) {
 	}
 }
 
-func derefBindings(b []*cloudresourcemanager.Binding) []cloudresourcemanager.Binding {
-	db := make([]cloudresourcemanager.Binding, len(b))
-
-	for i, v := range b {
-		db[i] = *v
-		sort.Strings(db[i].Members)
-	}
-	return db
-}
-
 // Confirm that a project has an IAM policy with at least 1 binding
 func testAccProjectExistingPolicy(pid string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -292,6 +329,65 @@ data "google_iam_policy" "admin" {
 `, pid, name, org)
 }
 
+func testAccProjectAssociatePolicyAuditConfigBasic(pid, name, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    project_id = "%s"
+    name = "%s"
+    org_id = "%s"
+}
+
+resource "google_project_iam_policy" "acceptance" {
+    project = "${google_project.acceptance.id}"
+    policy_data = "${data.google_iam_policy.admin.policy_data}"
+}
+
+data "google_iam_policy" "admin" {
+  binding {
+    role = "roles/storage.objectViewer"
+    members = [
+      "user:evanbrown@google.com",
+    ]
+  }
+  binding {
+    role = "roles/compute.instanceAdmin"
+    members = [
+      "user:evanbrown@google.com",
+      "user:evandbrown@gmail.com",
+    ]
+  }
+  audit_config {
+    service = "cloudkms.googleapis.com"
+    audit_log_configs = [
+      {
+        log_type = "DATA_READ"
+        exempted_members = [
+	  "user:paddy@hashicorp.com",
+        ]
+      },
+      {
+        log_type = "DATA_WRITE"
+      }
+    ]
+  }
+  audit_config {
+    service = "cloudsql.googleapis.com"
+    audit_log_configs = [
+      {
+        log_type = "DATA_READ"
+        exempted_members = [
+	  "user:paddy@hashicorp.com",
+        ]
+      },
+      {
+        log_type = "DATA_WRITE"
+      }
+    ]
+  }
+}
+`, pid, name, org)
+}
+
 func testAccProject_create(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
@@ -327,5 +423,62 @@ data "google_iam_policy" "expanded" {
             "user:paddy@hashicorp.com",
         ]
     }
+}`, pid, name, org)
+}
+
+func testAccProjectAssociatePolicyAuditConfigExpanded(pid, name, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    project_id = "%s"
+    name = "%s"
+    org_id = "%s"
+}
+resource "google_project_iam_policy" "acceptance" {
+    project = "${google_project.acceptance.id}"
+    policy_data = "${data.google_iam_policy.expanded.policy_data}"
+}
+
+data "google_iam_policy" "expanded" {
+  binding {
+    role = "roles/storage.objectViewer"
+    members = [
+      "user:evanbrown@google.com",
+    ]
+  }
+  binding {
+    role = "roles/compute.instanceAdmin"
+    members = [
+      "user:evanbrown@google.com",
+      "user:evandbrown@gmail.com",
+    ]
+  }
+  audit_config {
+    service = "cloudkms.googleapis.com"
+    audit_log_configs = [
+      {
+        log_type = "DATA_READ"
+        exempted_members = [
+	  "user:paddy@hashicorp.com",
+        ]
+      },
+      {
+        log_type = "DATA_WRITE"
+      }
+    ]
+  }
+  audit_config {
+    service = "cloudkms.googleapis.com"
+    audit_log_configs = [
+      {
+        log_type = "DATA_READ"
+        exempted_members = [
+	  "user:paddy@carvers.co",
+        ]
+      },
+      {
+        log_type = "ADMIN_READ"
+      }
+    ]
+  }
 }`, pid, name, org)
 }
