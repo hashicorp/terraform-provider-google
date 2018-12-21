@@ -161,3 +161,54 @@ func rolesToMembersMap(bindings []*cloudresourcemanager.Binding) map[string]map[
 	}
 	return bm
 }
+
+// Merge multiple Audit Configs such that configs with the same service result in
+// a single exemption list with combined members
+func mergeAuditConfigs(auditConfigs []*cloudresourcemanager.AuditConfig) []*cloudresourcemanager.AuditConfig {
+	am := auditConfigToServiceMap(auditConfigs)
+	var ac []*cloudresourcemanager.AuditConfig
+	for service, auditLogConfigs := range am {
+		var a cloudresourcemanager.AuditConfig
+		a.Service = service
+		a.AuditLogConfigs = make([]*cloudresourcemanager.AuditLogConfig, 0, len(auditLogConfigs))
+		for k, v := range auditLogConfigs {
+			var alc cloudresourcemanager.AuditLogConfig
+			alc.LogType = k
+			for member := range v {
+				alc.ExemptedMembers = append(alc.ExemptedMembers, member)
+			}
+			a.AuditLogConfigs = append(a.AuditLogConfigs, &alc)
+		}
+		if len(a.AuditLogConfigs) > 0 {
+			ac = append(ac, &a)
+		}
+	}
+	return ac
+}
+
+// Build a service map with the log_type and bindings below it
+func auditConfigToServiceMap(auditConfig []*cloudresourcemanager.AuditConfig) map[string]map[string]map[string]bool {
+	ac := make(map[string]map[string]map[string]bool)
+	// Get each config
+	for _, c := range auditConfig {
+		// Initialize service map
+		if _, ok := ac[c.Service]; !ok {
+			ac[c.Service] = map[string]map[string]bool{}
+		}
+		// loop through audit log configs
+		for _, lc := range c.AuditLogConfigs {
+			// Initialize service map
+			if _, ok := ac[c.Service][lc.LogType]; !ok {
+				ac[c.Service][lc.LogType] = map[string]bool{}
+			}
+			// Get each member (user/principal) for the binding
+			for _, m := range lc.ExemptedMembers {
+				// Add the member
+				if _, ok := ac[c.Service][lc.LogType][m]; !ok {
+					ac[c.Service][lc.LogType][m] = true
+				}
+			}
+		}
+	}
+	return ac
+}

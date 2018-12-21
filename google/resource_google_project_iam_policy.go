@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"reflect"
 	"sort"
 
 	"github.com/hashicorp/errwrap"
@@ -88,8 +89,7 @@ func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	// we only marshal the bindings, because only the bindings get set in the config
-	policyBytes, err := json.Marshal(&cloudresourcemanager.Policy{Bindings: policy.Bindings})
+	policyBytes, err := json.Marshal(&cloudresourcemanager.Policy{Bindings: policy.Bindings, AuditConfigs: policy.AuditConfigs})
 	if err != nil {
 		return fmt.Errorf("Error marshaling IAM policy: %v", err)
 	}
@@ -157,7 +157,7 @@ func setProjectIamPolicy(policy *cloudresourcemanager.Policy, config *Config, pi
 	pbytes, _ := json.Marshal(policy)
 	log.Printf("[DEBUG] Setting policy %#v for project: %s", string(pbytes), pid)
 	_, err := config.clientResourceManager.Projects.SetIamPolicy(pid,
-		&cloudresourcemanager.SetIamPolicyRequest{Policy: policy}).Do()
+		&cloudresourcemanager.SetIamPolicyRequest{Policy: policy, UpdateMask: "bindings,etag,auditConfigs"}).Do()
 
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error applying IAM policy for project %q. Policy is %#v, error is {{err}}", pid, policy), err)
@@ -197,33 +197,66 @@ func jsonPolicyDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 		log.Printf("[ERROR] Could not unmarshal new policy %s: %v", new, err)
 		return false
 	}
-	oldPolicy.Bindings = mergeBindings(oldPolicy.Bindings)
-	newPolicy.Bindings = mergeBindings(newPolicy.Bindings)
 	if newPolicy.Etag != oldPolicy.Etag {
 		return false
 	}
 	if newPolicy.Version != oldPolicy.Version {
 		return false
 	}
-	if len(newPolicy.Bindings) != len(oldPolicy.Bindings) {
+	if !compareBindings(oldPolicy.Bindings, newPolicy.Bindings) {
 		return false
 	}
-	sort.Sort(sortableBindings(newPolicy.Bindings))
-	sort.Sort(sortableBindings(oldPolicy.Bindings))
-	for pos, newBinding := range newPolicy.Bindings {
-		oldBinding := oldPolicy.Bindings[pos]
-		if oldBinding.Role != newBinding.Role {
+	if !compareAuditConfigs(oldPolicy.AuditConfigs, newPolicy.AuditConfigs) {
+		return false
+	}
+	return true
+}
+
+func derefBindings(b []*cloudresourcemanager.Binding) []cloudresourcemanager.Binding {
+	db := make([]cloudresourcemanager.Binding, len(b))
+
+	for i, v := range b {
+		db[i] = *v
+		sort.Strings(db[i].Members)
+	}
+	return db
+}
+
+func compareBindings(a, b []*cloudresourcemanager.Binding) bool {
+	a = mergeBindings(a)
+	b = mergeBindings(b)
+	sort.Sort(sortableBindings(a))
+	sort.Sort(sortableBindings(b))
+	return reflect.DeepEqual(derefBindings(a), derefBindings(b))
+}
+
+func compareAuditConfigs(a, b []*cloudresourcemanager.AuditConfig) bool {
+	a = mergeAuditConfigs(a)
+	b = mergeAuditConfigs(b)
+	sort.Sort(sortableAuditConfigs(a))
+	sort.Sort(sortableAuditConfigs(b))
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if len(v.AuditLogConfigs) != len(b[i].AuditLogConfigs) {
 			return false
 		}
-		if len(oldBinding.Members) != len(newBinding.Members) {
-			return false
-		}
-		sort.Strings(oldBinding.Members)
-		sort.Strings(newBinding.Members)
-		for i, newMember := range newBinding.Members {
-			oldMember := oldBinding.Members[i]
-			if newMember != oldMember {
+		sort.Sort(sortableAuditLogConfigs(v.AuditLogConfigs))
+		sort.Sort(sortableAuditLogConfigs(b[i].AuditLogConfigs))
+		for x, logConfig := range v.AuditLogConfigs {
+			if b[i].AuditLogConfigs[x].LogType != logConfig.LogType {
 				return false
+			}
+			sort.Strings(logConfig.ExemptedMembers)
+			sort.Strings(b[i].AuditLogConfigs[x].ExemptedMembers)
+			if len(logConfig.ExemptedMembers) != len(b[i].AuditLogConfigs[x].ExemptedMembers) {
+				return false
+			}
+			for pos, exemptedMember := range logConfig.ExemptedMembers {
+				if b[i].AuditLogConfigs[x].ExemptedMembers[pos] != exemptedMember {
+					return false
+				}
 			}
 		}
 	}
@@ -240,6 +273,30 @@ func (b sortableBindings) Swap(i, j int) {
 }
 func (b sortableBindings) Less(i, j int) bool {
 	return b[i].Role < b[j].Role
+}
+
+type sortableAuditConfigs []*cloudresourcemanager.AuditConfig
+
+func (b sortableAuditConfigs) Len() int {
+	return len(b)
+}
+func (b sortableAuditConfigs) Swap(i, j int) {
+	b[i], b[j] = b[j], b[i]
+}
+func (b sortableAuditConfigs) Less(i, j int) bool {
+	return b[i].Service < b[j].Service
+}
+
+type sortableAuditLogConfigs []*cloudresourcemanager.AuditLogConfig
+
+func (b sortableAuditLogConfigs) Len() int {
+	return len(b)
+}
+func (b sortableAuditLogConfigs) Swap(i, j int) {
+	b[i], b[j] = b[j], b[i]
+}
+func (b sortableAuditLogConfigs) Less(i, j int) bool {
+	return b[i].LogType < b[j].LogType
 }
 
 func getProjectIamPolicyMutexKey(pid string) string {
