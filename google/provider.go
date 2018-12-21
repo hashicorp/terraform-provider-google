@@ -205,6 +205,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_project_iam_policy":                    resourceGoogleProjectIamPolicy(),
 			"google_project_iam_binding":                   ResourceIamBindingWithImport(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc),
 			"google_project_iam_member":                    ResourceIamMemberWithImport(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc),
+			"google_project_iam_audit_config":              ResourceIamAuditConfigWithImport(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc),
 			"google_project_service":                       resourceGoogleProjectService(),
 			"google_project_iam_custom_role":               resourceGoogleProjectIamCustomRole(),
 			"google_project_organization_policy":           resourceGoogleProjectOrganizationPolicy(),
