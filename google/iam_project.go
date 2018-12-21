@@ -51,7 +51,8 @@ func (u *ProjectIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy
 
 func (u *ProjectIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
 	_, err := u.Config.clientResourceManager.Projects.SetIamPolicy(u.resourceId, &cloudresourcemanager.SetIamPolicyRequest{
-		Policy: policy,
+		Policy:     policy,
+		UpdateMask: "bindings,etag,auditConfigs",
 	}).Do()
 
 	if err != nil {
