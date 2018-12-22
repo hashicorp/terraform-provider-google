@@ -135,6 +135,10 @@ func resourceCloudBuildTrigger() *schema.Resource {
 					},
 				},
 			},
+			"trigger_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -188,6 +192,7 @@ func resourceCloudbuildBuildTriggerRead(d *schema.ResourceData, meta interface{}
 	d.Set("substitutions", buildTrigger.Substitutions)
 	d.Set("ignored_files", buildTrigger.IgnoredFiles)
 	d.Set("included_files", buildTrigger.IncludedFiles)
+	d.Set("trigger_id", buildTrigger.Id)
 
 	if buildTrigger.TriggerTemplate != nil {
 		d.Set("trigger_template", flattenCloudbuildBuildTriggerTemplate(d, config, buildTrigger.TriggerTemplate))
@@ -214,6 +219,7 @@ func resourceCloudbuildBuildTriggerUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+	buildTrigger.Id = d.Get("trigger_id").(string)
 
 	id := d.Id()
 
