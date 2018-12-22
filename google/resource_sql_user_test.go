@@ -35,7 +35,7 @@ func TestAccSqlUser_mysql(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_sql_user.user2",
-				ImportStateId:           instance + "/gmail.com/admin",
+				ImportStateId:           fmt.Sprintf("%s/%s/gmail.com/admin", getTestProjectFromEnv(), instance),
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},
@@ -68,7 +68,7 @@ func TestAccSqlUser_postgres(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_sql_user.user",
-				ImportStateId:           instance + "/admin",
+				ImportStateId:           fmt.Sprintf("%s/%s/admin", getTestProjectFromEnv(), instance),
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},
