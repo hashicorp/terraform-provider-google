@@ -55,6 +55,7 @@ ENHANCEMENTS:
 BUG FIXES:
 
 * cloudbuild: allow `google_cloudbuild_trigger.trigger_template.project` to not be set [GH-2655]
+* cloudbuild: fix update so it doesn't error every time [GH-2743]
 * compute: attached_disk now supports region disks [GH-2441]
 * compute: extract vpn tunnel region/project from vpn gateway [GH-2640]
 * compute: send instance scheduling block with automaticrestart true if there is none in cfg [GH-2638]
