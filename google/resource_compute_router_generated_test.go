@@ -26,13 +26,17 @@ import (
 func TestAccComputeRouter_routerBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRouterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRouter_routerBasicExample(acctest.RandString(10)),
+				Config: testAccComputeRouter_routerBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_router.foobar",
@@ -43,10 +47,10 @@ func TestAccComputeRouter_routerBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeRouter_routerBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeRouter_routerBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_router" "foobar" {
-  name    = "my-router-%s"
+  name    = "my-router-%{random_suffix}"
   network = "${google_compute_network.foobar.name}"
   bgp {
     asn               = 64514
@@ -62,11 +66,10 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_network" "foobar" {
-  name = "my-network-%s"
+  name = "my-network-%{random_suffix}"
   auto_create_subnetworks = false
 }
-`, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeRouterDestroy(s *terraform.State) error {

@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -25,7 +26,35 @@ func parseImportId(idRegexes []string, d TerraformResourceData, config *Config) 
 			// Starting at index 1, the first match is the full string.
 			for i := 1; i < len(fieldValues); i++ {
 				fieldName := re.SubexpNames()[i]
-				d.Set(fieldName, fieldValues[i])
+				fieldValue := fieldValues[i]
+				// Because we do not know at this point whether 'fieldName'
+				// corresponds to a TypeString or a TypeInteger in the resource
+				// schema, we need to determine the type in an unintutitive way.
+				// We call d.Get, because examining the empty value is the easiest
+				// way to get that out.  Normally, we would be able to just
+				// use a try/catch pattern - try as a string, and if that doesn't
+				// work, try as an integer, and if that doesn't work, return the
+				// error.  Unfortunately, this is not possible here - during tests,
+				// d.Set(...) will panic if there is an error.
+				val, _ := d.GetOk(fieldName)
+				if _, ok := val.(string); val == nil || ok {
+					if err = d.Set(fieldName, fieldValue); err != nil {
+						return err
+					}
+				} else if _, ok := val.(int); ok {
+					if intVal, atoiErr := strconv.Atoi(fieldValue); atoiErr == nil {
+						// If the value can be parsed as an integer, we try to set the
+						// value as an integer.
+						if err = d.Set(fieldName, intVal); err != nil {
+							return err
+						}
+					} else {
+						return fmt.Errorf("%s appears to be an integer, but %v cannot be parsed as an int", fieldName, fieldValue)
+					}
+				} else {
+					return fmt.Errorf(
+						"cannot handle %s, which currently has value %v, and should be set to %#v, during import", fieldName, val, fieldValue)
+				}
 			}
 
 			// The first id format is applied first and contains all the fields.

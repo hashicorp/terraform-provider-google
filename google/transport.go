@@ -156,7 +156,7 @@ func replaceVars(d TerraformResourceData, config *Config, linkTmpl string) (stri
 		}
 		v, ok := d.GetOk(m)
 		if ok {
-			return v.(string)
+			return fmt.Sprintf("%v", v)
 		}
 		return ""
 	}
