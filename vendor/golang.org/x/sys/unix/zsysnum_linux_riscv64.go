@@ -283,5 +283,4 @@ const (
 	SYS_PKEY_FREE              = 290
 	SYS_STATX                  = 291
 	SYS_IO_PGETEVENTS          = 292
-	SYS_RSEQ                   = 293
 )

@@ -9,14 +9,11 @@ import (
 
 // ResourceProviderPlugin is the plugin.Plugin implementation.
 type ResourceProviderPlugin struct {
-	ResourceProvider func() terraform.ResourceProvider
+	F func() terraform.ResourceProvider
 }
 
 func (p *ResourceProviderPlugin) Server(b *plugin.MuxBroker) (interface{}, error) {
-	return &ResourceProviderServer{
-		Broker:   b,
-		Provider: p.ResourceProvider(),
-	}, nil
+	return &ResourceProviderServer{Broker: b, Provider: p.F()}, nil
 }
 
 func (p *ResourceProviderPlugin) Client(

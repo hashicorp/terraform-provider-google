@@ -1,11 +1,13 @@
 package terraform
 
 import (
+	"errors"
+	"fmt"
 	"log"
 	"sync"
 
-	"github.com/hashicorp/terraform/addrs"
-	"github.com/hashicorp/terraform/configs"
+	"github.com/hashicorp/terraform/config"
+	"github.com/hashicorp/terraform/config/module"
 	"github.com/hashicorp/terraform/dag"
 )
 
@@ -24,14 +26,14 @@ type ConfigTransformer struct {
 	Concrete ConcreteResourceNodeFunc
 
 	// Module is the module to add resources from.
-	Config *configs.Config
+	Module *module.Tree
 
 	// Unique will only add resources that aren't already present in the graph.
 	Unique bool
 
 	// Mode will only add resources that match the given mode
 	ModeFilter bool
-	Mode       addrs.ResourceMode
+	Mode       config.ResourceMode
 
 	l         sync.Mutex
 	uniqueMap map[string]struct{}
@@ -42,9 +44,14 @@ func (t *ConfigTransformer) Transform(g *Graph) error {
 	t.l.Lock()
 	defer t.l.Unlock()
 
-	// If no configuration is available, we don't do anything
-	if t.Config == nil {
+	// If no module is given, we don't do anything
+	if t.Module == nil {
 		return nil
+	}
+
+	// If the module isn't loaded, that is simply an error
+	if !t.Module.Loaded() {
+		return errors.New("module must be loaded for ConfigTransformer")
 	}
 
 	// Reset the uniqueness map. If we're tracking uniques, then populate
@@ -60,22 +67,22 @@ func (t *ConfigTransformer) Transform(g *Graph) error {
 	}
 
 	// Start the transformation process
-	return t.transform(g, t.Config)
+	return t.transform(g, t.Module)
 }
 
-func (t *ConfigTransformer) transform(g *Graph, config *configs.Config) error {
+func (t *ConfigTransformer) transform(g *Graph, m *module.Tree) error {
 	// If no config, do nothing
-	if config == nil {
+	if m == nil {
 		return nil
 	}
 
 	// Add our resources
-	if err := t.transformSingle(g, config); err != nil {
+	if err := t.transformSingle(g, m); err != nil {
 		return err
 	}
 
 	// Transform all the children.
-	for _, c := range config.Children {
+	for _, c := range m.Children() {
 		if err := t.transform(g, c); err != nil {
 			return err
 		}
@@ -84,48 +91,43 @@ func (t *ConfigTransformer) transform(g *Graph, config *configs.Config) error {
 	return nil
 }
 
-func (t *ConfigTransformer) transformSingle(g *Graph, config *configs.Config) error {
-	path := config.Path
-	module := config.Module
-	log.Printf("[TRACE] ConfigTransformer: Starting for path: %v", path)
+func (t *ConfigTransformer) transformSingle(g *Graph, m *module.Tree) error {
+	log.Printf("[TRACE] ConfigTransformer: Starting for path: %v", m.Path())
 
-	// For now we assume that each module call produces only one module
-	// instance with no key, since we don't yet support "count" and "for_each"
-	// on modules.
-	// FIXME: As part of supporting "count" and "for_each" on modules, rework
-	// this so that we'll "expand" the module call first and then create graph
-	// nodes for each module instance separately.
-	instPath := path.UnkeyedInstanceShim()
+	// Get the configuration for this module
+	conf := m.Config()
 
-	allResources := make([]*configs.Resource, 0, len(module.ManagedResources)+len(module.DataResources))
-	for _, r := range module.ManagedResources {
-		allResources = append(allResources, r)
-	}
-	for _, r := range module.DataResources {
-		allResources = append(allResources, r)
-	}
+	// Build the path we're at
+	path := m.Path()
 
-	for _, r := range allResources {
-		relAddr := r.Addr()
-
-		if t.ModeFilter && relAddr.Mode != t.Mode {
-			// Skip non-matching modes
-			continue
+	// Write all the resources out
+	for _, r := range conf.Resources {
+		// Build the resource address
+		addr, err := parseResourceAddressConfig(r)
+		if err != nil {
+			panic(fmt.Sprintf(
+				"Error parsing config address, this is a bug: %#v", r))
 		}
+		addr.Path = path
 
-		addr := relAddr.Absolute(instPath)
+		// If this is already in our uniqueness map, don't add it again
 		if _, ok := t.uniqueMap[addr.String()]; ok {
-			// We've already seen a resource with this address. This should
-			// never happen, because we enforce uniqueness in the config loader.
 			continue
 		}
 
+		// Remove non-matching modes
+		if t.ModeFilter && addr.Mode != t.Mode {
+			continue
+		}
+
+		// Build the abstract node and the concrete one
 		abstract := &NodeAbstractResource{Addr: addr}
 		var node dag.Vertex = abstract
 		if f := t.Concrete; f != nil {
 			node = f(abstract)
 		}
 
+		// Add it to the graph
 		g.Add(node)
 	}
 

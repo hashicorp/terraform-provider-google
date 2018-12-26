@@ -13,16 +13,11 @@ func (e nativeError) Severity() Severity {
 
 func (e nativeError) Description() Description {
 	return Description{
-		Summary: FormatError(e.err),
+		Summary: e.err.Error(),
 	}
 }
 
 func (e nativeError) Source() Source {
 	// No source information available for a native error
 	return Source{}
-}
-
-func (e nativeError) FromExpr() *FromExpr {
-	// Native errors are not expression-related
-	return nil
 }
