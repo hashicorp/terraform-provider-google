@@ -5,8 +5,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/hashicorp/terraform/tfdiags"
-
 	"github.com/hashicorp/go-multierror"
 )
 
@@ -17,7 +15,7 @@ type AcyclicGraph struct {
 }
 
 // WalkFunc is the callback used for walking the graph.
-type WalkFunc func(Vertex) tfdiags.Diagnostics
+type WalkFunc func(Vertex) error
 
 // DepthWalkFunc is a walk function that also receives the current depth of the
 // walk as an argument
@@ -163,9 +161,9 @@ func (g *AcyclicGraph) Cycles() [][]Vertex {
 }
 
 // Walk walks the graph, calling your callback as each node is visited.
-// This will walk nodes in parallel if it can. The resulting diagnostics
-// contains problems from all graphs visited, in no particular order.
-func (g *AcyclicGraph) Walk(cb WalkFunc) tfdiags.Diagnostics {
+// This will walk nodes in parallel if it can. Because the walk is done
+// in parallel, the error returned will be a multierror.
+func (g *AcyclicGraph) Walk(cb WalkFunc) error {
 	defer g.debug.BeginOperation(typeWalk, "").End("")
 
 	w := &Walker{Callback: cb, Reverse: true}

@@ -2,39 +2,31 @@ package terraform
 
 import (
 	"fmt"
-
-	"github.com/hashicorp/terraform/addrs"
 )
 
 // NodeOutputOrphan represents an output that is an orphan.
 type NodeOutputOrphan struct {
-	Addr addrs.AbsOutputValue
+	OutputName string
+	PathValue  []string
 }
-
-var (
-	_ GraphNodeSubPath          = (*NodeOutputOrphan)(nil)
-	_ GraphNodeReferenceable    = (*NodeOutputOrphan)(nil)
-	_ GraphNodeReferenceOutside = (*NodeOutputOrphan)(nil)
-	_ GraphNodeEvalable         = (*NodeOutputOrphan)(nil)
-)
 
 func (n *NodeOutputOrphan) Name() string {
-	return fmt.Sprintf("%s (orphan)", n.Addr.String())
-}
+	result := fmt.Sprintf("output.%s (orphan)", n.OutputName)
+	if len(n.PathValue) > 1 {
+		result = fmt.Sprintf("%s.%s", modulePrefixStr(n.PathValue), result)
+	}
 
-// GraphNodeReferenceOutside implementation
-func (n *NodeOutputOrphan) ReferenceOutside() (selfPath, referencePath addrs.ModuleInstance) {
-	return referenceOutsideForOutput(n.Addr)
+	return result
 }
 
 // GraphNodeReferenceable
-func (n *NodeOutputOrphan) ReferenceableAddrs() []addrs.Referenceable {
-	return referenceableAddrsForOutput(n.Addr)
+func (n *NodeOutputOrphan) ReferenceableName() []string {
+	return []string{"output." + n.OutputName}
 }
 
 // GraphNodeSubPath
-func (n *NodeOutputOrphan) Path() addrs.ModuleInstance {
-	return n.Addr.Module
+func (n *NodeOutputOrphan) Path() []string {
+	return n.PathValue
 }
 
 // GraphNodeEvalable
@@ -42,7 +34,7 @@ func (n *NodeOutputOrphan) EvalTree() EvalNode {
 	return &EvalOpFilter{
 		Ops: []walkOperation{walkRefresh, walkApply, walkDestroy},
 		Node: &EvalDeleteOutput{
-			Addr: n.Addr.OutputValue,
+			Name: n.OutputName,
 		},
 	}
 }

@@ -45,7 +45,65 @@ type InterpolationScope struct {
 func (i *Interpolater) Values(
 	scope *InterpolationScope,
 	vars map[string]config.InterpolatedVariable) (map[string]ast.Variable, error) {
-	return nil, fmt.Errorf("type Interpolator is no longer supported; use the evaluator API instead")
+	if scope == nil {
+		scope = &InterpolationScope{}
+	}
+
+	result := make(map[string]ast.Variable, len(vars))
+
+	// Copy the default variables
+	if i.Module != nil && scope != nil {
+		mod := i.Module
+		if len(scope.Path) > 1 {
+			mod = i.Module.Child(scope.Path[1:])
+		}
+		for _, v := range mod.Config().Variables {
+			// Set default variables
+			if v.Default == nil {
+				continue
+			}
+
+			n := fmt.Sprintf("var.%s", v.Name)
+			variable, err := hil.InterfaceToVariable(v.Default)
+			if err != nil {
+				return nil, fmt.Errorf("invalid default map value for %s: %v", v.Name, v.Default)
+			}
+
+			result[n] = variable
+		}
+	}
+
+	for n, rawV := range vars {
+		var err error
+		switch v := rawV.(type) {
+		case *config.CountVariable:
+			err = i.valueCountVar(scope, n, v, result)
+		case *config.ModuleVariable:
+			err = i.valueModuleVar(scope, n, v, result)
+		case *config.PathVariable:
+			err = i.valuePathVar(scope, n, v, result)
+		case *config.ResourceVariable:
+			err = i.valueResourceVar(scope, n, v, result)
+		case *config.SelfVariable:
+			err = i.valueSelfVar(scope, n, v, result)
+		case *config.SimpleVariable:
+			err = i.valueSimpleVar(scope, n, v, result)
+		case *config.TerraformVariable:
+			err = i.valueTerraformVar(scope, n, v, result)
+		case *config.LocalVariable:
+			err = i.valueLocalVar(scope, n, v, result)
+		case *config.UserVariable:
+			err = i.valueUserVar(scope, n, v, result)
+		default:
+			err = fmt.Errorf("%s: unknown variable type: %T", n, rawV)
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return result, nil
 }
 
 func (i *Interpolater) valueCountVar(
@@ -95,7 +153,7 @@ func (i *Interpolater) valueModuleVar(
 	defer i.StateLock.RUnlock()
 
 	// Get the module where we're looking for the value
-	mod := i.State.ModuleByPath(normalizeModulePath(path))
+	mod := i.State.ModuleByPath(path)
 	if mod == nil {
 		// If the module doesn't exist, then we can return an empty string.
 		// This happens usually only in Refresh() when we haven't populated
@@ -199,13 +257,13 @@ func (i *Interpolater) valueResourceVar(
 	}
 
 	if variable == nil {
-		// During the refresh walk we tolerate missing variables because
+		// During the input walk we tolerate missing variables because
 		// we haven't yet had a chance to refresh state, so dynamic data may
 		// not yet be complete.
 		// If it truly is missing, we'll catch it on a later walk.
 		// This applies only to graph nodes that interpolate during the
-		// refresh walk, e.g. providers.
-		if i.Operation == walkRefresh {
+		// config walk, e.g. providers.
+		if i.Operation == walkInput || i.Operation == walkRefresh {
 			result[n] = unknownVariable()
 			return nil
 		}
@@ -307,7 +365,7 @@ func (i *Interpolater) valueLocalVar(
 	}
 
 	// Get the relevant module
-	module := i.State.ModuleByPath(normalizeModulePath(scope.Path))
+	module := i.State.ModuleByPath(scope.Path)
 	if module == nil {
 		result[n] = unknownVariable()
 		return nil
@@ -526,7 +584,10 @@ MISSING:
 	//
 	// For a Destroy, we're also fine with computed values, since our goal is
 	// only to get destroy nodes for existing resources.
-	if i.Operation == walkRefresh || i.Operation == walkPlanDestroy {
+	//
+	// For an input walk, computed values are okay to return because we're only
+	// looking for missing variables to prompt the user for.
+	if i.Operation == walkRefresh || i.Operation == walkPlanDestroy || i.Operation == walkInput {
 		return &unknownVariable, nil
 	}
 
@@ -545,6 +606,13 @@ func (i *Interpolater) computeResourceMultiVariable(
 	defer i.StateLock.RUnlock()
 
 	unknownVariable := unknownVariable()
+
+	// If we're only looking for input, we don't need to expand a
+	// multi-variable. This prevents us from encountering things that should be
+	// known but aren't because the state has yet to be refreshed.
+	if i.Operation == walkInput {
+		return &unknownVariable, nil
+	}
 
 	// Get the information about this resource variable, and verify
 	// that it exists and such.
@@ -627,7 +695,7 @@ func (i *Interpolater) computeResourceMultiVariable(
 		//
 		// For an input walk, computed values are okay to return because we're only
 		// looking for missing variables to prompt the user for.
-		if i.Operation == walkRefresh || i.Operation == walkPlanDestroy || i.Operation == walkDestroy {
+		if i.Operation == walkRefresh || i.Operation == walkPlanDestroy || i.Operation == walkDestroy || i.Operation == walkInput {
 			return &unknownVariable, nil
 		}
 
@@ -708,7 +776,7 @@ func (i *Interpolater) resourceVariableInfo(
 	}
 
 	// Get the relevant module
-	module := i.State.ModuleByPath(normalizeModulePath(scope.Path))
+	module := i.State.ModuleByPath(scope.Path)
 	return module, cr, nil
 }
 

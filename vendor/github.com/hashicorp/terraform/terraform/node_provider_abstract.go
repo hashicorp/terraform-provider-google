@@ -1,10 +1,10 @@
 package terraform
 
 import (
-	"github.com/hashicorp/terraform/addrs"
-	"github.com/hashicorp/terraform/configs"
-	"github.com/hashicorp/terraform/configs/configschema"
+	"fmt"
+	"strings"
 
+	"github.com/hashicorp/terraform/config"
 	"github.com/hashicorp/terraform/dag"
 )
 
@@ -15,33 +15,37 @@ type ConcreteProviderNodeFunc func(*NodeAbstractProvider) dag.Vertex
 // NodeAbstractProvider represents a provider that has no associated operations.
 // It registers all the common interfaces across operations for providers.
 type NodeAbstractProvider struct {
-	Addr addrs.AbsProviderConfig
+	NameValue string
+	PathValue []string
 
 	// The fields below will be automatically set using the Attach
 	// interfaces if you're running those transforms, but also be explicitly
 	// set if you already have that information.
 
-	Config *configs.Provider
-	Schema *configschema.Block
+	Config *config.ProviderConfig
 }
 
-var (
-	_ GraphNodeSubPath                    = (*NodeAbstractProvider)(nil)
-	_ RemovableIfNotTargeted              = (*NodeAbstractProvider)(nil)
-	_ GraphNodeReferencer                 = (*NodeAbstractProvider)(nil)
-	_ GraphNodeProvider                   = (*NodeAbstractProvider)(nil)
-	_ GraphNodeAttachProvider             = (*NodeAbstractProvider)(nil)
-	_ GraphNodeAttachProviderConfigSchema = (*NodeAbstractProvider)(nil)
-	_ dag.GraphNodeDotter                 = (*NodeAbstractProvider)(nil)
-)
+func ResolveProviderName(name string, path []string) string {
+	if strings.Contains(name, "provider.") {
+		// already resolved
+		return name
+	}
+
+	name = fmt.Sprintf("provider.%s", name)
+	if len(path) >= 1 {
+		name = fmt.Sprintf("%s.%s", modulePrefixStr(path), name)
+	}
+
+	return name
+}
 
 func (n *NodeAbstractProvider) Name() string {
-	return n.Addr.String()
+	return ResolveProviderName(n.NameValue, n.PathValue)
 }
 
 // GraphNodeSubPath
-func (n *NodeAbstractProvider) Path() addrs.ModuleInstance {
-	return n.Addr.Module
+func (n *NodeAbstractProvider) Path() []string {
+	return n.PathValue
 }
 
 // RemovableIfNotTargeted
@@ -52,21 +56,21 @@ func (n *NodeAbstractProvider) RemoveIfNotTargeted() bool {
 }
 
 // GraphNodeReferencer
-func (n *NodeAbstractProvider) References() []*addrs.Reference {
-	if n.Config == nil || n.Schema == nil {
+func (n *NodeAbstractProvider) References() []string {
+	if n.Config == nil {
 		return nil
 	}
 
-	return ReferencesFromConfig(n.Config.Config, n.Schema)
+	return ReferencesFromConfig(n.Config.RawConfig)
 }
 
 // GraphNodeProvider
-func (n *NodeAbstractProvider) ProviderAddr() addrs.AbsProviderConfig {
-	return n.Addr
+func (n *NodeAbstractProvider) ProviderName() string {
+	return n.NameValue
 }
 
 // GraphNodeProvider
-func (n *NodeAbstractProvider) ProviderConfig() *configs.Provider {
+func (n *NodeAbstractProvider) ProviderConfig() *config.ProviderConfig {
 	if n.Config == nil {
 		return nil
 	}
@@ -75,13 +79,8 @@ func (n *NodeAbstractProvider) ProviderConfig() *configs.Provider {
 }
 
 // GraphNodeAttachProvider
-func (n *NodeAbstractProvider) AttachProvider(c *configs.Provider) {
+func (n *NodeAbstractProvider) AttachProvider(c *config.ProviderConfig) {
 	n.Config = c
-}
-
-// GraphNodeAttachProviderConfigSchema impl.
-func (n *NodeAbstractProvider) AttachProviderConfigSchema(schema *configschema.Block) {
-	n.Schema = schema
 }
 
 // GraphNodeDotter impl.

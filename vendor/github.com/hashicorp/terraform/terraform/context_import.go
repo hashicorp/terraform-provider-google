@@ -1,10 +1,7 @@
 package terraform
 
 import (
-	"github.com/hashicorp/terraform/addrs"
-	"github.com/hashicorp/terraform/configs"
-	"github.com/hashicorp/terraform/states"
-	"github.com/hashicorp/terraform/tfdiags"
+	"github.com/hashicorp/terraform/config/module"
 )
 
 // ImportOpts are used as the configuration for Import.
@@ -12,23 +9,23 @@ type ImportOpts struct {
 	// Targets are the targets to import
 	Targets []*ImportTarget
 
-	// Config is optional, and specifies a config tree that will be loaded
-	// into the graph and evaluated. This is the source for provider
-	// configurations.
-	Config *configs.Config
+	// Module is optional, and specifies a config module that is loaded
+	// into the graph and evaluated. The use case for this is to provide
+	// provider configuration.
+	Module *module.Tree
 }
 
 // ImportTarget is a single resource to import.
 type ImportTarget struct {
-	// Addr is the address for the resource instance that the new object should
-	// be imported into.
-	Addr addrs.AbsResourceInstance
+	// Addr is the full resource address of the resource to import.
+	// Example: "module.foo.aws_instance.bar"
+	Addr string
 
 	// ID is the ID of the resource to import. This is resource-specific.
 	ID string
 
-	// ProviderAddr is the address of the provider that should handle the import.
-	ProviderAddr addrs.AbsProviderConfig
+	// Provider string
+	Provider string
 }
 
 // Import takes already-created external resources and brings them
@@ -41,9 +38,7 @@ type ImportTarget struct {
 // Further, this operation also gracefully handles partial state. If during
 // an import there is a failure, all previously imported resources remain
 // imported.
-func (c *Context) Import(opts *ImportOpts) (*states.State, tfdiags.Diagnostics) {
-	var diags tfdiags.Diagnostics
-
+func (c *Context) Import(opts *ImportOpts) (*State, error) {
 	// Hold a lock since we can modify our own state here
 	defer c.acquireRun("import")()
 
@@ -52,32 +47,31 @@ func (c *Context) Import(opts *ImportOpts) (*states.State, tfdiags.Diagnostics) 
 
 	// If no module is given, default to the module configured with
 	// the Context.
-	config := opts.Config
-	if config == nil {
-		config = c.config
+	module := opts.Module
+	if module == nil {
+		module = c.module
 	}
 
 	// Initialize our graph builder
 	builder := &ImportGraphBuilder{
 		ImportTargets: opts.Targets,
-		Config:        config,
-		Components:    c.components,
-		Schemas:       c.schemas,
+		Module:        module,
+		Providers:     c.components.ResourceProviders(),
 	}
 
 	// Build the graph!
-	graph, graphDiags := builder.Build(addrs.RootModuleInstance)
-	diags = diags.Append(graphDiags)
-	if graphDiags.HasErrors() {
-		return c.state, diags
+	graph, err := builder.Build(RootModulePath)
+	if err != nil {
+		return c.state, err
 	}
 
 	// Walk it
-	_, walkDiags := c.walk(graph, walkImport)
-	diags = diags.Append(walkDiags)
-	if walkDiags.HasErrors() {
-		return c.state, diags
+	if _, err := c.walk(graph, walkImport); err != nil {
+		return c.state, err
 	}
 
-	return c.state, diags
+	// Clean the state
+	c.state.prune()
+
+	return c.state, nil
 }

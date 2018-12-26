@@ -8,7 +8,6 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform/config"
-	"github.com/hashicorp/terraform/configs/configschema"
 	"github.com/hashicorp/terraform/terraform"
 )
 
@@ -122,11 +121,6 @@ func (p *Provisioner) Stop() error {
 	return nil
 }
 
-// GetConfigSchema implementation of terraform.ResourceProvisioner interface.
-func (p *Provisioner) GetConfigSchema() (*configschema.Block, error) {
-	return schemaMap(p.Schema).CoreConfigSchema(), nil
-}
-
 // Apply implementation of terraform.ResourceProvisioner interface.
 func (p *Provisioner) Apply(
 	o terraform.UIOutput,
@@ -152,7 +146,7 @@ func (p *Provisioner) Apply(
 		}
 
 		sm := schemaMap(p.ConnSchema)
-		diff, err := sm.Diff(nil, terraform.NewResourceConfig(c), nil, nil, true)
+		diff, err := sm.Diff(nil, terraform.NewResourceConfig(c), nil, nil)
 		if err != nil {
 			return err
 		}
@@ -166,7 +160,7 @@ func (p *Provisioner) Apply(
 		// Build the configuration data. Doing this requires making a "diff"
 		// even though that's never used. We use that just to get the correct types.
 		configMap := schemaMap(p.Schema)
-		diff, err := configMap.Diff(nil, c, nil, nil, true)
+		diff, err := configMap.Diff(nil, c, nil, nil)
 		if err != nil {
 			return err
 		}
