@@ -45,10 +45,10 @@ resource "google_monitoring_uptime_check_config" "http" {
   display_name = "http-uptime-check-%s"
   timeout = "60s"
 
-  http_check = {
+  http_check {
     path = "/%s"
     port = "8010"
-    auth_info = {
+    auth_info {
       username = "name"
       password = "%s"
     }
@@ -62,7 +62,7 @@ resource "google_monitoring_uptime_check_config" "http" {
     }
   }
 
-  content_matchers = {
+  content_matchers {
     content = "example"
   }
 }
