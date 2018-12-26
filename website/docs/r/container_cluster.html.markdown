@@ -213,6 +213,11 @@ The `addons_config` block supports:
     for the master.  This must be enabled in order to enable network policy for the nodes.
     It can only be disabled if the nodes already do not have network policies enabled.
     Set `disabled = true` to disable.
+* `istio_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)).
+    Structure is documented below.
+* `cloudrun_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)).
+    The status of the CloudRun addon. It requires `istio_config` enabled. It is disabled by default.
+    Set `disabled = false` to enable. This addon can only be enabled at cluster creation time.
 
 This example `addons_config` disables two addons:
 
@@ -226,6 +231,11 @@ addons_config {
   }
 }
 ```
+
+The `istio_config` block supports:
+* `disabled` - (Optional) The status of the Istio addon, which makes it easy to set up Istio for services in a
+    cluster. It is disabled by default. Set `disabled = false` to enable.
+* `auth` - (Optional) The authentication type between services in Istio. Available options include `AUTH_MUTUAL_TLS`.
 
 The `cluster_autoscaling` block supports:
 * `enabled` - (Required) Whether cluster autoscaling (also called autoprovisioning) is
