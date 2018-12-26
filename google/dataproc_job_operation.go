@@ -1,14 +1,9 @@
 package google
 
 import (
-	"fmt"
-	"time"
-
 	"net/http"
 
-	"github.com/hashicorp/terraform/helper/resource"
 	"google.golang.org/api/dataproc/v1"
-	"google.golang.org/api/googleapi"
 )
 
 type DataprocJobOperationWaiter struct {
@@ -16,78 +11,44 @@ type DataprocJobOperationWaiter struct {
 	Region    string
 	ProjectId string
 	JobId     string
+	Status    string
 }
 
-func (w *DataprocJobOperationWaiter) ConfForDelete() *resource.StateChangeConf {
-	return &resource.StateChangeConf{
-		Pending: []string{"EXISTS"},
-		Target:  []string{"DELETED"},
-		Refresh: w.RefreshFuncForDelete(),
-	}
+func (w *DataprocJobOperationWaiter) State() string {
+	return w.Status
 }
 
-func (w *DataprocJobOperationWaiter) Conf() *resource.StateChangeConf {
-	// For more info on each of the states please see
-	// https://cloud.google.com/dataproc/docs/reference/rest/v1/projects.regions.jobs#JobStatus
-	return &resource.StateChangeConf{
-		Pending: []string{"PENDING", "CANCEL_PENDING", "CANCEL_STARTED", "SETUP_DONE", "RUNNING"},
-		Target:  []string{"CANCELLED", "DONE", "ATTEMPT_FAILURE", "ERROR"},
-		Refresh: w.RefreshFunc(),
-	}
-}
-
-func isNotFound(err error) bool {
-	if err == nil {
-		return false
-	}
-	ae, ok := err.(*googleapi.Error)
-	return ok && ae.Code == http.StatusNotFound
-}
-
-func (w *DataprocJobOperationWaiter) RefreshFuncForDelete() resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		_, err := w.Service.Projects.Regions.Jobs.Get(w.ProjectId, w.Region, w.JobId).Do()
-
-		if err != nil {
-			if isNotFound(err) {
-				return "NA", "DELETED", nil
-			}
-			return nil, "", err
-		}
-
-		return "JOB", "EXISTS", err
-	}
-}
-
-func (w *DataprocJobOperationWaiter) RefreshFunc() resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		job, err := w.Service.Projects.Regions.Jobs.Get(w.ProjectId, w.Region, w.JobId).Do()
-
-		if err != nil {
-			return nil, "", err
-		}
-
-		return job, job.Status.State, err
-	}
-}
-
-func dataprocDeleteOperationWait(config *Config, region, projectId, jobId string, activity string, timeoutMinutes, minTimeoutSeconds int) error {
-	w := &DataprocJobOperationWaiter{
-		Service:   config.clientDataproc,
-		Region:    region,
-		ProjectId: projectId,
-		JobId:     jobId,
-	}
-
-	state := w.ConfForDelete()
-	state.Timeout = time.Duration(timeoutMinutes) * time.Minute
-	state.MinTimeout = time.Duration(minTimeoutSeconds) * time.Second
-	_, err := state.WaitForState()
-	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
-	}
-
+func (w *DataprocJobOperationWaiter) Error() error {
+	// The "operation" is just the job, which has no special error field that we
+	// want to expose.
 	return nil
+}
+
+func (w *DataprocJobOperationWaiter) SetOp(job interface{}) error {
+	// The "operation" is just the job. Instead of holding onto the whole job
+	// object, we only care about the state, which gets set in QueryOp, so this
+	// doesn't have to do anything.
+	return nil
+}
+
+func (w *DataprocJobOperationWaiter) QueryOp() (interface{}, error) {
+	job, err := w.Service.Projects.Regions.Jobs.Get(w.ProjectId, w.Region, w.JobId).Do()
+	if job != nil {
+		w.Status = job.Status.State
+	}
+	return job, err
+}
+
+func (w *DataprocJobOperationWaiter) OpName() string {
+	return w.JobId
+}
+
+func (w *DataprocJobOperationWaiter) PendingStates() []string {
+	return []string{"PENDING", "CANCEL_PENDING", "CANCEL_STARTED", "SETUP_DONE", "RUNNING"}
+}
+
+func (w *DataprocJobOperationWaiter) TargetStates() []string {
+	return []string{"CANCELLED", "DONE", "ATTEMPT_FAILURE", "ERROR"}
 }
 
 func dataprocJobOperationWait(config *Config, region, projectId, jobId string, activity string, timeoutMinutes, minTimeoutSeconds int) error {
@@ -97,14 +58,42 @@ func dataprocJobOperationWait(config *Config, region, projectId, jobId string, a
 		ProjectId: projectId,
 		JobId:     jobId,
 	}
+	return OperationWait(w, activity, timeoutMinutes)
+}
 
-	state := w.Conf()
-	state.Timeout = time.Duration(timeoutMinutes) * time.Minute
-	state.MinTimeout = time.Duration(minTimeoutSeconds) * time.Second
-	_, err := state.WaitForState()
+type DataprocDeleteJobOperationWaiter struct {
+	DataprocJobOperationWaiter
+}
+
+func (w *DataprocDeleteJobOperationWaiter) PendingStates() []string {
+	return []string{"EXISTS", "ERROR"}
+}
+
+func (w *DataprocDeleteJobOperationWaiter) TargetStates() []string {
+	return []string{"DELETED"}
+}
+
+func (w *DataprocDeleteJobOperationWaiter) QueryOp() (interface{}, error) {
+	job, err := w.Service.Projects.Regions.Jobs.Get(w.ProjectId, w.Region, w.JobId).Do()
 	if err != nil {
-		return fmt.Errorf("Error waiting for operation %s: %s", activity, err)
+		if isGoogleApiErrorWithCode(err, http.StatusNotFound) {
+			w.Status = "DELETED"
+			return job, nil
+		}
+		w.Status = "ERROR"
 	}
+	w.Status = "EXISTS"
+	return job, err
+}
 
-	return nil
+func dataprocDeleteOperationWait(config *Config, region, projectId, jobId string, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+	w := &DataprocDeleteJobOperationWaiter{
+		DataprocJobOperationWaiter{
+			Service:   config.clientDataproc,
+			Region:    region,
+			ProjectId: projectId,
+			JobId:     jobId,
+		},
+	}
+	return OperationWait(w, activity, timeoutMinutes)
 }
