@@ -43,7 +43,7 @@ resource "google_monitoring_uptime_check_config" "http" {
   display_name = "http-uptime-check"
   timeout = "60s"
 
-  http_check = {
+  http_check {
     path = "/some-path"
     port = "8010"
   }
@@ -56,7 +56,7 @@ resource "google_monitoring_uptime_check_config" "http" {
     }
   }
 
-  content_matchers = {
+  content_matchers {
     content = "example"
   }
 }
@@ -74,7 +74,7 @@ resource "google_monitoring_uptime_check_config" "tcp_group" {
   display_name = "tcp-uptime-check"
   timeout = "60s"
 
-  tcp_check = {
+  tcp_check {
     port = 888
   }
 
