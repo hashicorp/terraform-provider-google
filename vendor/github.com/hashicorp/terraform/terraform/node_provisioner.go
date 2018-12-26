@@ -3,7 +3,6 @@ package terraform
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform/addrs"
 	"github.com/hashicorp/terraform/config"
 )
 
@@ -11,7 +10,7 @@ import (
 // It registers all the common interfaces across operations for providers.
 type NodeProvisioner struct {
 	NameValue string
-	PathValue addrs.ModuleInstance
+	PathValue []string
 
 	// The fields below will be automatically set using the Attach
 	// interfaces if you're running those transforms, but also be explicitly
@@ -20,23 +19,17 @@ type NodeProvisioner struct {
 	Config *config.ProviderConfig
 }
 
-var (
-	_ GraphNodeSubPath     = (*NodeProvisioner)(nil)
-	_ GraphNodeProvisioner = (*NodeProvisioner)(nil)
-	_ GraphNodeEvalable    = (*NodeProvisioner)(nil)
-)
-
 func (n *NodeProvisioner) Name() string {
 	result := fmt.Sprintf("provisioner.%s", n.NameValue)
-	if len(n.PathValue) > 0 {
-		result = fmt.Sprintf("%s.%s", n.PathValue.String(), result)
+	if len(n.PathValue) > 1 {
+		result = fmt.Sprintf("%s.%s", modulePrefixStr(n.PathValue), result)
 	}
 
 	return result
 }
 
 // GraphNodeSubPath
-func (n *NodeProvisioner) Path() addrs.ModuleInstance {
+func (n *NodeProvisioner) Path() []string {
 	return n.PathValue
 }
 

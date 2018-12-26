@@ -4,10 +4,6 @@ import (
 	"fmt"
 	"log"
 	"strings"
-
-	"github.com/hashicorp/terraform/tfdiags"
-
-	"github.com/hashicorp/terraform/addrs"
 )
 
 // GraphBuilder is an interface that can be implemented and used with
@@ -16,7 +12,7 @@ type GraphBuilder interface {
 	// Build builds the graph for the given module path. It is up to
 	// the interface implementation whether this build should expand
 	// the graph or not.
-	Build(addrs.ModuleInstance) (*Graph, tfdiags.Diagnostics)
+	Build(path []string) (*Graph, error)
 }
 
 // BasicGraphBuilder is a GraphBuilder that builds a graph out of a
@@ -29,16 +25,21 @@ type BasicGraphBuilder struct {
 	Name string
 }
 
-func (b *BasicGraphBuilder) Build(path addrs.ModuleInstance) (*Graph, tfdiags.Diagnostics) {
-	var diags tfdiags.Diagnostics
+func (b *BasicGraphBuilder) Build(path []string) (*Graph, error) {
 	g := &Graph{Path: path}
 
-	var lastStepStr string
+	debugName := "graph.json"
+	if b.Name != "" {
+		debugName = b.Name + "-" + debugName
+	}
+	debugBuf := dbug.NewFileWriter(debugName)
+	g.SetDebugWriter(debugBuf)
+	defer debugBuf.Close()
+
 	for _, step := range b.Steps {
 		if step == nil {
 			continue
 		}
-		log.Printf("[TRACE] Executing graph transform %T", step)
 
 		stepName := fmt.Sprintf("%T", step)
 		dot := strings.LastIndex(stepName, ".")
@@ -55,20 +56,12 @@ func (b *BasicGraphBuilder) Build(path addrs.ModuleInstance) (*Graph, tfdiags.Di
 		}
 		debugOp.End(errMsg)
 
-		if thisStepStr := g.StringWithNodeTypes(); thisStepStr != lastStepStr {
-			log.Printf("[TRACE] Completed graph transform %T with new graph:\n%s------", step, thisStepStr)
-			lastStepStr = thisStepStr
-		} else {
-			log.Printf("[TRACE] Completed graph transform %T (no changes)", step)
-		}
+		log.Printf(
+			"[TRACE] Graph after step %T:\n\n%s",
+			step, g.StringWithNodeTypes())
 
 		if err != nil {
-			if nf, isNF := err.(tfdiags.NonFatalError); isNF {
-				diags = diags.Append(nf.Diagnostics)
-			} else {
-				diags = diags.Append(err)
-				return g, diags
-			}
+			return g, err
 		}
 	}
 
@@ -76,10 +69,9 @@ func (b *BasicGraphBuilder) Build(path addrs.ModuleInstance) (*Graph, tfdiags.Di
 	if b.Validate {
 		if err := g.Validate(); err != nil {
 			log.Printf("[ERROR] Graph validation failed. Graph:\n\n%s", g.String())
-			diags = diags.Append(err)
-			return nil, diags
+			return nil, err
 		}
 	}
 
-	return g, diags
+	return g, nil
 }

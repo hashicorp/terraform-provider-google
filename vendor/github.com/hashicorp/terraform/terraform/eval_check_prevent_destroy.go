@@ -3,44 +3,33 @@ package terraform
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform/plans"
-
-	"github.com/hashicorp/hcl2/hcl"
-
-	"github.com/hashicorp/terraform/addrs"
-	"github.com/hashicorp/terraform/configs"
-	"github.com/hashicorp/terraform/tfdiags"
+	"github.com/hashicorp/terraform/config"
 )
 
 // EvalPreventDestroy is an EvalNode implementation that returns an
 // error if a resource has PreventDestroy configured and the diff
 // would destroy the resource.
 type EvalCheckPreventDestroy struct {
-	Addr   addrs.ResourceInstance
-	Config *configs.Resource
-	Change **plans.ResourceInstanceChange
+	Resource   *config.Resource
+	ResourceId string
+	Diff       **InstanceDiff
 }
 
 func (n *EvalCheckPreventDestroy) Eval(ctx EvalContext) (interface{}, error) {
-	if n.Change == nil || *n.Change == nil || n.Config == nil || n.Config.Managed == nil {
+	if n.Diff == nil || *n.Diff == nil || n.Resource == nil {
 		return nil, nil
 	}
 
-	change := *n.Change
-	preventDestroy := n.Config.Managed.PreventDestroy
+	diff := *n.Diff
+	preventDestroy := n.Resource.Lifecycle.PreventDestroy
 
-	if (change.Action == plans.Delete || change.Action.IsReplace()) && preventDestroy {
-		var diags tfdiags.Diagnostics
-		diags = diags.Append(&hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "Instance cannot be destroyed",
-			Detail: fmt.Sprintf(
-				"Resource %s has lifecycle.prevent_destroy set, but the plan calls for this resource to be destroyed. To avoid this error and continue with the plan, either disable lifecycle.prevent_destroy or reduce the scope of the plan using the -target flag.",
-				n.Addr.Absolute(ctx.Path()).String(),
-			),
-			Subject: &n.Config.DeclRange,
-		})
-		return nil, diags.Err()
+	if diff.GetDestroy() && preventDestroy {
+		resourceId := n.ResourceId
+		if resourceId == "" {
+			resourceId = n.Resource.Id()
+		}
+
+		return nil, fmt.Errorf(preventDestroyErrStr, resourceId)
 	}
 
 	return nil, nil

@@ -20,11 +20,6 @@ func (e simpleWarning) Description() Description {
 }
 
 func (e simpleWarning) Source() Source {
-	// No source information available for a simple warning
+	// No source information available for a native error
 	return Source{}
-}
-
-func (e simpleWarning) FromExpr() *FromExpr {
-	// Simple warnings are not expression-related
-	return nil
 }

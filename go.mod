@@ -7,17 +7,21 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dustinkirkland/golang-petname v0.0.0-20170921220637-d3c2ba80e75e // indirect
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
+	github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c // indirect
 	github.com/googleapis/gax-go v2.0.2+incompatible // indirect
 	github.com/hashicorp/errwrap v1.0.0
 	github.com/hashicorp/go-cleanhttp v0.5.0
 	github.com/hashicorp/go-getter v0.0.0-20181213035916-be39683deade // indirect
+	github.com/hashicorp/go-hclog v0.0.0-20181001195459-61d530d6c27f // indirect
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/hashicorp/go-plugin v0.0.0-20181212150838-f444068e8f5a // indirect
+	github.com/hashicorp/go-uuid v1.0.0 // indirect
 	github.com/hashicorp/go-version v1.0.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/hcl2 v0.0.0-20181215005721-253da47fd604 // indirect
+	github.com/hashicorp/hil v0.0.0-20170627220502-fa9f258a9250 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect
-	github.com/hashicorp/terraform v0.12.0-alpha4
+	github.com/hashicorp/terraform v0.11.9-0.20180926212128-35d82b055591
 	github.com/hashicorp/vault v1.0.1 // indirect
 	github.com/keybase/go-crypto v0.0.0-20181127160227-255a5089e85a // indirect
 	github.com/mitchellh/cli v1.0.0 // indirect
@@ -33,6 +37,7 @@ require (
 	golang.org/x/net v0.0.0-20181217023233-e147a9138326 // indirect
 	golang.org/x/oauth2 v0.0.0-20181203162652-d668ce993890
 	google.golang.org/api v0.0.0-20181217000635-41dc4b66e69d
+	google.golang.org/appengine v1.3.0 // indirect
 	google.golang.org/genproto v0.0.0-20181218023534-67d6565462c5 // indirect
 	google.golang.org/grpc v1.17.0 // indirect
 )

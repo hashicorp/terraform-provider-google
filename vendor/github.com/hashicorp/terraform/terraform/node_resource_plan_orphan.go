@@ -1,83 +1,53 @@
 package terraform
 
-import (
-	"github.com/hashicorp/terraform/plans"
-	"github.com/hashicorp/terraform/providers"
-	"github.com/hashicorp/terraform/states"
-)
-
-// NodePlannableResourceInstanceOrphan represents a resource that is "applyable":
+// NodePlannableResourceOrphan represents a resource that is "applyable":
 // it is ready to be applied and is represented by a diff.
-type NodePlannableResourceInstanceOrphan struct {
-	*NodeAbstractResourceInstance
+type NodePlannableResourceOrphan struct {
+	*NodeAbstractResource
 }
 
-var (
-	_ GraphNodeSubPath              = (*NodePlannableResourceInstanceOrphan)(nil)
-	_ GraphNodeReferenceable        = (*NodePlannableResourceInstanceOrphan)(nil)
-	_ GraphNodeReferencer           = (*NodePlannableResourceInstanceOrphan)(nil)
-	_ GraphNodeResource             = (*NodePlannableResourceInstanceOrphan)(nil)
-	_ GraphNodeResourceInstance     = (*NodePlannableResourceInstanceOrphan)(nil)
-	_ GraphNodeAttachResourceConfig = (*NodePlannableResourceInstanceOrphan)(nil)
-	_ GraphNodeAttachResourceState  = (*NodePlannableResourceInstanceOrphan)(nil)
-	_ GraphNodeEvalable             = (*NodePlannableResourceInstanceOrphan)(nil)
-)
-
-var (
-	_ GraphNodeEvalable = (*NodePlannableResourceInstanceOrphan)(nil)
-)
-
-func (n *NodePlannableResourceInstanceOrphan) Name() string {
-	return n.ResourceInstanceAddr().String() + " (orphan)"
+func (n *NodePlannableResourceOrphan) Name() string {
+	return n.NodeAbstractResource.Name() + " (orphan)"
 }
 
 // GraphNodeEvalable
-func (n *NodePlannableResourceInstanceOrphan) EvalTree() EvalNode {
-	addr := n.ResourceInstanceAddr()
+func (n *NodePlannableResourceOrphan) EvalTree() EvalNode {
+	addr := n.NodeAbstractResource.Addr
+
+	// stateId is the ID to put into the state
+	stateId := addr.stateId()
+
+	// Build the instance info. More of this will be populated during eval
+	info := &InstanceInfo{
+		Id:         stateId,
+		Type:       addr.Type,
+		ModulePath: normalizeModulePath(addr.Path),
+	}
 
 	// Declare a bunch of variables that are used for state during
 	// evaluation. Most of this are written to by-address below.
-	var change *plans.ResourceInstanceChange
-	var state *states.ResourceInstanceObject
-	var provider providers.Interface
-	var providerSchema *ProviderSchema
+	var diff *InstanceDiff
+	var state *InstanceState
 
 	return &EvalSequence{
 		Nodes: []EvalNode{
-			&EvalGetProvider{
-				Addr:   n.ResolvedProvider,
-				Output: &provider,
-				Schema: &providerSchema,
-			},
 			&EvalReadState{
-				Addr:           addr.Resource,
-				Provider:       &provider,
-				ProviderSchema: &providerSchema,
-
+				Name:   stateId,
 				Output: &state,
 			},
 			&EvalDiffDestroy{
-				Addr:         addr.Resource,
-				State:        &state,
-				ProviderAddr: n.ResolvedProvider,
-				Output:       &change,
-				OutputState:  &state, // Will point to a nil state after this complete, signalling destroyed
+				Info:   info,
+				State:  &state,
+				Output: &diff,
 			},
 			&EvalCheckPreventDestroy{
-				Addr:   addr.Resource,
-				Config: n.Config,
-				Change: &change,
+				Resource:   n.Config,
+				ResourceId: stateId,
+				Diff:       &diff,
 			},
 			&EvalWriteDiff{
-				Addr:           addr.Resource,
-				ProviderSchema: &providerSchema,
-				Change:         &change,
-			},
-			&EvalWriteState{
-				Addr:           addr.Resource,
-				ProviderAddr:   n.ResolvedProvider,
-				ProviderSchema: &providerSchema,
-				State:          &state,
+				Name: stateId,
+				Diff: &diff,
 			},
 		},
 	}

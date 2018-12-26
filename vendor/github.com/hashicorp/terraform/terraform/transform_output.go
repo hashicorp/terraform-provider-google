@@ -3,7 +3,7 @@ package terraform
 import (
 	"log"
 
-	"github.com/hashicorp/terraform/configs"
+	"github.com/hashicorp/terraform/config/module"
 	"github.com/hashicorp/terraform/dag"
 )
 
@@ -14,42 +14,42 @@ import (
 // aren't changing since there is no downside: the state will be available
 // even if the dependent items aren't changing.
 type OutputTransformer struct {
-	Config *configs.Config
+	Module *module.Tree
 }
 
 func (t *OutputTransformer) Transform(g *Graph) error {
-	return t.transform(g, t.Config)
+	return t.transform(g, t.Module)
 }
 
-func (t *OutputTransformer) transform(g *Graph, c *configs.Config) error {
-	// If we have no config then there can be no outputs.
-	if c == nil {
+func (t *OutputTransformer) transform(g *Graph, m *module.Tree) error {
+	// If no config, no outputs
+	if m == nil {
 		return nil
 	}
 
 	// Transform all the children. We must do this first because
 	// we can reference module outputs and they must show up in the
 	// reference map.
-	for _, cc := range c.Children {
-		if err := t.transform(g, cc); err != nil {
+	for _, c := range m.Children() {
+		if err := t.transform(g, c); err != nil {
 			return err
 		}
 	}
 
-	// Our addressing system distinguishes between modules and module instances,
-	// but we're not yet ready to make that distinction here (since we don't
-	// support "count"/"for_each" on modules) and so we just do a naive
-	// transform of the module path into a module instance path, assuming that
-	// no keys are in use. This should be removed when "count" and "for_each"
-	// are implemented for modules.
-	path := c.Path.UnkeyedInstanceShim()
+	// If we have no outputs, we're done!
+	os := m.Config().Outputs
+	if len(os) == 0 {
+		return nil
+	}
 
-	for _, o := range c.Module.Outputs {
-		addr := path.OutputValue(o.Name)
+	// Add all outputs here
+	for _, o := range os {
 		node := &NodeApplyableOutput{
-			Addr:   addr,
-			Config: o,
+			PathValue: normalizeModulePath(m.Path()),
+			Config:    o,
 		}
+
+		// Add it!
 		g.Add(node)
 	}
 
@@ -71,8 +71,8 @@ func (t *DestroyOutputTransformer) Transform(g *Graph) error {
 
 		// create the destroy node for this output
 		node := &NodeDestroyableOutput{
-			Addr:   output.Addr,
-			Config: output.Config,
+			PathValue: output.PathValue,
+			Config:    output.Config,
 		}
 
 		log.Printf("[TRACE] creating %s", node.Name())
