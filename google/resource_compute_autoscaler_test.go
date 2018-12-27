@@ -252,7 +252,7 @@ resource "google_compute_autoscaler" "foobar" {
 	name = "%s"
 	zone = "us-central1-a"
 	target = "${google_compute_instance_group_manager.foobar.self_link}"
-	autoscaling_policy = {
+	autoscaling_policy {
 		max_replicas = 5
 		min_replicas = 1
 		cooldown_period = 60
@@ -272,7 +272,7 @@ resource "google_compute_autoscaler" "foobar" {
 	name = "%s"
 	zone = "us-central1-a"
 	target = "${google_compute_instance_group_manager.foobar.self_link}"
-	autoscaling_policy = {
+	autoscaling_policy {
 		max_replicas = 10
 		min_replicas = 1
 		cooldown_period = 60
@@ -292,7 +292,7 @@ resource "google_compute_autoscaler" "foobar" {
 	name = "%s"
 	zone = "us-central1-a"
 	target = "${google_compute_instance_group_manager.foobar.self_link}"
-	autoscaling_policy = {
+	autoscaling_policy {
 		max_replicas = 10
 		min_replicas = 1
 		cooldown_period = 60

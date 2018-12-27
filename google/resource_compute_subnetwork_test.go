@@ -379,7 +379,7 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
 	secondary_ip_range {
 		range_name = "tf-test-secondary-range-update2"
 		ip_cidr_range = "192.168.11.0/24"
-	},
+	}
 }
 `, cnName, subnetworkName)
 }
