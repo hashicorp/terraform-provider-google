@@ -50,7 +50,7 @@ resource "google_compute_autoscaler" "foobar" {
   zone   = "us-central1-f"
   target = "${google_compute_instance_group_manager.foobar.self_link}"
 
-  autoscaling_policy = {
+  autoscaling_policy {
     max_replicas    = 5
     min_replicas    = 1
     cooldown_period = 60

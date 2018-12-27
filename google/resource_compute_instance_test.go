@@ -2851,12 +2851,12 @@ resource "google_compute_instance" "foobar" {
 	network_interface {
 		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
 
-		alias_ip_range = [
-		{
+		alias_ip_range {
 			subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.0.range_name}"
 			ip_cidr_range         = "172.16.0.0/24"
-		},
-		{
+		}
+
+		alias_ip_range {
 			subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.1.range_name}"
 			ip_cidr_range         = "10.1.0.0/20"
 		}
