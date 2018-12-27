@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform/helper/validation"
 	"log"
 	"regexp"
 	"strconv"
@@ -38,6 +39,27 @@ func resourceKmsCryptoKey() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateKmsCryptoKeyRotationPeriod,
+			},
+			"version_template": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"algorithm": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"protection_level": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							Default:      "SOFTWARE",
+							ValidateFunc: validation.StringInSlice([]string{"SOFTWARE", "HSM", ""}, false),
+						},
+					},
+				},
 			},
 			"self_link": {
 				Type:     schema.TypeString,
@@ -84,7 +106,10 @@ func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 		Name:      d.Get("name").(string),
 	}
 
-	key := cloudkms.CryptoKey{Purpose: "ENCRYPT_DECRYPT"}
+	key := cloudkms.CryptoKey{
+		Purpose:         "ENCRYPT_DECRYPT",
+		VersionTemplate: expandVersionTemplate(d.Get("version_template").([]interface{})),
+	}
 
 	if d.Get("rotation_period") != "" {
 		rotationPeriod := d.Get("rotation_period").(string)
@@ -133,6 +158,10 @@ func resourceKmsCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 		key.RotationPeriod = rotationPeriod
 	}
 
+	if d.HasChange("version_template") {
+		key.VersionTemplate = expandVersionTemplate(d.Get("version_template").([]interface{}))
+	}
+
 	cryptoKey, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Patch(cryptoKeyId.cryptoKeyId(), &key).UpdateMask("rotation_period,next_rotation_time").Do()
 
 	if err != nil {
@@ -164,6 +193,10 @@ func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", cryptoKeyId.Name)
 	d.Set("rotation_period", cryptoKey.RotationPeriod)
 	d.Set("self_link", cryptoKey.Name)
+
+	if err = d.Set("version_template", flattenVersionTemplate(cryptoKey.VersionTemplate)); err != nil {
+		return fmt.Errorf("Error setting version_template in state: %s", err.Error())
+	}
 
 	d.SetId(cryptoKeyId.cryptoKeyId())
 
@@ -217,6 +250,33 @@ and all its CryptoKeyVersions will be destroyed, but it will still be present on
 
 	d.SetId("")
 	return nil
+}
+
+func expandVersionTemplate(configured []interface{}) *cloudkms.CryptoKeyVersionTemplate {
+	if configured == nil || len(configured) == 0 {
+		return nil
+	}
+
+	data := configured[0].(map[string]interface{})
+	return &cloudkms.CryptoKeyVersionTemplate{
+		Algorithm:       data["algorithm"].(string),
+		ProtectionLevel: data["protection_level"].(string),
+	}
+}
+
+func flattenVersionTemplate(versionTemplate *cloudkms.CryptoKeyVersionTemplate) []map[string]interface{} {
+	if versionTemplate == nil {
+		return nil
+	}
+
+	versionTemplateSchema := make([]map[string]interface{}, 0, 1)
+	data := map[string]interface{}{
+		"algorithm":        versionTemplate.Algorithm,
+		"protection_level": versionTemplate.ProtectionLevel,
+	}
+
+	versionTemplateSchema = append(versionTemplateSchema, data)
+	return versionTemplateSchema
 }
 
 func validateKmsCryptoKeyRotationPeriod(value interface{}, _ string) (ws []string, errors []error) {
