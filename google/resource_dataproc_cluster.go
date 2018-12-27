@@ -456,7 +456,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 	// Wait until it's created
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
-	waitErr := dataprocClusterOperationWait(config, op, "creating Dataproc cluster", timeoutInMinutes, 3)
+	waitErr := dataprocClusterOperationWait(config, op, "creating Dataproc cluster", timeoutInMinutes)
 	if waitErr != nil {
 		// The resource didn't actually create
 		// Note that we do not remove the ID here - this resource tends to leave
@@ -740,7 +740,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		// Wait until it's updated
-		waitErr := dataprocClusterOperationWait(config, op, "updating Dataproc cluster ", timeoutInMinutes, 2)
+		waitErr := dataprocClusterOperationWait(config, op, "updating Dataproc cluster ", timeoutInMinutes)
 		if waitErr != nil {
 			return waitErr
 		}
@@ -944,7 +944,7 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Wait until it's deleted
-	waitErr := dataprocClusterOperationWait(config, op, "deleting Dataproc cluster", timeoutInMinutes, 3)
+	waitErr := dataprocClusterOperationWait(config, op, "deleting Dataproc cluster", timeoutInMinutes)
 	if waitErr != nil {
 		return waitErr
 	}
