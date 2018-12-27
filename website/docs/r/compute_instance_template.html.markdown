@@ -55,7 +55,7 @@ resource "google_compute_instance_template" "default" {
     network = "default"
   }
 
-  metadata {
+  metadata = {
     foo = "bar"
   }
 

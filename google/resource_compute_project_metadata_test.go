@@ -135,7 +135,7 @@ resource "google_project_service" "compute" {
 
 resource "google_compute_project_metadata" "fizzbuzz" {
   project = "${google_project.project.project_id}"
-  metadata {
+  metadata = {
     banana = "orange"
     sofa = "darwinism"
   }
@@ -159,7 +159,7 @@ resource "google_project_service" "compute" {
 
 resource "google_compute_project_metadata" "fizzbuzz" {
   project = "${google_project.project.project_id}"
-  metadata {
+  metadata = {
     kiwi = "papaya"
     finches = "darwinism"
   }
@@ -183,7 +183,7 @@ resource "google_project_service" "compute" {
 
 resource "google_compute_project_metadata" "fizzbuzz" {
   project = "${google_project.project.project_id}"
-  metadata {
+  metadata = {
     paper = "pen"
     genghis_khan = "french bread"
     happy = "smiling"
@@ -208,7 +208,7 @@ resource "google_project_service" "compute" {
 
 resource "google_compute_project_metadata" "fizzbuzz" {
   project = "${google_project.project.project_id}"
-  metadata {
+  metadata = {
     paper = "pen"
     paris = "french bread"
     happy = "laughing"

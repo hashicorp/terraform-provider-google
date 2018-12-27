@@ -36,7 +36,7 @@ resource "google_compute_instance_template" "tpl" {
     network = "default"
   }
 
-  metadata {
+  metadata = {
     foo = "bar"
   }
 
@@ -51,7 +51,7 @@ resource "google_compute_instance_from_template" "tpl" {
 
   // Override fields from instance template
   can_ip_forward = false
-  labels {
+  labels = {
     my_key       = "my_value"
   }
 }

@@ -190,7 +190,7 @@ resource "google_bigquery_dataset" "test" {
   default_partition_expiration_ms = 3600000
   default_table_expiration_ms = 3600000
 
-  labels {
+  labels = {
     env                         = "foo"
     default_table_expiration_ms = 3600000
   }
@@ -207,7 +207,7 @@ resource "google_bigquery_dataset" "test" {
   default_partition_expiration_ms = 7200000
   default_table_expiration_ms = 7200000
 
-  labels {
+  labels = {
     env                         = "bar"
     default_table_expiration_ms = 7200000
   }
@@ -223,7 +223,7 @@ resource "google_bigquery_dataset" "test" {
   location                    = "%s"
   default_table_expiration_ms = 3600000
 
-  labels {
+  labels = {
     env                         = "foo"
     default_table_expiration_ms = 3600000
   }
@@ -240,7 +240,7 @@ resource "google_bigquery_dataset" "access_test" {
     user_by_email = "Joe@example.com"
   }
 
-  labels {
+  labels = {
     env                         = "foo"
     default_table_expiration_ms = 3600000
   }
@@ -261,7 +261,7 @@ resource "google_bigquery_dataset" "access_test" {
     domain = "example.com"
   }
 
-  labels {
+  labels = {
     env                         = "foo"
     default_table_expiration_ms = 3600000
   }
@@ -305,7 +305,7 @@ resource "google_bigquery_dataset" "access_test" {
     }
   }
 
-  labels {
+  labels = {
     env                         = "foo"
     default_table_expiration_ms = 3600000
   }

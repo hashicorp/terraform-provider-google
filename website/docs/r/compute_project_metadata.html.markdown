@@ -22,7 +22,7 @@ key/value pairs within the project metadata rather than the entire set, then use
 
 ```hcl
 resource "google_compute_project_metadata" "default" {
-  metadata {
+  metadata = {
     foo  = "bar"
     fizz = "buzz"
     "13" = "42"

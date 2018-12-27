@@ -46,7 +46,7 @@ data "google_storage_object_signed_url" "get_url" {
   duration     = "2d"
   credentials  = "${file("path/to/credentials.json")}"
   
-  extension_headers {
+  extension_headers = {
     x-goog-if-generation-match = 1
   }
 }

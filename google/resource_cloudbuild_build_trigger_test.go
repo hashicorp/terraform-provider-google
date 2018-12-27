@@ -300,7 +300,7 @@ resource "google_cloudbuild_trigger" "filename_build_trigger" {
     branch_name = "master"
     repo_name   = "some-repo"
   }
-  substitutions {
+  substitutions = {
     _FOO = "bar"
     _BAZ = "qux"
   }

@@ -23,7 +23,7 @@ resource "google_bigquery_dataset" "default" {
   location                    = "EU"
   default_table_expiration_ms = 3600000
 
-  labels {
+  labels = {
     env = "default"
   }
 }
@@ -36,7 +36,7 @@ resource "google_bigquery_table" "default" {
     type = "DAY"
   }
 
-  labels {
+  labels = {
     env = "default"
   }
 

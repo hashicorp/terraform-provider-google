@@ -1631,10 +1631,10 @@ resource "google_container_cluster" "with_node_config" {
 			"https://www.googleapis.com/auth/logging.write"
 		]
 		service_account = "default"
-		metadata {
+		metadata = {
 			foo = "bar"
 		}
-		labels {
+		labels = {
 			foo = "bar"
 		}
 		tags = ["foo", "bar"]
@@ -1666,10 +1666,10 @@ resource "google_container_cluster" "with_node_config" {
 			"https://www.googleapis.com/auth/logging.write"
 		]
 		service_account = "default"
-		metadata {
+		metadata = {
 			foo = "bar"
 		}
-		labels {
+		labels = {
 			foo = "bar"
 		}
 		tags = ["foo", "bar"]
@@ -1929,11 +1929,11 @@ resource "google_container_cluster" "with_node_pool_node_config" {
 				"https://www.googleapis.com/auth/monitoring"
 			]
 			service_account = "default"
-			metadata {
+			metadata = {
 				foo = "bar"
 			}
 			image_type = "COS"
-			labels {
+			labels = {
 				foo = "bar"
 			}
 			tags = ["foo", "bar"]
@@ -2134,7 +2134,7 @@ resource "google_container_cluster" "with_resource_labels" {
 	zone = "us-central1-a"
 	initial_node_count = 1
 
-	resource_labels {
+	resource_labels = {
 		created-by = "terraform"
 	}
 }

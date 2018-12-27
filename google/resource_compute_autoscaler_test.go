@@ -222,10 +222,6 @@ resource "google_compute_instance_template" "foobar" {
 		network = "default"
 	}
 
-	metadata {
-		foo = "bar"
-	}
-
 	service_account {
 		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
 	}

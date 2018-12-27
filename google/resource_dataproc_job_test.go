@@ -549,7 +549,7 @@ resource "google_dataproc_job" "pyspark" {
 			"spark.logConf" = "true"
 		}
 		logging_config {
-			driver_log_levels {
+			driver_log_levels = {
 				"root" = "INFO"
 			}
 		}
@@ -559,7 +559,7 @@ resource "google_dataproc_job" "pyspark" {
 		max_failures_per_hour = 1
 	}
 
-	labels {
+	labels = {
 		one = "1"
 	}
 }

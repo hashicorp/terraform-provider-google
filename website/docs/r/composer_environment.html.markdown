@@ -99,16 +99,16 @@ resource "google_composer_environment" "test" {
 
   config {
     software_config {
-      airflow_config_overrides {
+      airflow_config_overrides = {
         core-load_example = "True"
       }
 
-      pypi_packages {
+      pypi_packages = {
         numpy = ""
         scipy = "==1.1.0"
       }
 
-      env_variables {
+      env_variables = {
          FOO = "bar"
       }
     }

@@ -327,7 +327,7 @@ resource "google_compute_region_disk" "regiondisk" {
 	replica_zones = ["us-central1-a", "us-central1-f"]
 
 	size = 100
-	labels {
+	labels = {
 		my-label = "my-updated-label-value"
 		a-new-label = "a-new-label-value"
 	}

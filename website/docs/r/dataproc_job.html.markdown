@@ -39,7 +39,7 @@ resource "google_dataproc_job" "spark" {
         }
         
         logging_config {
-            driver_log_levels {
+            driver_log_levels = {
                 "root" = "INFO"
             }
         }
@@ -166,7 +166,7 @@ resource "google_dataproc_job" "spark" {
         }
         
         logging_config {
-            driver_log_levels {
+            driver_log_levels = {
                 "root" = "INFO"
             }
         }

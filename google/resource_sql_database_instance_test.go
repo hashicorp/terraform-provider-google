@@ -945,7 +945,7 @@ resource "google_sql_database_instance" "instance" {
 	region = "us-central1"
 	settings {
 		tier = "db-f1-micro"
-		user_labels {
+		user_labels = {
 		    track = "production"
 		    location = "western-division"
 		}
@@ -958,7 +958,7 @@ resource "google_sql_database_instance" "instance" {
 	region = "us-central1"
 	settings {
 		tier = "db-f1-micro"
-		user_labels {
+		user_labels = {
 		    track = "production"
 		}
 	}

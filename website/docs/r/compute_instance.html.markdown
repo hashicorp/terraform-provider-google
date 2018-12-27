@@ -42,7 +42,7 @@ resource "google_compute_instance" "default" {
     }
   }
 
-  metadata {
+  metadata = {
     foo = "bar"
   }
 

@@ -91,7 +91,7 @@ resource "google_redis_instance" "cache" {
   display_name      = "Terraform Test Instance"
   reserved_ip_range = "192.168.0.0/29"
 
-  labels {
+  labels = {
     my_key    = "my_val"
     other_key = "other_val"
   }
