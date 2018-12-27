@@ -149,7 +149,7 @@ The `subnetwork` block supports:
 
 * `name` - (Required) The `self_link` of the subnetwork to NAT.
 
-* `source_ip_ranges_to_nat` - (Optional) List of options for which source IPs in the subnetwork
+* `source_ip_ranges_to_nat` - (Required) List of options for which source IPs in the subnetwork
     should have NAT enabled. Supported values include: `ALL_IP_RANGES`,
     `LIST_OF_SECONDARY_IP_RANGES`, `PRIMARY_IP_RANGE`
 

@@ -22,9 +22,14 @@ var (
 				Required: true,
 				ForceNew: true,
 			},
+
+			// this field is optional with a default in the API, but we
+			// don't have the ability to support complex defaults inside
+			// nested fields
 			"source_ip_ranges_to_nat": {
 				Type:     schema.TypeSet,
-				Optional: true,
+				Required: true,
+				MinItems: 1,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
