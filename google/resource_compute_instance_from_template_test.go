@@ -179,7 +179,7 @@ resource "google_compute_instance_template" "foobar" {
 		network = "default"
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 
@@ -194,7 +194,7 @@ resource "google_compute_instance_from_template" "foobar" {
 
 	// Overrides
 	can_ip_forward = false
-	labels {
+	labels = {
 		my_key       = "my_value"
 	}
 }
@@ -245,7 +245,7 @@ resource "google_compute_instance_template" "template" {
 		network = "default"
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 

@@ -50,7 +50,7 @@ resource "google_compute_disk" "default" {
   type  = "pd-ssd"
   zone  = "us-central1-a"
   image = "debian-8-jessie-v20170523"
-  labels {
+  labels = {
     environment = "dev"
   }
 }

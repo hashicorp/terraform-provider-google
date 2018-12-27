@@ -31,7 +31,7 @@ resource "google_dataproc_cluster" "simplecluster" {
 resource "google_dataproc_cluster" "mycluster" {
     name       = "mycluster"
     region     = "us-central1"
-    labels {
+    labels = {
         foo = "bar"
     }
 

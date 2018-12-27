@@ -795,7 +795,7 @@ resource "google_compute_instance_template" "foobar" {
 		automatic_restart = true
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 
@@ -803,7 +803,7 @@ resource "google_compute_instance_template" "foobar" {
 		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
 	}
 
-    labels {
+    labels = {
         my_label = "foobar"
     }
 }`, acctest.RandString(10))
@@ -848,7 +848,7 @@ resource "google_compute_instance_template" "foobar" {
 		automatic_restart = true
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 
@@ -856,7 +856,7 @@ resource "google_compute_instance_template" "foobar" {
 		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
 	}
 
-    labels {
+    labels = {
         my_label = "foobar"
     }
 }`, acctest.RandString(10), acctest.RandString(10))
@@ -890,7 +890,7 @@ resource "google_compute_instance_template" "foobar" {
 		automatic_restart = false
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 
@@ -927,7 +927,7 @@ resource "google_compute_instance_template" "foobar" {
 		}
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
@@ -978,7 +978,7 @@ resource "google_compute_instance_template" "foobar" {
 		network_ip = "%s"
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 }`, acctest.RandString(10), networkIP)
@@ -1005,7 +1005,7 @@ resource "google_compute_instance_template" "foobar" {
 		network_ip    = "%s"
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 }`, acctest.RandString(10), ipAddress)
@@ -1047,7 +1047,7 @@ resource "google_compute_instance_template" "foobar" {
 		network = "default"
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
@@ -1089,7 +1089,7 @@ resource "google_compute_instance_template" "foobar" {
 		network = "default"
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
@@ -1122,7 +1122,7 @@ func testAccComputeInstanceTemplate_subnet_auto(network string) string {
 			network = "${google_compute_network.auto-network.name}"
 		}
 
-		metadata {
+		metadata = {
 			foo = "bar"
 		}
 	}`, network, acctest.RandString(10))
@@ -1163,7 +1163,7 @@ resource "google_compute_instance_template" "foobar" {
 		subnetwork = "${google_compute_subnetwork.subnetwork.name}"
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 }`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
@@ -1240,7 +1240,7 @@ func testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName strin
 			subnetwork_project = "${google_compute_subnetwork.subnetwork.project}"
 		}
 
-		metadata {
+		metadata = {
 			foo = "bar"
 		}
 		project = "${google_compute_shared_vpc_service_project.service_project.service_project}"
@@ -1265,7 +1265,7 @@ resource "google_compute_instance_template" "foobar" {
 		boot = true
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 
@@ -1295,7 +1295,7 @@ resource "google_compute_instance_template" "foobar" {
 		boot = true
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 
@@ -1338,7 +1338,7 @@ resource "google_compute_instance_template" "foobar" {
 		boot = true
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 	}
 
@@ -1501,7 +1501,7 @@ resource "google_compute_instance_template" "foobar" {
 		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
 	}
 
-    labels {
+    labels = {
         my_label = "foobar"
     }
 }`, pid, pname, org, billing, keyRingName, keyName, acctest.RandString(10))

@@ -110,16 +110,16 @@ resource "google_compute_instance" "foo" {
     	}
 	}
 
-	metadata {
+	metadata = {
 		foo = "bar"
 		baz = "qux"
 	}
 
-	metadata {
+	metadata = {
 		startup-script = "echo Hello"
 	}
 
-	labels {
+	labels = {
 		my_key       = "my_value"
 		my_other_key = "my_other_value"
     }

@@ -245,7 +245,7 @@ data "google_storage_object_signed_url" "story_url" {
 data "google_storage_object_signed_url" "story_url_w_headers" {
   bucket = "${google_storage_bucket.bucket.name}"
   path   = "${google_storage_bucket_object.story.name}"
-  extension_headers {
+  extension_headers = {
   	x-goog-test = "foo"
   	x-goog-if-generation-match = 1
   }

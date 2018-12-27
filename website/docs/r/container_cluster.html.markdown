@@ -42,7 +42,7 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/monitoring",
     ]
 
-    labels {
+    labels = {
       foo = "bar"
     }
 

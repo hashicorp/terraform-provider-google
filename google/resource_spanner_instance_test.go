@@ -292,7 +292,7 @@ resource "google_spanner_instance" "updater" {
   display_name  = "%s"
   num_nodes     = %d
 
-  labels {
+  labels = {
      "key1" = "value1"
      %s
   }

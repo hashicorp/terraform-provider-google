@@ -796,7 +796,7 @@ resource "google_dataproc_cluster" "basic" {
 
 	cluster_config {
 		gce_cluster_config {
-			metadata {
+			metadata = {
 				foo = "bar"
 				baz = "qux"
 			}
@@ -989,7 +989,7 @@ resource "google_dataproc_cluster" "with_labels" {
 	name   = "dproc-cluster-test-%s"
 	region = "us-central1"
 
-	labels {
+	labels = {
 		key1 = "value1"
 	}
 

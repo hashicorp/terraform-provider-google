@@ -29,7 +29,7 @@ resource "google_pubsub_subscription" "default" {
   push_config {
     push_endpoint = "https://example.com/push"
 
-    attributes {
+    attributes = {
       x-goog-version = "v1"
     }
   }

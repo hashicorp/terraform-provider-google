@@ -242,7 +242,7 @@ resource "google_storage_notification" "notification" {
 	payload_format    = "JSON_API_V1"
 	topic             = "${google_pubsub_topic.topic.id}"
 	event_types       = ["%s","%s"]
-	custom_attributes {
+	custom_attributes = {
 		new-attribute = "new-attribute-value"
 	}
 	depends_on        = ["google_pubsub_topic_iam_binding.binding"]

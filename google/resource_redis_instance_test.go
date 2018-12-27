@@ -100,7 +100,7 @@ resource "google_redis_instance" "test" {
 	memory_size_gb = 1
 	region         = "us-central1"
 
-	labels {
+	labels = {
 		my_key    = "my_val"
 		other_key = "other_val"
 	}
@@ -119,7 +119,7 @@ resource "google_redis_instance" "test" {
 	display_name   = "post-update"
 	memory_size_gb = 1
 
-	labels {
+	labels = {
 		my_key    = "my_val"
 		other_key = "new_val"
 	}
@@ -152,7 +152,7 @@ resource "google_redis_instance" "test" {
 	display_name      = "Terraform Test Instance"
 	reserved_ip_range = "192.168.0.0/29"
 
-	labels {
+	labels = {
 		my_key    = "my_val"
 		other_key = "other_val"
 	}

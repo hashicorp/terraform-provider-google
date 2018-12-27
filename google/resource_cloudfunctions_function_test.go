@@ -427,10 +427,10 @@ resource "google_cloudfunctions_function" "function" {
   trigger_http          = true
   timeout               = 61
   entry_point           = "helloGET"
-  labels {
+  labels = {
 	my-label = "my-label-value"
   }
-  environment_variables {
+  environment_variables = {
 	TEST_ENV_VARIABLE = "test-env-variable-value"
   }
 }
@@ -459,11 +459,11 @@ resource "google_cloudfunctions_function" "function" {
   runtime               = "nodejs8"
   timeout               = 91
   entry_point           = "helloGET"
-  labels {
+  labels = {
 	my-label = "my-updated-label-value"
 	a-new-label = "a-new-label-value"
   }
-  environment_variables {
+  environment_variables = {
 	TEST_ENV_VARIABLE = "test-env-variable-value"
 	NEW_ENV_VARIABLE = "new-env-variable-value"
   }

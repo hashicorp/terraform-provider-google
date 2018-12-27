@@ -991,7 +991,7 @@ func testAccStorageBucket_labels(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	labels {
+	labels = {
 		my-label = "my-label-value"
 	}
 }
@@ -1040,7 +1040,7 @@ func testAccStorageBucket_updateLabels(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	labels {
+	labels = {
 		my-label    = "my-updated-label-value"
 		a-new-label = "a-new-label-value"
 	}

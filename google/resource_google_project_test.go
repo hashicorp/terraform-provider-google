@@ -327,7 +327,7 @@ resource "google_project" "acceptance" {
     project_id = "%s"
     name       = "%s"
     org_id     = "%s"
-	labels {`, pid, name, org)
+	labels = {`, pid, name, org)
 
 	l := ""
 	for key, value := range labels {
