@@ -748,5 +748,9 @@ resource "google_compute_instance_group_manager" "manager" {
   instance_template  = "${google_compute_instance_template.template.self_link}"
   zone               = "us-central1-a"
   target_size        = 1
+
+  // block on instances being ready so that when they get deleted, we don't try
+  // to continue interacting with them in other resources
+  wait_for_instances = true
 }`, diskName, mgrName)
 }
