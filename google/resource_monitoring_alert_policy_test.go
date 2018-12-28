@@ -132,7 +132,7 @@ resource "google_monitoring_alert_policy" "basic" {
       duration       = "60s"
       comparison     = "COMPARISON_GT"
       filter         = "%s"
-      thresholdValue = "0.5"
+      threshold_value = "0.5"
     }
   }
 }
