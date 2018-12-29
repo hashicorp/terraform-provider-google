@@ -62,6 +62,7 @@ BUG FIXES:
 * compute: extract vpn tunnel region/project from vpn gateway [GH-2640]
 * compute: send instance scheduling block with automaticrestart true if there is none in cfg [GH-2638]
 * compute: fix disk behaivor in compute_instance_from_template [GH-2695]
+* compute: add diffsuppress for region_autoscaler.target so it can be used with both versions of the provider [GH-2770]
 * dataproc: convert dataproc_cluster.cluster_config.gce_cluster_config.tags into a set [GH-2633]
 * iam: fix permadiff when stage is ALPHA [GH-2370]
 * iam: add another retry if iam read returns nil [GH-2629]
