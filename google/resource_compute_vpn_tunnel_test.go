@@ -105,6 +105,7 @@ func testAccComputeVpnTunnel_basic() string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
 	name = "tunnel-test-%s"
+	auto_create_subnetworks = false
 }
 resource "google_compute_subnetwork" "foobar" {
 	name = "tunnel-test-subnetwork-%s"
@@ -161,6 +162,7 @@ func testAccComputeVpnTunnel_regionFromGateway(region string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
 	name = "tunnel-test-%s"
+	auto_create_subnetworks = false
 }
 resource "google_compute_subnetwork" "foobar" {
 	name = "tunnel-test-subnetwork-%s"
@@ -219,6 +221,7 @@ func testAccComputeVpnTunnelRouter(router string) string {
 	return fmt.Sprintf(`
 		resource "google_compute_network" "foobar" {
 			name = "tunnel-test-%s"
+			auto_create_subnetworks = false
 		}
 		resource "google_compute_subnetwork" "foobar" {
 			name = "tunnel-test-subnetwork-%s"
