@@ -121,8 +121,9 @@ func resourceComputeRegionAutoscaler() *schema.Resource {
 				ValidateFunc: validateGCPName,
 			},
 			"target": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"description": {
 				Type:     schema.TypeString,
