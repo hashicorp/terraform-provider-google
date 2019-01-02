@@ -1,7 +1,11 @@
 package google
 
 import (
+	"fmt"
 	"strconv"
+
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 type ResourceDataMock struct {
@@ -50,4 +54,34 @@ func toBool(attribute string) (bool, error) {
 		return false, nil
 	}
 	return strconv.ParseBool(attribute)
+}
+
+func testAccDataSourceMatchesResourceCheck(dataSourceName string, resourceName string, attrsToCheck []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ds, ok := s.RootModule().Resources[dataSourceName]
+		if !ok {
+			return fmt.Errorf("root module has no resource called %s", dataSourceName)
+		}
+
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("can't find %s in state", resourceName)
+		}
+
+		dsAttr := ds.Primary.Attributes
+		rsAttr := rs.Primary.Attributes
+
+		for _, attr := range attrsToCheck {
+			if dsAttr[attr] != rsAttr[attr] {
+				return fmt.Errorf(
+					"%s is %s; want %s",
+					attr,
+					dsAttr[attr],
+					rsAttr[attr],
+				)
+			}
+		}
+
+		return nil
+	}
 }
