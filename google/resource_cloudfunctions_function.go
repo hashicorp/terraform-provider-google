@@ -52,11 +52,7 @@ func (s *cloudFunctionId) terraformId() string {
 }
 
 func parseCloudFunctionId(id string, config *Config) (*cloudFunctionId, error) {
-	parts := strings.Split(id, "/")
-
-	cloudFuncIdRegex := regexp.MustCompile("^([a-z0-9-]+)/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
-
-	if cloudFuncIdRegex.MatchString(id) {
+	if parts := strings.Split(id, "/"); len(parts) == 3 {
 		return &cloudFunctionId{
 			Project: parts[0],
 			Region:  parts[1],
