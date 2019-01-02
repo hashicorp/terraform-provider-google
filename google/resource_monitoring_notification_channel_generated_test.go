@@ -16,6 +16,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -57,8 +58,11 @@ resource "google_monitoring_notification_channel" "basic" {
 }
 
 func testAccCheckMonitoringNotificationChannelDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
+	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_monitoring_notification_channel" {
+			continue
+		}
+		if strings.HasPrefix(name, "data.") {
 			continue
 		}
 

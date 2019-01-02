@@ -24,50 +24,43 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
+func TestAccComputeImage_imageBasicExample(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
+		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSubnetwork_subnetworkBasicExample(acctest.RandString(10)),
+				Config: testAccComputeImage_imageBasicExample(acctest.RandString(10)),
 			},
 			{
-				ResourceName:      "google_compute_subnetwork.network-with-private-secondary-ip-ranges",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_image.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"raw_disk"},
 			},
 		},
 	})
 }
 
-func testAccComputeSubnetwork_subnetworkBasicExample(val string) string {
+func testAccComputeImage_imageBasicExample(val string) string {
 	return fmt.Sprintf(`
-resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
-  name          = "test-subnetwork-%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = "${google_compute_network.custom-test.self_link}"
-  secondary_ip_range {
-    range_name    = "tf-test-secondary-range-update1"
-    ip_cidr_range = "192.168.10.0/24"
+resource "google_compute_image" "example" {
+  name = "example-image-%s"
+
+  raw_disk {
+    source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
   }
 }
-
-resource "google_compute_network" "custom-test" {
-  name                    = "test-network-%s"
-  auto_create_subnetworks = false
-}
-`, val, val,
+`, val,
 	)
 }
 
-func testAccCheckComputeSubnetworkDestroy(s *terraform.State) error {
+func testAccCheckComputeImageDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_subnetwork" {
+		if rs.Type != "google_compute_image" {
 			continue
 		}
 		if strings.HasPrefix(name, "data.") {
@@ -76,14 +69,14 @@ func testAccCheckComputeSubnetworkDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/images/{{name}}")
 		if err != nil {
 			return err
 		}
 
 		_, err = sendRequest(config, "GET", url, nil)
 		if err == nil {
-			return fmt.Errorf("ComputeSubnetwork still exists at %s", url)
+			return fmt.Errorf("ComputeImage still exists at %s", url)
 		}
 	}
 

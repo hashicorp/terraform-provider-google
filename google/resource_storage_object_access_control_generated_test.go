@@ -16,6 +16,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -66,8 +67,11 @@ resource "google_storage_bucket" "bucket" {
 }
 
 func testAccCheckStorageObjectAccessControlDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
+	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_storage_object_access_control" {
+			continue
+		}
+		if strings.HasPrefix(name, "data.") {
 			continue
 		}
 

@@ -16,6 +16,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -107,8 +108,11 @@ data "google_compute_image" "debian_9" {
 }
 
 func testAccCheckComputeAutoscalerDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
+	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_compute_autoscaler" {
+			continue
+		}
+		if strings.HasPrefix(name, "data.") {
 			continue
 		}
 

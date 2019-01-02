@@ -16,6 +16,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -99,8 +100,11 @@ resource "google_compute_http_health_check" "default" {
 }
 
 func testAccCheckComputeTargetHttpsProxyDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
+	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_compute_target_https_proxy" {
+			continue
+		}
+		if strings.HasPrefix(name, "data.") {
 			continue
 		}
 

@@ -16,6 +16,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -60,8 +61,11 @@ resource "google_compute_health_check" "internal-health-check" {
 }
 
 func testAccCheckComputeHealthCheckDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
+	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_compute_health_check" {
+			continue
+		}
+		if strings.HasPrefix(name, "data.") {
 			continue
 		}
 
