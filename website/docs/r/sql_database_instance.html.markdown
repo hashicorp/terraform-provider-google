@@ -57,7 +57,7 @@ resource "google_compute_instance" "apps" {
   count        = 8
   name         = "apps-${count.index + 1}"
   machine_type = "f1-micro"
-  
+
   boot_disk {
     initialize_params {
       image = "ubuntu-os-cloud/ubuntu-1804-lts"
@@ -97,7 +97,7 @@ resource "google_sql_database_instance" "postgres" {
 
   settings {
     tier = "db-f1-micro"
-    
+
     ip_configuration {
       authorized_networks = [
         "${data.null_data_source.auth_netw_postgres_allowed_1.*.outputs}",
@@ -113,11 +113,11 @@ resource "google_sql_database_instance" "postgres" {
 
 ```hcl
 resource "google_compute_network" "private_network" {
-	name       = "private_network"
+	name       = "private-network"
 }
 
 resource "google_compute_global_address" "private_ip_address" {
-	name          = "private_ip_address"
+	name          = "private-ip-address"
 	purpose       = "VPC_PEERING"
 	address_type = "INTERNAL"
 	prefix_length = 16
@@ -132,7 +132,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 
 resource "google_sql_database_instance" "instance" {
 	depends_on = ["google_service_networking_connection.private_vpc_connection"]
-	name = "private_instance"
+	name = "private-instance"
 	region = "us-central1"
 	settings {
 		tier = "db-f1-micro"
@@ -330,7 +330,7 @@ when the resource is configured with a `count`.
 
 * `settings.version` - Used to make sure changes to the `settings` block are
     atomic.
-    
+
 * `server_ca_cert.0.cert` - The CA Certificate used to connect to the SQL Instance via SSL.
 
 * `server_ca_cert.0.common_name` - The CN valid for the CA Cert.
