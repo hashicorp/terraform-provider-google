@@ -168,6 +168,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 			"period": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Default:  "300s",
 			},
 			"resource_group": {
@@ -398,12 +399,6 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
-	}
-	periodProp, err := expandMonitoringUptimeCheckConfigPeriod(d.Get("period"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("period"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, periodProp)) {
-		obj["period"] = periodProp
 	}
 	timeoutProp, err := expandMonitoringUptimeCheckConfigTimeout(d.Get("timeout"), d, config)
 	if err != nil {
