@@ -39,3 +39,13 @@ The following attributes are exported:
 
 * `size` - The size of the repository.
 * `url` - The url to clone the repository.
+
+## Import
+
+Google Cloud Source Repositories can be imported using any of these accepted formats:
+
+```
+$ terraform import google_sourcerepo_repository.default projects/{{project}})/repos/{{name}}
+$ terraform import google_sourcerepo_repository.default {{project}})/{{name}}
+$ terraform import google_sourcerepo_repository.default {{name}}
+```
