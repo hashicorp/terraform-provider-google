@@ -117,6 +117,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 	return mergeResourceMaps(
 		GeneratedAppengineResourcesMap,
 		GeneratedComputeResourcesMap,
+		GeneratedCloudbuildResourcesMap,
 		GeneratedDnsResourcesMap,
 		GeneratedRedisResourcesMap,
 		GeneratedResourceManagerResourcesMap,
@@ -131,7 +132,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_billing_account_iam_binding":           ResourceIamBindingWithImport(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
 			"google_billing_account_iam_member":            ResourceIamMemberWithImport(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
 			"google_billing_account_iam_policy":            ResourceIamPolicyWithImport(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
-			"google_cloudbuild_trigger":                    resourceCloudBuildTrigger(),
 			"google_cloudfunctions_function":               resourceCloudFunctionsFunction(),
 			"google_cloudiot_registry":                     resourceCloudIoTRegistry(),
 			"google_composer_environment":                  resourceComposerEnvironment(),
