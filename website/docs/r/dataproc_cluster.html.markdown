@@ -434,7 +434,7 @@ The `encryption_config` block supports:
 }
 ```
 
-* `kms_key_name` - (Optional) The Cloud KMS key name to use for PD disk encryption for
+* `kms_key_name` - (Required) The Cloud KMS key name to use for PD disk encryption for
    all instances in the cluster.
 
 ## Attributes Reference

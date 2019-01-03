@@ -318,7 +318,7 @@ func resourceDataprocCluster() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"kms_key_name": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 								},
 							},
