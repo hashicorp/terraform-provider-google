@@ -32,3 +32,9 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `email` - Email address of the default service account used by VMs running in this project
+
+* `unique_id` - The unique id of the service account.
+
+* `name` - The fully-qualified name of the service account.
+
+* `display_name` - The display name for the service account.
