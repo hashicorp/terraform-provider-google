@@ -19,6 +19,7 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -461,6 +462,53 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Updating UptimeCheckConfig %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("display_name") {
+		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("timeout") {
+		updateMask = append(updateMask, "timeout")
+	}
+
+	if d.HasChange("content_matchers") {
+		updateMask = append(updateMask, "contentMatchers")
+	}
+
+	if d.HasChange("selected_regions") {
+		updateMask = append(updateMask, "selectedRegions")
+	}
+
+	if d.HasChange("is_internal") {
+		updateMask = append(updateMask, "isInternal")
+	}
+
+	if d.HasChange("internal_checkers") {
+		updateMask = append(updateMask, "internalCheckers")
+	}
+
+	if d.HasChange("http_check") {
+		updateMask = append(updateMask, "httpCheck")
+	}
+
+	if d.HasChange("tcp_check") {
+		updateMask = append(updateMask, "tcpCheck")
+	}
+
+	if d.HasChange("resource_group") {
+		updateMask = append(updateMask, "resourceGroup")
+	}
+
+	if d.HasChange("monitored_resource") {
+		updateMask = append(updateMask, "monitoredResource")
+	}
+	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// won't set it
+	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 	_, err = sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
