@@ -313,14 +313,12 @@ func resourceDataprocCluster() *schema.Resource {
 						"encryption_config": {
 							Type:     schema.TypeList,
 							Optional: true,
-							Computed: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"key_name": {
+									"kms_key_name": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Computed: true,
 									},
 								},
 							},
@@ -609,7 +607,7 @@ func expandSoftwareConfig(cfg map[string]interface{}) *dataproc.SoftwareConfig {
 
 func expandEncryptionConfig(cfg map[string]interface{}) *dataproc.EncryptionConfig {
 	conf := &dataproc.EncryptionConfig{}
-	if v, ok := cfg["key_name"]; ok {
+	if v, ok := cfg["kms_key_name"]; ok {
 		conf.GcePdKmsKeyName = v.(string)
 	}
 	return conf
@@ -848,7 +846,7 @@ func flattenSoftwareConfig(d *schema.ResourceData, sc *dataproc.SoftwareConfig) 
 
 func flattenEncryptionConfig(d *schema.ResourceData, ec *dataproc.EncryptionConfig) []map[string]interface{} {
 	data := map[string]interface{}{
-		"key_name": ec.GcePdKmsKeyName,
+		"kms_key_name": ec.GcePdKmsKeyName,
 	}
 
 	return []map[string]interface{}{data}

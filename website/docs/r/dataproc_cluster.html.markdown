@@ -139,6 +139,7 @@ The `cluster_config` block supports:
 
         # You can define multiple initialization_action blocks
         initialization_action     { ... }
+        encryption_config         { ... }
     }
 ```
 
@@ -168,6 +169,8 @@ The `cluster_config` block supports:
 * `initialization_action` (Optional) Commands to execute on each node after config is completed.
    You can specify multiple versions of these. Structure defined below.
 
+* `encryption_config` (Optional) The Customer managed encryption keys settings for the cluster.
+   Structure defined below.
 - - -
 
 The `cluster_config.gce_cluster_config` block supports:
@@ -417,6 +420,22 @@ The `initialization_action` block (Optional) can be specified multiple times and
 * `timeout_sec` - (Optional, Computed) The maximum duration (in seconds) which `script` is
    allowed to take to execute its action. GCP will default to a predetermined
    computed value if not set (currently 300).
+
+- - -
+
+The `encryption_config` block supports:
+
+```hcl
+    cluster_config {
+        encryption_config {
+            kms_key_name = "projects/projectId/locations/region/keyRings/keyRingName/cryptoKeys/keyName"
+        }
+    }
+}
+```
+
+* `kms_key_name` - (Optional) The Cloud KMS key name to use for PD disk encryption for
+   all instances in the cluster.
 
 ## Attributes Reference
 
