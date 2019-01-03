@@ -27,6 +27,7 @@ var GeneratedComputeResourcesMap = map[string]*schema.Resource{
 	"google_compute_http_health_check":       resourceComputeHttpHealthCheck(),
 	"google_compute_https_health_check":      resourceComputeHttpsHealthCheck(),
 	"google_compute_health_check":            resourceComputeHealthCheck(),
+	"google_compute_image":                   resourceComputeImage(),
 	"google_compute_interconnect_attachment": resourceComputeInterconnectAttachment(),
 	"google_compute_region_autoscaler":       resourceComputeRegionAutoscaler(),
 	"google_compute_region_disk":             resourceComputeRegionDisk(),
