@@ -27,13 +27,17 @@ import (
 func TestAccComputeImage_imageBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeImage_imageBasicExample(acctest.RandString(10)),
+				Config: testAccComputeImage_imageBasicExample(context),
 			},
 			{
 				ResourceName:            "google_compute_image.example",
@@ -45,17 +49,16 @@ func TestAccComputeImage_imageBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeImage_imageBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeImage_imageBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_image" "example" {
-  name = "example-image-%s"
+  name = "example-image-%{random_suffix}"
 
   raw_disk {
     source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
   }
 }
-`, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeImageDestroy(s *terraform.State) error {
