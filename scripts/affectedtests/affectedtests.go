@@ -44,8 +44,11 @@ func main() {
 		log.Fatal("Could not get current working directory")
 	}
 	tpgDir := scriptPath
-	for !strings.HasPrefix(filepath.Base(tpgDir), "terraform-provider-") {
+	for !strings.HasPrefix(filepath.Base(tpgDir), "terraform-provider-") && tpgDir != "/" {
 		tpgDir = filepath.Clean(tpgDir + "/..")
+	}
+	if tpgDir == "/" {
+		log.Fatal("Script was run outside of google provider directory")
 	}
 	repo := strings.TrimPrefix(filepath.Base(tpgDir), "terraform-provider-")
 	googleDir := tpgDir + "/" + repo
