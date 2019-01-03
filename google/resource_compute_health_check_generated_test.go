@@ -27,13 +27,17 @@ import (
 func TestAccComputeHealthCheck_healthCheckBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeHealthCheck_healthCheckBasicExample(acctest.RandString(10)),
+				Config: testAccComputeHealthCheck_healthCheckBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_health_check.internal-health-check",
@@ -44,10 +48,10 @@ func TestAccComputeHealthCheck_healthCheckBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeHealthCheck_healthCheckBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeHealthCheck_healthCheckBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_health_check" "internal-health-check" {
- name = "internal-service-health-check-%s"
+ name = "internal-service-health-check-%{random_suffix}"
 
  timeout_sec        = 1
  check_interval_sec = 1
@@ -56,8 +60,7 @@ resource "google_compute_health_check" "internal-health-check" {
    port = "80"
  }
 }
-`, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeHealthCheckDestroy(s *terraform.State) error {

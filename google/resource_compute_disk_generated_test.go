@@ -27,13 +27,17 @@ import (
 func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeDisk_diskBasicExample(acctest.RandString(10)),
+				Config: testAccComputeDisk_diskBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_disk.default",
@@ -44,10 +48,10 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeDisk_diskBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeDisk_diskBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_disk" "default" {
-  name  = "test-disk-%s"
+  name  = "test-disk-%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
   image = "debian-8-jessie-v20170523"
@@ -55,8 +59,7 @@ resource "google_compute_disk" "default" {
     environment = "dev"
   }
 }
-`, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeDiskDestroy(s *terraform.State) error {

@@ -27,13 +27,17 @@ import (
 func TestAccComputeRegionAutoscaler_regionAutoscalerBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRegionAutoscaler_regionAutoscalerBasicExample(acctest.RandString(10)),
+				Config: testAccComputeRegionAutoscaler_regionAutoscalerBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_region_autoscaler.foobar",
@@ -44,10 +48,10 @@ func TestAccComputeRegionAutoscaler_regionAutoscalerBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeRegionAutoscaler_regionAutoscalerBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeRegionAutoscaler_regionAutoscalerBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_region_autoscaler" "foobar" {
-  name   = "my-region-autoscaler-%s"
+  name   = "my-region-autoscaler-%{random_suffix}"
   region = "us-central1"
   target = "${google_compute_region_instance_group_manager.foobar.self_link}"
 
@@ -63,7 +67,7 @@ resource "google_compute_region_autoscaler" "foobar" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name           = "my-instance-template-%s"
+  name           = "my-instance-template-%{random_suffix}"
   machine_type   = "n1-standard-1"
   can_ip_forward = false
 
@@ -87,11 +91,11 @@ resource "google_compute_instance_template" "foobar" {
 }
 
 resource "google_compute_target_pool" "foobar" {
-  name = "my-target-pool-%s"
+  name = "my-target-pool-%{random_suffix}"
 }
 
 resource "google_compute_region_instance_group_manager" "foobar" {
-  name   = "my-region-igm-%s"
+  name   = "my-region-igm-%{random_suffix}"
   region = "us-central1"
 
   instance_template  = "${google_compute_instance_template.foobar.self_link}"
@@ -103,8 +107,7 @@ data "google_compute_image" "debian_9" {
 	family  = "debian-9"
 	project = "debian-cloud"
 }
-`, val, val, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeRegionAutoscalerDestroy(s *terraform.State) error {

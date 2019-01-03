@@ -27,13 +27,17 @@ import (
 func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringUptimeCheckConfigDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(acctest.RandString(10)),
+				Config: testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(context),
 			},
 			{
 				ResourceName:      "google_monitoring_uptime_check_config.http",
@@ -44,10 +48,10 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.
 	})
 }
 
-func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(val string) string {
-	return fmt.Sprintf(`
+func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_monitoring_uptime_check_config" "http" {
-  display_name = "http-uptime-check-%s"
+  display_name = "http-uptime-check-%{random_suffix}"
   timeout = "60s"
 
   http_check {
@@ -67,12 +71,15 @@ resource "google_monitoring_uptime_check_config" "http" {
     content = "example"
   }
 }
-`, val,
-	)
+`, context)
 }
 
 func TestAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(t *testing.T) {
 	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -80,7 +87,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(t *testing.T) {
 		CheckDestroy: testAccCheckMonitoringUptimeCheckConfigDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(acctest.RandString(10)),
+				Config: testAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(context),
 			},
 			{
 				ResourceName:      "google_monitoring_uptime_check_config.tcp_group",
@@ -91,10 +98,10 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(t *testing.T) {
 	})
 }
 
-func testAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(val string) string {
-	return fmt.Sprintf(`
+func testAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_monitoring_uptime_check_config" "tcp_group" {
-  display_name = "tcp-uptime-check-%s"
+  display_name = "tcp-uptime-check-%{random_suffix}"
   timeout = "60s"
 
   tcp_check {
@@ -109,11 +116,10 @@ resource "google_monitoring_uptime_check_config" "tcp_group" {
 
 
 resource "google_monitoring_group" "check" {
-  display_name = "uptime-check-group-%s"
+  display_name = "uptime-check-group-%{random_suffix}"
   filter = "resource.metadata.name=has_substring(\"foo\")"
 }
-`, val, val,
-	)
+`, context)
 }
 
 func testAccCheckMonitoringUptimeCheckConfigDestroy(s *terraform.State) error {

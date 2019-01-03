@@ -27,13 +27,17 @@ import (
 func TestAccComputeTargetHttpProxy_targetHttpProxyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetHttpProxyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeTargetHttpProxy_targetHttpProxyBasicExample(acctest.RandString(10)),
+				Config: testAccComputeTargetHttpProxy_targetHttpProxyBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_target_http_proxy.default",
@@ -44,15 +48,15 @@ func TestAccComputeTargetHttpProxy_targetHttpProxyBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeTargetHttpProxy_targetHttpProxyBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeTargetHttpProxy_targetHttpProxyBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_target_http_proxy" "default" {
-  name        = "test-proxy-%s"
+  name        = "test-proxy-%{random_suffix}"
   url_map     = "${google_compute_url_map.default.self_link}"
 }
 
 resource "google_compute_url_map" "default" {
-  name        = "url-map-%s"
+  name        = "url-map-%{random_suffix}"
   default_service = "${google_compute_backend_service.default.self_link}"
 
   host_rule {
@@ -72,7 +76,7 @@ resource "google_compute_url_map" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  name        = "backend-service-%s"
+  name        = "backend-service-%{random_suffix}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -81,13 +85,12 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "http-health-check-%s"
+  name               = "http-health-check-%{random_suffix}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
-`, val, val, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeTargetHttpProxyDestroy(s *terraform.State) error {

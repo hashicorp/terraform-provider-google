@@ -27,13 +27,17 @@ import (
 func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRedisInstance_redisInstanceBasicExample(acctest.RandString(10)),
+				Config: testAccRedisInstance_redisInstanceBasicExample(context),
 			},
 			{
 				ResourceName:            "google_redis_instance.cache",
@@ -45,26 +49,29 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 	})
 }
 
-func testAccRedisInstance_redisInstanceBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccRedisInstance_redisInstanceBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_redis_instance" "cache" {
-  name           = "memory-cache-%s"
+  name           = "memory-cache-%{random_suffix}"
   memory_size_gb = 1
 }
-`, val,
-	)
+`, context)
 }
 
 func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRedisInstance_redisInstanceFullExample(acctest.RandString(10)),
+				Config: testAccRedisInstance_redisInstanceFullExample(context),
 			},
 			{
 				ResourceName:            "google_redis_instance.cache",
@@ -76,10 +83,10 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 	})
 }
 
-func testAccRedisInstance_redisInstanceFullExample(val string) string {
-	return fmt.Sprintf(`
+func testAccRedisInstance_redisInstanceFullExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_redis_instance" "cache" {
-  name           = "ha-memory-cache-%s"
+  name           = "ha-memory-cache-%{random_suffix}"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
 
@@ -99,10 +106,9 @@ resource "google_redis_instance" "cache" {
 }
 
 resource "google_compute_network" "auto-network" {
-  name = "authorized-network-%s"
+  name = "authorized-network-%{random_suffix}"
 }
-`, val, val,
-	)
+`, context)
 }
 
 func testAccCheckRedisInstanceDestroy(s *terraform.State) error {

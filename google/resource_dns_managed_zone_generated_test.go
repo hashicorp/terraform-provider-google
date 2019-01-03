@@ -27,13 +27,17 @@ import (
 func TestAccDnsManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsManagedZoneDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsManagedZone_dnsManagedZoneBasicExample(acctest.RandString(10)),
+				Config: testAccDnsManagedZone_dnsManagedZoneBasicExample(context),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.example-zone",
@@ -44,8 +48,8 @@ func TestAccDnsManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
 	})
 }
 
-func testAccDnsManagedZone_dnsManagedZoneBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccDnsManagedZone_dnsManagedZoneBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_dns_managed_zone" "example-zone" {
   name = "example-zone"
   dns_name = "example-${random_id.rnd.hex}.com."
@@ -58,8 +62,7 @@ resource "google_dns_managed_zone" "example-zone" {
 resource "random_id" "rnd" {
   byte_length = 4
 }
-`,
-	)
+`, context)
 }
 
 func testAccCheckDnsManagedZoneDestroy(s *terraform.State) error {

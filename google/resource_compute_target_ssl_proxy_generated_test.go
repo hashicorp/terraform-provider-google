@@ -27,13 +27,17 @@ import (
 func TestAccComputeTargetSslProxy_targetSslProxyBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeTargetSslProxyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeTargetSslProxy_targetSslProxyBasicExample(acctest.RandString(10)),
+				Config: testAccComputeTargetSslProxy_targetSslProxyBasicExample(context),
 			},
 			{
 				ResourceName:      "google_compute_target_ssl_proxy.default",
@@ -44,36 +48,35 @@ func TestAccComputeTargetSslProxy_targetSslProxyBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeTargetSslProxy_targetSslProxyBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccComputeTargetSslProxy_targetSslProxyBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_compute_target_ssl_proxy" "default" {
-  name             = "test-proxy-%s"
+  name             = "test-proxy-%{random_suffix}"
   backend_service  = "${google_compute_backend_service.default.self_link}"
   ssl_certificates = ["${google_compute_ssl_certificate.default.self_link}"]
 }
 
 resource "google_compute_ssl_certificate" "default" {
-  name        = "default-cert-%s"
+  name        = "default-cert-%{random_suffix}"
   private_key = "${file("test-fixtures/ssl_cert/test.key")}"
   certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
 }
 
 resource "google_compute_backend_service" "default" {
-  name          = "backend-service-%s"
+  name          = "backend-service-%{random_suffix}"
   protocol      = "SSL"
   health_checks = ["${google_compute_health_check.default.self_link}"]
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "health-check-%s"
+  name               = "health-check-%{random_suffix}"
   check_interval_sec = 1
   timeout_sec        = 1
   tcp_health_check {
     port = "443"
   }
 }
-`, val, val, val, val,
-	)
+`, context)
 }
 
 func testAccCheckComputeTargetSslProxyDestroy(s *terraform.State) error {

@@ -27,13 +27,17 @@ import (
 func TestAccMonitoringNotificationChannel_notificationChannelBasicExample(t *testing.T) {
 	t.Parallel()
 
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringNotificationChannelDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringNotificationChannel_notificationChannelBasicExample(acctest.RandString(10)),
+				Config: testAccMonitoringNotificationChannel_notificationChannelBasicExample(context),
 			},
 			{
 				ResourceName:      "google_monitoring_notification_channel.basic",
@@ -44,17 +48,16 @@ func TestAccMonitoringNotificationChannel_notificationChannelBasicExample(t *tes
 	})
 }
 
-func testAccMonitoringNotificationChannel_notificationChannelBasicExample(val string) string {
-	return fmt.Sprintf(`
+func testAccMonitoringNotificationChannel_notificationChannelBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
 resource "google_monitoring_notification_channel" "basic" {
-  display_name = "Test Notification Channel-%s"
+  display_name = "Test Notification Channel-%{random_suffix}"
   type = "email"
   labels = {
     email_address = "fake_email@blahblah.com"
   }
 }
-`, val,
-	)
+`, context)
 }
 
 func testAccCheckMonitoringNotificationChannelDestroy(s *terraform.State) error {
