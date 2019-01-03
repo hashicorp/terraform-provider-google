@@ -38,6 +38,7 @@ FEATURES:
 * **New Resource**: `google_access_context_manager_service_perimeter` for managing service perimeters in an access policy. ([`google-beta`#246](https://github.com/terraform-providers/terraform-provider-google-beta/pull/246))
 * **New Resource**: `google_storage_transfer_job` for managing recurring storage transfers with Google Cloud Storage. [GH-2707]
 * **New Datasource**: `google_storage_transfer_project_service_account` data source for retrieving the Storage Transfer service account for a project [GH-2692]
+* **New Resource**: `google_appengine_firewall_rule` [GH-2738]
 * **New Resource**: `google_project_iam_audit_config` [GH-2731]
 
 ENHANCEMENTS:
