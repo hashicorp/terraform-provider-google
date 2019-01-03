@@ -39,11 +39,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	_, filename, _, ok := runtime.Caller(0)
+	_, scriptPath, _, ok := runtime.Caller(0)
 	if !ok {
 		log.Fatal("Could not get current working directory")
 	}
-	tpgDir := filepath.Clean(filepath.Dir(filename) + "/../..") // we're in scripts/affectedtests, so go up two dirs
+	tpgDir := scriptPath
+	for !strings.HasPrefix(filepath.Base(tpgDir), "terraform-provider-") {
+		tpgDir = filepath.Clean(tpgDir + "/..")
+	}
 	repo := strings.TrimPrefix(filepath.Base(tpgDir), "terraform-provider-")
 	googleDir := tpgDir + "/" + repo
 
@@ -73,7 +76,7 @@ func main() {
 			log.Fatal(err)
 		}
 		if rn == "" {
-			log.Fatal("Could not find resource represented by %s", r)
+			log.Fatalf("Could not find resource represented by %s", r)
 		}
 		log.Printf("File %s matches resource %s", r, rn)
 		ts, err := getTestsAffectedBy(rn, googleDir)
