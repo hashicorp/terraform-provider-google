@@ -45,7 +45,7 @@ The following attributes are exported:
 Google Cloud Source Repositories can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_sourcerepo_repository.default projects/{{project}})/repos/{{name}}
-$ terraform import google_sourcerepo_repository.default {{project}})/{{name}}
+$ terraform import google_sourcerepo_repository.default projects/{{project}}/repos/{{name}}
+$ terraform import google_sourcerepo_repository.default {{project}}/{{name}}
 $ terraform import google_sourcerepo_repository.default {{name}}
 ```
