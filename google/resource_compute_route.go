@@ -81,9 +81,10 @@ func resourceComputeRoute() *schema.Resource {
 				ForceNew: true,
 			},
 			"next_hop_vpn_tunnel": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"priority": {
 				Type:     schema.TypeInt,
@@ -391,7 +392,10 @@ func flattenComputeRouteNextHopGateway(v interface{}, d *schema.ResourceData) in
 }
 
 func flattenComputeRouteNextHopInstance(v interface{}, d *schema.ResourceData) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeRouteNextHopIp(v interface{}, d *schema.ResourceData) interface{} {
@@ -399,7 +403,10 @@ func flattenComputeRouteNextHopIp(v interface{}, d *schema.ResourceData) interfa
 }
 
 func flattenComputeRouteNextHopVpnTunnel(v interface{}, d *schema.ResourceData) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeRouteNextHopNetwork(v interface{}, d *schema.ResourceData) interface{} {
@@ -447,18 +454,11 @@ func expandComputeRouteNextHopGateway(v interface{}, d *schema.ResourceData, con
 }
 
 func expandComputeRouteNextHopInstance(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	if v == "" {
-		return v, nil
-	}
-	val, err := parseZonalFieldValue("instances", v.(string), "project", "next_hop_instance_zone", d, config, true)
+	f, err := parseZonalFieldValue("instances", v.(string), "project", "zone", d, config, true)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Invalid value for next_hop_instance: %s", err)
 	}
-	nextInstance, err := config.clientCompute.Instances.Get(val.Project, val.Zone, val.Name).Do()
-	if err != nil {
-		return nil, err
-	}
-	return nextInstance.SelfLink, nil
+	return f.RelativeLink(), nil
 }
 
 func expandComputeRouteNextHopIp(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
@@ -466,7 +466,11 @@ func expandComputeRouteNextHopIp(v interface{}, d *schema.ResourceData, config *
 }
 
 func expandComputeRouteNextHopVpnTunnel(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	f, err := parseRegionalFieldValue("vpnTunnels", v.(string), "project", "region", "zone", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for next_hop_vpn_tunnel: %s", err)
+	}
+	return f.RelativeLink(), nil
 }
 
 func resourceComputeRouteDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
