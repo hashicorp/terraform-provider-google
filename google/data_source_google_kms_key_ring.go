@@ -9,6 +9,7 @@ func dataSourceGoogleKmsKeyRing() *schema.Resource {
 	dsSchema := datasourceSchemaFromResourceSchema(resourceKmsKeyRing().Schema)
 
 	addRequiredFieldsToSchema(dsSchema, "name", "location")
+	addOptionalFieldsToSchema(dsSchema, "project")
 
 	return &schema.Resource{
 		Read:   datasourceGoogleKmsKeyRingRead,
