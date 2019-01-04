@@ -169,6 +169,62 @@ func testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid string)
 	}
 }
 
+func TestIamOverwriteBinding(t *testing.T) {
+	table := []struct {
+		input    []*cloudresourcemanager.Binding
+		override cloudresourcemanager.Binding
+		expect   []cloudresourcemanager.Binding
+	}{
+		{
+			input: []*cloudresourcemanager.Binding{
+				{
+					Role:    "role-1",
+					Members: []string{"member-1", "member-2"},
+				},
+			},
+			override: cloudresourcemanager.Binding{
+				Role:    "role-1",
+				Members: []string{"new-member"},
+			},
+			expect: []cloudresourcemanager.Binding{
+				{
+					Role:    "role-1",
+					Members: []string{"new-member"},
+				},
+			},
+		},
+		{
+			input: []*cloudresourcemanager.Binding{
+				{
+					Role:    "role-1",
+					Members: []string{"member-1", "member-2"},
+				},
+			},
+			override: cloudresourcemanager.Binding{
+				Role:    "role-2",
+				Members: []string{"member-3"},
+			},
+			expect: []cloudresourcemanager.Binding{
+				{
+					Role:    "role-1",
+					Members: []string{"member-1", "member-2"},
+				},
+				{
+					Role:    "role-2",
+					Members: []string{"member-3"},
+				},
+			},
+		},
+	}
+
+	for _, test := range table {
+		got := overwriteBinding(test.input, &test.override)
+		if !reflect.DeepEqual(derefBindings(got), test.expect) {
+			t.Errorf("OverwriteIamBinding failed.\nGot %+v\nWant %+v", derefBindings(got), test.expect)
+		}
+	}
+}
+
 func TestIamMergeBindings(t *testing.T) {
 	table := []struct {
 		input  []*cloudresourcemanager.Binding
@@ -177,95 +233,61 @@ func TestIamMergeBindings(t *testing.T) {
 		{
 			input: []*cloudresourcemanager.Binding{
 				{
-					Role: "role-1",
-					Members: []string{
-						"member-1",
-						"member-2",
-					},
+					Role:    "role-1",
+					Members: []string{"member-1", "member-2"},
 				},
 				{
-					Role: "role-1",
-					Members: []string{
-						"member-3",
-					},
+					Role:    "role-1",
+					Members: []string{"member-3"},
 				},
 			},
 			expect: []cloudresourcemanager.Binding{
 				{
-					Role: "role-1",
-					Members: []string{
-						"member-1",
-						"member-2",
-						"member-3",
-					},
+					Role:    "role-1",
+					Members: []string{"member-1", "member-2", "member-3"},
 				},
 			},
 		},
 		{
 			input: []*cloudresourcemanager.Binding{
 				{
-					Role: "role-1",
-					Members: []string{
-						"member-3",
-						"member-4",
-					},
+					Role:    "role-1",
+					Members: []string{"member-3", "member-4"},
 				},
 				{
-					Role: "role-1",
-					Members: []string{
-						"member-2",
-						"member-1",
-					},
+					Role:    "role-1",
+					Members: []string{"member-2", "member-1"},
 				},
 				{
-					Role: "role-2",
-					Members: []string{
-						"member-1",
-					},
+					Role:    "role-2",
+					Members: []string{"member-1"},
 				},
 				{
-					Role: "role-1",
-					Members: []string{
-						"member-5",
-					},
+					Role:    "role-1",
+					Members: []string{"member-5"},
 				},
 				{
-					Role: "role-3",
-					Members: []string{
-						"member-1",
-					},
+					Role:    "role-3",
+					Members: []string{"member-1"},
 				},
 				{
-					Role: "role-2",
-					Members: []string{
-						"member-2",
-					},
+					Role:    "role-2",
+					Members: []string{"member-2"},
 				},
 				{Role: "empty-role", Members: []string{}},
 			},
 			expect: []cloudresourcemanager.Binding{
 				{
-					Role: "role-1",
-					Members: []string{
-						"member-1",
-						"member-2",
-						"member-3",
-						"member-4",
-						"member-5",
-					},
+					Role:    "role-1",
+					Members: []string{"member-1", "member-2", "member-3", "member-4", "member-5"},
 				},
 				{
-					Role: "role-2",
-					Members: []string{
-						"member-1",
-						"member-2",
-					},
+					Role:    "role-2",
+					Members: []string{"member-1", "member-2"},
 				},
 				{
-					Role: "role-3",
-					Members: []string{
-						"member-1",
-					},
+					Role:    "role-3",
+					Members: []string{"member-1"},
 				},
 			},
 		},
@@ -416,7 +438,7 @@ data "google_iam_policy" "expanded" {
             "user:paddy@carvers.co",
         ]
     }
-    
+
     binding {
         role = "roles/viewer"
         members = [

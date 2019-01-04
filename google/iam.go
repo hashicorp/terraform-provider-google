@@ -123,6 +123,25 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 	return nil
 }
 
+// Takes a single binding and will either overwrite the same role in a list or append it to the end
+func overwriteBinding(bindings []*cloudresourcemanager.Binding, overwrite *cloudresourcemanager.Binding) []*cloudresourcemanager.Binding {
+	var found bool
+
+	for i, b := range bindings {
+		if b.Role == overwrite.Role {
+			bindings[i] = overwrite
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		bindings = append(bindings, overwrite)
+	}
+
+	return bindings
+}
+
 // Merge multiple Bindings such that Bindings with the same Role result in
 // a single Binding with combined Members
 func mergeBindings(bindings []*cloudresourcemanager.Binding) []*cloudresourcemanager.Binding {

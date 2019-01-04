@@ -21,7 +21,7 @@ the IAM policy for an existing Google Cloud Platform Billing Account.
 resource "google_billing_account_iam_member" "binding" {
   billing_account_id = "00AA00-000AAA-00AA0A"
   role               = "roles/billing.viewer"
-  member             = "user:jane@example.com"
+  member             = "user:alice@gmail.com"
 }
 ```
 
@@ -33,8 +33,8 @@ The following arguments are supported:
 
 * `role` - (Required) The role that should be applied.
 
-* `member` - (Required) The user that the role should apply to.
-    
+* `member` - (Required) The user that the role should apply to. For more details on format and restrictions see https://cloud.google.com/billing/reference/rest/v1/Policy#Binding
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are

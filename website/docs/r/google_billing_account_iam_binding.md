@@ -15,6 +15,10 @@ an existing Google Cloud Platform Billing Account.
    `google_billing_account_iam_member` for the __same role__ or they will fight over
    what your policy should be.
 
+~> **Note:** On create, this resource will overwrite members of any existing roles.
+    Use `terraform import` and inspect the `terraform plan` output to ensure
+    your existing members are preserved.
+
 ## Example Usage
 
 ```hcl
@@ -23,7 +27,7 @@ resource "google_billing_account_iam_binding" "binding" {
   role               = "roles/billing.viewer"
 
   members = [
-    "user:jane@example.com",
+    "user:alice@gmail.com",
   ]
 }
 ```
@@ -36,7 +40,7 @@ The following arguments are supported:
 
 * `role` - (Required) The role that should be applied.
 
-* `members` - (Required) A list of users that the role should apply to.
+* `members` - (Required) A list of users that the role should apply to. For more details on format and restrictions see https://cloud.google.com/billing/reference/rest/v1/Policy#Binding
 
 ## Attributes Reference
 
