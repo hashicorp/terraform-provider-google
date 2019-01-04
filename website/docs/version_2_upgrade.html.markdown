@@ -24,6 +24,7 @@ Upgrade topics:
 - [Resource: `google_bigtable_instance`](#resource-google_bigtable_instance)
 - [Resource: `google_binary_authorizaton_attestor`](#resource-google_binary_authorization_attestor)
 - [Resource: `google_binary_authorizaton_policy`](#resource-google_binary_authorization_policy)
+- [Resource: `google_cloudbuild_trigger`](#resource-google_cloudbuild_trigger)
 - [Resource: `google_cloudfunctions_function`](#resource-google_cloudfunctions_function)
 - [Resource: `google_compute_backend_service`](#resource-google_compute_backend_service)
 - [Resource: `google_compute_disk`](#resource-google_compute_disk)
@@ -200,6 +201,45 @@ Use the [`google-beta` provider](#google-beta-provider) to use these resources.
 ### binary authorization resources have been removed from the GA provider
 
 Use the [`google-beta` provider](#google-beta-provider) to use these resources.
+
+## Resource: `google_cloudbuild_trigger`
+
+### `build.step.args` is now a list instead of space separated strings.
+
+Example updated configuration:
+
+```hcl
+resource "google_cloudbuild_trigger" "build_trigger" {
+  trigger_template {
+    branch_name = "master-updated"
+    repo_name   = "some-repo-updated"
+  }
+  
+  build {
+    images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA"]
+    tags = ["team-a", "service-b", "updated"]
+    
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile-updated.zip"]
+    }
+    
+    step {
+      name = "gcr.io/cloud-builders/go"
+      args = ["build", "my_package_updated"]
+    }
+    
+    step {
+      name = "gcr.io/cloud-builders/docker"
+      args = ["build", "-t", "gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA", "-f", "Dockerfile", "."]
+    }
+    step {
+      name = "gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA"
+      args = ["test"]
+    }
+  }
+}
+```
 
 ## Resource: `google_cloudfunctions_function`
 
