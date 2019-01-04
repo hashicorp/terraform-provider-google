@@ -2860,8 +2860,6 @@ resource "google_compute_instance" "foobar" {
 			subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.1.range_name}"
 			ip_cidr_range         = "10.1.0.0/20"
 		}
-	]
-
 	}
 }`, network, subnet, instance)
 }
