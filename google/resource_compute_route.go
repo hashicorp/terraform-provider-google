@@ -392,10 +392,7 @@ func flattenComputeRouteNextHopGateway(v interface{}, d *schema.ResourceData) in
 }
 
 func flattenComputeRouteNextHopInstance(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+	return v
 }
 
 func flattenComputeRouteNextHopIp(v interface{}, d *schema.ResourceData) interface{} {
@@ -454,11 +451,18 @@ func expandComputeRouteNextHopGateway(v interface{}, d *schema.ResourceData, con
 }
 
 func expandComputeRouteNextHopInstance(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	f, err := parseZonalFieldValue("instances", v.(string), "project", "zone", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for next_hop_instance: %s", err)
+	if v == "" {
+		return v, nil
 	}
-	return f.RelativeLink(), nil
+	val, err := parseZonalFieldValue("instances", v.(string), "project", "next_hop_instance_zone", d, config, true)
+	if err != nil {
+		return nil, err
+	}
+	nextInstance, err := config.clientCompute.Instances.Get(val.Project, val.Zone, val.Name).Do()
+	if err != nil {
+		return nil, err
+	}
+	return nextInstance.SelfLink, nil
 }
 
 func expandComputeRouteNextHopIp(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
