@@ -26,10 +26,10 @@ data "google_iam_policy" "admin" {
     role = "roles/storage.objectViewer"
 
     members = [
-      "user:jane@example.com",
+      "user:alice@gmail.com",
     ]
   }
-    
+
   audit_config {
     service = "cloudkms.googleapis.com"
     audit_log_configs = [
@@ -73,11 +73,11 @@ each accept the following arguments:
   See the [IAM Roles](https://cloud.google.com/compute/docs/access/iam) documentation for a complete list of roles.
   Note that custom roles must be of the format `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
-* `members` (Required) - An array of identites that will be granted the privilege in the `role`.
+* `members` (Required) - An array of identites that will be granted the privilege in the `role`. For more details on format and restrictions see https://cloud.google.com/billing/reference/rest/v1/Policy#Binding
   Each entry can have one of the following values:
   * **allUsers**: A special identifier that represents anyone who is on the internet; with or without a Google account. It **can't** be used with the `google_project` resource.
   * **allAuthenticatedUsers**: A special identifier that represents anyone who is authenticated with a Google account or a service account. It **can't** be used with the `google_project` resource.
-  * **user:{emailid}**: An email address that represents a specific Google account. For example, alice@gmail.com or joe@example.com.
+  * **user:{emailid}**: An email address that represents a specific Google account. For example, alice@gmail.com.
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.

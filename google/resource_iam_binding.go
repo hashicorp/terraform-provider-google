@@ -31,9 +31,9 @@ var iamBindingSchema = map[string]*schema.Schema{
 
 func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
 	return &schema.Resource{
-		Create: resourceIamBindingCreate(newUpdaterFunc),
+		Create: resourceIamBindingCreateUpdate(newUpdaterFunc),
 		Read:   resourceIamBindingRead(newUpdaterFunc),
-		Update: resourceIamBindingUpdate(newUpdaterFunc),
+		Update: resourceIamBindingCreateUpdate(newUpdaterFunc),
 		Delete: resourceIamBindingDelete(newUpdaterFunc),
 		Schema: mergeSchemas(iamBindingSchema, parentSpecificSchema),
 	}
@@ -47,7 +47,7 @@ func ResourceIamBindingWithImport(parentSpecificSchema map[string]*schema.Schema
 	return r
 }
 
-func resourceIamBindingCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
+func resourceIamBindingCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc) func(*schema.ResourceData, interface{}) error {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
@@ -57,11 +57,7 @@ func resourceIamBindingCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.C
 
 		p := getResourceIamBinding(d)
 		err = iamPolicyReadModifyWrite(updater, func(ep *cloudresourcemanager.Policy) error {
-			// Creating a binding does not remove existing members if they are not in the provided members list.
-			// This prevents removing existing permission without the user's knowledge.
-			// Instead, a diff is shown in that case after creation. Subsequent calls to update will remove any
-			// existing members not present in the provided list.
-			ep.Bindings = mergeBindings(append(ep.Bindings, p))
+			ep.Bindings = overwriteBinding(ep.Bindings, p)
 			return nil
 		})
 		if err != nil {
@@ -148,38 +144,6 @@ func iamBindingImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 		// plan that terraform will output which mentions destroying a dozen-plus IAM bindings.  With
 		// that in mind, we return only the binding that matters.
 		return []*schema.ResourceData{d}, nil
-	}
-}
-
-func resourceIamBindingUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.UpdateFunc {
-	return func(d *schema.ResourceData, meta interface{}) error {
-		config := meta.(*Config)
-		updater, err := newUpdaterFunc(d, config)
-		if err != nil {
-			return err
-		}
-
-		binding := getResourceIamBinding(d)
-		err = iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
-			var found bool
-			for pos, b := range p.Bindings {
-				if b.Role != binding.Role {
-					continue
-				}
-				found = true
-				p.Bindings[pos] = binding
-				break
-			}
-			if !found {
-				p.Bindings = append(p.Bindings, binding)
-			}
-			return nil
-		})
-		if err != nil {
-			return err
-		}
-
-		return resourceIamBindingRead(newUpdaterFunc)(d, meta)
 	}
 }
 

@@ -15,6 +15,10 @@ an existing Google Cloud Platform Organization.
    `google_organization_iam_member` for the __same role__ or they will fight over
    what your policy should be.
 
+~> **Note:** On create, this resource will overwrite members of any existing roles.
+    Use `terraform import` and inspect the `terraform plan` output to ensure
+    your existing members are preserved.
+
 ## Example Usage
 
 ```hcl
@@ -23,7 +27,7 @@ resource "google_organization_iam_binding" "binding" {
   role    = "roles/browser"
 
   members = [
-    "user:jane@example.com",
+    "user:alice@gmail.com",
   ]
 }
 ```
@@ -38,7 +42,7 @@ The following arguments are supported:
     `google_organization_iam_binding` can be used per role. Note that custom roles must be of the format
     `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
-* `members` - (Required) A list of users that the role should apply to.
+* `members` - (Required) A list of users that the role should apply to. For more details on format and restrictions see https://cloud.google.com/billing/reference/rest/v1/Policy#Binding
 
 ## Attributes Reference
 

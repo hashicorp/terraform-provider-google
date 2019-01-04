@@ -27,7 +27,7 @@ resource "google_folder" "department1" {
 resource "google_folder_iam_member" "admin" {
   folder  = "${google_folder.department1.name}"
   role    = "roles/editor"
-  member  = "user:jane@example.com"
+  member  = "user:alice@gmail.com"
 }
 ```
 
@@ -37,7 +37,7 @@ The following arguments are supported:
 
 * `folder` - (Required) The resource name of the folder the policy is attached to. Its format is folders/{folder_id}.
 
-* `member` - (Required) The identity that will be granted the privilege in the `role`.
+* `member` - (Required) The identity that will be granted the privilege in the `role`. For more details on format and restrictions see https://cloud.google.com/billing/reference/rest/v1/Policy#Binding
   This field can have one of the following values:
   * **user:{emailid}**: An email address that represents a specific Google account. For example, alice@gmail.com or joe@example.com.
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
