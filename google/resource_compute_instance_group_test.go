@@ -257,7 +257,7 @@ func testAccComputeInstanceGroup_updated(n string, size int64, instanceGroup *co
 		// Cannot check the target pool as the instance creation is asynchronous.  However, can
 		// check the target_size.
 		if instanceGroup.Size != size {
-			return fmt.Errorf("instance count incorrect")
+			return fmt.Errorf("instance count incorrect. saw real value %v instead of expected value %v", instanceGroup.Size, size)
 		}
 
 		return nil
