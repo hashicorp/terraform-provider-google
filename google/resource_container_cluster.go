@@ -1540,6 +1540,16 @@ func expandPodSecurityPolicyConfig(configured interface{}) *containerBeta.PodSec
 	return nil
 }
 
+func expandDefaultMaxPodsConstraint(v interface{}) *containerBeta.MaxPodsConstraint {
+	if v == nil {
+		return nil
+	}
+
+	return &containerBeta.MaxPodsConstraint{
+		MaxPodsPerNode: int64(v.(int)),
+	}
+}
+
 func flattenNetworkPolicy(c *containerBeta.NetworkPolicy) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if c != nil {
