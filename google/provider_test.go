@@ -293,9 +293,6 @@ func bootstrapKMSKey(t *testing.T) bootstrappedKMS {
 		t.FailNow()
 	}
 
-	// TODO chrisst - Set up permissions?
-	// TODO chrisst - Check if tests are failing due to inactive keys and build activation logic.
-
 	return bootstrappedKMS{
 		keyRing,
 		cryptoKey,
