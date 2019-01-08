@@ -23,7 +23,7 @@ func TestAccDataSourceGoogleKmsKeyRing_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleKmsKeyRingConfig(projectId, projectOrg, billingAccount, folderId, keyRingName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceMatchesResourceCheck("data.google_kms_key_ring.test", "google_kms_key_ring.project", []string{"project", "location", "self_link"}),
+					testAccDataSourceMatchesResourceCheck("data.google_kms_key_ring.test", "google_kms_key_ring.key_ring", []string{"project", "location", "self_link"}),
 				),
 			},
 		},

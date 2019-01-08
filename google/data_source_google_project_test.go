@@ -29,7 +29,7 @@ func TestAccDataSourceGoogleProject_basic(t *testing.T) {
 			{
 				Config: testAccCheckGoogleProjectConfig(project, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceMatchesResourceCheck("data.google_project.project", "google_project.key_ring", projectAttrToCheck),
+					testAccDataSourceMatchesResourceCheck("data.google_project.project", "google_project.project", projectAttrToCheck),
 				),
 			},
 		},
