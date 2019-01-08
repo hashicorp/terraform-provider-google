@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 	"testing"
@@ -231,6 +232,16 @@ type bootstrappedKMS struct {
 }
 
 func bootstrapKMSKey(t *testing.T) bootstrappedKMS {
+	if v := os.Getenv("TF_ACC"); v == "" {
+		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+
+		// If not running acceptance tests, return an empty object
+		return bootstrappedKMS{
+			&cloudkms.KeyRing{},
+			&cloudkms.CryptoKey{},
+		}
+	}
+
 	projectID := getTestProjectFromEnv()
 	locationID := "global"
 	keyRingParent := fmt.Sprintf("projects/%s/locations/%s", projectID, locationID)
