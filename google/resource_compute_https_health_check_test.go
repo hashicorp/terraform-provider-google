@@ -10,38 +10,6 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func TestAccComputeHttpsHealthCheck_basic(t *testing.T) {
-	t.Parallel()
-
-	var healthCheck compute.HttpsHealthCheck
-
-	hhckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHttpsHealthCheckDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeHttpsHealthCheck_basic(hhckName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeHttpsHealthCheckExists(
-						"google_compute_https_health_check.foobar", &healthCheck),
-					testAccCheckComputeHttpsHealthCheckRequestPath(
-						"/health_check", &healthCheck),
-					testAccCheckComputeHttpsHealthCheckThresholds(
-						3, 3, &healthCheck),
-				),
-			},
-			{
-				ResourceName:      "google_compute_https_health_check.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccComputeHttpsHealthCheck_update(t *testing.T) {
 	t.Parallel()
 
@@ -131,22 +99,6 @@ func testAccCheckComputeHttpsHealthCheckThresholds(healthy, unhealthy int64, hea
 
 		return nil
 	}
-}
-
-func testAccComputeHttpsHealthCheck_basic(hhckName string) string {
-	return fmt.Sprintf(`
-resource "google_compute_https_health_check" "foobar" {
-	check_interval_sec = 3
-	description = "Resource created for Terraform acceptance testing"
-	healthy_threshold = 3
-	host = "foobar"
-	name = "%s"
-	port = "80"
-	request_path = "/health_check"
-	timeout_sec = 2
-	unhealthy_threshold = 3
-}
-`, hhckName)
 }
 
 func testAccComputeHttpsHealthCheck_update1(hhckName string) string {

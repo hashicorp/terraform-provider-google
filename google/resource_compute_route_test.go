@@ -11,34 +11,6 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func TestAccComputeRoute_basic(t *testing.T) {
-	t.Parallel()
-
-	var route compute.Route
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouteDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeRoute_basic(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeRouteExists(
-						"google_compute_route.foobar", &route),
-					resource.TestMatchResourceAttr(
-						"google_compute_route.foobar", "description", regexp.MustCompile("This is a route")),
-				),
-			},
-			{
-				ResourceName:      "google_compute_route.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccComputeRoute_defaultInternetGateway(t *testing.T) {
 	t.Parallel()
 
@@ -122,23 +94,6 @@ func testAccCheckComputeRouteExists(n string, route *compute.Route) resource.Tes
 
 		return nil
 	}
-}
-
-func testAccComputeRoute_basic() string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "foobar" {
-	name = "route-test-%s"
-	auto_create_subnetworks = false
-	ipv4_range = "10.0.0.0/16"
-}
-
-resource "google_compute_route" "foobar" {
-	name = "route-test-%s"
-	description = "This is a route"
-	dest_range = "15.0.0.0/24"
-	network = "${google_compute_network.foobar.name}"
-	next_hop_ip = "10.0.1.5"
-}`, acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccComputeRoute_defaultInternetGateway() string {

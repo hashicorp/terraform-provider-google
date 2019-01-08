@@ -8,26 +8,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccComputeAddress_basic(t *testing.T) {
-	t.Parallel()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeAddress_basic(acctest.RandString(10)),
-			},
-			{
-				ResourceName:      "google_compute_address.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccComputeAddress_networkTier(t *testing.T) {
 	t.Parallel()
 
@@ -76,13 +56,6 @@ func TestAccComputeAddress_internal(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccComputeAddress_basic(i string) string {
-	return fmt.Sprintf(`
-resource "google_compute_address" "foobar" {
-	name = "address-test-%s"
-}`, i)
 }
 
 func testAccComputeAddress_internal(i string) string {

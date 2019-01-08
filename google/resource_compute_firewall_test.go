@@ -13,35 +13,6 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func TestAccComputeFirewall_basic(t *testing.T) {
-	t.Parallel()
-
-	var firewall compute.Firewall
-	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
-	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeFirewall_basic(networkName, firewallName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeFirewallExists(
-						"google_compute_firewall.foobar", &firewall),
-					testAccCheckComputeFirewallApiVersion(&firewall),
-				),
-			},
-			{
-				ResourceName:      "google_compute_firewall.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccComputeFirewall_update(t *testing.T) {
 	t.Parallel()
 

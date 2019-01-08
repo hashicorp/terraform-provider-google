@@ -8,28 +8,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccRedisInstance_basic(t *testing.T) {
-	t.Parallel()
-
-	name := acctest.RandomWithPrefix("tf-test")
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRedisInstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccRedisInstance_basic(name),
-			},
-			{
-				ResourceName:      "google_redis_instance.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccRedisInstance_update(t *testing.T) {
 	t.Parallel()
 
@@ -58,38 +36,6 @@ func TestAccRedisInstance_update(t *testing.T) {
 			},
 		},
 	})
-}
-
-func TestAccRedisInstance_full(t *testing.T) {
-	t.Parallel()
-
-	name := acctest.RandomWithPrefix("tf-test")
-	network := acctest.RandomWithPrefix("tf-test")
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRedisInstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccRedisInstance_full(name, network),
-			},
-			{
-				ResourceName:      "google_redis_instance.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func testAccRedisInstance_basic(name string) string {
-	return fmt.Sprintf(`
-resource "google_redis_instance" "test" {
-	name           = "%s"
-	memory_size_gb = 1
-	region         = "us-central1"
-}`, name)
 }
 
 func testAccRedisInstance_update(name string) string {
@@ -129,37 +75,4 @@ resource "google_redis_instance" "test" {
 		notify-keyspace-events = ""
 	}
 }`, name)
-}
-
-func testAccRedisInstance_full(name, network string) string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "test" {
-	name = "%s"
-}
-
-resource "google_redis_instance" "test" {
-	name           = "%s"
-	tier           = "STANDARD_HA"
-	memory_size_gb = 1
-
-	authorized_network = "${google_compute_network.test.self_link}"
-
-	region                  = "us-central1"
-	location_id             = "us-central1-a"
-	alternative_location_id = "us-central1-f"
-
-	redis_version     = "REDIS_3_2"
-	display_name      = "Terraform Test Instance"
-	reserved_ip_range = "192.168.0.0/29"
-
-	labels = {
-		my_key    = "my_val"
-		other_key = "other_val"
-	}
-
-	redis_configs {
-		maxmemory-policy       = "allkeys-lru"
-		notify-keyspace-events = "KEA"
-	}
-}`, network, name)
 }

@@ -10,38 +10,6 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func TestAccComputeBackendBucket_basic(t *testing.T) {
-	t.Parallel()
-
-	backendName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	storageName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	var svc compute.BackendBucket
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeBackendBucket_basic(backendName, storageName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBackendBucketExists(
-						"google_compute_backend_bucket.foobar", &svc),
-				),
-			},
-			{
-				ResourceName:      "google_compute_backend_bucket.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-
-	if svc.BucketName != storageName {
-		t.Errorf("Expected BucketName to be %q, got %q", storageName, svc.BucketName)
-	}
-}
-
 func TestAccComputeBackendBucket_basicModified(t *testing.T) {
 	t.Parallel()
 

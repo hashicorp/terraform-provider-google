@@ -11,35 +11,6 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func TestAccComputeRegionAutoscaler_basic(t *testing.T) {
-	var ascaler compute.Autoscaler
-
-	var it_name = fmt.Sprintf("region-autoscaler-test-%s", acctest.RandString(10))
-	var tp_name = fmt.Sprintf("region-autoscaler-test-%s", acctest.RandString(10))
-	var igm_name = fmt.Sprintf("region-autoscaler-test-%s", acctest.RandString(10))
-	var autoscaler_name = fmt.Sprintf("region-autoscaler-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeRegionAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeRegionAutoscalerExists(
-						"google_compute_region_autoscaler.foobar", &ascaler),
-				),
-			},
-			{
-				ResourceName:      "google_compute_region_autoscaler.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccComputeRegionAutoscaler_update(t *testing.T) {
 	var ascaler compute.Autoscaler
 

@@ -9,34 +9,6 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccComputeUrlMap_basic(t *testing.T) {
-	t.Parallel()
-
-	bsName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
-	hcName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
-	umName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeUrlMap_basic1(bsName, hcName, umName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeUrlMapExists(
-						"google_compute_url_map.foobar"),
-				),
-			},
-			{
-				ResourceName:            "google_compute_url_map.foobar",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"host_rule", "path_matcher", "test"},
-			},
-		},
-	})
-}
-
 func TestAccComputeUrlMap_update_path_matcher(t *testing.T) {
 	t.Parallel()
 
