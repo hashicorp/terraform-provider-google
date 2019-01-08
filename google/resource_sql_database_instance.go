@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform/helper/validation"
 
 	"google.golang.org/api/googleapi"
-	"google.golang.org/api/sqladmin/v1beta4"
+	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
 const privateNetworkLinkRegex = "projects/(" + ProjectRegex + ")/global/networks/((?:[a-z](?:[-a-z0-9]*[a-z0-9])?))$"
@@ -782,7 +782,11 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 		defer mutexKV.Unlock(instanceMutexKey(project, v.(string)))
 	}
 
-	op, err := config.clientSqlAdmin.Instances.Delete(project, d.Get("name").(string)).Do()
+	var op *sqladmin.Operation
+	err = retryTimeDuration(func() error {
+		op, err = config.clientSqlAdmin.Instances.Delete(project, d.Get("name").(string)).Do()
+		return err
+	}, d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return fmt.Errorf("Error, failed to delete instance %s: %s", d.Get("name").(string), err)

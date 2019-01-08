@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/sqladmin/v1beta4"
+	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
 func resourceSqlUser() *schema.Resource {
@@ -206,7 +206,12 @@ func resourceSqlUserDelete(d *schema.ResourceData, meta interface{}) error {
 
 	mutexKV.Lock(instanceMutexKey(project, instance))
 	defer mutexKV.Unlock(instanceMutexKey(project, instance))
-	op, err := config.clientSqlAdmin.Users.Delete(project, instance, host, name).Do()
+
+	var op *sqladmin.Operation
+	err = retryTimeDuration(func() error {
+		op, err = config.clientSqlAdmin.Users.Delete(project, instance, host, name).Do()
+		return err
+	}, d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return fmt.Errorf("Error, failed to delete"+

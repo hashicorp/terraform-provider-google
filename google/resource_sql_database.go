@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"google.golang.org/api/sqladmin/v1beta4"
+	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
 func resourceSqlDatabase() *schema.Resource {
@@ -206,10 +206,10 @@ func resourceSqlDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 	defer mutexKV.Unlock(instanceMutexKey(project, instance_name))
 
 	var op *sqladmin.Operation
-	err = retryTime(func() error {
+	err = retryTimeDuration(func() error {
 		op, err = config.clientSqlAdmin.Databases.Delete(project, instance_name, database_name).Do()
 		return err
-	}, 5 /* minutes */)
+	}, d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return fmt.Errorf("Error, failed to delete"+

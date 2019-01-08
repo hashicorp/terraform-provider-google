@@ -331,7 +331,8 @@ func retryTimeDuration(retryFunc func() error, duration time.Duration) error {
 }
 
 func isRetryableError(err error) bool {
-	if gerr, ok := err.(*googleapi.Error); ok && (gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503) {
+	// 409's are retried because cloud sql throws a 409 when concurrent calls are made
+	if gerr, ok := err.(*googleapi.Error); ok && (gerr.Code == 409 || gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503) {
 		return true
 	}
 	return false
