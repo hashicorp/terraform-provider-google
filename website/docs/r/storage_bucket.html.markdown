@@ -18,6 +18,7 @@ For more information see
 and
 [API](https://cloud.google.com/storage/docs/json_api/v1/buckets).
 
+**Note**: When importing a bucket or using only the default provider project for bucket creation, you will need to enable the Compute API and will otherwise get an error with a link to the API enablement page. If you would prefer not to enable the Compute API, make sure to explicitly set `project` on the bucket resource.
 
 ## Example Usage
 
@@ -146,4 +147,3 @@ Storage buckets can be imported using the `name`, e.g.
 $ terraform import google_storage_bucket.image-store image-store-bucket
 ```
 
-Note that when importing a bucket (and only when importing), the Compute API needs to be enabled - you'll see an error with a link to the enablement page if it is not.
