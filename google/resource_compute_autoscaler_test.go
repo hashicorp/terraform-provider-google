@@ -11,38 +11,6 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func TestAccComputeAutoscaler_basic(t *testing.T) {
-	t.Parallel()
-
-	var ascaler compute.Autoscaler
-
-	var it_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))
-	var tp_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))
-	var igm_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))
-	var autoscaler_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAutoscalerDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeAutoscalerExists(
-						"google_compute_autoscaler.foobar", &ascaler),
-				),
-			},
-
-			{
-				ResourceName:      "google_compute_autoscaler.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccComputeAutoscaler_update(t *testing.T) {
 	t.Parallel()
 

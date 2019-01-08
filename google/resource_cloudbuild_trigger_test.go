@@ -35,27 +35,6 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 	})
 }
 
-func TestAccCloudBuildTrigger_filename(t *testing.T) {
-	t.Parallel()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudbuildTriggerDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testGoogleCloudBuildTrigger_filename(),
-			},
-			{
-				ResourceName:      "google_cloudbuild_trigger.filename_build_trigger",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-
-}
-
 func testGoogleCloudBuildTrigger_basic() string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
@@ -112,23 +91,6 @@ resource "google_cloudbuild_trigger" "build_trigger" {
       args = ["test"]
     }
   }
-}
-  `)
-}
-
-func testGoogleCloudBuildTrigger_filename() string {
-	return fmt.Sprintf(`
-resource "google_cloudbuild_trigger" "filename_build_trigger" {
-  description = "acceptance test build trigger"
-  trigger_template {
-    branch_name = "master"
-    repo_name   = "some-repo"
-  }
-  substitutions = {
-    _FOO = "bar"
-    _BAZ = "qux"
-  }
-  filename = "cloudbuild.yaml"
 }
   `)
 }

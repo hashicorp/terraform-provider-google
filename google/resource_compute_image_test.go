@@ -10,32 +10,6 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func TestAccComputeImage_basic(t *testing.T) {
-	t.Parallel()
-
-	var image compute.Image
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeImageDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeImage_basic("image-test-" + acctest.RandString(10)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeImageExists(
-						"google_compute_image.foobar", &image),
-					testAccCheckComputeImageDescription(&image, "description-test"),
-					testAccCheckComputeImageFamily(&image, "family-test"),
-					testAccCheckComputeImageContainsLabel(&image, "my-label", "my-label-value"),
-					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
-					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccComputeImage_withLicense(t *testing.T) {
 	t.Parallel()
 

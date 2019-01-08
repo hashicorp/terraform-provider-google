@@ -9,34 +9,6 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccComputeTargetSslProxy_basic(t *testing.T) {
-	target := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
-	sslPolicy := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
-	cert := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
-	backend := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
-	hc := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeTargetSslProxyDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeTargetSslProxy_basic1(target, sslPolicy, cert, backend, hc),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeTargetSslProxy(
-						"google_compute_target_ssl_proxy.foobar", "NONE", cert),
-				),
-			},
-			{
-				ResourceName:      "google_compute_target_ssl_proxy.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccComputeTargetSslProxy_update(t *testing.T) {
 	target := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
 	sslPolicy := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
