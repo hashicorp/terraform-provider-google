@@ -102,7 +102,6 @@ func resourceCloudbuildTrigger() *schema.Resource {
 			"ignored_files": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -110,7 +109,6 @@ func resourceCloudbuildTrigger() *schema.Resource {
 			"included_files": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
