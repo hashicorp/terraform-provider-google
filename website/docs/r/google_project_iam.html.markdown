@@ -114,6 +114,12 @@ IAM resources can be imported using the `project_id`, role, and account.
 $ terraform import google_project_iam_policy.my_project your-project-id
 
 $ terraform import google_project_iam_binding.my_project "your-project-id roles/viewer"
+```
 
-$ terraform import google_project_iam_member.my_project "your-project-id roles/viewer foo@example.com"
+In the case of `google_project_iam_member` resources, the type of user must be specified.
+
+For service accounts:
+
+```
+$ terraform import google_project_iam_member.my_project "your-project-id roles/viewer serviceAccount:foo@example.com"
 ```
