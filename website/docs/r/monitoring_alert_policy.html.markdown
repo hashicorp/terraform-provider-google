@@ -84,6 +84,32 @@ The following arguments are supported:
   evaluate to true, then an incident is created. A policy can have from
   one to six conditions.  Structure is documented below.
 
+* `enabled` -
+  (Optional)
+  Whether or not the policy is enabled. The default is true.
+
+* `notification_channels` -
+  (Optional)
+  Identifies the notification channels to which notifications should be
+  sent when incidents are opened or closed or when new violations occur
+  on an already opened incident. Each element of this array corresponds
+  to the name field in each of the NotificationChannel objects that are
+  returned from the notificationChannels.list method. The syntax of the
+  entries in this field is
+  `projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID]`
+
+* `labels` -
+  (Optional)
+  User-supplied key/value data to be used for organizing AlertPolicy objects.
+
+* `documentation` -
+  (Optional)
+  A short name or phrase used to identify the policy in dashboards,
+  notifications, and incidents. To avoid confusion, don't use the same
+  display name for multiple policies in the same project. The name is
+  limited to 512 Unicode characters.  Structure is documented below.
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
 
 The `conditions` block supports:
 
@@ -565,37 +591,6 @@ The `aggregations` block supports:
   and alignmentPeriod must be
   specified; otherwise, an error is
   returned.
-
-- - -
-
-
-* `enabled` -
-  (Optional)
-  Whether or not the policy is enabled. The default is true.
-
-* `notification_channels` -
-  (Optional)
-  Identifies the notification channels to which notifications should be
-  sent when incidents are opened or closed or when new violations occur
-  on an already opened incident. Each element of this array corresponds
-  to the name field in each of the NotificationChannel objects that are
-  returned from the notificationChannels.list method. The syntax of the
-  entries in this field is
-  `projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID]`
-
-* `labels` -
-  (Optional)
-  User-supplied key/value data to be used for organizing AlertPolicy objects.
-
-* `documentation` -
-  (Optional)
-  A short name or phrase used to identify the policy in dashboards,
-  notifications, and incidents. To avoid confusion, don't use the same
-  display name for multiple policies in the same project. The name is
-  limited to 512 Unicode characters.  Structure is documented below.
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 The `documentation` block supports:
 
