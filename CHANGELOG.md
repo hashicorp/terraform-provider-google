@@ -44,6 +44,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * bigquery: Add `default_partition_expiration_ms` field to `google_bigquery_dataset` resource. [GH-2287]
+* bigquery: Add `time_partitioning.require_partition_filter` to `google_bigquery_table` resource. [GH-2815]
 * bigquery: Allow more BigQuery regions [GH-2566]
 * bigtable: Add `column_family` at create time to `google_bigtable_table`. [GH-2228]
 * bigtable: Add multi-zone (inside one region) replication to `google_bigtable_instance`. [GH-2313] [GH-2289]
