@@ -115,13 +115,13 @@ func ResourceMap() map[string]*schema.Resource {
 
 func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 	return mergeResourceMaps(
-		GeneratedAppengineResourcesMap,
+		GeneratedAppEngineResourcesMap,
 		GeneratedComputeResourcesMap,
-		GeneratedCloudbuildResourcesMap,
+		GeneratedCloudBuildResourcesMap,
 		GeneratedDnsResourcesMap,
 		GeneratedRedisResourcesMap,
 		GeneratedResourceManagerResourcesMap,
-		GeneratedSourcerepoResourcesMap,
+		GeneratedSourceRepoResourcesMap,
 		GeneratedStorageResourcesMap,
 		GeneratedMonitoringResourcesMap,
 		map[string]*schema.Resource{

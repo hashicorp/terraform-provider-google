@@ -25,14 +25,14 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-func resourceSourcerepoRepository() *schema.Resource {
+func resourceSourceRepoRepository() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSourcerepoRepositoryCreate,
-		Read:   resourceSourcerepoRepositoryRead,
-		Delete: resourceSourcerepoRepositoryDelete,
+		Create: resourceSourceRepoRepositoryCreate,
+		Read:   resourceSourceRepoRepositoryRead,
+		Delete: resourceSourceRepoRepositoryDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceSourcerepoRepositoryImport,
+			State: resourceSourceRepoRepositoryImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -64,11 +64,11 @@ func resourceSourcerepoRepository() *schema.Resource {
 	}
 }
 
-func resourceSourcerepoRepositoryCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandSourcerepoRepositoryName(d.Get("name"), d, config)
+	nameProp, err := expandSourceRepoRepositoryName(d.Get("name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
@@ -95,10 +95,10 @@ func resourceSourcerepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 
 	log.Printf("[DEBUG] Finished creating Repository %q: %#v", d.Id(), res)
 
-	return resourceSourcerepoRepositoryRead(d, meta)
+	return resourceSourceRepoRepositoryRead(d, meta)
 }
 
-func resourceSourcerepoRepositoryRead(d *schema.ResourceData, meta interface{}) error {
+func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	url, err := replaceVars(d, config, "https://sourcerepo.googleapis.com/v1/projects/{{project}}/repos/{{name}}")
@@ -108,7 +108,7 @@ func resourceSourcerepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 
 	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("SourcerepoRepository %q", d.Id()))
+		return handleNotFoundError(err, d, fmt.Sprintf("SourceRepoRepository %q", d.Id()))
 	}
 
 	project, err := getProject(d, config)
@@ -119,20 +119,20 @@ func resourceSourcerepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 
-	if err := d.Set("name", flattenSourcerepoRepositoryName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenSourceRepoRepositoryName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
-	if err := d.Set("url", flattenSourcerepoRepositoryUrl(res["url"], d)); err != nil {
+	if err := d.Set("url", flattenSourceRepoRepositoryUrl(res["url"], d)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
-	if err := d.Set("size", flattenSourcerepoRepositorySize(res["size"], d)); err != nil {
+	if err := d.Set("size", flattenSourceRepoRepositorySize(res["size"], d)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 
 	return nil
 }
 
-func resourceSourcerepoRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	url, err := replaceVars(d, config, "https://sourcerepo.googleapis.com/v1/projects/{{project}}/repos/{{name}}")
@@ -151,7 +151,7 @@ func resourceSourcerepoRepositoryDelete(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceSourcerepoRepositoryImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceSourceRepoRepositoryImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/repos/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
@@ -167,7 +167,7 @@ func resourceSourcerepoRepositoryImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSourcerepoRepositoryName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositoryName(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -177,11 +177,11 @@ func flattenSourcerepoRepositoryName(v interface{}, d *schema.ResourceData) inte
 	return parts[3]
 }
 
-func flattenSourcerepoRepositoryUrl(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositoryUrl(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenSourcerepoRepositorySize(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositorySize(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -191,6 +191,6 @@ func flattenSourcerepoRepositorySize(v interface{}, d *schema.ResourceData) inte
 	return v
 }
 
-func expandSourcerepoRepositoryName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandSourceRepoRepositoryName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return replaceVars(d, config, "projects/{{project}}/repos/{{name}}")
 }

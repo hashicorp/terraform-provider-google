@@ -16,6 +16,6 @@ package google
 
 import "github.com/hashicorp/terraform/helper/schema"
 
-var GeneratedCloudbuildResourcesMap = map[string]*schema.Resource{
-	"google_cloudbuild_trigger": resourceCloudbuildTrigger(),
+var GeneratedCloudBuildResourcesMap = map[string]*schema.Resource{
+	"google_cloudbuild_trigger": resourceCloudBuildTrigger(),
 }
