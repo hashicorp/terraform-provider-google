@@ -476,13 +476,7 @@ func TestAccComputeInstanceTemplate_EncryptKMS(t *testing.T) {
 	t.Parallel()
 
 	var instanceTemplate compute.InstanceTemplate
-
-	org := getTestOrgFromEnv(t)
-	pid := "tf-test-" + acctest.RandString(10)
-	billingAccount := getTestBillingAccountFromEnv(t)
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	keyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	kms := BootstrapKMSKey(t)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -490,7 +484,7 @@ func TestAccComputeInstanceTemplate_EncryptKMS(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstanceTemplate_encryptionKMS(pid, pname, org, billingAccount, diskName, keyRingName, keyName),
+				Config: testAccComputeInstanceTemplate_encryptionKMS(kms.CryptoKey.Name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
 				),
@@ -1186,7 +1180,7 @@ func testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName strin
 	resource "google_compute_shared_vpc_host_project" "host_project" {
 		project = "${google_project_service.host_project.project}"
 	}
-	
+
 	resource "google_project" "service_project" {
 		name = "Test Project XPN Service"
 		project_id = "%s-service"
@@ -1347,7 +1341,7 @@ resource "google_compute_instance_template" "foobar" {
 
 		// Note that unlike compute instances, instance templates seem to be
 		// only able to specify the netmask here. Trying a full CIDR string
-		// results in: 
+		// results in:
 		// Invalid value for field 'resource.properties.networkInterfaces[0].aliasIpRanges[0].ipCidrRange':
 		// '172.16.0.0/24'. Alias IP CIDR range must be a valid netmask starting with '/' (e.g. '/24')
 		alias_ip_range {
@@ -1423,63 +1417,12 @@ resource "google_compute_instance_template" "foobar" {
 }`, i, DEFAULT_MIN_CPU_TEST_VALUE)
 }
 
-func testAccComputeInstanceTemplate_encryptionKMS(pid, pname, org, billing, diskName, keyRingName, keyName string) string {
+func testAccComputeInstanceTemplate_encryptionKMS(kmsLink string) string {
 	return fmt.Sprintf(`
-resource "google_project" "project" {
-  project_id      = "%s"
-  name            = "%s"
-  org_id          = "%s"
-  billing_account = "%s"
-}
-
 data "google_compute_image" "my_image" {
   family  = "debian-9"
   project = "debian-cloud"
 }
-
-resource "google_project_services" "apis" {
-  project = "${google_project.project.project_id}"
-
-  services = [
-    "oslogin.googleapis.com",
-    "compute.googleapis.com",
-    "cloudkms.googleapis.com",
-    "appengine.googleapis.com",
-  ]
-}
-
-resource "google_project_iam_member" "kms-project-binding" {
-  project = "${google_project.project.project_id}"
-  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member  = "serviceAccount:service-${google_project.project.number}@compute-system.iam.gserviceaccount.com"
-
-  depends_on = ["google_project_services.apis"]
-}
-
-resource "google_kms_crypto_key_iam_binding" "kms-key-binding" {
-  crypto_key_id = "${google_kms_crypto_key.my_crypto_key.self_link}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-
-  members = [
-    "serviceAccount:service-${google_project.project.number}@compute-system.iam.gserviceaccount.com",
-  ]
-
-  depends_on = ["google_project_services.apis"]
-}
-
-resource "google_kms_key_ring" "my_key_ring" {
-  name     = "%s"
-  project  = "${google_project.project.project_id}"
-  location = "us-central1"
-
-  depends_on = ["google_project_services.apis"]
-}
-
-resource "google_kms_crypto_key" "my_crypto_key" {
-  name     = "%s"
-  key_ring = "${google_kms_key_ring.my_key_ring.self_link}"
-}
-
 
 resource "google_compute_instance_template" "foobar" {
 	name = "instancet-test-%s"
@@ -1489,8 +1432,8 @@ resource "google_compute_instance_template" "foobar" {
 	disk {
 		source_image = "${data.google_compute_image.my_image.self_link}"
 		disk_encryption_key {
-      kms_key_self_link = "${google_kms_crypto_key.my_crypto_key.self_link}"
-    }
+			kms_key_self_link = "%s"
+		}
 	}
 
 	network_interface {
@@ -1504,5 +1447,5 @@ resource "google_compute_instance_template" "foobar" {
     labels = {
         my_label = "foobar"
     }
-}`, pid, pname, org, billing, keyRingName, keyName, acctest.RandString(10))
+}`, acctest.RandString(10), kmsLink)
 }
