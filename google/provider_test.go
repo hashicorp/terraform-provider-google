@@ -57,6 +57,10 @@ var billingAccountEnvVars = []string{
 	"GOOGLE_BILLING_ACCOUNT",
 }
 
+var accessTokenEnvVars = []string{
+	"GOOGLE_OAUTH2_ACCESS_TOKEN",
+}
+
 func init() {
 	testAccProvider = Provider().(*schema.Provider)
 	testAccRandomProvider = random.Provider().(*schema.Provider)
@@ -200,6 +204,11 @@ func getTestBillingAccountFromEnv(t *testing.T) string {
 func getTestServiceAccountFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, serviceAccountEnvVars...)
 	return multiEnvSearch(serviceAccountEnvVars)
+}
+
+func getTestAccessTokenFromEnv(t *testing.T) string {
+	skipIfEnvNotSet(t, accessTokenEnvVars...)
+	return multiEnvSearch(accessTokenEnvVars)
 }
 
 func multiEnvSearch(ks []string) string {

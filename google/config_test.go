@@ -48,3 +48,18 @@ func TestConfigLoadAndValidate_accountFileJSONInvalid(t *testing.T) {
 		t.Fatalf("expected error, but got nil")
 	}
 }
+
+func TestConfigLoadValidate_accessToken(t *testing.T) {
+	accessToken := getTestAccessTokenFromEnv(t)
+
+	config := Config{
+		AccessToken: accessToken,
+		Project:     "my-gce-project",
+		Region:      "us-central1",
+	}
+
+	err := config.loadAndValidate()
+	if err != nil {
+		t.Fatalf("error: %v", err)
+	}
+}
