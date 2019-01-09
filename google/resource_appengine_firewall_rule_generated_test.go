@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccAppEngineFirewallRule_appengineFirewallRuleBasicExample(t *testing.T) {
+func TestAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -38,10 +38,10 @@ func TestAccAppEngineFirewallRule_appengineFirewallRuleBasicExample(t *testing.T
 		CheckDestroy: testAccCheckAppEngineFirewallRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAppEngineFirewallRule_appengineFirewallRuleBasicExample(context),
+				Config: testAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(context),
 			},
 			{
-				ResourceName:      "google_appengine_firewall_rule.rule",
+				ResourceName:      "google_app_engine_firewall_rule.rule",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,7 +49,7 @@ func TestAccAppEngineFirewallRule_appengineFirewallRuleBasicExample(t *testing.T
 	})
 }
 
-func testAccAppEngineFirewallRule_appengineFirewallRuleBasicExample(context map[string]interface{}) string {
+func testAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "my_project" {
   name       = "tf-test-project"
@@ -62,7 +62,7 @@ resource "google_app_engine_application" "app" {
   location_id = "us-central"
 }
 
-resource "google_appengine_firewall_rule" "rule" {
+resource "google_app_engine_firewall_rule" "rule" {
   project = "${google_app_engine_application.app.project}"
   priority = 1000
   action = "ALLOW"
@@ -73,7 +73,7 @@ resource "google_appengine_firewall_rule" "rule" {
 
 func testAccCheckAppEngineFirewallRuleDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_appengine_firewall_rule" {
+		if rs.Type != "google_app_engine_firewall_rule" {
 			continue
 		}
 		if strings.HasPrefix(name, "data.") {
