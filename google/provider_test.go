@@ -178,6 +178,10 @@ func getTestRegionFromEnv() string {
 	return multiEnvSearch(regionEnvVars)
 }
 
+func getTestZoneFromEnv() string {
+	return multiEnvSearch(zoneEnvVars)
+}
+
 func getTestOrgFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, orgEnvVars...)
 	return multiEnvSearch(orgEnvVars)
