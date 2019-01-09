@@ -50,4 +50,13 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `etag` - (Computed) The etag of the folder's IAM policy. `etag` is used for optimistic concurrency control as a way to help prevent simultaneous updates of a policy from overwriting each other. 
+* `etag` - (Computed) The etag of the folder's IAM policy. `etag` is used for optimistic concurrency control as a way to help prevent simultaneous updates of a policy from overwriting each other.
+
+## Import
+
+A policy can be imported using the `folder`, e.g.
+
+```
+$ terraform import google_folder_iam_policy.my-folder-policy {{folder_id}}
+```
+
