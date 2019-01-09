@@ -13,7 +13,7 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudbuildTriggerDestroy,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleCloudBuildTrigger_basic(),

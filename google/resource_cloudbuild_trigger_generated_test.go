@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccCloudbuildTrigger_cloudbuildTriggerFilenameExample(t *testing.T) {
+func TestAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -34,10 +34,10 @@ func TestAccCloudbuildTrigger_cloudbuildTriggerFilenameExample(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudbuildTriggerDestroy,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudbuildTrigger_cloudbuildTriggerFilenameExample(context),
+				Config: testAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(context),
 			},
 			{
 				ResourceName:      "google_cloudbuild_trigger.filename-trigger",
@@ -48,7 +48,7 @@ func TestAccCloudbuildTrigger_cloudbuildTriggerFilenameExample(t *testing.T) {
 	})
 }
 
-func testAccCloudbuildTrigger_cloudbuildTriggerFilenameExample(context map[string]interface{}) string {
+func testAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_cloudbuild_trigger" "filename-trigger" {
   trigger_template {
@@ -66,7 +66,7 @@ resource "google_cloudbuild_trigger" "filename-trigger" {
 `, context)
 }
 
-func testAccCheckCloudbuildTriggerDestroy(s *terraform.State) error {
+func testAccCheckCloudBuildTriggerDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_cloudbuild_trigger" {
 			continue
@@ -84,7 +84,7 @@ func testAccCheckCloudbuildTriggerDestroy(s *terraform.State) error {
 
 		_, err = sendRequest(config, "GET", url, nil)
 		if err == nil {
-			return fmt.Errorf("CloudbuildTrigger still exists at %s", url)
+			return fmt.Errorf("CloudBuildTrigger still exists at %s", url)
 		}
 	}
 

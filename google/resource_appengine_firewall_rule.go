@@ -26,15 +26,15 @@ import (
 	"github.com/hashicorp/terraform/helper/validation"
 )
 
-func resourceAppengineFirewallRule() *schema.Resource {
+func resourceAppEngineFirewallRule() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAppengineFirewallRuleCreate,
-		Read:   resourceAppengineFirewallRuleRead,
-		Update: resourceAppengineFirewallRuleUpdate,
-		Delete: resourceAppengineFirewallRuleDelete,
+		Create: resourceAppEngineFirewallRuleCreate,
+		Read:   resourceAppEngineFirewallRuleRead,
+		Update: resourceAppEngineFirewallRuleUpdate,
+		Delete: resourceAppEngineFirewallRuleDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceAppengineFirewallRuleImport,
+			State: resourceAppEngineFirewallRuleImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -71,29 +71,29 @@ func resourceAppengineFirewallRule() *schema.Resource {
 	}
 }
 
-func resourceAppengineFirewallRuleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	descriptionProp, err := expandAppengineFirewallRuleDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandAppEngineFirewallRuleDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	sourceRangeProp, err := expandAppengineFirewallRuleSourceRange(d.Get("source_range"), d, config)
+	sourceRangeProp, err := expandAppEngineFirewallRuleSourceRange(d.Get("source_range"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("source_range"); !isEmptyValue(reflect.ValueOf(sourceRangeProp)) && (ok || !reflect.DeepEqual(v, sourceRangeProp)) {
 		obj["sourceRange"] = sourceRangeProp
 	}
-	actionProp, err := expandAppengineFirewallRuleAction(d.Get("action"), d, config)
+	actionProp, err := expandAppEngineFirewallRuleAction(d.Get("action"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("action"); !isEmptyValue(reflect.ValueOf(actionProp)) && (ok || !reflect.DeepEqual(v, actionProp)) {
 		obj["action"] = actionProp
 	}
-	priorityProp, err := expandAppengineFirewallRulePriority(d.Get("priority"), d, config)
+	priorityProp, err := expandAppEngineFirewallRulePriority(d.Get("priority"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("priority"); !isEmptyValue(reflect.ValueOf(priorityProp)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
@@ -120,10 +120,10 @@ func resourceAppengineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Finished creating FirewallRule %q: %#v", d.Id(), res)
 
-	return resourceAppengineFirewallRuleRead(d, meta)
+	return resourceAppEngineFirewallRuleRead(d, meta)
 }
 
-func resourceAppengineFirewallRuleRead(d *schema.ResourceData, meta interface{}) error {
+func resourceAppEngineFirewallRuleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	url, err := replaceVars(d, config, "https://appengine.googleapis.com/v1/apps/{{project}}/firewall/ingressRules/{{priority}}")
@@ -133,7 +133,7 @@ func resourceAppengineFirewallRuleRead(d *schema.ResourceData, meta interface{})
 
 	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("AppengineFirewallRule %q", d.Id()))
+		return handleNotFoundError(err, d, fmt.Sprintf("AppEngineFirewallRule %q", d.Id()))
 	}
 
 	project, err := getProject(d, config)
@@ -144,45 +144,45 @@ func resourceAppengineFirewallRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
 
-	if err := d.Set("description", flattenAppengineFirewallRuleDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenAppEngineFirewallRuleDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
-	if err := d.Set("source_range", flattenAppengineFirewallRuleSourceRange(res["sourceRange"], d)); err != nil {
+	if err := d.Set("source_range", flattenAppEngineFirewallRuleSourceRange(res["sourceRange"], d)); err != nil {
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
-	if err := d.Set("action", flattenAppengineFirewallRuleAction(res["action"], d)); err != nil {
+	if err := d.Set("action", flattenAppEngineFirewallRuleAction(res["action"], d)); err != nil {
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
-	if err := d.Set("priority", flattenAppengineFirewallRulePriority(res["priority"], d)); err != nil {
+	if err := d.Set("priority", flattenAppEngineFirewallRulePriority(res["priority"], d)); err != nil {
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
 
 	return nil
 }
 
-func resourceAppengineFirewallRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	descriptionProp, err := expandAppengineFirewallRuleDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandAppEngineFirewallRuleDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	sourceRangeProp, err := expandAppengineFirewallRuleSourceRange(d.Get("source_range"), d, config)
+	sourceRangeProp, err := expandAppEngineFirewallRuleSourceRange(d.Get("source_range"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("source_range"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceRangeProp)) {
 		obj["sourceRange"] = sourceRangeProp
 	}
-	actionProp, err := expandAppengineFirewallRuleAction(d.Get("action"), d, config)
+	actionProp, err := expandAppEngineFirewallRuleAction(d.Get("action"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("action"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, actionProp)) {
 		obj["action"] = actionProp
 	}
-	priorityProp, err := expandAppengineFirewallRulePriority(d.Get("priority"), d, config)
+	priorityProp, err := expandAppEngineFirewallRulePriority(d.Get("priority"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("priority"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
@@ -224,10 +224,10 @@ func resourceAppengineFirewallRuleUpdate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error updating FirewallRule %q: %s", d.Id(), err)
 	}
 
-	return resourceAppengineFirewallRuleRead(d, meta)
+	return resourceAppEngineFirewallRuleRead(d, meta)
 }
 
-func resourceAppengineFirewallRuleDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceAppEngineFirewallRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	url, err := replaceVars(d, config, "https://appengine.googleapis.com/v1/apps/{{project}}/firewall/ingressRules/{{priority}}")
@@ -246,7 +246,7 @@ func resourceAppengineFirewallRuleDelete(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func resourceAppengineFirewallRuleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceAppEngineFirewallRuleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{"(?P<project>[^/]+)/(?P<priority>[^/]+)", "(?P<priority>[^/]+)"}, d, config); err != nil {
 		return nil, err
@@ -262,19 +262,19 @@ func resourceAppengineFirewallRuleImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAppengineFirewallRuleDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineFirewallRuleDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenAppengineFirewallRuleSourceRange(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineFirewallRuleSourceRange(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenAppengineFirewallRuleAction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineFirewallRuleAction(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenAppengineFirewallRulePriority(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineFirewallRulePriority(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -284,18 +284,18 @@ func flattenAppengineFirewallRulePriority(v interface{}, d *schema.ResourceData)
 	return v
 }
 
-func expandAppengineFirewallRuleDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFirewallRuleDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppengineFirewallRuleSourceRange(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFirewallRuleSourceRange(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppengineFirewallRuleAction(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFirewallRuleAction(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppengineFirewallRulePriority(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFirewallRulePriority(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

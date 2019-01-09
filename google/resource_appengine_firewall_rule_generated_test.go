@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccAppengineFirewallRule_appengineFirewallRuleBasicExample(t *testing.T) {
+func TestAccAppEngineFirewallRule_appengineFirewallRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -35,10 +35,10 @@ func TestAccAppengineFirewallRule_appengineFirewallRuleBasicExample(t *testing.T
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAppengineFirewallRuleDestroy,
+		CheckDestroy: testAccCheckAppEngineFirewallRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAppengineFirewallRule_appengineFirewallRuleBasicExample(context),
+				Config: testAccAppEngineFirewallRule_appengineFirewallRuleBasicExample(context),
 			},
 			{
 				ResourceName:      "google_appengine_firewall_rule.rule",
@@ -49,7 +49,7 @@ func TestAccAppengineFirewallRule_appengineFirewallRuleBasicExample(t *testing.T
 	})
 }
 
-func testAccAppengineFirewallRule_appengineFirewallRuleBasicExample(context map[string]interface{}) string {
+func testAccAppEngineFirewallRule_appengineFirewallRuleBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "my_project" {
   name       = "tf-test-project"
@@ -71,7 +71,7 @@ resource "google_appengine_firewall_rule" "rule" {
 `, context)
 }
 
-func testAccCheckAppengineFirewallRuleDestroy(s *terraform.State) error {
+func testAccCheckAppEngineFirewallRuleDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_appengine_firewall_rule" {
 			continue
@@ -89,7 +89,7 @@ func testAccCheckAppengineFirewallRuleDestroy(s *terraform.State) error {
 
 		_, err = sendRequest(config, "GET", url, nil)
 		if err == nil {
-			return fmt.Errorf("AppengineFirewallRule still exists at %s", url)
+			return fmt.Errorf("AppEngineFirewallRule still exists at %s", url)
 		}
 	}
 

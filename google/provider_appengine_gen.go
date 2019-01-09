@@ -16,6 +16,6 @@ package google
 
 import "github.com/hashicorp/terraform/helper/schema"
 
-var GeneratedAppengineResourcesMap = map[string]*schema.Resource{
-	"google_appengine_firewall_rule": resourceAppengineFirewallRule(),
+var GeneratedAppEngineResourcesMap = map[string]*schema.Resource{
+	"google_appengine_firewall_rule": resourceAppEngineFirewallRule(),
 }

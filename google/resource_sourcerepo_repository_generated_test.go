@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccSourcerepoRepository_sourcerepoRepositoryBasicExample(t *testing.T) {
+func TestAccSourceRepoRepository_sourcerepoRepositoryBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -34,10 +34,10 @@ func TestAccSourcerepoRepository_sourcerepoRepositoryBasicExample(t *testing.T) 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSourcerepoRepositoryDestroy,
+		CheckDestroy: testAccCheckSourceRepoRepositoryDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSourcerepoRepository_sourcerepoRepositoryBasicExample(context),
+				Config: testAccSourceRepoRepository_sourcerepoRepositoryBasicExample(context),
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository.my-repo",
@@ -48,7 +48,7 @@ func TestAccSourcerepoRepository_sourcerepoRepositoryBasicExample(t *testing.T) 
 	})
 }
 
-func testAccSourcerepoRepository_sourcerepoRepositoryBasicExample(context map[string]interface{}) string {
+func testAccSourceRepoRepository_sourcerepoRepositoryBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sourcerepo_repository" "my-repo" {
   name = "my-repository-%{random_suffix}"
@@ -56,7 +56,7 @@ resource "google_sourcerepo_repository" "my-repo" {
 `, context)
 }
 
-func testAccCheckSourcerepoRepositoryDestroy(s *terraform.State) error {
+func testAccCheckSourceRepoRepositoryDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_sourcerepo_repository" {
 			continue
@@ -74,7 +74,7 @@ func testAccCheckSourcerepoRepositoryDestroy(s *terraform.State) error {
 
 		_, err = sendRequest(config, "GET", url, nil)
 		if err == nil {
-			return fmt.Errorf("SourcerepoRepository still exists at %s", url)
+			return fmt.Errorf("SourceRepoRepository still exists at %s", url)
 		}
 	}
 

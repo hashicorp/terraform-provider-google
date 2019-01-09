@@ -23,15 +23,15 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-func resourceCloudbuildTrigger() *schema.Resource {
+func resourceCloudBuildTrigger() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCloudbuildTriggerCreate,
-		Read:   resourceCloudbuildTriggerRead,
-		Update: resourceCloudbuildTriggerUpdate,
-		Delete: resourceCloudbuildTriggerDelete,
+		Create: resourceCloudBuildTriggerCreate,
+		Read:   resourceCloudBuildTriggerRead,
+		Update: resourceCloudBuildTriggerUpdate,
+		Delete: resourceCloudBuildTriggerDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceCloudbuildTriggerImport,
+			State: resourceCloudBuildTriggerImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -173,53 +173,53 @@ func resourceCloudbuildTrigger() *schema.Resource {
 	}
 }
 
-func resourceCloudbuildTriggerCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	descriptionProp, err := expandCloudbuildTriggerDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandCloudBuildTriggerDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	disabledProp, err := expandCloudbuildTriggerDisabled(d.Get("disabled"), d, config)
+	disabledProp, err := expandCloudBuildTriggerDisabled(d.Get("disabled"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("disabled"); !isEmptyValue(reflect.ValueOf(disabledProp)) && (ok || !reflect.DeepEqual(v, disabledProp)) {
 		obj["disabled"] = disabledProp
 	}
-	substitutionsProp, err := expandCloudbuildTriggerSubstitutions(d.Get("substitutions"), d, config)
+	substitutionsProp, err := expandCloudBuildTriggerSubstitutions(d.Get("substitutions"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("substitutions"); !isEmptyValue(reflect.ValueOf(substitutionsProp)) && (ok || !reflect.DeepEqual(v, substitutionsProp)) {
 		obj["substitutions"] = substitutionsProp
 	}
-	filenameProp, err := expandCloudbuildTriggerFilename(d.Get("filename"), d, config)
+	filenameProp, err := expandCloudBuildTriggerFilename(d.Get("filename"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("filename"); !isEmptyValue(reflect.ValueOf(filenameProp)) && (ok || !reflect.DeepEqual(v, filenameProp)) {
 		obj["filename"] = filenameProp
 	}
-	ignoredFilesProp, err := expandCloudbuildTriggerIgnoredFiles(d.Get("ignored_files"), d, config)
+	ignoredFilesProp, err := expandCloudBuildTriggerIgnoredFiles(d.Get("ignored_files"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("ignored_files"); !isEmptyValue(reflect.ValueOf(ignoredFilesProp)) && (ok || !reflect.DeepEqual(v, ignoredFilesProp)) {
 		obj["ignoredFiles"] = ignoredFilesProp
 	}
-	includedFilesProp, err := expandCloudbuildTriggerIncludedFiles(d.Get("included_files"), d, config)
+	includedFilesProp, err := expandCloudBuildTriggerIncludedFiles(d.Get("included_files"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("included_files"); !isEmptyValue(reflect.ValueOf(includedFilesProp)) && (ok || !reflect.DeepEqual(v, includedFilesProp)) {
 		obj["includedFiles"] = includedFilesProp
 	}
-	triggerTemplateProp, err := expandCloudbuildTriggerTriggerTemplate(d.Get("trigger_template"), d, config)
+	triggerTemplateProp, err := expandCloudBuildTriggerTriggerTemplate(d.Get("trigger_template"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("trigger_template"); !isEmptyValue(reflect.ValueOf(triggerTemplateProp)) && (ok || !reflect.DeepEqual(v, triggerTemplateProp)) {
 		obj["triggerTemplate"] = triggerTemplateProp
 	}
-	buildProp, err := expandCloudbuildTriggerBuild(d.Get("build"), d, config)
+	buildProp, err := expandCloudBuildTriggerBuild(d.Get("build"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("build"); !isEmptyValue(reflect.ValueOf(buildProp)) && (ok || !reflect.DeepEqual(v, buildProp)) {
@@ -261,10 +261,10 @@ func resourceCloudbuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
-	return resourceCloudbuildTriggerRead(d, meta)
+	return resourceCloudBuildTriggerRead(d, meta)
 }
 
-func resourceCloudbuildTriggerRead(d *schema.ResourceData, meta interface{}) error {
+func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	url, err := replaceVars(d, config, "https://cloudbuild.googleapis.com/v1/projects/{{project}}/triggers/{{trigger_id}}")
@@ -274,7 +274,7 @@ func resourceCloudbuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 
 	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("CloudbuildTrigger %q", d.Id()))
+		return handleNotFoundError(err, d, fmt.Sprintf("CloudBuildTrigger %q", d.Id()))
 	}
 
 	project, err := getProject(d, config)
@@ -285,75 +285,75 @@ func resourceCloudbuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
 
-	if err := d.Set("trigger_id", flattenCloudbuildTriggerTrigger_id(res["id"], d)); err != nil {
+	if err := d.Set("trigger_id", flattenCloudBuildTriggerTrigger_id(res["id"], d)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
-	if err := d.Set("description", flattenCloudbuildTriggerDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenCloudBuildTriggerDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
-	if err := d.Set("disabled", flattenCloudbuildTriggerDisabled(res["disabled"], d)); err != nil {
+	if err := d.Set("disabled", flattenCloudBuildTriggerDisabled(res["disabled"], d)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
-	if err := d.Set("create_time", flattenCloudbuildTriggerCreateTime(res["createTime"], d)); err != nil {
+	if err := d.Set("create_time", flattenCloudBuildTriggerCreateTime(res["createTime"], d)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
-	if err := d.Set("substitutions", flattenCloudbuildTriggerSubstitutions(res["substitutions"], d)); err != nil {
+	if err := d.Set("substitutions", flattenCloudBuildTriggerSubstitutions(res["substitutions"], d)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
-	if err := d.Set("filename", flattenCloudbuildTriggerFilename(res["filename"], d)); err != nil {
+	if err := d.Set("filename", flattenCloudBuildTriggerFilename(res["filename"], d)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
-	if err := d.Set("ignored_files", flattenCloudbuildTriggerIgnoredFiles(res["ignoredFiles"], d)); err != nil {
+	if err := d.Set("ignored_files", flattenCloudBuildTriggerIgnoredFiles(res["ignoredFiles"], d)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
-	if err := d.Set("included_files", flattenCloudbuildTriggerIncludedFiles(res["includedFiles"], d)); err != nil {
+	if err := d.Set("included_files", flattenCloudBuildTriggerIncludedFiles(res["includedFiles"], d)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
-	if err := d.Set("trigger_template", flattenCloudbuildTriggerTriggerTemplate(res["triggerTemplate"], d)); err != nil {
+	if err := d.Set("trigger_template", flattenCloudBuildTriggerTriggerTemplate(res["triggerTemplate"], d)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
-	if err := d.Set("build", flattenCloudbuildTriggerBuild(res["build"], d)); err != nil {
+	if err := d.Set("build", flattenCloudBuildTriggerBuild(res["build"], d)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
 
 	return nil
 }
 
-func resourceCloudbuildTriggerUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	descriptionProp, err := expandCloudbuildTriggerDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandCloudBuildTriggerDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	disabledProp, err := expandCloudbuildTriggerDisabled(d.Get("disabled"), d, config)
+	disabledProp, err := expandCloudBuildTriggerDisabled(d.Get("disabled"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("disabled"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disabledProp)) {
 		obj["disabled"] = disabledProp
 	}
-	substitutionsProp, err := expandCloudbuildTriggerSubstitutions(d.Get("substitutions"), d, config)
+	substitutionsProp, err := expandCloudBuildTriggerSubstitutions(d.Get("substitutions"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("substitutions"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, substitutionsProp)) {
 		obj["substitutions"] = substitutionsProp
 	}
-	filenameProp, err := expandCloudbuildTriggerFilename(d.Get("filename"), d, config)
+	filenameProp, err := expandCloudBuildTriggerFilename(d.Get("filename"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("filename"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, filenameProp)) {
 		obj["filename"] = filenameProp
 	}
-	triggerTemplateProp, err := expandCloudbuildTriggerTriggerTemplate(d.Get("trigger_template"), d, config)
+	triggerTemplateProp, err := expandCloudBuildTriggerTriggerTemplate(d.Get("trigger_template"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("trigger_template"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, triggerTemplateProp)) {
 		obj["triggerTemplate"] = triggerTemplateProp
 	}
-	buildProp, err := expandCloudbuildTriggerBuild(d.Get("build"), d, config)
+	buildProp, err := expandCloudBuildTriggerBuild(d.Get("build"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("build"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, buildProp)) {
@@ -373,10 +373,10 @@ func resourceCloudbuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error updating Trigger %q: %s", d.Id(), err)
 	}
 
-	return resourceCloudbuildTriggerRead(d, meta)
+	return resourceCloudBuildTriggerRead(d, meta)
 }
 
-func resourceCloudbuildTriggerDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceCloudBuildTriggerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	url, err := replaceVars(d, config, "https://cloudbuild.googleapis.com/v1/projects/{{project}}/triggers/{{trigger_id}}")
@@ -395,7 +395,7 @@ func resourceCloudbuildTriggerDelete(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
-func resourceCloudbuildTriggerImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceCloudBuildTriggerImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/triggers/(?P<trigger_id>[^/]+)", "(?P<project>[^/]+)/(?P<trigger_id>[^/]+)", "(?P<trigger_id>[^/]+)"}, d, config); err != nil {
 		return nil, err
@@ -411,39 +411,39 @@ func resourceCloudbuildTriggerImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenCloudbuildTriggerTrigger_id(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerTrigger_id(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerDisabled(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerDisabled(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerCreateTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerCreateTime(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerSubstitutions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerSubstitutions(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerFilename(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerFilename(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerIgnoredFiles(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerIgnoredFiles(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerIncludedFiles(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerIncludedFiles(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerTriggerTemplate(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerTriggerTemplate(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -453,44 +453,44 @@ func flattenCloudbuildTriggerTriggerTemplate(v interface{}, d *schema.ResourceDa
 	}
 	transformed := make(map[string]interface{})
 	transformed["project_id"] =
-		flattenCloudbuildTriggerTriggerTemplateProjectId(original["projectId"], d)
+		flattenCloudBuildTriggerTriggerTemplateProjectId(original["projectId"], d)
 	transformed["repo_name"] =
-		flattenCloudbuildTriggerTriggerTemplateRepoName(original["repoName"], d)
+		flattenCloudBuildTriggerTriggerTemplateRepoName(original["repoName"], d)
 	transformed["dir"] =
-		flattenCloudbuildTriggerTriggerTemplateDir(original["dir"], d)
+		flattenCloudBuildTriggerTriggerTemplateDir(original["dir"], d)
 	transformed["branch_name"] =
-		flattenCloudbuildTriggerTriggerTemplateBranchName(original["branchName"], d)
+		flattenCloudBuildTriggerTriggerTemplateBranchName(original["branchName"], d)
 	transformed["tag_name"] =
-		flattenCloudbuildTriggerTriggerTemplateTagName(original["tagName"], d)
+		flattenCloudBuildTriggerTriggerTemplateTagName(original["tagName"], d)
 	transformed["commit_sha"] =
-		flattenCloudbuildTriggerTriggerTemplateCommitSha(original["commitSha"], d)
+		flattenCloudBuildTriggerTriggerTemplateCommitSha(original["commitSha"], d)
 	return []interface{}{transformed}
 }
-func flattenCloudbuildTriggerTriggerTemplateProjectId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerTriggerTemplateProjectId(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerTriggerTemplateRepoName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerTriggerTemplateRepoName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerTriggerTemplateDir(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerTriggerTemplateDir(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerTriggerTemplateBranchName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerTriggerTemplateBranchName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerTriggerTemplateTagName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerTriggerTemplateTagName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerTriggerTemplateCommitSha(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerTriggerTemplateCommitSha(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerBuild(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerBuild(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -500,22 +500,22 @@ func flattenCloudbuildTriggerBuild(v interface{}, d *schema.ResourceData) interf
 	}
 	transformed := make(map[string]interface{})
 	transformed["tags"] =
-		flattenCloudbuildTriggerBuildTags(original["tags"], d)
+		flattenCloudBuildTriggerBuildTags(original["tags"], d)
 	transformed["images"] =
-		flattenCloudbuildTriggerBuildImages(original["images"], d)
+		flattenCloudBuildTriggerBuildImages(original["images"], d)
 	transformed["step"] =
-		flattenCloudbuildTriggerBuildStep(original["steps"], d)
+		flattenCloudBuildTriggerBuildStep(original["steps"], d)
 	return []interface{}{transformed}
 }
-func flattenCloudbuildTriggerBuildTags(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerBuildTags(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerBuildImages(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerBuildImages(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerBuildStep(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerBuildStep(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -528,29 +528,29 @@ func flattenCloudbuildTriggerBuildStep(v interface{}, d *schema.ResourceData) in
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name": flattenCloudbuildTriggerBuildStepName(original["name"], d),
-			"args": flattenCloudbuildTriggerBuildStepArgs(original["args"], d),
+			"name": flattenCloudBuildTriggerBuildStepName(original["name"], d),
+			"args": flattenCloudBuildTriggerBuildStepArgs(original["args"], d),
 		})
 	}
 	return transformed
 }
-func flattenCloudbuildTriggerBuildStepName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerBuildStepName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenCloudbuildTriggerBuildStepArgs(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerBuildStepArgs(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func expandCloudbuildTriggerDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerDisabled(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerDisabled(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerSubstitutions(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandCloudBuildTriggerSubstitutions(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -561,19 +561,19 @@ func expandCloudbuildTriggerSubstitutions(v interface{}, d *schema.ResourceData,
 	return m, nil
 }
 
-func expandCloudbuildTriggerFilename(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerFilename(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerIgnoredFiles(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerIgnoredFiles(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerIncludedFiles(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerIncludedFiles(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerTriggerTemplate(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplate(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -582,42 +582,42 @@ func expandCloudbuildTriggerTriggerTemplate(v interface{}, d *schema.ResourceDat
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedProjectId, err := expandCloudbuildTriggerTriggerTemplateProjectId(original["project_id"], d, config)
+	transformedProjectId, err := expandCloudBuildTriggerTriggerTemplateProjectId(original["project_id"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
 		transformed["projectId"] = transformedProjectId
 	}
 
-	transformedRepoName, err := expandCloudbuildTriggerTriggerTemplateRepoName(original["repo_name"], d, config)
+	transformedRepoName, err := expandCloudBuildTriggerTriggerTemplateRepoName(original["repo_name"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedRepoName); val.IsValid() && !isEmptyValue(val) {
 		transformed["repoName"] = transformedRepoName
 	}
 
-	transformedDir, err := expandCloudbuildTriggerTriggerTemplateDir(original["dir"], d, config)
+	transformedDir, err := expandCloudBuildTriggerTriggerTemplateDir(original["dir"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedDir); val.IsValid() && !isEmptyValue(val) {
 		transformed["dir"] = transformedDir
 	}
 
-	transformedBranchName, err := expandCloudbuildTriggerTriggerTemplateBranchName(original["branch_name"], d, config)
+	transformedBranchName, err := expandCloudBuildTriggerTriggerTemplateBranchName(original["branch_name"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedBranchName); val.IsValid() && !isEmptyValue(val) {
 		transformed["branchName"] = transformedBranchName
 	}
 
-	transformedTagName, err := expandCloudbuildTriggerTriggerTemplateTagName(original["tag_name"], d, config)
+	transformedTagName, err := expandCloudBuildTriggerTriggerTemplateTagName(original["tag_name"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedTagName); val.IsValid() && !isEmptyValue(val) {
 		transformed["tagName"] = transformedTagName
 	}
 
-	transformedCommitSha, err := expandCloudbuildTriggerTriggerTemplateCommitSha(original["commit_sha"], d, config)
+	transformedCommitSha, err := expandCloudBuildTriggerTriggerTemplateCommitSha(original["commit_sha"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedCommitSha); val.IsValid() && !isEmptyValue(val) {
@@ -627,31 +627,31 @@ func expandCloudbuildTriggerTriggerTemplate(v interface{}, d *schema.ResourceDat
 	return transformed, nil
 }
 
-func expandCloudbuildTriggerTriggerTemplateProjectId(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplateProjectId(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerTriggerTemplateRepoName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplateRepoName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerTriggerTemplateDir(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplateDir(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerTriggerTemplateBranchName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplateBranchName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerTriggerTemplateTagName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplateTagName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerTriggerTemplateCommitSha(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplateCommitSha(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerBuild(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerBuild(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -660,21 +660,21 @@ func expandCloudbuildTriggerBuild(v interface{}, d *schema.ResourceData, config 
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedTags, err := expandCloudbuildTriggerBuildTags(original["tags"], d, config)
+	transformedTags, err := expandCloudBuildTriggerBuildTags(original["tags"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedTags); val.IsValid() && !isEmptyValue(val) {
 		transformed["tags"] = transformedTags
 	}
 
-	transformedImages, err := expandCloudbuildTriggerBuildImages(original["images"], d, config)
+	transformedImages, err := expandCloudBuildTriggerBuildImages(original["images"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedImages); val.IsValid() && !isEmptyValue(val) {
 		transformed["images"] = transformedImages
 	}
 
-	transformedStep, err := expandCloudbuildTriggerBuildStep(original["step"], d, config)
+	transformedStep, err := expandCloudBuildTriggerBuildStep(original["step"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedStep); val.IsValid() && !isEmptyValue(val) {
@@ -684,15 +684,15 @@ func expandCloudbuildTriggerBuild(v interface{}, d *schema.ResourceData, config 
 	return transformed, nil
 }
 
-func expandCloudbuildTriggerBuildTags(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerBuildTags(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerBuildImages(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerBuildImages(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerBuildStep(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerBuildStep(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -702,14 +702,14 @@ func expandCloudbuildTriggerBuildStep(v interface{}, d *schema.ResourceData, con
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedName, err := expandCloudbuildTriggerBuildStepName(original["name"], d, config)
+		transformedName, err := expandCloudBuildTriggerBuildStepName(original["name"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
 			transformed["name"] = transformedName
 		}
 
-		transformedArgs, err := expandCloudbuildTriggerBuildStepArgs(original["args"], d, config)
+		transformedArgs, err := expandCloudBuildTriggerBuildStepArgs(original["args"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedArgs); val.IsValid() && !isEmptyValue(val) {
@@ -721,10 +721,10 @@ func expandCloudbuildTriggerBuildStep(v interface{}, d *schema.ResourceData, con
 	return req, nil
 }
 
-func expandCloudbuildTriggerBuildStepName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerBuildStepName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudbuildTriggerBuildStepArgs(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerBuildStepArgs(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

@@ -16,6 +16,6 @@ package google
 
 import "github.com/hashicorp/terraform/helper/schema"
 
-var GeneratedSourcerepoResourcesMap = map[string]*schema.Resource{
-	"google_sourcerepo_repository": resourceSourcerepoRepository(),
+var GeneratedSourceRepoResourcesMap = map[string]*schema.Resource{
+	"google_sourcerepo_repository": resourceSourceRepoRepository(),
 }
