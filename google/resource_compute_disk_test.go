@@ -313,6 +313,39 @@ func TestAccComputeDisk_encryption(t *testing.T) {
 	})
 }
 
+func TestAccComputeDisk_encryptionKMS(t *testing.T) {
+	t.Parallel()
+
+	kms := BootstrapKMSKey(t)
+	pid := getTestProjectFromEnv()
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	importID := fmt.Sprintf("%s/%s/%s", pid, "us-central1-a", diskName)
+	var disk compute.Disk
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeDiskDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_encryptionKMS(pid, diskName, kms.CryptoKey.Name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						"google_compute_disk.foobar", pid, &disk),
+					testAccCheckEncryptionKey(
+						"google_compute_disk.foobar", &disk),
+				),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportStateId:     importID,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeDisk_deleteDetach(t *testing.T) {
 	t.Parallel()
 
@@ -644,6 +677,38 @@ resource "google_compute_disk" "foobar" {
 	}
 }`, diskName)
 }
+
+func testAccComputeDisk_encryptionKMS(pid, diskName, kmsKey string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+	project_id = "%s"
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_project_iam_member" "kms-project-binding" {
+  project = "${data.google_project.project.project_id}"
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
+}
+
+resource "google_compute_disk" "foobar" {
+  name    = "%s"
+  image   = "${data.google_compute_image.my_image.self_link}"
+  size    = 10
+  type    = "pd-ssd"
+  zone    = "us-central1-a"
+
+  disk_encryption_key {
+    kms_key_self_link = "%s"
+  }
+}
+`, pid, diskName, kmsKey)
+}
+
 func testAccComputeDisk_deleteDetach(instanceName, diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
