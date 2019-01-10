@@ -310,6 +310,19 @@ func resourceDataprocCluster() *schema.Resource {
 								},
 							},
 						},
+						"encryption_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"kms_key_name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -502,6 +515,10 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 		conf.InitializationActions = expandInitializationActions(v)
 	}
 
+	if cfg, ok := configOptions(d, "cluster_config.0.encryption_config"); ok {
+		conf.EncryptionConfig = expandEncryptionConfig(cfg)
+	}
+
 	if cfg, ok := configOptions(d, "cluster_config.0.master_config"); ok {
 		log.Println("[INFO] got master_config")
 		conf.MasterConfig = expandInstanceGroupConfig(cfg)
@@ -584,6 +601,14 @@ func expandSoftwareConfig(cfg map[string]interface{}) *dataproc.SoftwareConfig {
 	}
 	if v, ok := cfg["image_version"]; ok {
 		conf.ImageVersion = v.(string)
+	}
+	return conf
+}
+
+func expandEncryptionConfig(cfg map[string]interface{}) *dataproc.EncryptionConfig {
+	conf := &dataproc.EncryptionConfig{}
+	if v, ok := cfg["kms_key_name"]; ok {
+		conf.GcePdKmsKeyName = v.(string)
 	}
 	return conf
 }
@@ -796,6 +821,7 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 		"master_config":             flattenInstanceGroupConfig(d, cfg.MasterConfig),
 		"worker_config":             flattenInstanceGroupConfig(d, cfg.WorkerConfig),
 		"preemptible_worker_config": flattenPreemptibleInstanceGroupConfig(d, cfg.SecondaryWorkerConfig),
+		"encryption_config":         flattenEncryptionConfig(d, cfg.EncryptionConfig),
 	}
 
 	if len(cfg.InitializationActions) > 0 {
@@ -813,6 +839,14 @@ func flattenSoftwareConfig(d *schema.ResourceData, sc *dataproc.SoftwareConfig) 
 		"image_version":       sc.ImageVersion,
 		"properties":          sc.Properties,
 		"override_properties": d.Get("cluster_config.0.software_config.0.override_properties").(map[string]interface{}),
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenEncryptionConfig(d *schema.ResourceData, ec *dataproc.EncryptionConfig) []map[string]interface{} {
+	data := map[string]interface{}{
+		"kms_key_name": ec.GcePdKmsKeyName,
 	}
 
 	return []map[string]interface{}{data}

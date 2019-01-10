@@ -481,6 +481,29 @@ func TestAccDataprocCluster_withNetworkRefs(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_KMS(t *testing.T) {
+	t.Parallel()
+
+	rnd := acctest.RandString(10)
+	kms := BootstrapKMSKey(t)
+	pid := getTestProjectFromEnv()
+
+	var cluster dataproc.Cluster
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_KMS(pid, rnd, kms.CryptoKey.Name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists("google_dataproc_cluster.kms", &cluster),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDataprocClusterDestroy() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -777,7 +800,7 @@ resource "google_dataproc_cluster" "basic" {
 	name                  = "dproc-cluster-test-%s"
 	region                = "us-central1"
 	depends_on            = ["google_compute_firewall.dataproc_network_firewall"]
-	
+
 	cluster_config {
 		gce_cluster_config {
 			subnetwork       = "${google_compute_subnetwork.dataproc_subnetwork.name}"
@@ -1154,4 +1177,28 @@ resource "google_dataproc_cluster" "with_net_ref_by_url" {
 }
 
 `, netName, rnd, rnd, rnd)
+}
+
+func testAccDataprocCluster_KMS(pid, rnd, kmsKey string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+	project_id = "%s"
+}
+
+resource "google_project_iam_member" "kms-project-binding" {
+  project = "${data.google_project.project.project_id}"
+	role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+	member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
+}
+
+resource "google_dataproc_cluster" "kms" {
+	name   = "dproc-cluster-test-%s"
+	region = "us-central1"
+
+	cluster_config {
+		encryption_config {
+			kms_key_name = "%s"
+		}
+	}
+}`, pid, rnd, kmsKey)
 }
