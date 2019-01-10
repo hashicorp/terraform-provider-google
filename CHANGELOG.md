@@ -43,6 +43,7 @@ FEATURES:
 * **New Resource**: `google_project_iam_audit_config` [GH-2731]
 
 ENHANCEMENTS:
+* provider: Add `access_token` config option to allow Terraform to authenticate using short-lived Google OAuth 2.0 access token [GH-2838]
 * bigquery: Add `default_partition_expiration_ms` field to `google_bigquery_dataset` resource. [GH-2287]
 * bigquery: Add `time_partitioning.require_partition_filter` to `google_bigquery_table` resource. [GH-2815]
 * bigquery: Allow more BigQuery regions [GH-2566]
@@ -72,6 +73,7 @@ BUG FIXES:
 * compute: send instance scheduling block with automaticrestart true if there is none in cfg [GH-2638]
 * compute: fix disk behaivor in compute_instance_from_template [GH-2695]
 * compute: add diffsuppress for region_autoscaler.target so it can be used with both versions of the provider [GH-2770]
+* compute: fix ID for inferring project for old compute_project_metadata states [GH-2844]
 * dataproc: convert dataproc_cluster.cluster_config.gce_cluster_config.tags into a set [GH-2633]
 * iam: fix permadiff when stage is ALPHA [GH-2370]
 * iam: add another retry if iam read returns nil [GH-2629]
