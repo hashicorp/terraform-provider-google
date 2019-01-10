@@ -845,6 +845,10 @@ func flattenSoftwareConfig(d *schema.ResourceData, sc *dataproc.SoftwareConfig) 
 }
 
 func flattenEncryptionConfig(d *schema.ResourceData, ec *dataproc.EncryptionConfig) []map[string]interface{} {
+	if ec == nil {
+		return nil
+	}
+
 	data := map[string]interface{}{
 		"kms_key_name": ec.GcePdKmsKeyName,
 	}
