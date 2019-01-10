@@ -31,8 +31,11 @@ func Provider() terraform.ResourceProvider {
 			},
 
 			"access_token": {
-				Type:          schema.TypeString,
-				Optional:      true,
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_OAUTH_ACCESS_TOKEN",
+				}, nil),
 				ConflictsWith: []string{"credentials"},
 			},
 

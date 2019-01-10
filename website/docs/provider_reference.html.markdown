@@ -95,6 +95,17 @@ share the same configuration.
   only be used when running Terraform from within [certain GCP resources](https://cloud.google.com/docs/authentication/production#obtaining_credentials_on_compute_engine_kubernetes_engine_app_engine_flexible_environment_and_cloud_functions).
   Credentials obtained through `gcloud` are not guaranteed to work for all APIs.
 
+* `access_token` - (Optional) An temporary [OAuth 2.0 access token](https://developers.google.com/identity/protocols/OAuth2)
+  obtained from the Google Authorization server, i.e. the
+  `Authorization: Bearer` token used to authenticate Google API HTTP requests.
+
+  Access tokens can also be specified using any of the following environment
+  variables (listed in order of precedence):
+
+    * `GOOGLE_OAUTH_ACCESS_TOKEN`
+
+  -> These access tokens cannot be renewed by Terraform and thus will only work for at most 1 hour. If you anticipate Terraform needing access for more than one hour per run, please use `credentials` instead. Credentials are used to complete a two-legged OAuth 2.0 flow on your behalf to obtain access tokens and can be used renew or reauthenticate for tokens as needed.
+
 * `project` - (Optional) The ID of the project to apply any resources to.  This
   can also be specified using any of the following environment variables (listed
   in order of precedence):

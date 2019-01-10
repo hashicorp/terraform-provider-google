@@ -346,9 +346,14 @@ func (c *Config) loadAndValidate() error {
 
 func (c *Config) getTokenSource(clientScopes []string) (oauth2.TokenSource, error) {
 	if c.AccessToken != "" {
-		log.Printf("[INFO] Using configured Google access token (length %d)", len(c.AccessToken))
+		contents, _, err := pathorcontents.Read(c.AccessToken)
+		if err != nil {
+			return nil, fmt.Errorf("Error loading access token: %s", err)
+		}
+
+		log.Printf("[INFO] Authenticating using configured Google JSON 'access_token'...")
 		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-		token := &oauth2.Token{AccessToken: c.AccessToken}
+		token := &oauth2.Token{AccessToken: contents}
 		return oauth2.StaticTokenSource(token), nil
 	}
 
@@ -363,12 +368,12 @@ func (c *Config) getTokenSource(clientScopes []string) (oauth2.TokenSource, erro
 			return nil, fmt.Errorf("Unable to parse credentials from '%s': %s", contents, err)
 		}
 
-		log.Printf("[INFO] Requesting Google token using Credential File %q...", c.Credentials)
+		log.Printf("[INFO] Authenticating using configured Google JSON 'credentials'...")
 		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
 		return creds.TokenSource, nil
 	}
 
-	log.Printf("[INFO] Authenticating using DefaultClient")
+	log.Printf("[INFO] Authenticating using DefaultClient...")
 	log.Printf("[INFO]   -- Scopes: %s", clientScopes)
 	return googleoauth.DefaultTokenSource(context.Background(), clientScopes...)
 }
