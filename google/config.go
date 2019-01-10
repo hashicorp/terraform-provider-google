@@ -2,11 +2,9 @@ package google
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/logging"
 	"github.com/hashicorp/terraform/helper/pathorcontents"
@@ -14,8 +12,7 @@ import (
 	"github.com/terraform-providers/terraform-provider-google/version"
 
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
-	"golang.org/x/oauth2/jwt"
+	googleoauth "golang.org/x/oauth2/google"
 	appengine "google.golang.org/api/appengine/v1"
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/cloudbilling/v1"
@@ -53,6 +50,7 @@ import (
 // provider.
 type Config struct {
 	Credentials string
+	AccessToken string
 	Project     string
 	Region      string
 	Zone        string
@@ -98,7 +96,6 @@ type Config struct {
 }
 
 func (c *Config) loadAndValidate() error {
-	var account accountFile
 	clientScopes := []string{
 		"https://www.googleapis.com/auth/compute",
 		"https://www.googleapis.com/auth/cloud-platform",
@@ -106,55 +103,13 @@ func (c *Config) loadAndValidate() error {
 		"https://www.googleapis.com/auth/devstorage.full_control",
 	}
 
-	var client *http.Client
-	var tokenSource oauth2.TokenSource
-
-	if c.Credentials != "" {
-		contents, _, err := pathorcontents.Read(c.Credentials)
-		if err != nil {
-			return fmt.Errorf("Error loading credentials: %s", err)
-		}
-
-		// Assume account_file is a JSON string
-		if err := parseJSON(&account, contents); err != nil {
-			return fmt.Errorf("Error parsing credentials '%s': %s", contents, err)
-		}
-
-		// Get the token for use in our requests
-		log.Printf("[INFO] Requesting Google token...")
-		log.Printf("[INFO]   -- Email: %s", account.ClientEmail)
-		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-		log.Printf("[INFO]   -- Private Key Length: %d", len(account.PrivateKey))
-
-		conf := jwt.Config{
-			Email:      account.ClientEmail,
-			PrivateKey: []byte(account.PrivateKey),
-			Scopes:     clientScopes,
-			TokenURL:   "https://accounts.google.com/o/oauth2/token",
-		}
-
-		// Initiate an http.Client. The following GET request will be
-		// authorized and authenticated on the behalf of
-		// your service account.
-		client = conf.Client(context.Background())
-
-		tokenSource = conf.TokenSource(context.Background())
-	} else {
-		log.Printf("[INFO] Authenticating using DefaultClient")
-		err := error(nil)
-		client, err = google.DefaultClient(context.Background(), clientScopes...)
-		if err != nil {
-			return err
-		}
-
-		tokenSource, err = google.DefaultTokenSource(context.Background(), clientScopes...)
-		if err != nil {
-			return err
-		}
+	tokenSource, err := c.getTokenSource(clientScopes)
+	if err != nil {
+		return err
 	}
-
 	c.tokenSource = tokenSource
 
+	client := oauth2.NewClient(context.Background(), tokenSource)
 	client.Transport = logging.NewTransport("Google", client.Transport)
 
 	terraformVersion := httpclient.UserAgentString()
@@ -164,8 +119,6 @@ func (c *Config) loadAndValidate() error {
 
 	c.client = client
 	c.userAgent = userAgent
-
-	var err error
 
 	log.Printf("[INFO] Instantiating GCE client...")
 	c.clientCompute, err = compute.New(client)
@@ -391,17 +344,31 @@ func (c *Config) loadAndValidate() error {
 	return nil
 }
 
-// accountFile represents the structure of the account file JSON file.
-type accountFile struct {
-	PrivateKeyId string `json:"private_key_id"`
-	PrivateKey   string `json:"private_key"`
-	ClientEmail  string `json:"client_email"`
-	ClientId     string `json:"client_id"`
-}
+func (c *Config) getTokenSource(clientScopes []string) (oauth2.TokenSource, error) {
+	if c.AccessToken != "" {
+		log.Printf("[INFO] Using configured Google access token (length %d)", len(c.AccessToken))
+		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
+		token := &oauth2.Token{AccessToken: c.AccessToken}
+		return oauth2.StaticTokenSource(token), nil
+	}
 
-func parseJSON(result interface{}, contents string) error {
-	r := strings.NewReader(contents)
-	dec := json.NewDecoder(r)
+	if c.Credentials != "" {
+		contents, _, err := pathorcontents.Read(c.Credentials)
+		if err != nil {
+			return nil, fmt.Errorf("Error loading credentials: %s", err)
+		}
 
-	return dec.Decode(result)
+		creds, err := googleoauth.CredentialsFromJSON(context.Background(), []byte(contents), clientScopes...)
+		if err != nil {
+			return nil, fmt.Errorf("Unable to parse credentials from '%s': %s", contents, err)
+		}
+
+		log.Printf("[INFO] Requesting Google token using Credential File %q...", c.Credentials)
+		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
+		return creds.TokenSource, nil
+	}
+
+	log.Printf("[INFO] Authenticating using DefaultClient")
+	log.Printf("[INFO]   -- Scopes: %s", clientScopes)
+	return googleoauth.DefaultTokenSource(context.Background(), clientScopes...)
 }
