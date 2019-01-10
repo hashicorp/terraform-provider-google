@@ -113,7 +113,7 @@ The following arguments are supported:
 
 * `source_disk` -
   (Optional)
-  Refers to a gcompute_disk object
+  The source disk to create this image based on.
   You must provide either this property or the
   rawDisk.source property but not both to create an image.
 * `project` - (Optional) The ID of the project in which the resource belongs.
