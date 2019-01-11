@@ -49,8 +49,8 @@ exported:
 
 ## Import
 
-IAM member imports use space-delimited identifiers; the resource in question, the role, and the account.  This member resource can be imported using the `crypto_key_id`, role, and account e.g.
+IAM member imports use space-delimited identifiers; the resource in question, the role, and the account.  This member resource can be imported using the `crypto_key_id`, role, and member identity e.g.
 
 ```
-$ terraform import google_kms_crypto_key_iam_member.member "your-project-id/location-name/key-name roles/viewer foo@example.com"
+$ terraform import google_kms_crypto_key_iam_member.member "your-project-id/location-name/key-name roles/viewer user:foo@example.com"
 ```

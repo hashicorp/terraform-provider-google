@@ -108,12 +108,20 @@ exported:
 
 ## Import
 
-IAM resources can be imported using the `project_id`, role, and account.
+IAM member imports use space-delimited identifiers; the resource in question, the role, and the account.  This member resource can be imported using the `project_id`, role, and member e.g.
+
+```
+$ terraform import google_project_iam_member.my_project "your-project-id roles/viewer user:user:foo@example.com"
+```
+
+IAM binding imports use space-delimited identifiers; the resource in question and the role.  This binding resource can be imported using the `project_id` and role, e.g.
+
+```
+terraform import google_project_iam_binding.my_project "your-project-id roles/viewer"
+```
+
+IAM policy imports use the identifier of the resource in question.  This policy resource can be imported using the `project_id`.
 
 ```
 $ terraform import google_project_iam_policy.my_project your-project-id
-
-$ terraform import google_project_iam_binding.my_project "your-project-id roles/viewer"
-
-$ terraform import google_project_iam_member.my_project "your-project-id roles/viewer foo@example.com"
 ```

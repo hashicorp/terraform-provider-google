@@ -118,12 +118,12 @@ exported:
 
 ## Import
 
-Service account IAM resources can be imported using the project, service account email, role and member.
+Service account IAM resources can be imported using the project, service account email, role and member identity.
 
 ```
 $ terraform import google_service_account_iam_policy.admin-account-iam projects/{your-project-id}/serviceAccounts/{your-service-account-email}
 
 $ terraform import google_service_account_iam_binding.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} roles/editor"
 
-$ terraform import google_service_account_iam_member.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} roles/editor foo@example.com"
+$ terraform import google_service_account_iam_member.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} roles/editor user:foo@example.com"
 ```

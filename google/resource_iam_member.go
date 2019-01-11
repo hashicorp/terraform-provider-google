@@ -36,7 +36,7 @@ func iamMemberImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 		s := strings.Fields(d.Id())
 		if len(s) != 3 {
 			d.SetId("")
-			return nil, fmt.Errorf("Wrong number of parts to Member id %s; expected 'resource_name role username'.", s)
+			return nil, fmt.Errorf("Wrong number of parts to Member id %s; expected 'resource_name role member'.", s)
 		}
 		id, role, member := s[0], s[1], s[2]
 

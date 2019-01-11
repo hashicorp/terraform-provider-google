@@ -105,7 +105,7 @@ For all import syntaxes, the "resource in question" can take any of the followin
 IAM member imports use space-delimited identifiers; the resource in question, the role, and the account, e.g.
 
 ```
-$ terraform import google_spanner_instance_iam_member.instance "project-name/instance-name roles/viewer foo@example.com"
+$ terraform import google_spanner_instance_iam_member.instance "project-name/instance-name roles/viewer user:foo@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers; the resource in question and the role, e.g.

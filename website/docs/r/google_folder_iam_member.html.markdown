@@ -56,8 +56,8 @@ exported:
 
 ## Import
 
-IAM member imports use space-delimited identifiers; the resource in question, the role, and the account.  This member resource can be imported using the `folder`, role, and account e.g.
+IAM member imports use space-delimited identifiers; the resource in question, the role, and the account.  This member resource can be imported using the `folder`, role, and member identity e.g.
 
 ```
-$ terraform import google_folder_iam_member.my_project "folder-name roles/viewer foo@example.com"
+$ terraform import google_folder_iam_member.my_project "folder-name roles/viewer user:foo@example.com"
 ```
