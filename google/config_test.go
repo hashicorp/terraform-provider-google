@@ -60,6 +60,7 @@ func TestAccConfigLoadValidate_credentials(t *testing.T) {
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
+	testAccPreCheck(t)
 
 	creds := getTestCredsFromEnv()
 	proj := getTestProjectFromEnv()
@@ -85,6 +86,7 @@ func TestAccConfigLoadValidate_accessToken(t *testing.T) {
 	if os.Getenv(resource.TestEnvVar) == "" {
 		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
 	}
+	testAccPreCheck(t)
 
 	creds := getTestCredsFromEnv()
 	proj := getTestProjectFromEnv()
