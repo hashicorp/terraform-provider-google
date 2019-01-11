@@ -104,8 +104,8 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 						},
 						"port": {
 							Type:     schema.TypeInt,
+							Computed: true,
 							Optional: true,
-							Default:  80,
 						},
 						"use_ssl": {
 							Type:     schema.TypeBool,
