@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"google.golang.org/api/composer/v1beta1"
+	composer "google.golang.org/api/composer/v1beta1"
 )
 
 const (
