@@ -8,11 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-multierror"
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"google.golang.org/api/composer/v1beta1"
+	composer "google.golang.org/api/composer/v1beta1"
 	"google.golang.org/api/storage/v1"
 )
 
