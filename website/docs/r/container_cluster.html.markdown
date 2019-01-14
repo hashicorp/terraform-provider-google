@@ -176,7 +176,9 @@ to the datasource. A `region` can have a different set of supported versions tha
 
 * `node_version` - (Optional) The Kubernetes version on the nodes. Must either be unset
     or set to the same value as `min_master_version` on create. Defaults to the default
-    version set by GKE which is not necessarily the latest version.
+    version set by GKE which is not necessarily the latest version. This only affects
+    nodes in the default node pool. To update nodes in other node pools, use the `version`
+    attribute on the node pool.
 
 * `pod_security_policy_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Configuration for the
     [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
