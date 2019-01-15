@@ -9,7 +9,8 @@ description: |-
 # Google Cloud Platform Provider
 
 -> We recently introduced the `google-beta` provider. See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
-for more details on how to use `google-beta`.
+for more details on how to use `google-beta`. The documentation in this site is shared between both `google` and `google-beta`; fields or
+resources only present in `google-beta` will be marked as such.
 
 The Google provider is used to configure your [Google Cloud Platform](https://cloud.google.com/) infrastructure. 
 See the [Getting Started](/docs/providers/google/getting_started.html) page for an introduction to using the provider.
