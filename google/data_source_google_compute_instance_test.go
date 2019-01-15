@@ -129,5 +129,9 @@ data "google_compute_instance" "bar" {
 	name = "${google_compute_instance.foo.name}"
 	zone = "us-central1-a"
 }
+
+data "google_compute_instance" "baz" {
+	self_link = "${google_compute_instance.foo.self_link}"
+}
 `, instanceName)
 }
