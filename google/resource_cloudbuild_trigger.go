@@ -102,7 +102,6 @@ func resourceCloudBuildTrigger() *schema.Resource {
 			"ignored_files": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -110,7 +109,6 @@ func resourceCloudBuildTrigger() *schema.Resource {
 			"included_files": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -346,6 +344,18 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("filename"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, filenameProp)) {
 		obj["filename"] = filenameProp
+	}
+	ignoredFilesProp, err := expandCloudBuildTriggerIgnoredFiles(d.Get("ignored_files"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ignored_files"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ignoredFilesProp)) {
+		obj["ignoredFiles"] = ignoredFilesProp
+	}
+	includedFilesProp, err := expandCloudBuildTriggerIncludedFiles(d.Get("included_files"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("included_files"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, includedFilesProp)) {
+		obj["includedFiles"] = includedFilesProp
 	}
 	triggerTemplateProp, err := expandCloudBuildTriggerTriggerTemplate(d.Get("trigger_template"), d, config)
 	if err != nil {
