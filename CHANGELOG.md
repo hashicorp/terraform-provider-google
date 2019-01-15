@@ -109,6 +109,7 @@ ENHANCEMENTS:
 BUG FIXES:
 * bigquery: added australia and europe regions to the validate function ([#2333](https://github.com/terraform-providers/terraform-provider-google/issues/2333))
 * compute: `google_compute_disk.snapshot`, `google_compute_region_disk.snapshot` properly allow partial URIs. ([#2450](https://github.com/terraform-providers/terraform-provider-google/issues/2450))
+* compute: The `google_compute_instance` datasource can now be addressed by `self_link`. [GH-2874]
 * pubsub: fix issue where not all attributes were saved in state ([#2469](https://github.com/terraform-providers/terraform-provider-google/issues/2469))
 
 
