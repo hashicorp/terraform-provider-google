@@ -175,6 +175,13 @@ The `source_image_encryption_key` block supports:
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
 
+* `kms_key_self_link` -
+  (Optional)
+  The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
+  in the cloud console. In order to use this additional
+  IAM permissions need to be set on the Compute Engine Service Agent. See
+  https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+
 The `disk_encryption_key` block supports:
 
 * `raw_key` -
@@ -186,12 +193,26 @@ The `disk_encryption_key` block supports:
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
 
+* `kms_key_self_link` -
+  (Optional)
+  The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
+  in the cloud console. In order to use this additional
+  IAM permissions need to be set on the Compute Engine Service Agent. See
+  https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+
 The `source_snapshot_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
   RFC 4648 base64 to either encrypt or decrypt this resource.
+
+* `kms_key_self_link` -
+  (Optional)
+  The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
+  in the cloud console. In order to use this additional
+  IAM permissions need to be set on the Compute Engine Service Agent. See
+  https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
 
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
