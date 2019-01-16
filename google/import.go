@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -23,10 +24,12 @@ func parseImportId(idRegexes []string, d TerraformResourceData, config *Config) 
 		}
 
 		if fieldValues := re.FindStringSubmatch(d.Id()); fieldValues != nil {
+			log.Printf("[DEBUG] matching ID %s to regex %s.", d.Id(), idFormat)
 			// Starting at index 1, the first match is the full string.
 			for i := 1; i < len(fieldValues); i++ {
 				fieldName := re.SubexpNames()[i]
 				fieldValue := fieldValues[i]
+				log.Printf("[DEBUG] importing %s = %s", fieldName, fieldValue)
 				// Because we do not know at this point whether 'fieldName'
 				// corresponds to a TypeString or a TypeInteger in the resource
 				// schema, we need to determine the type in an unintutitive way.
