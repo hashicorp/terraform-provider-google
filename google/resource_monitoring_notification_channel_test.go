@@ -7,6 +7,27 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
+func TestMonitoringNotificationChannel_labelsObfuscated(t *testing.T) {
+	testCases := map[string]struct {
+		serverV  string
+		expected bool
+	}{
+		"":         {"", false},
+		"foo":      {"foo", false},
+		"value":    {"diffValue", false},
+		"charcnt8": {"****diff", false},
+		"foobar":   {"***bar", true},
+		"SECRET":   {"**CRET", true},
+	}
+
+	for stateV, testCase := range testCases {
+		result := isMonitoringNotificationChannelLabelsObfuscated(testCase.serverV, stateV)
+		if result != testCase.expected {
+			t.Errorf("expected state value %q and server value %q to return obfuscated=%t, got %t", stateV, testCase.serverV, testCase.expected, result)
+		}
+	}
+}
+
 func TestAccMonitoringNotificationChannel_update(t *testing.T) {
 	t.Parallel()
 

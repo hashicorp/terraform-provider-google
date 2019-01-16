@@ -71,7 +71,18 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Configuration fields that define the channel and its behavior. The permissible and required labels are specified in the NotificationChannelDescriptor.labels of the NotificationChannelDescriptor corresponding to the type field.
+  Configuration fields that define the channel and its behavior. The
+  permissible and required labels are specified in the
+  NotificationChannelDescriptor corresponding to the type field.
+  **Note**: Some NotificationChannelDescriptor labels are
+  sensitive and the API will return an partially-obfuscated value.
+  For example, for `"type": "slack"` channels, an `auth_token`
+  label with value "SECRET" will be obfuscated as "**CRET". In order
+  to avoid a diff, Terraform will use the state value if it appears
+  that the obfuscated value matches the state value in
+  length/unobfuscated characters. However, Terraform will not detect a
+  a diff if the obfuscated portion of the value was changed outside of
+  Terraform.
 
 * `user_labels` -
   (Optional)
