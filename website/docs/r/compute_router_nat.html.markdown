@@ -49,7 +49,7 @@ resource "google_compute_router_nat" "simple-nat" {
 ```
 
 A production-like configuration: enable NAT for one Subnetwork and use a list of
-static external IP address.
+static external IP addresses.
 
 ```hcl
 resource "google_compute_network" "default" {
