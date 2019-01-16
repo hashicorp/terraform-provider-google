@@ -51,8 +51,7 @@ func NewSpannerDatabaseIamUpdater(d *schema.ResourceData, config *Config) (Resou
 }
 
 func SpannerDatabaseIdParseFunc(d *schema.ResourceData, config *Config) error {
-	_, err := resourceSpannerDatabaseImport("database")(d, config)
-	return err
+	return parseImportId([]string{"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<database>[^/]+)"}, d, config)
 }
 
 func (u *SpannerDatabaseIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
@@ -129,4 +128,26 @@ func spannerToResourceManagerPolicy(p *spanner.Policy) (*cloudresourcemanager.Po
 		return nil, errwrap.Wrapf("Cannot convert a spanner policy to a resourcemanager policy: {{err}}", err)
 	}
 	return out, nil
+}
+
+type spannerDatabaseId struct {
+	Project  string
+	Instance string
+	Database string
+}
+
+func (s spannerDatabaseId) terraformId() string {
+	return fmt.Sprintf("%s/%s/%s", s.Project, s.Instance, s.Database)
+}
+
+func (s spannerDatabaseId) parentProjectUri() string {
+	return fmt.Sprintf("projects/%s", s.Project)
+}
+
+func (s spannerDatabaseId) parentInstanceUri() string {
+	return fmt.Sprintf("%s/instances/%s", s.parentProjectUri(), s.Instance)
+}
+
+func (s spannerDatabaseId) databaseUri() string {
+	return fmt.Sprintf("%s/databases/%s", s.parentInstanceUri(), s.Database)
 }
