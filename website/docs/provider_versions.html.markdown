@@ -13,10 +13,14 @@ Starting with version `1.19.0`, there are two versions of the Google provider:
 * `google`
 * `google-beta`
 
-All GA (generally available) products and features are available in both
-versions of the provider.
+This documentation (https://www.terraform.io/docs/providers/google/) is shared
+between both providers. Fields and resources that are only present in
+`google-beta` will be marked as such.
 
-From version `2.0.0` onwards, beta GCP features are only available in the `google-beta` provider.
+All GA (generally available) products and features are available in both
+versions of the provider, and from the `2.0.0` release onwards beta GCP features
+are only available in the `google-beta` provider.
+
 Beta GCP features have no deprecation policy and no SLA, but are otherwise considered to be feature-complete
 with only minor outstanding issues after their Alpha period. Beta is when GCP
 features are publicly announced, and is when they generally become publicly
