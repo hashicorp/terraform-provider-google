@@ -100,6 +100,8 @@ func Provider() terraform.ResourceProvider {
 			"google_iam_policy":                               dataSourceGoogleIamPolicy(),
 			"google_iam_role":                                 dataSourceGoogleIamRole(),
 			"google_kms_secret":                               dataSourceGoogleKmsSecret(),
+			"google_kms_key_ring":                             dataSourceGoogleKmsKeyRing(),
+			"google_kms_crypto_key":                           dataSourceGoogleKmsCryptoKey(),
 			"google_folder":                                   dataSourceGoogleFolder(),
 			"google_netblock_ip_ranges":                       dataSourceGoogleNetblockIpRanges(),
 			"google_organization":                             dataSourceGoogleOrganization(),
