@@ -117,3 +117,17 @@ func TestAccConfigLoadValidate_accessToken(t *testing.T) {
 		t.Fatalf("expected API call with loaded config to work, got error: %s", err)
 	}
 }
+
+func TestConfigLoadAndValidate_defaultScopes(t *testing.T) {
+	config := Config{}
+	err := config.loadAndValidate()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	for index, scope := range defaultClientScopes {
+		if config.Scopes[index] != scope {
+			t.Fatalf("Unexpected default client scopes: %v, index %d", config.Scopes[index], index)
+		}
+	}
+}

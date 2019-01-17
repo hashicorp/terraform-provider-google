@@ -54,6 +54,7 @@ type Config struct {
 	Project     string
 	Region      string
 	Zone        string
+	Scopes      []string
 
 	client    *http.Client
 	userAgent string
@@ -95,15 +96,19 @@ type Config struct {
 	bigtableClientFactory *BigtableClientFactory
 }
 
+var defaultClientScopes = []string{
+	"https://www.googleapis.com/auth/compute",
+	"https://www.googleapis.com/auth/cloud-platform",
+	"https://www.googleapis.com/auth/ndev.clouddns.readwrite",
+	"https://www.googleapis.com/auth/devstorage.full_control",
+}
+
 func (c *Config) loadAndValidate() error {
-	clientScopes := []string{
-		"https://www.googleapis.com/auth/compute",
-		"https://www.googleapis.com/auth/cloud-platform",
-		"https://www.googleapis.com/auth/ndev.clouddns.readwrite",
-		"https://www.googleapis.com/auth/devstorage.full_control",
+	if len(c.Scopes) == 0 {
+		c.Scopes = defaultClientScopes
 	}
 
-	tokenSource, err := c.getTokenSource(clientScopes)
+	tokenSource, err := c.getTokenSource(c.Scopes)
 	if err != nil {
 		return err
 	}
