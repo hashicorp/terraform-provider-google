@@ -1108,6 +1108,7 @@ resource "google_compute_firewall" "dataproc_network_firewall" {
 	name = "dproc-cluster-test-%s-allow-internal"
 	description = "Firewall rules for dataproc Terraform acceptance testing"
 	network = "${google_compute_network.dataproc_network.name}"
+	source_ranges = ["192.168.0.0/16"]
 
 	allow {
 		protocol = "icmp"
