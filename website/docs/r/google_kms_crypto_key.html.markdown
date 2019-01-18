@@ -9,7 +9,7 @@ description: |-
 # google\_kms\_crypto\_key
 
 Allows creation of a Google Cloud Platform KMS CryptoKey. For more information see
-[the official documentation](https://cloud.google.com/kms/docs/object-hierarchy#cryptokey)
+[the official documentation](https://cloud.google.com/kms/docs/object-hierarchy#key)
 and
 [API](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys).
 
@@ -59,7 +59,7 @@ The following arguments are supported:
     the primary. The first rotation will take place after the specified period. The rotation period has the format
     of a decimal number with up to 9 fractional digits, followed by the letter s (seconds). It must be greater than
     a day (ie, 86400).
-    
+
 * `version_template` - (Optional) A template describing settings for new crypto key versions. Structure is documented below.
 
 ---
