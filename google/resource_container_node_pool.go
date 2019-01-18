@@ -696,7 +696,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 	if d.HasChange(prefix + "version") {
 		req := &containerBeta.UpdateNodePoolRequest{
 			NodePoolId:  name,
-			NodeVersion: d.Get("version").(string),
+			NodeVersion: d.Get(prefix + "version").(string),
 		}
 		updateF := func() error {
 			op, err := config.clientContainerBeta.Projects.

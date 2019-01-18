@@ -902,56 +902,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		d.SetPartial("master_authorized_networks_config")
 	}
 
-	// The master must be updated before the nodes
-	if d.HasChange("min_master_version") {
-		desiredMasterVersion := d.Get("min_master_version").(string)
-		currentMasterVersion := d.Get("master_version").(string)
-		des, err := version.NewVersion(desiredMasterVersion)
-		if err != nil {
-			return err
-		}
-		cur, err := version.NewVersion(currentMasterVersion)
-		if err != nil {
-			return err
-		}
-
-		// Only upgrade the master if the current version is lower than the desired version
-		if cur.LessThan(des) {
-			req := &containerBeta.UpdateClusterRequest{
-				Update: &containerBeta.ClusterUpdate{
-					DesiredMasterVersion: desiredMasterVersion,
-				},
-			}
-
-			updateF := updateFunc(req, "updating GKE master version")
-			// Call update serially.
-			if err := lockedCall(lockKey, updateF); err != nil {
-				return err
-			}
-			log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(), desiredMasterVersion)
-		}
-		d.SetPartial("min_master_version")
-	}
-
-	if d.HasChange("node_version") {
-		desiredNodeVersion := d.Get("node_version").(string)
-		req := &containerBeta.UpdateClusterRequest{
-			Update: &containerBeta.ClusterUpdate{
-				DesiredNodeVersion: desiredNodeVersion,
-			},
-		}
-
-		updateF := updateFunc(req, "updating GKE node version")
-		// Call update serially.
-		if err := lockedCall(lockKey, updateF); err != nil {
-			return err
-		}
-		log.Printf("[INFO] GKE cluster %s: nodes have been updated to %s", d.Id(),
-			desiredNodeVersion)
-
-		d.SetPartial("node_version")
-	}
-
 	if d.HasChange("addons_config") {
 		if ac, ok := d.GetOk("addons_config"); ok {
 			req := &containerBeta.UpdateClusterRequest{
@@ -1176,6 +1126,71 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			}
 		}
 		d.SetPartial("node_pool")
+	}
+
+	// The master must be updated before the nodes
+	if d.HasChange("min_master_version") {
+		desiredMasterVersion := d.Get("min_master_version").(string)
+		currentMasterVersion := d.Get("master_version").(string)
+		des, err := version.NewVersion(desiredMasterVersion)
+		if err != nil {
+			return err
+		}
+		cur, err := version.NewVersion(currentMasterVersion)
+		if err != nil {
+			return err
+		}
+
+		// Only upgrade the master if the current version is lower than the desired version
+		if cur.LessThan(des) {
+			req := &containerBeta.UpdateClusterRequest{
+				Update: &containerBeta.ClusterUpdate{
+					DesiredMasterVersion: desiredMasterVersion,
+				},
+			}
+
+			updateF := updateFunc(req, "updating GKE master version")
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+			log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(), desiredMasterVersion)
+		}
+		d.SetPartial("min_master_version")
+	}
+
+	// It's not super important that this come after updating the node pools, but it still seems like a better
+	// idea than doing it before.
+	if d.HasChange("node_version") {
+		foundDefault := false
+		if n, ok := d.GetOk("node_pool.#"); ok {
+			for i := 0; i < n.(int); i++ {
+				key := fmt.Sprintf("node_pool.%d.", i)
+				if d.Get(key+"name").(string) == "default-pool" {
+					desiredNodeVersion := d.Get("node_version").(string)
+					req := &containerBeta.UpdateClusterRequest{
+						Update: &containerBeta.ClusterUpdate{
+							DesiredNodeVersion: desiredNodeVersion,
+							DesiredNodePoolId:  "default-pool",
+						},
+					}
+					updateF := updateFunc(req, "updating GKE default node pool node version")
+					// Call update serially.
+					if err := lockedCall(lockKey, updateF); err != nil {
+						return err
+					}
+					log.Printf("[INFO] GKE cluster %s: default node pool has been updated to %s", d.Id(),
+						desiredNodeVersion)
+					foundDefault = true
+				}
+			}
+		}
+
+		if !foundDefault {
+			return fmt.Errorf("node_version was updated but default-pool was not found. To update the version for a non-default pool, use the version attribute on that pool.")
+		}
+
+		d.SetPartial("node_version")
 	}
 
 	if d.HasChange("node_config") {
