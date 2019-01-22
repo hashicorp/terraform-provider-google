@@ -91,7 +91,7 @@ func main() {
 		}
 	}
 	testnames := []string{}
-	for tn, _ := range tests {
+	for tn := range tests {
 		testnames = append(testnames, tn)
 	}
 	sort.Strings(testnames)
@@ -153,7 +153,7 @@ func getResourceName(fName, googleDir string, providerFiles []string) (string, e
 	}
 	// Loop through all the top-level objects in the resource file.
 	// One of them is the resource definition: something like resourceComputeInstance()
-	for k, _ := range resourceFile.Scope.Objects {
+	for k := range resourceFile.Scope.Objects {
 		// Matches the line in the provider file where the resource is defined,
 		// e.g. "google_compute_instance":     resourceComputeInstance()
 		re := regexp.MustCompile(`"(.*)":\s*` + k + `\(\)`)
