@@ -2,6 +2,8 @@ package google
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -109,4 +111,36 @@ func (u *SpannerInstanceIamUpdater) GetMutexKey() string {
 
 func (u *SpannerInstanceIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("Spanner Instance: %s/%s", u.project, u.instance)
+}
+
+type spannerInstanceId struct {
+	Project  string
+	Instance string
+}
+
+func (s spannerInstanceId) terraformId() string {
+	return fmt.Sprintf("%s/%s", s.Project, s.Instance)
+}
+
+func (s spannerInstanceId) parentProjectUri() string {
+	return fmt.Sprintf("projects/%s", s.Project)
+}
+
+func (s spannerInstanceId) instanceUri() string {
+	return fmt.Sprintf("%s/instances/%s", s.parentProjectUri(), s.Instance)
+}
+
+func (s spannerInstanceId) instanceConfigUri(c string) string {
+	return fmt.Sprintf("%s/instanceConfigs/%s", s.parentProjectUri(), c)
+}
+
+func extractSpannerInstanceId(id string) (*spannerInstanceId, error) {
+	if !regexp.MustCompile("^" + ProjectRegex + "/[a-z0-9-]+$").Match([]byte(id)) {
+		return nil, fmt.Errorf("Invalid spanner id format, expecting {projectId}/{instanceId}")
+	}
+	parts := strings.Split(id, "/")
+	return &spannerInstanceId{
+		Project:  parts[0],
+		Instance: parts[1],
+	}, nil
 }

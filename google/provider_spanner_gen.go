@@ -17,5 +17,6 @@ package google
 import "github.com/hashicorp/terraform/helper/schema"
 
 var GeneratedSpannerResourcesMap = map[string]*schema.Resource{
+	"google_spanner_instance": resourceSpannerInstance(),
 	"google_spanner_database": resourceSpannerDatabase(),
 }
