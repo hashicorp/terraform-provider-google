@@ -497,7 +497,7 @@ resource "google_dataproc_cluster" "basic" {
 			num_instances     = 1
 			machine_type      = "n1-standard-1"
 			disk_config {
-				boot_disk_size_gb = 10
+				boot_disk_size_gb = 15
 			}
 		}
 	}

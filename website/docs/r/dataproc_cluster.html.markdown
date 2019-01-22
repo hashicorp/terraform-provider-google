@@ -43,7 +43,7 @@ resource "google_dataproc_cluster" "mycluster" {
             machine_type      = "n1-standard-1"
             disk_config {
                 boot_disk_type = "pd-ssd"
-                boot_disk_size_gb = 10
+                boot_disk_size_gb = 15
             }
         }
 
@@ -51,7 +51,7 @@ resource "google_dataproc_cluster" "mycluster" {
             num_instances     = 2
             machine_type      = "n1-standard-1"
             disk_config {
-                boot_disk_size_gb = 10
+                boot_disk_size_gb = 15
                 num_local_ssds    = 1
             }
         }
@@ -240,7 +240,7 @@ The `cluster_config.master_config` block supports:
             machine_type      = "n1-standard-1"
             disk_config {
                 boot_disk_type    = "pd-ssd"
-                boot_disk_size_gb = 10
+                boot_disk_size_gb = 15
                 num_local_ssds    = 1
             }
         }
@@ -292,7 +292,7 @@ The `cluster_config.worker_config` block supports:
             machine_type      = "n1-standard-1"
             disk_config {
                 boot_disk_type    = "pd-standard"
-                boot_disk_size_gb = 10
+                boot_disk_size_gb = 15
                 num_local_ssds    = 1
             }
         }
@@ -347,7 +347,7 @@ The `cluster_config.preemptible_worker_config` block supports:
             num_instances     = 1
             disk_config {
                 boot_disk_type    = "pd-standard"
-                boot_disk_size_gb = 10
+                boot_disk_size_gb = 15
                 num_local_ssds    = 1
             }
         }
