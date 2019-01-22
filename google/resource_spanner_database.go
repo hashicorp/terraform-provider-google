@@ -239,14 +239,12 @@ func resourceSpannerDatabaseEncoder(d *schema.ResourceData, meta interface{}, ob
 func resourceSpannerDatabaseDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	config := meta.(*Config)
 	d.SetId(res["name"].(string))
-	log.Printf("[DEBUG] name = %s", res["name"])
 	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
 	res["project"] = d.Get("project").(string)
 	res["instance"] = d.Get("instance").(string)
 	res["name"] = d.Get("name").(string)
-	log.Printf("[DEBUG] result %#v", res)
 	id, err := replaceVars(d, config, "{{instance}}/{{name}}")
 	if err != nil {
 		return nil, err

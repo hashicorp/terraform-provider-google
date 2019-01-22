@@ -13,9 +13,13 @@ func (w *SpannerInstanceOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Projects.Instances.Operations.Get(w.Op.Name).Do()
 }
 
-func spannerInstanceOperationWait(config *Config, op *spanner.Operation, activity string, timeoutMinutes int) error {
+func spannerOperationWaitTime(spanner *spanner.Service, op *spanner.Operation, _ string, activity string, timeoutMinutes int) error {
+	if op.Name == "" {
+		// This was a synchronous call - there is no operation to wait for.
+		return nil
+	}
 	w := &SpannerInstanceOperationWaiter{
-		Service: config.clientSpanner,
+		Service: spanner,
 	}
 	if err := w.SetOp(op); err != nil {
 		return err
