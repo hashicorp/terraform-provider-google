@@ -149,6 +149,12 @@ func resourceStorageBucketObject() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			// https://github.com/hashicorp/terraform/issues/19052
+			"output_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -241,6 +247,7 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("content_type", res.ContentType)
 	d.Set("storage_class", res.StorageClass)
 	d.Set("self_link", res.SelfLink)
+	d.Set("output_name", res.Name)
 
 	d.SetId(objectGetId(res))
 
