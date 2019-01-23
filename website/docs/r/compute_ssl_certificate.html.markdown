@@ -79,7 +79,7 @@ resource "random_id" "certificate" {
   prefix      = "my-certificate-"
 
   # For security, do not expose raw certificate values in the output
-  keepers {
+  keepers = {
     private_key = "${base64sha256(file("path/to/private.key"))}"
     certificate = "${base64sha256(file("path/to/certificate.crt"))}"
   }
