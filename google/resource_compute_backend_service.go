@@ -323,7 +323,12 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	d.Set("connection_draining_timeout_sec", service.ConnectionDraining.DrainingTimeoutSec)
 	d.Set("iap", flattenIap(service.Iap))
 	d.Set("project", project)
-	d.Set("health_checks", service.HealthChecks)
+	guardedHealthChecks := make([]string, len(service.HealthChecks))
+	for i, v := range service.HealthChecks {
+		guardedHealthChecks[i] = ConvertSelfLinkToV1(v)
+	}
+
+	d.Set("health_checks", guardedHealthChecks)
 	if err := d.Set("cdn_policy", flattenCdnPolicy(service.CdnPolicy)); err != nil {
 		return err
 	}
