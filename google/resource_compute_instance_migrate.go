@@ -218,9 +218,12 @@ func migrateStateV3toV4(is *terraform.InstanceState, meta interface{}) (*terrafo
 		}
 	}
 
-	disks, err := strconv.Atoi(is.Attributes["disk.#"])
-	if err != nil {
-		return is, fmt.Errorf("migration error: found disk.# value in unexpected format: %s", err)
+	disks := 0
+	if v := is.Attributes["disk.#"]; v != "" {
+		disks, err = strconv.Atoi(is.Attributes["disk.#"])
+		if err != nil {
+			return is, fmt.Errorf("migration error: found disk.# value in unexpected format: %s", err)
+		}
 	}
 
 	for i := 0; i < disks; i++ {
@@ -320,7 +323,11 @@ func getInstanceFromInstanceState(config *Config, is *terraform.InstanceState) (
 
 	zone, ok := is.Attributes["zone"]
 	if !ok {
-		return nil, fmt.Errorf("could not determine 'zone'")
+		if config.Zone == "" {
+			return nil, fmt.Errorf("could not determine 'zone'")
+		} else {
+			zone = config.Zone
+		}
 	}
 
 	instance, err := config.clientCompute.Instances.Get(
@@ -344,7 +351,11 @@ func getAllDisksFromInstanceState(config *Config, is *terraform.InstanceState) (
 
 	zone, ok := is.Attributes["zone"]
 	if !ok {
-		return nil, fmt.Errorf("could not determine 'zone'")
+		if config.Zone == "" {
+			return nil, fmt.Errorf("could not determine 'zone'")
+		} else {
+			zone = config.Zone
+		}
 	}
 
 	diskList := []*compute.Disk{}

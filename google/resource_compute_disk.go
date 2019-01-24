@@ -223,9 +223,9 @@ func suppressWindowsSqlFamilyDiff(imageName, familyName string) bool {
 // e.g. image: windows-server-1709-dc-core-for-containers-v20180109, family: "windows-1709-core-for-containers
 func suppressWindowsFamilyDiff(imageName, familyName string) bool {
 	updatedFamilyString := strings.Replace(familyName, "windows-", "windows-server-", 1)
-	updatedFamilyString = strings.Replace(updatedFamilyString, "-core", "-dc-core", 1)
+	updatedImageName := strings.Replace(imageName, "-dc-", "-", 1)
 
-	if strings.Contains(imageName, updatedFamilyString) {
+	if strings.Contains(updatedImageName, updatedFamilyString) {
 		return true
 	}
 

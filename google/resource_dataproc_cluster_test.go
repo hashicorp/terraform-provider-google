@@ -870,7 +870,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
 			machine_type      = "n1-standard-1"
 			disk_config {
 				boot_disk_type    = "pd-standard"
-				boot_disk_size_gb = 11
+				boot_disk_size_gb = 16
 				num_local_ssds    = 1
 			}
 		}
@@ -879,7 +879,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
 			num_instances     = 1
 			disk_config {
 				boot_disk_type    = "pd-ssd"
-				boot_disk_size_gb = 12
+				boot_disk_size_gb = 17
 				num_local_ssds    = 1
 			}
 		}

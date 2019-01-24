@@ -608,12 +608,12 @@ func testAccDataprocJob_hadoop(rnd string) string {
 			args              = [
 			  "wordcount",
 			  "file:///usr/lib/spark/NOTICE",
-			  "gs://${google_dataproc_cluster.basic.cluster_config.0.bucket}/hadoopjob_output"
+			  "gs://${google_dataproc_cluster.basic.cluster_config.0.bucket}/hadoopjob_output_%s"
 			]
 		}
 
 	}
-	`, rnd)
+	`, rnd, rnd)
 
 }
 
