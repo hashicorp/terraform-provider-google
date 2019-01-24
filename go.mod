@@ -5,7 +5,6 @@ require (
 	github.com/apparentlymart/go-cidr v1.0.0
 	github.com/aws/aws-sdk-go v1.16.24 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
-	github.com/cheggaaa/pb v2.0.6+incompatible // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dustinkirkland/golang-petname v0.0.0-20170921220637-d3c2ba80e75e // indirect
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
@@ -32,7 +31,6 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
 	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/stoewer/go-strcase v1.0.2
-	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/terraform-providers/terraform-provider-random v2.0.0+incompatible
 	github.com/zclconf/go-cty v0.0.0-20181218225846-4fe1e489ee06 // indirect
