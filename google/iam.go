@@ -113,7 +113,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 			time.Sleep(backoff)
 			backoff = backoff * 2
 			if backoff > 30*time.Second {
-				return fmt.Errorf("Error applying IAM policy to %s: too many concurrent policy changes.\n", updater.DescribeResource())
+				return errwrap.Wrapf(fmt.Sprintf("Error applying IAM policy to %s: Too many conflicts.  Latest error: {{err}}", updater.DescribeResource()), err)
 			}
 			continue
 		}
