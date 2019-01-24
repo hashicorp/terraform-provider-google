@@ -15,7 +15,7 @@ github.com/apparentlymart/go-cidr/cidr
 github.com/apparentlymart/go-textseg/textseg
 # github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310
 github.com/armon/go-radix
-# github.com/aws/aws-sdk-go v1.15.78
+# github.com/aws/aws-sdk-go v1.16.24
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/credentials
 github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds
@@ -32,6 +32,7 @@ github.com/aws/aws-sdk-go/internal/sdkuri
 github.com/aws/aws-sdk-go/aws/client/metadata
 github.com/aws/aws-sdk-go/aws/corehandlers
 github.com/aws/aws-sdk-go/aws/request
+github.com/aws/aws-sdk-go/aws/credentials/processcreds
 github.com/aws/aws-sdk-go/aws/credentials/stscreds
 github.com/aws/aws-sdk-go/aws/csm
 github.com/aws/aws-sdk-go/aws/defaults
@@ -83,7 +84,7 @@ github.com/googleapis/gax-go
 github.com/hashicorp/errwrap
 # github.com/hashicorp/go-cleanhttp v0.5.0
 github.com/hashicorp/go-cleanhttp
-# github.com/hashicorp/go-getter v0.0.0-20181213035916-be39683deade
+# github.com/hashicorp/go-getter v1.0.1
 github.com/hashicorp/go-getter
 github.com/hashicorp/go-getter/helper/url
 # github.com/hashicorp/go-hclog v0.0.0-20181001195459-61d530d6c27f
@@ -97,7 +98,7 @@ github.com/hashicorp/go-plugin/internal/proto
 github.com/hashicorp/go-safetemp
 # github.com/hashicorp/go-uuid v1.0.0
 github.com/hashicorp/go-uuid
-# github.com/hashicorp/go-version v1.0.0
+# github.com/hashicorp/go-version v1.1.0
 github.com/hashicorp/go-version
 # github.com/hashicorp/hcl v1.0.0
 github.com/hashicorp/hcl
@@ -163,7 +164,7 @@ github.com/hashicorp/vault/helper/jsonutil
 github.com/hashicorp/vault/helper/compressutil
 # github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb
 github.com/hashicorp/yamux
-# github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8
+# github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af
 github.com/jmespath/go-jmespath
 # github.com/keybase/go-crypto v0.0.0-20181127160227-255a5089e85a
 github.com/keybase/go-crypto/openpgp
@@ -181,7 +182,7 @@ github.com/keybase/go-crypto/openpgp/elgamal
 github.com/keybase/go-crypto/ed25519/internal/edwards25519
 # github.com/mattn/go-colorable v0.0.9
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.3
+# github.com/mattn/go-isatty v0.0.4
 github.com/mattn/go-isatty
 # github.com/mitchellh/cli v1.0.0
 github.com/mitchellh/cli
@@ -259,7 +260,7 @@ golang.org/x/crypto/cast5
 golang.org/x/crypto/openpgp/elgamal
 golang.org/x/crypto/ed25519/internal/edwards25519
 golang.org/x/crypto/internal/subtle
-# golang.org/x/net v0.0.0-20181217023233-e147a9138326
+# golang.org/x/net v0.0.0-20190119204137-ed066c81e75e
 golang.org/x/net/context
 golang.org/x/net/html
 golang.org/x/net/trace
@@ -276,7 +277,7 @@ golang.org/x/oauth2/google
 golang.org/x/oauth2/jwt
 golang.org/x/oauth2/internal
 golang.org/x/oauth2/jws
-# golang.org/x/sys v0.0.0-20180909124046-d0be0721c37e
+# golang.org/x/sys v0.0.0-20190123074212-c6b37f3e9285
 golang.org/x/sys/unix
 # golang.org/x/text v0.3.0
 golang.org/x/text/unicode/norm
