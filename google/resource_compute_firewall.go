@@ -112,6 +112,7 @@ func resourceComputeFirewall() *schema.Resource {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
+				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"INGRESS", "EGRESS", ""}, false),
 			},
 			"disabled": {
@@ -456,12 +457,6 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("destination_ranges"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, destinationRangesProp)) {
 		obj["destinationRanges"] = destinationRangesProp
-	}
-	directionProp, err := expandComputeFirewallDirection(d.Get("direction"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("direction"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, directionProp)) {
-		obj["direction"] = directionProp
 	}
 	disabledProp, err := expandComputeFirewallDisabled(d.Get("disabled"), d, config)
 	if err != nil {
