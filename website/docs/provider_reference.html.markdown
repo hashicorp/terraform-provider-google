@@ -135,9 +135,17 @@ share the same configuration.
     * `GCLOUD_ZONE`
     * `CLOUDSDK_COMPUTE_ZONE`
 
+* `scopes` - (Optional) The list of OAuth 2.0 [scopes] used to generate access token for Google APIs.
+  Default list of scopes:
+    * https://www.googleapis.com/auth/compute
+    * https://www.googleapis.com/auth/cloud-platform
+    * https://www.googleapis.com/auth/ndev.clouddns.readwrite
+    * https://www.googleapis.com/auth/devstorage.full_control
+
 [Google Cloud service account file]: https://console.cloud.google.com/apis/credentials/serviceaccountkey
 [adc]: https://cloud.google.com/docs/authentication/production
 [gce-service-account]: https://cloud.google.com/compute/docs/authentication
 [gcloud adc]: https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login
 [service accounts]: https://cloud.google.com/docs/authentication/getting-started
 [GCE metadata]: https://cloud.google.com/docs/authentication/production#obtaining_credentials_on_compute_engine_kubernetes_engine_app_engine_flexible_environment_and_cloud_functions
+[scopes]: https://developers.google.com/identity/protocols/googlescopes

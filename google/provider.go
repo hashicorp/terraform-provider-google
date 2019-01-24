@@ -69,6 +69,11 @@ func Provider() terraform.ResourceProvider {
 					"CLOUDSDK_COMPUTE_ZONE",
 				}, nil),
 			},
+			"scopes": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -267,6 +272,14 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.AccessToken = v.(string)
 	} else if v, ok := d.GetOk("credentials"); ok {
 		config.Credentials = v.(string)
+	}
+
+	scopes := d.Get("scopes").([]interface{})
+	if len(scopes) > 0 {
+		config.Scopes = make([]string, len(scopes), len(scopes))
+	}
+	for i, scope := range scopes {
+		config.Scopes[i] = scope.(string)
 	}
 
 	if err := config.loadAndValidate(); err != nil {
