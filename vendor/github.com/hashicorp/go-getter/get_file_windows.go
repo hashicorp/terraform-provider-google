@@ -4,7 +4,6 @@ package getter
 
 import (
 	"fmt"
-	"io"
 	"net/url"
 	"os"
 	"os/exec"
@@ -13,6 +12,7 @@ import (
 )
 
 func (g *FileGetter) Get(dst string, u *url.URL) error {
+	ctx := g.Context()
 	path := u.Path
 	if u.RawPath != "" {
 		path = u.RawPath
@@ -51,7 +51,7 @@ func (g *FileGetter) Get(dst string, u *url.URL) error {
 	sourcePath := toBackslash(path)
 
 	// Use mklink to create a junction point
-	output, err := exec.Command("cmd", "/c", "mklink", "/J", dst, sourcePath).CombinedOutput()
+	output, err := exec.CommandContext(ctx, "cmd", "/c", "mklink", "/J", dst, sourcePath).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to run mklink %v %v: %v %q", dst, sourcePath, err, output)
 	}
@@ -60,6 +60,7 @@ func (g *FileGetter) Get(dst string, u *url.URL) error {
 }
 
 func (g *FileGetter) GetFile(dst string, u *url.URL) error {
+	ctx := g.Context()
 	path := u.Path
 	if u.RawPath != "" {
 		path = u.RawPath
@@ -108,7 +109,7 @@ func (g *FileGetter) GetFile(dst string, u *url.URL) error {
 	}
 	defer dstF.Close()
 
-	_, err = io.Copy(dstF, srcF)
+	_, err = Copy(ctx, dstF, srcF)
 	return err
 }
 
