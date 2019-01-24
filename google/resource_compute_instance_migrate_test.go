@@ -25,12 +25,14 @@ func TestComputeInstanceMigrateState(t *testing.T) {
 		"v0.4.2 and earlier": {
 			StateVersion: 0,
 			Attributes: map[string]string{
+				"disk.#":               "0",
 				"metadata.#":           "2",
 				"metadata.0.foo":       "bar",
 				"metadata.1.baz":       "qux",
 				"metadata.2.with.dots": "should.work",
 			},
 			Expected: map[string]string{
+				"create_timeout":     "4",
 				"metadata.foo":       "bar",
 				"metadata.baz":       "qux",
 				"metadata.with.dots": "should.work",
@@ -77,8 +79,37 @@ func TestComputeInstanceMigrateState(t *testing.T) {
 	}
 
 	config := getInitializedConfig(t)
+
+	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instance := &compute.Instance{
+		Name: instanceName,
+		Disks: []*compute.AttachedDisk{
+			{
+				Boot: true,
+				InitializeParams: &compute.AttachedDiskInitializeParams{
+					SourceImage: "projects/debian-cloud/global/images/family/debian-9",
+				},
+			},
+		},
+		MachineType: "zones/" + config.Zone + "/machineTypes/n1-standard-1",
+		NetworkInterfaces: []*compute.NetworkInterface{
+			{
+				Network: "global/networks/default",
+			},
+		},
+	}
+	op, err := config.clientCompute.Instances.Insert(config.Project, config.Zone, instance).Do()
+	if err != nil {
+		t.Fatalf("Error creating instance: %s", err)
+	}
+	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
+	if waitErr != nil {
+		t.Fatal(waitErr)
+	}
+	defer cleanUpInstance(config, instanceName, config.Zone)
+
 	for tn, tc := range cases {
-		runInstanceMigrateTest(t, "i-abc123", tn, tc.StateVersion, tc.Attributes, tc.Expected, config)
+		runInstanceMigrateTest(t, instanceName, tn, tc.StateVersion, tc.Attributes, tc.Expected, config)
 	}
 }
 
@@ -868,6 +899,7 @@ func getInitializedConfig(t *testing.T) *Config {
 		Project:     getTestProjectFromEnv(),
 		Credentials: getTestCredsFromEnv(),
 		Region:      getTestRegionFromEnv(),
+		Zone:        getTestZoneFromEnv(),
 	}
 	err := config.loadAndValidate()
 	if err != nil {

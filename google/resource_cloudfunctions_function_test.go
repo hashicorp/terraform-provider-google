@@ -239,6 +239,7 @@ func TestAccCloudFunctionsFunction_sourceRepo(t *testing.T) {
 
 	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	proj := getTestProjectFromEnv()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -246,7 +247,7 @@ func TestAccCloudFunctionsFunction_sourceRepo(t *testing.T) {
 		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction_sourceRepo(functionName),
+				Config: testAccCloudFunctionsFunction_sourceRepo(functionName, proj),
 			},
 			{
 				ResourceName:      funcResourceName,
@@ -588,7 +589,7 @@ resource "google_cloudfunctions_function" "function" {
 }`, bucketName, zipFilePath, functionName)
 }
 
-func testAccCloudFunctionsFunction_sourceRepo(functionName string) string {
+func testAccCloudFunctionsFunction_sourceRepo(functionName, project string) string {
 	return fmt.Sprintf(`
 resource "google_cloudfunctions_function" "function" {
   name = "%s"
@@ -596,13 +597,13 @@ resource "google_cloudfunctions_function" "function" {
   source_repository {
     // There isn't yet an API that'll allow us to create a source repository and
     // put code in it, so we created this repository outside the test to be used
-    // here. If this test is run outside of CI, it may fail because of permissions
-    // errors.
-    url = "https://source.developers.google.com/projects/hc-terraform-testing/repos/cloudfunctions-test-do-not-delete/moveable-aliases/master/paths/"
+    // here. If this test is run outside of CI, you may need to create your own
+    // source repo.
+    url = "https://source.developers.google.com/projects/%s/repos/cloudfunctions-test-do-not-delete/moveable-aliases/master/paths/"
   }
 
   trigger_http = true
   entry_point  = "helloGET"
 }
-`, functionName)
+`, functionName, project)
 }
