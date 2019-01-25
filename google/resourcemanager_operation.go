@@ -1,6 +1,8 @@
 package google
 
 import (
+	"fmt"
+
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 )
@@ -11,6 +13,9 @@ type ResourceManagerOperationWaiter struct {
 }
 
 func (w *ResourceManagerOperationWaiter) QueryOp() (interface{}, error) {
+	if w == nil {
+		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+	}
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 

@@ -1,6 +1,8 @@
 package google
 
 import (
+	"fmt"
+
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/servicemanagement/v1"
 )
@@ -11,6 +13,9 @@ type ServiceManagementOperationWaiter struct {
 }
 
 func (w *ServiceManagementOperationWaiter) QueryOp() (interface{}, error) {
+	if w == nil {
+		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+	}
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 

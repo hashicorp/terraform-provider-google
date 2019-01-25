@@ -3,7 +3,7 @@ package google
 import (
 	"fmt"
 
-	"google.golang.org/api/container/v1beta1"
+	container "google.golang.org/api/container/v1beta1"
 )
 
 type ContainerOperationWaiter struct {
@@ -14,28 +14,41 @@ type ContainerOperationWaiter struct {
 }
 
 func (w *ContainerOperationWaiter) State() string {
+	if w == nil || w.Op == nil {
+		return "<nil>"
+	}
 	return w.Op.Status
 }
 
 func (w *ContainerOperationWaiter) Error() error {
-	if w.Op.StatusMessage != "" {
+	if w != nil && w.Op != nil {
 		return fmt.Errorf(w.Op.StatusMessage)
 	}
 	return nil
 }
 
 func (w *ContainerOperationWaiter) SetOp(op interface{}) error {
-	w.Op = op.(*container.Operation)
+	var ok bool
+	w.Op, ok = op.(*container.Operation)
+	if !ok {
+		return fmt.Errorf("Unable to set operation. Bad type!")
+	}
 	return nil
 }
 
 func (w *ContainerOperationWaiter) QueryOp() (interface{}, error) {
+	if w == nil || w.Op == nil {
+		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+	}
 	name := fmt.Sprintf("projects/%s/locations/%s/operations/%s",
 		w.Project, w.Location, w.Op.Name)
 	return w.Service.Projects.Locations.Operations.Get(name).Do()
 }
 
 func (w *ContainerOperationWaiter) OpName() string {
+	if w == nil || w.Op == nil {
+		return "<nil>"
+	}
 	return w.Op.Name
 }
 

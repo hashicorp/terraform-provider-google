@@ -2,8 +2,9 @@ package google
 
 import (
 	"bytes"
+	"fmt"
 
-	"google.golang.org/api/sqladmin/v1beta4"
+	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
 type SqlAdminOperationWaiter struct {
@@ -13,26 +14,44 @@ type SqlAdminOperationWaiter struct {
 }
 
 func (w *SqlAdminOperationWaiter) State() string {
+	if w == nil || w.Op == nil {
+		return "Operation is nil!"
+	}
+
 	return w.Op.Status
 }
 
 func (w *SqlAdminOperationWaiter) Error() error {
-	if w.Op.Error != nil {
+	if w != nil && w.Op != nil && w.Op.Error != nil {
 		return SqlAdminOperationError(*w.Op.Error)
 	}
 	return nil
 }
 
 func (w *SqlAdminOperationWaiter) SetOp(op interface{}) error {
-	w.Op = op.(*sqladmin.Operation)
+	var ok bool
+	w.Op, ok = op.(*sqladmin.Operation)
+	if !ok {
+		return fmt.Errorf("Unable to set operation. Bad type!")
+	}
+
 	return nil
 }
 
 func (w *SqlAdminOperationWaiter) QueryOp() (interface{}, error) {
+	if w == nil || w.Op == nil {
+		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+	}
+	if w.Service == nil {
+		return nil, fmt.Errorf("Cannot query operation, service is nil.")
+	}
 	return w.Service.Operations.Get(w.Project, w.Op.Name).Do()
 }
 
 func (w *SqlAdminOperationWaiter) OpName() string {
+	if w == nil || w.Op == nil {
+		return "<nil>"
+	}
 	return w.Op.Name
 }
 

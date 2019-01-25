@@ -50,7 +50,7 @@ func (w *CommonOperationWaiter) State() string {
 }
 
 func (w *CommonOperationWaiter) Error() error {
-	if w.Op.Error != nil {
+	if w != nil && w.Op.Error != nil {
 		return fmt.Errorf("Error code %v, message: %s", w.Op.Error.Code, w.Op.Error.Message)
 	}
 	return nil
