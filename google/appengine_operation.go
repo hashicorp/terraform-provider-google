@@ -18,6 +18,9 @@ type AppEngineOperationWaiter struct {
 }
 
 func (w *AppEngineOperationWaiter) QueryOp() (interface{}, error) {
+	if w == nil {
+		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+	}
 	matches := appEngineOperationIdRegexp.FindStringSubmatch(w.Op.Name)
 	if len(matches) != 2 {
 		return nil, fmt.Errorf("Expected %d results of parsing operation name, got %d from %s", 2, len(matches), w.Op.Name)

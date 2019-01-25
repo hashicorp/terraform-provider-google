@@ -16,7 +16,7 @@ type ComputeOperationWaiter struct {
 
 func (w *ComputeOperationWaiter) State() string {
 	if w == nil || w.Op == nil {
-		return fmt.Sprintf("Operation is nil!")
+		return "<nil>"
 	}
 
 	return w.Op.Status
@@ -39,6 +39,9 @@ func (w *ComputeOperationWaiter) SetOp(op interface{}) error {
 }
 
 func (w *ComputeOperationWaiter) QueryOp() (interface{}, error) {
+	if w == nil || w.Op == nil {
+		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+	}
 	if w.Op.Zone != "" {
 		zone := GetResourceNameFromSelfLink(w.Op.Zone)
 		return w.Service.ZoneOperations.Get(w.Project, zone, w.Op.Name).Do()

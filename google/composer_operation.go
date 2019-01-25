@@ -1,6 +1,8 @@
 package google
 
 import (
+	"fmt"
+
 	composer "google.golang.org/api/composer/v1beta1"
 )
 
@@ -10,6 +12,9 @@ type ComposerOperationWaiter struct {
 }
 
 func (w *ComposerOperationWaiter) QueryOp() (interface{}, error) {
+	if w == nil {
+		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+	}
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 

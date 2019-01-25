@@ -1,6 +1,8 @@
 package google
 
 import (
+	"fmt"
+
 	"google.golang.org/api/spanner/v1"
 )
 
@@ -10,6 +12,9 @@ type SpannerInstanceOperationWaiter struct {
 }
 
 func (w *SpannerInstanceOperationWaiter) QueryOp() (interface{}, error) {
+	if w == nil {
+		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+	}
 	return w.Service.Projects.Instances.Operations.Get(w.Op.Name).Do()
 }
 

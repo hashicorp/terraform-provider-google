@@ -1,6 +1,7 @@
 package google
 
 import (
+	"fmt"
 	"net/http"
 
 	"google.golang.org/api/dataproc/v1"
@@ -15,6 +16,9 @@ type DataprocJobOperationWaiter struct {
 }
 
 func (w *DataprocJobOperationWaiter) State() string {
+	if w == nil {
+		return "<nil>"
+	}
 	return w.Status
 }
 
@@ -32,6 +36,9 @@ func (w *DataprocJobOperationWaiter) SetOp(job interface{}) error {
 }
 
 func (w *DataprocJobOperationWaiter) QueryOp() (interface{}, error) {
+	if w == nil {
+		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+	}
 	job, err := w.Service.Projects.Regions.Jobs.Get(w.ProjectId, w.Region, w.JobId).Do()
 	if job != nil {
 		w.Status = job.Status.State
@@ -40,6 +47,9 @@ func (w *DataprocJobOperationWaiter) QueryOp() (interface{}, error) {
 }
 
 func (w *DataprocJobOperationWaiter) OpName() string {
+	if w == nil {
+		return "<nil>"
+	}
 	return w.JobId
 }
 
@@ -74,6 +84,9 @@ func (w *DataprocDeleteJobOperationWaiter) TargetStates() []string {
 }
 
 func (w *DataprocDeleteJobOperationWaiter) QueryOp() (interface{}, error) {
+	if w == nil {
+		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+	}
 	job, err := w.Service.Projects.Regions.Jobs.Get(w.ProjectId, w.Region, w.JobId).Do()
 	if err != nil {
 		if isGoogleApiErrorWithCode(err, http.StatusNotFound) {

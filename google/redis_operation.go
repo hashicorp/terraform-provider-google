@@ -1,7 +1,9 @@
 package google
 
 import (
-	"google.golang.org/api/redis/v1beta1"
+	"fmt"
+
+	redis "google.golang.org/api/redis/v1beta1"
 )
 
 type RedisOperationWaiter struct {
@@ -10,6 +12,9 @@ type RedisOperationWaiter struct {
 }
 
 func (w *RedisOperationWaiter) QueryOp() (interface{}, error) {
+	if w == nil {
+		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+	}
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 

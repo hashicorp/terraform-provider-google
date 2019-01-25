@@ -1,6 +1,8 @@
 package google
 
 import (
+	"fmt"
+
 	"google.golang.org/api/cloudfunctions/v1"
 )
 
@@ -10,6 +12,9 @@ type CloudFunctionsOperationWaiter struct {
 }
 
 func (w *CloudFunctionsOperationWaiter) QueryOp() (interface{}, error) {
+	if w == nil {
+		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
+	}
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 
