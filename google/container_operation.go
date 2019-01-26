@@ -21,9 +21,23 @@ func (w *ContainerOperationWaiter) State() string {
 }
 
 func (w *ContainerOperationWaiter) Error() error {
-	if w != nil && w.Op != nil {
+	if w == nil || w.Op == nil {
+		return nil
+	}
+
+	// Error gets called during operation polling to see if there is an error.
+	// Since container's operation doesn't have an "error" field, we must wait
+	// until it's done and check the status message
+	for _, pending := range w.PendingStates() {
+		if w.Op.Status == pending {
+			return nil
+		}
+	}
+
+	if w.Op.StatusMessage != "" {
 		return fmt.Errorf(w.Op.StatusMessage)
 	}
+
 	return nil
 }
 
@@ -71,5 +85,6 @@ func containerOperationWait(config *Config, op *container.Operation, project, lo
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
+
 	return OperationWait(w, activity, timeoutMinutes)
 }
