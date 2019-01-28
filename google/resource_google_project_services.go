@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sort"
 	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/googleapi"
-	"google.golang.org/api/serviceusage/v1beta1"
+	"google.golang.org/api/serviceusage/v1"
 )
 
 func resourceGoogleProjectServices() *schema.Resource {
@@ -129,7 +130,7 @@ func resourceGoogleProjectServicesDelete(d *schema.ResourceData, meta interface{
 	config := meta.(*Config)
 	services := resourceServices(d)
 	for _, s := range services {
-		disableService(s, d.Id(), config)
+		disableService(s, d.Id(), config, true)
 	}
 	d.SetId("")
 	return nil
@@ -148,19 +149,21 @@ func reconcileServices(cfgServices, apiServices []string, config *Config, pid st
 		return sm
 	}
 
+	sort.Strings(cfgServices)
 	cfgMap := m(cfgServices)
+	log.Printf("[DEBUG]: Saw the following services in config: %v", cfgServices)
 	apiMap := m(apiServices)
+	log.Printf("[DEBUG]: Saw the following services enabled: %v", apiServices)
 
 	for k := range apiMap {
 		if _, ok := cfgMap[k]; !ok {
-			// The service in the API is not in the config; disable it.
-			err := disableService(k, pid, config)
+			log.Printf("[DEBUG]: Disabling %s as it's enabled upstream but not in config", k)
+			err := disableService(k, pid, config, true)
 			if err != nil {
 				return err
 			}
 		} else {
-			// The service exists in the config and the API, so we don't need
-			// to re-enable it
+			log.Printf("[DEBUG]: Skipping %s as it's enabled in both config and upstream", k)
 			delete(cfgMap, k)
 		}
 	}
@@ -169,6 +172,8 @@ func reconcileServices(cfgServices, apiServices []string, config *Config, pid st
 	for k := range cfgMap {
 		keys = append(keys, k)
 	}
+	sort.Strings(keys)
+	log.Printf("[DEBUG]: Enabling the following services: %v", keys)
 	err := enableServices(keys, pid, config)
 	if err != nil {
 		return err
@@ -233,7 +238,7 @@ func enableServices(s []string, pid string, config *Config) error {
 	// It's not permitted to enable more than 20 services in one API call (even
 	// for batch).
 	//
-	// https://godoc.org/google.golang.org/api/serviceusage/v1beta1#BatchEnableServicesRequest
+	// https://godoc.org/google.golang.org/api/serviceusage/v1#BatchEnableServicesRequest
 	batchSize := 20
 
 	for i := 0; i < len(s); i += batchSize {
@@ -334,10 +339,12 @@ func diffStringSlice(wanted, actual []string) []string {
 	return missing
 }
 
-func disableService(s, pid string, config *Config) error {
+func disableService(s, pid string, config *Config, disableDependentServices bool) error {
 	err := retryTime(func() error {
 		name := fmt.Sprintf("projects/%s/services/%s", pid, s)
-		sop, err := config.clientServiceUsage.Services.Disable(name, &serviceusage.DisableServiceRequest{}).Do()
+		sop, err := config.clientServiceUsage.Services.Disable(name, &serviceusage.DisableServiceRequest{
+			DisableDependentServices: disableDependentServices,
+		}).Do()
 		if err != nil {
 			return err
 		}

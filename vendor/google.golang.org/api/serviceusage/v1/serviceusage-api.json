@@ -26,7 +26,7 @@
     "x16": "http://www.google.com/images/icons/product/search-16.gif",
     "x32": "http://www.google.com/images/icons/product/search-32.gif"
   },
-  "id": "serviceusage:v1beta1",
+  "id": "serviceusage:v1",
   "kind": "discovery#restDescription",
   "name": "serviceusage",
   "ownerDomain": "google.com",
@@ -112,9 +112,64 @@
   "resources": {
     "operations": {
       "methods": {
+        "cancel": {
+          "description": "Starts asynchronous cancellation on a long-running operation.  The server\nmakes a best effort to cancel the operation, but success is not\nguaranteed.  If the server doesn't support this method, it returns\n`google.rpc.Code.UNIMPLEMENTED`.  Clients can use\nOperations.GetOperation or\nother methods to check whether the cancellation succeeded or whether the\noperation completed despite cancellation. On successful cancellation,\nthe operation is not deleted; instead, it becomes an operation with\nan Operation.error value with a google.rpc.Status.code of 1,\ncorresponding to `Code.CANCELLED`.",
+          "flatPath": "v1/operations/{operationsId}:cancel",
+          "httpMethod": "POST",
+          "id": "serviceusage.operations.cancel",
+          "parameterOrder": [
+            "name"
+          ],
+          "parameters": {
+            "name": {
+              "description": "The name of the operation resource to be cancelled.",
+              "location": "path",
+              "pattern": "^operations/.+$",
+              "required": true,
+              "type": "string"
+            }
+          },
+          "path": "v1/{+name}:cancel",
+          "request": {
+            "$ref": "CancelOperationRequest"
+          },
+          "response": {
+            "$ref": "Empty"
+          },
+          "scopes": [
+            "https://www.googleapis.com/auth/cloud-platform",
+            "https://www.googleapis.com/auth/service.management"
+          ]
+        },
+        "delete": {
+          "description": "Deletes a long-running operation. This method indicates that the client is\nno longer interested in the operation result. It does not cancel the\noperation. If the server doesn't support this method, it returns\n`google.rpc.Code.UNIMPLEMENTED`.",
+          "flatPath": "v1/operations/{operationsId}",
+          "httpMethod": "DELETE",
+          "id": "serviceusage.operations.delete",
+          "parameterOrder": [
+            "name"
+          ],
+          "parameters": {
+            "name": {
+              "description": "The name of the operation resource to be deleted.",
+              "location": "path",
+              "pattern": "^operations/.+$",
+              "required": true,
+              "type": "string"
+            }
+          },
+          "path": "v1/{+name}",
+          "response": {
+            "$ref": "Empty"
+          },
+          "scopes": [
+            "https://www.googleapis.com/auth/cloud-platform",
+            "https://www.googleapis.com/auth/service.management"
+          ]
+        },
         "get": {
           "description": "Gets the latest state of a long-running operation.  Clients can use this\nmethod to poll the operation result at intervals as recommended by the API\nservice.",
-          "flatPath": "v1beta1/operations/{operationsId}",
+          "flatPath": "v1/operations/{operationsId}",
           "httpMethod": "GET",
           "id": "serviceusage.operations.get",
           "parameterOrder": [
@@ -129,7 +184,7 @@
               "type": "string"
             }
           },
-          "path": "v1beta1/{+name}",
+          "path": "v1/{+name}",
           "response": {
             "$ref": "Operation"
           },
@@ -140,7 +195,7 @@
         },
         "list": {
           "description": "Lists operations that match the specified filter in the request. If the\nserver doesn't support this method, it returns `UNIMPLEMENTED`.\n\nNOTE: the `name` binding allows API services to override the binding\nto use different resource name schemes, such as `users/*/operations`. To\noverride the binding, API services can add a binding such as\n`\"/v1/{name=users/*}/operations\"` to their service configuration.\nFor backwards compatibility, the default name includes the operations\ncollection id, however overriding users must ensure the name binding\nis the parent resource, without the operations collection id.",
-          "flatPath": "v1beta1/operations",
+          "flatPath": "v1/operations",
           "httpMethod": "GET",
           "id": "serviceusage.operations.list",
           "parameterOrder": [],
@@ -167,7 +222,7 @@
               "type": "string"
             }
           },
-          "path": "v1beta1/operations",
+          "path": "v1/operations",
           "response": {
             "$ref": "ListOperationsResponse"
           },
@@ -181,8 +236,8 @@
     "services": {
       "methods": {
         "batchEnable": {
-          "description": "Enable multiple services on a project. The operation is atomic: if enabling\nany service fails, then the entire batch fails, and no state changes occur.\n\nOperation\u003cresponse: google.protobuf.Empty\u003e",
-          "flatPath": "v1beta1/{v1beta1Id}/{v1beta1Id1}/services:batchEnable",
+          "description": "Enable multiple services on a project. The operation is atomic: if enabling\nany service fails, then the entire batch fails, and no state changes occur.\n\nOperation\u003cresponse: BatchEnableServicesResponse\u003e",
+          "flatPath": "v1/{v1Id}/{v1Id1}/services:batchEnable",
           "httpMethod": "POST",
           "id": "serviceusage.services.batchEnable",
           "parameterOrder": [
@@ -197,7 +252,7 @@
               "type": "string"
             }
           },
-          "path": "v1beta1/{+parent}/services:batchEnable",
+          "path": "v1/{+parent}/services:batchEnable",
           "request": {
             "$ref": "BatchEnableServicesRequest"
           },
@@ -210,8 +265,8 @@
           ]
         },
         "disable": {
-          "description": "Disable a service so that it can no longer be used with a project.\nThis prevents unintended usage that may cause unexpected billing\ncharges or security leaks.\n\nIt is not valid to call the disable method on a service that is not\ncurrently enabled. Callers will receive a `FAILED_PRECONDITION` status if\nthe target service is not currently enabled.\n\nOperation\u003cresponse: google.protobuf.Empty\u003e",
-          "flatPath": "v1beta1/{v1beta1Id}/{v1beta1Id1}/services/{servicesId}:disable",
+          "description": "Disable a service so that it can no longer be used with a project.\nThis prevents unintended usage that may cause unexpected billing\ncharges or security leaks.\n\nIt is not valid to call the disable method on a service that is not\ncurrently enabled. Callers will receive a `FAILED_PRECONDITION` status if\nthe target service is not currently enabled.\n\nOperation\u003cresponse: DisableServiceResponse\u003e",
+          "flatPath": "v1/{v1Id}/{v1Id1}/services/{servicesId}:disable",
           "httpMethod": "POST",
           "id": "serviceusage.services.disable",
           "parameterOrder": [
@@ -226,7 +281,7 @@
               "type": "string"
             }
           },
-          "path": "v1beta1/{+name}:disable",
+          "path": "v1/{+name}:disable",
           "request": {
             "$ref": "DisableServiceRequest"
           },
@@ -239,8 +294,8 @@
           ]
         },
         "enable": {
-          "description": "Enable a service so that it can be used with a project.\n\nOperation\u003cresponse: google.protobuf.Empty\u003e",
-          "flatPath": "v1beta1/{v1beta1Id}/{v1beta1Id1}/services/{servicesId}:enable",
+          "description": "Enable a service so that it can be used with a project.\n\nOperation\u003cresponse: EnableServiceResponse\u003e",
+          "flatPath": "v1/{v1Id}/{v1Id1}/services/{servicesId}:enable",
           "httpMethod": "POST",
           "id": "serviceusage.services.enable",
           "parameterOrder": [
@@ -255,7 +310,7 @@
               "type": "string"
             }
           },
-          "path": "v1beta1/{+name}:enable",
+          "path": "v1/{+name}:enable",
           "request": {
             "$ref": "EnableServiceRequest"
           },
@@ -269,7 +324,7 @@
         },
         "get": {
           "description": "Returns the service configuration and enabled state for a given service.",
-          "flatPath": "v1beta1/{v1beta1Id}/{v1beta1Id1}/services/{servicesId}",
+          "flatPath": "v1/{v1Id}/{v1Id1}/services/{servicesId}",
           "httpMethod": "GET",
           "id": "serviceusage.services.get",
           "parameterOrder": [
@@ -284,9 +339,9 @@
               "type": "string"
             }
           },
-          "path": "v1beta1/{+name}",
+          "path": "v1/{+name}",
           "response": {
-            "$ref": "Service"
+            "$ref": "GoogleApiServiceusageV1Service"
           },
           "scopes": [
             "https://www.googleapis.com/auth/cloud-platform",
@@ -295,7 +350,7 @@
         },
         "list": {
           "description": "List all services available to the specified project, and the current\nstate of those services with respect to the project. The list includes\nall public services, all services for which the calling user has the\n`servicemanagement.services.bind` permission, and all services that have\nalready been enabled on the project. The list can be filtered to\nonly include services in a specific state, for example to only include\nservices enabled on the project.",
-          "flatPath": "v1beta1/{v1beta1Id}/{v1beta1Id1}/services",
+          "flatPath": "v1/{v1Id}/{v1Id1}/services",
           "httpMethod": "GET",
           "id": "serviceusage.services.list",
           "parameterOrder": [
@@ -326,7 +381,7 @@
               "type": "string"
             }
           },
-          "path": "v1beta1/{+parent}/services",
+          "path": "v1/{+parent}/services",
           "response": {
             "$ref": "ListServicesResponse"
           },
@@ -604,6 +659,12 @@
       },
       "type": "object"
     },
+    "CancelOperationRequest": {
+      "description": "The request message for Operations.CancelOperation.",
+      "id": "CancelOperationRequest",
+      "properties": {},
+      "type": "object"
+    },
     "Context": {
       "description": "`Context` defines which contexts an API requests.\n\nExample:\n\n    context:\n      rules:\n      - selector: \"*\"\n        requested:\n        - google.rpc.context.ProjectContext\n        - google.rpc.context.OriginContext\n\nThe above specifies that all methods in the API request\n`google.rpc.context.ProjectContext` and\n`google.rpc.context.OriginContext`.\n\nAvailable context types are defined in package\n`google.rpc.context`.\n\nThis also provides mechanism to whitelist any protobuf message extension that\ncan be sent in grpc metadata using “x-goog-ext-\u003cextension_id\u003e-bin” and\n“x-goog-ext-\u003cextension_id\u003e-jspb” format. For example, list any service\nspecific protobuf types that can appear in grpc metadata as follows in your\nyaml file:\n\nExample:\n\n    context:\n      rules:\n       - selector: \"google.example.library.v1.LibraryService.CreateBook\"\n         allowed_request_extensions:\n         - google.foo.v1.NewExtension\n         allowed_response_extensions:\n         - google.foo.v1.NewExtension\n\nYou can also specify extension ID instead of fully qualified extension name\nhere.",
       "id": "Context",
@@ -722,7 +783,12 @@
     "DisableServiceRequest": {
       "description": "Request message for the `DisableService` method.",
       "id": "DisableServiceRequest",
-      "properties": {},
+      "properties": {
+        "disableDependentServices": {
+          "description": "Indicates if services that are enabled and which depend on this service\nshould also be disabled. If not set, an error will be generated if any\nenabled services depend on the service to be disabled. When set, the\nservice, and any enabled services that depend on it, will be disabled\ntogether.",
+          "type": "boolean"
+        }
+      },
       "type": "object"
     },
     "DisableServiceResponse": {
@@ -1402,7 +1468,7 @@
         "services": {
           "description": "The available services for the requested project.",
           "items": {
-            "$ref": "Service"
+            "$ref": "GoogleApiServiceusageV1Service"
           },
           "type": "array"
         }
@@ -1912,84 +1978,6 @@
       },
       "type": "object"
     },
-    "Service": {
-      "description": "A service that is available for use by the consumer.",
-      "id": "Service",
-      "properties": {
-        "config": {
-          "$ref": "ServiceConfig",
-          "description": "The service configuration of the available service.\nSome fields may be filtered out of the configuration in responses to\nthe `ListServices` method. These fields are present only in responses to\nthe `GetService` method."
-        },
-        "name": {
-          "description": "The resource name of the consumer and service.\n\nA valid name would be:\n- projects/123/services/serviceusage.googleapis.com",
-          "type": "string"
-        },
-        "parent": {
-          "description": "The resource name of the consumer.\n\nA valid name would be:\n- projects/123",
-          "type": "string"
-        },
-        "state": {
-          "description": "Whether or not the service has been enabled for use by the consumer.",
-          "enum": [
-            "STATE_UNSPECIFIED",
-            "DISABLED",
-            "ENABLED"
-          ],
-          "enumDescriptions": [
-            "The default value, which indicates that the enabled state of the service\nis unspecified or not meaningful. Currently, all consumers other than\nprojects (such as folders and organizations) are always in this state.",
-            "The service cannot be used by this consumer. It has either been explicitly\ndisabled, or has never been enabled.",
-            "The service has been explicitly enabled for use by this consumer."
-          ],
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "ServiceConfig": {
-      "description": "The configuration of the service.",
-      "id": "ServiceConfig",
-      "properties": {
-        "apis": {
-          "description": "A list of API interfaces exported by this service. Contains only the names,\nversions, and method names of the interfaces.",
-          "items": {
-            "$ref": "Api"
-          },
-          "type": "array"
-        },
-        "authentication": {
-          "$ref": "Authentication",
-          "description": "Auth configuration. Contains only the OAuth rules."
-        },
-        "documentation": {
-          "$ref": "Documentation",
-          "description": "Additional API documentation. Contains only the summary and the\ndocumentation URL."
-        },
-        "endpoints": {
-          "description": "Configuration for network endpoints. Contains only the names and aliases\nof the endpoints.",
-          "items": {
-            "$ref": "Endpoint"
-          },
-          "type": "array"
-        },
-        "name": {
-          "description": "The DNS address at which this service is available.\n\nAn example DNS address would be:\n`calendar.googleapis.com`.",
-          "type": "string"
-        },
-        "quota": {
-          "$ref": "Quota",
-          "description": "Quota configuration."
-        },
-        "title": {
-          "description": "The product title for this service.",
-          "type": "string"
-        },
-        "usage": {
-          "$ref": "Usage",
-          "description": "Configuration controlling usage of this service."
-        }
-      },
-      "type": "object"
-    },
     "SourceContext": {
       "description": "`SourceContext` represents information about the source of a\nprotobuf element, like the file in which it is defined.",
       "id": "SourceContext",
@@ -2192,6 +2180,6 @@
   },
   "servicePath": "",
   "title": "Service Usage API",
-  "version": "v1beta1",
+  "version": "v1",
   "version_module": true
 }

@@ -3,11 +3,11 @@ package google
 import (
 	"fmt"
 
-	serviceusage "google.golang.org/api/serviceusage/v1beta1"
+	"google.golang.org/api/serviceusage/v1"
 )
 
 type ServiceUsageOperationWaiter struct {
-	Service *serviceusage.APIService
+	Service *serviceusage.Service
 	CommonOperationWaiter
 }
 
