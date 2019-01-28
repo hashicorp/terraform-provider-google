@@ -5,10 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/gammazero/workerpool"
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -516,22 +518,46 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 
 		if len(res.Items) != 0 {
 			if d.Get("force_destroy").(bool) {
-				// purge the bucket...
+				// GCS requires that a bucket be empty (have no objects or object
+				// versions) before it can be deleted.
 				log.Printf("[DEBUG] GCS Bucket attempting to forceDestroy\n\n")
+
+				// Create a workerpool for parallel deletion of resources. In the
+				// future, it would be great to expose Terraform's global parallelism
+				// flag here, but that's currently reserved for core use. Testing
+				// shows that NumCPUs-1 is the most performant on average networks.
+				//
+				// The challenge with making this user-configurable is that the
+				// configuration would reside in the Terraform configuration file,
+				// decreasing its portability. Ideally we'd want this to connect to
+				// Terraform's top-level -parallelism flag, but that's not plumbed nor
+				// is it scheduled to be plumbed to individual providers.
+				wp := workerpool.New(runtime.NumCPU() - 1)
 
 				for _, object := range res.Items {
 					log.Printf("[DEBUG] Found %s", object.Name)
-					if err := config.clientStorage.Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
-						log.Fatalf("Error trying to delete object: %s %s\n\n", object.Name, err)
-					} else {
-						log.Printf("Object deleted: %s \n\n", object.Name)
-					}
+					object := object
+
+					wp.Submit(func() {
+						log.Printf("[TRACE] Attempting to delete %s", object.Name)
+						if err := config.clientStorage.Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
+							// We should really return an error here, but it doesn't really
+							// matter since the following step (bucket deletion) will fail
+							// with an error indicating objects are still present, and this
+							// log line will point to that object.
+							log.Printf("[ERR] Failed to delete storage object %s: %s", object.Name, err)
+						} else {
+							log.Printf("[TRACE] Successfully deleted %s", object.Name)
+						}
+					})
 				}
 
+				// Wait for everything to finish.
+				wp.StopWait()
 			} else {
-				delete_err := errors.New("Error trying to delete a bucket containing objects without `force_destroy` set to true")
-				log.Printf("Error! %s : %s\n\n", bucket, delete_err)
-				return delete_err
+				deleteErr := errors.New("Error trying to delete a bucket containing objects without `force_destroy` set to true")
+				log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
+				return deleteErr
 			}
 		} else {
 			break // 0 items, bucket empty

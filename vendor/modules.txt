@@ -62,6 +62,10 @@ github.com/davecgh/go-spew/spew
 github.com/dustinkirkland/golang-petname
 # github.com/fatih/color v1.7.0
 github.com/fatih/color
+# github.com/gammazero/deque v0.0.0-20180920172122-f6adf94963e4
+github.com/gammazero/deque
+# github.com/gammazero/workerpool v0.0.0-20181230203049-86a96b5d5d92
+github.com/gammazero/workerpool
 # github.com/golang/protobuf v1.2.0
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes

@@ -7,6 +7,8 @@ require (
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dustinkirkland/golang-petname v0.0.0-20170921220637-d3c2ba80e75e // indirect
+	github.com/gammazero/deque v0.0.0-20180920172122-f6adf94963e4 // indirect
+	github.com/gammazero/workerpool v0.0.0-20181230203049-86a96b5d5d92
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c // indirect
 	github.com/googleapis/gax-go v2.0.2+incompatible // indirect
