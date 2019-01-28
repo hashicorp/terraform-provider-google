@@ -38,7 +38,7 @@ import (
 	redis "google.golang.org/api/redis/v1beta1"
 	runtimeconfig "google.golang.org/api/runtimeconfig/v1beta1"
 	"google.golang.org/api/servicemanagement/v1"
-	serviceusage "google.golang.org/api/serviceusage/v1beta1"
+	"google.golang.org/api/serviceusage/v1"
 	"google.golang.org/api/sourcerepo/v1"
 	"google.golang.org/api/spanner/v1"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
@@ -86,7 +86,7 @@ type Config struct {
 	clientSqlAdmin               *sqladmin.Service
 	clientIAM                    *iam.Service
 	clientServiceMan             *servicemanagement.APIService
-	clientServiceUsage           *serviceusage.APIService
+	clientServiceUsage           *serviceusage.Service
 	clientBigQuery               *bigquery.Service
 	clientCloudFunctions         *cloudfunctions.Service
 	clientCloudIoT               *cloudiot.Service

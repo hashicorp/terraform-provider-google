@@ -10,10 +10,10 @@
 //
 // Usage example:
 //
-//   import "google.golang.org/api/serviceusage/v1beta1"
+//   import "google.golang.org/api/serviceusage/v1"
 //   ...
 //   serviceusageService, err := serviceusage.New(oauthHttpClient)
-package serviceusage // import "google.golang.org/api/serviceusage/v1beta1"
+package serviceusage // import "google.golang.org/api/serviceusage/v1"
 
 import (
 	"bytes"
@@ -45,9 +45,9 @@ var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
 
-const apiId = "serviceusage:v1beta1"
+const apiId = "serviceusage:v1"
 const apiName = "serviceusage"
-const apiVersion = "v1beta1"
+const apiVersion = "v1"
 const basePath = "https://serviceusage.googleapis.com/"
 
 // OAuth2 scopes used by this API.
@@ -62,17 +62,17 @@ const (
 	ServiceManagementScope = "https://www.googleapis.com/auth/service.management"
 )
 
-func New(client *http.Client) (*APIService, error) {
+func New(client *http.Client) (*Service, error) {
 	if client == nil {
 		return nil, errors.New("client is nil")
 	}
-	s := &APIService{client: client, BasePath: basePath}
+	s := &Service{client: client, BasePath: basePath}
 	s.Operations = NewOperationsService(s)
 	s.Services = NewServicesService(s)
 	return s, nil
 }
 
-type APIService struct {
+type Service struct {
 	client    *http.Client
 	BasePath  string // API endpoint base URL
 	UserAgent string // optional additional User-Agent fragment
@@ -82,29 +82,29 @@ type APIService struct {
 	Services *ServicesService
 }
 
-func (s *APIService) userAgent() string {
+func (s *Service) userAgent() string {
 	if s.UserAgent == "" {
 		return googleapi.UserAgent
 	}
 	return googleapi.UserAgent + " " + s.UserAgent
 }
 
-func NewOperationsService(s *APIService) *OperationsService {
+func NewOperationsService(s *Service) *OperationsService {
 	rs := &OperationsService{s: s}
 	return rs
 }
 
 type OperationsService struct {
-	s *APIService
+	s *Service
 }
 
-func NewServicesService(s *APIService) *ServicesService {
+func NewServicesService(s *Service) *ServicesService {
 	rs := &ServicesService{s: s}
 	return rs
 }
 
 type ServicesService struct {
-	s *APIService
+	s *Service
 }
 
 // Api: Api is a light-weight descriptor for an API
@@ -780,6 +780,11 @@ func (s *BillingDestination) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// CancelOperationRequest: The request message for
+// Operations.CancelOperation.
+type CancelOperationRequest struct {
+}
+
 // Context: `Context` defines which contexts an API
 // requests.
 //
@@ -1060,6 +1065,40 @@ func (s *CustomHttpPattern) MarshalJSON() ([]byte, error) {
 // DisableServiceRequest: Request message for the `DisableService`
 // method.
 type DisableServiceRequest struct {
+	// DisableDependentServices: Indicates if services that are enabled and
+	// which depend on this service
+	// should also be disabled. If not set, an error will be generated if
+	// any
+	// enabled services depend on the service to be disabled. When set,
+	// the
+	// service, and any enabled services that depend on it, will be
+	// disabled
+	// together.
+	DisableDependentServices bool `json:"disableDependentServices,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "DisableDependentServices") to unconditionally include in API
+	// requests. By default, fields with empty values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DisableDependentServices")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *DisableServiceRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod DisableServiceRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // DisableServiceResponse: Response message for the `DisableService`
@@ -1282,6 +1321,9 @@ func (s *DocumentationRule) MarshalJSON() ([]byte, error) {
 //
 // The JSON representation for `Empty` is empty JSON object `{}`.
 type Empty struct {
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
 }
 
 // EnableFailure: Provides error messages for the failing services.
@@ -1890,6 +1932,10 @@ type GoogleApiServiceusageV1Service struct {
 	//   "ENABLED" - The service has been explicitly enabled for use by this
 	// consumer.
 	State string `json:"state,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
 
 	// ForceSendFields is a list of field names (e.g. "Config") to
 	// unconditionally include in API requests. By default, fields with
@@ -2544,7 +2590,7 @@ type ListServicesResponse struct {
 	NextPageToken string `json:"nextPageToken,omitempty"`
 
 	// Services: The available services for the requested project.
-	Services []*Service `json:"services,omitempty"`
+	Services []*GoogleApiServiceusageV1Service `json:"services,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -3928,130 +3974,6 @@ func (s *QuotaLimit) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Service: A service that is available for use by the consumer.
-type Service struct {
-	// Config: The service configuration of the available service.
-	// Some fields may be filtered out of the configuration in responses
-	// to
-	// the `ListServices` method. These fields are present only in responses
-	// to
-	// the `GetService` method.
-	Config *ServiceConfig `json:"config,omitempty"`
-
-	// Name: The resource name of the consumer and service.
-	//
-	// A valid name would be:
-	// - projects/123/services/serviceusage.googleapis.com
-	Name string `json:"name,omitempty"`
-
-	// Parent: The resource name of the consumer.
-	//
-	// A valid name would be:
-	// - projects/123
-	Parent string `json:"parent,omitempty"`
-
-	// State: Whether or not the service has been enabled for use by the
-	// consumer.
-	//
-	// Possible values:
-	//   "STATE_UNSPECIFIED" - The default value, which indicates that the
-	// enabled state of the service
-	// is unspecified or not meaningful. Currently, all consumers other
-	// than
-	// projects (such as folders and organizations) are always in this
-	// state.
-	//   "DISABLED" - The service cannot be used by this consumer. It has
-	// either been explicitly
-	// disabled, or has never been enabled.
-	//   "ENABLED" - The service has been explicitly enabled for use by this
-	// consumer.
-	State string `json:"state,omitempty"`
-
-	// ServerResponse contains the HTTP response code and headers from the
-	// server.
-	googleapi.ServerResponse `json:"-"`
-
-	// ForceSendFields is a list of field names (e.g. "Config") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Config") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *Service) MarshalJSON() ([]byte, error) {
-	type NoMethod Service
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-// ServiceConfig: The configuration of the service.
-type ServiceConfig struct {
-	// Apis: A list of API interfaces exported by this service. Contains
-	// only the names,
-	// versions, and method names of the interfaces.
-	Apis []*Api `json:"apis,omitempty"`
-
-	// Authentication: Auth configuration. Contains only the OAuth rules.
-	Authentication *Authentication `json:"authentication,omitempty"`
-
-	// Documentation: Additional API documentation. Contains only the
-	// summary and the
-	// documentation URL.
-	Documentation *Documentation `json:"documentation,omitempty"`
-
-	// Endpoints: Configuration for network endpoints. Contains only the
-	// names and aliases
-	// of the endpoints.
-	Endpoints []*Endpoint `json:"endpoints,omitempty"`
-
-	// Name: The DNS address at which this service is available.
-	//
-	// An example DNS address would be:
-	// `calendar.googleapis.com`.
-	Name string `json:"name,omitempty"`
-
-	// Quota: Quota configuration.
-	Quota *Quota `json:"quota,omitempty"`
-
-	// Title: The product title for this service.
-	Title string `json:"title,omitempty"`
-
-	// Usage: Configuration controlling usage of this service.
-	Usage *Usage `json:"usage,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "Apis") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Apis") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *ServiceConfig) MarshalJSON() ([]byte, error) {
-	type NoMethod ServiceConfig
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
 // SourceContext: `SourceContext` represents information about the
 // source of a
 // protobuf element, like the file in which it is defined.
@@ -4568,10 +4490,303 @@ func (s *UsageRule) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// method id "serviceusage.operations.cancel":
+
+type OperationsCancelCall struct {
+	s                      *Service
+	name                   string
+	canceloperationrequest *CancelOperationRequest
+	urlParams_             gensupport.URLParams
+	ctx_                   context.Context
+	header_                http.Header
+}
+
+// Cancel: Starts asynchronous cancellation on a long-running operation.
+//  The server
+// makes a best effort to cancel the operation, but success is
+// not
+// guaranteed.  If the server doesn't support this method, it
+// returns
+// `google.rpc.Code.UNIMPLEMENTED`.  Clients can
+// use
+// Operations.GetOperation or
+// other methods to check whether the cancellation succeeded or whether
+// the
+// operation completed despite cancellation. On successful
+// cancellation,
+// the operation is not deleted; instead, it becomes an operation
+// with
+// an Operation.error value with a google.rpc.Status.code of
+// 1,
+// corresponding to `Code.CANCELLED`.
+func (r *OperationsService) Cancel(name string, canceloperationrequest *CancelOperationRequest) *OperationsCancelCall {
+	c := &OperationsCancelCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.canceloperationrequest = canceloperationrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OperationsCancelCall) Fields(s ...googleapi.Field) *OperationsCancelCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OperationsCancelCall) Context(ctx context.Context) *OperationsCancelCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OperationsCancelCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OperationsCancelCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.canceloperationrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}:cancel")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "serviceusage.operations.cancel" call.
+// Exactly one of *Empty or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Empty.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *OperationsCancelCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &Empty{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Starts asynchronous cancellation on a long-running operation.  The server\nmakes a best effort to cancel the operation, but success is not\nguaranteed.  If the server doesn't support this method, it returns\n`google.rpc.Code.UNIMPLEMENTED`.  Clients can use\nOperations.GetOperation or\nother methods to check whether the cancellation succeeded or whether the\noperation completed despite cancellation. On successful cancellation,\nthe operation is not deleted; instead, it becomes an operation with\nan Operation.error value with a google.rpc.Status.code of 1,\ncorresponding to `Code.CANCELLED`.",
+	//   "flatPath": "v1/operations/{operationsId}:cancel",
+	//   "httpMethod": "POST",
+	//   "id": "serviceusage.operations.cancel",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The name of the operation resource to be cancelled.",
+	//       "location": "path",
+	//       "pattern": "^operations/.+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}:cancel",
+	//   "request": {
+	//     "$ref": "CancelOperationRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "Empty"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/service.management"
+	//   ]
+	// }
+
+}
+
+// method id "serviceusage.operations.delete":
+
+type OperationsDeleteCall struct {
+	s          *Service
+	name       string
+	urlParams_ gensupport.URLParams
+	ctx_       context.Context
+	header_    http.Header
+}
+
+// Delete: Deletes a long-running operation. This method indicates that
+// the client is
+// no longer interested in the operation result. It does not cancel
+// the
+// operation. If the server doesn't support this method, it
+// returns
+// `google.rpc.Code.UNIMPLEMENTED`.
+func (r *OperationsService) Delete(name string) *OperationsDeleteCall {
+	c := &OperationsDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OperationsDeleteCall) Fields(s ...googleapi.Field) *OperationsDeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OperationsDeleteCall) Context(ctx context.Context) *OperationsDeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OperationsDeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OperationsDeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("DELETE", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "serviceusage.operations.delete" call.
+// Exactly one of *Empty or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Empty.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *OperationsDeleteCall) Do(opts ...googleapi.CallOption) (*Empty, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &Empty{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Deletes a long-running operation. This method indicates that the client is\nno longer interested in the operation result. It does not cancel the\noperation. If the server doesn't support this method, it returns\n`google.rpc.Code.UNIMPLEMENTED`.",
+	//   "flatPath": "v1/operations/{operationsId}",
+	//   "httpMethod": "DELETE",
+	//   "id": "serviceusage.operations.delete",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "The name of the operation resource to be deleted.",
+	//       "location": "path",
+	//       "pattern": "^operations/.+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+name}",
+	//   "response": {
+	//     "$ref": "Empty"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/service.management"
+	//   ]
+	// }
+
+}
+
 // method id "serviceusage.operations.get":
 
 type OperationsGetCall struct {
-	s            *APIService
+	s            *Service
 	name         string
 	urlParams_   gensupport.URLParams
 	ifNoneMatch_ string
@@ -4637,7 +4852,7 @@ func (c *OperationsGetCall) doRequest(alt string) (*http.Response, error) {
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
 	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
 	urls += "?" + c.urlParams_.Encode()
 	req, err := http.NewRequest("GET", urls, body)
 	if err != nil {
@@ -4689,7 +4904,7 @@ func (c *OperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 	return ret, nil
 	// {
 	//   "description": "Gets the latest state of a long-running operation.  Clients can use this\nmethod to poll the operation result at intervals as recommended by the API\nservice.",
-	//   "flatPath": "v1beta1/operations/{operationsId}",
+	//   "flatPath": "v1/operations/{operationsId}",
 	//   "httpMethod": "GET",
 	//   "id": "serviceusage.operations.get",
 	//   "parameterOrder": [
@@ -4704,7 +4919,7 @@ func (c *OperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 	//       "type": "string"
 	//     }
 	//   },
-	//   "path": "v1beta1/{+name}",
+	//   "path": "v1/{+name}",
 	//   "response": {
 	//     "$ref": "Operation"
 	//   },
@@ -4719,7 +4934,7 @@ func (c *OperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 // method id "serviceusage.operations.list":
 
 type OperationsListCall struct {
-	s            *APIService
+	s            *Service
 	urlParams_   gensupport.URLParams
 	ifNoneMatch_ string
 	ctx_         context.Context
@@ -4823,7 +5038,7 @@ func (c *OperationsListCall) doRequest(alt string) (*http.Response, error) {
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
 	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/operations")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/operations")
 	urls += "?" + c.urlParams_.Encode()
 	req, err := http.NewRequest("GET", urls, body)
 	if err != nil {
@@ -4872,7 +5087,7 @@ func (c *OperationsListCall) Do(opts ...googleapi.CallOption) (*ListOperationsRe
 	return ret, nil
 	// {
 	//   "description": "Lists operations that match the specified filter in the request. If the\nserver doesn't support this method, it returns `UNIMPLEMENTED`.\n\nNOTE: the `name` binding allows API services to override the binding\nto use different resource name schemes, such as `users/*/operations`. To\noverride the binding, API services can add a binding such as\n`\"/v1/{name=users/*}/operations\"` to their service configuration.\nFor backwards compatibility, the default name includes the operations\ncollection id, however overriding users must ensure the name binding\nis the parent resource, without the operations collection id.",
-	//   "flatPath": "v1beta1/operations",
+	//   "flatPath": "v1/operations",
 	//   "httpMethod": "GET",
 	//   "id": "serviceusage.operations.list",
 	//   "parameterOrder": [],
@@ -4899,7 +5114,7 @@ func (c *OperationsListCall) Do(opts ...googleapi.CallOption) (*ListOperationsRe
 	//       "type": "string"
 	//     }
 	//   },
-	//   "path": "v1beta1/operations",
+	//   "path": "v1/operations",
 	//   "response": {
 	//     "$ref": "ListOperationsResponse"
 	//   },
@@ -4935,7 +5150,7 @@ func (c *OperationsListCall) Pages(ctx context.Context, f func(*ListOperationsRe
 // method id "serviceusage.services.batchEnable":
 
 type ServicesBatchEnableCall struct {
-	s                          *APIService
+	s                          *Service
 	parent                     string
 	batchenableservicesrequest *BatchEnableServicesRequest
 	urlParams_                 gensupport.URLParams
@@ -4948,7 +5163,7 @@ type ServicesBatchEnableCall struct {
 // any service fails, then the entire batch fails, and no state changes
 // occur.
 //
-// Operation<response: google.protobuf.Empty>
+// Operation<response: BatchEnableServicesResponse>
 func (r *ServicesService) BatchEnable(parent string, batchenableservicesrequest *BatchEnableServicesRequest) *ServicesBatchEnableCall {
 	c := &ServicesBatchEnableCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -4995,7 +5210,7 @@ func (c *ServicesBatchEnableCall) doRequest(alt string) (*http.Response, error) 
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
 	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+parent}/services:batchEnable")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/services:batchEnable")
 	urls += "?" + c.urlParams_.Encode()
 	req, err := http.NewRequest("POST", urls, body)
 	if err != nil {
@@ -5046,8 +5261,8 @@ func (c *ServicesBatchEnableCall) Do(opts ...googleapi.CallOption) (*Operation, 
 	}
 	return ret, nil
 	// {
-	//   "description": "Enable multiple services on a project. The operation is atomic: if enabling\nany service fails, then the entire batch fails, and no state changes occur.\n\nOperation\u003cresponse: google.protobuf.Empty\u003e",
-	//   "flatPath": "v1beta1/{v1beta1Id}/{v1beta1Id1}/services:batchEnable",
+	//   "description": "Enable multiple services on a project. The operation is atomic: if enabling\nany service fails, then the entire batch fails, and no state changes occur.\n\nOperation\u003cresponse: BatchEnableServicesResponse\u003e",
+	//   "flatPath": "v1/{v1Id}/{v1Id1}/services:batchEnable",
 	//   "httpMethod": "POST",
 	//   "id": "serviceusage.services.batchEnable",
 	//   "parameterOrder": [
@@ -5062,7 +5277,7 @@ func (c *ServicesBatchEnableCall) Do(opts ...googleapi.CallOption) (*Operation, 
 	//       "type": "string"
 	//     }
 	//   },
-	//   "path": "v1beta1/{+parent}/services:batchEnable",
+	//   "path": "v1/{+parent}/services:batchEnable",
 	//   "request": {
 	//     "$ref": "BatchEnableServicesRequest"
 	//   },
@@ -5080,7 +5295,7 @@ func (c *ServicesBatchEnableCall) Do(opts ...googleapi.CallOption) (*Operation, 
 // method id "serviceusage.services.disable":
 
 type ServicesDisableCall struct {
-	s                     *APIService
+	s                     *Service
 	name                  string
 	disableservicerequest *DisableServiceRequest
 	urlParams_            gensupport.URLParams
@@ -5100,7 +5315,7 @@ type ServicesDisableCall struct {
 // status if
 // the target service is not currently enabled.
 //
-// Operation<response: google.protobuf.Empty>
+// Operation<response: DisableServiceResponse>
 func (r *ServicesService) Disable(name string, disableservicerequest *DisableServiceRequest) *ServicesDisableCall {
 	c := &ServicesDisableCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5147,7 +5362,7 @@ func (c *ServicesDisableCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
 	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}:disable")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}:disable")
 	urls += "?" + c.urlParams_.Encode()
 	req, err := http.NewRequest("POST", urls, body)
 	if err != nil {
@@ -5198,8 +5413,8 @@ func (c *ServicesDisableCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	}
 	return ret, nil
 	// {
-	//   "description": "Disable a service so that it can no longer be used with a project.\nThis prevents unintended usage that may cause unexpected billing\ncharges or security leaks.\n\nIt is not valid to call the disable method on a service that is not\ncurrently enabled. Callers will receive a `FAILED_PRECONDITION` status if\nthe target service is not currently enabled.\n\nOperation\u003cresponse: google.protobuf.Empty\u003e",
-	//   "flatPath": "v1beta1/{v1beta1Id}/{v1beta1Id1}/services/{servicesId}:disable",
+	//   "description": "Disable a service so that it can no longer be used with a project.\nThis prevents unintended usage that may cause unexpected billing\ncharges or security leaks.\n\nIt is not valid to call the disable method on a service that is not\ncurrently enabled. Callers will receive a `FAILED_PRECONDITION` status if\nthe target service is not currently enabled.\n\nOperation\u003cresponse: DisableServiceResponse\u003e",
+	//   "flatPath": "v1/{v1Id}/{v1Id1}/services/{servicesId}:disable",
 	//   "httpMethod": "POST",
 	//   "id": "serviceusage.services.disable",
 	//   "parameterOrder": [
@@ -5214,7 +5429,7 @@ func (c *ServicesDisableCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	//       "type": "string"
 	//     }
 	//   },
-	//   "path": "v1beta1/{+name}:disable",
+	//   "path": "v1/{+name}:disable",
 	//   "request": {
 	//     "$ref": "DisableServiceRequest"
 	//   },
@@ -5232,7 +5447,7 @@ func (c *ServicesDisableCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 // method id "serviceusage.services.enable":
 
 type ServicesEnableCall struct {
-	s                    *APIService
+	s                    *Service
 	name                 string
 	enableservicerequest *EnableServiceRequest
 	urlParams_           gensupport.URLParams
@@ -5243,7 +5458,7 @@ type ServicesEnableCall struct {
 // Enable: Enable a service so that it can be used with a
 // project.
 //
-// Operation<response: google.protobuf.Empty>
+// Operation<response: EnableServiceResponse>
 func (r *ServicesService) Enable(name string, enableservicerequest *EnableServiceRequest) *ServicesEnableCall {
 	c := &ServicesEnableCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5290,7 +5505,7 @@ func (c *ServicesEnableCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
 	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}:enable")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}:enable")
 	urls += "?" + c.urlParams_.Encode()
 	req, err := http.NewRequest("POST", urls, body)
 	if err != nil {
@@ -5341,8 +5556,8 @@ func (c *ServicesEnableCall) Do(opts ...googleapi.CallOption) (*Operation, error
 	}
 	return ret, nil
 	// {
-	//   "description": "Enable a service so that it can be used with a project.\n\nOperation\u003cresponse: google.protobuf.Empty\u003e",
-	//   "flatPath": "v1beta1/{v1beta1Id}/{v1beta1Id1}/services/{servicesId}:enable",
+	//   "description": "Enable a service so that it can be used with a project.\n\nOperation\u003cresponse: EnableServiceResponse\u003e",
+	//   "flatPath": "v1/{v1Id}/{v1Id1}/services/{servicesId}:enable",
 	//   "httpMethod": "POST",
 	//   "id": "serviceusage.services.enable",
 	//   "parameterOrder": [
@@ -5357,7 +5572,7 @@ func (c *ServicesEnableCall) Do(opts ...googleapi.CallOption) (*Operation, error
 	//       "type": "string"
 	//     }
 	//   },
-	//   "path": "v1beta1/{+name}:enable",
+	//   "path": "v1/{+name}:enable",
 	//   "request": {
 	//     "$ref": "EnableServiceRequest"
 	//   },
@@ -5375,7 +5590,7 @@ func (c *ServicesEnableCall) Do(opts ...googleapi.CallOption) (*Operation, error
 // method id "serviceusage.services.get":
 
 type ServicesGetCall struct {
-	s            *APIService
+	s            *Service
 	name         string
 	urlParams_   gensupport.URLParams
 	ifNoneMatch_ string
@@ -5438,7 +5653,7 @@ func (c *ServicesGetCall) doRequest(alt string) (*http.Response, error) {
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
 	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+name}")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+name}")
 	urls += "?" + c.urlParams_.Encode()
 	req, err := http.NewRequest("GET", urls, body)
 	if err != nil {
@@ -5452,13 +5667,13 @@ func (c *ServicesGetCall) doRequest(alt string) (*http.Response, error) {
 }
 
 // Do executes the "serviceusage.services.get" call.
-// Exactly one of *Service or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *Service.ServerResponse.Header or (if a response was returned at all)
-// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
-// check whether the returned error was because http.StatusNotModified
-// was returned.
-func (c *ServicesGetCall) Do(opts ...googleapi.CallOption) (*Service, error) {
+// Exactly one of *GoogleApiServiceusageV1Service or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *GoogleApiServiceusageV1Service.ServerResponse.Header or (if a
+// response was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ServicesGetCall) Do(opts ...googleapi.CallOption) (*GoogleApiServiceusageV1Service, error) {
 	gensupport.SetOptions(c.urlParams_, opts...)
 	res, err := c.doRequest("json")
 	if res != nil && res.StatusCode == http.StatusNotModified {
@@ -5477,7 +5692,7 @@ func (c *ServicesGetCall) Do(opts ...googleapi.CallOption) (*Service, error) {
 	if err := googleapi.CheckResponse(res); err != nil {
 		return nil, err
 	}
-	ret := &Service{
+	ret := &GoogleApiServiceusageV1Service{
 		ServerResponse: googleapi.ServerResponse{
 			Header:         res.Header,
 			HTTPStatusCode: res.StatusCode,
@@ -5490,7 +5705,7 @@ func (c *ServicesGetCall) Do(opts ...googleapi.CallOption) (*Service, error) {
 	return ret, nil
 	// {
 	//   "description": "Returns the service configuration and enabled state for a given service.",
-	//   "flatPath": "v1beta1/{v1beta1Id}/{v1beta1Id1}/services/{servicesId}",
+	//   "flatPath": "v1/{v1Id}/{v1Id1}/services/{servicesId}",
 	//   "httpMethod": "GET",
 	//   "id": "serviceusage.services.get",
 	//   "parameterOrder": [
@@ -5505,9 +5720,9 @@ func (c *ServicesGetCall) Do(opts ...googleapi.CallOption) (*Service, error) {
 	//       "type": "string"
 	//     }
 	//   },
-	//   "path": "v1beta1/{+name}",
+	//   "path": "v1/{+name}",
 	//   "response": {
-	//     "$ref": "Service"
+	//     "$ref": "GoogleApiServiceusageV1Service"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform",
@@ -5520,7 +5735,7 @@ func (c *ServicesGetCall) Do(opts ...googleapi.CallOption) (*Service, error) {
 // method id "serviceusage.services.list":
 
 type ServicesListCall struct {
-	s            *APIService
+	s            *Service
 	parent       string
 	urlParams_   gensupport.URLParams
 	ifNoneMatch_ string
@@ -5618,7 +5833,7 @@ func (c *ServicesListCall) doRequest(alt string) (*http.Response, error) {
 	var body io.Reader = nil
 	c.urlParams_.Set("alt", alt)
 	c.urlParams_.Set("prettyPrint", "false")
-	urls := googleapi.ResolveRelative(c.s.BasePath, "v1beta1/{+parent}/services")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}/services")
 	urls += "?" + c.urlParams_.Encode()
 	req, err := http.NewRequest("GET", urls, body)
 	if err != nil {
@@ -5670,7 +5885,7 @@ func (c *ServicesListCall) Do(opts ...googleapi.CallOption) (*ListServicesRespon
 	return ret, nil
 	// {
 	//   "description": "List all services available to the specified project, and the current\nstate of those services with respect to the project. The list includes\nall public services, all services for which the calling user has the\n`servicemanagement.services.bind` permission, and all services that have\nalready been enabled on the project. The list can be filtered to\nonly include services in a specific state, for example to only include\nservices enabled on the project.",
-	//   "flatPath": "v1beta1/{v1beta1Id}/{v1beta1Id1}/services",
+	//   "flatPath": "v1/{v1Id}/{v1Id1}/services",
 	//   "httpMethod": "GET",
 	//   "id": "serviceusage.services.list",
 	//   "parameterOrder": [
@@ -5701,7 +5916,7 @@ func (c *ServicesListCall) Do(opts ...googleapi.CallOption) (*ListServicesRespon
 	//       "type": "string"
 	//     }
 	//   },
-	//   "path": "v1beta1/{+parent}/services",
+	//   "path": "v1/{+parent}/services",
 	//   "response": {
 	//     "$ref": "ListServicesResponse"
 	//   },
