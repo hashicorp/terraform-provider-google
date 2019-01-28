@@ -508,6 +508,13 @@ func resourceComputeInstance() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"hostname": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+
 			"cpu_platform": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -666,6 +673,7 @@ func expandComputeInstance(project string, zone *compute.Zone, d *schema.Resourc
 		MachineType:        machineTypeUrl,
 		Metadata:           metadata,
 		Name:               d.Get("name").(string),
+		Hostname:           d.Get("hostname").(string),
 		NetworkInterfaces:  networkInterfaces,
 		Tags:               resourceInstanceTags(d),
 		Labels:             expandLabels(d),
@@ -892,6 +900,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("project", project)
 	d.Set("zone", GetResourceNameFromSelfLink(instance.Zone))
 	d.Set("name", instance.Name)
+	d.Set("hostname", instance.Hostname)
 	d.SetId(instance.Name)
 
 	return nil
