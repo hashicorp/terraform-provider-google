@@ -185,18 +185,8 @@ func testAccCheckInstanceGroupManagerDestroy(s *terraform.State) error {
 		if rs.Type != "google_compute_instance_group_manager" {
 			continue
 		}
-		id, err := parseInstanceGroupManagerId(rs.Primary.ID)
-		if err != nil {
-			return err
-		}
-		if id.Project == "" {
-			id.Project = config.Project
-		}
-		if id.Zone == "" {
-			id.Zone = rs.Primary.Attributes["zone"]
-		}
-		_, err = config.clientCompute.InstanceGroupManagers.Get(
-			id.Project, id.Zone, id.Name).Do()
+		_, err := config.clientCompute.InstanceGroupManagers.Get(
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err == nil {
 			return fmt.Errorf("InstanceGroupManager still exists")
 		}
