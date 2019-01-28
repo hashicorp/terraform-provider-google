@@ -20,6 +20,7 @@ func parseImportId(idRegexes []string, d TerraformResourceData, config *Config) 
 		re, err := regexp.Compile(idFormat)
 
 		if err != nil {
+			log.Printf("[DEBUG] Could not compile %s.", idFormat)
 			return fmt.Errorf("Import is not supported. Invalid regex formats.")
 		}
 
