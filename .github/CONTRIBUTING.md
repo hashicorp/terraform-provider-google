@@ -22,22 +22,9 @@ Fields that are only available in beta versions of the Google Cloud Platform API
 
 ## Vendoring Libraries
 
-When adding support for just-released GCP features, you'll often need to vendor a new version of the Google API client and
-occasionally some of the downstream dependencies of that client. The Google Provider uses [govendor](https://github.com/kardianos/govendor)
-in order to manage dependencies. To vendor a new package or update an existing package, run:
+When adding support for just-released GCP features, you'll often need to vendor a new version of the Google API client. The Google provider uses Go Modules; use `GO111MODULES=on go get {{dependency}}`, and the new dependencies will be included in your PR.
 
-```bash
-govendor fetch {{path}}
-```
-
-For example:
-
-```bash
-govendor fetch google.golang.org/api/compute/v1
-```
-
-When updating a vendored library, try to submit the vendoring as a separate pull request and include the commands you ran in
-the pull request description.
+If you're developing against Magic Modules, vendoring changes is done automatically by the Magician at PR time; you may need to `go get` locally, but those changes don't need to be included in your PR.
 
 ## Tests
 
