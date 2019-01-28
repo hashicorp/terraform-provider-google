@@ -165,7 +165,7 @@ The following arguments are supported:
     use. Can be `MYSQL_5_6`, `MYSQL_5_7` or `POSTGRES_9_6` for second-generation
     instances, or `MYSQL_5_5` or `MYSQL_5_6` for first-generation instances.
     See [Second Generation Capabilities](https://cloud.google.com/sql/docs/1st-2nd-gen-differences)
-    for more information. `POSTGRES_9_6` support is in beta.
+    for more information.
 
 * `name` - (Optional, Computed) The name of the instance. If the name is left
     blank, Terraform will randomly generate one when the instance is first
