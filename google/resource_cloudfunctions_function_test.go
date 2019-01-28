@@ -258,6 +258,35 @@ func TestAccCloudFunctionsFunction_sourceRepo(t *testing.T) {
 	})
 }
 
+func TestAccCloudFunctionsFunction_serviceAccountEmail(t *testing.T) {
+	t.Parallel()
+
+	funcResourceName := "google_cloudfunctions_function.function"
+	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	zipFilePath, err := createZIPArchiveForIndexJs(testHTTPTriggerPath)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	defer os.Remove(zipFilePath) // clean up
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_serviceAccountEmail(functionName, bucketName, zipFilePath),
+			},
+			{
+				ResourceName:      funcResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckCloudFunctionsFunctionDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -606,4 +635,31 @@ resource "google_cloudfunctions_function" "function" {
   entry_point  = "helloGET"
 }
 `, functionName, project)
+}
+
+func testAccCloudFunctionsFunction_serviceAccountEmail(functionName, bucketName, zipFilePath string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = "${google_storage_bucket.bucket.name}"
+  source = "%s"
+}
+
+data "google_compute_default_service_account" "default" { }
+
+resource "google_cloudfunctions_function" "function" {
+  name = "%s"
+
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+
+  service_account_email = "${data.google_compute_default_service_account.default.email}"
+
+  trigger_http = true
+  entry_point  = "helloGET"
+}`, bucketName, zipFilePath, functionName)
 }

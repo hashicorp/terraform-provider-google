@@ -69,6 +69,8 @@ The following arguments are supported:
 
 * `runtime` - (Optional) The runtime in which the function is going to run. If empty, defaults to `"nodejs6"`.
 
+* `service_account_email` - (Optional) If provided, the self-provided service account to run the function with.
+
 * `environment_variables` - (Optional) A set of key/value environment variable pairs to assign to the function.
 
 * `source_archive_bucket` - (Optional) The GCS bucket containing the zip archive which contains the function.
