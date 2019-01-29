@@ -537,6 +537,12 @@ func resourceComputeInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"hostname": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 		CustomizeDiff: customdiff.All(
 			customdiff.If(
@@ -674,6 +680,7 @@ func expandComputeInstance(project string, zone *compute.Zone, d *schema.Resourc
 		MinCpuPlatform:     d.Get("min_cpu_platform").(string),
 		Scheduling:         scheduling,
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		Hostname:           d.Get("hostname").(string),
 		ForceSendFields:    []string{"CanIpForward", "DeletionProtection"},
 	}, nil
 }
@@ -892,6 +899,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("project", project)
 	d.Set("zone", GetResourceNameFromSelfLink(instance.Zone))
 	d.Set("name", instance.Name)
+	d.Set("hostname", instance.Hostname)
 	d.SetId(instance.Name)
 
 	return nil
