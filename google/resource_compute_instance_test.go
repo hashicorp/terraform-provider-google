@@ -1043,6 +1043,26 @@ func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_hostname(t *testing.T) {
+	t.Parallel()
+
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_hostname(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_compute_instance.foobar", "hostname"),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -2906,6 +2926,33 @@ resource "google_compute_instance" "foobar" {
 		}
 	}
 }`, network, subnet, instance)
+}
+
+func testAccComputeInstance_hostname(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	hostname = "%s.test"
+}`, instance, instance)
 }
 
 // Set fields that require stopping the instance: machine_type, min_cpu_platform, and service_account
