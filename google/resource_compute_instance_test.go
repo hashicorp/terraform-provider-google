@@ -1043,6 +1043,37 @@ func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceState(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_running(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceRunning(&instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_stopped(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceTerminated(&instance),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -1129,6 +1160,24 @@ func testAccCheckComputeInstanceExistsInProject(n, p string, instance *compute.I
 
 		*instance = *found
 
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceRunning(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.Status != "RUNNING" {
+			return fmt.Errorf("Instance is not RUNNING, state: %s", instance.Status)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTerminated(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.Status != "TERMINATED" {
+			return fmt.Errorf("Instance is not TERMINATED, state: %s", instance.Status)
+		}
 		return nil
 	}
 }
@@ -1576,6 +1625,72 @@ resource "google_compute_instance" "foobar" {
 	network_interface {
 		network = "default"
 	}
+
+	metadata = {
+		foo = "bar"
+	}
+}
+`, instance)
+}
+
+func testAccComputeInstance_running(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["foo", "bar"]
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	instance_state = "running"
+
+	metadata = {
+		foo = "bar"
+	}
+}
+`, instance)
+}
+
+func testAccComputeInstance_stopped(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["foo", "bar"]
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	instance_state = "stopped"
 
 	metadata = {
 		foo = "bar"

@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/customdiff"
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"github.com/mitchellh/hashstructure"
@@ -125,6 +126,13 @@ func resourceComputeInstance() *schema.Resource {
 			"machine_type": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+
+			"instance_state": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "running",
+				ValidateFunc: validation.StringInSlice([]string{"stopped", "running"}, false),
 			},
 
 			"name": {
@@ -762,6 +770,15 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("can_ip_forward", instance.CanIpForward)
 	d.Set("machine_type", GetResourceNameFromSelfLink(instance.MachineType))
 
+	// PROVISIONING, STAGING, RUNNING, STOPPING, STOPPED,
+	//	// SUSPENDING, SUSPENDED, and TERMINATED
+	switch instance.Status {
+	case "PROVISIONING", "STAGING", "RUNNING":
+		d.Set("instance_state", "running")
+	default:
+		d.Set("instance_state", "stopped")
+	}
+
 	// Set the networks
 	// Use the first external IP found for the default connection info.
 	networkInterfaces, _, internalIP, externalIP, err := flattenNetworkInterfaces(d, config, instance.NetworkInterfaces)
@@ -962,6 +979,55 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		d.SetPartial("tags")
+	}
+
+	if d.HasChange("instance_state") {
+		if d.Get("instance_state") == "running" {
+			_, err := config.clientCompute.Instances.Start(project,
+				zone, d.Id()).Do()
+			if err != nil {
+				return fmt.Errorf(
+					"Error starting an instance (%s): %s", d.Id(), err)
+			}
+
+			stateConf := &resource.StateChangeConf{
+				Pending:    []string{"PROVISIONING", "STAGING", "TERMINATED"},
+				Target:     []string{"RUNNING"},
+				Refresh:    instanceStateRefreshFunc(config.clientCompute, project, zone, d.Id()),
+				Timeout:    10 * time.Minute,
+				Delay:      10 * time.Second,
+				MinTimeout: 3 * time.Second,
+			}
+
+			_, err = stateConf.WaitForState()
+			if err != nil {
+				return fmt.Errorf(
+					"Error waiting for instance (%s) to start: %s", d.Id(), err)
+			}
+		} else {
+			_, err := config.clientCompute.Instances.Stop(project,
+				zone, d.Id()).Do()
+			if err != nil {
+				return fmt.Errorf(
+					"Error stopping an instance (%s): %s", d.Id(), err)
+			}
+
+			stateConf := &resource.StateChangeConf{
+				Pending:    []string{"PROVISIONING", "STAGING", "RUNNING", "STOPPING"},
+				Target:     []string{"TERMINATED"},
+				Refresh:    instanceStateRefreshFunc(config.clientCompute, project, zone, d.Id()),
+				Timeout:    10 * time.Minute,
+				Delay:      10 * time.Second,
+				MinTimeout: 3 * time.Second,
+			}
+
+			_, err = stateConf.WaitForState()
+			if err != nil {
+				return fmt.Errorf(
+					"Error waiting for instance (%s) to stop: %s", d.Id(), err)
+			}
+		}
+
 	}
 
 	if d.HasChange("labels") {
@@ -1333,6 +1399,16 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	d.Partial(false)
 
 	return resourceComputeInstanceRead(d, meta)
+}
+
+func instanceStateRefreshFunc(computeClient *compute.Service, project, zone, instance string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		i, err := computeClient.Instances.Get(project, zone, instance).Do()
+		if err != nil {
+			return nil, "", err
+		}
+		return i, i.Status, nil
+	}
 }
 
 func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*computeBeta.AttachedDisk, error) {
