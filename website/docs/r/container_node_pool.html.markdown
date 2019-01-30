@@ -21,6 +21,11 @@ resource "google_container_node_pool" "np" {
   zone       = "us-central1-a"
   cluster    = "${google_container_cluster.primary.name}"
   node_count = 3
+  
+  timeouts {
+    create = "30m"
+    update = "20m"
+  }
 }
 
 resource "google_container_cluster" "primary" {
@@ -161,6 +166,16 @@ The `management` block supports:
 * `auto_repair` - (Optional) Whether the nodes will be automatically repaired.
 
 * `auto_upgrade` - (Optional) Whether the nodes will be automatically upgraded.
+
+<a id="timeouts"></a>
+## Timeouts
+
+`google_container_node_pool` provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - (Default `30 minutes`) Used for adding node pools
+- `update` - (Default `10 minutes`) Used for updates to node pools
+- `delete` - (Default `10 minutes`) Used for removing node pools.
 
 ## Import
 
