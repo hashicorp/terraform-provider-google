@@ -280,7 +280,6 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 						},
 						"time_to_retire": {
 							Type:     schema.TypeString,
-							Optional: true,
 							Computed: true,
 						},
 					},
