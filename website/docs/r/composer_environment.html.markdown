@@ -167,15 +167,11 @@ The `config` block supports:
 The `node_config` block supports:
 
 * `zone` -
-  (Optional)
+  (Required)
   The Compute Engine zone in which to deploy the VMs running the
   Apache Airflow software, specified as the zone name or
   relative resource name (e.g. "projects/{project}/zones/{zone}"). Must belong to the enclosing environment's project 
   and region.
-
-  If both zone and machineType are specified, machineType must belong to this zone. If neither is specified, the service 
-  will pick default values in the specified resource's region. If only one of zone or machineType is specified, the 
-  location information from the specified field will be used for the location-unspecified field.
 
 * `machine_type` -
   (Optional)
@@ -183,10 +179,6 @@ The `node_config` block supports:
   specified as a name or relative resource name. For example:
   "projects/{project}/zones/{zone}/machineTypes/{machineType}". Must belong to the enclosing environment's project and 
   region/zone.
-
-  If both zone and machineType are specified, machineType must belong to this zone. If neither is specified, the service 
-  will pick default values in the specified resource's region. If only one of zone or machineType is specified, the 
-  location information from the specified field will be used for the location-unspecified field.
 
 * `network` -
   (Optional)
