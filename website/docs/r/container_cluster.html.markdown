@@ -8,15 +8,84 @@ description: |-
 
 # google\_container\_cluster
 
-Creates a Google Kubernetes Engine (GKE) cluster. For more information see
+Manages a Google Kubernetes Engine (GKE) cluster. For more information see
 [the official documentation](https://cloud.google.com/container-engine/docs/clusters)
-and
-[API](https://cloud.google.com/container-engine/reference/rest/v1/projects.zones.clusters).
+and [the API reference](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters).
 
-~> **Note:** All arguments including the username and password will be stored in the raw state as plain-text.
-[Read more about sensitive data in state](/docs/state/sensitive-data.html).
+~> **Note:** All arguments and attributes, including basic auth username and
+passwords as well as certificate outputs will be stored in the raw state as
+plaintext. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
 
-## Example usage
+## Example Usage - with a separately managed node pool (recommended)
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name   = "my-gke-cluster"
+  region = "us-central1"
+
+  # We can't create a cluster with no node pool defined, but we want to only use
+  # separately managed node pools. So we create the smallest possible default
+  # node pool and immediately delete it.
+  remove_default_node_pool = true
+  initial_node_count = 1
+
+  # Setting an empty username and password explicitly disables basic auth
+  master_auth {
+    username = ""
+    password = ""
+  }
+
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/compute",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+
+    labels = {
+      foo = "bar"
+    }
+
+    tags = ["foo", "bar"]
+  }
+}
+
+resource "google_container_node_pool" "primary_preemptible_nodes" {
+  name       = "my-node-pool"
+  region     = "us-central1"
+  cluster    = "${google_container_cluster.primary.name}"
+  node_count = 1
+
+  node_config {
+    preemptible  = true
+    machine_type = "n1-standard-1"
+
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/compute",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+  }
+}
+
+# The following outputs allow authentication and connectivity to the GKE Cluster
+# by using certificate-based authentication.
+output "client_certificate" {
+  value = "${google_container_cluster.primary.master_auth.0.client_certificate}"
+}
+
+output "client_key" {
+  value = "${google_container_cluster.primary.master_auth.0.client_key}"
+}
+
+output "cluster_ca_certificate" {
+  value = "${google_container_cluster.primary.master_auth.0.cluster_ca_certificate}"
+}
+```
+
+## Example Usage - with the default node pool
 
 ```hcl
 resource "google_container_cluster" "primary" {
@@ -24,14 +93,10 @@ resource "google_container_cluster" "primary" {
   zone               = "us-central1-a"
   initial_node_count = 3
 
-  additional_zones = [
-    "us-central1-b",
-    "us-central1-c",
-  ]
-
+  # Setting an empty username and password explicitly disables basic auth
   master_auth {
-    username = "mr.yoda"
-    password = "adoy.rm"
+    username = ""
+    password = ""
   }
 
   node_config {
@@ -55,7 +120,8 @@ resource "google_container_cluster" "primary" {
   }
 }
 
-# The following outputs allow authentication and connectivity to the GKE Cluster.
+# The following outputs allow authentication and connectivity to the GKE Cluster
+# by using certificate-based authentication.
 output "client_certificate" {
   value = "${google_container_cluster.primary.master_auth.0.client_certificate}"
 }
@@ -81,10 +147,11 @@ output "cluster_ca_certificate" {
     may be set. If neither zone nor region are set, the provider zone is used.
 
 * `region` (Optional)
-    The region to create the cluster in, for
+    The region to create the cluster in for
     [Regional Clusters](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-zone-and-regional-clusters#regional).
     In a Regional Cluster, the number of nodes specified in `initial_node_count` is
-    created in three zones of the region (this can be changed by setting `additional_zones`).
+    created in each of three zones of the region (this can be changed by setting
+     `additional_zones`).
 
 * `additional_zones` - (Optional) The list of additional Google Compute Engine
     locations in which the cluster's nodes should be located. If additional zones are
@@ -210,18 +277,23 @@ The `addons_config` block supports:
     It ensures that a Heapster pod is running in the cluster, which is also used by the Cloud Monitoring service.
     It is enabled by default;
     set `disabled = true` to disable.
+    
 * `http_load_balancing` - (Optional) The status of the HTTP (L7) load balancing
     controller addon, which makes it easy to set up HTTP load balancers for services in a
     cluster. It is enabled by default; set `disabled = true` to disable.
+    
 * `kubernetes_dashboard` - (Optional) The status of the Kubernetes Dashboard
     add-on, which controls whether the Kubernetes Dashboard is enabled for this cluster.
     It is enabled by default; set `disabled = true` to disable.
+    
 * `network_policy_config` - (Optional) Whether we should enable the network policy addon
     for the master.  This must be enabled in order to enable network policy for the nodes.
     It can only be disabled if the nodes already do not have network policies enabled.
     Set `disabled = true` to disable.
+    
 * `istio_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)).
     Structure is documented below.
+    
 * `cloudrun_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)).
     The status of the CloudRun addon. It requires `istio_config` enabled. It is disabled by default.
     Set `disabled = false` to enable. This addon can only be enabled at cluster creation time.
@@ -254,9 +326,12 @@ The `cluster_autoscaling` block supports:
     sure to set at least `cpu` and `memory`.  Structure is documented below.
 
 The `resource_limits` block supports:
+
 * `resource_type` - (Required) See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
     for a list of permitted types - `cpu`, `memory`, and others.
+    
 * `minimum` - (Optional) The minimum value for the resource type specified.
+
 * `maximum` - (Optional) The maximum value for the resource type specified.
 
 The `maintenance_policy` block supports:
