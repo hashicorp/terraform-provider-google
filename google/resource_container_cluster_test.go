@@ -3,6 +3,7 @@ package google
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"strconv"
@@ -933,6 +934,28 @@ func TestAccContainerCluster_withNodePoolAutoscaling(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodePoolNamePrefix(),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_pool_name_prefix",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"node_pool.0.name_prefix"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
 	t.Parallel()
 
@@ -949,6 +972,22 @@ func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
 				ImportStateIdPrefix: "us-central1-a/",
 				ImportState:         true,
 				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withNodePoolConflictingNameFields(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccContainerCluster_withNodePoolConflictingNameFields(),
+				ExpectError: regexp.MustCompile("Cannot specify both name and name_prefix for a node_pool"),
 			},
 		},
 	})
@@ -1966,6 +2005,19 @@ resource "google_container_cluster" "with_node_pool" {
 }`, cluster, np)
 }
 
+func testAccContainerCluster_withNodePoolNamePrefix() string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool_name_prefix" {
+	name = "tf-cluster-nodepool-test-%s"
+	zone = "us-central1-a"
+
+	node_pool {
+		name_prefix = "tf-np-test"
+		node_count  = 2
+	}
+}`, acctest.RandString(10))
+}
+
 func testAccContainerCluster_withNodePoolMultiple() string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool_multiple" {
@@ -1982,6 +2034,21 @@ resource "google_container_cluster" "with_node_pool_multiple" {
 		node_count = 3
 	}
 }`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+}
+
+func testAccContainerCluster_withNodePoolConflictingNameFields() string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool_multiple" {
+	name = "tf-cluster-nodepool-test-%s"
+	zone = "us-central1-a"
+
+	node_pool {
+		# ERROR: name and name_prefix cannot be both specified
+		name        = "tf-cluster-nodepool-test-%s"
+		name_prefix = "tf-cluster-nodepool-test-"
+		node_count  = 1
+	}
+}`, acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccContainerCluster_withNodePoolNodeConfig() string {
