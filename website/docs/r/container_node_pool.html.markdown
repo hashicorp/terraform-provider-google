@@ -8,13 +8,46 @@ description: |-
 
 # google\_container\_node\_pool
 
-Manages a Node Pool resource within GKE. For more information see
-[the official documentation](https://cloud.google.com/container-engine/docs/node-pools)
-and
-[API](https://cloud.google.com/container-engine/reference/rest/v1/projects.zones.clusters.nodePools).
+Manages a node pool in a Google Kubernetes Engine (GKE) cluster separately from
+the cluster control plane. For more information see [the official documentation](https://cloud.google.com/container-engine/docs/node-pools)
+and [the API reference](https://cloud.google.com/container-engine/reference/rest/v1/projects.zones.clusters.nodePools).
 
-## Example usage
-### Standard usage
+### Example Usage - using a separately managed node pool (recommended)
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name   = "my-gke-cluster"
+  region = "us-central1"
+  
+  # We can't create a cluster with no node pool defined, but we want to only use
+  # separately managed node pools. So we create the smallest possible default
+  # node pool and immediately delete it.
+  remove_default_node_pool = true
+  initial_node_count = 1
+}
+
+resource "google_container_node_pool" "primary_preemptible_nodes" {
+  name       = "my-node-pool"
+  region     = "us-central1"
+  cluster    = "${google_container_cluster.primary.name}"
+  node_count = 1
+
+  node_config {
+    preemptible  = true
+    machine_type = "n1-standard-1"
+
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/compute",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+  }
+}
+```
+
+### Example Usage - 2 node pools, 1 separately managed + the default node pool
+
 ```hcl
 resource "google_container_node_pool" "np" {
   name       = "my-node-pool"
@@ -34,13 +67,13 @@ resource "google_container_cluster" "primary" {
   initial_node_count = 3
 
   additional_zones = [
-    "us-central1-b",
     "us-central1-c",
   ]
 
+  # Setting an empty username and password explicitly disables basic auth
   master_auth {
-    username = "mr.yoda"
-    password = "adoy.rm"
+    username = ""
+    password = ""
   }
 
   node_config {
@@ -59,69 +92,18 @@ resource "google_container_cluster" "primary" {
 }
 
 ```
-### Usage with an empty default pool.
-```hcl
-resource "google_container_node_pool" "np" {
-  name       = "my-node-pool"
-  zone       = "us-central1-a"
-  cluster    = "${google_container_cluster.primary.name}"
-  node_count = 1
-
-  node_config {
-    preemptible  = true
-    machine_type = "n1-standard-1"
-
-    oauth_scopes = [
-      "compute-rw",
-      "storage-ro",
-      "logging-write",
-      "monitoring",
-    ]
-  }
-}
-
-resource "google_container_cluster" "primary" {
-  name = "marcellus-wallace"
-  zone = "us-central1-a"
-
-  lifecycle {
-    ignore_changes = ["node_pool"]
-  }
-
-  node_pool {
-    name = "default-pool"
-  }
-}
-
-```
-
-### Usage with a regional cluster
-
-```hcl
-
-resource "google_container_cluster" "regional" {
-  name   = "marcellus-wallace"
-  region = "us-central1"
-}
-
-resource "google_container_node_pool" "regional-np" {
-  name       = "my-node-pool"
-  region     = "us-central1"
-  cluster    = "${google_container_cluster.regional.name}"
-  node_count = 1
-}
-
-```
 
 ## Argument Reference
 
-* `zone` - (Optional) The zone in which the cluster resides.
-
-* `region` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The region in which the cluster resides (for regional clusters).
-
 * `cluster` - (Required) The cluster to create the node pool for.  Cluster must be present in `zone` provided for zonal clusters.
 
-Note: You must be provide region for regional clusters and zone for zonal clusters
+- - -
+
+* `zone` - (Optional) The zone in which the cluster resides.
+
+* `region` - (Optional) The region in which the cluster resides (for regional clusters).
+
+-> Note: You must be provide `region` for regional clusters and `zone` for zonal clusters
 
 - - -
 
