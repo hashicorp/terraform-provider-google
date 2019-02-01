@@ -482,6 +482,7 @@ ccflags="$@"
 		$2 ~ /^ALG_/ ||
 		$2 ~ /^FS_(POLICY_FLAGS|KEY_DESC|ENCRYPTION_MODE|[A-Z0-9_]+_KEY_SIZE|IOC_(GET|SET)_ENCRYPTION)/ ||
 		$2 ~ /^GRND_/ ||
+		$2 ~ /^RND/ ||
 		$2 ~ /^KEY_(SPEC|REQKEY_DEFL)_/ ||
 		$2 ~ /^KEYCTL_/ ||
 		$2 ~ /^PERF_EVENT_IOC_/ ||

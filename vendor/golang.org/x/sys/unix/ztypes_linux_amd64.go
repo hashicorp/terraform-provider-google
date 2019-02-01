@@ -792,8 +792,6 @@ type SignalfdSiginfo struct {
 	_       [48]uint8
 }
 
-const RNDGETENTCNT = 0x80045200
-
 const PERF_IOC_FLAG_GROUP = 0x1
 
 type Termios struct {

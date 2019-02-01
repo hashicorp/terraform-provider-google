@@ -1537,6 +1537,13 @@ const (
 	RLIMIT_SIGPENDING                    = 0xb
 	RLIMIT_STACK                         = 0x3
 	RLIM_INFINITY                        = 0xffffffffffffffff
+	RNDADDENTROPY                        = 0x80085203
+	RNDADDTOENTCNT                       = 0x80045201
+	RNDCLEARPOOL                         = 0x20005206
+	RNDGETENTCNT                         = 0x40045200
+	RNDGETPOOL                           = 0x40085202
+	RNDRESEEDCRNG                        = 0x20005207
+	RNDZAPENTCNT                         = 0x20005204
 	RTAX_ADVMSS                          = 0x8
 	RTAX_CC_ALGO                         = 0x10
 	RTAX_CWND                            = 0x7
