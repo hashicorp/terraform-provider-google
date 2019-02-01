@@ -113,6 +113,11 @@ resource "google_container_cluster" "primary" {
 
     tags = ["foo", "bar"]
   }
+
+  timeouts {
+    create = "30m"
+    update = "40m"
+  }
 }
 
 # The following outputs allow authentication and connectivity to the GKE Cluster
@@ -559,8 +564,8 @@ exported:
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - (Default `30 minutes`) Used for clusters
-- `update` - (Default `10 minutes`) Used for updates to clusters
-- `delete` - (Default `10 minutes`) Used for destroying clusters.
+- `update` - (Default `30 minutes`) Used for updates to clusters
+- `delete` - (Default `30 minutes`) Used for destroying clusters.
 
 ## Import
 

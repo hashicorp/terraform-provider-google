@@ -8,9 +8,7 @@ description: |-
 
 # `google` provider reference
 
--> We recently introduced the `google-beta` provider. See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
-for more details on how to use `google-beta`. The documentation in this site is shared between both `google` and `google-beta`; fields or
-resources only present in `google-beta` will be marked as such.
+-> Want more information about upgrading from `1.X` of the provider to `2.0.0`? Check out the [2.0.0 Upgrade Guide](https://terraform.io/docs/providers/google/version_2_upgrade.html).
 
 The `google` and `google-beta` provider blocks are used to configure default values for
 your GCP project and location (`zone` and `region`), and add your credentials.
@@ -58,6 +56,8 @@ resource "google_compute_instance" "beta-instance" {
 
   # ...
 }
+
+provider "google-beta" {}
 ```
 
 
