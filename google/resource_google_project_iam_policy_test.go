@@ -380,31 +380,25 @@ data "google_iam_policy" "admin" {
   }
   audit_config {
     service = "cloudkms.googleapis.com"
-    audit_log_configs = [
-      {
-        log_type = "DATA_READ"
-        exempted_members = [
-	  "user:paddy@hashicorp.com",
-        ]
-      },
-      {
-        log_type = "DATA_WRITE"
-      }
-    ]
+    audit_log_configs {
+      log_type = "DATA_READ"
+      exempted_members = ["user:paddy@hashicorp.com"]
+    }
+
+    audit_log_configs {
+      log_type = "DATA_WRITE"
+    }
   }
   audit_config {
     service = "cloudsql.googleapis.com"
-    audit_log_configs = [
-      {
-        log_type = "DATA_READ"
-        exempted_members = [
-	  "user:paddy@hashicorp.com",
-        ]
-      },
-      {
-        log_type = "DATA_WRITE"
-      }
-    ]
+    audit_log_configs {
+      log_type = "DATA_READ"
+      exempted_members = ["user:paddy@hashicorp.com"]
+    }
+
+    audit_log_configs {
+      log_type = "DATA_WRITE"
+    }
   }
 }
 `, pid, name, org)
@@ -476,31 +470,25 @@ data "google_iam_policy" "expanded" {
   }
   audit_config {
     service = "cloudkms.googleapis.com"
-    audit_log_configs = [
-      {
-        log_type = "DATA_READ"
-        exempted_members = [
-	  "user:paddy@hashicorp.com",
-        ]
-      },
-      {
-        log_type = "DATA_WRITE"
-      }
-    ]
+    audit_log_configs {
+      log_type = "DATA_READ"
+      exempted_members = ["user:paddy@hashicorp.com"]
+    }
+
+    audit_log_configs {
+      log_type = "DATA_WRITE"
+    }
   }
   audit_config {
     service = "cloudkms.googleapis.com"
-    audit_log_configs = [
-      {
-        log_type = "DATA_READ"
-        exempted_members = [
-	  "user:paddy@carvers.co",
-        ]
-      },
-      {
-        log_type = "ADMIN_READ"
-      }
-    ]
+    audit_log_configs {
+      log_type = "DATA_READ"
+      exempted_members = ["user:paddy@hashicorp.com"]
+    }
+
+    audit_log_configs {
+      log_type = "DATA_WRITE"
+    }
   }
 }`, pid, name, org)
 }

@@ -113,10 +113,7 @@ resource "google_compute_instance" "foo" {
 	metadata = {
 		foo = "bar"
 		baz = "qux"
-	}
-
-	metadata = {
-		startup-script = "echo Hello"
+        startup-script = "echo Hello"
 	}
 
 	labels = {

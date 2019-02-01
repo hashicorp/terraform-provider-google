@@ -51,7 +51,7 @@ resource "google_redis_instance" "test" {
 		other_key = "other_val"
 	}
 
-	redis_configs {
+	redis_configs = {
 		maxmemory-policy       = "allkeys-lru"
 		notify-keyspace-events = "KEA"
 	}
@@ -70,7 +70,7 @@ resource "google_redis_instance" "test" {
 		other_key = "new_val"
 	}
 
-	redis_configs {
+	redis_configs = {
 		maxmemory-policy       = "noeviction"
 		notify-keyspace-events = ""
 	}

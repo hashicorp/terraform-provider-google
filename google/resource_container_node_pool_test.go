@@ -709,14 +709,18 @@ resource "google_container_cluster" "cluster" {
 	node_version = "${data.google_container_engine_versions.central1c.latest_node_version}"
 	min_master_version = "${data.google_container_engine_versions.central1c.latest_master_version}"
 }
+
 resource "google_container_node_pool" "np_with_gpu" {
 	name = "tf-nodepool-test-%s"
 	zone = "us-central1-c"
 	cluster = "${google_container_cluster.cluster.name}"
+
 	initial_node_count = 1
+
 	node_config {
 		machine_type = "n1-standard-1"
 		disk_size_gb = 10
+
 		oauth_scopes = [
 			"https://www.googleapis.com/auth/devstorage.read_only", 
 			"https://www.googleapis.com/auth/logging.write", 
@@ -725,15 +729,15 @@ resource "google_container_node_pool" "np_with_gpu" {
 			"https://www.googleapis.com/auth/servicecontrol", 
 			"https://www.googleapis.com/auth/trace.append"
 		]
+
 		preemptible = true
 		service_account = "default"
 		image_type = "COS"
-		guest_accelerator = [
-			{
-				type = "nvidia-tesla-k80"
-				count = 1
-			}
-		]
+
+		guest_accelerator {
+			type = "nvidia-tesla-k80"
+			count = 1
+		}
 	}
 }`, acctest.RandString(10), acctest.RandString(10))
 }

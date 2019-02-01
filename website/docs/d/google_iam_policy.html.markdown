@@ -32,20 +32,18 @@ data "google_iam_policy" "admin" {
 
   audit_config {
     service = "cloudkms.googleapis.com"
-    audit_log_configs = [
-      {
-        log_type = "DATA_READ",
-        exempted_members = [
-          "user:you@domain.com",
-        ]
-      },
-      {
-        "logType": "DATA_WRITE",
-      },
-      {
-        "logType": "ADMIN_READ",
-      }
-    ]
+    audit_log_configs {
+      log_type = "DATA_READ",
+      exempted_members = ["user:you@domain.com"]
+    }
+    
+    audit_log_configs {
+      "logType": "DATA_WRITE",
+    }
+    
+    audit_log_configs {
+      "logType": "ADMIN_READ",
+    }
   }
 }
 ```

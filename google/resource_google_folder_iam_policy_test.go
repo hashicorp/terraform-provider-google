@@ -1,7 +1,6 @@
 package google
 
 import (
-	"bytes"
 	"fmt"
 	"reflect"
 	"testing"
@@ -13,37 +12,6 @@ import (
 )
 
 func TestAccFolderIamPolicy_basic(t *testing.T) {
-	t.Parallel()
-
-	folderDisplayName := "tf-test-" + acctest.RandString(10)
-	org := getTestOrgFromEnv(t)
-	parent := "organizations/" + org
-
-	policy := &resourceManagerV2Beta1.Policy{
-		Bindings: []*resourceManagerV2Beta1.Binding{
-			{
-				Role: "roles/viewer",
-				Members: []string{
-					"user:admin@hashicorptest.com",
-				},
-			},
-		},
-	}
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccFolderIamPolicy_basic(folderDisplayName, parent, policy),
-				Check:  testAccCheckGoogleFolderIamPolicy("google_folder_iam_policy.test", policy),
-			},
-		},
-	})
-}
-
-func TestAccFolderIamPolicy_update(t *testing.T) {
 	t.Parallel()
 
 	folderDisplayName := "tf-test-" + acctest.RandString(10)
@@ -83,11 +51,11 @@ func TestAccFolderIamPolicy_update(t *testing.T) {
 		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFolderIamPolicy_basic(folderDisplayName, parent, policy1),
+				Config: testAccFolderIamPolicy_basic(folderDisplayName, parent, "roles/viewer", "user:admin@hashicorptest.com"),
 				Check:  testAccCheckGoogleFolderIamPolicy("google_folder_iam_policy.test", policy1),
 			},
 			{
-				Config: testAccFolderIamPolicy_basic(folderDisplayName, parent, policy2),
+				Config: testAccFolderIamPolicy_basic2(folderDisplayName, parent, "roles/editor", "user:admin@hashicorptest.com", "roles/viewer", "user:admin@hashicorptest.com"),
 				Check:  testAccCheckGoogleFolderIamPolicy("google_folder_iam_policy.test", policy2),
 			},
 		},
@@ -162,18 +130,7 @@ func testAccFolderExistingPolicy(org, fname string) resource.TestCheckFunc {
 	}
 }
 
-func testAccFolderIamPolicy_basic(folder, parent string, policy *resourceManagerV2Beta1.Policy) string {
-	var bindingBuffer bytes.Buffer
-
-	for _, binding := range policy.Bindings {
-		bindingBuffer.WriteString("binding {\n")
-		bindingBuffer.WriteString(fmt.Sprintf("role = \"%s\"\n", binding.Role))
-		bindingBuffer.WriteString(fmt.Sprintf("members = [\n"))
-		for _, member := range binding.Members {
-			bindingBuffer.WriteString(fmt.Sprintf("\"%s\",\n", member))
-		}
-		bindingBuffer.WriteString("]}\n")
-	}
+func testAccFolderIamPolicy_basic(folder, parent, role, member string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "permissiontest" {
   display_name = "%s"
@@ -181,12 +138,41 @@ resource "google_folder" "permissiontest" {
 }
 
 data "google_iam_policy" "test" {
-  %s
+  binding {
+    role = "%s"
+    members = ["%s"]
+  }
 }
 
 resource "google_folder_iam_policy" "test" {
   folder = "${google_folder.permissiontest.name}"
   policy_data = "${data.google_iam_policy.test.policy_data}"
 }
-`, folder, parent, bindingBuffer.String())
+`, folder, parent, role, member)
+}
+
+func testAccFolderIamPolicy_basic2(folder, parent, role, member, role2, member2 string) string {
+	return fmt.Sprintf(`
+resource "google_folder" "permissiontest" {
+  display_name = "%s"
+  parent = "%s"
+}
+
+data "google_iam_policy" "test" {
+  binding {
+    role = "%s"
+    members = ["%s"]
+  }
+
+  binding {
+    role = "%s"
+    members = ["%s"]
+  }
+}
+
+resource "google_folder_iam_policy" "test" {
+  folder = "${google_folder.permissiontest.name}"
+  policy_data = "${data.google_iam_policy.test.policy_data}"
+}
+`, folder, parent, role, member, role2, member2)
 }
