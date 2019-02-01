@@ -921,8 +921,8 @@ func testAccStorageBucket_forceDestroyWithVersioning(bucketName string) string {
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
 	force_destroy = "true"
-	versioning = {
-		enabled = "true"
+	versioning {
+	  enabled = "true"
 	}
 }
 `, bucketName)
@@ -932,8 +932,8 @@ func testAccStorageBucket_versioning(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	versioning = {
-		enabled = "true"
+	versioning {
+	  enabled = "true"
 	}
 }
 `, bucketName)
@@ -943,7 +943,7 @@ func testAccStorageBucket_logging(bucketName string, logBucketName string) strin
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	logging = {
+	logging {
 		log_bucket = "%s"
 	}
 }
@@ -954,7 +954,7 @@ func testAccStorageBucket_loggingWithPrefix(bucketName string, logBucketName str
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
 	name = "%s"
-	logging = {
+	logging {
 		log_bucket = "%s"
 		log_object_prefix = "%s"
 	}

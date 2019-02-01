@@ -207,7 +207,6 @@ resource "google_logging_organization_sink" "update" {
 	org_id           = "%s"
 	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
-	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 	include_children = false
 }
 

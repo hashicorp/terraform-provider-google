@@ -1448,6 +1448,7 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 		enabled = true
 		provider = "CALICO"
 	}
+
 	addons_config {
 		network_policy_config {
 			disabled = false
@@ -1474,7 +1475,7 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 	initial_node_count = 1
 	remove_default_node_pool = true
 
-	network_policy = {}
+	network_policy {}
 }`, clusterName)
 }
 
@@ -1486,7 +1487,8 @@ resource "google_container_cluster" "with_network_policy_enabled" {
 	initial_node_count = 1
 	remove_default_node_pool = true
 
-	network_policy = {}
+	network_policy {}
+
 	addons_config {
 		network_policy_config {
 			disabled = true
@@ -1500,15 +1502,13 @@ func testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName stri
 	cidrBlocks := emptyValue
 	if len(cidrs) > 0 {
 		var buf bytes.Buffer
-		buf.WriteString("cidr_blocks = [")
 		for _, c := range cidrs {
 			buf.WriteString(fmt.Sprintf(`
-			{
+			cidr_blocks {
 				cidr_block = "%s"
 				display_name = "disp-%s"
-			},`, c, c))
+			}`, c, c))
 		}
-		buf.WriteString("]")
 		cidrBlocks = buf.String()
 	}
 
