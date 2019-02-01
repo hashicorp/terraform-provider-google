@@ -111,14 +111,15 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 				Config: testAccComputeBackendService_withBackendAndIAP(
 					serviceName, igName, itName, checkName, 10),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBackendServiceExistsWithIAP(
-						"google_compute_backend_service.lipsum", &svc),
+					testAccCheckComputeBackendServiceExistsWithIAP("google_compute_backend_service.lipsum", &svc),
+					resource.TestCheckResourceAttr("google_compute_backend_service.lipsum", "iap.0.oauth2_client_secret", "test"),
 				),
 			},
 			{
-				ResourceName:      "google_compute_backend_service.lipsum",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_service.lipsum",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
 			},
 			{
 				Config: testAccComputeBackendService_withBackend(

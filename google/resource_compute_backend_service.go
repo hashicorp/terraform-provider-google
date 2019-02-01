@@ -1,7 +1,6 @@
 package google
 
 import (
-	"crypto/sha256"
 	"errors"
 	"fmt"
 	"log"
@@ -53,12 +52,11 @@ func resourceComputeBackendService() *schema.Resource {
 							Type:      schema.TypeString,
 							Required:  true,
 							Sensitive: true,
-							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-								if old == fmt.Sprintf("%x", sha256.Sum256([]byte(new))) {
-									return true
-								}
-								return false
-							},
+						},
+						"oauth2_client_secret_sha256": {
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
 						},
 					},
 				},
@@ -321,7 +319,7 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	d.Set("self_link", ConvertSelfLinkToV1(service.SelfLink))
 	d.Set("backend", flattenBackends(service.Backends))
 	d.Set("connection_draining_timeout_sec", service.ConnectionDraining.DrainingTimeoutSec)
-	d.Set("iap", flattenIap(service.Iap))
+	d.Set("iap", flattenIap(d, service.Iap))
 	d.Set("project", project)
 	guardedHealthChecks := make([]string, len(service.HealthChecks))
 	for i, v := range service.HealthChecks {
@@ -423,18 +421,17 @@ func expandIap(configured []interface{}) *computeBeta.BackendServiceIAP {
 	}
 }
 
-func flattenIap(iap *computeBeta.BackendServiceIAP) []map[string]interface{} {
+func flattenIap(d *schema.ResourceData, iap *computeBeta.BackendServiceIAP) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, 1)
 	if iap == nil || !iap.Enabled {
 		return result
 	}
 
-	result = append(result, map[string]interface{}{
-		"oauth2_client_id":     iap.Oauth2ClientId,
-		"oauth2_client_secret": iap.Oauth2ClientSecretSha256,
+	return append(result, map[string]interface{}{
+		"oauth2_client_id":            iap.Oauth2ClientId,
+		"oauth2_client_secret":        d.Get("iap.0.oauth2_client_secret"),
+		"oauth2_client_secret_sha256": iap.Oauth2ClientSecretSha256,
 	})
-
-	return result
 }
 
 func expandBackends(configured []interface{}) ([]*computeBeta.Backend, error) {
