@@ -179,11 +179,15 @@ The `iap` block supports:
 * `oauth2_client_id` - (Required) The client ID for use with OAuth 2.0.
 
 * `oauth2_client_secret` - (Required) The client secret for use with OAuth 2.0.
+Out of band changes to this field will not be detected by Terraform, and it may
+perform spurious no-op updates when imported, or upgraded from pre-`2.0.0`.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
+
+* `iap.0.oauth2_client_secret_sha256` - The SHA256 hash of the OAuth 2.0 client secret value.
 
 * `fingerprint` - The fingerprint of the backend service.
 

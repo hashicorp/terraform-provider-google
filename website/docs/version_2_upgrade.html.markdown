@@ -289,6 +289,14 @@ for more details.
 
 Use the [`google-beta` provider](#google-beta-provider) to set this field.
 
+### `iap` may cause spurious updates
+
+Due to technical limitations around how Terraform can diff fields, you may see a
+spurious update where the client secret in your config replaces an incorrect
+value that was recorded in state, the SHA256 hash of the secret's value.
+
+You may also encounter the same behaviour on import.
+
 ## Resource: `google_compute_disk`
 
 ### `disk_encryption_key_raw` and `disk_encryption_key_sha256` have been removed.
