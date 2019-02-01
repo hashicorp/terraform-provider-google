@@ -11,27 +11,34 @@ description: |-
 Starting with version `1.19.0`, there are two versions of the Google provider:
 
 * `google`
+
 * `google-beta`
 
 This documentation (https://www.terraform.io/docs/providers/google/) is shared
-between both providers. Fields and resources that are only present in
-`google-beta` will be marked as such.
+between both providers, and all generally available (GA) products and features
+are available in both versions of the provider.
 
-All GA (generally available) products and features are available in both
-versions of the provider, and from the `2.0.0` release onwards beta GCP features
-are only available in the `google-beta` provider.
+The `google-beta` provider is distinct from the `google` provider in that it
+supports GCP products and features that are in beta, while `google` does not.
+Fields and resources that are only present in `google-beta` will be marked as
+such in the shared provider documentation.
+
+`1.X` versions of the `google` provider supported beta features; from `2.0.0`
+onwards, beta features are only supported in `google-beta`.
 
 Beta GCP features have no deprecation policy and no SLA, but are otherwise considered to be feature-complete
 with only minor outstanding issues after their Alpha period. Beta is when GCP
 features are publicly announced, and is when they generally become publicly
 available. For more information see [the official documentation on GCP launch stages](https://cloud.google.com/terms/launch-stages).
 
-The beta provider sends all requests to the beta endpoint for GCP if one exists
-for that product, regardless of whether the request contains any beta features.
+The `google-beta` provider sends all requests to the beta endpoint for GCP if
+one exists for that product, regardless of whether the request contains any beta
+features.
 
--> Using `google-beta` over `google` is similar to using `gcloud beta` over `gcloud`.
-Features that are exclusively available in `google-beta` are GCP features that
-are not yet GA, and they will be made available in `google` after their GA launch.
+-> In short, using `google-beta` over `google` is similar to using `gcloud beta`
+over `gcloud`. Features that are exclusively available in `google-beta` are GCP
+features that are not yet GA, and they will be made available in `google` after
+their GA launch.
 
 ## Using the `google-beta` provider
 
