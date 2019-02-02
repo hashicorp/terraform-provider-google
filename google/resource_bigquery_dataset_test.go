@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"google.golang.org/api/bigquery/v2"
 )
 
 func TestAccBigQueryDataset_basic(t *testing.T) {
@@ -23,17 +24,44 @@ func TestAccBigQueryDataset_basic(t *testing.T) {
 				Config: testAccBigQueryDataset(datasetID),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 			{
 				Config: testAccBigQueryDatasetUpdated(datasetID),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+			},
+		},
+	})
+}
+
+func TestAccBigQueryDataset_datasetWithContents(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryDatasetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDatasetDeleteContents(datasetID),
+				Check:  testAccAddTable(datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.contents_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 		},
 	})
@@ -55,33 +83,37 @@ func TestAccBigQueryDataset_access(t *testing.T) {
 				Config: testAccBigQueryDatasetWithOneAccess(datasetID),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.access_test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.access_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 			{
 				Config: testAccBigQueryDatasetWithTwoAccess(datasetID),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.access_test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.access_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 			{
 				Config: testAccBigQueryDatasetWithOneAccess(datasetID),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.access_test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.access_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 			{
 				Config: testAccBigQueryDatasetWithViewAccess(datasetID, otherDatasetID, otherTableID),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.access_test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.access_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 		},
 	})
@@ -107,57 +139,64 @@ func TestAccBigQueryDataset_regionalLocation(t *testing.T) {
 				Config: testAccBigQueryRegionalDataset(datasetID1, "asia-east1"),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 			{
 				Config: testAccBigQueryRegionalDataset(datasetID2, "asia-northeast1"),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 			{
 				Config: testAccBigQueryRegionalDataset(datasetID3, "asia-southeast1"),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 			{
 				Config: testAccBigQueryRegionalDataset(datasetID4, "australia-southeast1"),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 			{
 				Config: testAccBigQueryRegionalDataset(datasetID5, "europe-north1"),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 			{
 				Config: testAccBigQueryRegionalDataset(datasetID6, "europe-west2"),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 			{
 				Config: testAccBigQueryRegionalDataset(datasetID7, "us-east4"),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 		},
 	})
@@ -178,6 +217,25 @@ func testAccCheckBigQueryDatasetDestroy(s *terraform.State) error {
 	}
 
 	return nil
+}
+
+func testAccAddTable(datasetID string, tableID string) resource.TestCheckFunc {
+	// Not actually a check, but adds a table independently of terraform
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+		table := &bigquery.Table{
+			TableReference: &bigquery.TableReference{
+				DatasetId: datasetID,
+				TableId:   tableID,
+				ProjectId: config.Project,
+			},
+		}
+		_, err := config.clientBigQuery.Tables.Insert(config.Project, datasetID, table).Do()
+		if err != nil {
+			return fmt.Errorf("Could not create table")
+		}
+		return nil
+	}
 }
 
 func testAccBigQueryDataset(datasetID string) string {
@@ -205,11 +263,29 @@ resource "google_bigquery_dataset" "test" {
   description                 = "This is a bar description"
   location                    = "EU"
   default_partition_expiration_ms = 7200000
-  default_table_expiration_ms = 7200000
+	default_table_expiration_ms = 7200000
 
   labels = {
     env                         = "bar"
     default_table_expiration_ms = 7200000
+  }
+}`, datasetID)
+}
+
+func testAccBigQueryDatasetDeleteContents(datasetID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "contents_test" {
+  dataset_id                  = "%s"
+  friendly_name               = "foo"
+  description                 = "This is a foo description"
+  location                    = "EU"
+  default_partition_expiration_ms = 3600000
+	default_table_expiration_ms = 3600000
+	delete_contents_on_destroy = true
+
+  labels = {
+    env                         = "foo"
+    default_table_expiration_ms = 3600000
   }
 }`, datasetID)
 }
