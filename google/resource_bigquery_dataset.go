@@ -184,6 +184,12 @@ func resourceBigQueryDataset() *schema.Resource {
 				},
 			},
 
+			"force_delete": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
 			// SelfLink: [Output-only] A URL that can be used to access the resource
 			// again. You can use this URL in Get or Update requests to the
 			// resource.
@@ -407,7 +413,8 @@ func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	if err := config.clientBigQuery.Datasets.Delete(id.Project, id.DatasetId).Do(); err != nil {
+	force := d.Get("force_delete").(bool)
+	if err := config.clientBigQuery.Datasets.Delete(id.Project, id.DatasetId).DeleteContents(force).Do(); err != nil {
 		return err
 	}
 
