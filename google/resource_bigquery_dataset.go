@@ -184,6 +184,9 @@ func resourceBigQueryDataset() *schema.Resource {
 				},
 			},
 
+			//Delete Contents on Destroy: [Optional] If True, delete all the tables in the dataset.
+			// If False and the dataset contains tables, the request will fail.
+			// Default is False.
 			"delete_contents_on_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
