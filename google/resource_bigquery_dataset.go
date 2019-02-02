@@ -184,7 +184,7 @@ func resourceBigQueryDataset() *schema.Resource {
 				},
 			},
 
-			"force_delete": {
+			"force_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -413,7 +413,7 @@ func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	force := d.Get("force_delete").(bool)
+	force := d.Get("force_destroy").(bool)
 	if err := config.clientBigQuery.Datasets.Delete(id.Project, id.DatasetId).DeleteContents(force).Do(); err != nil {
 		return err
 	}
