@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -41,12 +42,6 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"interconnect": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -72,12 +67,30 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"edge_availability_domain": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"interconnect": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+			},
+			"type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"DEDICATED", "PARTNER", "PARTNER_PROVIDER", ""}, false),
 			},
 			"vlan_tag8021q": {
 				Type:     schema.TypeInt,
@@ -100,6 +113,14 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"pairing_key": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"partner_asn": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"private_interconnect_info": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -112,6 +133,10 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 						},
 					},
 				},
+			},
+			"state": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -142,6 +167,18 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	edgeAvailabilityDomainProp, err := expandComputeInterconnectAttachmentEdgeAvailabilityDomain(d.Get("edge_availability_domain"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("edge_availability_domain"); !isEmptyValue(reflect.ValueOf(edgeAvailabilityDomainProp)) && (ok || !reflect.DeepEqual(v, edgeAvailabilityDomainProp)) {
+		obj["edgeAvailabilityDomain"] = edgeAvailabilityDomainProp
+	}
+	typeProp, err := expandComputeInterconnectAttachmentType(d.Get("type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("type"); !isEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
 	}
 	routerProp, err := expandComputeInterconnectAttachmentRouter(d.Get("router"), d, config)
 	if err != nil {
@@ -250,7 +287,22 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 	if err := d.Set("description", flattenComputeInterconnectAttachmentDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
+	if err := d.Set("edge_availability_domain", flattenComputeInterconnectAttachmentEdgeAvailabilityDomain(res["edgeAvailabilityDomain"], d)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("pairing_key", flattenComputeInterconnectAttachmentPairingKey(res["pairingKey"], d)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("partner_asn", flattenComputeInterconnectAttachmentPartnerAsn(res["partnerAsn"], d)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
 	if err := d.Set("private_interconnect_info", flattenComputeInterconnectAttachmentPrivateInterconnectInfo(res["privateInterconnectInfo"], d)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("type", flattenComputeInterconnectAttachmentType(res["type"], d)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("state", flattenComputeInterconnectAttachmentState(res["state"], d)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("google_reference_id", flattenComputeInterconnectAttachmentGoogleReferenceId(res["googleReferenceId"], d)); err != nil {
@@ -350,6 +402,18 @@ func flattenComputeInterconnectAttachmentDescription(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenComputeInterconnectAttachmentEdgeAvailabilityDomain(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectAttachmentPairingKey(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectAttachmentPartnerAsn(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
 func flattenComputeInterconnectAttachmentPrivateInterconnectInfo(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return nil
@@ -370,6 +434,14 @@ func flattenComputeInterconnectAttachmentPrivateInterconnectInfoTag8021q(v inter
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
+	return v
+}
+
+func flattenComputeInterconnectAttachmentType(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectAttachmentState(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -418,6 +490,14 @@ func expandComputeInterconnectAttachmentInterconnect(v interface{}, d *schema.Re
 }
 
 func expandComputeInterconnectAttachmentDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentEdgeAvailabilityDomain(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
