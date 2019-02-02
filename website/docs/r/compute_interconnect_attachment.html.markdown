@@ -47,11 +47,6 @@ resource "google_compute_router" "foobar" {
 The following arguments are supported:
 
 
-* `interconnect` -
-  (Required)
-  URL of the underlying Interconnect object that this attachment's traffic will
-  traverse through.
-
 * `router` -
   (Required)
   URL of the cloud router to be used for dynamic routing. This router must be in
@@ -72,9 +67,29 @@ The following arguments are supported:
 - - -
 
 
+* `interconnect` -
+  (Optional)
+  URL of the underlying Interconnect object that this attachment's
+  traffic will traverse through. Required if type is DEDICATED, must not
+  be set if type is PARTNER.
+
 * `description` -
   (Optional)
   An optional description of this resource.
+
+* `edge_availability_domain` -
+  (Optional)
+  Desired availability domain for the attachment. Only available for type
+  PARTNER, at creation time. For improved reliability, customers should
+  configure a pair of attachments with one per availability domain. The
+  selected availability domain will be provided to the Partner via the
+  pairing key so that the provisioned circuit will lie in the specified
+  domain. If not specified, the value will default to AVAILABILITY_DOMAIN_ANY.
+
+* `type` -
+  (Optional)
+  The type of InterconnectAttachment you wish to create. Defaults to
+  DEDICATED.
 
 * `candidate_subnets` -
   (Optional)
@@ -110,9 +125,22 @@ In addition to the arguments listed above, the following computed attributes are
   IPv4 address + prefix length to be configured on the customer
   router subinterface for this interconnect attachment.
 
+* `pairing_key` -
+  [Output only for type PARTNER. Not present for DEDICATED]. The opaque
+  identifier of an PARTNER attachment used to initiate provisioning with
+  a selected partner. Of the form "XXXXX/region/domain"
+
+* `partner_asn` -
+  [Output only for type PARTNER. Not present for DEDICATED]. Optional
+  BGP ASN for the router that should be supplied by a layer 3 Partner if
+  they configured BGP on behalf of the customer.
+
 * `private_interconnect_info` -
   Information specific to an InterconnectAttachment. This property
   is populated if the interconnect that this is attached to is of type DEDICATED.  Structure is documented below.
+
+* `state` -
+  [Output Only] The current state of this attachment's functionality.
 
 * `google_reference_id` -
   Google reference ID, to be used when raising support tickets with
