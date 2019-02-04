@@ -1,8 +1,9 @@
-# cloud.google.com/go v0.34.0
+# cloud.google.com/go v0.35.1
 cloud.google.com/go/bigtable
+cloud.google.com/go/iam
+cloud.google.com/go/kms/apiv1
 cloud.google.com/go/bigtable/internal/gax
 cloud.google.com/go/bigtable/internal/option
-cloud.google.com/go/iam
 cloud.google.com/go/internal/optional
 cloud.google.com/go/longrunning
 cloud.google.com/go/longrunning/autogen
@@ -67,13 +68,14 @@ github.com/gammazero/deque
 # github.com/gammazero/workerpool v0.0.0-20181230203049-86a96b5d5d92
 github.com/gammazero/workerpool
 # github.com/golang/protobuf v1.2.0
+github.com/golang/protobuf/ptypes/duration
+github.com/golang/protobuf/ptypes/timestamp
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes
-github.com/golang/protobuf/ptypes/duration
-github.com/golang/protobuf/ptypes/any
-github.com/golang/protobuf/ptypes/timestamp
-github.com/golang/protobuf/ptypes/empty
+github.com/golang/protobuf/ptypes/struct
 github.com/golang/protobuf/ptypes/wrappers
+github.com/golang/protobuf/ptypes/any
+github.com/golang/protobuf/ptypes/empty
 github.com/golang/protobuf/protoc-gen-go/descriptor
 # github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db
 github.com/golang/snappy
@@ -82,8 +84,8 @@ github.com/google/go-cmp/cmp
 github.com/google/go-cmp/cmp/internal/diff
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
-# github.com/googleapis/gax-go v2.0.2+incompatible
-github.com/googleapis/gax-go
+# github.com/googleapis/gax-go/v2 v2.0.3
+github.com/googleapis/gax-go/v2
 # github.com/hashicorp/errwrap v1.0.0
 github.com/hashicorp/errwrap
 # github.com/hashicorp/go-cleanhttp v0.5.0
@@ -283,19 +285,18 @@ golang.org/x/oauth2/internal
 golang.org/x/oauth2/jws
 # golang.org/x/sys v0.0.0-20190123074212-c6b37f3e9285
 golang.org/x/sys/unix
-# golang.org/x/text v0.3.0
+# golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2
 golang.org/x/text/unicode/norm
 golang.org/x/text/transform
 golang.org/x/text/secure/bidirule
 golang.org/x/text/unicode/bidi
-# google.golang.org/api v0.0.0-20181217000635-41dc4b66e69d
+# google.golang.org/api v0.1.0
 google.golang.org/api/appengine/v1
 google.golang.org/api/bigquery/v2
 google.golang.org/api/cloudbilling/v1
 google.golang.org/api/cloudbuild/v1
 google.golang.org/api/cloudfunctions/v1
 google.golang.org/api/cloudiot/v1
-google.golang.org/api/cloudkms/v1
 google.golang.org/api/cloudresourcemanager/v1
 google.golang.org/api/cloudresourcemanager/v2beta1
 google.golang.org/api/composer/v1beta1
@@ -310,6 +311,7 @@ google.golang.org/api/dns/v1beta2
 google.golang.org/api/file/v1beta1
 google.golang.org/api/googleapi
 google.golang.org/api/iam/v1
+google.golang.org/api/iterator
 google.golang.org/api/logging/v2
 google.golang.org/api/option
 google.golang.org/api/pubsub/v1
@@ -322,12 +324,11 @@ google.golang.org/api/spanner/v1
 google.golang.org/api/sqladmin/v1beta4
 google.golang.org/api/storage/v1
 google.golang.org/api/storagetransfer/v1
-google.golang.org/api/iterator
 google.golang.org/api/transport/grpc
+google.golang.org/api/transport
 google.golang.org/api/gensupport
 google.golang.org/api/googleapi/internal/uritemplates
 google.golang.org/api/internal
-google.golang.org/api/transport
 google.golang.org/api/transport/http
 google.golang.org/api/googleapi/transport
 google.golang.org/api/transport/http/internal/propagation
@@ -344,19 +345,20 @@ google.golang.org/appengine/internal/base
 google.golang.org/appengine/internal/datastore
 google.golang.org/appengine/internal/log
 google.golang.org/appengine/internal/remote_api
-# google.golang.org/genproto v0.0.0-20181218023534-67d6565462c5
+# google.golang.org/genproto v0.0.0-20190201180003-4b09977fb922
+google.golang.org/genproto/googleapis/cloud/kms/v1
+google.golang.org/genproto/protobuf/field_mask
 google.golang.org/genproto/googleapis/bigtable/admin/v2
 google.golang.org/genproto/googleapis/bigtable/v2
-google.golang.org/genproto/protobuf/field_mask
 google.golang.org/genproto/googleapis/iam/v1
-google.golang.org/genproto/googleapis/longrunning
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/rpc/status
+google.golang.org/genproto/googleapis/longrunning
 # google.golang.org/grpc v1.17.0
-google.golang.org/grpc
 google.golang.org/grpc/codes
 google.golang.org/grpc/metadata
 google.golang.org/grpc/status
+google.golang.org/grpc
 google.golang.org/grpc/credentials
 google.golang.org/grpc/health
 google.golang.org/grpc/health/grpc_health_v1
