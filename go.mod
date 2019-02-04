@@ -9,6 +9,7 @@ require (
 	github.com/dustinkirkland/golang-petname v0.0.0-20170921220637-d3c2ba80e75e // indirect
 	github.com/gammazero/deque v0.0.0-20180920172122-f6adf94963e4 // indirect
 	github.com/gammazero/workerpool v0.0.0-20181230203049-86a96b5d5d92
+	github.com/golang/protobuf v1.2.0
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c // indirect
 	github.com/googleapis/gax-go v2.0.2+incompatible // indirect
@@ -43,6 +44,6 @@ require (
 	golang.org/x/sys v0.0.0-20190123074212-c6b37f3e9285 // indirect
 	google.golang.org/api v0.0.0-20181217000635-41dc4b66e69d
 	google.golang.org/appengine v1.3.0 // indirect
-	google.golang.org/genproto v0.0.0-20181218023534-67d6565462c5 // indirect
-	google.golang.org/grpc v1.17.0 // indirect
+	google.golang.org/genproto v0.0.0-20181218023534-67d6565462c5
+	google.golang.org/grpc v1.17.0
 )
