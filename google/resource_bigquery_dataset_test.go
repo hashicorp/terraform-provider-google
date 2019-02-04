@@ -24,19 +24,17 @@ func TestAccBigQueryDataset_basic(t *testing.T) {
 				Config: testAccBigQueryDataset(datasetID),
 			},
 			{
-				ResourceName:            "google_bigquery_dataset.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccBigQueryDatasetUpdated(datasetID),
 			},
 			{
-				ResourceName:            "google_bigquery_dataset.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -83,37 +81,33 @@ func TestAccBigQueryDataset_access(t *testing.T) {
 				Config: testAccBigQueryDatasetWithOneAccess(datasetID),
 			},
 			{
-				ResourceName:            "google_bigquery_dataset.access_test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ResourceName:      "google_bigquery_dataset.access_test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccBigQueryDatasetWithTwoAccess(datasetID),
 			},
 			{
-				ResourceName:            "google_bigquery_dataset.access_test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ResourceName:      "google_bigquery_dataset.access_test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccBigQueryDatasetWithOneAccess(datasetID),
 			},
 			{
-				ResourceName:            "google_bigquery_dataset.access_test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ResourceName:      "google_bigquery_dataset.access_test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccBigQueryDatasetWithViewAccess(datasetID, otherDatasetID, otherTableID),
 			},
 			{
-				ResourceName:            "google_bigquery_dataset.access_test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ResourceName:      "google_bigquery_dataset.access_test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -139,64 +133,57 @@ func TestAccBigQueryDataset_regionalLocation(t *testing.T) {
 				Config: testAccBigQueryRegionalDataset(datasetID1, "asia-east1"),
 			},
 			{
-				ResourceName:            "google_bigquery_dataset.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccBigQueryRegionalDataset(datasetID2, "asia-northeast1"),
 			},
 			{
-				ResourceName:            "google_bigquery_dataset.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccBigQueryRegionalDataset(datasetID3, "asia-southeast1"),
 			},
 			{
-				ResourceName:            "google_bigquery_dataset.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccBigQueryRegionalDataset(datasetID4, "australia-southeast1"),
 			},
 			{
-				ResourceName:            "google_bigquery_dataset.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccBigQueryRegionalDataset(datasetID5, "europe-north1"),
 			},
 			{
-				ResourceName:            "google_bigquery_dataset.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccBigQueryRegionalDataset(datasetID6, "europe-west2"),
 			},
 			{
-				ResourceName:            "google_bigquery_dataset.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccBigQueryRegionalDataset(datasetID7, "us-east4"),
 			},
 			{
-				ResourceName:            "google_bigquery_dataset.test",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -263,7 +250,7 @@ resource "google_bigquery_dataset" "test" {
   description                 = "This is a bar description"
   location                    = "EU"
   default_partition_expiration_ms = 7200000
-	default_table_expiration_ms = 7200000
+  default_table_expiration_ms = 7200000
 
   labels = {
     env                         = "bar"
@@ -280,8 +267,8 @@ resource "google_bigquery_dataset" "contents_test" {
   description                 = "This is a foo description"
   location                    = "EU"
   default_partition_expiration_ms = 3600000
-	default_table_expiration_ms = 3600000
-	delete_contents_on_destroy = true
+  default_table_expiration_ms = 3600000
+  delete_contents_on_destroy = true
 
   labels = {
     env                         = "foo"

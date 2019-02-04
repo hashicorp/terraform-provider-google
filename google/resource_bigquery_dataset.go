@@ -188,9 +188,10 @@ func resourceBigQueryDataset() *schema.Resource {
 			// If False and the dataset contains tables, the request will fail.
 			// Default is False.
 			"delete_contents_on_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:             schema.TypeBool,
+				Optional:         true,
+				Default:          false,
+				DiffSuppressFunc: emptyOrDefaultStringSuppress("false"),
 			},
 
 			// SelfLink: [Output-only] A URL that can be used to access the resource
