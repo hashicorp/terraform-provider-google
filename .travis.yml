@@ -5,6 +5,8 @@ services:
 language: go
 go:
 - "1.11.x"
+env:
+  GOFLAGS=-mod=vendor
 
 install:
 # This script is used by the Travis build to install a cookie for
