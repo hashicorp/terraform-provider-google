@@ -3,6 +3,7 @@
   "Enable": [
     "gofmt",
     "misspell",
+    "staticcheck",
     "structcheck",
     "unconvert",
     "varcheck",

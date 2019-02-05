@@ -21,16 +21,17 @@ fmt:
 
 # Currently required by tf-deploy compile
 fmtcheck:
+	@echo "==> Checking source code against gofmt..."
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
 
 lint:
 	@echo "==> Checking source code against linters..."
-	@gometalinter ./$(PKG_NAME)
- tools:
+	@bash -c "GO111MODULE=off gometalinter -d ./... 2> >(egrep '(^DEBUG.*linter took|^DEBUG.*total elapsed|^[^D])' >&2)"
+
+tools:
 	@echo "==> installing required tooling..."
-	go get -u github.com/kardianos/govendor
-	go get -u github.com/alecthomas/gometalinter
-	gometalinter --install
+	GO111MODULE=off go get -u github.com/alecthomas/gometalinter
+	GO111MODULE=off gometalinter --install
 
 test-compile:
 	@if [ "$(TEST)" = "./..." ]; then \
@@ -54,5 +55,5 @@ ifeq (,$(wildcard $(GOPATH)/src/$(WEBSITE_REPO)))
 endif
 	@$(MAKE) -C $(GOPATH)/src/$(WEBSITE_REPO) website-provider-test PROVIDER_PATH=$(shell pwd) PROVIDER_NAME=$(PKG_NAME)
 
-.PHONY: build test testacc vet fmt fmtcheck errcheck test-compile website website-test
+.PHONY: build test testacc vet fmt fmtcheck lint tools errcheck test-compile website website-test
 
