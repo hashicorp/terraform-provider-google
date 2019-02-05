@@ -105,6 +105,7 @@ The following arguments are supported:
 The `access` block supports the following fields (exactly one of `domain`,
 `group_by_email`, `special_group`, `user_by_email`, or `view` must be set,
 even though they are marked optional):
+
 * `role` - (Required unless `view` is set) Describes the rights granted to
     the user specified by the other member of the access object. The following
     string values are supported: `READER`, `WRITER`, `OWNER`.
@@ -130,6 +131,7 @@ even though they are marked optional):
     via an update operation. Structure is documented below.
 
 The `access.view` block supports:
+
 * `dataset_id` - (Required) The ID of the dataset containing this table.
 
 * `project_id` - (Required) The ID of the project containing this table.
