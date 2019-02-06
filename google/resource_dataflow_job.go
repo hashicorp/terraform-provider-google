@@ -91,7 +91,7 @@ func resourceDataflowJob() *schema.Resource {
 				Computed: true,
 			},
 
-			"service_account_email": &schema.Schema{
+			"service_account_email": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,

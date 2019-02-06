@@ -55,7 +55,7 @@ func TestAccDataflowJobCreateWithServiceAccount(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataflowJobDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataflowJobWithServiceAccount,
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataflowJobExists(
