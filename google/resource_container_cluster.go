@@ -1636,6 +1636,12 @@ func flattenClusterAddonsConfig(c *containerBeta.AddonsConfig) []map[string]inte
 				"disabled": c.KubernetesDashboard.Disabled,
 			},
 		}
+	} else {
+		result["kubernetes_dashboard"] = []map[string]interface{}{
+			{
+				"disabled": true,
+			},
+		}
 	}
 	if c.NetworkPolicyConfig != nil {
 		result["network_policy_config"] = []map[string]interface{}{
