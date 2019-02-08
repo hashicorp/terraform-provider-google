@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"google.golang.org/api/bigquery/v2"
 )
 
 func TestAccBigQueryDataset_basic(t *testing.T) {
@@ -34,6 +35,31 @@ func TestAccBigQueryDataset_basic(t *testing.T) {
 				ResourceName:      "google_bigquery_dataset.test",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccBigQueryDataset_datasetWithContents(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryDatasetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDatasetDeleteContents(datasetID),
+				Check:  testAccAddTable(datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.contents_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
 			},
 		},
 	})
@@ -180,6 +206,25 @@ func testAccCheckBigQueryDatasetDestroy(s *terraform.State) error {
 	return nil
 }
 
+func testAccAddTable(datasetID string, tableID string) resource.TestCheckFunc {
+	// Not actually a check, but adds a table independently of terraform
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+		table := &bigquery.Table{
+			TableReference: &bigquery.TableReference{
+				DatasetId: datasetID,
+				TableId:   tableID,
+				ProjectId: config.Project,
+			},
+		}
+		_, err := config.clientBigQuery.Tables.Insert(config.Project, datasetID, table).Do()
+		if err != nil {
+			return fmt.Errorf("Could not create table")
+		}
+		return nil
+	}
+}
+
 func testAccBigQueryDataset(datasetID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
@@ -210,6 +255,24 @@ resource "google_bigquery_dataset" "test" {
   labels = {
     env                         = "bar"
     default_table_expiration_ms = 7200000
+  }
+}`, datasetID)
+}
+
+func testAccBigQueryDatasetDeleteContents(datasetID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "contents_test" {
+  dataset_id                  = "%s"
+  friendly_name               = "foo"
+  description                 = "This is a foo description"
+  location                    = "EU"
+  default_partition_expiration_ms = 3600000
+  default_table_expiration_ms = 3600000
+  delete_contents_on_destroy = true
+
+  labels = {
+    env                         = "foo"
+    default_table_expiration_ms = 3600000
   }
 }`, datasetID)
 }

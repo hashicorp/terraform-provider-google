@@ -184,6 +184,16 @@ func resourceBigQueryDataset() *schema.Resource {
 				},
 			},
 
+			// Delete Contents on Destroy: [Optional] If True, delete all the tables in the dataset.
+			// If False and the dataset contains tables, the request will fail.
+			// Default is False.
+			"delete_contents_on_destroy": {
+				Type:             schema.TypeBool,
+				Optional:         true,
+				Default:          false,
+				DiffSuppressFunc: emptyOrDefaultStringSuppress("false"),
+			},
+
 			// SelfLink: [Output-only] A URL that can be used to access the resource
 			// again. You can use this URL in Get or Update requests to the
 			// resource.
@@ -407,7 +417,8 @@ func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	if err := config.clientBigQuery.Datasets.Delete(id.Project, id.DatasetId).Do(); err != nil {
+	deleteContents := d.Get("delete_contents_on_destroy").(bool)
+	if err := config.clientBigQuery.Datasets.Delete(id.Project, id.DatasetId).DeleteContents(deleteContents).Do(); err != nil {
 		return err
 	}
 
