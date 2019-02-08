@@ -76,7 +76,8 @@ func resourceComputeImage() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Elem: &schema.Schema{
-					Type: schema.TypeString,
+					Type:             schema.TypeString,
+					DiffSuppressFunc: compareSelfLinkOrResourceName,
 				},
 			},
 			"raw_disk": {
@@ -448,7 +449,10 @@ func flattenComputeImageLabelFingerprint(v interface{}, d *schema.ResourceData) 
 }
 
 func flattenComputeImageLicenses(v interface{}, d *schema.ResourceData) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
 func flattenComputeImageName(v interface{}, d *schema.ResourceData) interface{} {
@@ -490,7 +494,16 @@ func expandComputeImageLabelFingerprint(v interface{}, d *schema.ResourceData, c
 }
 
 func expandComputeImageLicenses(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		f, err := parseGlobalFieldValue("licenses", raw.(string), "project", d, config, true)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value for licenses: %s", err)
+		}
+		req = append(req, f.RelativeLink())
+	}
+	return req, nil
 }
 
 func expandComputeImageName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {

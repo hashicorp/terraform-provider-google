@@ -52,7 +52,7 @@ resource "google_compute_instance_template" "foo" {
 resource "google_compute_region_instance_group_manager" "foo" {
 	name = "%s"
 	base_instance_name = "foo"
-	instance_template = "${google_compute_instance_template.foo.self_link}"
+	instance_template  = "${google_compute_instance_template.foo.self_link}"
 	region = "us-central1"
 	target_pools = ["${google_compute_target_pool.foo.self_link}"]
 	target_size = 1

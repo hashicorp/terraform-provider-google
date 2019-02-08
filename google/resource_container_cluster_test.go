@@ -2159,16 +2159,23 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
 
 func testAccContainerCluster_withIPAllocationPolicy_specificIPRanges(cluster string) string {
 	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+	name = "container-net-%s"
+	auto_create_subnetworks = false
+}
+
 resource "google_container_cluster" "with_ip_allocation_policy" {
-	name = "%s"
-	zone = "us-central1-a"
+	name    = "%s"
+	zone    = "us-central1-a"
+	network = "${google_compute_network.container_network.name}"
 
 	initial_node_count = 1
 	ip_allocation_policy {
-		cluster_ipv4_cidr_block = "10.90.0.0/19"
+		cluster_ipv4_cidr_block  = "10.90.0.0/19"
 		services_ipv4_cidr_block = "10.40.0.0/19"
+		create_subnetwork        = true
 	}
-}`, cluster)
+}`, cluster, cluster)
 }
 
 func testAccContainerCluster_withIPAllocationPolicy_specificSizes(cluster string) string {
