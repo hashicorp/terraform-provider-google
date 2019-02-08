@@ -381,7 +381,8 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	// Name of function should be unique
 	d.SetId(cloudFuncId.terraformId())
 
-	err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Creating CloudFunctions Function")
+	err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Creating CloudFunctions Function",
+		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if err != nil {
 		return err
 	}
@@ -522,8 +523,8 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 			return fmt.Errorf("Error while updating cloudfunction configuration: %s", err)
 		}
 
-		err = cloudFunctionsOperationWait(config.clientCloudFunctions, op,
-			"Updating CloudFunctions Function")
+		err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Updating CloudFunctions Function",
+			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 		if err != nil {
 			return err
 		}
@@ -545,7 +546,8 @@ func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Deleting CloudFunctions Function")
+	err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Deleting CloudFunctions Function",
+		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 	if err != nil {
 		return err
 	}
