@@ -68,14 +68,16 @@ func TestAccProjectService_disableDependentServices(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
+	billingId := getTestBillingAccountFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	services := []string{"cloudbuild.googleapis.com", "containerregistry.googleapis.com"}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectService_disableDependentServices(services, pid, pname, org, "false"),
+				Config: testAccProjectService_disableDependentServices(services, pid, pname, org, billingId, "false"),
 			},
 			{
 				ResourceName:            "google_project_service.test",
@@ -84,11 +86,11 @@ func TestAccProjectService_disableDependentServices(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
 			},
 			{
-				Config:      testAccProjectService_dependencyRemoved(services, pid, pname, org),
+				Config:      testAccProjectService_dependencyRemoved(services, pid, pname, org, billingId),
 				ExpectError: regexp.MustCompile("Please specify disable_dependent_services=true if you want to proceed with disabling all services."),
 			},
 			{
-				Config: testAccProjectService_disableDependentServices(services, pid, pname, org, "true"),
+				Config: testAccProjectService_disableDependentServices(services, pid, pname, org, billingId, "true"),
 			},
 			{
 				ResourceName:            "google_project_service.test",
@@ -97,7 +99,7 @@ func TestAccProjectService_disableDependentServices(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
 			},
 			{
-				Config:             testAccProjectService_dependencyRemoved(services, pid, pname, org),
+				Config:             testAccProjectService_dependencyRemoved(services, pid, pname, org, billingId),
 				ExpectNonEmptyPlan: true,
 			},
 		},
@@ -177,12 +179,13 @@ resource "google_project_service" "test2" {
 `, pid, name, org, services[0], services[1])
 }
 
-func testAccProjectService_disableDependentServices(services []string, pid, name, org, disableDependentServices string) string {
+func testAccProjectService_disableDependentServices(services []string, pid, name, org, billing, disableDependentServices string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-  project_id = "%s"
-  name       = "%s"
-  org_id     = "%s"
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project_service" "test" {
@@ -195,22 +198,23 @@ resource "google_project_service" "test2" {
   service                    = "%s"
   disable_dependent_services = %s
 }
-`, pid, name, org, services[0], services[1], disableDependentServices)
+`, pid, name, org, billing, services[0], services[1], disableDependentServices)
 }
 
-func testAccProjectService_dependencyRemoved(services []string, pid, name, org string) string {
+func testAccProjectService_dependencyRemoved(services []string, pid, name, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-  project_id = "%s"
-  name       = "%s"
-  org_id     = "%s"
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project_service" "test" {
   project = "${google_project.acceptance.project_id}"
   service = "%s"
 }
-`, pid, name, org, services[0])
+`, pid, name, org, billing, services[0])
 }
 
 func testAccProjectService_noDisable(services []string, pid, name, org string) string {
