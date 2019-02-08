@@ -129,8 +129,8 @@ The following arguments are supported:
 
 * `private_ip_google_access` -
   (Optional)
-  Whether the VMs in this subnet can access Google services without
-  assigned external IP addresses.
+  When enabled, VMs in this subnetwork without external IP addresses can
+  access Google APIs and services by using Private Google Access.
 
 * `region` -
   (Optional)
