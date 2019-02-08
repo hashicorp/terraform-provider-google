@@ -54,6 +54,8 @@ func resourceComputeProjectMetadataCreateOrUpdate(d *schema.ResourceData, meta i
 		return fmt.Errorf("SetCommonInstanceMetadata failed: %s", err)
 	}
 
+	d.SetId(projectID)
+
 	return resourceComputeProjectMetadataRead(d, meta)
 }
 
