@@ -2164,16 +2164,23 @@ resource "google_compute_network" "container_network" {
 	auto_create_subnetworks = false
 }
 
+resource "google_compute_subnetwork" "container_subnetwork" {
+	name          = "${google_compute_network.container_network.name}"
+	network       = "${google_compute_network.container_network.name}"
+	ip_cidr_range = "10.128.0.0/9"
+	region        = "us-central1"
+}
+
 resource "google_container_cluster" "with_ip_allocation_policy" {
-	name    = "%s"
-	zone    = "us-central1-a"
-	network = "${google_compute_network.container_network.name}"
+	name       = "%s"
+	zone       = "us-central1-a"
+	network    = "${google_compute_network.container_network.name}"
+	subnetwork = "${google_compute_subnetwork.container_subnetwork.name}"
 
 	initial_node_count = 1
 	ip_allocation_policy {
-		cluster_ipv4_cidr_block  = "10.90.0.0/19"
-		services_ipv4_cidr_block = "10.40.0.0/19"
-		create_subnetwork        = true
+		cluster_ipv4_cidr_block  = "10.0.0.0/16"
+		services_ipv4_cidr_block = "10.1.0.0/16"
 	}
 }`, cluster, cluster)
 }
