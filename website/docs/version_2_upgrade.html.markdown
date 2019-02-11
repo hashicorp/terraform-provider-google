@@ -1,24 +1,51 @@
 ---
 layout: "google"
-page_title: "Terraform Google Provider Version 2 Upgrade Guide"
+page_title: "Terraform Google Provider 2.0.0 Upgrade Guide"
 sidebar_current: "docs-google-provider-version-2-upgrade"
 description: |-
-  Terraform Google Provider Version 2 Upgrade Guide
+  Terraform Google Provider 2.0.0 Upgrade Guide
 ---
 
-# Terraform Google Provider Version 2 Upgrade Guide
+# Terraform Google Provider 2.0.0 Upgrade Guide
 
-Version 2.0.0 of the Google provider for Terraform is a major release and includes some changes that you will need to consider when upgrading. This guide is intended to help with that process and focuses only on changes from version 1.19.1 to version 2.0.0.
+Version `2.0.0` of the Google provider for Terraform is a major release and
+includes some changes that you will need to consider when upgrading. This guide
+is intended to help with that process and focuses only on the changes necessary
+to upgrade from version `1.20.0` to `2.0.0`.
 
-Most of the changes outlined in this guide have been previously marked as deprecated in the Terraform plan/apply output throughout previous provider releases, up to and including 1.19.1. These changes, such as deprecation notices, can always be found in the [Terraform Google Provider CHANGELOG](https://github.com/terraform-providers/terraform-provider-google/blob/master/CHANGELOG.md).
+-> The "Google provider" refers to both `google` and `google-beta`; each will
+have released `2.0.0` at around the same time, and this guide is for both
+variants of the Google provider. See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
+for details if you're new to using `google-beta`.
 
-Upgrade topics:
+Most of the changes outlined in this guide have been previously marked as
+deprecated in the Terraform `plan`/`apply` output throughout previous provider
+releases, up to and including 1.20.0. These changes, such as deprecation notices,
+can always be found in the [CHANGELOG](https://github.com/terraform-providers/terraform-provider-google/blob/master/CHANGELOG.md).
+
+## Why version 2.0.0?
+
+We introduced version `2.0.0` of the Google provider in order to split the
+provider into 2 distinct variants; `google`, the provider for the generally
+available (GA) GCP APIs, and `google-beta`, the provider for Beta GCP APIs.
+
+In addition, we made small breaking changes across the provider to enable import
+for older resources, enable some new use cases, align field naming / formats
+with your expectations based on other GCP tooling, and to facilitate generating
+more resources with [Magic Modules](https://github.com/GoogleCloudPlatform/magic-modules).
+
+While you should see some small changes in your configurations as a result of
+these changes, we don't expect you'll need to make any major refactorings. As we
+develop the provider, we hope to continue to use Magic Modules to provide a
+consistent experience across the provider including features like configurable
+timeouts, import, and more.
+
+## Upgrade Topics
 
 <!-- TOC depthFrom:2 depthTo:2 -->
 
 - [Provider Version Configuration](#provider-version-configuration)
 - [`google-beta` provider](#google-beta-provider)
-- [Open in Cloud Shell](#open-in-cloud-shell)
 - [Data Sources](#data-sources)
 - [Resource: `google_bigquery_dataset`](#resource-google_bigquery_dataset)
 - [Resource: `google_bigtable_instance`](#resource-google_bigtable_instance)
@@ -60,11 +87,19 @@ Upgrade topics:
 
 ## Provider Version Configuration
 
-!> **WARNING:** This topic is placeholder documentation until version 2.0.0 is released later this year.
+-> Before upgrading to version 2.0.0, it is recommended to upgrade to the most
+recent version of the provider (1.20.0) and ensure that your environment
+successfully runs [`terraform plan`](https://www.terraform.io/docs/commands/plan.html)
+without unexpected changes or deprecation notices.
 
--> Before upgrading to version 2.0.0, it is recommended to upgrade to the most recent version of the provider (1.19.1) and ensure that your environment successfully runs [`terraform plan`](https://www.terraform.io/docs/commands/plan.html) without unexpected changes or deprecation notices.
+It is recommended to use [version constraints](https://www.terraform.io/docs/configuration/providers.html#provider-versions)
+when configuring Terraform providers. If you are following that recommendation,
+update the version constraints in your Terraform configuration and run
+[`terraform init`](https://www.terraform.io/docs/commands/init.html) to download
+the new version.
 
-It is recommended to use [version constraints when configuring Terraform providers](https://www.terraform.io/docs/configuration/providers.html#provider-versions). If you are following that recommendation, update the version constraints in your Terraform configuration and run [`terraform init`](https://www.terraform.io/docs/commands/init.html) to download the new version.
+If you aren't using version constraints, you can use `terraform init -upgrade`
+in order to upgrade your provider to the latest released version.
 
 For example, given this previous configuration:
 
@@ -72,7 +107,7 @@ For example, given this previous configuration:
 provider "google" {
   # ... other configuration ...
 
-  version = "~> 1.19.0"
+  version = "~> 1.20.0"
 }
 ```
 
@@ -86,21 +121,23 @@ provider "google" {
 }
 ```
 
-## `google-beta` provider
+## The `google-beta` provider
 
-The `google-beta` provider is now necessary to be able to configure resources with beta features.
-This new provider enables full import support of beta features and gives users who
-wish to use only the most stable APIs and features more confidence that they are doing so
-by continuing to use the `google` provider.
+The `google-beta` variant of the Google provider is now necessary to be able to
+configure products and features that are in beta. The `google-beta` provider
+enables full import support of beta features and gives users who wish to use
+only the most stable APIs and features more confidence that they are doing so
+by continuing to use the `google` provider, which now exclusively uses generally
+available (GA) products and features.
 
-Beta GCP Features have no deprecation policy and no SLA, but are otherwise considered to be feature-complete
+Beta GCP features have no deprecation policy and no SLA, but are otherwise considered to be feature-complete
 with only minor outstanding issues after their Alpha period. Beta is when GCP
 features are publicly announced, and is when they generally become publicly
 available. For more information see [the official documentation on GCP launch stages](https://cloud.google.com/terms/launch-stages).
 
-Because the API for beta features can change before their GA launch, there may be breaking changes
-in the `google-beta` provider in minor release versions. These changes will be announced in the
-[Terraform `google-beta` Provider CHANGELOG](https://github.com/terraform-providers/terraform-provider-google-beta/blob/master/CHANGELOG.md).
+Because the API for beta features can change before their GA launch, there may
+be breaking changes in the `google-beta` provider in minor release versions.
+These changes will be announced in the [`google-beta` CHANGELOG](https://github.com/terraform-providers/terraform-provider-google-beta/blob/master/CHANGELOG.md).
 
 To have resources at different API versions, set up provider blocks for each version:
 
@@ -118,7 +155,8 @@ provider "google-beta" {
 }
 ```
 
-In each resource, state which provider that resource should be used with:
+In each resource, explicitly state which provider that resource should be used
+with:
 
 ```hcl
 resource "google_compute_instance" "ga-instance" {
@@ -137,17 +175,10 @@ resource "google_compute_instance" "beta-instance" {
 See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
 for more details on how to use `google-beta`.
 
-## Open in Cloud Shell
-
-2.0.0 is the first release including Open in Cloud Shell. Examples in the documentation for
-Magic Modules resources now have Open in Cloud Shell links in their documentation that open
-them in an interactive editor and shell - all without leaving the browser. See the
-[blog post announcing the feature](https://www.hashicorp.com/blog/kickstart-terraform-on-gcp-with-google-cloud-shell)
-for more details.
-
 ## Data Sources
 
-See the `Resource` sections in this document for properties that may have been removed.
+See the `Resource` sections in this document for properties that may have been
+removed.
 
 ## Resource: `google_bigquery_dataset`
 
