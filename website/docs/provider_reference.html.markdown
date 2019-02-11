@@ -6,7 +6,7 @@ description: |-
   The Google provider is used to configure your GCP project, location, and creds
 ---
 
-# `google` provider reference
+# Google Provider Configuration Reference
 
 -> Want more information about upgrading from `1.X` of the provider to `2.0.0`? Check out the [2.0.0 Upgrade Guide](https://terraform.io/docs/providers/google/version_2_upgrade.html).
 
