@@ -47,6 +47,8 @@ FEATURES:
 * **New Datasource**: `google_storage_transfer_project_service_account` data source for retrieving the Storage Transfer service account for a project [GH-2692]
 * **New Resource**: `google_app_engine_firewall_rule` [GH-2738][GH-2849]
 * **New Resource**: `google_project_iam_audit_config` [GH-2731]
+* **New Datasource**: `google_kms_crypto_key` data source for an externally managed KMS crypto key [GH-2891]
+* **New Datasource**: `google_kms_key_ring` [GH-2891]
 
 ENHANCEMENTS:
 * provider: Add `access_token` config option to allow Terraform to authenticate using short-lived Google OAuth 2.0 access token [GH-2838]
