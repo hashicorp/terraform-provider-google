@@ -118,16 +118,22 @@ func TestAccConfigLoadValidate_accessToken(t *testing.T) {
 	}
 }
 
-func TestConfigLoadAndValidate_defaultScopes(t *testing.T) {
-	config := Config{}
+func TestConfigLoadAndValidate_customScopes(t *testing.T) {
+	config := Config{
+		Credentials: testFakeCredentialsPath,
+		Project:     "my-gce-project",
+		Region:      "us-central1",
+		Scopes:      []string{"https://www.googleapis.com/auth/compute"},
+	}
 	err := config.loadAndValidate()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	for index, scope := range defaultClientScopes {
-		if config.Scopes[index] != scope {
-			t.Fatalf("Unexpected default client scopes: %v, index %d", config.Scopes[index], index)
-		}
+	if len(config.Scopes) != 1 {
+		t.Fatalf("expected 1 scope, got %d scopes: %v", len(config.Scopes), config.Scopes)
+	}
+	if config.Scopes[0] != "https://www.googleapis.com/auth/compute" {
+		t.Fatalf("expected scope to be %q, got %q", "https://www.googleapis.com/auth/compute", config.Scopes[0])
 	}
 }
