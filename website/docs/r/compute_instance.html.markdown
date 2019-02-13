@@ -65,7 +65,9 @@ The following arguments are supported:
 
     **Note:** If you want to update this value (resize the VM) after initial creation, you must set [`allow_stopping_for_update`](#allow_stopping_for_update) to `true`.
 
-    To create a machine with a [custom type][custom-vm-types] (such as extended memory), format the value like `custom-VCPUS-MEM_IN_MB` like `custom-6-20480` for 6 vCPU and 20GB of RAM.
+    [Custom machine types][custom-vm-types] can be formatted as `custom-NUMBER_OF_CPUS-AMOUNT_OF_MEMORY_MB`, e.g. `custom-6-20480` for 6 vCPU and 20GB of RAM.
+
+    There is a limit of 6.5 GB per CPU unless you add [extended memory][extended-custom-vm-type]. You must do this explicitly by adding the suffix `-ext`, e.g. `custom-2-15360-ext` for 2 vCPU and 15 GB of memory.
 
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
@@ -320,3 +322,4 @@ $ terraform import google_compute_instance.default gcp-project/us-central1-a/tes
 
 [custom-vm-types]: https://cloud.google.com/dataproc/docs/concepts/compute/custom-machine-types
 [network-tier]: https://cloud.google.com/network-tiers/docs/overview
+[extended-custom-vm-type]: https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#extendedmemory
