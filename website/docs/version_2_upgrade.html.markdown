@@ -40,6 +40,35 @@ develop the provider, we hope to continue to use Magic Modules to provide a
 consistent experience across the provider including features like configurable
 timeouts, import, and more.
 
+## I accidentally upgraded to 2.0.0, how do I downgrade to `1.X`?
+
+If you've inadvertently upgraded to `2.0.0`, first see the
+[Provider Version Configuration Guide](#provider-version-configuration) to lock
+your provider version; if you've constrained the provider to a lower version
+such as shown in the previous version example in that guide, Terraform will pull
+in a `1.X` series release on `terraform init`.
+
+If you've only ran `terraform init` or `terraform plan`, your state will not
+have been modified and downgrading your provider is sufficient.
+
+If you've ran `terraform refresh` or `terraform apply`, Terraform may have made
+state changes in the meantime.
+
+* If you're using a *local* state, `terraform refresh` with a downgraded
+provider is likely sufficient to revert your state. The Google provider
+generally refreshes most state information from the API, and the properties
+necessary to do so have been left unchanged.
+
+* If you're using a *remote* state backend
+
+  * That does not support versioning, see the local state instructions above
+
+  * That supports *versioning* such as [Google Cloud Storage](https://www.terraform.io/docs/backends/types/gcs.html)
+you can revert the Terraform state file to a previous version by hand. If you do
+so and Terraform created resources as part of a `terraform apply`, you'll need
+to either `terraform import` them or delete them by hand.
+  
+
 ## Upgrade Topics
 
 <!-- TOC depthFrom:2 depthTo:2 -->
