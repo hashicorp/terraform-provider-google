@@ -14,14 +14,13 @@ func dataSourceGoogleComputeSubnetwork() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
-				Required: true,
-			},
-
-			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
 			},
 			"self_link": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -75,15 +74,10 @@ func dataSourceGoogleComputeSubnetwork() *schema.Resource {
 func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	project, err := getProject(d, config)
+	project, region, name, err := GetRegionalResourcePropertiesFromSelfLinkOrSchema(d, config)
 	if err != nil {
 		return err
 	}
-	region, err := getRegion(d, config)
-	if err != nil {
-		return err
-	}
-	name := d.Get("name").(string)
 
 	subnetwork, err := config.clientCompute.Subnetworks.Get(project, region, name).Do()
 	if err != nil {
@@ -98,12 +92,9 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 	d.Set("network", subnetwork.Network)
 	d.Set("project", project)
 	d.Set("region", region)
-	// Flattening code defined in resource_compute_subnetwork.go
 	d.Set("secondary_ip_range", flattenSecondaryRanges(subnetwork.SecondaryIpRanges))
 
-	//Subnet id creation is defined in resource_compute_subnetwork.go
-	subnetwork.Region = region
-	d.SetId(createSubnetID(subnetwork))
+	d.SetId(fmt.Sprintf("%s/%s", region, name))
 	return nil
 }
 
@@ -118,8 +109,4 @@ func flattenSecondaryRanges(secondaryRanges []*compute.SubnetworkSecondaryRange)
 		secondaryRangesSchema = append(secondaryRangesSchema, data)
 	}
 	return secondaryRangesSchema
-}
-
-func createSubnetID(s *compute.Subnetwork) string {
-	return fmt.Sprintf("%s/%s", s.Region, s.Name)
 }
