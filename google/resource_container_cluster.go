@@ -730,6 +730,11 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
 	waitErr := containerOperationWait(config, op, project, location, "creating GKE cluster", timeoutInMinutes)
 	if waitErr != nil {
+		if deleteErr := cleanFailedContainerCluster(d, meta); deleteErr != nil {
+			log.Printf("[WARN] Unable to clean up cluster from failed creation: %s", deleteErr)
+		} else {
+			log.Printf("[WARN] Verified failed creation of cluster %s was cleaned up", d.Id())
+		}
 		// The resource didn't actually create
 		d.SetId("")
 		return waitErr
@@ -1308,16 +1313,9 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	var location string
-	locations := []string{}
-	if regionName, isRegionalCluster := d.GetOk("region"); !isRegionalCluster {
-		location, err = getZone(d, config)
-		if err != nil {
-			return err
-		}
-		locations = append(locations, location)
-	} else {
-		location = regionName.(string)
+	location, err := getLocation(d, config)
+	if err != nil {
+		return err
 	}
 
 	clusterName := d.Get("name").(string)
@@ -1360,6 +1358,44 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 
 	d.SetId("")
 
+	return nil
+}
+
+// cleanFailedContainerCluster deletes clusters that failed but were
+// created in an error state. Similar to resourceContainerClusterDelete
+// but implemented in separate function as it doesn't try to lock already
+// locked cluster state, does different error handling, and doesn't do retries.
+func cleanFailedContainerCluster(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	location, err := getLocation(d, config)
+	if err != nil {
+		return err
+	}
+
+	clusterName := d.Get("name").(string)
+	fullName := containerClusterFullName(project, location, clusterName)
+
+	log.Printf("[DEBUG] Cleaning up failed GKE cluster %s", d.Get("name").(string))
+	op, err := config.clientContainerBeta.Projects.Locations.Clusters.Delete(fullName).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Container Cluster %q", d.Get("name").(string)))
+	}
+
+	// Wait until it's deleted
+	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
+	waitErr := containerOperationWait(config, op, project, location, "deleting GKE cluster", timeoutInMinutes)
+	if waitErr != nil {
+		return waitErr
+	}
+
+	log.Printf("[INFO] GKE cluster %s has been deleted", d.Id())
+	d.SetId("")
 	return nil
 }
 
