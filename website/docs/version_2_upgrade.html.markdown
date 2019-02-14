@@ -546,9 +546,13 @@ Use the [`google-beta` provider](#google-beta-provider) to use these resources.
 
 ## Resource: `google_container_cluster`
 
-### `enable_binary_authorization`, `enable_tpu`, `pod_security_policy_config`, `private_cluster`, and `master_ipv4_cidr_block`, `node_config.taints`, `node_config.workload_metadata_config` have been removed from the GA provider
+### `enable_binary_authorization`, `enable_tpu`, `pod_security_policy_config`, `node_config.taints`, `node_config.workload_metadata_config` have been removed from the GA provider
 
 Use the [`google-beta` provider](#google-beta-provider) to set these fields.
+
+### `private_cluster`, `master_ipv4_cidr_block` are removed.
+
+Use `private_cluster_config` and `private_cluster_config.master_ipv4_cidr_block` instead.
 
 ## Resource: `google_container_node_pool`
 
