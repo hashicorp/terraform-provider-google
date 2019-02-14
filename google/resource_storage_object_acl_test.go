@@ -24,7 +24,9 @@ func TestAccStorageObjectAcl_basic(t *testing.T) {
 	bucketName := testBucketName()
 	objectName := testAclObjectName()
 	objectData := []byte("data data data")
-	ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644)
+	if err := ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			if errObjectAcl != nil {
@@ -54,7 +56,9 @@ func TestAccStorageObjectAcl_upgrade(t *testing.T) {
 	bucketName := testBucketName()
 	objectName := testAclObjectName()
 	objectData := []byte("data data data")
-	ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644)
+	if err := ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			if errObjectAcl != nil {
@@ -106,7 +110,9 @@ func TestAccStorageObjectAcl_downgrade(t *testing.T) {
 	bucketName := testBucketName()
 	objectName := testAclObjectName()
 	objectData := []byte("data data data")
-	ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644)
+	if err := ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			if errObjectAcl != nil {
@@ -158,7 +164,9 @@ func TestAccStorageObjectAcl_predefined(t *testing.T) {
 	bucketName := testBucketName()
 	objectName := testAclObjectName()
 	objectData := []byte("data data data")
-	ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644)
+	if err := ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			if errObjectAcl != nil {
@@ -182,7 +190,9 @@ func TestAccStorageObjectAcl_predefinedToExplicit(t *testing.T) {
 	bucketName := testBucketName()
 	objectName := testAclObjectName()
 	objectData := []byte("data data data")
-	ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644)
+	if err := ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			if errObjectAcl != nil {
@@ -215,7 +225,9 @@ func TestAccStorageObjectAcl_explicitToPredefined(t *testing.T) {
 	bucketName := testBucketName()
 	objectName := testAclObjectName()
 	objectData := []byte("data data data")
-	ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644)
+	if err := ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			if errObjectAcl != nil {
@@ -249,7 +261,9 @@ func TestAccStorageObjectAcl_unordered(t *testing.T) {
 	bucketName := testBucketName()
 	objectName := testAclObjectName()
 	objectData := []byte("data data data")
-	ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644)
+	if err := ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			if errObjectAcl != nil {

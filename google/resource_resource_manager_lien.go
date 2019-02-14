@@ -214,6 +214,10 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	var obj map[string]interface{}
+	// log the old URL to make the ineffassign linter happy
+	// in theory, we should find a way to disable the default URL and not construct
+	// both, but that's a problem for another day. Today, we cheat.
+	log.Printf("[DEBUG] replacing URL %q with a custom delete URL", url)
 	url, err = replaceVars(d, config, "https://cloudresourcemanager.googleapis.com/v1/liens/{{name}}")
 	if err != nil {
 		return err

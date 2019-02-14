@@ -278,6 +278,9 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 
 	if v, ok := d.GetOk("security_policy"); ok {
 		pol, err := ParseSecurityPolicyFieldValue(v.(string), d, config)
+		if err != nil {
+			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
+		}
 		op, err := config.clientComputeBeta.BackendServices.SetSecurityPolicy(
 			project, service.Name, &computeBeta.SecurityPolicyReference{
 				SecurityPolicy: pol.RelativeLink(),

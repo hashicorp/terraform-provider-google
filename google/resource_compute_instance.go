@@ -1024,8 +1024,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		instNetworkInterface := instance.NetworkInterfaces[i]
 		networkName := d.Get(prefix + ".name").(string)
 
-		// TODO: This sanity check is broken by #929, disabled for now (by forcing the equality)
-		networkName = instNetworkInterface.Name
 		// Sanity check
 		if networkName != instNetworkInterface.Name {
 			return fmt.Errorf("Instance networkInterface had unexpected name: %s", instNetworkInterface.Name)

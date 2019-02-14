@@ -2,10 +2,11 @@ package google
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/storage/v1"
-	"strings"
 )
 
 func resourceStorageObjectAcl() *schema.Resource {
@@ -110,7 +111,7 @@ func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Error reading object %s in %s: %v", object, bucket, err)
 		}
 
-		res, err = config.clientStorage.Objects.Update(bucket, object, res).PredefinedAcl(predefinedAcl.(string)).Do()
+		_, err = config.clientStorage.Objects.Update(bucket, object, res).PredefinedAcl(predefinedAcl.(string)).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating object %s in %s: %v", object, bucket, err)
 		}
@@ -176,7 +177,7 @@ func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Error reading object %s in %s: %v", object, bucket, err)
 		}
 
-		res, err = config.clientStorage.Objects.Update(bucket, object, res).PredefinedAcl(d.Get("predefined_acl").(string)).Do()
+		_, err = config.clientStorage.Objects.Update(bucket, object, res).PredefinedAcl(d.Get("predefined_acl").(string)).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating object %s in %s: %v", object, bucket, err)
 		}
@@ -219,7 +220,7 @@ func resourceStorageObjectAclDelete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading object %s in %s: %v", object, bucket, err)
 	}
 
-	res, err = config.clientStorage.Objects.Update(bucket, object, res).PredefinedAcl("private").Do()
+	_, err = config.clientStorage.Objects.Update(bucket, object, res).PredefinedAcl("private").Do()
 	if err != nil {
 		return fmt.Errorf("Error updating object %s in %s: %v", object, bucket, err)
 	}

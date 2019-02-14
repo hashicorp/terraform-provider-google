@@ -26,11 +26,15 @@ func TestAccStorageObject_basic(t *testing.T) {
 	bucketName := testBucketName()
 	data := []byte("data data data")
 	h := md5.New()
-	h.Write(data)
+	if _, err := h.Write(data); err != nil {
+		t.Errorf("error calculating md5: %v", err)
+	}
 	data_md5 := base64.StdEncoding.EncodeToString(h.Sum(nil))
 
 	testFile := getNewTmpTestFile(t, "tf-test")
-	ioutil.WriteFile(testFile.Name(), data, 0644)
+	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -51,10 +55,14 @@ func TestAccStorageObject_recreate(t *testing.T) {
 
 	writeFile := func(name string, data []byte) string {
 		h := md5.New()
-		h.Write(data)
+		if _, err := h.Write(data); err != nil {
+			t.Errorf("error calculating md5: %v", err)
+		}
 		data_md5 := base64.StdEncoding.EncodeToString(h.Sum(nil))
 
-		ioutil.WriteFile(name, data, 0644)
+		if err := ioutil.WriteFile(name, data, 0644); err != nil {
+			t.Errorf("error writing file: %v", err)
+		}
 		return data_md5
 	}
 	testFile := getNewTmpTestFile(t, "tf-test")
@@ -91,11 +99,15 @@ func TestAccStorageObject_content(t *testing.T) {
 	bucketName := testBucketName()
 	data := []byte(content)
 	h := md5.New()
-	h.Write(data)
+	if _, err := h.Write(data); err != nil {
+		t.Errorf("error calculating md5: %v", err)
+	}
 	data_md5 := base64.StdEncoding.EncodeToString(h.Sum(nil))
 
 	testFile := getNewTmpTestFile(t, "tf-test")
-	ioutil.WriteFile(testFile.Name(), data, 0644)
+	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -121,10 +133,14 @@ func TestAccStorageObject_withContentCharacteristics(t *testing.T) {
 	bucketName := testBucketName()
 	data := []byte(content)
 	h := md5.New()
-	h.Write(data)
+	if _, err := h.Write(data); err != nil {
+		t.Errorf("error calculating md5: %v", err)
+	}
 	data_md5 := base64.StdEncoding.EncodeToString(h.Sum(nil))
 	testFile := getNewTmpTestFile(t, "tf-test")
-	ioutil.WriteFile(testFile.Name(), data, 0644)
+	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
 
 	disposition, encoding, language, content_type := "inline", "compress", "en", "binary/octet-stream"
 	resource.Test(t, resource.TestCase{
@@ -178,10 +194,14 @@ func TestAccStorageObject_cacheControl(t *testing.T) {
 	bucketName := testBucketName()
 	data := []byte(content)
 	h := md5.New()
-	h.Write(data)
+	if _, err := h.Write(data); err != nil {
+		t.Errorf("error calculating md5: %v", err)
+	}
 	data_md5 := base64.StdEncoding.EncodeToString(h.Sum(nil))
 	testFile := getNewTmpTestFile(t, "tf-test")
-	ioutil.WriteFile(testFile.Name(), data, 0644)
+	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
 
 	cacheControl := "private"
 	resource.Test(t, resource.TestCase{
@@ -207,10 +227,14 @@ func TestAccStorageObject_storageClass(t *testing.T) {
 	bucketName := testBucketName()
 	data := []byte(content)
 	h := md5.New()
-	h.Write(data)
+	if _, err := h.Write(data); err != nil {
+		t.Errorf("error calculating md5: %v", err)
+	}
 	data_md5 := base64.StdEncoding.EncodeToString(h.Sum(nil))
 	testFile := getNewTmpTestFile(t, "tf-test")
-	ioutil.WriteFile(testFile.Name(), data, 0644)
+	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
 
 	storageClass := "MULTI_REGIONAL"
 	resource.Test(t, resource.TestCase{

@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/servicemanagement/v1"
 )
@@ -228,7 +229,9 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 	var serviceConfig servicemanagement.SubmitConfigSourceResponse
-	json.Unmarshal(s, &serviceConfig)
+	if err := json.Unmarshal(s, &serviceConfig); err != nil {
+		return err
+	}
 
 	// Next, we create a new rollout with the new config value, and wait for it to complete.
 	rolloutService := servicemanagement.NewServicesRolloutsService(config.clientServiceMan)
