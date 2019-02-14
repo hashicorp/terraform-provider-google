@@ -24,7 +24,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	redis "google.golang.org/api/redis/v1beta1"
 )
 
 func resourceRedisInstance() *schema.Resource {
@@ -231,14 +230,8 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	op := &redis.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := redisOperationWaitTime(
-		config.clientRedis, op, project, "Creating Instance",
+		config, res, project, "Creating Instance",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -390,14 +383,9 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	op := &redis.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
 
 	err = redisOperationWaitTime(
-		config.clientRedis, op, project, "Updating Instance",
+		config, res, project, "Updating Instance",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -426,14 +414,9 @@ func resourceRedisInstanceDelete(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	op := &redis.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
 
 	err = redisOperationWaitTime(
-		config.clientRedis, op, project, "Deleting Instance",
+		config, res, project, "Deleting Instance",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
