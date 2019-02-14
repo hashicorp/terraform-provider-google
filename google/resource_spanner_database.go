@@ -49,7 +49,7 @@ func resourceSpannerDatabase() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateRegexp(`^(?:[a-z](?:[-_a-z0-9]{0,28}[a-z0-9])?)$`),
+				ValidateFunc: validateRegexp(`^[a-z][a-z0-9_\-]*[a-z0-9]$`),
 			},
 			"ddl": {
 				Type:     schema.TypeList,
