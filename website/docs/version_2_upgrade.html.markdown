@@ -251,6 +251,29 @@ resource "google_bigtable_instance" "instance" {
 
 `cluster.zone` is now required, even if the provider block has a zone set.
 
+### `cluster_family` has a diff
+
+If you see
+
+```
+-/+ google_bigtable_table.my_table (new resource required)
+      id:                              "foo" => <computed> (forces new resource)
+      column_family.#:                 "1" => "0" (forces new resource)
+      column_family.123456789.family:  "my-family" => ""
+      instance_name:                   "bar" => "bar"
+      name:                            "foo" => "foo"
+      project:                         "my-project" => <computed>
+```
+
+Add an appropriate `column_family` block to your config, eg:
+
+```diff
++ column_family {
++   family = "my-family"
++ }
+```
+
+
 ## Resource: `google_binary_authorization_attestor`
 
 ### binary authorization resources have been removed from the GA provider
