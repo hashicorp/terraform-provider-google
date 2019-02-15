@@ -1,4 +1,4 @@
-## 2.0.1 (Unreleased)
+## 2.1.0 (Unreleased)
 
 ENHANCEMENTS:
 * compute: `data.google_compute_subnetwork` can now be addressed by `self_link` as an alternative to the existing `name`/`region`/`project` fields. [GH-3040]
