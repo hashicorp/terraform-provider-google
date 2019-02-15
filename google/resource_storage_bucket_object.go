@@ -171,7 +171,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	var media io.Reader
 
 	if v, ok := d.GetOk("source"); ok {
-		err := error(nil)
+		var err error
 		media, err = os.Open(v.(string))
 		if err != nil {
 			return err
@@ -292,6 +292,8 @@ func getFileMd5Hash(filename string) string {
 
 func getContentMd5Hash(content []byte) string {
 	h := md5.New()
-	h.Write(content)
+	if _, err := h.Write(content); err != nil {
+		log.Printf("[WARN] Failed to compute md5 hash for content: %v", err)
+	}
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }

@@ -541,7 +541,9 @@ func resourceMonitoringAlertPolicyImport(d *schema.ResourceData, meta interface{
 	config := meta.(*Config)
 
 	// current import_formats can't import id's with forward slashes in them.
-	parseImportId([]string{"(?P<name>.+)"}, d, config)
+	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+		return nil, err
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

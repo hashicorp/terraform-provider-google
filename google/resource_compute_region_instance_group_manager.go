@@ -571,6 +571,9 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 
 	// Wait for the operation to complete
 	err = computeSharedOperationWaitTime(config.clientCompute, op, regionalID.Project, int(d.Timeout(schema.TimeoutDelete).Minutes()), "Deleting RegionInstanceGroupManager")
+	if err != nil {
+		return fmt.Errorf("Error waiting for delete to complete: %s", err)
+	}
 
 	d.SetId("")
 	return nil

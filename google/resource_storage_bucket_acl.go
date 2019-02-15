@@ -122,7 +122,7 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Error reading bucket %s: %v", bucket, err)
 		}
 
-		res, err = config.clientStorage.Buckets.Update(bucket,
+		_, err = config.clientStorage.Buckets.Update(bucket,
 			res).PredefinedAcl(predefined_acl).Do()
 
 		if err != nil {
@@ -175,7 +175,7 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Error reading bucket %s: %v", bucket, err)
 		}
 
-		res, err = config.clientStorage.Buckets.Update(bucket,
+		_, err = config.clientStorage.Buckets.Update(bucket,
 			res).PredefinedDefaultObjectAcl(default_acl).Do()
 
 		if err != nil {
@@ -297,7 +297,7 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Error reading bucket %s: %v", bucket, err)
 		}
 
-		res, err = config.clientStorage.Buckets.Update(bucket,
+		_, err = config.clientStorage.Buckets.Update(bucket,
 			res).PredefinedDefaultObjectAcl(default_acl).Do()
 
 		if err != nil {

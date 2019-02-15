@@ -62,7 +62,7 @@ func TestGoogleProjectMigrateState_empty(t *testing.T) {
 
 	// should handle non-nil but empty
 	is = &terraform.InstanceState{}
-	is, err = resourceGoogleProjectMigrateState(0, is, meta)
+	_, err = resourceGoogleProjectMigrateState(0, is, meta)
 
 	if err != nil {
 		t.Fatalf("err: %#v", err)
