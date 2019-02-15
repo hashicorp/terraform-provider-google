@@ -33,7 +33,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 
 			"instance_template": {
 				Type:             schema.TypeString,
-				Optional:         true,
+				Required:         true,
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
 			},
 
