@@ -6,7 +6,8 @@ language: go
 go:
 - "1.11.x"
 env:
-  - GO111MODULE=off
+  - GO111MODULE=on
+    GOFLAGS=-mod=vendor
 
 install:
 # This script is used by the Travis build to install a cookie for
@@ -24,7 +25,6 @@ script:
 branches:
   only:
   - master
-  - 2.0.0
 matrix:
   fast_finish: true
   allow_failures:
