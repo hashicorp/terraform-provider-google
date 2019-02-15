@@ -72,11 +72,11 @@ func testAccDataSourceGoogleSubnetworkCheck(data_source_name string, resource_na
 
 func testAccDataSourceGoogleSubnetwork() string {
 	return fmt.Sprintf(`
-
 resource "google_compute_network" "foobar" {
 	name = "%s"
 	description = "my-description"
 }
+
 resource "google_compute_subnetwork" "foobar" {
 	name = "subnetwork-test"
 	description = "my-description"
@@ -91,6 +91,10 @@ resource "google_compute_subnetwork" "foobar" {
 
 data "google_compute_subnetwork" "my_subnetwork" {
 	name = "${google_compute_subnetwork.foobar.name}"
+}
+
+data "google_compute_subnetwork" "my_subnetwork_self_link" {
+	self_link = "${google_compute_subnetwork.foobar.self_link}"
 }
 `, acctest.RandomWithPrefix("network-test"))
 }

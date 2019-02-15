@@ -12,7 +12,7 @@ Get a subnetwork within GCE from its name and region.
 
 ## Example Usage
 
-```tf
+```hcl
 data "google_compute_subnetwork" "my-subnetwork" {
   name   = "default-us-east1"
   region = "us-east1"
@@ -23,9 +23,11 @@ data "google_compute_subnetwork" "my-subnetwork" {
 
 The following arguments are supported:
 
-* `name` - The name of the subnetwork.
+* `self_link` - (Optional) The self link of the subnetwork. If `self_link` is
+specified, `name`, `project`, and `region` are ignored.
 
-- - -
+* `name` - (Optional) The name of the subnetwork. One of `name` or `self_link`
+must be specified.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -53,8 +55,6 @@ In addition to the arguments listed above, the following attributes are exported
 
 * `secondary_ip_range` - An array of configurations for secondary IP ranges for
     VM instances contained in this subnetwork. Structure is documented below.
-
-* `self_link` - The URI of the created resource.
 
 The `secondary_ip_range` block supports:
 
