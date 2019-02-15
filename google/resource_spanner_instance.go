@@ -25,7 +25,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/spanner/v1"
 )
 
 func resourceSpannerInstance() *schema.Resource {
@@ -148,14 +147,8 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	op := &spanner.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := spannerOperationWaitTime(
-		config.clientSpanner, op, project, "Creating Instance",
+		config, res, project, "Creating Instance",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -272,14 +265,9 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	op := &spanner.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
 
 	err = spannerOperationWaitTime(
-		config.clientSpanner, op, project, "Updating Instance",
+		config, res, project, "Updating Instance",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -308,14 +296,9 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	op := &spanner.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
 
 	err = spannerOperationWaitTime(
-		config.clientSpanner, op, project, "Deleting Instance",
+		config, res, project, "Deleting Instance",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
