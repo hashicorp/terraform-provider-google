@@ -117,6 +117,15 @@ exported:
 
 * `region` - Region of function. Currently can be only "us-central1". If it is not provided, the provider region is used.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 5 minutes.
+- `update` - Default is 5 minutes.
+- `delete` - Default is 5 minutes.
+
 ## Import
 
 Functions can be imported using the `name`, e.g.

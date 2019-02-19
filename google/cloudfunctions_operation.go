@@ -18,12 +18,12 @@ func (w *CloudFunctionsOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 
-func cloudFunctionsOperationWait(service *cloudfunctions.Service, op *cloudfunctions.Operation, activity string) error {
+func cloudFunctionsOperationWait(service *cloudfunctions.Service, op *cloudfunctions.Operation, activity string, timeoutMin int) error {
 	w := &CloudFunctionsOperationWaiter{
 		Service: service,
 	}
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, 4)
+	return OperationWait(w, activity, timeoutMin)
 }
