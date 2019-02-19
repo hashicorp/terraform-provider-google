@@ -261,14 +261,17 @@ The `service_account` block supports:
 
 The `scheduling` block supports:
 
-* `preemptible` - (Optional) Is the instance preemptible.
+* `preemptible` - (Optional) Specifies if the instance is preemptible.
+    If this field is set to true, then `automatic_restart` must be
+    set to false.  Defaults to false.
 
 * `on_host_maintenance` - (Optional) Describes maintenance behavior for the
     instance. Can be MIGRATE or TERMINATE, for more info, read
-    [here](https://cloud.google.com/compute/docs/instances/setting-instance-scheduling-options)
+    [here](https://cloud.google.com/compute/docs/instances/setting-instance-scheduling-options).
 
 * `automatic_restart` - (Optional) Specifies if the instance should be
     restarted if it was terminated by Compute Engine (not a user).
+    Defaults to true.
 
 The `guest_accelerator` block supports:
 
