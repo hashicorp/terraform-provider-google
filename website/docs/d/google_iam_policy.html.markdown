@@ -36,13 +36,13 @@ data "google_iam_policy" "admin" {
       log_type = "DATA_READ",
       exempted_members = ["user:you@domain.com"]
     }
-    
+
     audit_log_configs {
-      "logType": "DATA_WRITE",
+      log_type = "DATA_WRITE",
     }
-    
+
     audit_log_configs {
-      "logType": "ADMIN_READ",
+      log_type = "ADMIN_READ",
     }
   }
 }
