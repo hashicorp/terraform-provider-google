@@ -6,13 +6,12 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccPubsubTopic_basic(t *testing.T) {
+func TestAccPubsubTopic_fullName(t *testing.T) {
 	t.Parallel()
 
-	topicName := acctest.RandomWithPrefix("tf-test-topic")
+	topicName := fmt.Sprintf("projects/%s/topics/tf-test-topic-%s", getTestProjectFromEnv(), acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,7 +19,7 @@ func TestAccPubsubTopic_basic(t *testing.T) {
 		CheckDestroy: testAccCheckPubsubTopicDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPubsubTopic_basic(topicName),
+				Config: testAccPubsubTopic_fullName(topicName),
 			},
 			// Check importing with just the topic name
 			{
@@ -41,23 +40,7 @@ func TestAccPubsubTopic_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckPubsubTopicDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_pubsub_topic" {
-			continue
-		}
-
-		config := testAccProvider.Meta().(*Config)
-		topic, _ := config.clientPubsub.Projects.Topics.Get(rs.Primary.ID).Do()
-		if topic != nil {
-			return fmt.Errorf("Topic still present")
-		}
-	}
-
-	return nil
-}
-
-func testAccPubsubTopic_basic(name string) string {
+func testAccPubsubTopic_fullName(name string) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "foo" {
 	name = "%s"
