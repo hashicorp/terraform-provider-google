@@ -313,20 +313,40 @@ to work, cannot be updated, and supports:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `first_ip_address` - The first IPv4 address of the addresses assigned. This is
-is to support accessing the [first address in the list in a terraform output](https://github.com/terraform-providers/terraform-provider-google/issues/912)
-when the resource is configured with a `count`.
+* `self_link` - The URI of the created resource.
 
-* `connection_name` - The connection name of the instance to be used in connection strings.
+* `connection_name` - The connection name of the instance to be used in
+connection strings. For example, when connecting with [Cloud SQL Proxy](https://cloud.google.com/sql/docs/mysql/connect-admin-proxy).
+
+* `service_account_email_address` - The service account email address assigned to the
+instance. This property is applicable only to Second Generation instances.
 
 * `ip_address.0.ip_address` - The IPv4 address assigned.
 
 * `ip_address.0.time_to_retire` - The time this IP address will be retired, in RFC
     3339 format.
 
-* `ip_address.0.type` - The type of this IP address. A PRIMARY address is an address that can accept incoming connections. An OUTGOING address is the source address of connections originating from the instance, if supported. A PRIVATE address is an address for an instance which has been configured to use private networking see: [Private IP](https://cloud.google.com/sql/docs/mysql/private-ip).
+* `ip_address.0.type` - The type of this IP address.
 
-* `self_link` - The URI of the created resource.
+  * A `PRIMARY` address is an address that can accept incoming connections.
+  
+  * An `OUTGOING` address is the source address of connections originating from the instance, if supported.
+  
+  * A `PRIVATE` address is an address for an instance which has been configured to use private networking see: [Private IP](https://cloud.google.com/sql/docs/mysql/private-ip).
+  
+* `first_ip_address` - The first IPv4 address of any type assigned. This is to
+support accessing the [first address in the list in a terraform output](https://github.com/terraform-providers/terraform-provider-google/issues/912)
+when the resource is configured with a `count`.
+
+* `public_ip_address` - The first public (`PRIMARY`) IPv4 address assigned. This is
+a workaround for an [issue fixed in Terraform 0.12](https://github.com/hashicorp/terraform/issues/17048)
+but also provides a convenient way to access an IP of a specific type without
+performing filtering in a Terraform config.
+
+* `private_ip_address` - The first private (`PRIVATE`) IPv4 address assigned. This is
+a workaround for an [issue fixed in Terraform 0.12](https://github.com/hashicorp/terraform/issues/17048)
+but also provides a convenient way to access an IP of a specific type without
+performing filtering in a Terraform config.
 
 * `settings.version` - Used to make sure changes to the `settings` block are
     atomic.
@@ -340,9 +360,6 @@ when the resource is configured with a `count`.
 * `server_ca_cert.0.expiration_time` - Expiration time of the CA Cert.
 
 * `server_ca_cert.0.sha1_fingerprint` - SHA Fingerprint of the CA Cert.
-
-* `service_account_email_address` - The service account email address assigned to the
-instance. This property is applicable only to Second Generation instances.
 
 ## Timeouts
 
