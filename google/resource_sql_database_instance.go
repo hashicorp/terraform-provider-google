@@ -186,7 +186,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 									"private_network": {
 										Type:             schema.TypeString,
 										Optional:         true,
-										ValidateFunc:     validateRegexp(privateNetworkLinkRegex),
+										ValidateFunc:     orEmpty(validateRegexp(privateNetworkLinkRegex)),
 										DiffSuppressFunc: compareSelfLinkRelativePaths,
 									},
 								},
@@ -287,6 +287,16 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 			},
 
 			"first_ip_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"public_ip_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"private_ip_address": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -720,6 +730,21 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if len(ipAddresses) > 0 {
 		d.Set("first_ip_address", ipAddresses[0]["ip_address"])
 	}
+
+	publicIpAddress := ""
+	privateIpAddress := ""
+	for _, ip := range instance.IpAddresses {
+		if publicIpAddress == "" && ip.Type == "PRIMARY" {
+			publicIpAddress = ip.IpAddress
+		}
+
+		if privateIpAddress == "" && ip.Type == "PRIVATE" {
+			privateIpAddress = ip.IpAddress
+		}
+	}
+
+	d.Set("public_ip_address", publicIpAddress)
+	d.Set("private_ip_address", privateIpAddress)
 
 	if err := d.Set("server_ca_cert", flattenServerCaCert(instance.ServerCaCert)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database CA Certificate")
