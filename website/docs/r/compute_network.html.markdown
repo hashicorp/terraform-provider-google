@@ -64,8 +64,10 @@ exported:
 
 ## Import
 
-Networks can be imported using the `name`, e.g.
+Networks can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_compute_network.default foobar
+$ terraform import google_compute_network.default projects/{{project}}/global/networks/{{name}}
+$ terraform import google_compute_network.default {{project}}/{{name}}
+$ terraform import google_compute_network.default {{name}}
 ```
