@@ -235,13 +235,16 @@ The optional `settings.backup_configuration` subblock supports:
 
 The optional `settings.ip_configuration` subblock supports:
 
-* `ipv4_enabled` - (Optional) True if the instance should be assigned an IP
-    address. The IPv4 address cannot be disabled for Second Generation instances.
+* `ipv4_enabled` - (Optional) Whether this Cloud SQL instance should be assigned
+a public IPV4 address. Either `ipv4_enabled` must be enabled or a
+`private_network` must be configured.
 
+* `private_network` - (Optional) The VPC network from which the Cloud SQL
+instance is accessible for private IP. Specifying a network enables private IP.
+Either `ipv4_enabled` must be enabled or a `private_network` must be configured.
+ 
 * `require_ssl` - (Optional) True if mysqld should default to `REQUIRE X509`
     for users connecting over IP.
-
-* `private_network` - (Optional) The resource link for the VPC network from which the Cloud SQL instance is accessible for private IP.
 
 The optional `settings.ip_configuration.authorized_networks[]` sublist supports:
 
