@@ -357,6 +357,11 @@ The `service_account` block supports:
     short names are supported. To allow full access to all Cloud APIs, use the
     `cloud-platform` scope. See a complete list of scopes [here](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes).
 
+    The [service accounts documentation](https://cloud.google.com/compute/docs/access/service-accounts#accesscopesiam)
+    explains that access scopes are the legacy method of specifying permissions for your instance.
+    If you are following best practices and using IAM roles to grant permissions to service accounts,
+    then you can define this field as an empty list.
+
 The `scheduling` block supports:
 
 * `automatic_restart` - (Optional) Specifies whether the instance should be
