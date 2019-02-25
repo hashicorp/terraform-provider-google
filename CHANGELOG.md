@@ -1,7 +1,7 @@
 ## 2.1.0 (Unreleased)
 
 FEATURES:
-* **New Datasource**: `google_client_openid_userinfo` for retrieving the `email` used to authenticate with GCP. [GH-459]
+* **New Datasource**: `google_client_openid_userinfo` for retrieving the `email` used to authenticate with GCP. [GH-3103]
 
 ENHANCEMENTS:
 * compute: `data.google_compute_subnetwork` can now be addressed by `self_link` as an alternative to the existing `name`/`region`/`project` fields. [GH-3040]
