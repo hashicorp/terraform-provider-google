@@ -547,28 +547,31 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"private_cluster_config": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				MaxItems:      1,
-				Computed:      true,
-				ConflictsWith: []string{"private_cluster", "master_ipv4_cidr_block"},
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				Computed:         true,
+				DiffSuppressFunc: containerClusterPrivateClusterConfigSuppress,
+				ConflictsWith:    []string{"private_cluster", "master_ipv4_cidr_block"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enable_private_endpoint": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeBool,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: containerClusterPrivateClusterConfigSuppress,
 						},
 						"enable_private_nodes": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeBool,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: containerClusterPrivateClusterConfigSuppress,
 						},
 						"master_ipv4_cidr_block": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.CIDRNetwork(28, 28),
+							ValidateFunc: orEmpty(validation.CIDRNetwork(28, 28)),
 						},
 						"private_endpoint": {
 							Type:     schema.TypeString,
@@ -1822,4 +1825,22 @@ func masterAuthClientCertCfgSuppress(k, old, new string, r *schema.ResourceData)
 	}
 
 	return strings.HasSuffix(k, ".issue_client_certificate") && old == "" && new == "true"
+}
+
+// We want to suppress diffs for empty/disabled private cluster config.
+func containerClusterPrivateClusterConfigSuppress(k, old, new string, d *schema.ResourceData) bool {
+	o, n := d.GetChange("private_cluster_config.0.enable_private_endpoint")
+	suppressEndpoint := !o.(bool) && !n.(bool)
+
+	o, n = d.GetChange("private_cluster_config.0.enable_private_nodes")
+	suppressNodes := !o.(bool) && !n.(bool)
+
+	if k == "private_cluster_config.0.enable_private_endpoint" {
+		return suppressEndpoint
+	} else if k == "private_cluster_config.0.enable_private_nodes" {
+		return suppressNodes
+	} else if k == "private_cluster_config.#" {
+		return suppressEndpoint && suppressNodes
+	}
+	return false
 }
