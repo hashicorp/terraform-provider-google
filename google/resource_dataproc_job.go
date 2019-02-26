@@ -323,13 +323,11 @@ func resourceDataprocJobDelete(d *schema.ResourceData, meta interface{}) error {
 	if forceDelete {
 		log.Printf("[DEBUG] Attempting to first cancel Dataproc job %s if it's still running ...", d.Id())
 
-		if _, err := config.clientDataproc.Projects.Regions.Jobs.Cancel(
-			project, region, d.Id(), &dataproc.CancelJobRequest{}).Do(); err != nil {
-			return fmt.Errorf("Error canceling job: %v", err)
-		}
 		// ignore error if we get one - job may be finished already and not need to
 		// be cancelled. We do however wait for the state to be one that is
 		// at least not active
+		_, _ = config.clientDataproc.Projects.Regions.Jobs.Cancel(project, region, d.Id(), &dataproc.CancelJobRequest{}).Do()
+
 		waitErr := dataprocJobOperationWait(config, region, project, d.Id(),
 			"Cancelling Dataproc job", timeoutInMinutes, 1)
 		if waitErr != nil {
