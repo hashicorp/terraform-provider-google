@@ -246,6 +246,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `name` -
   A unique resource name for this UptimeCheckConfig. The format is projects/[PROJECT_ID]/uptimeCheckConfigs/[UPTIME_CHECK_ID].
 
+* `uptime_check_id` -
+  The id of the uptime check
+
 
 ## Timeouts
 

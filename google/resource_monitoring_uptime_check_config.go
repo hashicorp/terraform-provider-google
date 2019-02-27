@@ -218,6 +218,10 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"uptime_check_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -352,6 +356,9 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 	}
 
 	if err := d.Set("name", flattenMonitoringUptimeCheckConfigName(res["name"], d)); err != nil {
+		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
+	}
+	if err := d.Set("uptime_check_id", flattenMonitoringUptimeCheckConfigUptimeCheckId(res["id"], d)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
 	if err := d.Set("display_name", flattenMonitoringUptimeCheckConfigDisplayName(res["displayName"], d)); err != nil {
@@ -551,6 +558,11 @@ func resourceMonitoringUptimeCheckConfigImport(d *schema.ResourceData, meta inte
 
 func flattenMonitoringUptimeCheckConfigName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
+}
+
+func flattenMonitoringUptimeCheckConfigUptimeCheckId(v interface{}, d *schema.ResourceData) interface{} {
+	parts := strings.Split(d.Get("name").(string), "/")
+	return parts[len(parts)-1]
 }
 
 func flattenMonitoringUptimeCheckConfigDisplayName(v interface{}, d *schema.ResourceData) interface{} {
