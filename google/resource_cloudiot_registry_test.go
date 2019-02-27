@@ -169,7 +169,7 @@ resource "google_cloudiot_registry" "foobar" {
   }
 
   credentials {
-    "public_key_certificate" = {
+    public_key_certificate = {
       format      = "X509_CERTIFICATE_PEM"
       certificate = "${file("test-fixtures/rsa_cert.pem")}"
     }
