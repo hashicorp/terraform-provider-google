@@ -484,7 +484,7 @@ func testAccComputeInstanceGroup_update(instance string) string {
 		description = "Terraform test instance group"
 		name = "%s"
 		zone = "us-central1-c"
-		instances = ["${google_compute_instance.ig_instance.*.self_link}"]
+		instances = google_compute_instance.ig_instance.*.self_link
 		named_port {
 			name = "http"
 			port = "8080"
@@ -526,7 +526,7 @@ func testAccComputeInstanceGroup_update2(instance string) string {
 		description = "Terraform test instance group"
 		name = "%s"
 		zone = "us-central1-c"
-		instances = ["${google_compute_instance.ig_instance.*.self_link}"]
+		instances = google_compute_instance.ig_instance.*.self_link
 
 		named_port {
 			name = "http"
