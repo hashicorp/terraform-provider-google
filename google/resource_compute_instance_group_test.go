@@ -570,7 +570,7 @@ func testAccComputeInstanceGroup_recreateInstances(instance string) string {
 		description = "Terraform test instance group"
 		name = "%s"
 		zone = "us-central1-c"
-		instances = ["${google_compute_instance.ig_instance.*.self_link}"]
+		instances = google_compute_instance.ig_instance.*.self_link
 		named_port {
 			name = "http"
 			port = "8080"
