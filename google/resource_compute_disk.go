@@ -748,26 +748,32 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var obj map[string]interface{}
+	readRes, err := sendRequest(config, "GET", url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("ComputeDisk %q", d.Id()))
+	}
+
 	// if disks are attached, they must be detached before the disk can be deleted
-	if instances, ok := d.Get("users").([]interface{}); ok {
+	if v, ok := readRes["instances"].([]interface{}); ok {
 		type detachArgs struct{ project, zone, instance, deviceName string }
 		var detachCalls []detachArgs
-		self := d.Get("self_link").(string)
-		for _, instance := range instances {
-			if !computeDiskUserRegex.MatchString(instance.(string)) {
+
+		for _, instance := range convertStringArr(v) {
+			self := d.Get("self_link").(string)
+			if !computeDiskUserRegex.MatchString(instance) {
 				return fmt.Errorf("Unknown user %q of disk %q", instance, self)
 			}
-			matches := computeDiskUserRegex.FindStringSubmatch(instance.(string))
+			matches := computeDiskUserRegex.FindStringSubmatch(instance)
 			instanceProject := matches[1]
 			instanceZone := matches[2]
 			instanceName := matches[3]
 			i, err := config.clientCompute.Instances.Get(instanceProject, instanceZone, instanceName).Do()
 			if err != nil {
 				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-					log.Printf("[WARN] instance %q not found, not bothering to detach disks", instance.(string))
+					log.Printf("[WARN] instance %q not found, not bothering to detach disks", instance)
 					continue
 				}
-				return fmt.Errorf("Error retrieving instance %s: %s", instance.(string), err.Error())
+				return fmt.Errorf("Error retrieving instance %s: %s", instance, err.Error())
 			}
 			for _, disk := range i.Disks {
 				if disk.Source == self {
@@ -780,6 +786,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 				}
 			}
 		}
+
 		for _, call := range detachCalls {
 			op, err := config.clientCompute.Instances.DetachDisk(call.project, call.zone, call.instance, call.deviceName).Do()
 			if err != nil {
