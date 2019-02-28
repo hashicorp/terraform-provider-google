@@ -164,6 +164,7 @@ func resourceContainerCluster() *schema.Resource {
 									"disabled": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  true,
 									},
 								},
 							},
@@ -1634,12 +1635,6 @@ func flattenClusterAddonsConfig(c *containerBeta.AddonsConfig) []map[string]inte
 		result["kubernetes_dashboard"] = []map[string]interface{}{
 			{
 				"disabled": c.KubernetesDashboard.Disabled,
-			},
-		}
-	} else {
-		result["kubernetes_dashboard"] = []map[string]interface{}{
-			{
-				"disabled": true,
 			},
 		}
 	}
