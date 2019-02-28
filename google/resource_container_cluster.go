@@ -601,11 +601,6 @@ func resourceContainerCluster() *schema.Resource {
 	}
 }
 
-func cidrOrSizeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	// If the user specified a size and the API returned a full cidr block, suppress.
-	return strings.HasPrefix(new, "/") && strings.HasSuffix(old, new)
-}
-
 func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -1295,11 +1290,15 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		name := fmt.Sprintf("%s/nodePools/%s", containerClusterFullName(project, location, clusterName), "default-pool")
 		op, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Delete(name).Do()
 		if err != nil {
-			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
-		}
-		err = containerOperationWait(config, op, project, location, "removing default node pool", timeoutInMinutes)
-		if err != nil {
-			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
+			if !isGoogleApiErrorWithCode(err, 404) {
+				return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
+			}
+			log.Printf("[WARN] Container cluster %q default node pool already removed, no change", d.Id())
+		} else {
+			err = containerOperationWait(config, op, project, location, "removing default node pool", timeoutInMinutes)
+			if err != nil {
+				return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
+			}
 		}
 	}
 
@@ -1751,29 +1750,55 @@ func flattenMasterAuthorizedNetworksConfig(c *containerBeta.MasterAuthorizedNetw
 }
 
 func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), "/")
+	config := meta.(*Config)
 
+	parts := strings.Split(d.Id(), "/")
+	var project, location, clusterName string
 	switch len(parts) {
 	case 2:
-		if loc := parts[0]; isZone(loc) {
-			d.Set("zone", loc)
-		} else {
-			d.Set("region", loc)
-		}
-		d.Set("name", parts[1])
+		location = parts[0]
+		clusterName = parts[1]
 	case 3:
-		d.Set("project", parts[0])
-		if loc := parts[1]; isZone(loc) {
-			d.Set("zone", loc)
-		} else {
-			d.Set("region", loc)
-		}
-		d.Set("name", parts[2])
+		project = parts[0]
+		location = parts[1]
+		clusterName = parts[2]
 	default:
 		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{name} or {project}/{zone}/{name}")
 	}
 
-	d.SetId(parts[len(parts)-1])
+	if len(project) > 0 {
+		d.Set("project", project)
+	} else {
+		var err error
+		project, err = getProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if isZone(location) {
+		d.Set("zone", location)
+	} else {
+		d.Set("region", location)
+	}
+
+	d.Set("name", clusterName)
+	d.SetId(clusterName)
+
+	// Try to determine remove_default_node_pool from presence of default
+	// node pool; if still present and user has it set to true, the pool
+	// will get removed on next apply.
+	nodePool := fmt.Sprintf("%s/nodePools/%s", containerClusterFullName(project, location, clusterName), "default-pool")
+	_, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(nodePool).Do()
+	if err != nil && isGoogleApiErrorWithCode(err, 404) {
+		d.Set("remove_default_node_pool", true)
+	} else {
+		d.Set("remove_default_node_pool", false)
+		if err != nil {
+			log.Printf("[WARN] Unable to import value for remove_default_node_pool, got error while trying to get default node pool: %s", err)
+		}
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -1801,6 +1826,11 @@ func extractNodePoolInformationFromCluster(d *schema.ResourceData, config *Confi
 		location: location,
 		cluster:  d.Get("name").(string),
 	}, nil
+}
+
+func cidrOrSizeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// If the user specified a size and the API returned a full cidr block, suppress.
+	return strings.HasPrefix(new, "/") && strings.HasSuffix(old, new)
 }
 
 // We want to suppress diffs for empty or default client certificate configs, i.e:

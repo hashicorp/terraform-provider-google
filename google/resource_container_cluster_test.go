@@ -4,9 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"regexp"
-	"testing"
-
 	"strconv"
+	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -207,11 +206,10 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            "google_container_cluster.with_network_policy_enabled",
-				ImportStateIdPrefix:     "us-central1-a/",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ResourceName:        "google_container_cluster.with_network_policy_enabled",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
 			},
 			{
 				Config: testAccContainerCluster_removeNetworkPolicy(clusterName),
@@ -221,11 +219,10 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            "google_container_cluster.with_network_policy_enabled",
-				ImportStateIdPrefix:     "us-central1-a/",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ResourceName:        "google_container_cluster.with_network_policy_enabled",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
 			},
 			{
 				Config: testAccContainerCluster_withNetworkPolicyDisabled(clusterName),
@@ -235,11 +232,10 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            "google_container_cluster.with_network_policy_enabled",
-				ImportStateIdPrefix:     "us-central1-a/",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ResourceName:        "google_container_cluster.with_network_policy_enabled",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
 			},
 			{
 				Config: testAccContainerCluster_withNetworkPolicyConfigDisabled(clusterName),
@@ -249,11 +245,10 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            "google_container_cluster.with_network_policy_enabled",
-				ImportStateIdPrefix:     "us-central1-a/",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ResourceName:        "google_container_cluster.with_network_policy_enabled",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
 			},
 			{
 				Config:             testAccContainerCluster_withNetworkPolicyConfigDisabled(clusterName),
@@ -1028,11 +1023,10 @@ func TestAccContainerCluster_withDefaultNodePoolRemoved(t *testing.T) {
 					"google_container_cluster.with_default_node_pool_removed", "node_pool.#", "0"),
 			},
 			{
-				ResourceName:            "google_container_cluster.with_default_node_pool_removed",
-				ImportStateIdPrefix:     "us-central1-a/",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ResourceName:        "google_container_cluster.with_default_node_pool_removed",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
 			},
 		},
 	})
