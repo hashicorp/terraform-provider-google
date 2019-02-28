@@ -266,6 +266,14 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("region", region); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+
 	if err := d.Set("alternative_location_id", flattenRedisInstanceAlternativeLocationId(res["alternativeLocationId"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
