@@ -146,55 +146,55 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	descriptionProp, err := expandComputeImageDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	diskSizeGbProp, err := expandComputeImageDiskSizeGb(d.Get("disk_size_gb"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("disk_size_gb"); !isEmptyValue(reflect.ValueOf(diskSizeGbProp)) && (ok || !reflect.DeepEqual(v, diskSizeGbProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(diskSizeGbProp)) {
 		obj["diskSizeGb"] = diskSizeGbProp
 	}
 	familyProp, err := expandComputeImageFamily(d.Get("family"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("family"); !isEmptyValue(reflect.ValueOf(familyProp)) && (ok || !reflect.DeepEqual(v, familyProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(familyProp)) {
 		obj["family"] = familyProp
 	}
 	labelsProp, err := expandComputeImageLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	labelFingerprintProp, err := expandComputeImageLabelFingerprint(d.Get("label_fingerprint"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("label_fingerprint"); !isEmptyValue(reflect.ValueOf(labelFingerprintProp)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelFingerprintProp)) {
 		obj["labelFingerprint"] = labelFingerprintProp
 	}
 	licensesProp, err := expandComputeImageLicenses(d.Get("licenses"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("licenses"); !isEmptyValue(reflect.ValueOf(licensesProp)) && (ok || !reflect.DeepEqual(v, licensesProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(licensesProp)) {
 		obj["licenses"] = licensesProp
 	}
 	nameProp, err := expandComputeImageName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	rawDiskProp, err := expandComputeImageRawDisk(d.Get("raw_disk"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("raw_disk"); !isEmptyValue(reflect.ValueOf(rawDiskProp)) && (ok || !reflect.DeepEqual(v, rawDiskProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(rawDiskProp)) {
 		obj["rawDisk"] = rawDiskProp
 	}
 	sourceDiskProp, err := expandComputeImageSourceDisk(d.Get("source_disk"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_disk"); !isEmptyValue(reflect.ValueOf(sourceDiskProp)) && (ok || !reflect.DeepEqual(v, sourceDiskProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sourceDiskProp)) {
 		obj["sourceDisk"] = sourceDiskProp
 	}
 
@@ -309,13 +309,13 @@ func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error 
 		labelsProp, err := expandComputeImageLabels(d.Get("labels"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 			obj["labels"] = labelsProp
 		}
 		labelFingerprintProp, err := expandComputeImageLabelFingerprint(d.Get("label_fingerprint"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("label_fingerprint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(labelFingerprintProp)) {
 			obj["labelFingerprint"] = labelFingerprintProp
 		}
 

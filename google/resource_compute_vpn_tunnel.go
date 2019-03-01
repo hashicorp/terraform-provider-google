@@ -256,73 +256,73 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 	nameProp, err := expandComputeVpnTunnelName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	descriptionProp, err := expandComputeVpnTunnelDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	targetVpnGatewayProp, err := expandComputeVpnTunnelTargetVpnGateway(d.Get("target_vpn_gateway"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("target_vpn_gateway"); !isEmptyValue(reflect.ValueOf(targetVpnGatewayProp)) && (ok || !reflect.DeepEqual(v, targetVpnGatewayProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(targetVpnGatewayProp)) {
 		obj["targetVpnGateway"] = targetVpnGatewayProp
 	}
 	routerProp, err := expandComputeVpnTunnelRouter(d.Get("router"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("router"); !isEmptyValue(reflect.ValueOf(routerProp)) && (ok || !reflect.DeepEqual(v, routerProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(routerProp)) {
 		obj["router"] = routerProp
 	}
 	peerIpProp, err := expandComputeVpnTunnelPeerIp(d.Get("peer_ip"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("peer_ip"); !isEmptyValue(reflect.ValueOf(peerIpProp)) && (ok || !reflect.DeepEqual(v, peerIpProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(peerIpProp)) {
 		obj["peerIp"] = peerIpProp
 	}
 	sharedSecretProp, err := expandComputeVpnTunnelSharedSecret(d.Get("shared_secret"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("shared_secret"); !isEmptyValue(reflect.ValueOf(sharedSecretProp)) && (ok || !reflect.DeepEqual(v, sharedSecretProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sharedSecretProp)) {
 		obj["sharedSecret"] = sharedSecretProp
 	}
 	ikeVersionProp, err := expandComputeVpnTunnelIkeVersion(d.Get("ike_version"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ike_version"); !isEmptyValue(reflect.ValueOf(ikeVersionProp)) && (ok || !reflect.DeepEqual(v, ikeVersionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(ikeVersionProp)) {
 		obj["ikeVersion"] = ikeVersionProp
 	}
 	localTrafficSelectorProp, err := expandComputeVpnTunnelLocalTrafficSelector(d.Get("local_traffic_selector"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("local_traffic_selector"); !isEmptyValue(reflect.ValueOf(localTrafficSelectorProp)) && (ok || !reflect.DeepEqual(v, localTrafficSelectorProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(localTrafficSelectorProp)) {
 		obj["localTrafficSelector"] = localTrafficSelectorProp
 	}
 	remoteTrafficSelectorProp, err := expandComputeVpnTunnelRemoteTrafficSelector(d.Get("remote_traffic_selector"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("remote_traffic_selector"); !isEmptyValue(reflect.ValueOf(remoteTrafficSelectorProp)) && (ok || !reflect.DeepEqual(v, remoteTrafficSelectorProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(remoteTrafficSelectorProp)) {
 		obj["remoteTrafficSelector"] = remoteTrafficSelectorProp
 	}
 	labelsProp, err := expandComputeVpnTunnelLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	labelFingerprintProp, err := expandComputeVpnTunnelLabelFingerprint(d.Get("label_fingerprint"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("label_fingerprint"); !isEmptyValue(reflect.ValueOf(labelFingerprintProp)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelFingerprintProp)) {
 		obj["labelFingerprint"] = labelFingerprintProp
 	}
 	regionProp, err := expandComputeVpnTunnelRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(regionProp)) {
 		obj["region"] = regionProp
 	}
 
@@ -454,13 +454,13 @@ func resourceComputeVpnTunnelUpdate(d *schema.ResourceData, meta interface{}) er
 		labelsProp, err := expandComputeVpnTunnelLabels(d.Get("labels"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 			obj["labels"] = labelsProp
 		}
 		labelFingerprintProp, err := expandComputeVpnTunnelLabelFingerprint(d.Get("label_fingerprint"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("label_fingerprint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(labelFingerprintProp)) {
 			obj["labelFingerprint"] = labelFingerprintProp
 		}
 

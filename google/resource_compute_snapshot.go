@@ -186,49 +186,49 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	nameProp, err := expandComputeSnapshotName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	descriptionProp, err := expandComputeSnapshotDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	labelsProp, err := expandComputeSnapshotLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	labelFingerprintProp, err := expandComputeSnapshotLabelFingerprint(d.Get("label_fingerprint"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("label_fingerprint"); !isEmptyValue(reflect.ValueOf(labelFingerprintProp)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelFingerprintProp)) {
 		obj["labelFingerprint"] = labelFingerprintProp
 	}
 	sourceDiskProp, err := expandComputeSnapshotSourceDisk(d.Get("source_disk"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_disk"); !isEmptyValue(reflect.ValueOf(sourceDiskProp)) && (ok || !reflect.DeepEqual(v, sourceDiskProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sourceDiskProp)) {
 		obj["sourceDisk"] = sourceDiskProp
 	}
 	zoneProp, err := expandComputeSnapshotZone(d.Get("zone"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("zone"); !isEmptyValue(reflect.ValueOf(zoneProp)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(zoneProp)) {
 		obj["zone"] = zoneProp
 	}
 	snapshotEncryptionKeyProp, err := expandComputeSnapshotSnapshotEncryptionKey(d.Get("snapshot_encryption_key"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("snapshot_encryption_key"); !isEmptyValue(reflect.ValueOf(snapshotEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, snapshotEncryptionKeyProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(snapshotEncryptionKeyProp)) {
 		obj["snapshotEncryptionKey"] = snapshotEncryptionKeyProp
 	}
 	sourceDiskEncryptionKeyProp, err := expandComputeSnapshotSourceDiskEncryptionKey(d.Get("source_disk_encryption_key"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_disk_encryption_key"); !isEmptyValue(reflect.ValueOf(sourceDiskEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, sourceDiskEncryptionKeyProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sourceDiskEncryptionKeyProp)) {
 		obj["sourceDiskEncryptionKey"] = sourceDiskEncryptionKeyProp
 	}
 
@@ -351,13 +351,13 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 		labelsProp, err := expandComputeSnapshotLabels(d.Get("labels"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 			obj["labels"] = labelsProp
 		}
 		labelFingerprintProp, err := expandComputeSnapshotLabelFingerprint(d.Get("label_fingerprint"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("label_fingerprint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(labelFingerprintProp)) {
 			obj["labelFingerprint"] = labelFingerprintProp
 		}
 

@@ -85,25 +85,25 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 	bucketNameProp, err := expandComputeBackendBucketBucketName(d.Get("bucket_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("bucket_name"); !isEmptyValue(reflect.ValueOf(bucketNameProp)) && (ok || !reflect.DeepEqual(v, bucketNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(bucketNameProp)) {
 		obj["bucketName"] = bucketNameProp
 	}
 	descriptionProp, err := expandComputeBackendBucketDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	enableCdnProp, err := expandComputeBackendBucketEnableCdn(d.Get("enable_cdn"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enable_cdn"); !isEmptyValue(reflect.ValueOf(enableCdnProp)) && (ok || !reflect.DeepEqual(v, enableCdnProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(enableCdnProp)) {
 		obj["enableCdn"] = enableCdnProp
 	}
 	nameProp, err := expandComputeBackendBucketName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 
@@ -200,25 +200,25 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 	bucketNameProp, err := expandComputeBackendBucketBucketName(d.Get("bucket_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("bucket_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bucketNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(bucketNameProp)) {
 		obj["bucketName"] = bucketNameProp
 	}
 	descriptionProp, err := expandComputeBackendBucketDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	enableCdnProp, err := expandComputeBackendBucketEnableCdn(d.Get("enable_cdn"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enable_cdn"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableCdnProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(enableCdnProp)) {
 		obj["enableCdn"] = enableCdnProp
 	}
 	nameProp, err := expandComputeBackendBucketName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 

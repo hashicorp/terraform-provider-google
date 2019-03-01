@@ -105,31 +105,31 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	nameProp, err := expandPubsubSubscriptionName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	topicProp, err := expandPubsubSubscriptionTopic(d.Get("topic"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("topic"); !isEmptyValue(reflect.ValueOf(topicProp)) && (ok || !reflect.DeepEqual(v, topicProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(topicProp)) {
 		obj["topic"] = topicProp
 	}
 	labelsProp, err := expandPubsubSubscriptionLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	pushConfigProp, err := expandPubsubSubscriptionPushConfig(d.Get("push_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("push_config"); !isEmptyValue(reflect.ValueOf(pushConfigProp)) && (ok || !reflect.DeepEqual(v, pushConfigProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(pushConfigProp)) {
 		obj["pushConfig"] = pushConfigProp
 	}
 	ackDeadlineSecondsProp, err := expandPubsubSubscriptionAckDeadlineSeconds(d.Get("ack_deadline_seconds"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ack_deadline_seconds"); !isEmptyValue(reflect.ValueOf(ackDeadlineSecondsProp)) && (ok || !reflect.DeepEqual(v, ackDeadlineSecondsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(ackDeadlineSecondsProp)) {
 		obj["ackDeadlineSeconds"] = ackDeadlineSecondsProp
 	}
 
@@ -208,19 +208,19 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	labelsProp, err := expandPubsubSubscriptionLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	pushConfigProp, err := expandPubsubSubscriptionPushConfig(d.Get("push_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("push_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pushConfigProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(pushConfigProp)) {
 		obj["pushConfig"] = pushConfigProp
 	}
 	ackDeadlineSecondsProp, err := expandPubsubSubscriptionAckDeadlineSeconds(d.Get("ack_deadline_seconds"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ack_deadline_seconds"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ackDeadlineSecondsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(ackDeadlineSecondsProp)) {
 		obj["ackDeadlineSeconds"] = ackDeadlineSecondsProp
 	}
 

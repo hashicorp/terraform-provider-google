@@ -79,25 +79,25 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 	parentNameProp, err := expandMonitoringGroupParentName(d.Get("parent_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("parent_name"); !isEmptyValue(reflect.ValueOf(parentNameProp)) && (ok || !reflect.DeepEqual(v, parentNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(parentNameProp)) {
 		obj["parentName"] = parentNameProp
 	}
 	isClusterProp, err := expandMonitoringGroupIsCluster(d.Get("is_cluster"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("is_cluster"); !isEmptyValue(reflect.ValueOf(isClusterProp)) && (ok || !reflect.DeepEqual(v, isClusterProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(isClusterProp)) {
 		obj["isCluster"] = isClusterProp
 	}
 	displayNameProp, err := expandMonitoringGroupDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	filterProp, err := expandMonitoringGroupFilter(d.Get("filter"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("filter"); !isEmptyValue(reflect.ValueOf(filterProp)) && (ok || !reflect.DeepEqual(v, filterProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(filterProp)) {
 		obj["filter"] = filterProp
 	}
 
@@ -186,25 +186,25 @@ func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) err
 	parentNameProp, err := expandMonitoringGroupParentName(d.Get("parent_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("parent_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, parentNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(parentNameProp)) {
 		obj["parentName"] = parentNameProp
 	}
 	isClusterProp, err := expandMonitoringGroupIsCluster(d.Get("is_cluster"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("is_cluster"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, isClusterProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(isClusterProp)) {
 		obj["isCluster"] = isClusterProp
 	}
 	displayNameProp, err := expandMonitoringGroupDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	filterProp, err := expandMonitoringGroupFilter(d.Get("filter"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("filter"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, filterProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(filterProp)) {
 		obj["filter"] = filterProp
 	}
 

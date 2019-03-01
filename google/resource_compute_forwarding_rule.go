@@ -161,85 +161,85 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	descriptionProp, err := expandComputeForwardingRuleDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	IPAddressProp, err := expandComputeForwardingRuleIPAddress(d.Get("ip_address"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ip_address"); !isEmptyValue(reflect.ValueOf(IPAddressProp)) && (ok || !reflect.DeepEqual(v, IPAddressProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(IPAddressProp)) {
 		obj["IPAddress"] = IPAddressProp
 	}
 	IPProtocolProp, err := expandComputeForwardingRuleIPProtocol(d.Get("ip_protocol"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ip_protocol"); !isEmptyValue(reflect.ValueOf(IPProtocolProp)) && (ok || !reflect.DeepEqual(v, IPProtocolProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(IPProtocolProp)) {
 		obj["IPProtocol"] = IPProtocolProp
 	}
 	backendServiceProp, err := expandComputeForwardingRuleBackendService(d.Get("backend_service"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("backend_service"); !isEmptyValue(reflect.ValueOf(backendServiceProp)) && (ok || !reflect.DeepEqual(v, backendServiceProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(backendServiceProp)) {
 		obj["backendService"] = backendServiceProp
 	}
 	ipVersionProp, err := expandComputeForwardingRuleIpVersion(d.Get("ip_version"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ip_version"); !isEmptyValue(reflect.ValueOf(ipVersionProp)) && (ok || !reflect.DeepEqual(v, ipVersionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(ipVersionProp)) {
 		obj["ipVersion"] = ipVersionProp
 	}
 	loadBalancingSchemeProp, err := expandComputeForwardingRuleLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !isEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) {
 		obj["loadBalancingScheme"] = loadBalancingSchemeProp
 	}
 	nameProp, err := expandComputeForwardingRuleName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	networkProp, err := expandComputeForwardingRuleNetwork(d.Get("network"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(networkProp)) {
 		obj["network"] = networkProp
 	}
 	portRangeProp, err := expandComputeForwardingRulePortRange(d.Get("port_range"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("port_range"); !isEmptyValue(reflect.ValueOf(portRangeProp)) && (ok || !reflect.DeepEqual(v, portRangeProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(portRangeProp)) {
 		obj["portRange"] = portRangeProp
 	}
 	portsProp, err := expandComputeForwardingRulePorts(d.Get("ports"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ports"); !isEmptyValue(reflect.ValueOf(portsProp)) && (ok || !reflect.DeepEqual(v, portsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(portsProp)) {
 		obj["ports"] = portsProp
 	}
 	subnetworkProp, err := expandComputeForwardingRuleSubnetwork(d.Get("subnetwork"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("subnetwork"); !isEmptyValue(reflect.ValueOf(subnetworkProp)) && (ok || !reflect.DeepEqual(v, subnetworkProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(subnetworkProp)) {
 		obj["subnetwork"] = subnetworkProp
 	}
 	targetProp, err := expandComputeForwardingRuleTarget(d.Get("target"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("target"); !isEmptyValue(reflect.ValueOf(targetProp)) && (ok || !reflect.DeepEqual(v, targetProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(targetProp)) {
 		obj["target"] = targetProp
 	}
 	networkTierProp, err := expandComputeForwardingRuleNetworkTier(d.Get("network_tier"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("network_tier"); !isEmptyValue(reflect.ValueOf(networkTierProp)) && (ok || !reflect.DeepEqual(v, networkTierProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(networkTierProp)) {
 		obj["networkTier"] = networkTierProp
 	}
 	regionProp, err := expandComputeForwardingRuleRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(regionProp)) {
 		obj["region"] = regionProp
 	}
 
@@ -369,7 +369,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		targetProp, err := expandComputeForwardingRuleTarget(d.Get("target"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("target"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(targetProp)) {
 			obj["target"] = targetProp
 		}
 

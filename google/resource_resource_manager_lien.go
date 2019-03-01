@@ -83,25 +83,25 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	reasonProp, err := expandResourceManagerLienReason(d.Get("reason"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("reason"); !isEmptyValue(reflect.ValueOf(reasonProp)) && (ok || !reflect.DeepEqual(v, reasonProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(reasonProp)) {
 		obj["reason"] = reasonProp
 	}
 	originProp, err := expandResourceManagerLienOrigin(d.Get("origin"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("origin"); !isEmptyValue(reflect.ValueOf(originProp)) && (ok || !reflect.DeepEqual(v, originProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(originProp)) {
 		obj["origin"] = originProp
 	}
 	parentProp, err := expandResourceManagerLienParent(d.Get("parent"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("parent"); !isEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(parentProp)) {
 		obj["parent"] = parentProp
 	}
 	restrictionsProp, err := expandResourceManagerLienRestrictions(d.Get("restrictions"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("restrictions"); !isEmptyValue(reflect.ValueOf(restrictionsProp)) && (ok || !reflect.DeepEqual(v, restrictionsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(restrictionsProp)) {
 		obj["restrictions"] = restrictionsProp
 	}
 

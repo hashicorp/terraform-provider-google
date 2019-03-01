@@ -232,85 +232,85 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	allowedProp, err := expandComputeFirewallAllow(d.Get("allow"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("allow"); !isEmptyValue(reflect.ValueOf(allowedProp)) && (ok || !reflect.DeepEqual(v, allowedProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(allowedProp)) {
 		obj["allowed"] = allowedProp
 	}
 	deniedProp, err := expandComputeFirewallDeny(d.Get("deny"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("deny"); !isEmptyValue(reflect.ValueOf(deniedProp)) && (ok || !reflect.DeepEqual(v, deniedProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(deniedProp)) {
 		obj["denied"] = deniedProp
 	}
 	descriptionProp, err := expandComputeFirewallDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	destinationRangesProp, err := expandComputeFirewallDestinationRanges(d.Get("destination_ranges"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("destination_ranges"); !isEmptyValue(reflect.ValueOf(destinationRangesProp)) && (ok || !reflect.DeepEqual(v, destinationRangesProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(destinationRangesProp)) {
 		obj["destinationRanges"] = destinationRangesProp
 	}
 	directionProp, err := expandComputeFirewallDirection(d.Get("direction"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("direction"); !isEmptyValue(reflect.ValueOf(directionProp)) && (ok || !reflect.DeepEqual(v, directionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(directionProp)) {
 		obj["direction"] = directionProp
 	}
 	disabledProp, err := expandComputeFirewallDisabled(d.Get("disabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("disabled"); ok || !reflect.DeepEqual(v, disabledProp) {
+	} else {
 		obj["disabled"] = disabledProp
 	}
 	nameProp, err := expandComputeFirewallName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	networkProp, err := expandComputeFirewallNetwork(d.Get("network"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(networkProp)) {
 		obj["network"] = networkProp
 	}
 	priorityProp, err := expandComputeFirewallPriority(d.Get("priority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("priority"); !isEmptyValue(reflect.ValueOf(priorityProp)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(priorityProp)) {
 		obj["priority"] = priorityProp
 	}
 	sourceRangesProp, err := expandComputeFirewallSourceRanges(d.Get("source_ranges"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_ranges"); !isEmptyValue(reflect.ValueOf(sourceRangesProp)) && (ok || !reflect.DeepEqual(v, sourceRangesProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sourceRangesProp)) {
 		obj["sourceRanges"] = sourceRangesProp
 	}
 	sourceServiceAccountsProp, err := expandComputeFirewallSourceServiceAccounts(d.Get("source_service_accounts"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_service_accounts"); !isEmptyValue(reflect.ValueOf(sourceServiceAccountsProp)) && (ok || !reflect.DeepEqual(v, sourceServiceAccountsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sourceServiceAccountsProp)) {
 		obj["sourceServiceAccounts"] = sourceServiceAccountsProp
 	}
 	sourceTagsProp, err := expandComputeFirewallSourceTags(d.Get("source_tags"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_tags"); !isEmptyValue(reflect.ValueOf(sourceTagsProp)) && (ok || !reflect.DeepEqual(v, sourceTagsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sourceTagsProp)) {
 		obj["sourceTags"] = sourceTagsProp
 	}
 	targetServiceAccountsProp, err := expandComputeFirewallTargetServiceAccounts(d.Get("target_service_accounts"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("target_service_accounts"); !isEmptyValue(reflect.ValueOf(targetServiceAccountsProp)) && (ok || !reflect.DeepEqual(v, targetServiceAccountsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(targetServiceAccountsProp)) {
 		obj["targetServiceAccounts"] = targetServiceAccountsProp
 	}
 	targetTagsProp, err := expandComputeFirewallTargetTags(d.Get("target_tags"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("target_tags"); !isEmptyValue(reflect.ValueOf(targetTagsProp)) && (ok || !reflect.DeepEqual(v, targetTagsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(targetTagsProp)) {
 		obj["targetTags"] = targetTagsProp
 	}
 
@@ -437,73 +437,73 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 	allowedProp, err := expandComputeFirewallAllow(d.Get("allow"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("allow"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, allowedProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(allowedProp)) {
 		obj["allowed"] = allowedProp
 	}
 	deniedProp, err := expandComputeFirewallDeny(d.Get("deny"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("deny"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deniedProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(deniedProp)) {
 		obj["denied"] = deniedProp
 	}
 	descriptionProp, err := expandComputeFirewallDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	destinationRangesProp, err := expandComputeFirewallDestinationRanges(d.Get("destination_ranges"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("destination_ranges"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, destinationRangesProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(destinationRangesProp)) {
 		obj["destinationRanges"] = destinationRangesProp
 	}
 	disabledProp, err := expandComputeFirewallDisabled(d.Get("disabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("disabled"); ok || !reflect.DeepEqual(v, disabledProp) {
+	} else {
 		obj["disabled"] = disabledProp
 	}
 	networkProp, err := expandComputeFirewallNetwork(d.Get("network"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(networkProp)) {
 		obj["network"] = networkProp
 	}
 	priorityProp, err := expandComputeFirewallPriority(d.Get("priority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("priority"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(priorityProp)) {
 		obj["priority"] = priorityProp
 	}
 	sourceRangesProp, err := expandComputeFirewallSourceRanges(d.Get("source_ranges"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_ranges"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceRangesProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sourceRangesProp)) {
 		obj["sourceRanges"] = sourceRangesProp
 	}
 	sourceServiceAccountsProp, err := expandComputeFirewallSourceServiceAccounts(d.Get("source_service_accounts"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_service_accounts"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceServiceAccountsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sourceServiceAccountsProp)) {
 		obj["sourceServiceAccounts"] = sourceServiceAccountsProp
 	}
 	sourceTagsProp, err := expandComputeFirewallSourceTags(d.Get("source_tags"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_tags"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceTagsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sourceTagsProp)) {
 		obj["sourceTags"] = sourceTagsProp
 	}
 	targetServiceAccountsProp, err := expandComputeFirewallTargetServiceAccounts(d.Get("target_service_accounts"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("target_service_accounts"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetServiceAccountsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(targetServiceAccountsProp)) {
 		obj["targetServiceAccounts"] = targetServiceAccountsProp
 	}
 	targetTagsProp, err := expandComputeFirewallTargetTags(d.Get("target_tags"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("target_tags"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetTagsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(targetTagsProp)) {
 		obj["targetTags"] = targetTagsProp
 	}
 

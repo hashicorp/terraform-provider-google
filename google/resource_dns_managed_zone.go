@@ -85,25 +85,25 @@ func resourceDnsManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 	descriptionProp, err := expandDnsManagedZoneDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	dnsNameProp, err := expandDnsManagedZoneDnsName(d.Get("dns_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("dns_name"); !isEmptyValue(reflect.ValueOf(dnsNameProp)) && (ok || !reflect.DeepEqual(v, dnsNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(dnsNameProp)) {
 		obj["dnsName"] = dnsNameProp
 	}
 	nameProp, err := expandDnsManagedZoneName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	labelsProp, err := expandDnsManagedZoneLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -180,13 +180,13 @@ func resourceDnsManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 		descriptionProp, err := expandDnsManagedZoneDescription(d.Get("description"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 			obj["description"] = descriptionProp
 		}
 		labelsProp, err := expandDnsManagedZoneLabels(d.Get("labels"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 			obj["labels"] = labelsProp
 		}
 

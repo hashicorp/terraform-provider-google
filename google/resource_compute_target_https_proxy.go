@@ -106,37 +106,37 @@ func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interfac
 	descriptionProp, err := expandComputeTargetHttpsProxyDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	nameProp, err := expandComputeTargetHttpsProxyName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	quicOverrideProp, err := expandComputeTargetHttpsProxyQuicOverride(d.Get("quic_override"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("quic_override"); !isEmptyValue(reflect.ValueOf(quicOverrideProp)) && (ok || !reflect.DeepEqual(v, quicOverrideProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(quicOverrideProp)) {
 		obj["quicOverride"] = quicOverrideProp
 	}
 	sslCertificatesProp, err := expandComputeTargetHttpsProxySslCertificates(d.Get("ssl_certificates"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ssl_certificates"); !isEmptyValue(reflect.ValueOf(sslCertificatesProp)) && (ok || !reflect.DeepEqual(v, sslCertificatesProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sslCertificatesProp)) {
 		obj["sslCertificates"] = sslCertificatesProp
 	}
 	sslPolicyProp, err := expandComputeTargetHttpsProxySslPolicy(d.Get("ssl_policy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ssl_policy"); !isEmptyValue(reflect.ValueOf(sslPolicyProp)) && (ok || !reflect.DeepEqual(v, sslPolicyProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sslPolicyProp)) {
 		obj["sslPolicy"] = sslPolicyProp
 	}
 	urlMapProp, err := expandComputeTargetHttpsProxyUrlMap(d.Get("url_map"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(urlMapProp)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(urlMapProp)) {
 		obj["urlMap"] = urlMapProp
 	}
 
@@ -245,7 +245,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		quicOverrideProp, err := expandComputeTargetHttpsProxyQuicOverride(d.Get("quic_override"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("quic_override"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, quicOverrideProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(quicOverrideProp)) {
 			obj["quicOverride"] = quicOverrideProp
 		}
 
@@ -283,7 +283,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		sslCertificatesProp, err := expandComputeTargetHttpsProxySslCertificates(d.Get("ssl_certificates"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("ssl_certificates"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslCertificatesProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(sslCertificatesProp)) {
 			obj["sslCertificates"] = sslCertificatesProp
 		}
 
@@ -321,7 +321,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		sslPolicyProp, err := expandComputeTargetHttpsProxySslPolicy(d.Get("ssl_policy"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("ssl_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslPolicyProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(sslPolicyProp)) {
 			obj["sslPolicy"] = sslPolicyProp
 		}
 
@@ -359,7 +359,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		urlMapProp, err := expandComputeTargetHttpsProxyUrlMap(d.Get("url_map"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(urlMapProp)) {
 			obj["urlMap"] = urlMapProp
 		}
 

@@ -144,67 +144,67 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	alternativeLocationIdProp, err := expandRedisInstanceAlternativeLocationId(d.Get("alternative_location_id"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("alternative_location_id"); !isEmptyValue(reflect.ValueOf(alternativeLocationIdProp)) && (ok || !reflect.DeepEqual(v, alternativeLocationIdProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(alternativeLocationIdProp)) {
 		obj["alternativeLocationId"] = alternativeLocationIdProp
 	}
 	authorizedNetworkProp, err := expandRedisInstanceAuthorizedNetwork(d.Get("authorized_network"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("authorized_network"); !isEmptyValue(reflect.ValueOf(authorizedNetworkProp)) && (ok || !reflect.DeepEqual(v, authorizedNetworkProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(authorizedNetworkProp)) {
 		obj["authorizedNetwork"] = authorizedNetworkProp
 	}
 	displayNameProp, err := expandRedisInstanceDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	labelsProp, err := expandRedisInstanceLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	redisConfigsProp, err := expandRedisInstanceRedisConfigs(d.Get("redis_configs"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("redis_configs"); !isEmptyValue(reflect.ValueOf(redisConfigsProp)) && (ok || !reflect.DeepEqual(v, redisConfigsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(redisConfigsProp)) {
 		obj["redisConfigs"] = redisConfigsProp
 	}
 	locationIdProp, err := expandRedisInstanceLocationId(d.Get("location_id"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("location_id"); !isEmptyValue(reflect.ValueOf(locationIdProp)) && (ok || !reflect.DeepEqual(v, locationIdProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(locationIdProp)) {
 		obj["locationId"] = locationIdProp
 	}
 	nameProp, err := expandRedisInstanceName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	memorySizeGbProp, err := expandRedisInstanceMemorySizeGb(d.Get("memory_size_gb"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("memory_size_gb"); !isEmptyValue(reflect.ValueOf(memorySizeGbProp)) && (ok || !reflect.DeepEqual(v, memorySizeGbProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(memorySizeGbProp)) {
 		obj["memorySizeGb"] = memorySizeGbProp
 	}
 	redisVersionProp, err := expandRedisInstanceRedisVersion(d.Get("redis_version"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("redis_version"); !isEmptyValue(reflect.ValueOf(redisVersionProp)) && (ok || !reflect.DeepEqual(v, redisVersionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(redisVersionProp)) {
 		obj["redisVersion"] = redisVersionProp
 	}
 	reservedIpRangeProp, err := expandRedisInstanceReservedIpRange(d.Get("reserved_ip_range"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("reserved_ip_range"); !isEmptyValue(reflect.ValueOf(reservedIpRangeProp)) && (ok || !reflect.DeepEqual(v, reservedIpRangeProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(reservedIpRangeProp)) {
 		obj["reservedIpRange"] = reservedIpRangeProp
 	}
 	tierProp, err := expandRedisInstanceTier(d.Get("tier"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tier"); !isEmptyValue(reflect.ValueOf(tierProp)) && (ok || !reflect.DeepEqual(v, tierProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(tierProp)) {
 		obj["tier"] = tierProp
 	}
 
@@ -330,25 +330,25 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	displayNameProp, err := expandRedisInstanceDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	labelsProp, err := expandRedisInstanceLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	redisConfigsProp, err := expandRedisInstanceRedisConfigs(d.Get("redis_configs"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("redis_configs"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, redisConfigsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(redisConfigsProp)) {
 		obj["redisConfigs"] = redisConfigsProp
 	}
 	memorySizeGbProp, err := expandRedisInstanceMemorySizeGb(d.Get("memory_size_gb"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("memory_size_gb"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, memorySizeGbProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(memorySizeGbProp)) {
 		obj["memorySizeGb"] = memorySizeGbProp
 	}
 

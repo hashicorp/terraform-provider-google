@@ -93,37 +93,37 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 	labelsProp, err := expandMonitoringNotificationChannelLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	typeProp, err := expandMonitoringNotificationChannelType(d.Get("type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("type"); !isEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(typeProp)) {
 		obj["type"] = typeProp
 	}
 	userLabelsProp, err := expandMonitoringNotificationChannelUserLabels(d.Get("user_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("user_labels"); !isEmptyValue(reflect.ValueOf(userLabelsProp)) && (ok || !reflect.DeepEqual(v, userLabelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(userLabelsProp)) {
 		obj["userLabels"] = userLabelsProp
 	}
 	descriptionProp, err := expandMonitoringNotificationChannelDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	displayNameProp, err := expandMonitoringNotificationChannelDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	enabledProp, err := expandMonitoringNotificationChannelEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enabled"); !isEmptyValue(reflect.ValueOf(enabledProp)) && (ok || !reflect.DeepEqual(v, enabledProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(enabledProp)) {
 		obj["enabled"] = enabledProp
 	}
 
@@ -221,37 +221,37 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 	labelsProp, err := expandMonitoringNotificationChannelLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	typeProp, err := expandMonitoringNotificationChannelType(d.Get("type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(typeProp)) {
 		obj["type"] = typeProp
 	}
 	userLabelsProp, err := expandMonitoringNotificationChannelUserLabels(d.Get("user_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("user_labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, userLabelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(userLabelsProp)) {
 		obj["userLabels"] = userLabelsProp
 	}
 	descriptionProp, err := expandMonitoringNotificationChannelDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	displayNameProp, err := expandMonitoringNotificationChannelDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	enabledProp, err := expandMonitoringNotificationChannelEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enabled"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enabledProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(enabledProp)) {
 		obj["enabled"] = enabledProp
 	}
 

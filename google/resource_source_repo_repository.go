@@ -71,7 +71,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 	nameProp, err := expandSourceRepoRepositoryName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 

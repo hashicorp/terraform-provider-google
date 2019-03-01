@@ -239,67 +239,67 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	displayNameProp, err := expandMonitoringUptimeCheckConfigDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	periodProp, err := expandMonitoringUptimeCheckConfigPeriod(d.Get("period"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("period"); !isEmptyValue(reflect.ValueOf(periodProp)) && (ok || !reflect.DeepEqual(v, periodProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(periodProp)) {
 		obj["period"] = periodProp
 	}
 	timeoutProp, err := expandMonitoringUptimeCheckConfigTimeout(d.Get("timeout"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("timeout"); !isEmptyValue(reflect.ValueOf(timeoutProp)) && (ok || !reflect.DeepEqual(v, timeoutProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(timeoutProp)) {
 		obj["timeout"] = timeoutProp
 	}
 	contentMatchersProp, err := expandMonitoringUptimeCheckConfigContentMatchers(d.Get("content_matchers"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("content_matchers"); !isEmptyValue(reflect.ValueOf(contentMatchersProp)) && (ok || !reflect.DeepEqual(v, contentMatchersProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(contentMatchersProp)) {
 		obj["contentMatchers"] = contentMatchersProp
 	}
 	selectedRegionsProp, err := expandMonitoringUptimeCheckConfigSelectedRegions(d.Get("selected_regions"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("selected_regions"); !isEmptyValue(reflect.ValueOf(selectedRegionsProp)) && (ok || !reflect.DeepEqual(v, selectedRegionsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(selectedRegionsProp)) {
 		obj["selectedRegions"] = selectedRegionsProp
 	}
 	isInternalProp, err := expandMonitoringUptimeCheckConfigIsInternal(d.Get("is_internal"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("is_internal"); !isEmptyValue(reflect.ValueOf(isInternalProp)) && (ok || !reflect.DeepEqual(v, isInternalProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(isInternalProp)) {
 		obj["isInternal"] = isInternalProp
 	}
 	internalCheckersProp, err := expandMonitoringUptimeCheckConfigInternalCheckers(d.Get("internal_checkers"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("internal_checkers"); !isEmptyValue(reflect.ValueOf(internalCheckersProp)) && (ok || !reflect.DeepEqual(v, internalCheckersProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(internalCheckersProp)) {
 		obj["internalCheckers"] = internalCheckersProp
 	}
 	httpCheckProp, err := expandMonitoringUptimeCheckConfigHttpCheck(d.Get("http_check"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("http_check"); !isEmptyValue(reflect.ValueOf(httpCheckProp)) && (ok || !reflect.DeepEqual(v, httpCheckProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(httpCheckProp)) {
 		obj["httpCheck"] = httpCheckProp
 	}
 	tcpCheckProp, err := expandMonitoringUptimeCheckConfigTcpCheck(d.Get("tcp_check"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tcp_check"); !isEmptyValue(reflect.ValueOf(tcpCheckProp)) && (ok || !reflect.DeepEqual(v, tcpCheckProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(tcpCheckProp)) {
 		obj["tcpCheck"] = tcpCheckProp
 	}
 	resourceGroupProp, err := expandMonitoringUptimeCheckConfigResourceGroup(d.Get("resource_group"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("resource_group"); !isEmptyValue(reflect.ValueOf(resourceGroupProp)) && (ok || !reflect.DeepEqual(v, resourceGroupProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(resourceGroupProp)) {
 		obj["resourceGroup"] = resourceGroupProp
 	}
 	monitoredResourceProp, err := expandMonitoringUptimeCheckConfigMonitoredResource(d.Get("monitored_resource"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("monitored_resource"); !isEmptyValue(reflect.ValueOf(monitoredResourceProp)) && (ok || !reflect.DeepEqual(v, monitoredResourceProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(monitoredResourceProp)) {
 		obj["monitoredResource"] = monitoredResourceProp
 	}
 
@@ -405,61 +405,61 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 	displayNameProp, err := expandMonitoringUptimeCheckConfigDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	timeoutProp, err := expandMonitoringUptimeCheckConfigTimeout(d.Get("timeout"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("timeout"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeoutProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(timeoutProp)) {
 		obj["timeout"] = timeoutProp
 	}
 	contentMatchersProp, err := expandMonitoringUptimeCheckConfigContentMatchers(d.Get("content_matchers"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("content_matchers"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, contentMatchersProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(contentMatchersProp)) {
 		obj["contentMatchers"] = contentMatchersProp
 	}
 	selectedRegionsProp, err := expandMonitoringUptimeCheckConfigSelectedRegions(d.Get("selected_regions"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("selected_regions"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, selectedRegionsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(selectedRegionsProp)) {
 		obj["selectedRegions"] = selectedRegionsProp
 	}
 	isInternalProp, err := expandMonitoringUptimeCheckConfigIsInternal(d.Get("is_internal"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("is_internal"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, isInternalProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(isInternalProp)) {
 		obj["isInternal"] = isInternalProp
 	}
 	internalCheckersProp, err := expandMonitoringUptimeCheckConfigInternalCheckers(d.Get("internal_checkers"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("internal_checkers"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, internalCheckersProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(internalCheckersProp)) {
 		obj["internalCheckers"] = internalCheckersProp
 	}
 	httpCheckProp, err := expandMonitoringUptimeCheckConfigHttpCheck(d.Get("http_check"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("http_check"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, httpCheckProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(httpCheckProp)) {
 		obj["httpCheck"] = httpCheckProp
 	}
 	tcpCheckProp, err := expandMonitoringUptimeCheckConfigTcpCheck(d.Get("tcp_check"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tcp_check"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpCheckProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(tcpCheckProp)) {
 		obj["tcpCheck"] = tcpCheckProp
 	}
 	resourceGroupProp, err := expandMonitoringUptimeCheckConfigResourceGroup(d.Get("resource_group"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("resource_group"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, resourceGroupProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(resourceGroupProp)) {
 		obj["resourceGroup"] = resourceGroupProp
 	}
 	monitoredResourceProp, err := expandMonitoringUptimeCheckConfigMonitoredResource(d.Get("monitored_resource"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("monitored_resource"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, monitoredResourceProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(monitoredResourceProp)) {
 		obj["monitoredResource"] = monitoredResourceProp
 	}
 

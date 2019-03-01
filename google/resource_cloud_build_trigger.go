@@ -178,49 +178,49 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	descriptionProp, err := expandCloudBuildTriggerDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	disabledProp, err := expandCloudBuildTriggerDisabled(d.Get("disabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("disabled"); !isEmptyValue(reflect.ValueOf(disabledProp)) && (ok || !reflect.DeepEqual(v, disabledProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(disabledProp)) {
 		obj["disabled"] = disabledProp
 	}
 	substitutionsProp, err := expandCloudBuildTriggerSubstitutions(d.Get("substitutions"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("substitutions"); !isEmptyValue(reflect.ValueOf(substitutionsProp)) && (ok || !reflect.DeepEqual(v, substitutionsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(substitutionsProp)) {
 		obj["substitutions"] = substitutionsProp
 	}
 	filenameProp, err := expandCloudBuildTriggerFilename(d.Get("filename"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("filename"); !isEmptyValue(reflect.ValueOf(filenameProp)) && (ok || !reflect.DeepEqual(v, filenameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(filenameProp)) {
 		obj["filename"] = filenameProp
 	}
 	ignoredFilesProp, err := expandCloudBuildTriggerIgnoredFiles(d.Get("ignored_files"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ignored_files"); !isEmptyValue(reflect.ValueOf(ignoredFilesProp)) && (ok || !reflect.DeepEqual(v, ignoredFilesProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(ignoredFilesProp)) {
 		obj["ignoredFiles"] = ignoredFilesProp
 	}
 	includedFilesProp, err := expandCloudBuildTriggerIncludedFiles(d.Get("included_files"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("included_files"); !isEmptyValue(reflect.ValueOf(includedFilesProp)) && (ok || !reflect.DeepEqual(v, includedFilesProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(includedFilesProp)) {
 		obj["includedFiles"] = includedFilesProp
 	}
 	triggerTemplateProp, err := expandCloudBuildTriggerTriggerTemplate(d.Get("trigger_template"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("trigger_template"); !isEmptyValue(reflect.ValueOf(triggerTemplateProp)) && (ok || !reflect.DeepEqual(v, triggerTemplateProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(triggerTemplateProp)) {
 		obj["triggerTemplate"] = triggerTemplateProp
 	}
 	buildProp, err := expandCloudBuildTriggerBuild(d.Get("build"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("build"); !isEmptyValue(reflect.ValueOf(buildProp)) && (ok || !reflect.DeepEqual(v, buildProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(buildProp)) {
 		obj["build"] = buildProp
 	}
 
@@ -324,49 +324,49 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 	descriptionProp, err := expandCloudBuildTriggerDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	disabledProp, err := expandCloudBuildTriggerDisabled(d.Get("disabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("disabled"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disabledProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(disabledProp)) {
 		obj["disabled"] = disabledProp
 	}
 	substitutionsProp, err := expandCloudBuildTriggerSubstitutions(d.Get("substitutions"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("substitutions"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, substitutionsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(substitutionsProp)) {
 		obj["substitutions"] = substitutionsProp
 	}
 	filenameProp, err := expandCloudBuildTriggerFilename(d.Get("filename"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("filename"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, filenameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(filenameProp)) {
 		obj["filename"] = filenameProp
 	}
 	ignoredFilesProp, err := expandCloudBuildTriggerIgnoredFiles(d.Get("ignored_files"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ignored_files"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ignoredFilesProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(ignoredFilesProp)) {
 		obj["ignoredFiles"] = ignoredFilesProp
 	}
 	includedFilesProp, err := expandCloudBuildTriggerIncludedFiles(d.Get("included_files"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("included_files"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, includedFilesProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(includedFilesProp)) {
 		obj["includedFiles"] = includedFilesProp
 	}
 	triggerTemplateProp, err := expandCloudBuildTriggerTriggerTemplate(d.Get("trigger_template"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("trigger_template"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, triggerTemplateProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(triggerTemplateProp)) {
 		obj["triggerTemplate"] = triggerTemplateProp
 	}
 	buildProp, err := expandCloudBuildTriggerBuild(d.Get("build"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("build"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, buildProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(buildProp)) {
 		obj["build"] = buildProp
 	}
 

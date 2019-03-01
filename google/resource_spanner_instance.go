@@ -92,31 +92,31 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	nameProp, err := expandSpannerInstanceName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	configProp, err := expandSpannerInstanceConfig(d.Get("config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("config"); !isEmptyValue(reflect.ValueOf(configProp)) && (ok || !reflect.DeepEqual(v, configProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(configProp)) {
 		obj["config"] = configProp
 	}
 	displayNameProp, err := expandSpannerInstanceDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	nodeCountProp, err := expandSpannerInstanceNum_nodes(d.Get("num_nodes"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("num_nodes"); !isEmptyValue(reflect.ValueOf(nodeCountProp)) && (ok || !reflect.DeepEqual(v, nodeCountProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nodeCountProp)) {
 		obj["nodeCount"] = nodeCountProp
 	}
 	labelsProp, err := expandSpannerInstanceLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -222,25 +222,25 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	configProp, err := expandSpannerInstanceConfig(d.Get("config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, configProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(configProp)) {
 		obj["config"] = configProp
 	}
 	displayNameProp, err := expandSpannerInstanceDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	nodeCountProp, err := expandSpannerInstanceNum_nodes(d.Get("num_nodes"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("num_nodes"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeCountProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nodeCountProp)) {
 		obj["nodeCount"] = nodeCountProp
 	}
 	labelsProp, err := expandSpannerInstanceLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 

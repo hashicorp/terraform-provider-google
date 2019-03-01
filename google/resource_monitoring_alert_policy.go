@@ -311,43 +311,43 @@ func resourceMonitoringAlertPolicyCreate(d *schema.ResourceData, meta interface{
 	displayNameProp, err := expandMonitoringAlertPolicyDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	combinerProp, err := expandMonitoringAlertPolicyCombiner(d.Get("combiner"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("combiner"); !isEmptyValue(reflect.ValueOf(combinerProp)) && (ok || !reflect.DeepEqual(v, combinerProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(combinerProp)) {
 		obj["combiner"] = combinerProp
 	}
 	enabledProp, err := expandMonitoringAlertPolicyEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enabled"); ok || !reflect.DeepEqual(v, enabledProp) {
+	} else {
 		obj["enabled"] = enabledProp
 	}
 	conditionsProp, err := expandMonitoringAlertPolicyConditions(d.Get("conditions"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("conditions"); !isEmptyValue(reflect.ValueOf(conditionsProp)) && (ok || !reflect.DeepEqual(v, conditionsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(conditionsProp)) {
 		obj["conditions"] = conditionsProp
 	}
 	notificationChannelsProp, err := expandMonitoringAlertPolicyNotificationChannels(d.Get("notification_channels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("notification_channels"); !isEmptyValue(reflect.ValueOf(notificationChannelsProp)) && (ok || !reflect.DeepEqual(v, notificationChannelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(notificationChannelsProp)) {
 		obj["notificationChannels"] = notificationChannelsProp
 	}
 	labelsProp, err := expandMonitoringAlertPolicyLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	documentationProp, err := expandMonitoringAlertPolicyDocumentation(d.Get("documentation"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("documentation"); !isEmptyValue(reflect.ValueOf(documentationProp)) && (ok || !reflect.DeepEqual(v, documentationProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(documentationProp)) {
 		obj["documentation"] = documentationProp
 	}
 
@@ -448,43 +448,43 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 	displayNameProp, err := expandMonitoringAlertPolicyDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	combinerProp, err := expandMonitoringAlertPolicyCombiner(d.Get("combiner"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("combiner"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, combinerProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(combinerProp)) {
 		obj["combiner"] = combinerProp
 	}
 	enabledProp, err := expandMonitoringAlertPolicyEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enabled"); ok || !reflect.DeepEqual(v, enabledProp) {
+	} else {
 		obj["enabled"] = enabledProp
 	}
 	conditionsProp, err := expandMonitoringAlertPolicyConditions(d.Get("conditions"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("conditions"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, conditionsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(conditionsProp)) {
 		obj["conditions"] = conditionsProp
 	}
 	notificationChannelsProp, err := expandMonitoringAlertPolicyNotificationChannels(d.Get("notification_channels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("notification_channels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, notificationChannelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(notificationChannelsProp)) {
 		obj["notificationChannels"] = notificationChannelsProp
 	}
 	labelsProp, err := expandMonitoringAlertPolicyLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	documentationProp, err := expandMonitoringAlertPolicyDocumentation(d.Get("documentation"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("documentation"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, documentationProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(documentationProp)) {
 		obj["documentation"] = documentationProp
 	}
 

@@ -113,25 +113,25 @@ func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{
 	certificateProp, err := expandComputeSslCertificateCertificate(d.Get("certificate"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("certificate"); !isEmptyValue(reflect.ValueOf(certificateProp)) && (ok || !reflect.DeepEqual(v, certificateProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(certificateProp)) {
 		obj["certificate"] = certificateProp
 	}
 	descriptionProp, err := expandComputeSslCertificateDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	nameProp, err := expandComputeSslCertificateName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	privateKeyProp, err := expandComputeSslCertificatePrivateKey(d.Get("private_key"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("private_key"); !isEmptyValue(reflect.ValueOf(privateKeyProp)) && (ok || !reflect.DeepEqual(v, privateKeyProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(privateKeyProp)) {
 		obj["privateKey"] = privateKeyProp
 	}
 

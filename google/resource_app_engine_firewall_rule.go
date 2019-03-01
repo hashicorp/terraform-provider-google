@@ -78,25 +78,25 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 	descriptionProp, err := expandAppEngineFirewallRuleDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	sourceRangeProp, err := expandAppEngineFirewallRuleSourceRange(d.Get("source_range"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_range"); !isEmptyValue(reflect.ValueOf(sourceRangeProp)) && (ok || !reflect.DeepEqual(v, sourceRangeProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sourceRangeProp)) {
 		obj["sourceRange"] = sourceRangeProp
 	}
 	actionProp, err := expandAppEngineFirewallRuleAction(d.Get("action"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("action"); !isEmptyValue(reflect.ValueOf(actionProp)) && (ok || !reflect.DeepEqual(v, actionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(actionProp)) {
 		obj["action"] = actionProp
 	}
 	priorityProp, err := expandAppEngineFirewallRulePriority(d.Get("priority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("priority"); !isEmptyValue(reflect.ValueOf(priorityProp)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(priorityProp)) {
 		obj["priority"] = priorityProp
 	}
 
@@ -167,25 +167,25 @@ func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{
 	descriptionProp, err := expandAppEngineFirewallRuleDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	sourceRangeProp, err := expandAppEngineFirewallRuleSourceRange(d.Get("source_range"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_range"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceRangeProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(sourceRangeProp)) {
 		obj["sourceRange"] = sourceRangeProp
 	}
 	actionProp, err := expandAppEngineFirewallRuleAction(d.Get("action"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("action"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, actionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(actionProp)) {
 		obj["action"] = actionProp
 	}
 	priorityProp, err := expandAppEngineFirewallRulePriority(d.Get("priority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("priority"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(priorityProp)) {
 		obj["priority"] = priorityProp
 	}
 

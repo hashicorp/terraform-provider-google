@@ -97,31 +97,31 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 	addressProp, err := expandComputeGlobalAddressAddress(d.Get("address"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("address"); !isEmptyValue(reflect.ValueOf(addressProp)) && (ok || !reflect.DeepEqual(v, addressProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(addressProp)) {
 		obj["address"] = addressProp
 	}
 	descriptionProp, err := expandComputeGlobalAddressDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	nameProp, err := expandComputeGlobalAddressName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	ipVersionProp, err := expandComputeGlobalAddressIpVersion(d.Get("ip_version"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ip_version"); !isEmptyValue(reflect.ValueOf(ipVersionProp)) && (ok || !reflect.DeepEqual(v, ipVersionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(ipVersionProp)) {
 		obj["ipVersion"] = ipVersionProp
 	}
 	addressTypeProp, err := expandComputeGlobalAddressAddressType(d.Get("address_type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("address_type"); !isEmptyValue(reflect.ValueOf(addressTypeProp)) && (ok || !reflect.DeepEqual(v, addressTypeProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(addressTypeProp)) {
 		obj["addressType"] = addressTypeProp
 	}
 

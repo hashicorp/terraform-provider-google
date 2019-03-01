@@ -80,19 +80,19 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	nameProp, err := expandSpannerDatabaseName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	extraStatementsProp, err := expandSpannerDatabaseDdl(d.Get("ddl"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ddl"); !isEmptyValue(reflect.ValueOf(extraStatementsProp)) && (ok || !reflect.DeepEqual(v, extraStatementsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(extraStatementsProp)) {
 		obj["extraStatements"] = extraStatementsProp
 	}
 	instanceProp, err := expandSpannerDatabaseInstance(d.Get("instance"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("instance"); !isEmptyValue(reflect.ValueOf(instanceProp)) && (ok || !reflect.DeepEqual(v, instanceProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(instanceProp)) {
 		obj["instance"] = instanceProp
 	}
 

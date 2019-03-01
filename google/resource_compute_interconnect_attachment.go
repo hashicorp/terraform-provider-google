@@ -159,55 +159,55 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	interconnectProp, err := expandComputeInterconnectAttachmentInterconnect(d.Get("interconnect"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("interconnect"); !isEmptyValue(reflect.ValueOf(interconnectProp)) && (ok || !reflect.DeepEqual(v, interconnectProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(interconnectProp)) {
 		obj["interconnect"] = interconnectProp
 	}
 	descriptionProp, err := expandComputeInterconnectAttachmentDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	edgeAvailabilityDomainProp, err := expandComputeInterconnectAttachmentEdgeAvailabilityDomain(d.Get("edge_availability_domain"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("edge_availability_domain"); !isEmptyValue(reflect.ValueOf(edgeAvailabilityDomainProp)) && (ok || !reflect.DeepEqual(v, edgeAvailabilityDomainProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(edgeAvailabilityDomainProp)) {
 		obj["edgeAvailabilityDomain"] = edgeAvailabilityDomainProp
 	}
 	typeProp, err := expandComputeInterconnectAttachmentType(d.Get("type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("type"); !isEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(typeProp)) {
 		obj["type"] = typeProp
 	}
 	routerProp, err := expandComputeInterconnectAttachmentRouter(d.Get("router"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("router"); !isEmptyValue(reflect.ValueOf(routerProp)) && (ok || !reflect.DeepEqual(v, routerProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(routerProp)) {
 		obj["router"] = routerProp
 	}
 	nameProp, err := expandComputeInterconnectAttachmentName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(nameProp)) {
 		obj["name"] = nameProp
 	}
 	candidateSubnetsProp, err := expandComputeInterconnectAttachmentCandidateSubnets(d.Get("candidate_subnets"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("candidate_subnets"); !isEmptyValue(reflect.ValueOf(candidateSubnetsProp)) && (ok || !reflect.DeepEqual(v, candidateSubnetsProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(candidateSubnetsProp)) {
 		obj["candidateSubnets"] = candidateSubnetsProp
 	}
 	vlanTag8021qProp, err := expandComputeInterconnectAttachmentVlanTag8021q(d.Get("vlan_tag8021q"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("vlan_tag8021q"); !isEmptyValue(reflect.ValueOf(vlanTag8021qProp)) && (ok || !reflect.DeepEqual(v, vlanTag8021qProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(vlanTag8021qProp)) {
 		obj["vlanTag8021q"] = vlanTag8021qProp
 	}
 	regionProp, err := expandComputeInterconnectAttachmentRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(regionProp)) {
 		obj["region"] = regionProp
 	}
 

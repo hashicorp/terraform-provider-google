@@ -106,25 +106,25 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 	bucketProp, err := expandStorageDefaultObjectAccessControlBucket(d.Get("bucket"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("bucket"); !isEmptyValue(reflect.ValueOf(bucketProp)) && (ok || !reflect.DeepEqual(v, bucketProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(bucketProp)) {
 		obj["bucket"] = bucketProp
 	}
 	entityProp, err := expandStorageDefaultObjectAccessControlEntity(d.Get("entity"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("entity"); !isEmptyValue(reflect.ValueOf(entityProp)) && (ok || !reflect.DeepEqual(v, entityProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(entityProp)) {
 		obj["entity"] = entityProp
 	}
 	objectProp, err := expandStorageDefaultObjectAccessControlObject(d.Get("object"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("object"); !isEmptyValue(reflect.ValueOf(objectProp)) && (ok || !reflect.DeepEqual(v, objectProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(objectProp)) {
 		obj["object"] = objectProp
 	}
 	roleProp, err := expandStorageDefaultObjectAccessControlRole(d.Get("role"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("role"); !isEmptyValue(reflect.ValueOf(roleProp)) && (ok || !reflect.DeepEqual(v, roleProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(roleProp)) {
 		obj["role"] = roleProp
 	}
 
@@ -199,25 +199,25 @@ func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, met
 	bucketProp, err := expandStorageDefaultObjectAccessControlBucket(d.Get("bucket"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("bucket"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bucketProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(bucketProp)) {
 		obj["bucket"] = bucketProp
 	}
 	entityProp, err := expandStorageDefaultObjectAccessControlEntity(d.Get("entity"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("entity"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, entityProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(entityProp)) {
 		obj["entity"] = entityProp
 	}
 	objectProp, err := expandStorageDefaultObjectAccessControlObject(d.Get("object"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("object"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, objectProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(objectProp)) {
 		obj["object"] = objectProp
 	}
 	roleProp, err := expandStorageDefaultObjectAccessControlRole(d.Get("role"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("role"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, roleProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(roleProp)) {
 		obj["role"] = roleProp
 	}
 
