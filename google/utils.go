@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
+	"net/url"
 	"strings"
 	"time"
 
@@ -341,6 +342,11 @@ func retryTimeDuration(retryFunc func() error, duration time.Duration) error {
 func isRetryableError(err error) bool {
 	// 409's are retried because cloud sql throws a 409 when concurrent calls are made
 	if gerr, ok := err.(*googleapi.Error); ok && (gerr.Code == 409 || gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503) {
+		return true
+	}
+	// These operations are always hitting googleapis.com - they should rarely
+	// time out, and if they do, that timeout is retryable.
+	if urlerr, ok := err.(*url.Error); ok && urlerr.Timeout() {
 		return true
 	}
 	return false

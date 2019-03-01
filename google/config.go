@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/logging"
 	"github.com/hashicorp/terraform/helper/pathorcontents"
@@ -114,6 +115,10 @@ func (c *Config) loadAndValidate() error {
 
 	client := oauth2.NewClient(context.Background(), tokenSource)
 	client.Transport = logging.NewTransport("Google", client.Transport)
+	// Each individual request should return within 30s - timeouts will be retried.
+	// This is a timeout for, e.g. a single GET request of an operation - not a
+	// timeout for the maximum amount of time a logical request can take.
+	client.Timeout, _ = time.ParseDuration("30s")
 
 	terraformVersion := httpclient.UserAgentString()
 	providerVersion := fmt.Sprintf("terraform-provider-google/%s", version.ProviderVersion)
