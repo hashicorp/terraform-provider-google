@@ -589,4 +589,4 @@ $ terraform import google_container_cluster.mycluster us-east1-a/my-cluster
 For example:
 
 - `min_master_version` will not be set on import and will show a no-op diff if set in config.
-- `remove_default_node_pool`: If the default node pool exists at import, this value will be set to false in state (or true if non-existant). If set to true in config but the node pool exists, a follow-up diff/apply will delete the default node pool.
+- `remove_default_node_pool`: If the default node pool does not exist at import, this value will be set to true in state, but it will not be set otherwise. Thus, you may see a no-op diff if set to false in config, or a diff if set to true in config when the default node pool still exists.

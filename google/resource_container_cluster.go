@@ -1813,11 +1813,8 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 	_, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(nodePool).Do()
 	if err != nil && isGoogleApiErrorWithCode(err, 404) {
 		d.Set("remove_default_node_pool", true)
-	} else {
-		d.Set("remove_default_node_pool", false)
-		if err != nil {
-			log.Printf("[WARN] Unable to import value for remove_default_node_pool, got error while trying to get default node pool: %s", err)
-		}
+	} else if err != nil {
+		log.Printf("[WARN] Unable to import value for remove_default_node_pool, got error while trying to get default node pool: %s", err)
 	}
 
 	return []*schema.ResourceData{d}, nil
