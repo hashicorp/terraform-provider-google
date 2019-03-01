@@ -1,4 +1,8 @@
 ## 2.2.0 (Unreleased)
+
+BUG FIXES:
+* compute: `data.google_compute_subnetwork` outputs the `self_link` field again. [GH-3156]
+
 ## 2.1.0 (February 26, 2019)
 
 FEATURES:
