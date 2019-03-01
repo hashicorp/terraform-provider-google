@@ -226,7 +226,8 @@ The optional `settings.database_flags` sublist supports:
 The optional `settings.backup_configuration` subblock supports:
 
 * `binary_log_enabled` - (Optional) True if binary logging is enabled. If
-    `logging` is false, this must be as well. Cannot be used with Postgres.
+    `settings.backup_configuration.enabled` is false, this must be as well. 
+    Cannot be used with Postgres.
 
 * `enabled` - (Optional) True if backup configuration is enabled.
 
