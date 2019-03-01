@@ -150,17 +150,20 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 			"monitored_resource": {
 				Type:     schema.TypeList,
 				Optional: true,
+				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"labels": {
 							Type:     schema.TypeMap,
 							Required: true,
+							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 						"type": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 					},
 				},
@@ -175,6 +178,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 			"resource_group": {
 				Type:     schema.TypeList,
 				Optional: true,
+				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -187,6 +191,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 						"resource_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER", ""}, false),
 						},
 					},
@@ -443,18 +448,6 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("tcp_check"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpCheckProp)) {
 		obj["tcpCheck"] = tcpCheckProp
 	}
-	resourceGroupProp, err := expandMonitoringUptimeCheckConfigResourceGroup(d.Get("resource_group"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("resource_group"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, resourceGroupProp)) {
-		obj["resourceGroup"] = resourceGroupProp
-	}
-	monitoredResourceProp, err := expandMonitoringUptimeCheckConfigMonitoredResource(d.Get("monitored_resource"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("monitored_resource"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, monitoredResourceProp)) {
-		obj["monitoredResource"] = monitoredResourceProp
-	}
 
 	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/{{name}}")
 	if err != nil {
@@ -494,14 +487,6 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("tcp_check") {
 		updateMask = append(updateMask, "tcpCheck")
-	}
-
-	if d.HasChange("resource_group") {
-		updateMask = append(updateMask, "resourceGroup")
-	}
-
-	if d.HasChange("monitored_resource") {
-		updateMask = append(updateMask, "monitoredResource")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
