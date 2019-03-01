@@ -186,6 +186,7 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("location_id", app.LocationId)
 	d.Set("name", app.Name)
 	d.Set("serving_status", app.ServingStatus)
+	d.Set("gcr_domain", app.GcrDomain)
 	d.Set("project", pid)
 	dispatchRules, err := flattenAppEngineApplicationDispatchRules(app.DispatchRules)
 	if err != nil {
