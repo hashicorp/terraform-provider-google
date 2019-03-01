@@ -9,17 +9,13 @@ import (
 
 // This file is generated from scan_tokens.rl. DO NOT EDIT.
 %%{
-  # (except when you are actually in scan_tokens.rl here, so edit away!)
+  # (except you are actually in scan_tokens.rl here, so edit away!)
 
   machine hcltok;
   write data;
 }%%
 
 func scanTokens(data []byte, filename string, start hcl.Pos, mode scanMode) []Token {
-    stripData := stripUTF8BOM(data)
-    start.Byte += len(data) - len(stripData)
-    data = stripData
-
     f := &tokenAccum{
         Filename:  filename,
         Bytes:     data,
@@ -44,7 +40,7 @@ func scanTokens(data []byte, filename string, start hcl.Pos, mode scanMode) []To
         Ident = (ID_Start | '_') (ID_Continue | '-')*;
 
         # Symbols that just represent themselves are handled as a single rule.
-        SelfToken = "[" | "]" | "(" | ")" | "." | "," | "*" | "/" | "%" | "+" | "-" | "=" | "<" | ">" | "!" | "?" | ":" | "\n" | "&" | "|" | "~" | "^" | ";" | "`" | "'";
+        SelfToken = "[" | "]" | "(" | ")" | "." | "," | "*" | "/" | "%" | "+" | "-" | "=" | "<" | ">" | "!" | "?" | ":" | "\n" | "&" | "|" | "~" | "^" | ";" | "`";
 
         EqualOp = "==";
         NotEqual = "!=";

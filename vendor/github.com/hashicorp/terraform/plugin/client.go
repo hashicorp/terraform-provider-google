@@ -19,13 +19,11 @@ func ClientConfig(m discovery.PluginMeta) *plugin.ClientConfig {
 	})
 
 	return &plugin.ClientConfig{
-		Cmd:              exec.Command(m.Path),
-		HandshakeConfig:  Handshake,
-		VersionedPlugins: VersionedPlugins,
-		Managed:          true,
-		Logger:           logger,
-		AllowedProtocols: []plugin.Protocol{plugin.ProtocolGRPC},
-		AutoMTLS:         true,
+		Cmd:             exec.Command(m.Path),
+		HandshakeConfig: Handshake,
+		Managed:         true,
+		Plugins:         PluginMap,
+		Logger:          logger,
 	}
 }
 

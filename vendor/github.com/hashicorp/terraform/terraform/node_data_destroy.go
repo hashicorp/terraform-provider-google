@@ -1,40 +1,22 @@
 package terraform
 
-import (
-	"github.com/hashicorp/terraform/providers"
-	"github.com/hashicorp/terraform/states"
-)
-
-// NodeDestroyableDataResourceInstance represents a resource that is "destroyable":
-// it is ready to be destroyed.
-type NodeDestroyableDataResourceInstance struct {
-	*NodeAbstractResourceInstance
+// NodeDestroyableDataResource represents a resource that is "plannable":
+// it is ready to be planned in order to create a diff.
+type NodeDestroyableDataResource struct {
+	*NodeAbstractResource
 }
 
 // GraphNodeEvalable
-func (n *NodeDestroyableDataResourceInstance) EvalTree() EvalNode {
-	addr := n.ResourceInstanceAddr()
+func (n *NodeDestroyableDataResource) EvalTree() EvalNode {
+	addr := n.NodeAbstractResource.Addr
 
-	var providerSchema *ProviderSchema
-	// We don't need the provider, but we're calling EvalGetProvider to load the
-	// schema.
-	var provider providers.Interface
+	// stateId is the ID to put into the state
+	stateId := addr.stateId()
 
 	// Just destroy it.
-	var state *states.ResourceInstanceObject
-	return &EvalSequence{
-		Nodes: []EvalNode{
-			&EvalGetProvider{
-				Addr:   n.ResolvedProvider,
-				Output: &provider,
-				Schema: &providerSchema,
-			},
-			&EvalWriteState{
-				Addr:           addr.Resource,
-				State:          &state,
-				ProviderAddr:   n.ResolvedProvider,
-				ProviderSchema: &providerSchema,
-			},
-		},
+	var state *InstanceState
+	return &EvalWriteState{
+		Name:  stateId,
+		State: &state, // state is nil here
 	}
 }

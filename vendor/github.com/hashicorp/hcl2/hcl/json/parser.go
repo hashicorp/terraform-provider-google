@@ -3,9 +3,9 @@ package json
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 
 	"github.com/hashicorp/hcl2/hcl"
-	"github.com/zclconf/go-cty/cty"
 )
 
 func parseFileContent(buf []byte, filename string) (node, hcl.Diagnostics) {
@@ -370,15 +370,10 @@ func parseNumber(p *peeker) (node, hcl.Diagnostics) {
 		}
 	}
 
-	// We want to guarantee that we parse numbers the same way as cty (and thus
-	// native syntax HCL) would here, so we'll use the cty parser even though
-	// in most other cases we don't actually introduce cty concepts until
-	// decoding time. We'll unwrap the parsed float immediately afterwards, so
-	// the cty value is just a temporary helper.
-	nv, err := cty.ParseNumberVal(string(num))
+	f, _, err := big.ParseFloat(string(num), 10, 512, big.ToNearestEven)
 	if err != nil {
 		// Should never happen if above passed, since JSON numbers are a subset
-		// of what cty can parse...
+		// of what big.Float can parse...
 		return nil, hcl.Diagnostics{
 			{
 				Severity: hcl.DiagError,
@@ -390,7 +385,7 @@ func parseNumber(p *peeker) (node, hcl.Diagnostics) {
 	}
 
 	return &numberVal{
-		Value:    nv.AsBigFloat(),
+		Value:    f,
 		SrcRange: tok.Range,
 	}, nil
 }

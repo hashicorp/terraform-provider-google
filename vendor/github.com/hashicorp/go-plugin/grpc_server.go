@@ -9,7 +9,7 @@ import (
 	"net"
 
 	hclog "github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-plugin/internal/plugin"
+	"github.com/hashicorp/go-plugin/internal/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health"
@@ -75,7 +75,7 @@ func (s *GRPCServer) Init() error {
 
 	// Register the broker service
 	brokerServer := newGRPCBrokerServer()
-	plugin.RegisterGRPCBrokerServer(s.server, brokerServer)
+	proto.RegisterGRPCBrokerServer(s.server, brokerServer)
 	s.broker = newGRPCBroker(brokerServer, s.TLS)
 	go s.broker.Run()
 
@@ -83,7 +83,7 @@ func (s *GRPCServer) Init() error {
 	controllerServer := &grpcControllerServer{
 		server: s,
 	}
-	plugin.RegisterGRPCControllerServer(s.server, controllerServer)
+	proto.RegisterGRPCControllerServer(s.server, controllerServer)
 
 	// Register all our plugins onto the gRPC server.
 	for k, raw := range s.Plugins {

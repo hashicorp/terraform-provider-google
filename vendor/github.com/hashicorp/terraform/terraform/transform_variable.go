@@ -1,8 +1,7 @@
 package terraform
 
 import (
-	"github.com/hashicorp/terraform/addrs"
-	"github.com/hashicorp/terraform/configs"
+	"github.com/hashicorp/terraform/config/module"
 )
 
 // RootVariableTransformer is a GraphTransformer that adds all the root
@@ -12,27 +11,28 @@ import (
 // graph since downstream things that depend on them must be able to
 // reach them.
 type RootVariableTransformer struct {
-	Config *configs.Config
+	Module *module.Tree
 }
 
 func (t *RootVariableTransformer) Transform(g *Graph) error {
-	// We can have no variables if we have no config.
-	if t.Config == nil {
+	// If no config, no variables
+	if t.Module == nil {
 		return nil
 	}
 
-	// We're only considering root module variables here, since child
-	// module variables are handled by ModuleVariableTransformer.
-	vars := t.Config.Module.Variables
+	// If we have no vars, we're done!
+	vars := t.Module.Config().Variables
+	if len(vars) == 0 {
+		return nil
+	}
 
 	// Add all variables here
 	for _, v := range vars {
 		node := &NodeRootVariable{
-			Addr: addrs.InputVariable{
-				Name: v.Name,
-			},
 			Config: v,
 		}
+
+		// Add it!
 		g.Add(node)
 	}
 

@@ -4,20 +4,16 @@ import (
 	"net/rpc"
 
 	"github.com/hashicorp/go-plugin"
-	"github.com/hashicorp/terraform/configs/configschema"
 	"github.com/hashicorp/terraform/terraform"
 )
 
 // ResourceProvisionerPlugin is the plugin.Plugin implementation.
 type ResourceProvisionerPlugin struct {
-	ResourceProvisioner func() terraform.ResourceProvisioner
+	F func() terraform.ResourceProvisioner
 }
 
 func (p *ResourceProvisionerPlugin) Server(b *plugin.MuxBroker) (interface{}, error) {
-	return &ResourceProvisionerServer{
-		Broker:      b,
-		Provisioner: p.ResourceProvisioner(),
-	}, nil
+	return &ResourceProvisionerServer{Broker: b, Provisioner: p.F()}, nil
 }
 
 func (p *ResourceProvisionerPlugin) Client(
@@ -30,11 +26,6 @@ func (p *ResourceProvisionerPlugin) Client(
 type ResourceProvisioner struct {
 	Broker *plugin.MuxBroker
 	Client *rpc.Client
-}
-
-func (p *ResourceProvisioner) GetConfigSchema() (*configschema.Block, error) {
-	panic("not implemented")
-	return nil, nil
 }
 
 func (p *ResourceProvisioner) Validate(c *terraform.ResourceConfig) ([]string, []error) {
