@@ -77,7 +77,7 @@ The following arguments are supported:
 
 * `filename` -
   (Optional)
-  Path, from the source root, to a file whose contents is used for the template.
+  Path, from the source root, to a file whose contents is used for the template. Either a filename or build template must be provided.
 
 * `ignored_files` -
   (Optional)
@@ -110,7 +110,7 @@ The following arguments are supported:
 
 * `build` -
   (Optional)
-  Contents of the build template.  Structure is documented below.
+  Contents of the build template. Either a filename or build template must be provided.  Structure is documented below.
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -135,15 +135,15 @@ The `trigger_template` block supports:
 
 * `branch_name` -
   (Optional)
-  Name of the branch to build.
+  Name of the branch to build. Exactly one a of branch name, tag, or commit SHA must be provided.
 
 * `tag_name` -
   (Optional)
-  Name of the tag to build.
+  Name of the tag to build. Exactly one of a branch name, tag, or commit SHA must be provided.
 
 * `commit_sha` -
   (Optional)
-  Explicit commit SHA to build.
+  Explicit commit SHA to build. Exactly one of a branch name, tag, or commit SHA must be provided.
 
 The `build` block supports:
 
