@@ -623,9 +623,16 @@ func flattenCors(corsRules []*storage.BucketCors) []map[string]interface{} {
 
 func expandBucketEncryption(configured interface{}) *storage.BucketEncryption {
 	encs := configured.([]interface{})
+	if encs == nil || encs[0] == nil {
+		return nil
+	}
 	enc := encs[0].(map[string]interface{})
+	keyname := enc["default_kms_key_name"]
+	if keyname == nil || keyname.(string) == "" {
+		return nil
+	}
 	bucketenc := &storage.BucketEncryption{
-		DefaultKmsKeyName: enc["default_kms_key_name"].(string),
+		DefaultKmsKeyName: keyname.(string),
 	}
 	return bucketenc
 }
