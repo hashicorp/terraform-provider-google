@@ -146,7 +146,6 @@ func (g *HttpGetter) GetFile(dst string, src *url.URL) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
 
 	if g.Client == nil {
 		g.Client = httpClient
@@ -211,6 +210,9 @@ func (g *HttpGetter) GetFile(dst string, src *url.URL) error {
 	n, err := Copy(ctx, f, body)
 	if err == nil && n < resp.ContentLength {
 		err = io.ErrShortWrite
+	}
+	if err1 := f.Close(); err == nil {
+		err = err1
 	}
 	return err
 }

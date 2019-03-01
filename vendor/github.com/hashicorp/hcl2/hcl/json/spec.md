@@ -18,11 +18,11 @@ _Parsing_ such JSON has some additional constraints not beyond what is normally
 supported by JSON parsers, so a specialized parser may be required that
 is able to:
 
-- Preserve the relative ordering of properties defined in an object.
-- Preserve multiple definitions of the same property name.
-- Preserve numeric values to the precision required by the number type
+* Preserve the relative ordering of properties defined in an object.
+* Preserve multiple definitions of the same property name.
+* Preserve numeric values to the precision required by the number type
   in [the HCL syntax-agnostic information model](../spec.md).
-- Retain source location information for parsed tokens/constructs in order
+* Retain source location information for parsed tokens/constructs in order
   to produce good error messages.
 
 ## Structural Elements
@@ -118,7 +118,6 @@ type:
   ]
 }
 ```
-
 ```json
 {
   "foo": []
@@ -148,7 +147,7 @@ the following examples:
     "boz": {
       "baz": {
         "child_attr": "baz"
-      }
+      },
     }
   }
 }
@@ -190,7 +189,7 @@ the following examples:
         "boz": {
           "child_attr": "baz"
         }
-      }
+      },
     },
     {
       "bar": {
@@ -403,3 +402,4 @@ to that expression.
 
 If the original expression is not a string or its contents cannot be parsed
 as a native syntax expression then static call analysis is not supported.
+

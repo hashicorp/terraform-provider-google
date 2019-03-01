@@ -32,11 +32,11 @@ func flattenKVPairs(kvs []*logEntryKV) []interface{} {
 }
 
 // parseJSON handles parsing JSON output
-func parseJSON(input []byte) (*logEntry, error) {
+func parseJSON(input string) (*logEntry, error) {
 	var raw map[string]interface{}
 	entry := &logEntry{}
 
-	err := json.Unmarshal(input, &raw)
+	err := json.Unmarshal([]byte(input), &raw)
 	if err != nil {
 		return nil, err
 	}

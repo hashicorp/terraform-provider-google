@@ -3,12 +3,8 @@ package terraform
 import (
 	"fmt"
 	"log"
+	"strings"
 
-	"github.com/hashicorp/hcl2/hcl"
-	"github.com/hashicorp/terraform/configs/configschema"
-	"github.com/hashicorp/terraform/lang"
-
-	"github.com/hashicorp/terraform/addrs"
 	"github.com/hashicorp/terraform/config"
 	"github.com/hashicorp/terraform/dag"
 )
@@ -21,46 +17,35 @@ import (
 // be referenced and other methods of referencing may still be possible (such
 // as by path!)
 type GraphNodeReferenceable interface {
-	GraphNodeSubPath
-
-	// ReferenceableAddrs returns a list of addresses through which this can be
-	// referenced.
-	ReferenceableAddrs() []addrs.Referenceable
+	// ReferenceableName is the name by which this can be referenced.
+	// This can be either just the type, or include the field. Example:
+	// "aws_instance.bar" or "aws_instance.bar.id".
+	ReferenceableName() []string
 }
 
 // GraphNodeReferencer must be implemented by nodes that reference other
 // Terraform items and therefore depend on them.
 type GraphNodeReferencer interface {
-	GraphNodeSubPath
-
-	// References returns a list of references made by this node, which
-	// include both a referenced address and source location information for
-	// the reference.
-	References() []*addrs.Reference
+	// References are the list of things that this node references. This
+	// can include fields or just the type, just like GraphNodeReferenceable
+	// above.
+	References() []string
 }
 
-// GraphNodeReferenceOutside is an interface that can optionally be implemented.
-// A node that implements it can specify that its own referenceable addresses
-// and/or the addresses it references are in a different module than the
-// node itself.
+// GraphNodeReferenceGlobal is an interface that can optionally be
+// implemented. If ReferenceGlobal returns true, then the References()
+// and ReferenceableName() must be _fully qualified_ with "module.foo.bar"
+// etc.
 //
-// Any referenceable addresses returned by ReferenceableAddrs are interpreted
-// relative to the returned selfPath.
+// This allows a node to reference and be referenced by a specific name
+// that may cross module boundaries. This can be very dangerous so use
+// this wisely.
 //
-// Any references returned by References are interpreted relative to the
-// returned referencePath.
-//
-// It is valid but not required for either of these paths to match what is
-// returned by method Path, though if both match the main Path then there
-// is no reason to implement this method.
-//
-// The primary use-case for this is the nodes representing module input
-// variables, since their expressions are resolved in terms of their calling
-// module, but they are still referenced from their own module.
-type GraphNodeReferenceOutside interface {
-	// ReferenceOutside returns a path in which any references from this node
-	// are resolved.
-	ReferenceOutside() (selfPath, referencePath addrs.ModuleInstance)
+// The primary use case for this is module boundaries (variables coming in).
+type GraphNodeReferenceGlobal interface {
+	// Set to true to signal that references and name are fully
+	// qualified. See the above docs for more information.
+	ReferenceGlobal() bool
 }
 
 // ReferenceTransformer is a GraphTransformer that connects all the
@@ -173,91 +158,75 @@ func (t *PruneUnusedValuesTransformer) Transform(g *Graph) error {
 // ReferenceMap is a structure that can be used to efficiently check
 // for references on a graph.
 type ReferenceMap struct {
-	// vertices is a map from internal reference keys (as produced by the
-	// mapKey method) to one or more vertices that are identified by each key.
-	//
-	// A particular reference key might actually identify multiple vertices,
-	// e.g. in situations where one object is contained inside another.
-	vertices map[string][]dag.Vertex
-
-	// edges is a map whose keys are a subset of the internal reference keys
-	// from "vertices", and whose values are the nodes that refer to each
-	// key. The values in this map are the referrers, while values in
-	// "verticies" are the referents. The keys in both cases are referents.
-	edges map[string][]dag.Vertex
+	// m is the mapping of referenceable name to list of verticies that
+	// implement that name. This is built on initialization.
+	references   map[string][]dag.Vertex
+	referencedBy map[string][]dag.Vertex
 }
 
-// References returns the set of vertices that the given vertex refers to,
-// and any referenced addresses that do not have corresponding vertices.
-func (m *ReferenceMap) References(v dag.Vertex) ([]dag.Vertex, []addrs.Referenceable) {
+// References returns the list of vertices that this vertex
+// references along with any missing references.
+func (m *ReferenceMap) References(v dag.Vertex) ([]dag.Vertex, []string) {
 	rn, ok := v.(GraphNodeReferencer)
 	if !ok {
 		return nil, nil
 	}
-	if _, ok := v.(GraphNodeSubPath); !ok {
-		return nil, nil
-	}
 
 	var matches []dag.Vertex
-	var missing []addrs.Referenceable
+	var missing []string
+	prefix := m.prefix(v)
 
-	for _, ref := range rn.References() {
-		subject := ref.Subject
-
-		key := m.referenceMapKey(v, subject)
-		if _, exists := m.vertices[key]; !exists {
-			// If what we were looking for was a ResourceInstance then we
-			// might be in a resource-oriented graph rather than an
-			// instance-oriented graph, and so we'll see if we have the
-			// resource itself instead.
-			switch ri := subject.(type) {
-			case addrs.ResourceInstance:
-				subject = ri.ContainingResource()
-			case addrs.ResourceInstancePhase:
-				subject = ri.ContainingResource()
-			}
-			key = m.referenceMapKey(v, subject)
-		}
-
-		vertices := m.vertices[key]
-		for _, rv := range vertices {
-			// don't include self-references
-			if rv == v {
+	for _, ns := range rn.References() {
+		found := false
+		for _, n := range strings.Split(ns, "/") {
+			n = prefix + n
+			parents, ok := m.references[n]
+			if !ok {
 				continue
 			}
-			matches = append(matches, rv)
+
+			// Mark that we found a match
+			found = true
+
+			for _, p := range parents {
+				// don't include self-references
+				if p == v {
+					continue
+				}
+				matches = append(matches, p)
+			}
+
+			break
 		}
-		if len(vertices) == 0 {
-			missing = append(missing, ref.Subject)
+
+		if !found {
+			missing = append(missing, ns)
 		}
 	}
 
 	return matches, missing
 }
 
-// Referrers returns the set of vertices that refer to the given vertex.
-func (m *ReferenceMap) Referrers(v dag.Vertex) []dag.Vertex {
+// ReferencedBy returns the list of vertices that reference the
+// vertex passed in.
+func (m *ReferenceMap) ReferencedBy(v dag.Vertex) []dag.Vertex {
 	rn, ok := v.(GraphNodeReferenceable)
-	if !ok {
-		return nil
-	}
-	sp, ok := v.(GraphNodeSubPath)
 	if !ok {
 		return nil
 	}
 
 	var matches []dag.Vertex
-	for _, addr := range rn.ReferenceableAddrs() {
-		key := m.mapKey(sp.Path(), addr)
-		referrers, ok := m.edges[key]
+	prefix := m.prefix(v)
+	for _, n := range rn.ReferenceableName() {
+		n = prefix + n
+		children, ok := m.referencedBy[n]
 		if !ok {
 			continue
 		}
 
-		// If the referrer set includes our own given vertex then we skip,
-		// since we don't want to return self-references.
+		// Make sure this isn't a self reference, which isn't included
 		selfRef := false
-		for _, p := range referrers {
+		for _, p := range children {
 			if p == v {
 				selfRef = true
 				break
@@ -267,77 +236,28 @@ func (m *ReferenceMap) Referrers(v dag.Vertex) []dag.Vertex {
 			continue
 		}
 
-		matches = append(matches, referrers...)
+		matches = append(matches, children...)
 	}
 
 	return matches
 }
 
-func (m *ReferenceMap) mapKey(path addrs.ModuleInstance, addr addrs.Referenceable) string {
-	return fmt.Sprintf("%s|%s", path.String(), addr.String())
-}
-
-// vertexReferenceablePath returns the path in which the given vertex can be
-// referenced. This is the path that its results from ReferenceableAddrs
-// are considered to be relative to.
-//
-// Only GraphNodeSubPath implementations can be referenced, so this method will
-// panic if the given vertex does not implement that interface.
-func (m *ReferenceMap) vertexReferenceablePath(v dag.Vertex) addrs.ModuleInstance {
-	sp, ok := v.(GraphNodeSubPath)
-	if !ok {
-		// Only nodes with paths can participate in a reference map.
-		panic(fmt.Errorf("vertexMapKey on vertex type %T which doesn't implement GraphNodeSubPath", sp))
+func (m *ReferenceMap) prefix(v dag.Vertex) string {
+	// If the node is stating it is already fully qualified then
+	// we don't have to create the prefix!
+	if gn, ok := v.(GraphNodeReferenceGlobal); ok && gn.ReferenceGlobal() {
+		return ""
 	}
 
-	if outside, ok := v.(GraphNodeReferenceOutside); ok {
-		// Vertex is referenced from a different module than where it was
-		// declared.
-		path, _ := outside.ReferenceOutside()
-		return path
+	// Create the prefix based on the path
+	var prefix string
+	if pn, ok := v.(GraphNodeSubPath); ok {
+		if path := normalizeModulePath(pn.Path()); len(path) > 1 {
+			prefix = modulePrefixStr(path) + "."
+		}
 	}
 
-	// Vertex is referenced from the same module as where it was declared.
-	return sp.Path()
-}
-
-// vertexReferencePath returns the path in which references _from_ the given
-// vertex must be interpreted.
-//
-// Only GraphNodeSubPath implementations can have references, so this method
-// will panic if the given vertex does not implement that interface.
-func vertexReferencePath(referrer dag.Vertex) addrs.ModuleInstance {
-	sp, ok := referrer.(GraphNodeSubPath)
-	if !ok {
-		// Only nodes with paths can participate in a reference map.
-		panic(fmt.Errorf("vertexReferencePath on vertex type %T which doesn't implement GraphNodeSubPath", sp))
-	}
-
-	var path addrs.ModuleInstance
-	if outside, ok := referrer.(GraphNodeReferenceOutside); ok {
-		// Vertex makes references to objects in a different module than where
-		// it was declared.
-		_, path = outside.ReferenceOutside()
-		return path
-	}
-
-	// Vertex makes references to objects in the same module as where it
-	// was declared.
-	return sp.Path()
-}
-
-// referenceMapKey produces keys for the "edges" map. "referrer" is the vertex
-// that the reference is from, and "addr" is the address of the object being
-// referenced.
-//
-// The result is an opaque string that includes both the address of the given
-// object and the address of the module instance that object belongs to.
-//
-// Only GraphNodeSubPath implementations can be referrers, so this method will
-// panic if the given vertex does not implement that interface.
-func (m *ReferenceMap) referenceMapKey(referrer dag.Vertex, addr addrs.Referenceable) string {
-	path := vertexReferencePath(referrer)
-	return m.mapKey(path, addr)
+	return prefix
 }
 
 // NewReferenceMap is used to create a new reference map for the
@@ -346,82 +266,83 @@ func NewReferenceMap(vs []dag.Vertex) *ReferenceMap {
 	var m ReferenceMap
 
 	// Build the lookup table
-	vertices := make(map[string][]dag.Vertex)
+	refMap := make(map[string][]dag.Vertex)
 	for _, v := range vs {
-		_, ok := v.(GraphNodeSubPath)
-		if !ok {
-			// Only nodes with paths can participate in a reference map.
-			continue
-		}
-
 		// We're only looking for referenceable nodes
 		rn, ok := v.(GraphNodeReferenceable)
 		if !ok {
 			continue
 		}
 
-		path := m.vertexReferenceablePath(v)
-
 		// Go through and cache them
-		for _, addr := range rn.ReferenceableAddrs() {
-			key := m.mapKey(path, addr)
-			vertices[key] = append(vertices[key], v)
+		prefix := m.prefix(v)
+		for _, n := range rn.ReferenceableName() {
+			n = prefix + n
+			refMap[n] = append(refMap[n], v)
 		}
 
-		// Any node can be referenced by the address of the module it belongs
-		// to or any of that module's ancestors.
-		for _, addr := range path.Ancestors()[1:] {
-			// Can be referenced either as the specific call instance (with
-			// an instance key) or as the bare module call itself (the "module"
-			// block in the parent module that created the instance).
-			callPath, call := addr.Call()
-			callInstPath, callInst := addr.CallInstance()
-			callKey := m.mapKey(callPath, call)
-			callInstKey := m.mapKey(callInstPath, callInst)
-			vertices[callKey] = append(vertices[callKey], v)
-			vertices[callInstKey] = append(vertices[callInstKey], v)
+		// If there is a path, it is always referenceable by that. For
+		// example, if this is a referenceable thing at path []string{"foo"},
+		// then it can be referenced at "module.foo"
+		if pn, ok := v.(GraphNodeSubPath); ok {
+			for _, p := range ReferenceModulePath(pn.Path()) {
+				refMap[p] = append(refMap[p], v)
+			}
 		}
 	}
 
 	// Build the lookup table for referenced by
-	edges := make(map[string][]dag.Vertex)
+	refByMap := make(map[string][]dag.Vertex)
 	for _, v := range vs {
-		_, ok := v.(GraphNodeSubPath)
-		if !ok {
-			// Only nodes with paths can participate in a reference map.
-			continue
-		}
-
+		// We're only looking for referenceable nodes
 		rn, ok := v.(GraphNodeReferencer)
 		if !ok {
-			// We're only looking for referenceable nodes
 			continue
 		}
 
 		// Go through and cache them
-		for _, ref := range rn.References() {
-			if ref.Subject == nil {
-				// Should never happen
-				panic(fmt.Sprintf("%T.References returned reference with nil subject", rn))
-			}
-			key := m.referenceMapKey(v, ref.Subject)
-			edges[key] = append(edges[key], v)
+		prefix := m.prefix(v)
+		for _, n := range rn.References() {
+			n = prefix + n
+			refByMap[n] = append(refByMap[n], v)
 		}
 	}
 
-	m.vertices = vertices
-	m.edges = edges
+	m.references = refMap
+	m.referencedBy = refByMap
 	return &m
+}
+
+// Returns the reference name for a module path. The path "foo" would return
+// "module.foo". If this is a deeply nested module, it will be every parent
+// as well. For example: ["foo", "bar"] would return both "module.foo" and
+// "module.foo.module.bar"
+func ReferenceModulePath(p []string) []string {
+	p = normalizeModulePath(p)
+	if len(p) == 1 {
+		// Root, no name
+		return nil
+	}
+
+	result := make([]string, 0, len(p)-1)
+	for i := len(p); i > 1; i-- {
+		result = append(result, modulePrefixStr(p[:i]))
+	}
+
+	return result
 }
 
 // ReferencesFromConfig returns the references that a configuration has
 // based on the interpolated variables in a configuration.
-func ReferencesFromConfig(body hcl.Body, schema *configschema.Block) []*addrs.Reference {
-	if body == nil {
-		return nil
+func ReferencesFromConfig(c *config.RawConfig) []string {
+	var result []string
+	for _, v := range c.Variables {
+		if r := ReferenceFromInterpolatedVar(v); len(r) > 0 {
+			result = append(result, r...)
+		}
 	}
-	refs, _ := lang.ReferencesInBlock(body, schema)
-	return refs
+
+	return result
 }
 
 // ReferenceFromInterpolatedVar returns the reference from this variable,
@@ -457,31 +378,18 @@ func ReferenceFromInterpolatedVar(v config.InterpolatedVariable) []string {
 	}
 }
 
-// appendResourceDestroyReferences identifies resource and resource instance
-// references in the given slice and appends to it the "destroy-phase"
-// equivalents of those references, returning the result.
-//
-// This can be used in the References implementation for a node which must also
-// depend on the destruction of anything it references.
-func appendResourceDestroyReferences(refs []*addrs.Reference) []*addrs.Reference {
-	given := refs
-	for _, ref := range given {
-		switch tr := ref.Subject.(type) {
-		case addrs.Resource:
-			newRef := *ref // shallow copy
-			newRef.Subject = tr.Phase(addrs.ResourceInstancePhaseDestroy)
-			refs = append(refs, &newRef)
-		case addrs.ResourceInstance:
-			newRef := *ref // shallow copy
-			newRef.Subject = tr.Phase(addrs.ResourceInstancePhaseDestroy)
-			refs = append(refs, &newRef)
-		}
+func modulePrefixStr(p []string) string {
+	// strip "root"
+	if len(p) > 0 && p[0] == rootModulePath[0] {
+		p = p[1:]
 	}
-	return refs
-}
 
-func modulePrefixStr(p addrs.ModuleInstance) string {
-	return p.String()
+	parts := make([]string, 0, len(p)*2)
+	for _, p := range p {
+		parts = append(parts, "module", p)
+	}
+
+	return strings.Join(parts, ".")
 }
 
 func modulePrefixList(result []string, prefix string) []string {
