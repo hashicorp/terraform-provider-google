@@ -5,6 +5,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * compute: `data.google_compute_subnetwork` outputs the `self_link` field again. [GH-3156]
+* compute: `google_app_engine_application` correctly outputs `gcr_domain`.  [GH-3149]
 
 ## 2.1.0 (February 26, 2019)
 
