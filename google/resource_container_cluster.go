@@ -44,7 +44,7 @@ var (
 	}
 
 	ipAllocationSubnetFields    = []string{"ip_allocation_policy.0.create_subnetwork", "ip_allocation_policy.0.subnetwork_name"}
-	ipAllocationCidrBlockFields = []string{"ip_allocation_policy.0.cluster_ipv4_cidr_block", "ip_allocation_policy.0.services_ipv4_cidr_block"}
+	ipAllocationCidrBlockFields = []string{"ip_allocation_policy.0.cluster_ipv4_cidr_block", "ip_allocation_policy.0.services_ipv4_cidr_block", "ip_allocation_policy.0.node_ipv4_cidr_block"}
 	ipAllocationRangeFields     = []string{"ip_allocation_policy.0.cluster_secondary_range_name", "ip_allocation_policy.0.services_secondary_range_name"}
 )
 
@@ -487,13 +487,13 @@ func resourceContainerCluster() *schema.Resource {
 							Type:          schema.TypeBool,
 							Optional:      true,
 							ForceNew:      true,
-							ConflictsWith: append(ipAllocationCidrBlockFields, ipAllocationRangeFields...),
+							ConflictsWith: ipAllocationRangeFields,
 						},
 						"subnetwork_name": {
 							Type:          schema.TypeString,
 							Optional:      true,
 							ForceNew:      true,
-							ConflictsWith: append(ipAllocationCidrBlockFields, ipAllocationRangeFields...),
+							ConflictsWith: ipAllocationRangeFields,
 						},
 
 						// GKE creates/deletes secondary ranges in VPC
@@ -502,7 +502,7 @@ func resourceContainerCluster() *schema.Resource {
 							Optional:         true,
 							Computed:         true,
 							ForceNew:         true,
-							ConflictsWith:    append(ipAllocationSubnetFields, ipAllocationRangeFields...),
+							ConflictsWith:    ipAllocationRangeFields,
 							DiffSuppressFunc: cidrOrSizeDiffSuppress,
 						},
 						"services_ipv4_cidr_block": {
@@ -510,7 +510,14 @@ func resourceContainerCluster() *schema.Resource {
 							Optional:         true,
 							Computed:         true,
 							ForceNew:         true,
-							ConflictsWith:    append(ipAllocationSubnetFields, ipAllocationRangeFields...),
+							ConflictsWith:    ipAllocationRangeFields,
+							DiffSuppressFunc: cidrOrSizeDiffSuppress,
+						},
+						"node_ipv4_cidr_block": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							ConflictsWith:    ipAllocationRangeFields,
 							DiffSuppressFunc: cidrOrSizeDiffSuppress,
 						},
 
@@ -833,7 +840,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	if err := d.Set("ip_allocation_policy", flattenIPAllocationPolicy(cluster.IpAllocationPolicy)); err != nil {
+	if err := d.Set("ip_allocation_policy", flattenIPAllocationPolicy(cluster.IpAllocationPolicy, d, config)); err != nil {
 		return err
 	}
 
@@ -1485,6 +1492,7 @@ func expandIPAllocationPolicy(configured interface{}) *containerBeta.IPAllocatio
 
 		ClusterIpv4CidrBlock:  config["cluster_ipv4_cidr_block"].(string),
 		ServicesIpv4CidrBlock: config["services_ipv4_cidr_block"].(string),
+		NodeIpv4CidrBlock:     config["node_ipv4_cidr_block"].(string),
 
 		ClusterSecondaryRangeName:  config["cluster_secondary_range_name"].(string),
 		ServicesSecondaryRangeName: config["services_secondary_range_name"].(string),
@@ -1676,9 +1684,21 @@ func flattenPrivateClusterConfig(c *containerBeta.PrivateClusterConfig) []map[st
 	}
 }
 
-func flattenIPAllocationPolicy(c *containerBeta.IPAllocationPolicy) []map[string]interface{} {
+func flattenIPAllocationPolicy(c *containerBeta.IPAllocationPolicy, d *schema.ResourceData, config *Config) []map[string]interface{} {
 	if c == nil {
 		return nil
+	}
+	node_cidr_block := ""
+	if c.SubnetworkName != "" {
+		subnetwork, err := ParseSubnetworkFieldValue(c.SubnetworkName, d, config)
+		if err == nil {
+			sn, err := config.clientCompute.Subnetworks.Get(subnetwork.Project, subnetwork.Region, subnetwork.Name).Do()
+			if err == nil {
+				node_cidr_block = sn.IpCidrRange
+			}
+		} else {
+			log.Printf("[WARN] Unable to parse subnetwork name, got error while trying to get new subnetwork: %s", err)
+		}
 	}
 	return []map[string]interface{}{
 		{
@@ -1687,6 +1707,7 @@ func flattenIPAllocationPolicy(c *containerBeta.IPAllocationPolicy) []map[string
 
 			"cluster_ipv4_cidr_block":  c.ClusterIpv4CidrBlock,
 			"services_ipv4_cidr_block": c.ServicesIpv4CidrBlock,
+			"node_ipv4_cidr_block":     node_cidr_block,
 
 			"cluster_secondary_range_name":  c.ClusterSecondaryRangeName,
 			"services_secondary_range_name": c.ServicesSecondaryRangeName,
