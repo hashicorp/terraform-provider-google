@@ -76,10 +76,6 @@ fi
 # - Ensure all source files contain a copyright message.
 git ls-files "*.go" | xargs grep -L "\(Copyright [0-9]\{4,\} gRPC authors\)\|DO NOT EDIT" 2>&1 | fail_on_output
 
-# - Make sure all tests in grpc and grpc/test use leakcheck via Teardown.
-(! grep 'func Test[^(]' *_test.go)
-(! grep 'func Test[^(]' test/*.go)
-
 # - Do not import math/rand for real library code.  Use internal/grpcrand for
 #   thread safety.
 git ls-files "*.go" | xargs grep -l '"math/rand"' 2>&1 | (! grep -v '^examples\|^stress\|grpcrand')
@@ -124,7 +120,7 @@ done
 ### END HACK HACK HACK
 
 # TODO(menghanl): fix errors in transport_test.
-staticcheck -go 1.9 -ignore '
+staticcheck -ignore '
 balancer.go:SA1019
 balancer_test.go:SA1019
 clientconn_test.go:SA1019
@@ -136,6 +132,5 @@ internal/transport/transport_test.go:SA2002
 stats/stats_test.go:SA1019
 test/channelz_test.go:SA1019
 test/end2end_test.go:SA1019
-test/healthcheck_test.go:SA1019
 ' ./...
 misspell -error .

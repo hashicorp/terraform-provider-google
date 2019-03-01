@@ -36,7 +36,6 @@ func (c *fileChecksum) checksum(source string) error {
 	}
 	defer f.Close()
 
-	c.Hash.Reset()
 	if _, err := io.Copy(c.Hash, f); err != nil {
 		return fmt.Errorf("Failed to hash: %s", err)
 	}
@@ -180,15 +179,13 @@ func (c *Client) checksumFromFile(checksumFile string, src *url.URL) (*fileCheck
 	defer os.Remove(tempfile)
 
 	c2 := &Client{
-		Ctx:              c.Ctx,
-		Getters:          c.Getters,
-		Decompressors:    c.Decompressors,
-		Detectors:        c.Detectors,
-		Pwd:              c.Pwd,
-		Dir:              false,
-		Src:              checksumFile,
-		Dst:              tempfile,
-		ProgressListener: c.ProgressListener,
+		Getters:       c.Getters,
+		Decompressors: c.Decompressors,
+		Detectors:     c.Detectors,
+		Pwd:           c.Pwd,
+		Dir:           false,
+		Src:           checksumFile,
+		Dst:           tempfile,
 	}
 	if err = c2.Get(); err != nil {
 		return nil, fmt.Errorf(
@@ -200,15 +197,8 @@ func (c *Client) checksumFromFile(checksumFile string, src *url.URL) (*fileCheck
 	if err != nil {
 		return nil, err
 	}
-	checksumFileDir := filepath.Dir(checksumFileURL.Path)
-	relpath, err := filepath.Rel(checksumFileDir, absPath)
-	switch {
-	case err == nil ||
-		err.Error() == "Rel: can't make "+absPath+" relative to "+checksumFileDir:
-		// ex: on windows C:\gopath\...\content.txt cannot be relative to \
-		// which is okay, may be another expected path will work.
-		break
-	default:
+	relpath, err := filepath.Rel(filepath.Dir(checksumFileURL.Path), absPath)
+	if err != nil {
 		return nil, err
 	}
 
@@ -248,7 +238,7 @@ func (c *Client) checksumFromFile(checksumFile string, src *url.URL) (*fileCheck
 		}
 		// make sure the checksum is for the right file
 		for _, option := range options {
-			if option != "" && checksum.Filename == option {
+			if checksum.Filename == option {
 				// any checksum will work so we return the first one
 				return checksum, nil
 			}

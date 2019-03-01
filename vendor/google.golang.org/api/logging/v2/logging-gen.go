@@ -4410,9 +4410,8 @@ type EntriesListCall struct {
 	header_               http.Header
 }
 
-// List: Lists log entries. Use this method to retrieve log entries that
-// originated from a project/folder/organization/billing account. For
-// ways to export log entries, see Exporting Logs.
+// List: Lists log entries. Use this method to retrieve log entries from
+// Logging. For ways to export log entries, see Exporting Logs.
 func (r *EntriesService) List(listlogentriesrequest *ListLogEntriesRequest) *EntriesListCall {
 	c := &EntriesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.listlogentriesrequest = listlogentriesrequest
@@ -4506,7 +4505,7 @@ func (c *EntriesListCall) Do(opts ...googleapi.CallOption) (*ListLogEntriesRespo
 	}
 	return ret, nil
 	// {
-	//   "description": "Lists log entries. Use this method to retrieve log entries that originated from a project/folder/organization/billing account. For ways to export log entries, see Exporting Logs.",
+	//   "description": "Lists log entries. Use this method to retrieve log entries from Logging. For ways to export log entries, see Exporting Logs.",
 	//   "flatPath": "v2/entries:list",
 	//   "httpMethod": "POST",
 	//   "id": "logging.entries.list",
