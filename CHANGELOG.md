@@ -1,5 +1,8 @@
 ## 2.2.0 (Unreleased)
 
+ENHANCEMENTS:
+* compute: `google_compute_disk` and `google_compute_region-disk` will now detach themselves from a more up to date set of users at delete time. [GH-3154]
+
 BUG FIXES:
 * compute: `data.google_compute_subnetwork` outputs the `self_link` field again. [GH-3156]
 
