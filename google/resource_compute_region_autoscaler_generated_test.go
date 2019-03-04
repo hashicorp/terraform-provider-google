@@ -99,6 +99,7 @@ resource "google_compute_region_instance_group_manager" "foobar" {
   region = "us-central1"
 
   instance_template  = "${google_compute_instance_template.foobar.self_link}"
+
   target_pools       = ["${google_compute_target_pool.foobar.self_link}"]
   base_instance_name = "foobar"
 }
