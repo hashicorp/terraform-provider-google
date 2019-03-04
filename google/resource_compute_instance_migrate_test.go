@@ -901,7 +901,7 @@ func getInitializedConfig(t *testing.T) *Config {
 		Region:      getTestRegionFromEnv(),
 		Zone:        getTestZoneFromEnv(),
 	}
-	err := config.loadAndValidate()
+	err := config.LoadAndValidate()
 	if err != nil {
 		t.Fatal(err)
 	}

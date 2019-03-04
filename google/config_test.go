@@ -21,7 +21,7 @@ func TestConfigLoadAndValidate_accountFilePath(t *testing.T) {
 		Region:      "us-central1",
 	}
 
-	err := config.loadAndValidate()
+	err := config.LoadAndValidate()
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -38,7 +38,7 @@ func TestConfigLoadAndValidate_accountFileJSON(t *testing.T) {
 		Region:      "us-central1",
 	}
 
-	err = config.loadAndValidate()
+	err = config.LoadAndValidate()
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -51,7 +51,7 @@ func TestConfigLoadAndValidate_accountFileJSONInvalid(t *testing.T) {
 		Region:      "us-central1",
 	}
 
-	if config.loadAndValidate() == nil {
+	if config.LoadAndValidate() == nil {
 		t.Fatalf("expected error, but got nil")
 	}
 }
@@ -71,7 +71,7 @@ func TestAccConfigLoadValidate_credentials(t *testing.T) {
 		Region:      "us-central1",
 	}
 
-	err := config.loadAndValidate()
+	err := config.LoadAndValidate()
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -107,7 +107,7 @@ func TestAccConfigLoadValidate_accessToken(t *testing.T) {
 		Region:      "us-central1",
 	}
 
-	err = config.loadAndValidate()
+	err = config.LoadAndValidate()
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -125,7 +125,7 @@ func TestConfigLoadAndValidate_customScopes(t *testing.T) {
 		Region:      "us-central1",
 		Scopes:      []string{"https://www.googleapis.com/auth/compute"},
 	}
-	err := config.loadAndValidate()
+	err := config.LoadAndValidate()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

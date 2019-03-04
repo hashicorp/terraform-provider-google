@@ -466,19 +466,19 @@ func flattenComputeImageSourceDisk(v interface{}, d *schema.ResourceData) interf
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func expandComputeImageDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeImageDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeImageDiskSizeGb(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeImageDiskSizeGb(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeImageFamily(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeImageFamily(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeImageLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandComputeImageLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -489,11 +489,11 @@ func expandComputeImageLabels(v interface{}, d *schema.ResourceData, config *Con
 	return m, nil
 }
 
-func expandComputeImageLabelFingerprint(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeImageLabelFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeImageLicenses(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeImageLicenses(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -506,11 +506,11 @@ func expandComputeImageLicenses(v interface{}, d *schema.ResourceData, config *C
 	return req, nil
 }
 
-func expandComputeImageName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeImageName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeImageRawDisk(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeImageRawDisk(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -543,19 +543,19 @@ func expandComputeImageRawDisk(v interface{}, d *schema.ResourceData, config *Co
 	return transformed, nil
 }
 
-func expandComputeImageRawDiskContainerType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeImageRawDiskContainerType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeImageRawDiskSha1(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeImageRawDiskSha1(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeImageRawDiskSource(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeImageRawDiskSource(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeImageSourceDisk(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeImageSourceDisk(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseZonalFieldValue("disks", v.(string), "project", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for source_disk: %s", err)

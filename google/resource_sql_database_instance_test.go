@@ -40,7 +40,7 @@ func testSweepDatabases(region string) error {
 		return fmt.Errorf("error getting shared config for region: %s", err)
 	}
 
-	err = config.loadAndValidate()
+	err = config.LoadAndValidate()
 	if err != nil {
 		log.Fatalf("error loading: %s", err)
 	}

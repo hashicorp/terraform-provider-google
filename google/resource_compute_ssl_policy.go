@@ -408,23 +408,23 @@ func flattenComputeSslPolicyFingerprint(v interface{}, d *schema.ResourceData) i
 	return v
 }
 
-func expandComputeSslPolicyDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSslPolicyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslPolicyName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSslPolicyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslPolicyProfile(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSslPolicyProfile(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslPolicyMinTlsVersion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSslPolicyMinTlsVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslPolicyCustomFeatures(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSslPolicyCustomFeatures(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }

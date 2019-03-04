@@ -552,15 +552,15 @@ func flattenCloudBuildTriggerBuildStepArgs(v interface{}, d *schema.ResourceData
 	return v
 }
 
-func expandCloudBuildTriggerDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerDisabled(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerSubstitutions(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandCloudBuildTriggerSubstitutions(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -571,19 +571,19 @@ func expandCloudBuildTriggerSubstitutions(v interface{}, d *schema.ResourceData,
 	return m, nil
 }
 
-func expandCloudBuildTriggerFilename(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerFilename(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerIgnoredFiles(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerIgnoredFiles(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerIncludedFiles(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerIncludedFiles(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerTriggerTemplate(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -637,31 +637,31 @@ func expandCloudBuildTriggerTriggerTemplate(v interface{}, d *schema.ResourceDat
 	return transformed, nil
 }
 
-func expandCloudBuildTriggerTriggerTemplateProjectId(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplateProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerTriggerTemplateRepoName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplateRepoName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerTriggerTemplateDir(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplateDir(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerTriggerTemplateBranchName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplateBranchName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerTriggerTemplateTagName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplateTagName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerTriggerTemplateCommitSha(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerTriggerTemplateCommitSha(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerBuild(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerBuild(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -694,15 +694,15 @@ func expandCloudBuildTriggerBuild(v interface{}, d *schema.ResourceData, config 
 	return transformed, nil
 }
 
-func expandCloudBuildTriggerBuildTags(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerBuildTags(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerBuildImages(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerBuildImages(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerBuildStep(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerBuildStep(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -731,10 +731,10 @@ func expandCloudBuildTriggerBuildStep(v interface{}, d *schema.ResourceData, con
 	return req, nil
 }
 
-func expandCloudBuildTriggerBuildStepName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerBuildStepName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildTriggerBuildStepArgs(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerBuildStepArgs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

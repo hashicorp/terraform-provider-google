@@ -358,11 +358,11 @@ func flattenSpannerInstanceState(v interface{}, d *schema.ResourceData) interfac
 	return v
 }
 
-func expandSpannerInstanceName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandSpannerInstanceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerInstanceConfig(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandSpannerInstanceConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	r := regexp.MustCompile("projects/(.+)/instanceConfigs/(.+)")
 	if r.MatchString(v.(string)) {
 		return v.(string), nil
@@ -376,15 +376,15 @@ func expandSpannerInstanceConfig(v interface{}, d *schema.ResourceData, config *
 	return fmt.Sprintf("projects/%s/instanceConfigs/%s", project, v.(string)), nil
 }
 
-func expandSpannerInstanceDisplayName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandSpannerInstanceDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerInstanceNum_nodes(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandSpannerInstanceNum_nodes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerInstanceLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandSpannerInstanceLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

@@ -392,7 +392,7 @@ func expandPubsubSubscriptionTopic(v interface{}, d *schema.ResourceData, config
 	}
 }
 
-func expandPubsubSubscriptionLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandPubsubSubscriptionLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -403,7 +403,7 @@ func expandPubsubSubscriptionLabels(v interface{}, d *schema.ResourceData, confi
 	return m, nil
 }
 
-func expandPubsubSubscriptionPushConfig(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandPubsubSubscriptionPushConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -429,11 +429,11 @@ func expandPubsubSubscriptionPushConfig(v interface{}, d *schema.ResourceData, c
 	return transformed, nil
 }
 
-func expandPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPubsubSubscriptionPushConfigAttributes(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandPubsubSubscriptionPushConfigAttributes(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -444,7 +444,7 @@ func expandPubsubSubscriptionPushConfigAttributes(v interface{}, d *schema.Resou
 	return m, nil
 }
 
-func expandPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandPubsubSubscriptionAckDeadlineSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

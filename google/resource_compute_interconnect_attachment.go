@@ -485,23 +485,23 @@ func flattenComputeInterconnectAttachmentRegion(v interface{}, d *schema.Resourc
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func expandComputeInterconnectAttachmentInterconnect(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeInterconnectAttachmentInterconnect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeInterconnectAttachmentDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeInterconnectAttachmentDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeInterconnectAttachmentEdgeAvailabilityDomain(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeInterconnectAttachmentEdgeAvailabilityDomain(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeInterconnectAttachmentType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeInterconnectAttachmentType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeInterconnectAttachmentRouter(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeInterconnectAttachmentRouter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseRegionalFieldValue("routers", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for router: %s", err)
@@ -509,19 +509,19 @@ func expandComputeInterconnectAttachmentRouter(v interface{}, d *schema.Resource
 	return f.RelativeLink(), nil
 }
 
-func expandComputeInterconnectAttachmentName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeInterconnectAttachmentName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeInterconnectAttachmentCandidateSubnets(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeInterconnectAttachmentCandidateSubnets(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeInterconnectAttachmentVlanTag8021q(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeInterconnectAttachmentVlanTag8021q(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeInterconnectAttachmentRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeInterconnectAttachmentRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)

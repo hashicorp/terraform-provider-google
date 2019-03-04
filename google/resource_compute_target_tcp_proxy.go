@@ -378,19 +378,19 @@ func flattenComputeTargetTcpProxyBackendService(v interface{}, d *schema.Resourc
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func expandComputeTargetTcpProxyDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetTcpProxyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetTcpProxyName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetTcpProxyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetTcpProxyProxyHeader(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetTcpProxyProxyHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetTcpProxyBackendService(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetTcpProxyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)

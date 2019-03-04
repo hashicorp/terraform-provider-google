@@ -102,7 +102,7 @@ var defaultClientScopes = []string{
 	"https://www.googleapis.com/auth/devstorage.full_control",
 }
 
-func (c *Config) loadAndValidate() error {
+func (c *Config) LoadAndValidate() error {
 	if len(c.Scopes) == 0 {
 		c.Scopes = defaultClientScopes
 	}

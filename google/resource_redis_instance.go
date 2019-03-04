@@ -526,11 +526,11 @@ func flattenRedisInstanceTier(v interface{}, d *schema.ResourceData) interface{}
 	return v
 }
 
-func expandRedisInstanceAlternativeLocationId(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandRedisInstanceAlternativeLocationId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandRedisInstanceAuthorizedNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandRedisInstanceAuthorizedNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	fv, err := ParseNetworkFieldValue(v.(string), d, config)
 	if err != nil {
 		return nil, err
@@ -538,11 +538,11 @@ func expandRedisInstanceAuthorizedNetwork(v interface{}, d *schema.ResourceData,
 	return fv.RelativeLink(), nil
 }
 
-func expandRedisInstanceDisplayName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandRedisInstanceDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandRedisInstanceLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandRedisInstanceLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -553,7 +553,7 @@ func expandRedisInstanceLabels(v interface{}, d *schema.ResourceData, config *Co
 	return m, nil
 }
 
-func expandRedisInstanceRedisConfigs(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandRedisInstanceRedisConfigs(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -564,11 +564,11 @@ func expandRedisInstanceRedisConfigs(v interface{}, d *schema.ResourceData, conf
 	return m, nil
 }
 
-func expandRedisInstanceLocationId(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandRedisInstanceLocationId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandRedisInstanceName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandRedisInstanceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -582,18 +582,18 @@ func expandRedisInstanceName(v interface{}, d *schema.ResourceData, config *Conf
 	return fmt.Sprintf("projects/%s/locations/%s/instances/%s", project, region, v.(string)), nil
 }
 
-func expandRedisInstanceMemorySizeGb(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandRedisInstanceMemorySizeGb(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandRedisInstanceRedisVersion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandRedisInstanceRedisVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandRedisInstanceReservedIpRange(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandRedisInstanceReservedIpRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandRedisInstanceTier(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandRedisInstanceTier(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

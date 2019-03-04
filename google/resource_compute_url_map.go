@@ -636,15 +636,15 @@ func flattenComputeUrlMapTestService(v interface{}, d *schema.ResourceData) inte
 
 // ResourceRef only supports 1 type and UrlMap has references to a BackendBucket or BackendService. Just read the self_link string
 // instead of extracting the name and making a self_link out of it.
-func expandComputeUrlMapDefaultService(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapHost_rule(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHost_rule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -681,28 +681,28 @@ func expandComputeUrlMapHost_rule(v interface{}, d *schema.ResourceData, config 
 	return req, nil
 }
 
-func expandComputeUrlMapHost_ruleDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHost_ruleDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapHost_ruleHosts(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHost_ruleHosts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeUrlMapHost_rulePathMatcher(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHost_rulePathMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapFingerprint(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPath_matcher(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPath_matcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -747,19 +747,19 @@ func expandComputeUrlMapPath_matcher(v interface{}, d *schema.ResourceData, conf
 
 // ResourceRef only supports 1 type and UrlMap has references to a BackendBucket or BackendService. Just read the self_link string
 // instead of extracting the name and making a self_link out of it.
-func expandComputeUrlMapPath_matcherDefaultService(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPath_matcherDefaultService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPath_matcherDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPath_matcherDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPath_matcherName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPath_matcherName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPath_matcherPath_rule(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPath_matcherPath_rule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -788,18 +788,18 @@ func expandComputeUrlMapPath_matcherPath_rule(v interface{}, d *schema.ResourceD
 	return req, nil
 }
 
-func expandComputeUrlMapPath_matcherPath_rulePaths(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPath_matcherPath_rulePaths(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
 // ResourceRef only supports 1 type and UrlMap has references to a BackendBucket or BackendService. Just read the self_link string
 // instead of extracting the name and making a self_link out of it.
-func expandComputeUrlMapPath_matcherPath_ruleService(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPath_matcherPath_ruleService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapTest(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapTest(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -842,20 +842,20 @@ func expandComputeUrlMapTest(v interface{}, d *schema.ResourceData, config *Conf
 	return req, nil
 }
 
-func expandComputeUrlMapTestDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapTestDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapTestHost(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapTestHost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapTestPath(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapTestPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
 // ResourceRef only supports 1 type and UrlMap has references to a BackendBucket or BackendService. Just read the self_link string
 // instead of extracting the name and making a self_link out of it.
-func expandComputeUrlMapTestService(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapTestService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

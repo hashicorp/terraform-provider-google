@@ -320,15 +320,15 @@ func flattenComputeTargetHttpProxyUrlMap(v interface{}, d *schema.ResourceData) 
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func expandComputeTargetHttpProxyDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetHttpProxyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetHttpProxyName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetHttpProxyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetHttpProxyUrlMap(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetHttpProxyUrlMap(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("urlMaps", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for url_map: %s", err)

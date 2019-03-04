@@ -1013,15 +1013,15 @@ func flattenComputeDiskSourceSnapshotId(v interface{}, d *schema.ResourceData) i
 	return v
 }
 
-func expandComputeDiskLabelFingerprint(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskLabelFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeDiskDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeDiskLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandComputeDiskLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1032,15 +1032,15 @@ func expandComputeDiskLabels(v interface{}, d *schema.ResourceData, config *Conf
 	return m, nil
 }
 
-func expandComputeDiskName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeDiskSize(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskSize(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeDiskType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseZonalFieldValue("diskTypes", v.(string), "project", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for type: %s", err)
@@ -1048,11 +1048,11 @@ func expandComputeDiskType(v interface{}, d *schema.ResourceData, config *Config
 	return f.RelativeLink(), nil
 }
 
-func expandComputeDiskImage(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskImage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeDiskZone(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("zones", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for zone: %s", err)
@@ -1060,7 +1060,7 @@ func expandComputeDiskZone(v interface{}, d *schema.ResourceData, config *Config
 	return f.RelativeLink(), nil
 }
 
-func expandComputeDiskSourceImageEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskSourceImageEncryptionKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1093,19 +1093,19 @@ func expandComputeDiskSourceImageEncryptionKey(v interface{}, d *schema.Resource
 	return transformed, nil
 }
 
-func expandComputeDiskSourceImageEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskSourceImageEncryptionKeyRawKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeDiskSourceImageEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskSourceImageEncryptionKeySha256(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeDiskSourceImageEncryptionKeyKmsKeySelfLink(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskSourceImageEncryptionKeyKmsKeySelfLink(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeDiskDiskEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskDiskEncryptionKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1138,19 +1138,19 @@ func expandComputeDiskDiskEncryptionKey(v interface{}, d *schema.ResourceData, c
 	return transformed, nil
 }
 
-func expandComputeDiskDiskEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskDiskEncryptionKeyRawKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeDiskDiskEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskDiskEncryptionKeySha256(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeDiskDiskEncryptionKeyKmsKeySelfLink(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskDiskEncryptionKeyKmsKeySelfLink(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeDiskSnapshot(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskSnapshot(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("snapshots", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for snapshot: %s", err)
@@ -1158,7 +1158,7 @@ func expandComputeDiskSnapshot(v interface{}, d *schema.ResourceData, config *Co
 	return f.RelativeLink(), nil
 }
 
-func expandComputeDiskSourceSnapshotEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskSourceSnapshotEncryptionKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1191,15 +1191,15 @@ func expandComputeDiskSourceSnapshotEncryptionKey(v interface{}, d *schema.Resou
 	return transformed, nil
 }
 
-func expandComputeDiskSourceSnapshotEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskSourceSnapshotEncryptionKeyRawKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeDiskSourceSnapshotEncryptionKeyKmsKeySelfLink(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskSourceSnapshotEncryptionKeyKmsKeySelfLink(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeDiskSourceSnapshotEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeDiskSourceSnapshotEncryptionKeySha256(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

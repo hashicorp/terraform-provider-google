@@ -630,19 +630,19 @@ func flattenComputeSubnetworkRegion(v interface{}, d *schema.ResourceData) inter
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func expandComputeSubnetworkDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSubnetworkDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSubnetworkIpCidrRange(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSubnetworkIpCidrRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSubnetworkName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSubnetworkName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSubnetworkNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSubnetworkNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
@@ -650,15 +650,15 @@ func expandComputeSubnetworkNetwork(v interface{}, d *schema.ResourceData, confi
 	return f.RelativeLink(), nil
 }
 
-func expandComputeSubnetworkEnableFlowLogs(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSubnetworkEnableFlowLogs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSubnetworkFingerprint(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSubnetworkFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSubnetworkSecondaryIpRange(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSubnetworkSecondaryIpRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -687,19 +687,19 @@ func expandComputeSubnetworkSecondaryIpRange(v interface{}, d *schema.ResourceDa
 	return req, nil
 }
 
-func expandComputeSubnetworkSecondaryIpRangeRangeName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSubnetworkSecondaryIpRangeRangeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSubnetworkSecondaryIpRangeIpCidrRange(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSubnetworkSecondaryIpRangeIpCidrRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSubnetworkPrivateIpGoogleAccess(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSubnetworkPrivateIpGoogleAccess(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSubnetworkRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSubnetworkRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)

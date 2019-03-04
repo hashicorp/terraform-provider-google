@@ -263,19 +263,19 @@ func flattenDnsManagedZoneLabels(v interface{}, d *schema.ResourceData) interfac
 	return v
 }
 
-func expandDnsManagedZoneDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandDnsManagedZoneDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZoneDnsName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandDnsManagedZoneDnsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZoneName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandDnsManagedZoneName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZoneLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandDnsManagedZoneLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

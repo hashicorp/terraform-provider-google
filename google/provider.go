@@ -282,7 +282,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.Scopes[i] = scope.(string)
 	}
 
-	if err := config.loadAndValidate(); err != nil {
+	if err := config.LoadAndValidate(); err != nil {
 		return nil, err
 	}
 

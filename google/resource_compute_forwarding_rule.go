@@ -539,19 +539,19 @@ func flattenComputeForwardingRuleRegion(v interface{}, d *schema.ResourceData) i
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func expandComputeForwardingRuleDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleIPAddress(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleIPAddress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleIPProtocol(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleIPProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleBackendService(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	// This method returns a full self link from a partial self link.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -580,19 +580,19 @@ func expandComputeForwardingRuleBackendService(v interface{}, d *schema.Resource
 	return url + v.(string), nil
 }
 
-func expandComputeForwardingRuleIpVersion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleIpVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleLoadBalancingScheme(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleLoadBalancingScheme(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
@@ -600,15 +600,15 @@ func expandComputeForwardingRuleNetwork(v interface{}, d *schema.ResourceData, c
 	return f.RelativeLink(), nil
 }
 
-func expandComputeForwardingRulePortRange(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRulePortRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRulePorts(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRulePorts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v.(*schema.Set).List(), nil
 }
 
-func expandComputeForwardingRuleSubnetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleSubnetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for subnetwork: %s", err)
@@ -616,7 +616,7 @@ func expandComputeForwardingRuleSubnetwork(v interface{}, d *schema.ResourceData
 	return f.RelativeLink(), nil
 }
 
-func expandComputeForwardingRuleTarget(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleTarget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	// This method returns a full self link from a partial self link.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -645,11 +645,11 @@ func expandComputeForwardingRuleTarget(v interface{}, d *schema.ResourceData, co
 	return url + v.(string), nil
 }
 
-func expandComputeForwardingRuleNetworkTier(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleNetworkTier(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
