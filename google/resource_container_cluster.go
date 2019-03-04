@@ -478,10 +478,18 @@ func resourceContainerCluster() *schema.Resource {
 			"ip_allocation_policy": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"use_ip_aliases": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+							ForceNew: true,
+						},
+
 						// GKE creates subnetwork automatically
 						"create_subnetwork": {
 							Type:          schema.TypeBool,
@@ -489,6 +497,7 @@ func resourceContainerCluster() *schema.Resource {
 							ForceNew:      true,
 							ConflictsWith: ipAllocationRangeFields,
 						},
+
 						"subnetwork_name": {
 							Type:          schema.TypeString,
 							Optional:      true,
@@ -1485,7 +1494,7 @@ func expandIPAllocationPolicy(configured interface{}) *containerBeta.IPAllocatio
 	config := l[0].(map[string]interface{})
 
 	return &containerBeta.IPAllocationPolicy{
-		UseIpAliases: true,
+		UseIpAliases: config["use_ip_aliases"].(bool),
 
 		CreateSubnetwork: config["create_subnetwork"].(bool),
 		SubnetworkName:   config["subnetwork_name"].(string),
@@ -1496,6 +1505,7 @@ func expandIPAllocationPolicy(configured interface{}) *containerBeta.IPAllocatio
 
 		ClusterSecondaryRangeName:  config["cluster_secondary_range_name"].(string),
 		ServicesSecondaryRangeName: config["services_secondary_range_name"].(string),
+		ForceSendFields:            []string{"UseIpAliases"},
 	}
 }
 
@@ -1702,6 +1712,8 @@ func flattenIPAllocationPolicy(c *containerBeta.IPAllocationPolicy, d *schema.Re
 	}
 	return []map[string]interface{}{
 		{
+			"use_ip_aliases": c.UseIpAliases,
+
 			"create_subnetwork": c.CreateSubnetwork,
 			"subnetwork_name":   c.SubnetworkName,
 
