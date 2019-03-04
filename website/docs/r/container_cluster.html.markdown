@@ -350,6 +350,11 @@ maintenance_policy {
 
 The `ip_allocation_policy` block supports:
 
+* `use_ip_aliases` - (Optional) Whether alias IPs will be used for pod IPs in
+the cluster. Defaults to `true` if the `ip_allocation_policy` block is defined,
+and to the API default otherwise. Prior to March 31, 2019, the default on the
+API is `false`; afterwards, it's `true`.
+
 * `cluster_secondary_range_name` - (Optional) The name of the secondary range to be
     used as for the cluster CIDR block. The secondary range will be used for pod IP
     addresses. This must be an existing secondary range associated with the cluster
