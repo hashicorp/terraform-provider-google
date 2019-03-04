@@ -1,5 +1,8 @@
 ## 2.2.0 (Unreleased)
 
+FEATURES:
+* **New Datasource**: `data.google_projects` for retrieving a list of projects based on a filter. [GH-3178]
+
 ENHANCEMENTS:
 * compute: `google_compute_disk` and `google_compute_region-disk` will now detach themselves from a more up to date set of users at delete time. [GH-3154]
 
