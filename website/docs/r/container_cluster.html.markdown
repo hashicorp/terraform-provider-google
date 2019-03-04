@@ -352,7 +352,7 @@ The `ip_allocation_policy` block supports:
 
 * `use_ip_aliases` - (Optional) Whether alias IPs will be used for pod IPs in
 the cluster. Defaults to `true` if the `ip_allocation_policy` block is defined,
-and to the API default otherwise. Prior to March 31, 2019, the default on the
+and to the API default otherwise. Prior to June 17th 2019, the default on the
 API is `false`; afterwards, it's `true`.
 
 * `cluster_secondary_range_name` - (Optional) The name of the secondary range to be
