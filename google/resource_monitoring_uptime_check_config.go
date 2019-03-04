@@ -791,19 +791,19 @@ func flattenMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d 
 	return v
 }
 
-func expandMonitoringUptimeCheckConfigDisplayName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigPeriod(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigTimeout(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigContentMatchers(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigContentMatchers(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -825,19 +825,19 @@ func expandMonitoringUptimeCheckConfigContentMatchers(v interface{}, d *schema.R
 	return req, nil
 }
 
-func expandMonitoringUptimeCheckConfigContentMatchersContent(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigContentMatchersContent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigIsInternal(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigIsInternal(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigInternalCheckers(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigInternalCheckers(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -887,27 +887,27 @@ func expandMonitoringUptimeCheckConfigInternalCheckers(v interface{}, d *schema.
 	return req, nil
 }
 
-func expandMonitoringUptimeCheckConfigInternalCheckersGcpZone(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigInternalCheckersGcpZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigInternalCheckersPeerProjectId(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigInternalCheckersPeerProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigInternalCheckersName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigInternalCheckersName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigInternalCheckersNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigInternalCheckersNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigInternalCheckersDisplayName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigInternalCheckersDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -961,7 +961,7 @@ func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.Resourc
 	return transformed, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -987,19 +987,19 @@ func expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d *schema
 	return transformed, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckPort(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckHeaders(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckHeaders(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1010,19 +1010,19 @@ func expandMonitoringUptimeCheckConfigHttpCheckHeaders(v interface{}, d *schema.
 	return m, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckPath(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckUseSsl(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckUseSsl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigTcpCheck(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigTcpCheck(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1041,11 +1041,11 @@ func expandMonitoringUptimeCheckConfigTcpCheck(v interface{}, d *schema.Resource
 	return transformed, nil
 }
 
-func expandMonitoringUptimeCheckConfigTcpCheckPort(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigTcpCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigResourceGroup(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigResourceGroup(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1071,15 +1071,15 @@ func expandMonitoringUptimeCheckConfigResourceGroup(v interface{}, d *schema.Res
 	return transformed, nil
 }
 
-func expandMonitoringUptimeCheckConfigResourceGroupResourceType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigResourceGroupResourceType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigResourceGroupGroupId(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigResourceGroupGroupId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return GetResourceNameFromSelfLink(v.(string)), nil
 }
 
-func expandMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1105,11 +1105,11 @@ func expandMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d *schema
 	return transformed, nil
 }
 
-func expandMonitoringUptimeCheckConfigMonitoredResourceType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigMonitoredResourceType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

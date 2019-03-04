@@ -537,15 +537,15 @@ func flattenComputeSnapshotSnapshotEncryptionKeySha256(v interface{}, d *schema.
 	return v
 }
 
-func expandComputeSnapshotName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandComputeSnapshotLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -556,11 +556,11 @@ func expandComputeSnapshotLabels(v interface{}, d *schema.ResourceData, config *
 	return m, nil
 }
 
-func expandComputeSnapshotLabelFingerprint(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotLabelFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotSourceDisk(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSourceDisk(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseZonalFieldValue("disks", v.(string), "project", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for source_disk: %s", err)
@@ -568,7 +568,7 @@ func expandComputeSnapshotSourceDisk(v interface{}, d *schema.ResourceData, conf
 	return f.RelativeLink(), nil
 }
 
-func expandComputeSnapshotZone(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("zones", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for zone: %s", err)
@@ -576,7 +576,7 @@ func expandComputeSnapshotZone(v interface{}, d *schema.ResourceData, config *Co
 	return f.RelativeLink(), nil
 }
 
-func expandComputeSnapshotSnapshotEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSnapshotEncryptionKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -602,15 +602,15 @@ func expandComputeSnapshotSnapshotEncryptionKey(v interface{}, d *schema.Resourc
 	return transformed, nil
 }
 
-func expandComputeSnapshotSnapshotEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSnapshotEncryptionKeyRawKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotSnapshotEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSnapshotEncryptionKeySha256(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotSourceDiskEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSourceDiskEncryptionKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -629,7 +629,7 @@ func expandComputeSnapshotSourceDiskEncryptionKey(v interface{}, d *schema.Resou
 	return transformed, nil
 }
 
-func expandComputeSnapshotSourceDiskEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSourceDiskEncryptionKeyRawKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

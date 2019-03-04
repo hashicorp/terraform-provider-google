@@ -338,18 +338,18 @@ func flattenStorageObjectAccessControlRole(v interface{}, d *schema.ResourceData
 	return v
 }
 
-func expandStorageObjectAccessControlBucket(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandStorageObjectAccessControlBucket(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageObjectAccessControlEntity(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandStorageObjectAccessControlEntity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageObjectAccessControlObject(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandStorageObjectAccessControlObject(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageObjectAccessControlRole(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandStorageObjectAccessControlRole(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

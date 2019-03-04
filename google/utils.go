@@ -19,7 +19,9 @@ import (
 
 type TerraformResourceData interface {
 	HasChange(string) bool
+	GetOkExists(string) (interface{}, bool)
 	GetOk(string) (interface{}, bool)
+	Get(string) interface{}
 	Set(string, interface{}) error
 	SetId(string)
 	Id() string

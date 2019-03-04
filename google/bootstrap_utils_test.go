@@ -52,7 +52,7 @@ func BootstrapKMSKey(t *testing.T) bootstrappedKMS {
 		Zone:        getTestZoneFromEnv(),
 	}
 
-	if err := config.loadAndValidate(); err != nil {
+	if err := config.LoadAndValidate(); err != nil {
 		t.Errorf("Unable to bootstrap KMS key: %s", err)
 	}
 

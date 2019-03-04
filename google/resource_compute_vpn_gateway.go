@@ -275,15 +275,15 @@ func flattenComputeVpnGatewayRegion(v interface{}, d *schema.ResourceData) inter
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func expandComputeVpnGatewayDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeVpnGatewayDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeVpnGatewayName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeVpnGatewayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeVpnGatewayNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeVpnGatewayNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
@@ -291,7 +291,7 @@ func expandComputeVpnGatewayNetwork(v interface{}, d *schema.ResourceData, confi
 	return f.RelativeLink(), nil
 }
 
-func expandComputeVpnGatewayRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeVpnGatewayRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)

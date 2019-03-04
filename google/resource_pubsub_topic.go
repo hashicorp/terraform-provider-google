@@ -178,11 +178,11 @@ func flattenPubsubTopicLabels(v interface{}, d *schema.ResourceData) interface{}
 	return v
 }
 
-func expandPubsubTopicName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandPubsubTopicName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return GetResourceNameFromSelfLink(v.(string)), nil
 }
 
-func expandPubsubTopicLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandPubsubTopicLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

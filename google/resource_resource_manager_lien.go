@@ -280,19 +280,19 @@ func flattenResourceManagerLienRestrictions(v interface{}, d *schema.ResourceDat
 	return v
 }
 
-func expandResourceManagerLienReason(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandResourceManagerLienReason(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandResourceManagerLienOrigin(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandResourceManagerLienOrigin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandResourceManagerLienParent(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandResourceManagerLienParent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandResourceManagerLienRestrictions(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandResourceManagerLienRestrictions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

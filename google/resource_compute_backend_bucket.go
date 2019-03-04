@@ -328,18 +328,18 @@ func flattenComputeBackendBucketName(v interface{}, d *schema.ResourceData) inte
 	return v
 }
 
-func expandComputeBackendBucketBucketName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeBackendBucketBucketName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeBackendBucketDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeBackendBucketDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeBackendBucketEnableCdn(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeBackendBucketEnableCdn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeBackendBucketName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeBackendBucketName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

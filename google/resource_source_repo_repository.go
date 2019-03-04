@@ -191,6 +191,6 @@ func flattenSourceRepoRepositorySize(v interface{}, d *schema.ResourceData) inte
 	return v
 }
 
-func expandSourceRepoRepositoryName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandSourceRepoRepositoryName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return replaceVars(d, config, "projects/{{project}}/repos/{{name}}")
 }

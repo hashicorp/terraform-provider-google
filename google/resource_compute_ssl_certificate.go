@@ -300,15 +300,15 @@ func flattenComputeSslCertificateName(v interface{}, d *schema.ResourceData) int
 	return v
 }
 
-func expandComputeSslCertificateCertificate(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSslCertificateCertificate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslCertificateDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSslCertificateDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslCertificateName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSslCertificateName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	var certName string
 	if v, ok := d.GetOk("name"); ok {
 		certName = v.(string)
@@ -324,6 +324,6 @@ func expandComputeSslCertificateName(v interface{}, d *schema.ResourceData, conf
 	return certName, nil
 }
 
-func expandComputeSslCertificatePrivateKey(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeSslCertificatePrivateKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

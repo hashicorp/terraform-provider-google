@@ -284,18 +284,18 @@ func flattenAppEngineFirewallRulePriority(v interface{}, d *schema.ResourceData)
 	return v
 }
 
-func expandAppEngineFirewallRuleDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFirewallRuleDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineFirewallRuleSourceRange(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFirewallRuleSourceRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineFirewallRuleAction(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFirewallRuleAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineFirewallRulePriority(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFirewallRulePriority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

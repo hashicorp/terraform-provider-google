@@ -392,7 +392,7 @@ func flattenMonitoringNotificationChannelEnabled(v interface{}, d *schema.Resour
 	return v
 }
 
-func expandMonitoringNotificationChannelLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandMonitoringNotificationChannelLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -403,11 +403,11 @@ func expandMonitoringNotificationChannelLabels(v interface{}, d *schema.Resource
 	return m, nil
 }
 
-func expandMonitoringNotificationChannelType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringNotificationChannelType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringNotificationChannelUserLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandMonitoringNotificationChannelUserLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -418,14 +418,14 @@ func expandMonitoringNotificationChannelUserLabels(v interface{}, d *schema.Reso
 	return m, nil
 }
 
-func expandMonitoringNotificationChannelDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringNotificationChannelDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringNotificationChannelDisplayName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringNotificationChannelDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringNotificationChannelEnabled(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringNotificationChannelEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

@@ -288,18 +288,18 @@ func flattenMonitoringGroupFilter(v interface{}, d *schema.ResourceData) interfa
 	return v
 }
 
-func expandMonitoringGroupParentName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGroupParentName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringGroupIsCluster(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGroupIsCluster(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringGroupDisplayName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGroupDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringGroupFilter(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGroupFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
