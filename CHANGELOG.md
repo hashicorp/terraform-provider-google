@@ -5,6 +5,8 @@ FEATURES:
 
 ENHANCEMENTS:
 * compute: `google_compute_disk` and `google_compute_region-disk` will now detach themselves from a more up to date set of users at delete time. [GH-3154]
+* container: `google_container_cluster` can now disable VPC Native clusters with `ip_allocation_policy.use_ip_aliases` [GH-3174]
+
 
 BUG FIXES:
 * compute: `data.google_compute_subnetwork` outputs the `self_link` field again. [GH-3156]
