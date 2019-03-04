@@ -112,6 +112,7 @@ func Provider() terraform.ResourceProvider {
 			"google_netblock_ip_ranges":                       dataSourceGoogleNetblockIpRanges(),
 			"google_organization":                             dataSourceGoogleOrganization(),
 			"google_project":                                  dataSourceGoogleProject(),
+			"google_projects":                                 dataSourceGoogleProjects(),
 			"google_project_services":                         dataSourceGoogleProjectServices(),
 			"google_service_account":                          dataSourceGoogleServiceAccount(),
 			"google_service_account_key":                      dataSourceGoogleServiceAccountKey(),
