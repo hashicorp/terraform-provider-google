@@ -145,6 +145,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 		GeneratedSourceRepoResourcesMap,
 		GeneratedSpannerResourcesMap,
 		GeneratedStorageResourcesMap,
+		GeneratedTpuResourcesMap,
 		GeneratedMonitoringResourcesMap,
 		map[string]*schema.Resource{
 			"google_app_engine_application":                resourceAppEngineApplication(),
