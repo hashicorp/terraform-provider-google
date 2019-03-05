@@ -1799,15 +1799,14 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{name} or {project}/{zone}/{name}")
 	}
 
-	if len(project) > 0 {
-		d.Set("project", project)
-	} else {
+	if len(project) == 0 {
 		var err error
 		project, err = getProject(d, config)
 		if err != nil {
 			return nil, err
 		}
 	}
+	d.Set("project", project)
 
 	if isZone(location) {
 		d.Set("zone", location)
@@ -1817,17 +1816,6 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 
 	d.Set("name", clusterName)
 	d.SetId(clusterName)
-
-	// Try to determine remove_default_node_pool from presence of default
-	// node pool; if still present and user has it set to true, the pool
-	// will get removed on next apply.
-	nodePool := fmt.Sprintf("%s/nodePools/%s", containerClusterFullName(project, location, clusterName), "default-pool")
-	_, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(nodePool).Do()
-	if err != nil && isGoogleApiErrorWithCode(err, 404) {
-		d.Set("remove_default_node_pool", true)
-	} else if err != nil {
-		log.Printf("[WARN] Unable to import value for remove_default_node_pool, got error while trying to get default node pool: %s", err)
-	}
 
 	return []*schema.ResourceData{d}, nil
 }
