@@ -589,9 +589,9 @@ $ terraform import google_container_cluster.mycluster my-gcp-project/us-east1-a/
 $ terraform import google_container_cluster.mycluster us-east1-a/my-cluster
 ```
 
-~> **Note:** This resource has several fields that control Terraform-specific behavior and aren't present in the API. If they are set in config and you import a cluster, Terraform may need to perform an update immediately after import. Some of these updates are no-ops, and some may modify your cluster.
+~> **Note:** This resource has several fields that control Terraform-specific behavior and aren't present in the API. If they are set in config and you import a cluster, Terraform may need to perform an update immediately after import. Most of these updates should be no-ops but some may modify your cluster if the imported state differs.
 
-For example:
+For example, the following fields will show diffs if set in config:
 
-- `min_master_version` will not be set on import and will show a no-op diff if set in config.
-- `remove_default_node_pool`: If the default node pool does not exist at import, this value will be set to true in state, but it will not be set otherwise. Thus, you may see a no-op diff if set to false in config, or a diff if set to true in config when the default node pool still exists.
+- `min_master_version`
+- `remove_default_node_pool`
