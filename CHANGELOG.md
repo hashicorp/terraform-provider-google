@@ -3,14 +3,15 @@
 FEATURES:
 * **New Datasource**: `data.google_projects` for retrieving a list of projects based on a filter. [GH-3178]
 * **New Resource**: `google_tpu_node` for Cloud TPU Nodes [GH-3179]
+
 ENHANCEMENTS:
 * compute: `google_compute_disk` and `google_compute_region-disk` will now detach themselves from a more up to date set of users at delete time. [GH-3154]
 * container: `google_container_cluster` can now disable VPC Native clusters with `ip_allocation_policy.use_ip_aliases` [GH-3174]
 
-
 BUG FIXES:
+* app_engine: `google_app_engine_application` correctly outputs `gcr_domain`.  [GH-3149]
 * compute: `data.google_compute_subnetwork` outputs the `self_link` field again. [GH-3156]
-* compute: `google_app_engine_application` correctly outputs `gcr_domain`.  [GH-3149]
+* compute: `google_compute_attached_disk` is now removed from state if the instance was removed. [GH-3183]
 * container: `google_container_cluster` private_cluster_config now has a diff suppress to prevent a permadiff for and allows for empty `master_ipv4_cidr_block`  [GH-460]
 * container: `google_container_cluster` import behavior fixed/documented for TF-state-only fields (`remove_default_node_pool`, `min_master_version`) [GH-3146][GH-3169][GH-3180]
 
