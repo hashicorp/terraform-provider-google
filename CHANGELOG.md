@@ -14,6 +14,7 @@ BUG FIXES:
 * compute: `google_compute_attached_disk` is now removed from state if the instance was removed. [GH-3183]
 * container: `google_container_cluster` private_cluster_config now has a diff suppress to prevent a permadiff for and allows for empty `master_ipv4_cidr_block`  [GH-460]
 * container: `google_container_cluster` import behavior fixed/documented for TF-state-only fields (`remove_default_node_pool`, `min_master_version`) [GH-3146][GH-3169][GH-3180]
+* storagetransfer: `google_storage_transfer_job` will no longer crash when accessing nil dates. [GH-3185]
 
 ## 2.1.0 (February 26, 2019)
 
