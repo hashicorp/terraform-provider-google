@@ -66,6 +66,11 @@ func resourcePubsubSubscription() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"message_retention_duration": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "604800s",
+			},
 			"push_config": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -83,6 +88,10 @@ func resourcePubsubSubscription() *schema.Resource {
 						},
 					},
 				},
+			},
+			"retain_acked_messages": {
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			"path": {
 				Type:     schema.TypeString,
@@ -131,6 +140,18 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("ack_deadline_seconds"); !isEmptyValue(reflect.ValueOf(ackDeadlineSecondsProp)) && (ok || !reflect.DeepEqual(v, ackDeadlineSecondsProp)) {
 		obj["ackDeadlineSeconds"] = ackDeadlineSecondsProp
+	}
+	messageRetentionDurationProp, err := expandPubsubSubscriptionMessageRetentionDuration(d.Get("message_retention_duration"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("message_retention_duration"); !isEmptyValue(reflect.ValueOf(messageRetentionDurationProp)) && (ok || !reflect.DeepEqual(v, messageRetentionDurationProp)) {
+		obj["messageRetentionDuration"] = messageRetentionDurationProp
+	}
+	retainAckedMessagesProp, err := expandPubsubSubscriptionRetainAckedMessages(d.Get("retain_acked_messages"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("retain_acked_messages"); !isEmptyValue(reflect.ValueOf(retainAckedMessagesProp)) && (ok || !reflect.DeepEqual(v, retainAckedMessagesProp)) {
+		obj["retainAckedMessages"] = retainAckedMessagesProp
 	}
 
 	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/subscriptions/{{name}}")
@@ -197,6 +218,12 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("ack_deadline_seconds", flattenPubsubSubscriptionAckDeadlineSeconds(res["ackDeadlineSeconds"], d)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
+	if err := d.Set("message_retention_duration", flattenPubsubSubscriptionMessageRetentionDuration(res["messageRetentionDuration"], d)); err != nil {
+		return fmt.Errorf("Error reading Subscription: %s", err)
+	}
+	if err := d.Set("retain_acked_messages", flattenPubsubSubscriptionRetainAckedMessages(res["retainAckedMessages"], d)); err != nil {
+		return fmt.Errorf("Error reading Subscription: %s", err)
+	}
 
 	return nil
 }
@@ -223,6 +250,18 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("ack_deadline_seconds"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ackDeadlineSecondsProp)) {
 		obj["ackDeadlineSeconds"] = ackDeadlineSecondsProp
 	}
+	messageRetentionDurationProp, err := expandPubsubSubscriptionMessageRetentionDuration(d.Get("message_retention_duration"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("message_retention_duration"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, messageRetentionDurationProp)) {
+		obj["messageRetentionDuration"] = messageRetentionDurationProp
+	}
+	retainAckedMessagesProp, err := expandPubsubSubscriptionRetainAckedMessages(d.Get("retain_acked_messages"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("retain_acked_messages"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retainAckedMessagesProp)) {
+		obj["retainAckedMessages"] = retainAckedMessagesProp
+	}
 
 	obj, err = resourcePubsubSubscriptionUpdateEncoder(d, meta, obj)
 	if err != nil {
@@ -247,6 +286,14 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("ack_deadline_seconds") {
 		updateMask = append(updateMask, "ackDeadlineSeconds")
+	}
+
+	if d.HasChange("message_retention_duration") {
+		updateMask = append(updateMask, "messageRetentionDuration")
+	}
+
+	if d.HasChange("retain_acked_messages") {
+		updateMask = append(updateMask, "retainAckedMessages")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -349,6 +396,14 @@ func flattenPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenPubsubSubscriptionMessageRetentionDuration(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionRetainAckedMessages(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
 func expandPubsubSubscriptionName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	project, err := getProject(d, config)
 	if err != nil {
@@ -445,6 +500,14 @@ func expandPubsubSubscriptionPushConfigAttributes(v interface{}, d TerraformReso
 }
 
 func expandPubsubSubscriptionAckDeadlineSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionMessageRetentionDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionRetainAckedMessages(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
