@@ -491,12 +491,23 @@ func expandDates(dates []interface{}) *storagetransfer.Date {
 		return nil
 	}
 
-	date := dates[0].([]interface{})
-	return &storagetransfer.Date{
-		Day:   int64(extractFirstMapConfig(date)["day"].(int)),
-		Month: int64(extractFirstMapConfig(date)["month"].(int)),
-		Year:  int64(extractFirstMapConfig(date)["year"].(int)),
+	dateElem := dates[0].([]interface{})
+	date := &storagetransfer.Date{}
+
+	dateMap := extractFirstMapConfig(dateElem)
+	if v, ok := dateMap["day"]; ok {
+		date.Day = int64(v.(int))
 	}
+
+	if v, ok := dateMap["month"]; ok {
+		date.Month = int64(v.(int))
+	}
+
+	if v, ok := dateMap["year"]; ok {
+		date.Year = int64(v.(int))
+	}
+
+	return date
 }
 
 func flattenDate(date *storagetransfer.Date) []map[string]interface{} {
@@ -514,13 +525,27 @@ func expandTimeOfDays(times []interface{}) *storagetransfer.TimeOfDay {
 		return nil
 	}
 
-	time := times[0].([]interface{})
-	return &storagetransfer.TimeOfDay{
-		Hours:   int64(extractFirstMapConfig(time)["hours"].(int)),
-		Minutes: int64(extractFirstMapConfig(time)["minutes"].(int)),
-		Seconds: int64(extractFirstMapConfig(time)["seconds"].(int)),
-		Nanos:   int64(extractFirstMapConfig(time)["nanos"].(int)),
+	timeElem := times[0].([]interface{})
+	time := &storagetransfer.TimeOfDay{}
+
+	timeMap := extractFirstMapConfig(timeElem)
+	if v, ok := timeMap["hours"]; ok {
+		time.Hours = int64(v.(int))
 	}
+
+	if v, ok := timeMap["minutes"]; ok {
+		time.Minutes = int64(v.(int))
+	}
+
+	if v, ok := timeMap["seconds"]; ok {
+		time.Seconds = int64(v.(int))
+	}
+
+	if v, ok := timeMap["nanos"]; ok {
+		time.Nanos = int64(v.(int))
+	}
+
+	return time
 }
 
 func flattenTimeOfDay(timeOfDay *storagetransfer.TimeOfDay) []map[string]interface{} {
