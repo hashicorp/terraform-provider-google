@@ -27,6 +27,24 @@ func TestAccContainerEngineVersions_basic(t *testing.T) {
 	})
 }
 
+func TestAccContainerEngineVersions_filtered(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckGoogleContainerEngineVersions_filtered,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.google_container_engine_versions.versions", "valid_master_versions.#", "0"),
+					resource.TestCheckResourceAttr("data.google_container_engine_versions.versions", "valid_node_versions.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccContainerEngineVersions_regional(t *testing.T) {
 	t.Parallel()
 
@@ -117,6 +135,13 @@ func testAccCheckGoogleContainerEngineVersionsMeta(n string) resource.TestCheckF
 var testAccCheckGoogleContainerEngineVersionsConfig = `
 data "google_container_engine_versions" "versions" {
   zone = "us-central1-b"
+}
+`
+
+var testAccCheckGoogleContainerEngineVersions_filtered = `
+data "google_container_engine_versions" "versions" {
+  zone           = "us-central1-b"
+  version_prefix = "1.1."
 }
 `
 
