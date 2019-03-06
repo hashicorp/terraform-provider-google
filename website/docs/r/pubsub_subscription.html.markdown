@@ -80,6 +80,10 @@ resource "google_pubsub_subscription" "example" {
     foo = "bar"
   }
 
+  # 20 minutes
+  message_retention_duration = "1200s"
+  retain_acked_messages = true
+
   ack_deadline_seconds = 20
 }
 ```
@@ -143,6 +147,24 @@ The following arguments are supported:
   for the call to the push endpoint.
   If the subscriber never acknowledges the message, the Pub/Sub system
   will eventually redeliver the message.
+
+* `message_retention_duration` -
+  (Optional)
+  How long to retain unacknowledged messages in the subscription's
+  backlog, from the moment a message is published. If
+  retainAckedMessages is true, then this also configures the retention
+  of acknowledged messages, and thus configures how far back in time a
+  subscriptions.seek can be done. Defaults to 7 days. Cannot be more
+  than 7 days (`"604800s"`) or less than 10 minutes (`"600s"`).
+  A duration in seconds with up to nine fractional digits, terminated
+  by 's'. Example: `"600.5s"`.
+
+* `retain_acked_messages` -
+  (Optional)
+  Indicates whether to retain acknowledged messages. If `true`, then
+  messages are not expunged from the subscription's backlog, even if
+  they are acknowledged, until they fall out of the
+  messageRetentionDuration window.
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
