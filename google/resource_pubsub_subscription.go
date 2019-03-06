@@ -349,7 +349,7 @@ func flattenPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.Resour
 	return v
 }
 
-func expandPubsubSubscriptionName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandPubsubSubscriptionName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return "", err
@@ -372,7 +372,7 @@ func expandPubsubSubscriptionName(v interface{}, d *schema.ResourceData, config 
 	return fmt.Sprintf("projects/%s/subscriptions/%s", project, subscription), nil
 }
 
-func expandPubsubSubscriptionTopic(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandPubsubSubscriptionTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return "", err
