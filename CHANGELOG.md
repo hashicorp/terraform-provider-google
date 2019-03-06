@@ -7,6 +7,7 @@ FEATURES:
 ENHANCEMENTS:
 * compute: `google_compute_disk` and `google_compute_region-disk` will now detach themselves from a more up to date set of users at delete time. [GH-3154]
 * container: `google_container_cluster` can now disable VPC Native clusters with `ip_allocation_policy.use_ip_aliases` [GH-3174]
+* container: `data.google_container_engine_versions` supports `version_prefix` to allow fuzzy version matching. Using this field, Terraform can match the latest version of a major, minor, or patch release. [GH-3199]
 * pubsub: `google_pubsub_subscription` now supports configuring `message_retention_duration` and `retain_acked_messages`. [GH-3193]
 
 BUG FIXES:
