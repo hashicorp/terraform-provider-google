@@ -213,7 +213,9 @@ output "cluster_ca_certificate" {
     If unset, the cluster's version will be set by GKE to the version of the most recent
     official release (which is not necessarily the latest version).  Most users will find
     the `google_container_engine_versions` data source useful - it indicates which versions
-    are available.  If you intend to specify versions manually, [the docs](https://cloud.google.com/kubernetes-engine/versioning-and-upgrades#specifying_cluster_version)
+    are available, and can be use to approximate fuzzy versions in a
+    Terraform-compatible way. If you intend to specify versions manually,
+    [the docs](https://cloud.google.com/kubernetes-engine/versioning-and-upgrades#specifying_cluster_version)
     describe the various acceptable formats for this field.
 
 -> If you are using the `google_container_engine_versions` datasource with a regional cluster, ensure that you have provided a `region`
@@ -249,8 +251,11 @@ to the datasource. A `region` can have a different set of supported versions tha
 * `node_version` - (Optional) The Kubernetes version on the nodes. Must either be unset
     or set to the same value as `min_master_version` on create. Defaults to the default
     version set by GKE which is not necessarily the latest version. This only affects
-    nodes in the default node pool. To update nodes in other node pools, use the `version`
-    attribute on the node pool.
+    nodes in the default node pool. While a fuzzy version can be specified, it's
+    recommended that you specify explicit versions as Terraform will see spurious diffs
+    when fuzzy versions are used. See the `google_container_engine_versions` data source's
+    `version_prefix` field to approximate fuzzy versions in a Terraform-compatible way.
+    To update nodes in other node pools, use the `version` attribute on the node pool.
 
 * `pod_security_policy_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Configuration for the
     [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
