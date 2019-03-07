@@ -294,7 +294,7 @@ The `addons_config` block supports:
 * `network_policy_config` - (Optional) Whether we should enable the network policy addon
     for the master.  This must be enabled in order to enable network policy for the nodes.
     It can only be disabled if the nodes already do not have network policies enabled.
-    Set `disabled = true` to disable.
+    Defaults to disabled; set `disabled = false` to enable.
     
 * `istio_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)).
     Structure is documented below.
