@@ -214,11 +214,10 @@ The `network_interface` block supports:
 
 * `access_config` - (Optional) Access configurations, i.e. IPs via which this
     instance can be accessed via the Internet. Omit to ensure that the instance
-    is not accessible from the Internet (this means that ssh provisioners will
-    not work unless you are running Terraform can send traffic to the instance's
-    network (e.g. via tunnel or because it is running on another cloud instance
-    on that network). This block can be repeated multiple times. Structure
-    documented below.
+    is not accessible from the Internet. If omitted, ssh provisioners will not
+    work unless Terraform can send traffic to the instance's network (e.g. via
+    tunnel or because it is running on another cloud instance on that network).
+    This block can be repeated multiple times. Structure documented below.
 
 * `alias_ip_range` - (Optional) An
     array of alias IP ranges for this network interface. Can only be specified for network
@@ -262,14 +261,17 @@ The `service_account` block supports:
 
 The `scheduling` block supports:
 
-* `preemptible` - (Optional) Is the instance preemptible.
+* `preemptible` - (Optional) Specifies if the instance is preemptible.
+    If this field is set to true, then `automatic_restart` must be
+    set to false.  Defaults to false.
 
 * `on_host_maintenance` - (Optional) Describes maintenance behavior for the
     instance. Can be MIGRATE or TERMINATE, for more info, read
-    [here](https://cloud.google.com/compute/docs/instances/setting-instance-scheduling-options)
+    [here](https://cloud.google.com/compute/docs/instances/setting-instance-scheduling-options).
 
 * `automatic_restart` - (Optional) Specifies if the instance should be
     restarted if it was terminated by Compute Engine (not a user).
+    Defaults to true.
 
 The `guest_accelerator` block supports:
 
