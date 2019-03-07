@@ -442,20 +442,20 @@ The `encryption_config` block supports:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `cluster_config.master_config.instance_names` - List of master instance names which
+* `cluster_config.0.master_config.0.instance_names` - List of master instance names which
    have been assigned to the cluster.
 
-* `cluster_config.worker_config.instance_names` - List of worker instance names which have been assigned
+* `cluster_config.0.worker_config.0.instance_names` - List of worker instance names which have been assigned
 	to the cluster.
 
-* `cluster_config.preemptible_worker_config.instance_names` - List of preemptible instance names which have been assigned
+* `cluster_config.0.preemptible_worker_config.0.instance_names` - List of preemptible instance names which have been assigned
 	to the cluster.
 
-* `cluster_config.bucket` - The name of the cloud storage bucket ultimately used to house the staging data
+* `cluster_config.0.bucket` - The name of the cloud storage bucket ultimately used to house the staging data
    for the cluster. If `staging_bucket` is specified, it will contain this value, otherwise
    it will be the auto generated name.
 
-* `cluster_config.software_config.properties` - A list of the properties used to set the daemon config files.
+* `cluster_config.0.software_config.0.properties` - A list of the properties used to set the daemon config files.
    This will include any values supplied by the user via `cluster_config.software_config.override_properties`
 
 ## Timeouts
