@@ -118,8 +118,10 @@ resource "google_dns_managed_zone" "prod" {
 ```
 
 ### Adding a CNAME record
+
  The list of `rrdatas` should only contain a single string corresponding to the Canonical Name intended.
- ```hcl
+
+```hcl
 resource "google_dns_record_set" "cname" {
   name = "frontend.${google_dns_managed_zone.prod.dns_name}"
   managed_zone = "${google_dns_managed_zone.prod.name}"
