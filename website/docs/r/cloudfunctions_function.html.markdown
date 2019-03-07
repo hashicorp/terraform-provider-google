@@ -96,7 +96,7 @@ The `failure_policy` block supports:
 
 * `retry` - (Required) Whether the function should be retried on failure. Defaults to `false`.
 
-The `source_reposoitory` block supports:
+The `source_repository` block supports:
 
 * `url` - (Required) The URL pointing to the hosted repository where the function is defined. There are supported Cloud Source Repository URLs in the following formats:
 
@@ -111,7 +111,7 @@ exported:
 
 * `https_trigger_url` - URL which triggers function execution. Returned only if `trigger_http` is used.
 
-* `source_reposoitory.0.deployed_url` - The URL pointing to the hosted repository where the function was defined at the time of deployment.
+* `source_repository.0.deployed_url` - The URL pointing to the hosted repository where the function was defined at the time of deployment.
 
 * `project` - Project of the function. If it is not provided, the provider project is used.
 
