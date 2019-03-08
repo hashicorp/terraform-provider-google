@@ -512,3 +512,17 @@ func updateProjectBillingAccount(d *schema.ResourceData, config *Config) error {
 	return fmt.Errorf("Timed out waiting for billing account to return correct value.  Waiting for %s, got %s.",
 		name, strings.TrimPrefix(ba.BillingAccountName, "billingAccounts/"))
 }
+
+func deleteComputeNetwork(project, network string, config *Config) error {
+	op, err := config.clientCompute.Networks.Delete(
+		project, network).Do()
+	if err != nil {
+		return fmt.Errorf("Error deleting network: %s", err)
+	}
+
+	err = computeOperationWaitTime(config.clientCompute, op, project, "Deleting Network", 10)
+	if err != nil {
+		return err
+	}
+	return nil
+}

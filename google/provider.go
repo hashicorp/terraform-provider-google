@@ -168,7 +168,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_instance_group":                resourceComputeInstanceGroup(),
 			"google_compute_instance_group_manager":        resourceComputeInstanceGroupManager(),
 			"google_compute_instance_template":             resourceComputeInstanceTemplate(),
-			"google_compute_network":                       resourceComputeNetwork(),
 			"google_compute_network_peering":               resourceComputeNetworkPeering(),
 			"google_compute_project_metadata":              resourceComputeProjectMetadata(),
 			"google_compute_project_metadata_item":         resourceComputeProjectMetadataItem(),
