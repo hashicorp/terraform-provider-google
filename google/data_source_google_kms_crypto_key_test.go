@@ -16,8 +16,6 @@ func TestAccDataSourceGoogleKmsCryptoKey_basic(t *testing.T) {
 	keyParts := strings.Split(kms.CryptoKey.Name, "/")
 	cryptoKeyId := keyParts[len(keyParts)-1]
 
-	fmt.Println(testAccDataSourceGoogleKmsCryptoKey_basic(kms.KeyRing.Name, cryptoKeyId))
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -30,9 +28,6 @@ func TestAccDataSourceGoogleKmsCryptoKey_basic(t *testing.T) {
 	})
 }
 
-/*
-	This test should run in its own project, because KMS key rings and crypto keys are not deletable
-*/
 func testAccDataSourceGoogleKmsCryptoKey_basic(keyRingName, cryptoKeyName string) string {
 	return fmt.Sprintf(`
 data "google_kms_crypto_key" "kms_crypto_key" {
