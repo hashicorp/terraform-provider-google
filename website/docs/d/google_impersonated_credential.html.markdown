@@ -1,0 +1,84 @@
+---
+layout: "google"
+page_title: "Google: google_impersonated_credential"
+sidebar_current: "docs-google-impersonated-credential"
+description: |-
+  Produces access_token for impersonated service accounts
+---
+
+# google\_impersonated\_credential
+
+This data source provides a google `oauth2` `access_token` for a different service account than the one initially running the script.  You can 
+then use this new token to access resources the original caller would not have permissions on otherwise.
+
+For more information see
+[the official documentation](https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials) as well as [iamcredentials.generateAccessToken()](https://cloud.google.com/iam/credentials/reference/rest/v1/projects.serviceAccounts/generateAccessToken)
+
+## Example Usage
+
+To allow `service_A` to impersonate `service_B`, grant the [Service Account Token Creator](https://cloud.google.com/iam/docs/service-accounts#the_service_account_token_creator_role) on B to A. 
+
+In the IAM policy below, `service_A` is given the Token Creator role impersonate `service_B`
+
+```hcl
+$ cat service_policy.json 
+{ 
+"bindings": [
+    {
+      "members": [
+        "service_A@projectA.iam.gserviceaccount.com "
+      ],
+      "role": "roles/iam.serviceAccountTokenCreator",    
+    }
+  ]
+}
+
+$ gcloud iam service-accounts set-iam-policy  service_B@projectB.iam.gserviceaccount.com  service_policy.json
+```
+
+Once the IAM permissions are set, you can apply the new token to a provider bootstrapped with it.  Any resources that references the new provider will run as the new identity.
+
+In the example below, `google_project` will run as `service_B`.
+
+```hcl
+provider "google" {}
+
+data "google_client_config" "default" {
+  provider = "google"
+}
+
+data "google_impersonated_credential" "default" {
+ provider = "google"
+ target_service_account = "service_B@projectB.iam.gserviceaccount.com"
+ scopes = ["devstorage.read_only", "cloud-platform"]
+ lifetime = "300s"
+}
+
+provider "google" {
+   alias  = "impersonated"
+   access_token = "${data.google_impersonated_credential.default.access_token}"
+}
+
+data "google_project" "project" {
+  provider = "google.impersonated"
+  project_id = "target-project"
+}
+```
+
+> *Note*: the generated token is non-refreshable and can have a maximum `lifetime` of `3600` seconds.
+
+## Argument Reference
+
+The following arguments are supported:
+
+* `target_service_account` (Required) - The service account _to_ impersonate (e.g. `service_B@your-project-id.iam.gserviceaccount.com`)
+* `scopes` (Required) - The scopes the new credential should have (e.g. `["devstorage.read_only", "cloud-platform"]`)
+* `delegates` (Optional) - Deegate chain of approvals needed to perform full impersonation. Specify the fully qualified service account name.  (e.g. `["projects/-/serviceAccounts/delegate-svc-account@project-id.iam.gserviceaccount.com"]`)
+* `lifetime` (Optional) Lifetime of the impersonated token (defaults to its max: `3600s`).
+* `source_access_token` (Optional) - The source token to bootstrap this module.
+
+## Attributes Reference
+
+The following attribute is exported:
+
+* `access_token` - The `access_token` representing the new generated identity.
