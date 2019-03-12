@@ -9,6 +9,10 @@ addons:
 
 language: go
 
+os:
+  - linux
+  - osx
+
 go:
   - "1.11.x"
 

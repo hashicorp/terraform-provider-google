@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 )
 
 func (g *FileGetter) Get(dst string, u *url.URL) error {
@@ -93,7 +94,21 @@ func (g *FileGetter) GetFile(dst string, u *url.URL) error {
 
 	// If we're not copying, just symlink and we're done
 	if !g.Copy {
-		return os.Symlink(path, dst)
+		if err = os.Symlink(path, dst); err == nil {
+			return err
+		}
+		lerr, ok := err.(*os.LinkError)
+		if !ok {
+			return err
+		}
+		switch lerr.Err {
+		case syscall.ERROR_PRIVILEGE_NOT_HELD:
+			// no symlink privilege, let's
+			// fallback to a copy to avoid an error.
+			break
+		default:
+			return err
+		}
 	}
 
 	// Copy
