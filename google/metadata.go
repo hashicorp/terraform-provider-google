@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
@@ -145,7 +144,7 @@ func flattenMetadata(metadata *compute.Metadata) map[string]interface{} {
 	return metadataMap
 }
 
-func resourceInstanceMetadata(d *schema.ResourceData) (*computeBeta.Metadata, error) {
+func resourceInstanceMetadata(d TerraformResourceData) (*computeBeta.Metadata, error) {
 	m := &computeBeta.Metadata{}
 	mdMap := d.Get("metadata").(map[string]interface{})
 	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {

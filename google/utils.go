@@ -213,8 +213,8 @@ func rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
-// expandLabels pulls the value of "labels" out of a schema.ResourceData as a map[string]string.
-func expandLabels(d *schema.ResourceData) map[string]string {
+// expandLabels pulls the value of "labels" out of a TerraformResourceData as a map[string]string.
+func expandLabels(d TerraformResourceData) map[string]string {
 	return expandStringMap(d, "labels")
 }
 
@@ -223,8 +223,8 @@ func expandEnvironmentVariables(d *schema.ResourceData) map[string]string {
 	return expandStringMap(d, "environment_variables")
 }
 
-// expandStringMap pulls the value of key out of a schema.ResourceData as a map[string]string.
-func expandStringMap(d *schema.ResourceData, key string) map[string]string {
+// expandStringMap pulls the value of key out of a TerraformResourceData as a map[string]string.
+func expandStringMap(d TerraformResourceData, key string) map[string]string {
 	v, ok := d.GetOk(key)
 
 	if !ok {
