@@ -63,13 +63,7 @@ func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error creating folder '%s' in '%s': %s", displayName, parent, err)
 	}
 
-	opV1 := make(map[string]interface{})
-	waitErr := Convert(op, opV1)
-	if waitErr != nil {
-		return waitErr
-	}
-
-	err = resourceManagerOperationWaitTime(config, opV1, "", "creating folder", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	err = resourceManagerV2Beta1OperationWait(config.clientResourceManager, op, "creating folder")
 
 	if err != nil {
 		return fmt.Errorf("Error creating folder '%s' in '%s': %s", displayName, parent, err)
@@ -138,13 +132,7 @@ func resourceGoogleFolderUpdate(d *schema.ResourceData, meta interface{}) error 
 			return fmt.Errorf("Error moving folder '%s' to '%s': %s", displayName, newParent, err)
 		}
 
-		opV1 := make(map[string]interface{})
-		waitErr := Convert(op, opV1)
-		if waitErr != nil {
-			return waitErr
-		}
-
-		err = resourceManagerOperationWaitTime(config, opV1, "", "move folder", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		err = resourceManagerV2Beta1OperationWait(config.clientResourceManager, op, "move folder")
 		if err != nil {
 			return fmt.Errorf("Error moving folder '%s' to '%s': %s", displayName, newParent, err)
 		}
