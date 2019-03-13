@@ -12,6 +12,9 @@ ENHANCEMENTS:
 * container: `data.google_container_cluster` adds a unified `location` field for regions and zones. [GH-3114]
 * container: `google_container_engine_versions` adds a unified `location` field for regions and zones. [GH-3114]
 
+BUG FIXES:
+* container: `google_container_cluster`, `google_container_node_pool` properly suppress new GKE `1.12` `metadata` values. [GH-3233]
+
 ## 2.2.0 (March 12, 2019)
 
 FEATURES:
