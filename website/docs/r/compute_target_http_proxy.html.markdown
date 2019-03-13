@@ -28,7 +28,7 @@ forwarding rule to route incoming HTTP requests to a URL map.
 
 To get more information about TargetHttpProxy, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/latest/targetHttpProxies)
+* [API documentation](https://cloud.google.com/compute/docs/reference/v1/targetHttpProxies)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/compute/docs/load-balancing/http/target-proxies)
 
