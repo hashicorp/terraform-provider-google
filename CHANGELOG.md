@@ -6,7 +6,7 @@ DEPRECATIONS:
 * container: `data.google_container_cluster` `zone` and `region` fields are deprecated in favour of `location`. [GH-3114]
 * container: `google_container_engine_versions` `zone` and `region` fields are deprecated in favour of `location`. [GH-3114]
 
-FEATURES:
+ENHANCEMENTS:
 * container: `google_container_cluster` adds a unified `location` field for regions and zones, `node_locations` to manage extra zones for multi-zonal clusters and specific zones for regional clusters. [GH-3114]
 * container: `google_container_node_pool` adds a unified `location` field for regions and zones. [GH-3114]
 * container: `data.google_container_cluster` adds a unified `location` field for regions and zones. [GH-3114]
