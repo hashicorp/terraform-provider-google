@@ -84,6 +84,10 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/monitoring",
     ]
 
+    metadata {
+      disable-legacy-endpoints = "true"
+    }
+
     guest_accelerator {
       type  = "nvidia-tesla-k80"
       count = 1

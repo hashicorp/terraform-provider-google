@@ -61,6 +61,10 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
     preemptible  = true
     machine_type = "n1-standard-1"
 
+    metadata {
+      disable-legacy-endpoints = "true"
+    }
+
     oauth_scopes = [
       "https://www.googleapis.com/auth/compute",
       "https://www.googleapis.com/auth/devstorage.read_only",
@@ -106,6 +110,10 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
+
+    metadata {
+      disable-legacy-endpoints = "true"
+    }
 
     labels = {
       foo = "bar"
@@ -481,7 +489,10 @@ The `node_config` block supports:
     [here](https://cloud.google.com/compute/docs/reference/latest/instances#machineType).
 
 * `metadata` - (Optional) The metadata key/value pairs assigned to instances in
-    the cluster.
+    the cluster. From GKE `1.12` onwards, `disable-legacy-endpoints` is set to
+    `true` by the API; if `metadata` is set but that default value is not
+    included, Terraform will attempt to unset the value. To avoid this, set the
+    value in your config.
 
 * `min_cpu_platform` - (Optional) Minimum CPU platform to be used by this instance.
     The instance may be scheduled on the specified or newer CPU platform. Applicable
