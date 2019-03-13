@@ -90,6 +90,12 @@ func resourceDataflowJob() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"service_account_email": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -115,9 +121,10 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 	params := expandStringMap(d, "parameters")
 
 	env := dataflow.RuntimeEnvironment{
-		TempLocation: d.Get("temp_gcs_location").(string),
-		Zone:         zone,
-		MaxWorkers:   int64(d.Get("max_workers").(int)),
+		TempLocation:        d.Get("temp_gcs_location").(string),
+		Zone:                zone,
+		MaxWorkers:          int64(d.Get("max_workers").(int)),
+		ServiceAccountEmail: d.Get("service_account_email").(string),
 	}
 
 	request := dataflow.CreateJobFromTemplateRequest{
