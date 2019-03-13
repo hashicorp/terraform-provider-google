@@ -36,7 +36,7 @@ healthy again and can receive new connections.
 
 To get more information about HealthCheck, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/latest/healthChecks)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/healthChecks)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/load-balancing/docs/health-checks)
 

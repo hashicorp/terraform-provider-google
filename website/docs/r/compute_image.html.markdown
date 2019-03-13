@@ -41,7 +41,7 @@ to create an instance.
 
 To get more information about Image, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/latest/images)
+* [API documentation](https://cloud.google.com/compute/docs/reference/v1/images)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/compute/docs/images)
 

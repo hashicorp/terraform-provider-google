@@ -41,7 +41,7 @@ affordable storage with consistent performance characteristics.
 
 To get more information about Disk, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/latest/disks)
+* [API documentation](https://cloud.google.com/compute/docs/reference/v1/disks)
 * How-to Guides
     * [Adding a persistent disk](https://cloud.google.com/compute/docs/disks/add-persistent-disk)
 
