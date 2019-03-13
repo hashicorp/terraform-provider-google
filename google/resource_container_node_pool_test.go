@@ -451,15 +451,15 @@ func TestAccContainerNodePool_regionalClusters(t *testing.T) {
 func testAccContainerNodePool_basic(cluster, np string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
-	name = "%s"
-	zone = "us-central1-a"
+	name               = "%s"
+	location           = "us-central1-a"
 	initial_node_count = 3
 }
 
 resource "google_container_node_pool" "np" {
-	name = "%s"
-	zone = "us-central1-a"
-	cluster = "${google_container_cluster.cluster.name}"
+	name               = "%s"
+	location           = "us-central1-a"
+	cluster            = "${google_container_cluster.cluster.name}"
 	initial_node_count = 2
 }`, cluster, np)
 }
@@ -467,15 +467,15 @@ resource "google_container_node_pool" "np" {
 func testAccContainerNodePool_regionalClusters(cluster, np string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
-	name = "%s"
-	region = "us-central1"
+	name               = "%s"
+	location           = "us-central1"
 	initial_node_count = 3
 }
 
 resource "google_container_node_pool" "np" {
-	name = "%s"
-	cluster = "${google_container_cluster.cluster.name}"
-	region = "us-central1"
+	name               = "%s"
+	cluster            = "${google_container_cluster.cluster.name}"
+	location           = "us-central1"
 	initial_node_count = 2
 }`, cluster, np)
 }
@@ -570,6 +570,7 @@ resource "google_container_node_pool" "np" {
 }`, cluster, np)
 }
 
+// This uses zone/additional_zones over location/node_locations to ensure we can update from old -> new
 func testAccContainerNodePool_additionalZones(cluster, nodePool string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
@@ -594,20 +595,20 @@ resource "google_container_node_pool" "np" {
 func testAccContainerNodePool_resize(cluster, nodePool string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
-	name = "%s"
-	zone = "us-central1-a"
+	name               = "%s"
+	location           = "us-central1-a"
 	initial_node_count = 1
 
-	additional_zones = [
+	node_locations = [
 		"us-central1-b",
 		"us-central1-c"
 	]
 }
 
 resource "google_container_node_pool" "np" {
-	name = "%s"
-	zone = "us-central1-a"
-	cluster = "${google_container_cluster.cluster.name}"
+	name       = "%s"
+	location   = "us-central1-a"
+	cluster    = "${google_container_cluster.cluster.name}"
 	node_count = 3
 }`, cluster, nodePool)
 }

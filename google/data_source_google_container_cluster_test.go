@@ -110,18 +110,18 @@ func testAccContainerClusterDatasource_zonal() string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "kubes" {
 	name               = "cluster-test-%s"
-	zone               = "us-central1-a"
+	location           = "us-central1-a"
 	initial_node_count = 1
-	
+
 	master_auth {
 		username = "mr.yoda"
 		password = "adoy.rm.123456789"
 	}
 }
-	
+
 data "google_container_cluster" "kubes" {
-	name = "${google_container_cluster.kubes.name}"
-	zone = "${google_container_cluster.kubes.zone}"
+	name     = "${google_container_cluster.kubes.name}"
+	location = "${google_container_cluster.kubes.zone}"
 }
 `, acctest.RandString(10))
 }
@@ -130,13 +130,13 @@ func testAccContainerClusterDatasource_regional() string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "kubes" {
 	name               = "cluster-test-%s"
-	region             = "us-central1"
+	location           = "us-central1"
 	initial_node_count = 1
 }
-	
+
 data "google_container_cluster" "kubes" {
-	name   = "${google_container_cluster.kubes.name}"
-	region = "${google_container_cluster.kubes.region}"
+	name     = "${google_container_cluster.kubes.name}"
+	location = "${google_container_cluster.kubes.region}"
 }
 `, acctest.RandString(10))
 }
