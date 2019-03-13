@@ -3,19 +3,19 @@ layout: "google"
 page_title: "Google: google_container_cluster"
 sidebar_current: "docs-google-datasource-container-cluster"
 description: |-
-  Get info about a Google Kubernetes cluster.
+  Get info about a Google Kubernetes Engine cluster.
 ---
 
 # google\_container\_cluster
 
-Get info about a cluster within GKE from its name and zone.
+Get info about a GKE cluster from its name and location.
 
 ## Example Usage
 
 ```tf
 data "google_container_cluster" "my_cluster" {
-  name   = "my-cluster"
-  zone   = "us-east1-a"
+  name       = "my-cluster"
+  location   = "us-east1-a"
 }
 
 output "cluster_username" {
@@ -47,9 +47,17 @@ output "node_pools" {
 
 The following arguments are supported:
 
-* `name` - The name of the cluster.
+* `name` (Required) - The name of the cluster.
 
-* `zone` or `region` - The zone or region this cluster has been created in.
+* `location` (Optional) - The location (zone or region) this cluster has been
+created in. One of `location`, `region`, `zone`, or a provider-level `zone` must
+be specified.
+
+* `zone` (Optional) - The zone this cluster has been created in. Deprecated in
+favour of `location`.
+
+* `region` (Optional) - The region this cluster has been created in. Deprecated
+in favour of `location`.
 
 - - -
 

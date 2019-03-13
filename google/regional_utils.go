@@ -14,7 +14,9 @@ func isZone(location string) bool {
 }
 
 func getLocation(d *schema.ResourceData, config *Config) (string, error) {
-	if v, isRegionalCluster := d.GetOk("region"); isRegionalCluster {
+	if v, ok := d.GetOk("location"); ok {
+		return v.(string), nil
+	} else if v, isRegionalCluster := d.GetOk("region"); isRegionalCluster {
 		return v.(string), nil
 	} else {
 		// If region is not explicitly set, use "zone" (or fall back to the provider-level zone).

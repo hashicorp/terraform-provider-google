@@ -20,8 +20,8 @@ plaintext. [Read more about sensitive data in state](/docs/state/sensitive-data.
 
 ```hcl
 resource "google_container_cluster" "primary" {
-  name   = "my-gke-cluster"
-  region = "us-central1"
+  name     = "my-gke-cluster"
+  location = "us-central1"
 
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
@@ -53,7 +53,7 @@ resource "google_container_cluster" "primary" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "my-node-pool"
-  region     = "us-central1"
+  location   = "us-central1"
   cluster    = "${google_container_cluster.primary.name}"
   node_count = 1
 
@@ -90,7 +90,7 @@ output "cluster_ca_certificate" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "marcellus-wallace"
-  zone               = "us-central1-a"
+  location           = "us-central1-a"
   initial_node_count = 3
 
   # Setting an empty username and password explicitly disables basic auth
@@ -138,25 +138,50 @@ output "cluster_ca_certificate" {
 ## Argument Reference
 
 * `name` - (Required) The name of the cluster, unique within the project and
-    zone.
+location.
 
 - - -
 
-* `zone` - (Optional) The zone that the master and the number of nodes specified
-    in `initial_node_count` should be created in. Only one of `zone` and `region`
-    may be set. If neither zone nor region are set, the provider zone is used.
+* `location` - (Optional) The location (region or zone) in which the cluster
+master will be created, as well as the default node location. If you specify a
+zone (such as `us-central1-a`), the cluster will be a zonal cluster with a
+single cluster master. If you specify a region (such as `us-west1`), the
+cluster will be a regional cluster with multiple masters spread across zones in
+the region, and with default node locations in those zones as well.
 
-* `region` (Optional)
-    The region to create the cluster in for
-    [Regional Clusters](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-zone-and-regional-clusters#regional).
-    In a Regional Cluster, the number of nodes specified in `initial_node_count` is
-    created in each of three zones of the region (this can be changed by setting
-     `additional_zones`).
+* `zone` - (Optional, Deprecated) The zone that the cluster master and nodes
+should be created in. If specified, this cluster will be a zonal cluster. `zone`
+has been deprecated in favour of `location`.
 
-* `additional_zones` - (Optional) The list of additional Google Compute Engine
-    locations in which the cluster's nodes should be located. If additional zones are
-    configured, the number of nodes specified in `initial_node_count` is created in
-    all specified zones.
+* `region` (Optional, Deprecated) The region that the cluster master and nodes
+should be created in. If specified, this cluster will be a [regional clusters](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-zone-and-regional-clusters#regional)
+where the cluster master and nodes (by default) will be created in several zones
+throughout the region. `region` has been deprecated in favour of `location`.
+
+~> Only one of `location`, `zone`, and `region` may be set. If none are set,
+the provider zone is used to create a zonal cluster.
+
+* `node_locations` - (Optional) The list of zones in which the cluster's nodes
+should be located. These must be in the same region as the cluster zone for
+zonal clusters, or in the region of a regional cluster. In a multi-zonal cluster,
+the number of nodes specified in `initial_node_count` is created in
+all specified zones as well as the primary zone. If specified for a regional
+cluster, nodes will be created in only these zones.
+
+-> A "multi-zonal" cluster is a zonal cluster with at least one additional zone
+defined; in a multi-zonal cluster, the cluster master is only present in a
+single zone while nodes are present in each of the primary zone and the node
+locations. In contrast, in a regional cluster, cluster master nodes are present
+in multiple zones in the region. For that reason, regional clusters should be
+preferred.
+
+* `additional_zones` - (Optional) The list of zones in which the cluster's nodes
+should be located. These must be in the same region as the cluster zone for
+zonal clusters, or in the region of a regional cluster. In a multi-zonal cluster,
+the number of nodes specified in `initial_node_count` is created in
+all specified zones as well as the primary zone. If specified for a regional
+cluster, nodes will only be created in these zones. `additional_zones` has been 
+deprecated in favour of `node_locations`. 
 
 * `addons_config` - (Optional) The configuration for addons supported by GKE.
     Structure is documented below.

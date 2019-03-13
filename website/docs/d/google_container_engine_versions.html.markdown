@@ -3,28 +3,30 @@ layout: "google"
 page_title: "Google: google_container_engine_versions"
 sidebar_current: "docs-google-datasource-container-versions"
 description: |-
-  Provides lists of available Google Container Engine versions for masters and nodes.
+  Provides lists of available Google Kubernetes Engine versions for masters and nodes.
 ---
 
 # google\_container\_engine\_versions
 
-Provides access to available Google Container Engine versions in a zone or region for a given project.
+Provides access to available Google Kubernetes Engine versions in a zone or region for a given project.
 
--> If you are using the `google_container_engine_versions` datasource with a regional cluster, ensure that you have provided a `region`
-to the datasource. A `region` can have a different set of supported versions than its corresponding `zone`s, and not all `zone`s in a 
-`region` are guaranteed to support the same version.
+-> If you are using the `google_container_engine_versions` datasource with a
+regional cluster, ensure that you have provided a region as the `location` to
+the datasource. A region can have a different set of supported versions than
+its component zones, and not all zones in a region are guaranteed to
+support the same version.
 
 ## Example Usage
 
 ```hcl
 data "google_container_engine_versions" "central1b" {
-  zone           = "us-central1-b"
+  location           = "us-central1-b"
   version_prefix = "1.12."
 }
 
 resource "google_container_cluster" "foo" {
   name               = "terraform-test-cluster"
-  zone               = "us-central1-b"
+  location               = "us-central1-b"
   node_version       = "${data.google_container_engine_versions.central1b.latest_node_version}"
   initial_node_count = 1
 
@@ -39,17 +41,23 @@ resource "google_container_cluster" "foo" {
 
 The following arguments are supported:
 
-* `zone` (optional) - Zone to list available cluster versions for. Should match the zone the cluster will be deployed in.
-    If not specified, the provider-level zone is used. One of zone or provider-level zone is required.
+* `location` (Optional) - The location (region or zone) to list versions for.
+Must exactly match the location the cluster will be deployed in, or listed
+versions may not be available. If `location`, `region`, and `zone` are not
+specified, the provider-level zone must be set and is used instead.
 
-* `region` (optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) - Region to list available cluster versions for. Should match the region the cluster will be deployed in.
-    For regional clusters, this value must be specified and cannot be inferred from provider-level region. One of zone,
-    region, or provider-level zone is required.
+* `zone` (Optional, Deprecated) - Zone to list available cluster versions for.
+Should match the zone the cluster will be deployed in. `zone` has been
+deprecated in favour of `location`.
 
-* `project` (optional) - ID of the project to list available cluster versions for. Should match the project the cluster will be deployed to.
+* `region` (Optional, Deprecated) - Region to list available cluster versions
+for. Should match the region the cluster will be deployed in. `region` has been
+deprecated in favour of `location`.
+
+* `project` (Optional) - ID of the project to list available cluster versions for. Should match the project the cluster will be deployed to.
   Defaults to the project that the provider is authenticated with.
 
-* `version_prefix` (optional) - If provided, Terraform will only return versions
+* `version_prefix` (Optional) - If provided, Terraform will only return versions
 that match the string prefix. For example, `1.11.` will match all `1.11` series
 releases. Since this is just a string match, it's recommended that you append a
 `.` after minor versions to ensure that prefixes such as `1.1` don't match

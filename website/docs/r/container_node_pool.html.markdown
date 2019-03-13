@@ -16,8 +16,8 @@ and [the API reference](https://cloud.google.com/container-engine/reference/rest
 
 ```hcl
 resource "google_container_cluster" "primary" {
-  name   = "my-gke-cluster"
-  region = "us-central1"
+  name     = "my-gke-cluster"
+  location = "us-central1"
   
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
@@ -28,7 +28,7 @@ resource "google_container_cluster" "primary" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "my-node-pool"
-  region     = "us-central1"
+  location   = "us-central1"
   cluster    = "${google_container_cluster.primary.name}"
   node_count = 1
 
@@ -51,7 +51,7 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 ```hcl
 resource "google_container_node_pool" "np" {
   name       = "my-node-pool"
-  zone       = "us-central1-a"
+  location   = "us-central1-a"
   cluster    = "${google_container_cluster.primary.name}"
   node_count = 3
   
@@ -63,10 +63,10 @@ resource "google_container_node_pool" "np" {
 
 resource "google_container_cluster" "primary" {
   name               = "marcellus-wallace"
-  zone               = "us-central1-a"
+  location           = "us-central1-a"
   initial_node_count = 3
 
-  additional_zones = [
+  node_locations = [
     "us-central1-c",
   ]
 
@@ -99,11 +99,17 @@ resource "google_container_cluster" "primary" {
 
 - - -
 
-* `zone` - (Optional) The zone in which the cluster resides.
+* `location` - (Optional) The location (region or zone) in which the cluster
+resides.
 
-* `region` - (Optional) The region in which the cluster resides (for regional clusters).
+* `zone` - (Optional, Deprecated) The zone in which the cluster resides. `zone`
+has been deprecated in favor of `location`.
 
--> Note: You must be provide `region` for regional clusters and `zone` for zonal clusters
+* `region` - (Optional, Deprecated) The region in which the cluster resides (for
+regional clusters). `zone` has been deprecated in favor of `location`.
+
+-> Note: You must specify a `location` for either cluster type or the
+type-specific `region` for regional clusters / `zone` for zonal clusters.
 
 - - -
 
