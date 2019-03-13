@@ -66,6 +66,7 @@ resource "google_compute_disk" "default" {
   labels = {
     environment = "dev"
   }
+  physical_block_size_bytes = 4096
 }
 ```
 
@@ -106,6 +107,14 @@ The following arguments are supported:
   If you specify this field along with sourceImage or sourceSnapshot,
   the value of sizeGb must not be less than the size of the sourceImage
   or the size of the snapshot.
+
+* `physical_block_size_bytes` -
+  (Optional)
+  Physical block size of the persistent disk, in bytes. If not present
+  in a request, a default value is used. Currently supported sizes
+  are 4096 and 16384, other sizes may be added in the future.
+  If an unsupported value is requested, the error message will list
+  the supported values for the caller's project.
 
 * `type` -
   (Optional)
