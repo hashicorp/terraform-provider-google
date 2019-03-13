@@ -131,7 +131,7 @@ func resourceComputeInstance() *schema.Resource {
 			"instance_state": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "running",
+				Default:      "RUNNING",
 				ValidateFunc: validation.StringInSlice([]string{"stopped", "running"}, false),
 			},
 
