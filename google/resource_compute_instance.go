@@ -132,7 +132,7 @@ func resourceComputeInstance() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "RUNNING",
-				ValidateFunc: validation.StringInSlice([]string{"stopped", "running"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"RUNNING", "TERMINATED"}, false),
 			},
 
 			"name": {
