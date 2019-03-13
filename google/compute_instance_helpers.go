@@ -122,7 +122,7 @@ func expandNetworkInterfaces(d TerraformResourceData, config *Config) ([]*comput
 
 		network := data["network"].(string)
 		subnetwork := data["subnetwork"].(string)
-		if (network == "" && subnetwork == "") || (network != "" && subnetwork != "") {
+		if network == "" && subnetwork == "" {
 			return nil, fmt.Errorf("exactly one of network or subnetwork must be provided")
 		}
 
