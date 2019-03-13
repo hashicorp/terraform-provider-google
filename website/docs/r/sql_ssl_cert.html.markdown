@@ -39,8 +39,11 @@ The following arguments are supported:
 * `instance` - (Required) The name of the Cloud SQL instance. Changing this
     forces a new resource to be created.
 
-* `common_name` - (Required) The common name to be used in the certificate to identify the 
+* `common_name` - (Required) The common name to be used in the certificate to identify the
     client. Constrained to [a-zA-Z.-_ ]+. Changing this forces a new resource to be created.
+
+* `project` - (Optional) The ID of the project in which the resource belongs. If it
+    is not provided, the provider project is used.
 
 
 ## Attributes Reference
@@ -53,9 +56,9 @@ exported:
 * `server_ca_cert` - The CA cert of the server this client cert was generated from.
 * `cert` - The actual certificate data for this client certificate.
 * `cert_serial_number` - The serial number extracted from the certificate data.
-* `create_time` - The time when the certificate was created in RFC 3339 format, 
+* `create_time` - The time when the certificate was created in RFC 3339 format,
     for example 2012-11-15T16:19:00.094Z.
-* `expiration_time` - The time when the certificate expires in RFC 3339 format, 
+* `expiration_time` - The time when the certificate expires in RFC 3339 format,
     for example 2012-11-15T16:19:00.094Z.
 
 ## Import
