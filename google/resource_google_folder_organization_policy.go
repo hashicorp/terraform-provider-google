@@ -14,6 +14,10 @@ func resourceGoogleFolderOrganizationPolicy() *schema.Resource {
 		Update: resourceGoogleFolderOrganizationPolicyUpdate,
 		Delete: resourceGoogleFolderOrganizationPolicyDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: resourceFolderOrgPolicyImporter,
+		},
+
 		Schema: mergeSchemas(
 			schemaOrganizationPolicy,
 			map[string]*schema.Schema{
@@ -25,6 +29,25 @@ func resourceGoogleFolderOrganizationPolicy() *schema.Resource {
 			},
 		),
 	}
+}
+
+func resourceFolderOrgPolicyImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+
+	if err := parseImportId([]string{
+		"folders/(?P<folder>[^/]+):constraints/(?P<constraint>[^/]+)",
+		"(?P<folder>[^/]+):(?P<constraint>[^/]+)"},
+		d, config); err != nil {
+		return nil, err
+	}
+
+	if d.Get("folder") == "" || d.Get("constraint") == "" {
+		return nil, fmt.Errorf("unable to parse folder or constraint. Check import formats")
+	}
+
+	d.Set("folder", "folders/"+d.Get("folder").(string))
+
+	return []*schema.ResourceData{d}, nil
 }
 
 func resourceGoogleFolderOrganizationPolicyCreate(d *schema.ResourceData, meta interface{}) error {
