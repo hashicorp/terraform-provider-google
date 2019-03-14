@@ -99,7 +99,7 @@ func testAccCheckGoogleFolderIamPolicy(n string, policy *resourceManagerV2Beta1.
 		}
 
 		if !reflect.DeepEqual(p.Bindings, policy.Bindings) {
-			return fmt.Errorf("Incorrect iam policy bindings. Expected '%s', got '%s'", policy.Bindings, p.Bindings)
+			return fmt.Errorf("Incorrect iam policy bindings. Expected '%v', got '%v'", policy.Bindings, p.Bindings)
 		}
 
 		if _, ok = rs.Primary.Attributes["etag"]; !ok {
