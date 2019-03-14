@@ -362,7 +362,7 @@ The `service_account` block supports:
    ```
 
    See
-   [Best practice: service account, scopes, and IAM roles](best-practice-service-account-scopes-and-iam-roles)
+   [Best practice: service account, scopes, and IAM roles](#best-practice-service-account-scopes-and-iam-roles)
    for a full example.
 
 The `scheduling` block supports:
