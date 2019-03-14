@@ -178,6 +178,90 @@ resource "google_compute_instance_template" "instance_template" {
 }
 ```
 
+## Best practice: service account, scopes, and IAM roles
+
+The [service accounts documentation](https://cloud.google.com/compute/docs/access/service-accounts#accesscopesiam)
+explains that access scopes are the legacy method of specifying
+permissions for an instance. Current
+[best practice](https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances#best_practices)
+is to assign the instance a service account, which is
+granted IAM roles for only the resources that it needs.
+
+You cannot set only IAM roles on the service account and omit
+access scopes when creating an instance. The level of access a
+service account has is determined by a combination of access
+scopes and IAM roles so you must configure both access scopes
+and IAM roles for the service account to work properly.
+
+When following the best practice of utilizing IAM Roles,
+you should specify the `cloud-platform` scope to allow
+full access to all Google Cloud APIs, so that the IAM
+permissions of the instance are completely determined
+by the IAM roles of the service account:
+
+```hcl
+resource "google_service_account" "web_server" {
+  // This service account will be assigned to
+  // web server instances and will be granted
+  // IAM roles that define the minimum set of
+  // required permissions.
+  account_id = "web-server"
+}
+
+locals {
+  // A list of IAM roles which should be granted
+  // to the web_server service account. See the
+  // docs for a full list of predefined roles:
+  // https://cloud.google.com/iam/docs/understanding-roles#predefined_roles
+  iam_roles = ["roles/compute.viewer"]
+}
+
+// Grant the service account each IAM role in the list.
+resource "google_project_iam_member" "web_server_service_account_roles" {
+  count = "${length(local.iam_roles)}"
+  role  = "${local.iam_roles[count.index]}"
+
+  // Note: the text `serviceAccount:` must be included.
+  member = "serviceAccount:${google_service_account.web_server.email}"
+}
+
+resource "google_compute_instance_template" "web_server" {
+  machine_type = "n1-standard-1"
+
+  service_account {
+    // Instances created using this template will
+    // be assigned the web_server service account.
+    email = "${google_service_account.web_server.email}"
+
+    // Specify the `cloud-platform` scope to allow
+    // full access to all Google Cloud APIs, so
+    // that the IAM permissions of the instance
+    // are completely determined by the IAM roles
+    // of the service account.
+    scopes = ["cloud-platform"]
+  }
+
+  disk {
+    source_image = "debian-cloud/debian-9"
+  }
+
+  network_interface {
+    network = "default"
+
+    // Defining the access_config block
+    // assigns the instance a public IP.
+    access_config {}
+  }
+}
+
+resource "google_compute_instance_from_template" "web_server" {
+  name = "web-server-from-template"
+  zone = "us-west1-a"
+
+  source_instance_template = "${google_compute_instance_template.web_server.self_link}"
+}
+```
+
 ## Argument Reference
 
 Note that changing any field for this resource forces a new resource to be created.
@@ -353,14 +437,29 @@ The `service_account` block supports:
 * `email` - (Optional) The service account e-mail address. If not given, the
     default Google Compute Engine service account is used.
 
-* `scopes` - (Required) A list of service scopes. Both OAuth2 URLs and gcloud
-    short names are supported. To allow full access to all Cloud APIs, use the
-    `cloud-platform` scope. See a complete list of scopes [here](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes).
+* `scopes` - (Required) A list of scopes to assign the instance.
+   Each scope can be either the full URI of the scope
+   or an alias; see
+   [the docs](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes)
+   for a complete list of scope URIs and aliases.
 
-    The [service accounts documentation](https://cloud.google.com/compute/docs/access/service-accounts#accesscopesiam)
-    explains that access scopes are the legacy method of specifying permissions for your instance.
-    If you are following best practices and using IAM roles to grant permissions to service accounts,
-    then you can define this field as an empty list.
+   **Note:**
+   When following the best practice of utilizing IAM roles,
+   you should specify the `cloud-platform` scope to allow
+   full access to all Google Cloud APIs, so that the IAM
+   permissions of the instance are completely determined
+   by the IAM roles of the service account:
+
+   ```hcl
+   service_account {
+     email = "${google_service_account.my_service_account.email}"
+     scopes = ["cloud-platform"]
+   }
+   ```
+
+   See
+   [Best practice: service account, scopes, and IAM roles](best-practice-service-account-scopes-and-iam-roles)
+   for a full example.
 
 The `scheduling` block supports:
 
