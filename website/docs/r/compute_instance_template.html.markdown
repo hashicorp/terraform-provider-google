@@ -179,10 +179,10 @@ resource "google_compute_instance_template" "instance_template" {
 ```
 
 ## Best practice: service account, scopes, and IAM roles
-
-The [service accounts documentation](https://cloud.google.com/compute/docs/access/service-accounts#accesscopesiam)
-explains that access scopes are the legacy method of specifying
-permissions for an instance. Current
+The
+[Service accounts - Access scopes](https://cloud.google.com/compute/docs/access/service-accounts#accesscopesiam)
+documentation explains that access scopes are the legacy
+method of specifying permissions for an instance. Current
 [best practice](https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances#best_practices)
 is to assign the instance a service account, which is
 granted IAM roles for only the resources that it needs.
@@ -191,7 +191,10 @@ You cannot set only IAM roles on the service account and omit
 access scopes when creating an instance. The level of access a
 service account has is determined by a combination of access
 scopes and IAM roles so you must configure both access scopes
-and IAM roles for the service account to work properly.
+and IAM roles for the service account to work properly. For
+more details, see the
+[Service accounts - Permissions](https://cloud.google.com/compute/docs/access/service-accounts#service_account_permissions)
+docs.
 
 When following the best practice of utilizing IAM Roles,
 you should specify the `cloud-platform` scope to allow
