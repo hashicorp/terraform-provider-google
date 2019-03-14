@@ -87,12 +87,12 @@ The following arguments are supported:
 
 * `version` - (Optional) Version of the Policy. Default version is 0.
 
-* `boolean_policy` - (Optional) A boolean policy is a constraint that is either enforced or not. Structure is documented below. 
+* `boolean_policy` - (Optional) A boolean policy is a constraint that is either enforced or not. Structure is documented below.
 
-* `list_policy` - (Optional) A policy that can define specific values that are allowed or denied for the given constraint. It 
+* `list_policy` - (Optional) A policy that can define specific values that are allowed or denied for the given constraint. It
 can also be used to allow or deny all values. Structure is documented below.
 
-* `restore_policy` - (Optional) A restore policy is a constraint to restore the default policy. Structure is documented below. 
+* `restore_policy` - (Optional) A restore policy is a constraint to restore the default policy. Structure is documented below.
 
 - - -
 
@@ -124,6 +124,15 @@ The `restore_policy` block supports:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `etag` - (Computed) The etag of the organization policy. `etag` is used for optimistic concurrency control as a way to help prevent simultaneous updates of a policy from overwriting each other. 
+* `etag` - (Computed) The etag of the organization policy. `etag` is used for optimistic concurrency control as a way to help prevent simultaneous updates of a policy from overwriting each other.
 
 * `update_time` - (Computed) The timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds, representing when the variable was last updated. Example: "2016-10-09T12:33:37.578138407Z".
+
+## Import
+
+Folder organization policies can be imported using any of the follow formats:
+
+```
+$ terraform import google_folder_organization_policy.policy folders/folder-1234:constraints/serviceuser.services
+$ terraform import google_folder_organization_policy.policy folder-1234:serviceuser.services
+```

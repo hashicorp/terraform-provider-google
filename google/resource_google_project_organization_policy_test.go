@@ -84,6 +84,11 @@ func testAccProjectOrganizationPolicy_list_allowAll(t *testing.T) {
 				Config: testAccProjectOrganizationPolicyConfig_list_allowAll(projectId),
 				Check:  testAccCheckGoogleProjectOrganizationListPolicyAll("list", "ALLOW"),
 			},
+			{
+				ResourceName:      "google_project_organization_policy.list",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -100,6 +105,11 @@ func testAccProjectOrganizationPolicy_list_allowSome(t *testing.T) {
 				Config: testAccProjectOrganizationPolicyConfig_list_allowSome(project),
 				Check:  testAccCheckGoogleProjectOrganizationListPolicyAllowedValues("list", []string{canonicalProject}),
 			},
+			{
+				ResourceName:      "google_project_organization_policy.list",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -114,6 +124,11 @@ func testAccProjectOrganizationPolicy_list_denySome(t *testing.T) {
 			{
 				Config: testAccProjectOrganizationPolicyConfig_list_denySome(projectId),
 				Check:  testAccCheckGoogleProjectOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
+			},
+			{
+				ResourceName:      "google_project_organization_policy.list",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -134,6 +149,11 @@ func testAccProjectOrganizationPolicy_list_update(t *testing.T) {
 				Config: testAccProjectOrganizationPolicyConfig_list_denySome(projectId),
 				Check:  testAccCheckGoogleProjectOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
 			},
+			{
+				ResourceName:      "google_project_organization_policy.list",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -149,6 +169,11 @@ func testAccProjectOrganizationPolicy_restore_defaultTrue(t *testing.T) {
 			{
 				Config: testAccProjectOrganizationPolicyConfig_restore_defaultTrue(projectId),
 				Check:  getGoogleProjectOrganizationRestoreDefaultTrue("restore", &cloudresourcemanager.RestoreDefault{}),
+			},
+			{
+				ResourceName:      "google_project_organization_policy.restore",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
