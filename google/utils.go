@@ -257,6 +257,14 @@ func convertAndMapStringArr(ifaceArr []interface{}, f func(string) string) []str
 	return arr
 }
 
+func mapStringArr(original []string, f func(string) string) []string {
+	var arr []string
+	for _, v := range original {
+		arr = append(arr, f(v))
+	}
+	return arr
+}
+
 func convertStringArrToInterface(strs []string) []interface{} {
 	arr := make([]interface{}, len(strs))
 	for i, str := range strs {

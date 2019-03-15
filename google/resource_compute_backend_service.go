@@ -506,7 +506,7 @@ func flattenBackends(backends []*computeBeta.Backend) []map[string]interface{} {
 		data["balancing_mode"] = b.BalancingMode
 		data["capacity_scaler"] = b.CapacityScaler
 		data["description"] = b.Description
-		data["group"] = b.Group
+		data["group"] = ConvertSelfLinkToV1(b.Group)
 		data["max_rate"] = b.MaxRate
 		data["max_rate_per_instance"] = b.MaxRatePerInstance
 		data["max_connections"] = b.MaxConnections
