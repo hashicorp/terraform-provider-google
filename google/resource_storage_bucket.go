@@ -457,22 +457,25 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	// Get the bucket and acl
 	bucket := d.Get("name").(string)
 	res, err := config.clientStorage.Buckets.Get(bucket).Do()
-
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket %q", d.Get("name").(string)))
 	}
 	log.Printf("[DEBUG] Read bucket %v at location %v\n\n", res.Name, res.SelfLink)
 
-	// We need to get the project associated with this bucket because otherwise import
-	// won't work properly.  That means we need to call the projects.get API with the
-	// project number, to get the project ID - there's no project ID field in the
-	// resource response.  However, this requires a call to the Compute API, which
-	// would otherwise not be required for this resource.  So, we're going to
-	// intentionally check whether the project is set *on the resource*.  If it is,
-	// we will not try to fetch the project name.  If it is not, either because
-	// the user intends to use the default provider project, or because the resource
-	// is currently being imported, we will read it from the API.
-	if _, ok := d.GetOk("project"); !ok {
+	// We are trying to support several different use cases for bucket. Buckets are globally
+	// unique but they are associated with projects internally, but some users want to use
+	// buckets in a project agnostic way. Thus we will check to see if the project ID has been
+	// explicitly set and use that first. However if no project is explicitly set, such as during
+	// import, we will look up the ID from the compute API using the project Number from the
+	// bucket API response.
+	// If you are working in a project-agnostic way and have not set the project ID in the provider
+	// block, or the resource or an environment variable, we use the compute API to lookup the projectID
+	// from the projectNumber which is included in the bucket API response
+	if d.Get("project") == "" {
+		project, _ := getProject(d, config)
+		d.Set("project", project)
+	}
+	if d.Get("project") == "" {
 		proj, err := config.clientCompute.Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
 		if err != nil {
 			return err
@@ -585,7 +588,18 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceStorageBucketStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	d.Set("name", d.Id())
+	// We need to support project/bucket_name and bucket_name formats. This will allow
+	// importing a bucket that is in a different project than the provider default.
+	// ParseImportID can't be used because having no project will cause an error but it
+	// is a valid state as the project_id will be retrieved in READ
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) == 1 {
+		d.Set("name", parts[0])
+	} else if len(parts) > 1 {
+		d.Set("project", parts[0])
+		d.Set("name", parts[1])
+	}
+
 	d.Set("force_destroy", false)
 	return []*schema.ResourceData{d}, nil
 }
