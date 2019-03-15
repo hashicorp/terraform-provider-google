@@ -34,21 +34,6 @@ resource "google_container_cluster" "primary" {
     username = ""
     password = ""
   }
-
-  node_config {
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/compute",
-      "https://www.googleapis.com/auth/devstorage.read_only",
-      "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring",
-    ]
-
-    labels = {
-      foo = "bar"
-    }
-
-    tags = ["foo", "bar"]
-  }
 }
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
@@ -220,7 +205,10 @@ deprecated in favour of `node_locations`.
     Defaults to `false`
 
 * `initial_node_count` - (Optional) The number of nodes to create in this
-    cluster (not including the Kubernetes master). Must be set if `node_pool` is not set.
+    cluster's default node pool. Must be set if `node_pool` is not set. If
+    you're using `google_container_node_pool` objects with no default node pool,
+    you'll need to set this to a value of at least `1`, alongside setting
+    `remove_default_node_pool` to `true`.
 
 * `ip_allocation_policy` - (Optional) Configuration for cluster IP allocation. As of now, only pre-allocated subnetworks (custom type with secondary ranges) are supported.
     This will activate IP aliases. See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases)
@@ -271,8 +259,11 @@ to the datasource. A `region` can have a different set of supported versions tha
     [NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/networkpolicies/)
     feature. Structure is documented below.
 
-* `node_config` -  (Optional) Parameters used in creating the cluster's nodes.
-    Structure is documented below.
+* `node_config` -  (Optional) Parameters used in creating the default node pool.
+    Generally, this field should not be used at the same time as a
+    `google_container_node_pool` or a `node_pool` block; this configuration
+    manages the default node pool, which isn't recommended to be used with
+    Terraform. Structure is documented below.
 
 * `node_pool` - (Optional) List of node pools associated with this cluster.
     See [google_container_node_pool](container_node_pool.html) for schema.
@@ -300,7 +291,10 @@ to the datasource. A `region` can have a different set of supported versions tha
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `remove_default_node_pool` - (Optional) If true, deletes the default node pool upon cluster creation.
+* `remove_default_node_pool` - (Optional) If `true`, deletes the default node
+    pool upon cluster creation. If you're using `google_container_node_pool`
+    resources with no default node pool, this should be set to `true`, alongside
+    setting `initial_node_count` to at least `1`.
 
 * `resource_labels` - (Optional) The GCE resource labels (a map of key/value pairs) to be applied to the cluster.
 
