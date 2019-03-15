@@ -11,25 +11,22 @@ import (
 func TestAccDataSourceGoogleImpersonatedCredential_basic(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "data.google_impersonated_credential.current"
+	resourceName := "data.google_impersonated_credential.default"
 
-	sourceAccessToken := "foo"
 	targetServiceAccount := getTestServiceAccountFromEnv(t)
-	scopes := []string{"https://www.googleapis.com/auth/cloud-platform"}
-	delegates := []string{"projects/-/serviceAccounts/impersonated-account@some-project-111.iam.gserviceaccount.com"}
+	scopes := []string{"storage-ro", "https://www.googleapis.com/auth/cloud-platform"}
+	delegates := []string{}
 	lifetime := "30s"
+	targetProject := getTestProjectFromEnv()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckGoogleImpersonatedCredential_datasource(sourceAccessToken, targetServiceAccount, scopes, delegates, lifetime),
+				Config: testAccCheckGoogleImpersonatedCredential_datasource(targetServiceAccount, scopes, delegates, lifetime, targetProject),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "source_access_token", sourceAccessToken),
 					resource.TestCheckResourceAttr(resourceName, "target_service_account", targetServiceAccount),
-					resource.TestCheckResourceAttrSet(resourceName, "scopes"),
-					resource.TestCheckResourceAttrSet(resourceName, "delegates"),
 					resource.TestCheckResourceAttr(resourceName, "lifetime", lifetime),
 				),
 			},
@@ -37,14 +34,31 @@ func TestAccDataSourceGoogleImpersonatedCredential_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleImpersonatedCredential_datasource(sourceAccessToken string, targetServiceAccount string, scopes []string, delegates []string, lifetime string) string {
+func testAccCheckGoogleImpersonatedCredential_datasource(targetServiceAccount string, scopes []string, delegates []string, lifetime string, target_project string) string {
 	return fmt.Sprintf(`
-	data "google_impersonated_credential" "current" {
-		source_access_token = "%s"
-		target_service_account = "%s"
-		scopes = "%s"
-		delegates = "%s"
-		lifetime = "%s"
-}
-	`, sourceAccessToken, targetServiceAccount, scopes, delegates, lifetime)
+
+	provider "google" {}
+
+	data "google_client_config" "default" {
+	  provider = "google"
+	}
+
+	data "google_impersonated_credential" "default" {
+	 provider = "google"
+	 target_service_account = "%s"
+	 scopes = ["storage-ro", "https://www.googleapis.com/auth/cloud-platform"]
+	 lifetime = "%s"
+	}
+
+	provider "google" {
+	   alias  = "impersonated"
+	   access_token = "${data.google_impersonated_credential.default.access_token}"
+	}
+
+	data "google_project" "project" {
+	  provider = "google.impersonated"
+	  project_id = "%s"
+	}
+
+	`, targetServiceAccount, lifetime, target_project)
 }
