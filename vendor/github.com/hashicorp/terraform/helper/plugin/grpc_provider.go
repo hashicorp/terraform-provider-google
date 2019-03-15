@@ -169,6 +169,7 @@ func (s *GRPCProviderServer) PrepareProviderConfig(_ context.Context, req *proto
 	}
 
 	config := terraform.NewResourceConfigShimmed(configVal, block)
+	schema.FixupAsSingleResourceConfigIn(config, s.provider.Schema)
 
 	warns, errs := s.provider.Validate(config)
 	resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, convert.WarnsAndErrsToProto(warns, errs))
@@ -196,6 +197,7 @@ func (s *GRPCProviderServer) ValidateResourceTypeConfig(_ context.Context, req *
 	}
 
 	config := terraform.NewResourceConfigShimmed(configVal, block)
+	schema.FixupAsSingleResourceConfigIn(config, s.provider.ResourcesMap[req.TypeName].Schema)
 
 	warns, errs := s.provider.ValidateResource(req.TypeName, config)
 	resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, convert.WarnsAndErrsToProto(warns, errs))
@@ -215,6 +217,7 @@ func (s *GRPCProviderServer) ValidateDataSourceConfig(_ context.Context, req *pr
 	}
 
 	config := terraform.NewResourceConfigShimmed(configVal, block)
+	schema.FixupAsSingleResourceConfigIn(config, s.provider.DataSourcesMap[req.TypeName].Schema)
 
 	warns, errs := s.provider.ValidateDataSource(req.TypeName, config)
 	resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, convert.WarnsAndErrsToProto(warns, errs))
@@ -242,6 +245,12 @@ func (s *GRPCProviderServer) UpgradeResourceState(_ context.Context, req *proto.
 		}
 	}
 
+	// NOTE WELL: The AsSingle mechanism cannot be automatically normalized here,
+	// so providers that use it must be ready to handle both normalized and
+	// unnormalized input in their upgrade codepaths. The _result_ of an upgrade
+	// should set a single-element list/set for any AsSingle element so that it
+	// can be normalized to a single value automatically on return.
+
 	// We first need to upgrade a flatmap state if it exists.
 	// There should never be both a JSON and Flatmap state in the request.
 	if req.RawState.Flatmap != nil {
@@ -258,6 +267,8 @@ func (s *GRPCProviderServer) UpgradeResourceState(_ context.Context, req *proto.
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
+
+	schema.FixupAsSingleConfigValueOut(jsonMap, s.provider.ResourcesMap[req.TypeName].Schema)
 
 	// now we need to turn the state into the default json representation, so
 	// that it can be re-decoded using the actual schema.
@@ -395,6 +406,7 @@ func (s *GRPCProviderServer) Configure(_ context.Context, req *proto.Configure_R
 	s.provider.TerraformVersion = req.TerraformVersion
 
 	config := terraform.NewResourceConfigShimmed(configVal, block)
+	schema.FixupAsSingleResourceConfigIn(config, s.provider.Schema)
 	err = s.provider.Configure(config)
 	resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 
@@ -418,6 +430,7 @@ func (s *GRPCProviderServer) ReadResource(_ context.Context, req *proto.ReadReso
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
+	// res.ShimInstanceStateFromValue result has already had FixupAsSingleInstanceStateIn applied
 
 	newInstanceState, err := res.RefreshWithoutUpgrade(instanceState, s.provider.Meta())
 	if err != nil {
@@ -442,13 +455,14 @@ func (s *GRPCProviderServer) ReadResource(_ context.Context, req *proto.ReadReso
 	// helper/schema should always copy the ID over, but do it again just to be safe
 	newInstanceState.Attributes["id"] = newInstanceState.ID
 
+	schema.FixupAsSingleInstanceStateOut(newInstanceState, s.provider.ResourcesMap[req.TypeName])
 	newStateVal, err := hcl2shim.HCL2ValueFromFlatmap(newInstanceState.Attributes, block.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
 
-	newStateVal = normalizeNullValues(newStateVal, stateVal, false)
+	newStateVal = normalizeNullValues(newStateVal, stateVal, true)
 	newStateVal = copyTimeoutValues(newStateVal, stateVal)
 
 	newStateMP, err := msgpack.Marshal(newStateVal, block.ImpliedType())
@@ -507,6 +521,7 @@ func (s *GRPCProviderServer) PlanResourceChange(_ context.Context, req *proto.Pl
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
+	// res.ShimInstanceStateFromValue result has already had FixupAsSingleInstanceStateIn applied
 	priorPrivate := make(map[string]interface{})
 	if len(req.PriorPrivate) > 0 {
 		if err := json.Unmarshal(req.PriorPrivate, &priorPrivate); err != nil {
@@ -519,6 +534,7 @@ func (s *GRPCProviderServer) PlanResourceChange(_ context.Context, req *proto.Pl
 
 	// turn the proposed state into a legacy configuration
 	cfg := terraform.NewResourceConfigShimmed(proposedNewStateVal, block)
+	schema.FixupAsSingleResourceConfigIn(cfg, s.provider.ResourcesMap[req.TypeName].Schema)
 
 	diff, err := s.provider.SimpleDiff(info, priorState, cfg)
 	if err != nil {
@@ -562,7 +578,17 @@ func (s *GRPCProviderServer) PlanResourceChange(_ context.Context, req *proto.Pl
 	}
 
 	// now we need to apply the diff to the prior state, so get the planned state
-	plannedAttrs, err := diff.Apply(priorState.Attributes, block)
+	plannedAttrs, err := diff.Apply(priorState.Attributes, res.CoreConfigSchemaWhenShimmed())
+	schema.FixupAsSingleInstanceStateOut(
+		&terraform.InstanceState{Attributes: plannedAttrs},
+		s.provider.ResourcesMap[req.TypeName],
+	)
+
+	// We also fix up the diff for AsSingle here, but note that we intentionally
+	// do it _after_ diff.Apply (so that the state can have its own fixup applied)
+	// but before we deal with requiresNew below so that fixing up the diff
+	// also fixes up the requiresNew keys to match.
+	schema.FixupAsSingleInstanceDiffOut(diff, s.provider.ResourcesMap[req.TypeName])
 
 	plannedStateVal, err := hcl2shim.HCL2ValueFromFlatmap(plannedAttrs, block.ImpliedType())
 	if err != nil {
@@ -702,6 +728,7 @@ func (s *GRPCProviderServer) ApplyResourceChange(_ context.Context, req *proto.A
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
+	// res.ShimInstanceStateFromValue result has already had FixupAsSingleInstanceStateIn applied
 
 	private := make(map[string]interface{})
 	if len(req.PlannedPrivate) > 0 {
@@ -723,7 +750,10 @@ func (s *GRPCProviderServer) ApplyResourceChange(_ context.Context, req *proto.A
 			Destroy:    true,
 		}
 	} else {
-		diff, err = schema.DiffFromValues(priorStateVal, plannedStateVal, stripResourceModifiers(res))
+		diff, err = schema.DiffFromValues(
+			priorStateVal, plannedStateVal,
+			stripResourceModifiers(res),
+		)
 		if err != nil {
 			resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 			return resp, nil
@@ -736,6 +766,10 @@ func (s *GRPCProviderServer) ApplyResourceChange(_ context.Context, req *proto.A
 			Meta:       make(map[string]interface{}),
 		}
 	}
+
+	// NOTE WELL: schema.DiffFromValues has already effectively applied
+	// schema.FixupAsSingleInstanceDiffIn to the diff, so we need not (and must not)
+	// repeat that here.
 
 	// We need to fix any sets that may be using the "~" index prefix to
 	// indicate partially computed. The special sigil isn't really used except
@@ -788,6 +822,7 @@ func (s *GRPCProviderServer) ApplyResourceChange(_ context.Context, req *proto.A
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 	}
+	schema.FixupAsSingleInstanceStateOut(newInstanceState, s.provider.ResourcesMap[req.TypeName])
 	newStateVal := cty.NullVal(block.ImpliedType())
 
 	// Always return a null value for destroy.
@@ -864,6 +899,8 @@ func (s *GRPCProviderServer) ImportResourceState(_ context.Context, req *proto.I
 		// copy the ID again just to be sure it wasn't missed
 		is.Attributes["id"] = is.ID
 
+		schema.FixupAsSingleInstanceStateOut(is, s.provider.ResourcesMap[req.TypeName])
+
 		resourceType := is.Ephemeral.Type
 		if resourceType == "" {
 			resourceType = req.TypeName
@@ -919,6 +956,7 @@ func (s *GRPCProviderServer) ReadDataSource(_ context.Context, req *proto.ReadDa
 	}
 
 	config := terraform.NewResourceConfigShimmed(configVal, block)
+	schema.FixupAsSingleResourceConfigIn(config, s.provider.DataSourcesMap[req.TypeName].Schema)
 
 	// we need to still build the diff separately with the Read method to match
 	// the old behavior
@@ -934,6 +972,7 @@ func (s *GRPCProviderServer) ReadDataSource(_ context.Context, req *proto.ReadDa
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
+	schema.FixupAsSingleInstanceStateOut(newInstanceState, s.provider.DataSourcesMap[req.TypeName])
 
 	newStateVal, err := schema.StateValueFromInstanceState(newInstanceState, block.ImpliedType())
 	if err != nil {
@@ -1078,7 +1117,7 @@ func stripSchema(s *schema.Schema) *schema.Schema {
 // however it sees fit. This however means that a CustomizeDiffFunction may not
 // be able to change a null to an empty value or vice versa, but that should be
 // very uncommon nor was it reliable before 0.12 either.
-func normalizeNullValues(dst, src cty.Value, plan bool) cty.Value {
+func normalizeNullValues(dst, src cty.Value, preferDst bool) cty.Value {
 	ty := dst.Type()
 
 	if !src.IsNull() && !src.IsKnown() {
@@ -1121,20 +1160,20 @@ func normalizeNullValues(dst, src cty.Value, plan bool) cty.Value {
 
 			dstVal := dstMap[key]
 			if dstVal == cty.NilVal {
-				if plan && ty.IsMapType() {
+				if preferDst && ty.IsMapType() {
 					// let plan shape this map however it wants
 					continue
 				}
 				dstVal = cty.NullVal(v.Type())
 			}
-			dstMap[key] = normalizeNullValues(dstVal, v, plan)
+			dstMap[key] = normalizeNullValues(dstVal, v, preferDst)
 		}
 
 		// you can't call MapVal/ObjectVal with empty maps, but nothing was
 		// copied in anyway. If the dst is nil, and the src is known, assume the
 		// src is correct.
 		if len(dstMap) == 0 {
-			if dst.IsNull() && src.IsWhollyKnown() && !plan {
+			if dst.IsNull() && src.IsWhollyKnown() && !preferDst {
 				return src
 			}
 			return dst
@@ -1150,7 +1189,7 @@ func normalizeNullValues(dst, src cty.Value, plan bool) cty.Value {
 		// If the original was wholly known, then we expect that is what the
 		// provider applied. The apply process loses too much information to
 		// reliably re-create the set.
-		if src.IsWhollyKnown() && !plan {
+		if src.IsWhollyKnown() && !preferDst {
 			return src
 		}
 
@@ -1158,7 +1197,7 @@ func normalizeNullValues(dst, src cty.Value, plan bool) cty.Value {
 		// If the dst is nil, and the src is known, then we lost an empty value
 		// so take the original.
 		if dst.IsNull() {
-			if src.IsWhollyKnown() && src.LengthInt() == 0 && !plan {
+			if src.IsWhollyKnown() && src.LengthInt() == 0 && !preferDst {
 				return src
 			}
 			return dst
@@ -1172,7 +1211,7 @@ func normalizeNullValues(dst, src cty.Value, plan bool) cty.Value {
 			dsts := dst.AsValueSlice()
 
 			for i := 0; i < srcLen; i++ {
-				dsts[i] = normalizeNullValues(dsts[i], srcs[i], plan)
+				dsts[i] = normalizeNullValues(dsts[i], srcs[i], preferDst)
 			}
 
 			if ty.IsTupleType() {
@@ -1182,7 +1221,7 @@ func normalizeNullValues(dst, src cty.Value, plan bool) cty.Value {
 		}
 
 	case ty.IsPrimitiveType():
-		if dst.IsNull() && src.IsWhollyKnown() && !plan {
+		if dst.IsNull() && src.IsWhollyKnown() && !preferDst {
 			return src
 		}
 	}
