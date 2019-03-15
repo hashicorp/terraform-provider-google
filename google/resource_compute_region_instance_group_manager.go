@@ -400,7 +400,7 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	d.Set("description", manager.Description)
 	d.Set("project", regionalID.Project)
 	d.Set("target_size", manager.TargetSize)
-	if err := d.Set("target_pools", manager.TargetPools); err != nil {
+	if err := d.Set("target_pools", mapStringArr(manager.TargetPools, ConvertSelfLinkToV1)); err != nil {
 		return fmt.Errorf("Error setting target_pools in state: %s", err.Error())
 	}
 	if err := d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts)); err != nil {
@@ -601,7 +601,7 @@ func flattenDistributionPolicy(distributionPolicy *computeBeta.DistributionPolic
 
 	if distributionPolicy != nil {
 		for _, zone := range distributionPolicy.Zones {
-			zones = append(zones, zone.Zone)
+			zones = append(zones, GetResourceNameFromSelfLink(zone.Zone))
 		}
 	}
 

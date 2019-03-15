@@ -282,7 +282,7 @@ func testAccCheckGoogleProjectHasNoLabels(r, pid string) resource.TestCheckFunc 
 		}
 
 		// State should have zero labels
-		if rs.Primary.Attributes["labels.%"] != "0" {
+		if v, ok := rs.Primary.Attributes["labels.%"]; ok && v != "0" {
 			return fmt.Errorf("Expected 0 labels, got %s", rs.Primary.Attributes["labels.%"])
 		}
 
