@@ -101,9 +101,9 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 						errors = append(errors, fmt.Errorf(
 							"%q cannot be longer than 48 characters", k))
 					}
-					if !regexp.MustCompile("^[a-zA-Z0-9-]+$").MatchString(value) {
+					if !regexp.MustCompile("^[a-zA-Z0-9-_]+$").MatchString(value) {
 						errors = append(errors, fmt.Errorf(
-							"%q can only contain letters, numbers and hyphens", k))
+							"%q can only contain letters, numbers, underscores and hyphens", k))
 					}
 					if !regexp.MustCompile("^[a-zA-Z]").MatchString(value) {
 						errors = append(errors, fmt.Errorf(
