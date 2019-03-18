@@ -503,8 +503,8 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeDisk %q", d.Id()))
 	}
 
-	// if disks are attached, they must be detached before the disk can be deleted
-	if v, ok := readRes["instances"].([]interface{}); ok {
+	// if disks are attached to instances, they must be detached before the disk can be deleted
+	if v, ok := readRes["users"].([]interface{}); ok {
 		type detachArgs struct{ project, zone, instance, deviceName string }
 		var detachCalls []detachArgs
 
