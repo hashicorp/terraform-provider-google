@@ -72,6 +72,28 @@ func joinMapKeys(mapToJoin *map[int]bool) string {
 	return strings.Join(keys, ",")
 }
 
+func validateResourceCloudFunctionsFunctionName(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if len(value) > 48 {
+		errors = append(errors, fmt.Errorf(
+			"%q cannot be longer than 48 characters", k))
+	}
+	if !regexp.MustCompile("^[a-zA-Z0-9-_]+$").MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q can only contain letters, numbers, underscores and hyphens", k))
+	}
+	if !regexp.MustCompile("^[a-zA-Z]").MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q must start with a letter", k))
+	}
+	if !regexp.MustCompile("[a-zA-Z0-9]$").MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q must end with a number or a letter", k))
+	}
+	return
+}
+
 func resourceCloudFunctionsFunction() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudFunctionsCreate,
@@ -91,30 +113,10 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-
-					if len(value) > 48 {
-						errors = append(errors, fmt.Errorf(
-							"%q cannot be longer than 48 characters", k))
-					}
-					if !regexp.MustCompile("^[a-zA-Z0-9-]+$").MatchString(value) {
-						errors = append(errors, fmt.Errorf(
-							"%q can only contain letters, numbers and hyphens", k))
-					}
-					if !regexp.MustCompile("^[a-zA-Z]").MatchString(value) {
-						errors = append(errors, fmt.Errorf(
-							"%q must start with a letter", k))
-					}
-					if !regexp.MustCompile("[a-zA-Z0-9]$").MatchString(value) {
-						errors = append(errors, fmt.Errorf(
-							"%q must end with a number or a letter", k))
-					}
-					return
-				},
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateResourceCloudFunctionsFunctionName,
 			},
 
 			"source_archive_bucket": {
