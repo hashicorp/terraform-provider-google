@@ -98,10 +98,14 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 			if !isRetryableError(err) {
 				return nil, "", fmt.Errorf("Not retriable error: %s", err)
 			}
+
+			log.Printf("[DEBUG] Saw error polling for op, but dismissed as retriable: %s", err)
 			if op == nil {
 				return nil, "", fmt.Errorf("Cannot continue, Operation is nil. %s", err)
 			}
 		}
+
+		log.Printf("[DEBUG] working with op %#v", op)
 
 		// Try to set the operation (so we can check it's Error/State),
 		// and fail if we can't.
