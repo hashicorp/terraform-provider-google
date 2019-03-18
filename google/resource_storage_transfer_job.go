@@ -5,7 +5,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storagetransfer/v1"
 	"log"
 	"strings"
@@ -365,7 +364,7 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	d.Set("transfer_spec", flattenTransferSpec(res.TransferSpec, d))
+	err = d.Set("transfer_spec", flattenTransferSpec(res.TransferSpec, d))
 	if err != nil {
 		return err
 	}
@@ -458,9 +457,7 @@ func resourceStorageTransferJobDelete(d *schema.ResourceData, meta interface{}) 
 		if err != nil {
 			return resource.RetryableError(err)
 		}
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 429 {
-			return resource.RetryableError(gerr)
-		}
+
 		return nil
 	})
 
