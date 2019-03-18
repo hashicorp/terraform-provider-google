@@ -25,6 +25,41 @@ const testPubSubTriggerPath = "./test-fixtures/cloudfunctions/pubsub_trigger.js"
 const testBucketTriggerPath = "./test-fixtures/cloudfunctions/bucket_trigger.js"
 const testFirestoreTriggerPath = "./test-fixtures/cloudfunctions/firestore_trigger.js"
 
+func TestCloudFunctionsFunction_nameValidator(t *testing.T) {
+	validNames := []string{
+		"a",
+		"aA",
+		"a0",
+		"has-hyphen",
+		"has_underscore",
+		"hasUpperCase",
+		"allChars_-A0",
+	}
+	for _, tc := range validNames {
+		wrns, errs := validateResourceCloudFunctionsFunctionName(tc, "function.name")
+		if len(wrns) > 0 {
+			t.Errorf("Expected no validation warnings for test case %q, got: %+v", tc, wrns)
+		}
+		if len(errs) > 0 {
+			t.Errorf("Expected no validation errors for test name %q, got: %+v", tc, errs)
+		}
+	}
+
+	invalidNames := []string{
+		"0startsWithNumber",
+		"endsWith_",
+		"endsWith-",
+		"bad*Character",
+		"aFunctionsNameThatIsLongerThanFortyEightCharacters",
+	}
+	for _, tc := range invalidNames {
+		_, errs := validateResourceCloudFunctionsFunctionName(tc, "function.name")
+		if len(errs) == 0 {
+			t.Errorf("Expected errors for invalid test name %q, got none", tc)
+		}
+	}
+}
+
 func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	t.Parallel()
 
