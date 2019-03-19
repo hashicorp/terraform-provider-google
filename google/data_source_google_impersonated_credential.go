@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 
 	"strings"
 	"time"
@@ -12,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"golang.org/x/oauth2"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
+	"google.golang.org/api/option"
 )
 
 func dataSourceGoogleImpersonatedCredential() *schema.Resource {
@@ -67,20 +67,20 @@ func dataSourceImpersonatedCredentialRead(d *schema.ResourceData, meta interface
 	log.Printf("[INFO] Acquire Impersonated credentials for %s", d.Get("target_service_account").(string))
 
 	d.SetId(time.Now().UTC().String())
-	var client *http.Client
+	var tokenSource oauth2.TokenSource
 	if d.Get("source_access_token") != "" {
-		rootTokenSource := oauth2.StaticTokenSource(&oauth2.Token{
+		tokenSource = oauth2.StaticTokenSource(&oauth2.Token{
 			AccessToken: d.Get("source_access_token").(string),
 		})
-		client = oauth2.NewClient(context.TODO(), rootTokenSource)
 	} else {
-		client = config.client
+		tokenSource = config.tokenSource
 	}
 
-	service, err := iamcredentials.New(client)
+	service, err := iamcredentials.NewService(context.Background(), option.WithTokenSource(tokenSource))
 	if err != nil {
 		return err
 	}
+
 	name := fmt.Sprintf("projects/-/serviceAccounts/%s", d.Get("target_service_account").(string))
 	tokenRequest := &iamcredentials.GenerateAccessTokenRequest{
 		Lifetime:  d.Get("lifetime").(string),
