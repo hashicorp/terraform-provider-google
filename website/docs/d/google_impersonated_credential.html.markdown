@@ -8,8 +8,7 @@ description: |-
 
 # google\_impersonated\_credential
 
-This data source provides a google `oauth2` `access_token` for a different service account than the one initially running the script.  You can 
-then use this new token to access resources the original caller would not have permissions on otherwise.
+This data source provides a google `oauth2` `access_token` for a different service account than the one initially running the script.
 
 For more information see
 [the official documentation](https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials) as well as [iamcredentials.generateAccessToken()](https://cloud.google.com/iam/credentials/reference/rest/v1/projects.serviceAccounts/generateAccessToken)
@@ -20,23 +19,17 @@ To allow `service_A` to impersonate `service_B`, grant the [Service Account Toke
 
 In the IAM policy below, `service_A` is given the Token Creator role impersonate `service_B`
 
-```hcl
-$ cat service_policy.json 
-{ 
-"bindings": [
-    {
-      "members": [
-        "serviceAccount:service_A@projectA.iam.gserviceaccount.com"
-      ],
-      "role": "roles/iam.serviceAccountTokenCreator",    
-    }
-  ]
+```sh
+resource "google_service_account_iam_binding" "token-creator-iam" {
+	service_account_id = "projects/projectB/serviceAccounts/service_B@projectB.iam.gserviceaccount.com"
+	role               = "roles/iam.serviceAccountTokenCreator"
+	members = [
+		"serviceAccount:service_A@projectA.iam.gserviceaccount.com",
+	]
 }
-
-$ gcloud iam service-accounts set-iam-policy  service_B@projectB.iam.gserviceaccount.com  service_policy.json
 ```
 
-Once the IAM permissions are set, you can apply the new token to a provider bootstrapped with it.  Any resources that references the new provider will run as the new identity.
+Once the IAM permissions are set, you can apply the new token to a provider bootstrapped with it.  Any resources that references the aliased provider will run as the new identity.
 
 In the example below, `google_project` will run as `service_B`.
 
@@ -59,17 +52,8 @@ provider "google" {
    access_token = "${data.google_impersonated_credential.default.access_token}"
 }
 
-data "google_project" "project" {
-  provider = "google.impersonated"
-  project_id = "target-project"
-}
-
 data "google_client_openid_userinfo" "me" {
   provider = "google.impersonated"
-}
-
-output "project_number" {
-  value = "${data.google_project.project.number}"
 }
 
 output "target-email" {

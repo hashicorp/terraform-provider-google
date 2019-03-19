@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"golang.org/x/oauth2"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
-	"google.golang.org/api/option"
 )
 
 func dataSourceGoogleImpersonatedCredential() *schema.Resource {
@@ -66,19 +65,19 @@ func dataSourceImpersonatedCredentialRead(d *schema.ResourceData, meta interface
 	config := meta.(*Config)
 	log.Printf("[INFO] Acquire Impersonated credentials for %s", d.Get("target_service_account").(string))
 
-	d.SetId(time.Now().UTC().String())
-	var tokenSource oauth2.TokenSource
+	var service *iamcredentials.Service
+	var err error
 	if d.Get("source_access_token") != "" {
-		tokenSource = oauth2.StaticTokenSource(&oauth2.Token{
+		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{
 			AccessToken: d.Get("source_access_token").(string),
 		})
+		client := oauth2.NewClient(context.Background(), tokenSource)
+		service, err = iamcredentials.New(client)
+		if err != nil {
+			return err
+		}
 	} else {
-		tokenSource = config.tokenSource
-	}
-
-	service, err := iamcredentials.NewService(context.Background(), option.WithTokenSource(tokenSource))
-	if err != nil {
-		return err
+		service = config.clientIamCredentials
 	}
 
 	name := fmt.Sprintf("projects/-/serviceAccounts/%s", d.Get("target_service_account").(string))
@@ -92,6 +91,7 @@ func dataSourceImpersonatedCredentialRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
+	d.SetId(time.Now().UTC().String())
 	d.Set("access_token", at.AccessToken)
 
 	return nil
