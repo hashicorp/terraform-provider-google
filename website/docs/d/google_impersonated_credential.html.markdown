@@ -26,7 +26,7 @@ $ cat service_policy.json
 "bindings": [
     {
       "members": [
-        "service_A@projectA.iam.gserviceaccount.com "
+        "serviceAccount:service_A@projectA.iam.gserviceaccount.com"
       ],
       "role": "roles/iam.serviceAccountTokenCreator",    
     }
@@ -50,7 +50,7 @@ data "google_client_config" "default" {
 data "google_impersonated_credential" "default" {
  provider = "google"
  target_service_account = "service_B@projectB.iam.gserviceaccount.com"
- scopes = ["devstorage.read_only", "cloud-platform"]
+ scopes = ["userinfo-email", "cloud-platform"]
  lifetime = "300s"
 }
 
@@ -63,6 +63,18 @@ data "google_project" "project" {
   provider = "google.impersonated"
   project_id = "target-project"
 }
+
+data "google_client_openid_userinfo" "me" {
+  provider = "google.impersonated"
+}
+
+output "project_number" {
+  value = "${data.google_project.project.number}"
+}
+
+output "target-email" {
+  value = "${data.google_client_openid_userinfo.me.email}"
+}
 ```
 
 > *Note*: the generated token is non-refreshable and can have a maximum `lifetime` of `3600` seconds.
@@ -72,7 +84,7 @@ data "google_project" "project" {
 The following arguments are supported:
 
 * `target_service_account` (Required) - The service account _to_ impersonate (e.g. `service_B@your-project-id.iam.gserviceaccount.com`)
-* `scopes` (Required) - The scopes the new credential should have (e.g. `["devstorage.read_only", "cloud-platform"]`)
+* `scopes` (Required) - The scopes the new credential should have (e.g. `["storage-ro", "cloud-platform"]`)
 * `delegates` (Optional) - Deegate chain of approvals needed to perform full impersonation. Specify the fully qualified service account name.  (e.g. `["projects/-/serviceAccounts/delegate-svc-account@project-id.iam.gserviceaccount.com"]`)
 * `lifetime` (Optional) Lifetime of the impersonated token (defaults to its max: `3600s`).
 * `source_access_token` (Optional) - The source token to bootstrap this module.

@@ -5,6 +5,7 @@ import (
 
 	"fmt"
 
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
@@ -13,52 +14,74 @@ func TestAccDataSourceGoogleImpersonatedCredential_basic(t *testing.T) {
 
 	resourceName := "data.google_impersonated_credential.default"
 
-	targetServiceAccount := getTestServiceAccountFromEnv(t)
-	scopes := []string{"storage-ro", "https://www.googleapis.com/auth/cloud-platform"}
-	delegates := []string{}
-	lifetime := "30s"
-	targetProject := getTestProjectFromEnv()
+	sourceServiceAccountEmail := getTestServiceAccountFromEnv(t)
+	targetServiceAccountID := acctest.RandomWithPrefix("tf-test")
+	targetServiceAccountEmail := fmt.Sprintf(
+		"%s@%s.iam.gserviceaccount.com",
+		targetServiceAccountID,
+		getTestProjectFromEnv(),
+	)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckGoogleImpersonatedCredential_datasource(targetServiceAccount, scopes, delegates, lifetime, targetProject),
+				Config: testAccCheckGoogleImpersonatedCredential_datasource(sourceServiceAccountEmail, targetServiceAccountID),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "target_service_account", targetServiceAccount),
-					resource.TestCheckResourceAttr(resourceName, "lifetime", lifetime),
+					resource.TestCheckResourceAttr(resourceName, "target_service_account", targetServiceAccountEmail),
+					resource.TestCheckOutput("target-email", targetServiceAccountEmail),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckGoogleImpersonatedCredential_datasource(targetServiceAccount string, scopes []string, delegates []string, lifetime string, target_project string) string {
+func testAccCheckGoogleImpersonatedCredential_datasource(sourceServiceAccountEmail string, targetServiceAccountID string) string {
+
 	return fmt.Sprintf(`
 
-	provider "google" {}
+	provider "google" {
+		scopes = [
+			"https://www.googleapis.com/auth/cloud-platform",
+		]
+	}
 
-	data "google_client_config" "default" {
-	  provider = "google"
+	resource "google_service_account" "targetSA" {
+		account_id   = "%s"
+	}
+
+	resource "google_service_account_iam_binding" "token-creator-iam" {
+		service_account_id = "${google_service_account.targetSA.name}"
+		role               = "roles/iam.serviceAccountTokenCreator"
+		members = [
+			"serviceAccount:%s",
+		]
 	}
 
 	data "google_impersonated_credential" "default" {
-	 provider = "google"
-	 target_service_account = "%s"
-	 scopes = ["storage-ro", "https://www.googleapis.com/auth/cloud-platform"]
-	 lifetime = "%s"
+		target_service_account = "${google_service_account.targetSA.email}"
+		scopes = ["https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/cloud-platform"]
+		lifetime = "60s"
+
+		depends_on = ["google_service_account_iam_binding.token-creator-iam"]
 	}
 
 	provider "google" {
-	   alias  = "impersonated"
-	   access_token = "${data.google_impersonated_credential.default.access_token}"
+		alias  = "impersonated"
+		scopes = [
+			"https://www.googleapis.com/auth/cloud-platform",
+			"https://www.googleapis.com/auth/userinfo.email",
+		]
+		access_token = "${data.google_impersonated_credential.default.access_token}"
 	}
 
-	data "google_project" "project" {
-	  provider = "google.impersonated"
-	  project_id = "%s"
+	data "google_client_openid_userinfo" "me" {
+		provider = "google.impersonated"
 	}
 
-	`, targetServiceAccount, lifetime, target_project)
+	output "target-email" {
+		value = "${data.google_client_openid_userinfo.me.email}"
+	}
+	`, targetServiceAccountID, sourceServiceAccountEmail)
 }
