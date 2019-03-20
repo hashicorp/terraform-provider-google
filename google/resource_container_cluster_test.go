@@ -1380,8 +1380,8 @@ func matchError(attr, tf interface{}, gcp interface{}) string {
 func testAccContainerCluster_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
-	name = "%s"
-	zone = "us-central1-a"
+	name               = "%s"
+	location           = "us-central1-a"
 	initial_node_count = 3
 }`, name)
 }
@@ -1584,8 +1584,8 @@ resource "google_container_cluster" "with_master_authorized_networks" {
 func testAccContainerCluster_regional(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "regional" {
-	name = "%s"
-	region = "us-central1"
+	name               = "%s"
+	location           = "us-central1"
 	initial_node_count = 1
 }`, clusterName)
 }
@@ -1602,6 +1602,7 @@ resource "google_container_cluster" "regional" {
 }`, cluster, nodePool)
 }
 
+// This uses zone/additional_zones over location/node_locations to ensure we can update from old -> new
 func testAccContainerCluster_withAdditionalZones(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_additional_zones" {
@@ -1619,17 +1620,18 @@ resource "google_container_cluster" "with_additional_zones" {
 func testAccContainerCluster_updateAdditionalZones(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_additional_zones" {
-	name = "%s"
-	zone = "us-central1-a"
+	name               = "%s"
+	location           = "us-central1-a"
 	initial_node_count = 1
 
-	additional_zones = [
+	node_locations = [
 		"us-central1-f",
 		"us-central1-c",
 	]
 }`, clusterName)
 }
 
+// This uses region/additional_zones over location/node_locations to ensure we can update from old -> new
 func testAccContainerCluster_regionalAdditionalZones(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_additional_zones" {
@@ -1647,11 +1649,11 @@ resource "google_container_cluster" "with_additional_zones" {
 func testAccContainerCluster_regionalUpdateAdditionalZones(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_additional_zones" {
-	name = "%s"
-	region = "us-central1"
+	name               = "%s"
+	location           = "us-central1"
 	initial_node_count = 1
 
-	additional_zones = [
+	node_locations = [
 		"us-central1-f",
 		"us-central1-b",
 	]

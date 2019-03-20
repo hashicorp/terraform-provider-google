@@ -20,8 +20,8 @@ plaintext. [Read more about sensitive data in state](/docs/state/sensitive-data.
 
 ```hcl
 resource "google_container_cluster" "primary" {
-  name   = "my-gke-cluster"
-  region = "us-central1"
+  name     = "my-gke-cluster"
+  location = "us-central1"
 
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
@@ -34,30 +34,21 @@ resource "google_container_cluster" "primary" {
     username = ""
     password = ""
   }
-
-  node_config {
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring",
-    ]
-
-    labels = {
-      foo = "bar"
-    }
-
-    tags = ["foo", "bar"]
-  }
 }
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "my-node-pool"
-  region     = "us-central1"
+  location   = "us-central1"
   cluster    = "${google_container_cluster.primary.name}"
   node_count = 1
 
   node_config {
     preemptible  = true
     machine_type = "n1-standard-1"
+
+    metadata {
+      disable-legacy-endpoints = "true"
+    }
 
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
@@ -86,7 +77,7 @@ output "cluster_ca_certificate" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "marcellus-wallace"
-  zone               = "us-central1-a"
+  location           = "us-central1-a"
   initial_node_count = 3
 
   # Setting an empty username and password explicitly disables basic auth
@@ -100,6 +91,10 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
+
+    metadata {
+      disable-legacy-endpoints = "true"
+    }
 
     labels = {
       foo = "bar"
@@ -132,25 +127,50 @@ output "cluster_ca_certificate" {
 ## Argument Reference
 
 * `name` - (Required) The name of the cluster, unique within the project and
-    zone.
+location.
 
 - - -
 
-* `zone` - (Optional) The zone that the master and the number of nodes specified
-    in `initial_node_count` should be created in. Only one of `zone` and `region`
-    may be set. If neither zone nor region are set, the provider zone is used.
+* `location` - (Optional) The location (region or zone) in which the cluster
+master will be created, as well as the default node location. If you specify a
+zone (such as `us-central1-a`), the cluster will be a zonal cluster with a
+single cluster master. If you specify a region (such as `us-west1`), the
+cluster will be a regional cluster with multiple masters spread across zones in
+the region, and with default node locations in those zones as well.
 
-* `region` (Optional)
-    The region to create the cluster in for
-    [Regional Clusters](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-zone-and-regional-clusters#regional).
-    In a Regional Cluster, the number of nodes specified in `initial_node_count` is
-    created in each of three zones of the region (this can be changed by setting
-     `additional_zones`).
+* `zone` - (Optional, Deprecated) The zone that the cluster master and nodes
+should be created in. If specified, this cluster will be a zonal cluster. `zone`
+has been deprecated in favour of `location`.
 
-* `additional_zones` - (Optional) The list of additional Google Compute Engine
-    locations in which the cluster's nodes should be located. If additional zones are
-    configured, the number of nodes specified in `initial_node_count` is created in
-    all specified zones.
+* `region` (Optional, Deprecated) The region that the cluster master and nodes
+should be created in. If specified, this cluster will be a [regional clusters](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-zone-and-regional-clusters#regional)
+where the cluster master and nodes (by default) will be created in several zones
+throughout the region. `region` has been deprecated in favour of `location`.
+
+~> Only one of `location`, `zone`, and `region` may be set. If none are set,
+the provider zone is used to create a zonal cluster.
+
+* `node_locations` - (Optional) The list of zones in which the cluster's nodes
+should be located. These must be in the same region as the cluster zone for
+zonal clusters, or in the region of a regional cluster. In a multi-zonal cluster,
+the number of nodes specified in `initial_node_count` is created in
+all specified zones as well as the primary zone. If specified for a regional
+cluster, nodes will be created in only these zones.
+
+-> A "multi-zonal" cluster is a zonal cluster with at least one additional zone
+defined; in a multi-zonal cluster, the cluster master is only present in a
+single zone while nodes are present in each of the primary zone and the node
+locations. In contrast, in a regional cluster, cluster master nodes are present
+in multiple zones in the region. For that reason, regional clusters should be
+preferred.
+
+* `additional_zones` - (Optional) The list of zones in which the cluster's nodes
+should be located. These must be in the same region as the cluster zone for
+zonal clusters, or in the region of a regional cluster. In a multi-zonal cluster,
+the number of nodes specified in `initial_node_count` is created in
+all specified zones as well as the primary zone. If specified for a regional
+cluster, nodes will only be created in these zones. `additional_zones` has been 
+deprecated in favour of `node_locations`. 
 
 * `addons_config` - (Optional) The configuration for addons supported by GKE.
     Structure is documented below.
@@ -181,7 +201,10 @@ output "cluster_ca_certificate" {
     Defaults to `false`
 
 * `initial_node_count` - (Optional) The number of nodes to create in this
-    cluster (not including the Kubernetes master). Must be set if `node_pool` is not set.
+    cluster's default node pool. Must be set if `node_pool` is not set. If
+    you're using `google_container_node_pool` objects with no default node pool,
+    you'll need to set this to a value of at least `1`, alongside setting
+    `remove_default_node_pool` to `true`.
 
 * `ip_allocation_policy` - (Optional) Configuration for cluster IP allocation. As of now, only pre-allocated subnetworks (custom type with secondary ranges) are supported.
     This will activate IP aliases. See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases)
@@ -232,8 +255,11 @@ to the datasource. A `region` can have a different set of supported versions tha
     [NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/networkpolicies/)
     feature. Structure is documented below.
 
-* `node_config` -  (Optional) Parameters used in creating the cluster's nodes.
-    Structure is documented below.
+* `node_config` -  (Optional) Parameters used in creating the default node pool.
+    Generally, this field should not be used at the same time as a
+    `google_container_node_pool` or a `node_pool` block; this configuration
+    manages the default node pool, which isn't recommended to be used with
+    Terraform. Structure is documented below.
 
 * `node_pool` - (Optional) List of node pools associated with this cluster.
     See [google_container_node_pool](container_node_pool.html) for schema.
@@ -261,7 +287,10 @@ to the datasource. A `region` can have a different set of supported versions tha
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `remove_default_node_pool` - (Optional) If true, deletes the default node pool upon cluster creation.
+* `remove_default_node_pool` - (Optional) If `true`, deletes the default node
+    pool upon cluster creation. If you're using `google_container_node_pool`
+    resources with no default node pool, this should be set to `true`, alongside
+    setting `initial_node_count` to at least `1`.
 
 * `resource_labels` - (Optional) The GCE resource labels (a map of key/value pairs) to be applied to the cluster.
 
@@ -450,7 +479,10 @@ The `node_config` block supports:
     [here](https://cloud.google.com/compute/docs/reference/latest/instances#machineType).
 
 * `metadata` - (Optional) The metadata key/value pairs assigned to instances in
-    the cluster.
+    the cluster. From GKE `1.12` onwards, `disable-legacy-endpoints` is set to
+    `true` by the API; if `metadata` is set but that default value is not
+    included, Terraform will attempt to unset the value. To avoid this, set the
+    value in your config.
 
 * `min_cpu_platform` - (Optional) Minimum CPU platform to be used by this instance.
     The instance may be scheduled on the specified or newer CPU platform. Applicable

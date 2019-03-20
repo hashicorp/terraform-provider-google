@@ -227,7 +227,12 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 	d.SetId(pid)
 
 	// Wait for the operation to complete
-	waitErr := resourceManagerOperationWait(config.clientResourceManager, op, "project to create")
+	opAsMap, err := ConvertToMap(op)
+	if err != nil {
+		return err
+	}
+
+	waitErr := resourceManagerOperationWaitTime(config, opAsMap, "", "creating folder", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if waitErr != nil {
 		// The resource wasn't actually created
 		d.SetId("")
@@ -511,4 +516,18 @@ func updateProjectBillingAccount(d *schema.ResourceData, config *Config) error {
 	}
 	return fmt.Errorf("Timed out waiting for billing account to return correct value.  Waiting for %s, got %s.",
 		name, strings.TrimPrefix(ba.BillingAccountName, "billingAccounts/"))
+}
+
+func deleteComputeNetwork(project, network string, config *Config) error {
+	op, err := config.clientCompute.Networks.Delete(
+		project, network).Do()
+	if err != nil {
+		return fmt.Errorf("Error deleting network: %s", err)
+	}
+
+	err = computeOperationWaitTime(config.clientCompute, op, project, "Deleting Network", 10)
+	if err != nil {
+		return err
+	}
+	return nil
 }

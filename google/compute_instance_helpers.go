@@ -114,7 +114,7 @@ func expandAccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
 	return acs
 }
 
-func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*computeBeta.NetworkInterface, error) {
+func expandNetworkInterfaces(d TerraformResourceData, config *Config) ([]*computeBeta.NetworkInterface, error) {
 	configs := d.Get("network_interface").([]interface{})
 	ifaces := make([]*computeBeta.NetworkInterface, len(configs))
 	for i, raw := range configs {
@@ -122,7 +122,7 @@ func expandNetworkInterfaces(d *schema.ResourceData, config *Config) ([]*compute
 
 		network := data["network"].(string)
 		subnetwork := data["subnetwork"].(string)
-		if (network == "" && subnetwork == "") || (network != "" && subnetwork != "") {
+		if network == "" && subnetwork == "" {
 			return nil, fmt.Errorf("exactly one of network or subnetwork must be provided")
 		}
 
@@ -188,7 +188,7 @@ func flattenGuestAccelerators(accelerators []*computeBeta.AcceleratorConfig) []m
 	return acceleratorsSchema
 }
 
-func resourceInstanceTags(d *schema.ResourceData) *computeBeta.Tags {
+func resourceInstanceTags(d TerraformResourceData) *computeBeta.Tags {
 	// Calculate the tags
 	var tags *computeBeta.Tags
 	if v := d.Get("tags"); v != nil {

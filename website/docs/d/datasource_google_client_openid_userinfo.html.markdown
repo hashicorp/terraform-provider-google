@@ -37,7 +37,7 @@ provider "google" {
 data "google_client_openid_userinfo" "me" {}
 
 output "my-email" {
-  value = "${data.google_client_openid_useremail.me.email}"
+  value = "${data.google_client_openid_userinfo.me.email}"
 }
 ```
 

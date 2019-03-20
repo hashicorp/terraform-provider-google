@@ -27,9 +27,6 @@ func TestAccDataSourceGoogleKmsKeyRing_basic(t *testing.T) {
 	})
 }
 
-/*
-	This test should run in its own project, because keys and key rings are not deletable
-*/
 func testAccDataSourceGoogleKmsKeyRing_basic(keyRingName string) string {
 	return fmt.Sprintf(`
 

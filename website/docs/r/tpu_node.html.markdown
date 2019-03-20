@@ -74,7 +74,7 @@ resource "google_tpu_node" "tpu" {
 	description = "Terraform Google Provider test TPU"
 	network = "${google_compute_network.tpu_network.name}"
 
-	labels {
+	labels = {
 		foo = "bar"
 	}
 

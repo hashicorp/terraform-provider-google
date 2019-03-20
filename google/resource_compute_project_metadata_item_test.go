@@ -161,7 +161,7 @@ func testAccCheckProjectMetadataItemDestroy(s *terraform.State) error {
 }
 
 func testAccProjectMetadataItem_basic(key, val string) string {
-	return testAccProjectMetadataItem_basicWithResourceName(acctest.RandString(10), key, val)
+	return testAccProjectMetadataItem_basicWithResourceName(fmt.Sprintf("test_%s", acctest.RandString(10)), key, val)
 }
 
 func testAccProjectMetadataItem_basicWithResourceName(resourceName, key, val string) string {

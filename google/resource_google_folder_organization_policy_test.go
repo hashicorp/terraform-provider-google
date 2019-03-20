@@ -66,6 +66,11 @@ func TestAccFolderOrganizationPolicy_list_allowAll(t *testing.T) {
 				Config: testAccFolderOrganizationPolicy_list_allowAll(org, folder),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyAll("list", "ALLOW"),
 			},
+			{
+				ResourceName:      "google_folder_organization_policy.list",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -85,6 +90,11 @@ func TestAccFolderOrganizationPolicy_list_allowSome(t *testing.T) {
 				Config: testAccFolderOrganizationPolicy_list_allowSome(org, folder, project),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyAllowedValues("list", []string{"projects/" + project}),
 			},
+			{
+				ResourceName:      "google_folder_organization_policy.list",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -102,6 +112,11 @@ func TestAccFolderOrganizationPolicy_list_denySome(t *testing.T) {
 			{
 				Config: testAccFolderOrganizationPolicy_list_denySome(org, folder),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
+			},
+			{
+				ResourceName:      "google_folder_organization_policy.list",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -125,6 +140,11 @@ func TestAccFolderOrganizationPolicy_list_update(t *testing.T) {
 				Config: testAccFolderOrganizationPolicy_list_denySome(org, folder),
 				Check:  testAccCheckGoogleFolderOrganizationListPolicyDeniedValues("list", DENIED_ORG_POLICIES),
 			},
+			{
+				ResourceName:      "google_folder_organization_policy.list",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -142,6 +162,11 @@ func TestAccFolderOrganizationPolicy_restore_defaultTrue(t *testing.T) {
 			{
 				Config: testAccFolderOrganizationPolicy_restore_defaultTrue(org, folder),
 				Check:  getGoogleFolderOrganizationRestoreDefaultTrue("restore", &cloudresourcemanager.RestoreDefault{}),
+			},
+			{
+				ResourceName:      "google_folder_organization_policy.restore",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

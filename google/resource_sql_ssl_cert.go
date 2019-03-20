@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/sqladmin/v1beta4"
+	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
 func resourceSqlSslCert() *schema.Resource {
@@ -26,6 +26,13 @@ func resourceSqlSslCert() *schema.Resource {
 			"instance": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
+			},
+
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -133,6 +140,7 @@ func resourceSqlSslCertRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("instance", sslCerts.Instance)
+	d.Set("project", project)
 	d.Set("sha1_fingerprint", sslCerts.Sha1Fingerprint)
 	d.Set("common_name", sslCerts.CommonName)
 	d.Set("cert", sslCerts.Cert)

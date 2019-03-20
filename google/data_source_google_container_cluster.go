@@ -12,7 +12,7 @@ func dataSourceGoogleContainerCluster() *schema.Resource {
 	addRequiredFieldsToSchema(dsSchema, "name")
 
 	// Set 'Optional' schema elements
-	addOptionalFieldsToSchema(dsSchema, "project", "zone", "region")
+	addOptionalFieldsToSchema(dsSchema, "project", "zone", "region", "location")
 
 	return &schema.Resource{
 		Read:   datasourceContainerClusterRead,

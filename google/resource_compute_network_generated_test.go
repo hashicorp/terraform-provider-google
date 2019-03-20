@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccComputeDisk_diskBasicExample(t *testing.T) {
+func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -34,13 +34,13 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroy,
+		CheckDestroy: testAccCheckComputeNetworkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeDisk_diskBasicExample(context),
+				Config: testAccComputeNetwork_networkBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_disk.default",
+				ResourceName:      "google_compute_network.vpc_network",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -48,24 +48,17 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeDisk_diskBasicExample(context map[string]interface{}) string {
+func testAccComputeNetwork_networkBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_compute_disk" "default" {
-  name  = "test-disk-%{random_suffix}"
-  type  = "pd-ssd"
-  zone  = "us-central1-a"
-  image = "debian-8-jessie-v20170523"
-  labels = {
-    environment = "dev"
-  }
-  physical_block_size_bytes = 4096
+resource "google_compute_network" "vpc_network" {
+  name = "vpc-network-%{random_suffix}"
 }
 `, context)
 }
 
-func testAccCheckComputeDiskDestroy(s *terraform.State) error {
+func testAccCheckComputeNetworkDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_disk" {
+		if rs.Type != "google_compute_network" {
 			continue
 		}
 		if strings.HasPrefix(name, "data.") {
@@ -74,14 +67,14 @@ func testAccCheckComputeDiskDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/disks/{{name}}")
+		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/networks/{{name}}")
 		if err != nil {
 			return err
 		}
 
 		_, err = sendRequest(config, "GET", url, nil)
 		if err == nil {
-			return fmt.Errorf("ComputeDisk still exists at %s", url)
+			return fmt.Errorf("ComputeNetwork still exists at %s", url)
 		}
 	}
 
