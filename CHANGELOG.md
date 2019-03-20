@@ -15,9 +15,16 @@ ENHANCEMENTS:
 * dataflow: `google_dataflow_job` has support for custom service accounts with `service_account_email`. [GH-3238]
 
 BUG FIXES:
+* compute: `google_compute_disk` will properly detach instances again. [GH-3269]
 * container: `google_container_cluster`, `google_container_node_pool` properly suppress new GKE `1.12` `metadata` values. [GH-3233]
 
 ## 2.2.0 (March 12, 2019)
+
+KNOWN ISSUES:
+
+* compute: `google_compute_disk` is unable to detach instances at deletion time.
+
+---
 
 FEATURES:
 * **New Datasource**: `data.google_projects` for retrieving a list of projects based on a filter. ([#3178](https://github.com/terraform-providers/terraform-provider-google/issues/3178))
