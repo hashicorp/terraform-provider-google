@@ -133,7 +133,6 @@ func resourceComputeVpnTunnel() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeVpnTunnelCreate,
 		Read:   resourceComputeVpnTunnelRead,
-		Update: resourceComputeVpnTunnelUpdate,
 		Delete: resourceComputeVpnTunnelDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -142,7 +141,6 @@ func resourceComputeVpnTunnel() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
 			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
 
@@ -180,11 +178,6 @@ func resourceComputeVpnTunnel() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Default:  2,
-			},
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"local_traffic_selector": {
 				Type:     schema.TypeSet,
@@ -224,10 +217,6 @@ func resourceComputeVpnTunnel() *schema.Resource {
 				Computed: true,
 			},
 			"detailed_status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"label_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -306,18 +295,6 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("remote_traffic_selector"); !isEmptyValue(reflect.ValueOf(remoteTrafficSelectorProp)) && (ok || !reflect.DeepEqual(v, remoteTrafficSelectorProp)) {
 		obj["remoteTrafficSelector"] = remoteTrafficSelectorProp
-	}
-	labelsProp, err := expandComputeVpnTunnelLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	labelFingerprintProp, err := expandComputeVpnTunnelLabelFingerprint(d.Get("label_fingerprint"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("label_fingerprint"); !isEmptyValue(reflect.ValueOf(labelFingerprintProp)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
-		obj["labelFingerprint"] = labelFingerprintProp
 	}
 	regionProp, err := expandComputeVpnTunnelRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -425,12 +402,6 @@ func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("remote_traffic_selector", flattenComputeVpnTunnelRemoteTrafficSelector(res["remoteTrafficSelector"], d)); err != nil {
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
-	if err := d.Set("labels", flattenComputeVpnTunnelLabels(res["labels"], d)); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeVpnTunnelLabelFingerprint(res["labelFingerprint"], d)); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
-	}
 	if err := d.Set("detailed_status", flattenComputeVpnTunnelDetailedStatus(res["detailedStatus"], d)); err != nil {
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
@@ -442,62 +413,6 @@ func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	return nil
-}
-
-func resourceComputeVpnTunnelUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-
-	d.Partial(true)
-
-	if d.HasChange("labels") || d.HasChange("label_fingerprint") {
-		obj := make(map[string]interface{})
-		labelsProp, err := expandComputeVpnTunnelLabels(d.Get("labels"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-			obj["labels"] = labelsProp
-		}
-		labelFingerprintProp, err := expandComputeVpnTunnelLabelFingerprint(d.Get("label_fingerprint"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("label_fingerprint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
-			obj["labelFingerprint"] = labelFingerprintProp
-		}
-
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}/setLabels")
-		if err != nil {
-			return err
-		}
-		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating VpnTunnel %q: %s", d.Id(), err)
-		}
-
-		project, err := getProject(d, config)
-		if err != nil {
-			return err
-		}
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
-		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating VpnTunnel",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("labels")
-		d.SetPartial("label_fingerprint")
-	}
-
-	d.Partial(false)
-
-	return resourceComputeVpnTunnelRead(d, meta)
 }
 
 func resourceComputeVpnTunnelDelete(d *schema.ResourceData, meta interface{}) error {
@@ -611,14 +526,6 @@ func flattenComputeVpnTunnelRemoteTrafficSelector(v interface{}, d *schema.Resou
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeVpnTunnelLabels(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenComputeVpnTunnelLabelFingerprint(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
 func flattenComputeVpnTunnelDetailedStatus(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
@@ -676,21 +583,6 @@ func expandComputeVpnTunnelLocalTrafficSelector(v interface{}, d TerraformResour
 
 func expandComputeVpnTunnelRemoteTrafficSelector(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
-	return v, nil
-}
-
-func expandComputeVpnTunnelLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
-}
-
-func expandComputeVpnTunnelLabelFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
