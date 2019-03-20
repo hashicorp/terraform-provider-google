@@ -493,11 +493,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	op, err := config.clientSqlAdmin.Instances.Insert(project, instance).Do()
 	if err != nil {
-		if googleapiError, ok := err.(*googleapi.Error); ok && googleapiError.Code == 409 {
-			return fmt.Errorf("Error, the name %s is unavailable because it was used recently", instance.Name)
-		} else {
-			return fmt.Errorf("Error, failed to create instance %s: %s", instance.Name, err)
-		}
+		return fmt.Errorf("Error, failed to create instance %s: %s", instance.Name, err)
 	}
 
 	d.SetId(instance.Name)

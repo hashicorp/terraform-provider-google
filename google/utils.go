@@ -350,8 +350,7 @@ func retryTimeDuration(retryFunc func() error, duration time.Duration) error {
 }
 
 func isRetryableError(err error) bool {
-	// 409's are retried because cloud sql throws a 409 when concurrent calls are made
-	if gerr, ok := err.(*googleapi.Error); ok && (gerr.Code == 409 || gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503) {
+	if gerr, ok := err.(*googleapi.Error); ok && (gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503) {
 		return true
 	}
 	// These operations are always hitting googleapis.com - they should rarely
@@ -359,6 +358,14 @@ func isRetryableError(err error) bool {
 	if urlerr, ok := err.(*url.Error); ok && urlerr.Timeout() {
 		return true
 	}
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Body, "operationInProgress") {
+		// 409's are retried because cloud sql throws a 409 when concurrent calls are made.
+		// The only way right now to determine it is a SQL 409 due to concurrent calls is to
+		// look at the contents of the error message.
+		// See https://github.com/terraform-providers/terraform-provider-google/issues/3279
+		return true
+	}
+
 	return false
 }
 
