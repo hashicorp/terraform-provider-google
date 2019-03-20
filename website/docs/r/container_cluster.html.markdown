@@ -51,8 +51,6 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
     }
 
     oauth_scopes = [
-      "https://www.googleapis.com/auth/compute",
-      "https://www.googleapis.com/auth/devstorage.read_only",
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
@@ -90,8 +88,6 @@ resource "google_container_cluster" "primary" {
 
   node_config {
     oauth_scopes = [
-      "https://www.googleapis.com/auth/compute",
-      "https://www.googleapis.com/auth/devstorage.read_only",
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
@@ -309,23 +305,23 @@ The `addons_config` block supports:
     It ensures that a Heapster pod is running in the cluster, which is also used by the Cloud Monitoring service.
     It is enabled by default;
     set `disabled = true` to disable.
-    
+
 * `http_load_balancing` - (Optional) The status of the HTTP (L7) load balancing
     controller addon, which makes it easy to set up HTTP load balancers for services in a
     cluster. It is enabled by default; set `disabled = true` to disable.
-    
+
 * `kubernetes_dashboard` - (Optional) The status of the Kubernetes Dashboard
     add-on, which controls whether the Kubernetes Dashboard is enabled for this cluster.
     It is enabled by default; set `disabled = true` to disable.
-    
+
 * `network_policy_config` - (Optional) Whether we should enable the network policy addon
     for the master.  This must be enabled in order to enable network policy for the nodes.
     It can only be disabled if the nodes already do not have network policies enabled.
     Defaults to disabled; set `disabled = false` to enable.
-    
+
 * `istio_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)).
     Structure is documented below.
-    
+
 * `cloudrun_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)).
     The status of the CloudRun addon. It requires `istio_config` enabled. It is disabled by default.
     Set `disabled = false` to enable. This addon can only be enabled at cluster creation time.
@@ -361,7 +357,7 @@ The `resource_limits` block supports:
 
 * `resource_type` - (Required) See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
     for a list of permitted types - `cpu`, `memory`, and others.
-    
+
 * `minimum` - (Optional) The minimum value for the resource type specified.
 
 * `maximum` - (Optional) The maximum value for the resource type specified.
@@ -499,8 +495,10 @@ The `node_config` block supports:
     either FQDNs, or scope aliases. The following scopes are necessary to ensure
     the correct functioning of the cluster:
 
-  * `compute-rw` (`https://www.googleapis.com/auth/compute`)
-  * `storage-ro` (`https://www.googleapis.com/auth/devstorage.read_only`)
+  * `storage-ro` (`https://www.googleapis.com/auth/devstorage.read_only`),
+    if the cluster must read private images from GCR.
+    Note this will grant read access to ALL GCS content unless you also
+    specify a custom role. See https://cloud.google.com/kubernetes-engine/docs/how-to/access-scopes
   * `logging-write` (`https://www.googleapis.com/auth/logging.write`),
     if `logging_service` points to Google
   * `monitoring` (`https://www.googleapis.com/auth/monitoring`),
