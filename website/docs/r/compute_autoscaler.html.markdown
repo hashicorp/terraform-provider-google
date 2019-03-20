@@ -348,8 +348,8 @@ Autoscaler can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_compute_autoscaler.default projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}
-$ terraform import google_compute_autoscaler.default {{zone}}/{{name}}
 $ terraform import google_compute_autoscaler.default {{project}}/{{zone}}/{{name}}
+$ terraform import google_compute_autoscaler.default {{zone}}/{{name}}
 $ terraform import google_compute_autoscaler.default {{name}}
 ```
 
