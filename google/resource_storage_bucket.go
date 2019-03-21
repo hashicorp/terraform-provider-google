@@ -105,7 +105,6 @@ func resourceStorageBucket() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "STANDARD",
-				ForceNew: true,
 			},
 
 			"lifecycle_rule": {
@@ -323,6 +322,12 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	if v, ok := d.GetOk("requester_pays"); ok {
 		sb.Billing = &storage.BucketBilling{
 			RequesterPays: v.(bool),
+		}
+	}
+
+	if d.HasChange("storage_class") {
+		if v, ok := d.GetOk("storage_class"); ok {
+			sb.StorageClass = v.(string)
 		}
 	}
 
