@@ -154,6 +154,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_app_engine_application":                resourceAppEngineApplication(),
 			"google_bigquery_dataset":                      resourceBigQueryDataset(),
 			"google_bigquery_table":                        resourceBigQueryTable(),
+			"google_bigtable_gc_policy":                    resourceBigtableGCPolicy(),
 			"google_bigtable_instance":                     resourceBigtableInstance(),
 			"google_bigtable_table":                        resourceBigtableTable(),
 			"google_billing_account_iam_binding":           ResourceIamBindingWithImport(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
