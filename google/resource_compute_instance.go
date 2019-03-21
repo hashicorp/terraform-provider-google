@@ -938,6 +938,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if err := Convert(metadata, metadataV1); err != nil {
 			return err
 		}
+		metadataV1.Fingerprint = instance.Metadata.Fingerprint
 
 		op, err := config.clientCompute.Instances.SetMetadata(project, zone, d.Id(), metadataV1).Do()
 		if err != nil {
