@@ -1,12 +1,12 @@
 ---
 layout: "google"
-page_title: "Google: google_impersonated_credential"
-sidebar_current: "docs-google-impersonated-credential"
+page_title: "Google: google_service_account_access_token"
+sidebar_current: "docs-google-service-account-access-token"
 description: |-
   Produces access_token for impersonated service accounts
 ---
 
-# google\_impersonated\_credential
+# google\_service\_account\_access\_token
 
 This data source provides a google `oauth2` `access_token` for a different service account than the one initially running the script.
 
@@ -21,7 +21,7 @@ In the IAM policy below, `service_A` is given the Token Creator role impersonate
 
 ```sh
 resource "google_service_account_iam_binding" "token-creator-iam" {
-	service_account_id = "projects/projectB/serviceAccounts/service_B@projectB.iam.gserviceaccount.com"
+	service_account_id = "projects/-/serviceAccounts/service_B@projectB.iam.gserviceaccount.com"
 	role               = "roles/iam.serviceAccountTokenCreator"
 	members = [
 		"serviceAccount:service_A@projectA.iam.gserviceaccount.com",
@@ -40,7 +40,7 @@ data "google_client_config" "default" {
   provider = "google"
 }
 
-data "google_impersonated_credential" "default" {
+data "google_service_account_access_token" "default" {
  provider = "google"
  target_service_account = "service_B@projectB.iam.gserviceaccount.com"
  scopes = ["userinfo-email", "cloud-platform"]
@@ -49,7 +49,7 @@ data "google_impersonated_credential" "default" {
 
 provider "google" {
    alias  = "impersonated"
-   access_token = "${data.google_impersonated_credential.default.access_token}"
+   access_token = "${data.google_service_account_access_token.default.access_token}"
 }
 
 data "google_client_openid_userinfo" "me" {
@@ -71,7 +71,6 @@ The following arguments are supported:
 * `scopes` (Required) - The scopes the new credential should have (e.g. `["storage-ro", "cloud-platform"]`)
 * `delegates` (Optional) - Deegate chain of approvals needed to perform full impersonation. Specify the fully qualified service account name.  (e.g. `["projects/-/serviceAccounts/delegate-svc-account@project-id.iam.gserviceaccount.com"]`)
 * `lifetime` (Optional) Lifetime of the impersonated token (defaults to its max: `3600s`).
-* `source_access_token` (Optional) - The source token to bootstrap this module.
 
 ## Attributes Reference
 

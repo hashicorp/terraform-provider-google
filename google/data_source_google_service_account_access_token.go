@@ -1,7 +1,6 @@
 package google
 
 import (
-	"context"
 	"fmt"
 	"log"
 
@@ -9,19 +8,14 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"golang.org/x/oauth2"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 )
 
 func dataSourceGoogleImpersonatedCredential() *schema.Resource {
 
 	return &schema.Resource{
-		Read: dataSourceImpersonatedCredentialRead,
+		Read: dataSourceGoogleServiceAccountAccessTokenRead,
 		Schema: map[string]*schema.Schema{
-			"source_access_token": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			"target_service_account": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -61,24 +55,11 @@ func dataSourceGoogleImpersonatedCredential() *schema.Resource {
 	}
 }
 
-func dataSourceImpersonatedCredentialRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceGoogleServiceAccountAccessTokenRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	log.Printf("[INFO] Acquire Impersonated credentials for %s", d.Get("target_service_account").(string))
+	log.Printf("[INFO] Acquire Service Account AccessToken for %s", d.Get("target_service_account").(string))
 
-	var service *iamcredentials.Service
-	var err error
-	if d.Get("source_access_token") != "" {
-		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{
-			AccessToken: d.Get("source_access_token").(string),
-		})
-		client := oauth2.NewClient(context.Background(), tokenSource)
-		service, err = iamcredentials.New(client)
-		if err != nil {
-			return err
-		}
-	} else {
-		service = config.clientIamCredentials
-	}
+	service := config.clientIamCredentials
 
 	name := fmt.Sprintf("projects/-/serviceAccounts/%s", d.Get("target_service_account").(string))
 	tokenRequest := &iamcredentials.GenerateAccessTokenRequest{
