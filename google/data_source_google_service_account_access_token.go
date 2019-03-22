@@ -11,7 +11,7 @@ import (
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 )
 
-func dataSourceGoogleImpersonatedCredential() *schema.Resource {
+func dataSourceGoogleServiceAccountAccessToken() *schema.Resource {
 
 	return &schema.Resource{
 		Read: dataSourceGoogleServiceAccountAccessTokenRead,

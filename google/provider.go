@@ -105,7 +105,7 @@ func Provider() terraform.ResourceProvider {
 			"google_container_registry_image":                 dataSourceGoogleContainerImage(),
 			"google_iam_policy":                               dataSourceGoogleIamPolicy(),
 			"google_iam_role":                                 dataSourceGoogleIamRole(),
-			"google_service_account_access_token":             dataSourceGoogleImpersonatedCredential(),
+			"google_service_account_access_token":             dataSourceGoogleServiceAccountAccessToken(),
 			"google_kms_secret":                               dataSourceGoogleKmsSecret(),
 			"google_kms_key_ring":                             dataSourceGoogleKmsKeyRing(),
 			"google_kms_crypto_key":                           dataSourceGoogleKmsCryptoKey(),
