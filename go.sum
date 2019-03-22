@@ -159,8 +159,8 @@ github.com/hashicorp/go-msgpack v0.0.0-20150518234257-fa3f63826f7c/go.mod h1:ahL
 github.com/hashicorp/go-multierror v0.0.0-20180717150148-3d5d8f294aa0/go.mod h1:JMRHfdO9jKNzS/+BTlxCjKNQHg/jZAft8U7LloJvN7I=
 github.com/hashicorp/go-multierror v1.0.0 h1:iVjPR7a6H0tWELX5NxNe7bYopibicUzc7uPribsnS6o=
 github.com/hashicorp/go-multierror v1.0.0/go.mod h1:dHtQlpGsu+cZNNAkkCN/P3hoUDHhCYQXV3UM06sGGrk=
-github.com/hashicorp/go-plugin v0.0.0-20190220160451-3f118e8ee104 h1:9iQ/zrTOJqzP+kH37s6xNb6T1RysiT7fnDD3DJbspVw=
-github.com/hashicorp/go-plugin v0.0.0-20190220160451-3f118e8ee104/go.mod h1:++UyYGoz3o5w9ZzAdZxtQKrWWP+iqPBn3cQptSMzBuY=
+github.com/hashicorp/go-plugin v0.0.0-20190322172744-52e1c4730856 h1:FHiCaU46W1WoqApsaGGIKbNkhQ6v71hJrOf2INQMLUo=
+github.com/hashicorp/go-plugin v0.0.0-20190322172744-52e1c4730856/go.mod h1:++UyYGoz3o5w9ZzAdZxtQKrWWP+iqPBn3cQptSMzBuY=
 github.com/hashicorp/go-retryablehttp v0.5.1 h1:Vsx5XKPqPs3M6sM4U4GWyUqFS8aBiL9U5gkgvpkg4SE=
 github.com/hashicorp/go-retryablehttp v0.5.1/go.mod h1:9B5zBasrRhHXnJnui7y6sL7es7NDiJgTc6Er0maI1Xs=
 github.com/hashicorp/go-rootcerts v1.0.0 h1:Rqb66Oo1X/eSV1x66xbDccZjhJigjg0+e82kpwzSwCI=
@@ -181,8 +181,8 @@ github.com/hashicorp/hcl v0.0.0-20170504190234-a4b07c25de5f/go.mod h1:oZtUIOe8dh
 github.com/hashicorp/hcl v1.0.0 h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
 github.com/hashicorp/hcl2 v0.0.0-20181208003705-670926858200/go.mod h1:ShfpTh661oAaxo7VcNxg0zcZW6jvMa7Moy2oFx7e5dE=
-github.com/hashicorp/hcl2 v0.0.0-20190226234159-7e26f2f34612 h1:6r7kHL9FVohHX5vd/qvoLLV+BAbHjZKu0kjfgoT9CjE=
-github.com/hashicorp/hcl2 v0.0.0-20190226234159-7e26f2f34612/go.mod h1:HtEzazM5AZ9fviNEof8QZB4T1Vz9UhHrGhnMPzl//Ek=
+github.com/hashicorp/hcl2 v0.0.0-20190318232830-f9f92da699d8 h1:H4X4ZtK0svjPuIRh1NJttHjJyrB1d/3ArFA1GZbuy1o=
+github.com/hashicorp/hcl2 v0.0.0-20190318232830-f9f92da699d8/go.mod h1:HtEzazM5AZ9fviNEof8QZB4T1Vz9UhHrGhnMPzl//Ek=
 github.com/hashicorp/hil v0.0.0-20190212112733-ab17b08d6590 h1:2yzhWGdgQUWZUCNK+AoO35V+HTsgEmcM4J9IkArh7PI=
 github.com/hashicorp/hil v0.0.0-20190212112733-ab17b08d6590/go.mod h1:n2TSygSNwsLJ76m8qFXTSc7beTb+auJxYdqrnoqwZWE=
 github.com/hashicorp/logutils v1.0.0 h1:dLEQVugN8vlakKOUE3ihGLTZJRB4j+M2cdTm/ORI65Y=
@@ -190,8 +190,8 @@ github.com/hashicorp/logutils v1.0.0/go.mod h1:QIAnNjmIWmVIIkWDTG1z5v++HQmx9WQRO
 github.com/hashicorp/memberlist v0.1.0/go.mod h1:ncdBp14cuox2iFOq3kDiquKU6fqsTBc3W6JvZwjxxsE=
 github.com/hashicorp/serf v0.0.0-20160124182025-e4ec8cc423bb h1:ZbgmOQt8DOg796figP87/EFCVx2v2h9yRvwHF/zceX4=
 github.com/hashicorp/serf v0.0.0-20160124182025-e4ec8cc423bb/go.mod h1:h/Ru6tmZazX7WO/GDmwdpS975F019L4t5ng5IgwbNrE=
-github.com/hashicorp/terraform v0.12.0-alpha4.0.20190315165147-247faca59d9d h1:QpTr08KLecFqK+SynOhKRG754u7nhUE+kJyf0OGWKzo=
-github.com/hashicorp/terraform v0.12.0-alpha4.0.20190315165147-247faca59d9d/go.mod h1:zok3k1UbioGrFmsEBWTIUqwkRgM8+unL6Ud1qXyuVe8=
+github.com/hashicorp/terraform v0.12.0-alpha4.0.20190322191035-c06674bac783 h1:LLtQjESyjZsFNDI3YPIRpu8k5wQyOyos2LY20TVeLEE=
+github.com/hashicorp/terraform v0.12.0-alpha4.0.20190322191035-c06674bac783/go.mod h1:ScIp5fvZgDurO5mdGVcVAJXAL1WJ11HeSJeP5Lm600I=
 github.com/hashicorp/terraform-config-inspect v0.0.0-20190208230122-b0707673339c h1:nCnsfi66NloVlmquh5dLox5yBwQk5CV5s2roWvbstnE=
 github.com/hashicorp/terraform-config-inspect v0.0.0-20190208230122-b0707673339c/go.mod h1:ItvqtvbC3K23FFET62ZwnkwtpbKZm8t8eMcWjmVVjD8=
 github.com/hashicorp/vault v0.10.4/go.mod h1:KfSyffbKxoVyspOdlaGVjIuwLobi07qD1bAbosPMpP0=
@@ -369,8 +369,8 @@ github.com/xlab/treeprint v0.0.0-20161029104018-1d6e34225557 h1:Jpn2j6wHkC9wJv5i
 github.com/xlab/treeprint v0.0.0-20161029104018-1d6e34225557/go.mod h1:ce1O1j6UtZfjr22oyGxGLbauSBp2YVXpARAosm7dHBg=
 github.com/zclconf/go-cty v0.0.0-20181129180422-88fbe721e0f8/go.mod h1:xnAOWiHeOqg2nWS62VtQ7pbOu17FtxJNW8RLEih+O3s=
 github.com/zclconf/go-cty v0.0.0-20190124225737-a385d646c1e9/go.mod h1:xnAOWiHeOqg2nWS62VtQ7pbOu17FtxJNW8RLEih+O3s=
-github.com/zclconf/go-cty v0.0.0-20190201220620-4ca19710f056 h1:C6LhH3JHz2k6tnw5sYXBc8rD8SD/qFp6EhiZAcVyalk=
-github.com/zclconf/go-cty v0.0.0-20190201220620-4ca19710f056/go.mod h1:xnAOWiHeOqg2nWS62VtQ7pbOu17FtxJNW8RLEih+O3s=
+github.com/zclconf/go-cty v0.0.0-20190320224746-fd76348b9329 h1:ne520NlvoncW5zfBGkmP4EJhyd6ruSaSyhzobv0Vz9w=
+github.com/zclconf/go-cty v0.0.0-20190320224746-fd76348b9329/go.mod h1:xnAOWiHeOqg2nWS62VtQ7pbOu17FtxJNW8RLEih+O3s=
 go.opencensus.io v0.18.0 h1:Mk5rgZcggtbvtAun5aJzAtjKKN/t0R3jJPlWILlv938=
 go.opencensus.io v0.18.0/go.mod h1:vKdFvxhtzZ9onBp9VKHK8z/sRpBMnKAsufL7wlDrCOA=
 go.uber.org/atomic v1.3.2/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
