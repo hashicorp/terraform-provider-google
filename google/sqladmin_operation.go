@@ -61,7 +61,18 @@ func (w *SqlAdminOperationWaiter) QueryOp() (interface{}, error) {
 		return nil, fmt.Errorf("Cannot query operation, service is nil.")
 	}
 
-	return w.Service.Operations.Get(w.Project, w.Op.Name).Do()
+	var op interface{}
+	var err error
+	err = retryTimeDuration(
+		func() error {
+			op, err = w.Service.Operations.Get(w.Project, w.Op.Name).Do()
+			return err
+		},
+
+		DefaultRequestTimeout,
+	)
+
+	return op, err
 }
 
 func (w *SqlAdminOperationWaiter) OpName() string {

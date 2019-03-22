@@ -351,11 +351,13 @@ func retryTimeDuration(retryFunc func() error, duration time.Duration) error {
 
 func isRetryableError(err error) bool {
 	if gerr, ok := err.(*googleapi.Error); ok && (gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503) {
+		log.Printf("[DEBUG] Dismissed an error as retryable based on error code: %s", err)
 		return true
 	}
 	// These operations are always hitting googleapis.com - they should rarely
 	// time out, and if they do, that timeout is retryable.
 	if urlerr, ok := err.(*url.Error); ok && urlerr.Timeout() {
+		log.Printf("[DEBUG] Dismissed an error as retryable based on googleapis.com target: %s", err)
 		return true
 	}
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Body, "operationInProgress") {
@@ -363,6 +365,7 @@ func isRetryableError(err error) bool {
 		// The only way right now to determine it is a SQL 409 due to concurrent calls is to
 		// look at the contents of the error message.
 		// See https://github.com/terraform-providers/terraform-provider-google/issues/3279
+		log.Printf("[DEBUG] Dismissed an error as retryable based on error code 409 and error reason 'operationInProgress': %s", err)
 		return true
 	}
 

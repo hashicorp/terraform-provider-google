@@ -14,6 +14,8 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+var DefaultRequestTimeout = 5 * time.Minute
+
 func isEmptyValue(v reflect.Value) bool {
 	switch v.Kind() {
 	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
@@ -33,7 +35,7 @@ func isEmptyValue(v reflect.Value) bool {
 }
 
 func sendRequest(config *Config, method, rawurl string, body map[string]interface{}) (map[string]interface{}, error) {
-	return sendRequestWithTimeout(config, method, rawurl, body, 5*time.Minute)
+	return sendRequestWithTimeout(config, method, rawurl, body, DefaultRequestTimeout)
 }
 
 func sendRequestWithTimeout(config *Config, method, rawurl string, body map[string]interface{}, timeout time.Duration) (map[string]interface{}, error) {
