@@ -22,7 +22,9 @@ type Waiter interface {
 	SetOp(interface{}) error
 
 	// QueryOp sends a request to the server to get the current status of the
-	// operation.
+	// operation. It's expected that QueryOp will return exactly one of an
+	// operation or an error as non-nil, and that requests will be retried by
+	// specific implementations of the method.
 	QueryOp() (interface{}, error)
 
 	// OpName is the name of the operation and is used to log its status.
@@ -90,35 +92,22 @@ func OperationDone(w Waiter) bool {
 
 func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		// First, read the operation from the server.
 		op, err := w.QueryOp()
-
-		// If we got a non-retryable error, return it.
 		if err != nil {
-			if !isRetryableError(err) {
-				return nil, "", fmt.Errorf("Not retriable error: %s", err)
-			}
-
-			log.Printf("[DEBUG] Saw error polling for op, but dismissed as retriable: %s", err)
-			if op == nil {
-				return nil, "", fmt.Errorf("Cannot continue, Operation is nil. %s", err)
-			}
+			// Importantly, this error is in the GET to the operation, and isn't an error
+			// with the resource CRUD request itself.
+			return nil, "", fmt.Errorf("error while retrieving operation: %s", err)
 		}
 
-		log.Printf("[DEBUG] working with op %#v", op)
-
-		// Try to set the operation (so we can check it's Error/State),
-		// and fail if we can't.
 		if err = w.SetOp(op); err != nil {
-			return nil, "", fmt.Errorf("Cannot continue %s", err)
+			return nil, "", fmt.Errorf("Cannot continue, unable to use operation: %s", err)
 		}
 
-		// Fail if the operation object contains an error.
 		if err = w.Error(); err != nil {
 			return nil, "", err
 		}
-		log.Printf("[DEBUG] Got %v while polling for operation %s's status", w.State(), w.OpName())
 
+		log.Printf("[DEBUG] Got %v while polling for operation %s's status", w.State(), w.OpName())
 		return op, w.State(), nil
 	}
 }
