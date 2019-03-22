@@ -67,6 +67,9 @@ func resourceStorageObjectAclDiff(diff *schema.ResourceDiff, meta interface{}) e
 		// Create won't show the object owner being given
 		return nil
 	}
+	if sObject.Owner == nil {
+		return nil
+	}
 
 	objectOwner := sObject.Owner.Entity
 	ownerRole := fmt.Sprintf("%s:%s", "OWNER", objectOwner)
