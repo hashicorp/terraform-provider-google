@@ -26,7 +26,7 @@ data "google_service_account" "myaccount" {
 }
 
 resource "google_service_account_key" "mykey" {
-  service_account_id = "${data.google_service_account.myaccount.name}"
+  service_account_id = "${google_service_account.myaccount.name}"
 }
 
 resource "kubernetes_secret" "google-application-credentials" {
