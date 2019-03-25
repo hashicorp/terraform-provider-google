@@ -1,22 +1,18 @@
 ---
 layout: "google"
-page_title: "google provider reference"
+page_title: "Google Provider Configuration Reference"
 sidebar_current: "docs-google-provider-reference"
 description: |-
-  The Google provider is used to configure your GCP project, location, and creds
+  Configuration reference for the Google provider for Terraform.
 ---
 
 # Google Provider Configuration Reference
 
 -> Want more information about upgrading from `1.X` of the provider to `2.0.0`? Check out the [2.0.0 Upgrade Guide](https://terraform.io/docs/providers/google/version_2_upgrade.html).
 
-The `google` and `google-beta` provider blocks are used to configure default values for
-your GCP project and location (`zone` and `region`), and add your credentials.
-
--> You can avoid using a provider block by using environment variables. Every
-field of `google` and `google-beta` is inferred from your environment when it
-has not been explicitly set. Even better - the GA and beta providers will both
-share the same values.
+The `google` and `google-beta` provider blocks are used to configure the
+credentials you use to authenticate with GCP, as well as a default project and
+location (`zone` and/or `region`) for your resources.
 
 ## Example Usage - Basic provider blocks
 
@@ -40,9 +36,15 @@ provider "google-beta" {
 
 ## Example Usage - Using beta features with `google-beta` 
 
-To use Google Cloud Platform features that are in beta, explicitly set the provider for your
-resource to `google-beta`. See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
-for a full reference on how to use different GCP versions with the Google provider.
+To use Google Cloud Platform features that are in beta, you need to both:
+
+* Explicitly define a `google-beta` provider block
+
+* explicitly set the provider for your resource to `google-beta`.
+
+See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
+for a full reference on how to use features from different GCP API versions in
+the Google provider.
 
 ```hcl
 resource "google_compute_instance" "ga-instance" {
@@ -63,86 +65,135 @@ provider "google-beta" {}
 
 ## Configuration Reference
 
-The following keys can be used to configure the provider. Both `google` and `google-beta`
-share the same configuration.
+The following attributes can be used to configure the provider. The quick
+reference should be sufficient for most use cases, but see the full reference
+if you're interested in more details. Both `google` and `google-beta` share the
+same configuration. 
 
-* `credentials` - (Optional) The path or contents of a file that contains your
-  service account private key in JSON format. You can download your existing
-  [Google Cloud service account file] from the Google Cloud Console, or you can
-  create a new one from the same page.
+### Quick Reference
 
-  Credentials can also be specified using any of the following environment
-  variables (listed in order of precedence):
+* `credentials` - (Optional) Either the path to or the contents of a
+[service account key file] in JSON format. You can
+[manage key files using the Cloud Console].
 
-    * `GOOGLE_CREDENTIALS`
-    * `GOOGLE_CLOUD_KEYFILE_JSON`
-    * `GCLOUD_KEYFILE_JSON`
+* `project` - (Optional) The default project to manage resources in. If another
+project is specified on a resource, it will take precedence.
 
-  The [`GOOGLE_APPLICATION_CREDENTIALS`][adc]
-  environment variable can also contain the path of a file to obtain credentials
-  from.
+* `region` - (Optional) The default region to manage resources in. If another
+region is specified on a regional resource, it will take precedence.
 
-  If no credentials are specified, the provider will fall back to using the
-  [Google Application Default Credentials][adc].
-  If you are running Terraform from a GCE instance, see [Creating and Enabling
-  Service Accounts for Instances][gce-service-account] for details.
+* `zone` - (Optional) The default zone to manage resources in. Generally, this
+zone should be within the default region you specified. If another zone is
+specified on a zonal resource, it will take precedence.
 
-  On your computer, if you have made your identity available as the
-  Application Default Credentials by running [`gcloud auth application-default
-  login`][gcloud adc], the provider will use your identity.
+---
 
-  -> [Service accounts][service accounts] are the recommended way
-  to manage GCP credentials. [GCE metadata] is also acceptable, although it can
-  only be used when running Terraform from within [certain GCP resources](https://cloud.google.com/docs/authentication/production#obtaining_credentials_on_compute_engine_kubernetes_engine_app_engine_flexible_environment_and_cloud_functions).
-  Credentials obtained through `gcloud` are not guaranteed to work for all APIs.
+* `scopes` - (Optional) The list of OAuth 2.0 [scopes] requested when generating
+an access token using the service account key specified in `credentials`.
 
-* `access_token` - (Optional) An temporary [OAuth 2.0 access token](https://developers.google.com/identity/protocols/OAuth2)
-  obtained from the Google Authorization server, i.e. the
-  `Authorization: Bearer` token used to authenticate Google API HTTP requests.
+* `access_token` - (Optional) A temporary [OAuth 2.0 access token] obtained from
+the Google Authorization server, i.e. the `Authorization: Bearer` token used to
+authenticate HTTP requests to GCP APIs. This is an alternative to `credentials`,
+and ignores the `scopes` field. If both are specified, `access_token` will be
+used over the `credentials` field.
 
-  Access tokens can also be specified using any of the following environment
-  variables (listed in order of precedence):
+### Full Reference
 
-    * `GOOGLE_OAUTH_ACCESS_TOKEN`
+* `credentials` - (Optional) Either the path to or the contents of a
+[service account key file] in JSON format. You can
+[manage key files using the Cloud Console]. Your service account key file is
+used to complete a two-legged OAuth 2.0 flow to obtain access tokens to
+authenticate with the GCP API as needed; Terraform will use it to reauthenticate
+automatically when tokens expire. Alternatively, this can be specified using the
+`GOOGLE_CREDENTIALS` environment variable or any of the following ordered
+by precedence.
 
-  -> These access tokens cannot be renewed by Terraform and thus will only work for at most 1 hour. If you anticipate Terraform needing access for more than one hour per run, please use `credentials` instead. Credentials are used to complete a two-legged OAuth 2.0 flow on your behalf to obtain access tokens and can be used renew or reauthenticate for tokens as needed.
+    * GOOGLE_CREDENTIALS
+    * GOOGLE_CLOUD_KEYFILE_JSON
+    * GCLOUD_KEYFILE_JSON
 
-* `project` - (Optional) The ID of the project to apply any resources to.  This
-  can also be specified using any of the following environment variables (listed
-  in order of precedence):
+    Using Terraform-specific [service accounts] to authenticate with GCP is the
+    recommended practice when using Terraform. If no Terraform-specific
+    credentials are specified, the provider will fall back to using
+    [Google Application Default Credentials][adc]. To use them, you can enter
+    the path of your service account key file in the
+    `GOOGLE_APPLICATION_CREDENTIALS` environment variable, or configure
+    authentication through one of the following;
 
-    * `GOOGLE_PROJECT`
-    * `GOOGLE_CLOUD_PROJECT`
-    * `GCLOUD_PROJECT`
-    * `CLOUDSDK_CORE_PROJECT`
+* If you're running Terraform from a GCE instance, default credentials
+are automatically available. See
+[Creating and Enabling Service Accounts for Instances][gce-service-account]
+for more details.
 
-    -> `GOOGLE_PROJECT` is the recommended environment variable to use if
-    you choose to add your project using environment variables.
+* On your computer, you can make your Google identity available by
+running [`gcloud auth application-default login`][gcloud adc]. This
+approach isn't recommended- some APIs are not compatible with
+credentials obtained through `gcloud`.
 
-* `region` - (Optional) The region to operate under, if not specified by a given resource.
-  This can also be specified using any of the following environment variables (listed in order of
-  precedence):
+---
 
-    * `GOOGLE_REGION`
-    * `GCLOUD_REGION`
-    * `CLOUDSDK_COMPUTE_REGION`
+* `project` - (Optional) The default project to manage resources in. If another
+project is specified on a resource, it will take precedence. This can also be
+specified using the `GOOGLE_PROJECT` environment variable, or any of the
+following ordered by precedence.
 
-* `zone` - (Optional) The zone to operate under, if not specified by a given resource.
-  This can also be specified using any of the following environment variables (listed in order of
-  precedence):
+    * GOOGLE_PROJECT
+    * GOOGLE_CLOUD_PROJECT
+    * GCLOUD_PROJECT
+    * CLOUDSDK_CORE_PROJECT
 
-    * `GOOGLE_ZONE`
-    * `GCLOUD_ZONE`
-    * `CLOUDSDK_COMPUTE_ZONE`
+---
 
-* `scopes` - (Optional) The list of OAuth 2.0 [scopes] used to generate access token for Google APIs.
-  Default list of scopes:
+* `region` - (Optional) The default region to manage resources in. If another
+region is specified on a regional resource, it will take precedence.
+Alternatively, this can be specified using the `GOOGLE_REGION` environment
+variable or any of the following ordered by precedence.
+
+    * GOOGLE_REGION
+    * GCLOUD_REGION
+    * CLOUDSDK_COMPUTE_REGION
+
+---
+
+* `zone` - (Optional) The default zone to manage resources in. Generally, this
+zone should be within the default region you specified. If another zone is
+specified on a zonal resource, it will take precedence. Alternatively, this can
+be specified using the `GOOGLE_ZONE` environment variable or any of the
+following ordered by precedence.
+
+    * GOOGLE_ZONE
+    * GCLOUD_ZONE
+    * CLOUDSDK_COMPUTE_ZONE
+
+---
+
+* `access_token` - (Optional) A temporary [OAuth 2.0 access token] obtained from
+the Google Authorization server, i.e. the `Authorization: Bearer` token used to
+authenticate HTTP requests to GCP APIs. If both are specified, `access_token` will be
+used over the `credentials` field. This is an alternative to `credentials`,
+and ignores the `scopes` field. Alternatively, this can be specified using the
+`GOOGLE_OAUTH_ACCESS_TOKEN` environment variable.
+
+    -> These access tokens cannot be renewed by Terraform and thus will only
+    work until they expire. If you anticipate Terraform needing access for
+    longer than a token's lifetime (default `1 hour`), please use a service
+    account key with `credentials` instead.
+
+---
+
+* `scopes` - (Optional) The list of OAuth 2.0 [scopes] requested when generating
+an access token using the service account key specified in `credentials`.
+
+    By default, the following scopes are configured:
+
     * https://www.googleapis.com/auth/compute
     * https://www.googleapis.com/auth/cloud-platform
     * https://www.googleapis.com/auth/ndev.clouddns.readwrite
     * https://www.googleapis.com/auth/devstorage.full_control
 
-[Google Cloud service account file]: https://console.cloud.google.com/apis/credentials/serviceaccountkey
+[OAuth 2.0 access token]: https://developers.google.com/identity/protocols/OAuth2
+[service account key file]: https://cloud.google.com/iam/docs/creating-managing-service-account-keys
+[manage key files using the Cloud Console]: https://console.cloud.google.com/apis/credentials/serviceaccountkey
 [adc]: https://cloud.google.com/docs/authentication/production
 [gce-service-account]: https://cloud.google.com/compute/docs/authentication
 [gcloud adc]: https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login
