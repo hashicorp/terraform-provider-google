@@ -12,6 +12,7 @@ ENHANCEMENTS:
 * container: `google_container_node_pool` adds a unified `location` field for regions and zones. [GH-3114]
 * container: `data.google_container_cluster` adds a unified `location` field for regions and zones. [GH-3114]
 * container: `google_container_engine_versions` adds a unified `location` field for regions and zones. [GH-3114]
+* compute: `google_compute_forwarding_rule` supports specifying `all_ports` for internal load balancing. [GH-3309]
 * dataflow: `google_dataflow_job` has support for custom service accounts with `service_account_email`. [GH-3238]
 
 BUG FIXES:
