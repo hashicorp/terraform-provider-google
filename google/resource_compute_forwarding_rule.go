@@ -63,6 +63,11 @@ func resourceComputeForwardingRule() *schema.Resource {
 				ValidateFunc:     validation.StringInSlice([]string{"TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", ""}, false),
 				DiffSuppressFunc: caseDiffSuppress,
 			},
+			"all_ports": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
 			"backend_service": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -230,6 +235,12 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("target"); !isEmptyValue(reflect.ValueOf(targetProp)) && (ok || !reflect.DeepEqual(v, targetProp)) {
 		obj["target"] = targetProp
 	}
+	allPortsProp, err := expandComputeForwardingRuleAllPorts(d.Get("all_ports"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("all_ports"); !isEmptyValue(reflect.ValueOf(allPortsProp)) && (ok || !reflect.DeepEqual(v, allPortsProp)) {
+		obj["allPorts"] = allPortsProp
+	}
 	networkTierProp, err := expandComputeForwardingRuleNetworkTier(d.Get("network_tier"), d, config)
 	if err != nil {
 		return err
@@ -344,6 +355,9 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("target", flattenComputeForwardingRuleTarget(res["target"], d)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err := d.Set("all_ports", flattenComputeForwardingRuleAllPorts(res["allPorts"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("network_tier", flattenComputeForwardingRuleNetworkTier(res["networkTier"], d)); err != nil {
@@ -528,6 +542,10 @@ func flattenComputeForwardingRuleTarget(v interface{}, d *schema.ResourceData) i
 	return ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeForwardingRuleAllPorts(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
 func flattenComputeForwardingRuleNetworkTier(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
@@ -643,6 +661,10 @@ func expandComputeForwardingRuleTarget(v interface{}, d TerraformResourceData, c
 		return nil, err
 	}
 	return url + v.(string), nil
+}
+
+func expandComputeForwardingRuleAllPorts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeForwardingRuleNetworkTier(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

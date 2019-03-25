@@ -186,6 +186,12 @@ The following arguments are supported:
   must be of a type appropriate to the target object.
   This field is not used for internal load balancing.
 
+* `all_ports` -
+  (Optional)
+  When the load balancing scheme is INTERNAL and protocol is TCP/UDP, omit
+  `port`/`port_range` and specify this field as `true` to allow packets addressed
+  to any ports to be forwarded to the backends configured with this forwarding rule.
+
 * `network_tier` -
   (Optional)
   The networking tier used for configuring this address. This field can
