@@ -44,7 +44,7 @@ resource "google_tpu_node" "tpu" {
 	zone           = "us-central1-b"
 
 	accelerator_type   = "v3-8"
-	tensorflow_version = "1.9"
+	tensorflow_version = "1.13"
 	cidr_block         = "10.2.0.0/29"
 }
 ```
@@ -69,7 +69,7 @@ resource "google_tpu_node" "tpu" {
 	accelerator_type   = "v3-8"
 
 	cidr_block         = "10.3.0.0/29"
-	tensorflow_version = "1.12"
+	tensorflow_version = "1.13"
 
 	description = "Terraform Google Provider test TPU"
 	network = "${google_compute_network.tpu_network.name}"
