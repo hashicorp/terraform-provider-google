@@ -217,6 +217,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_spanner_database_iam_policy":           ResourceIamPolicyWithImport(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater, SpannerDatabaseIdParseFunc),
 			"google_sql_database":                          resourceSqlDatabase(),
 			"google_sql_database_instance":                 resourceSqlDatabaseInstance(),
+			"google_sql_source_representation_instance":    resourceSqlSourceRepresentationInstance(),
 			"google_sql_ssl_cert":                          resourceSqlSslCert(),
 			"google_sql_user":                              resourceSqlUser(),
 			"google_organization_iam_binding":              ResourceIamBindingWithImport(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
