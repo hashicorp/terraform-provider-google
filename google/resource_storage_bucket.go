@@ -325,12 +325,6 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if d.HasChange("storage_class") {
-		if v, ok := d.GetOk("storage_class"); ok {
-			sb.StorageClass = v.(string)
-		}
-	}
-
 	var res *storage.Bucket
 
 	err = retry(func() error {
@@ -438,6 +432,12 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 			if _, ok := sb.Labels[k]; !ok {
 				sb.NullFields = append(sb.NullFields, fmt.Sprintf("Labels.%s", k))
 			}
+		}
+	}
+
+	if d.HasChange("storage_class") {
+		if v, ok := d.GetOk("storage_class"); ok {
+			sb.StorageClass = v.(string)
 		}
 	}
 
