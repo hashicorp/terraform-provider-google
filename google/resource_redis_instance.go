@@ -38,9 +38,9 @@ func resourceRedisInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(360 * time.Second),
-			Update: schema.DefaultTimeout(360 * time.Second),
-			Delete: schema.DefaultTimeout(360 * time.Second),
+			Create: schema.DefaultTimeout(600 * time.Second),
+			Update: schema.DefaultTimeout(600 * time.Second),
+			Delete: schema.DefaultTimeout(600 * time.Second),
 		},
 
 		Schema: map[string]*schema.Schema{
