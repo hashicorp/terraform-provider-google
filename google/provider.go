@@ -69,10 +69,27 @@ func Provider() terraform.ResourceProvider {
 					"CLOUDSDK_COMPUTE_ZONE",
 				}, nil),
 			},
+
 			"scopes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
+			"compute_custom_endpoint": {
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_COMPUTE_CUSTOM_ENDPOINT",
+				}, nil),
+			},
+
+			"compute_beta_custom_endpoint": {
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_COMPUTE_BETA_CUSTOM_ENDPOINT",
+				}, nil),
 			},
 		},
 
@@ -284,6 +301,15 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 	for i, scope := range scopes {
 		config.Scopes[i] = scope.(string)
+	}
+
+	// Add custom endpoints
+	if v, ok := d.GetOk("compute_custom_endpoint"); ok {
+		config.ComputeCustomEndpoint = v.(string)
+	}
+
+	if v, ok := d.GetOk("compute_beta_custom_endpoint"); ok {
+		config.ComputeBetaCustomEndpoint = v.(string)
 	}
 
 	if err := config.LoadAndValidate(); err != nil {
