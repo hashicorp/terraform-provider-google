@@ -17,7 +17,7 @@ We maintain 2 different versions of the Google Terraform provider; the [`google`
 
 We are using code generation tool called [Magic Modules](https://github.com/googleCloudPlatform/magic-modules/) that uses a shared code base to generate both providers. Some Terraform resources are fully generated, whereas some resources are hand written and located in [the third_party/terraform/ folder in magic modules](https://github.com/GoogleCloudPlatform/magic-modules/tree/master/third_party/terraform/resources). Generated resources will have a prominent header at the top of the file identifying them. Hand written resources have a .go or .go.erb extension but will eventually be migrated into the code generation tool with the goal of having all resources fully generated.
 
-For more details on Magic Modules please visit [the readme](https://github.com/GoogleCloudPlatform/magic-modules). For feature requests or bugs regarding those resources, please continue to file issues in the [terraform-provider-google issue tracker]](https://github.com/terraform-providers/terraform-provider-google/issues). PRs changing those resources will not be accepted.
+For more details on Magic Modules please visit [the readme](https://github.com/GoogleCloudPlatform/magic-modules). For feature requests or bugs regarding those resources, please continue to file issues in the [terraform-provider-google issue tracker](https://github.com/terraform-providers/terraform-provider-google/issues). PRs changing those resources will not be accepted.
 
 ## Beta vs GA providers
 
