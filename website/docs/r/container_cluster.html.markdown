@@ -340,14 +340,18 @@ addons_config {
 ```
 
 The `istio_config` block supports:
+
 * `disabled` - (Optional) The status of the Istio addon, which makes it easy to set up Istio for services in a
     cluster. It is disabled by default. Set `disabled = false` to enable.
+
 * `auth` - (Optional) The authentication type between services in Istio. Available options include `AUTH_MUTUAL_TLS`.
 
 The `cluster_autoscaling` block supports:
+
 * `enabled` - (Required) Whether cluster autoscaling (also called autoprovisioning) is
     enabled.  To set this to true, make sure your config meets the rest of the
     requirements.  Notably, you'll need `min_master_version` of at least `1.11.2`.
+
 * `resource_limits` - (Optional) A list of limits on the autoprovisioning.
     See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
     for an explanation of what options are available.  If enabling autoprovisioning, make
