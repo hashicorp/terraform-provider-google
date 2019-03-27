@@ -179,9 +179,7 @@ deprecated in favour of `node_locations`.
     this cluster. Default is an automatically assigned CIDR.
 
 * `cluster_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
-    Configuration for cluster autoscaling (also called autoprovisioning), as described in
-    [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning).
-    Structure is documented below.
+    Configuration for per-cluster autoscaling features, including node autoprovisioning. See [guide in Google docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning). Structure is documented below.
 
 * `description` - (Optional) Description of the cluster.
 
@@ -348,9 +346,7 @@ The `istio_config` block supports:
 
 The `cluster_autoscaling` block supports:
 
-* `enabled` - (Required) Whether cluster autoscaling (also called autoprovisioning) is
-    enabled.  To set this to true, make sure your config meets the rest of the
-    requirements.  Notably, you'll need `min_master_version` of at least `1.11.2`.
+* `enabled` - (Required) Whether cluster-wide autoscaling is enabled (i.e.node autoprovisioning is enabled). To set this to true, make sure your config meets the rest of the requirements.  Notably, you'll need `min_master_version` of at least `1.11.2`.
 
 * `resource_limits` - (Optional) A list of limits on the autoprovisioning.
     See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
