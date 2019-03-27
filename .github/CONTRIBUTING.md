@@ -95,3 +95,17 @@ time you run `make build`, you can symlink the built binary into the directory:
 ln -s $GOPATH/bin/terraform-provider-google ~/.terraform.d/plugins/terraform-provider-google
 ln -s $GOPATH/bin/terraform-provider-google-beta ~/.terraform.d/plugins/terraform-provider-google-beta
 ```
+
+# Maintainer-specific information
+
+## Reviewing / Merging Code
+
+When reviewing code, follow the guidelines set in the
+[Maintainer's Etiquette](https://github.com/hashicorp/terraform/blob/master/docs/maintainer-etiquette.md)
+guide. If reviewing another maintainer, it's expected that they'll merge their own code. Otherwise, merge at will once
+you've approved the contribution.
+
+Generally, we use squash merges on the team; it's unlikely you'll be modifying this repo directly regardless, as most development happens through Magic Modules, but if you do you're able to use rebase / traditional merges to preserve commit history.
+
+When you merge code, an update needs to be made to the [CHANGELOG](https://github.com/terraform-providers/terraform-provider-google/blob/master/CHANGELOG.md).
+It is the responsibility of the person who merged the code to master to update the CHANGELOG, regardless of whether or not they authored the code in question.
