@@ -95,3 +95,11 @@ time you run `make build`, you can symlink the built binary into the directory:
 ln -s $GOPATH/bin/terraform-provider-google ~/.terraform.d/plugins/terraform-provider-google
 ln -s $GOPATH/bin/terraform-provider-google-beta ~/.terraform.d/plugins/terraform-provider-google-beta
 ```
+
+# Maintainer-specific information
+
+## Reviewing / Merging Code
+
+When reviewing/merging code, roughly follow the guidelines set in the
+[Maintainer's Etiquette](https://github.com/hashicorp/terraform/blob/master/docs/maintainer-etiquette.md)
+guide. One caveat is that they're fairly old and apply primarily to HashiCorp employees, but the general guidance about merging / changelogs is still relevant.
