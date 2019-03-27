@@ -51,12 +51,14 @@ func TestAccTpuNode_tpuNodeBasicExample(t *testing.T) {
 
 func testAccTpuNode_tpuNodeBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
+data "google_tpu_tensorflow_versions" "available" { }
+
 resource "google_tpu_node" "tpu" {
 	name           = "test-tpu-%{random_suffix}"
 	zone           = "us-central1-b"
 
 	accelerator_type   = "v3-8"
-	tensorflow_version = "1.13"
+	tensorflow_version = "${data.google_tpu_tensorflow_versions.available.versions[0]}"
 	cidr_block         = "10.2.0.0/29"
 }
 `, context)
@@ -94,6 +96,8 @@ resource "google_compute_network" "tpu_network" {
 	auto_create_subnetworks = false
 }
 
+data "google_tpu_tensorflow_versions" "available" { }
+
 resource "google_tpu_node" "tpu" {
 	name               = "test-tpu-%{random_suffix}"
 	zone               = "us-central1-b"
@@ -101,7 +105,7 @@ resource "google_tpu_node" "tpu" {
 	accelerator_type   = "v3-8"
 
 	cidr_block         = "10.3.0.0/29"
-	tensorflow_version = "1.13"
+	tensorflow_version = "${data.google_tpu_tensorflow_versions.available.versions[0]}"
 
 	description = "Terraform Google Provider test TPU"
 	network = "${google_compute_network.tpu_network.name}"
