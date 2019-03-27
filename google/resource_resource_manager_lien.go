@@ -151,33 +151,18 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("ResourceManagerLien %q", d.Id()))
 	}
 
-	// Extract the object we're interested in from the list response.
-	itemsList_ := res["liens"]
-	var itemsList []interface{}
-	if itemsList_ != nil {
-		itemsList = itemsList_.([]interface{})
+	res, err = flattenNestedResourceManagerLien(d, meta, res)
+	if err != nil {
+		return err
 	}
-	listObj := make([]map[string]interface{}, len(itemsList))
-	for i, item := range itemsList {
-		listObj[i] = item.(map[string]interface{})
-	}
-	res = nil
-	for _, item := range listObj {
-		thisName := d.Get("name")
-		thatName := flattenResourceManagerLienName(item["name"], d)
-		log.Printf("[DEBUG] Checking equality of %#v, %#v", thatName, thisName)
-		if !reflect.DeepEqual(thatName, thisName) {
-			continue
-		}
-		res = item
-		break
-	}
+
 	if res == nil {
 		// Object isn't there any more - remove it from the state.
 		log.Printf("[DEBUG] Removing ResourceManagerLien because it couldn't be matched.")
 		d.SetId("")
 		return nil
 	}
+
 	res, err = resourceResourceManagerLienDecoder(d, meta, res)
 	if err != nil {
 		return err
@@ -294,6 +279,40 @@ func expandResourceManagerLienParent(v interface{}, d TerraformResourceData, con
 
 func expandResourceManagerLienRestrictions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func flattenNestedResourceManagerLien(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	var v interface{}
+	var ok bool
+
+	v, ok = res["liens"]
+	if !ok || v == nil {
+		return nil, nil
+	}
+
+	// Final nested resource is either a list of resources we need to filter
+	// or just the resource itself, which we return.
+	switch v.(type) {
+	case []interface{}:
+		break
+	case map[string]interface{}:
+		return v.(map[string]interface{}), nil
+	default:
+		return nil, fmt.Errorf("invalid value for liens: %v", v)
+	}
+
+	items := v.([]interface{})
+	for _, vRaw := range items {
+		item := vRaw.(map[string]interface{})
+		itemIdV := d.Get("name")
+		actualIdV := flattenResourceManagerLienName(item["name"], d)
+		log.Printf("[DEBUG] Checking if item's name (%#v) is equal to resource's (%#v)", itemIdV, actualIdV)
+		if !reflect.DeepEqual(itemIdV, actualIdV) {
+			continue
+		}
+		return item, nil
+	}
+	return nil, nil
 }
 
 func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
