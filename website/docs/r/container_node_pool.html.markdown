@@ -125,6 +125,8 @@ type-specific `region` for regional clusters / `zone` for zonal clusters.
 * `max_pods_per_node` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The maximum number of pods per node in this node pool.
     Note that this does not work on node pools which are "route-based" - that is, node
     pools belonging to clusters that do not have IP Aliasing enabled.
+    See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr)
+    for more information.
 
 * `name` - (Optional) The name of the node pool. If left blank, Terraform will
     auto-generate a unique name.
