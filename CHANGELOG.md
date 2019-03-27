@@ -1,4 +1,8 @@
 ## 2.3.1 (Unreleased)
+
+BUG FIXES:
+* container: `google_container_cluster` will ignore out of band changes on `node_ipv4_cidr_block`. [GH-3319]
+
 ## 2.3.0 (March 26, 2019)
 
 DEPRECATIONS:
