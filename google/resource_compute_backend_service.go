@@ -38,78 +38,16 @@ func resourceComputeBackendService() *schema.Resource {
 				MaxItems: 1,
 			},
 
-			"iap": {
-				Type:     schema.TypeList,
+			"affinity_cookie_ttl_sec": {
+				Type:     schema.TypeInt,
 				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"oauth2_client_id": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"oauth2_client_secret": {
-							Type:      schema.TypeString,
-							Required:  true,
-							Sensitive: true,
-						},
-						"oauth2_client_secret_sha256": {
-							Type:      schema.TypeString,
-							Computed:  true,
-							Sensitive: true,
-						},
-					},
-				},
 			},
 
 			"backend": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Set:      resourceGoogleComputeBackendServiceBackendHash,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"group": {
-							Type:             schema.TypeString,
-							Optional:         true,
-							DiffSuppressFunc: compareSelfLinkRelativePaths,
-						},
-						"balancing_mode": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "UTILIZATION",
-						},
-						"capacity_scaler": {
-							Type:     schema.TypeFloat,
-							Optional: true,
-							Default:  1,
-						},
-						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"max_rate": {
-							Type:     schema.TypeInt,
-							Optional: true,
-						},
-						"max_rate_per_instance": {
-							Type:     schema.TypeFloat,
-							Optional: true,
-						},
-						"max_connections": {
-							Type:     schema.TypeInt,
-							Optional: true,
-						},
-						"max_connections_per_instance": {
-							Type:     schema.TypeInt,
-							Optional: true,
-						},
-						"max_utilization": {
-							Type:     schema.TypeFloat,
-							Optional: true,
-							Default:  0.8,
-						},
-					},
-				},
+				Elem:     computeBackendServiceBackendSchema(),
 			},
 
 			"cdn_policy": {
@@ -156,6 +94,12 @@ func resourceComputeBackendService() *schema.Resource {
 				},
 			},
 
+			"connection_draining_timeout_sec": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  300,
+			},
+
 			"custom_request_headers": {
 				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:     schema.TypeSet,
@@ -180,17 +124,34 @@ func resourceComputeBackendService() *schema.Resource {
 				Computed: true,
 			},
 
+			"iap": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"oauth2_client_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"oauth2_client_secret": {
+							Type:      schema.TypeString,
+							Required:  true,
+							Sensitive: true,
+						},
+						"oauth2_client_secret_sha256": {
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
+						},
+					},
+				},
+			},
+
 			"port_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-			},
-
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
 			},
 
 			"protocol": {
@@ -212,20 +173,10 @@ func resourceComputeBackendService() *schema.Resource {
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 
-			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"session_affinity": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-			},
-
-			"affinity_cookie_ttl_sec": {
-				Type:     schema.TypeInt,
-				Optional: true,
 			},
 
 			"timeout_sec": {
@@ -234,10 +185,63 @@ func resourceComputeBackendService() *schema.Resource {
 				Computed: true,
 			},
 
-			"connection_draining_timeout_sec": {
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+
+			"self_link": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func computeBackendServiceBackendSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"group": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: compareSelfLinkRelativePaths,
+			},
+			"balancing_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "UTILIZATION",
+			},
+			"capacity_scaler": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+				Default:  1,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"max_rate": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  300,
+			},
+			"max_rate_per_instance": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+			},
+			"max_connections": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"max_connections_per_instance": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"max_utilization": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+				Default:  0.8,
 			},
 		},
 	}
