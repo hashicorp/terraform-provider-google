@@ -129,6 +129,12 @@ func resourceComputeForwardingRule() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
+			"service_label": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateGCPName,
+			},
 			"subnetwork": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -142,6 +148,10 @@ func resourceComputeForwardingRule() *schema.Resource {
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
 			},
 			"creation_timestamp": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"service_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -246,6 +256,12 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("network_tier"); !isEmptyValue(reflect.ValueOf(networkTierProp)) && (ok || !reflect.DeepEqual(v, networkTierProp)) {
 		obj["networkTier"] = networkTierProp
+	}
+	serviceLabelProp, err := expandComputeForwardingRuleServiceLabel(d.Get("service_label"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_label"); !isEmptyValue(reflect.ValueOf(serviceLabelProp)) && (ok || !reflect.DeepEqual(v, serviceLabelProp)) {
+		obj["serviceLabel"] = serviceLabelProp
 	}
 	regionProp, err := expandComputeForwardingRuleRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -361,6 +377,12 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("network_tier", flattenComputeForwardingRuleNetworkTier(res["networkTier"], d)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err := d.Set("service_label", flattenComputeForwardingRuleServiceLabel(res["serviceLabel"], d)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err := d.Set("service_name", flattenComputeForwardingRuleServiceName(res["serviceName"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("region", flattenComputeForwardingRuleRegion(res["region"], d)); err != nil {
@@ -550,6 +572,14 @@ func flattenComputeForwardingRuleNetworkTier(v interface{}, d *schema.ResourceDa
 	return v
 }
 
+func flattenComputeForwardingRuleServiceLabel(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeForwardingRuleServiceName(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
 func flattenComputeForwardingRuleRegion(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
@@ -668,6 +698,10 @@ func expandComputeForwardingRuleAllPorts(v interface{}, d TerraformResourceData,
 }
 
 func expandComputeForwardingRuleNetworkTier(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeForwardingRuleServiceLabel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
