@@ -19,7 +19,7 @@ To allow `service_A` to impersonate `service_B`, grant the [Service Account Toke
 
 In the IAM policy below, `service_A` is given the Token Creator role impersonate `service_B`
 
-```sh
+```hcl
 resource "google_service_account_iam_binding" "token-creator-iam" {
 	service_account_id = "projects/-/serviceAccounts/service_B@projectB.iam.gserviceaccount.com"
 	role               = "roles/iam.serviceAccountTokenCreator"
