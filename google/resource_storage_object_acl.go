@@ -301,6 +301,13 @@ func getRoleEntityChange(old []string, new []string, owner string) (create, upda
 
 // Takes in lists of changes to make to a Storage Object's ACL and makes those changes
 func performStorageObjectRoleEntityOperations(create []*RoleEntity, update []*RoleEntity, remove []*RoleEntity, config *Config, bucket string, object string) error {
+	for _, v := range remove {
+		err := config.clientStorage.ObjectAccessControls.Delete(bucket, object, v.Entity).Do()
+		if err != nil {
+			return fmt.Errorf("Error deleting ACL item %s for object %s in %s: %v", v.Entity, object, bucket, err)
+		}
+	}
+
 	for _, v := range create {
 		objectAccessControl := &storage.ObjectAccessControl{
 			Role:   v.Role,
@@ -320,13 +327,6 @@ func performStorageObjectRoleEntityOperations(create []*RoleEntity, update []*Ro
 		_, err := config.clientStorage.ObjectAccessControls.Update(bucket, object, v.Entity, objectAccessControl).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating ACL item %s for object %s in %s: %v", v.Entity, object, bucket, err)
-		}
-	}
-
-	for _, v := range remove {
-		err := config.clientStorage.ObjectAccessControls.Delete(bucket, object, v.Entity).Do()
-		if err != nil {
-			return fmt.Errorf("Error deleting ACL item %s for object %s in %s: %v", v.Entity, object, bucket, err)
 		}
 	}
 
