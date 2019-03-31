@@ -126,6 +126,14 @@ func TestReplaceVars(t *testing.T) {
 			},
 			Expected: "projects/project1/zones/zone1/instances/instance1",
 		},
+		"escape": {
+			Template: "b/{{bucket}}/o/{{object}}",
+			SchemaValues: map[string]interface{}{
+				"bucket": "bucket1",
+				"object": "path/to/object",
+			},
+			Expected: "b/bucket1/o/path%2Fto%2Fobject",
+		},
 	}
 
 	for tn, tc := range cases {

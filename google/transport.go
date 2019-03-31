@@ -166,7 +166,7 @@ func buildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *Co
 		}
 		v, ok := d.GetOk(m)
 		if ok {
-			return fmt.Sprintf("%v", v)
+			return url.QueryEscape(fmt.Sprintf("%v", v))
 		}
 		return ""
 	}
