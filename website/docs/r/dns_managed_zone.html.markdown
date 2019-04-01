@@ -55,11 +55,51 @@ resource "random_id" "rnd" {
   byte_length = 4
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dns_managed_zone_private&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Dns Managed Zone Private
 
 
 ```hcl
 resource "google_dns_managed_zone" "private-zone" {
+  name = "private-zone"
+  dns_name = "private.example.com."
+  description = "Example private DNS zone"
+  labels = {
+    foo = "bar"
+  }
+
+  visibility = "private"
+
+  private_visibility_config {
+    networks {
+      network_url =  "${google_compute_network.network-1.self_link}"
+    }
+    networks {
+      network_url =  "${google_compute_network.network-2.self_link}"
+    }
+  }
+}
+
+resource "google_compute_network" "network-1" {
+  name = "network-1"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network" "network-2" {
+  name = "network-2"
+  auto_create_subnetworks = false
+}
+```
+## Example Usage - Dns Managed Zone Private Forwarding
+
+
+```hcl
+resource "google_dns_managed_zone" "private-zone" {
+  provider = "google-beta"
   name = "private-zone"
   dns_name = "private.example.com."
   description = "Example private DNS zone"
@@ -125,9 +165,39 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   A set of key/value label pairs to assign to this ManagedZone.
+
+* `visibility` -
+  (Optional)
+  The zone's visibility: public zones are exposed to the Internet,
+  while private zones are visible only to Virtual Private Cloud resources.
+  Must be one of: `public`, `private`.
+
+* `private_visibility_config` -
+  (Optional)
+  For privately visible zones, the set of Virtual Private Cloud
+  resources that the zone is visible from.  Structure is documented below.
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `private_visibility_config` block supports:
+
+* `networks` -
+  (Optional)
+  The list of VPC networks that can see this zone. Until the provider updates to use the Terraform 0.12 SDK in a future release, you
+  may experience issues with this resource while updating. If you've defined a `networks` block and
+  add another `networks` block while keeping the old block, Terraform will see an incorrect diff
+  and apply an incorrect update to the resource. If you encounter this issue, remove all `networks`
+  blocks in an update and then apply another update adding all of them back simultaneously.  Structure is documented below.
+
+
+The `networks` block supports:
+
+* `network_url` -
+  (Optional)
+  The fully qualified URL of the VPC network to bind to.
+  This should be formatted like
+  `https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`
 
 ## Attributes Reference
 
