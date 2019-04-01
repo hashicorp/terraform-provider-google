@@ -1,4 +1,7 @@
-## 2.3.1 (Unreleased)
+## 2.4.0 (Unreleased)
+
+ENHANCEMENTS:
+* dns: `google_dns_managed_zone.private_visibility_config`, part of private DNS, is now generally available. [GH-3352]
 
 BUG FIXES:
 * container: `google_container_cluster` will ignore out of band changes on `node_ipv4_cidr_block`. [GH-3319]
