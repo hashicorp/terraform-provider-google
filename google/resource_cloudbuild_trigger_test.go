@@ -35,6 +35,26 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 	})
 }
 
+func TestAccCloudBuildTrigger_fullStep(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_fullStep(),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testGoogleCloudBuildTrigger_basic() string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
@@ -53,10 +73,37 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     step {
       name = "gcr.io/cloud-builders/go"
       args = ["build", "my_package"]
+      env = ["env1=two"]
     }
     step {
       name = "gcr.io/cloud-builders/docker"
       args = ["build", "-t", "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA", "-f", "Dockerfile", "."]
+    }
+  }
+}
+  `)
+}
+
+func testAccCloudBuildTrigger_fullStep() string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "build_trigger" {
+  description = "acceptance test build trigger"
+  trigger_template {
+    branch_name = "master"
+    repo_name   = "some-repo"
+  }
+  build {
+    images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+    tags = ["team-a", "service-b"]
+    step {
+      name = "gcr.io/cloud-builders/go"
+      args = ["build", "my_package"]
+      env = ["env1=two"]
+      dir = "directory"
+      id = "12345"
+      secret_env = ["fooo"]
+      timeout = "100s"
+      wait_for = ["something"]
     }
   }
 }
