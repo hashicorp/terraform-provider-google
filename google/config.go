@@ -34,6 +34,7 @@ import (
 	dnsBeta "google.golang.org/api/dns/v1beta2"
 	file "google.golang.org/api/file/v1beta1"
 	"google.golang.org/api/iam/v1"
+	iamcredentials "google.golang.org/api/iamcredentials/v1"
 	cloudlogging "google.golang.org/api/logging/v2"
 	"google.golang.org/api/pubsub/v1"
 	runtimeconfig "google.golang.org/api/runtimeconfig/v1beta1"
@@ -73,6 +74,7 @@ type Config struct {
 	clientDns                    *dns.Service
 	clientDnsBeta                *dnsBeta.Service
 	clientFilestore              *file.Service
+	clientIamCredentials         *iamcredentials.Service
 	clientKms                    *cloudkms.Service
 	clientLogging                *cloudlogging.Service
 	clientPubsub                 *pubsub.Service
@@ -239,6 +241,13 @@ func (c *Config) LoadAndValidate() error {
 		return err
 	}
 	c.clientIAM.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud IAMCredentials Client...")
+	c.clientIamCredentials, err = iamcredentials.New(client)
+	if err != nil {
+		return err
+	}
+	c.clientIamCredentials.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud Service Management Client...")
 	c.clientServiceMan, err = servicemanagement.New(client)

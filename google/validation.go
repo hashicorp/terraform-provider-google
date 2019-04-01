@@ -14,9 +14,10 @@ import (
 
 const (
 	// Copied from the official Google Cloud auto-generated client.
-	ProjectRegex    = "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))"
-	RegionRegex     = "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?"
-	SubnetworkRegex = "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?"
+	ProjectRegex         = "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))"
+	ProjectRegexWildCard = "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?)|-)"
+	RegionRegex          = "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?"
+	SubnetworkRegex      = "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?"
 
 	SubnetworkLinkRegex = "projects/(" + ProjectRegex + ")/regions/(" + RegionRegex + ")/subnetworks/(" + SubnetworkRegex + ")$"
 
@@ -35,7 +36,7 @@ var (
 	// 4 and 28 since the first and last character are excluded.
 	ServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, 4, 28)
 
-	ServiceAccountLinkRegexPrefix = "projects/" + ProjectRegex + "/serviceAccounts/"
+	ServiceAccountLinkRegexPrefix = "projects/" + ProjectRegexWildCard + "/serviceAccounts/"
 	PossibleServiceAccountNames   = []string{
 		AppEngineServiceAccountNameRegex,
 		ComputeServiceAccountNameRegex,
