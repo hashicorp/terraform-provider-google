@@ -86,7 +86,6 @@ func resourceGoogleProject() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
 			},
 			"app_engine": {
 				Type:     schema.TypeList,
