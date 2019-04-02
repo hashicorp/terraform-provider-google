@@ -327,24 +327,6 @@ func TestAccComputeBackendService_withSecurityPolicy(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeBackendServiceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_backend_service" {
-			continue
-		}
-
-		_, err := config.clientCompute.BackendServices.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("Backend service %s still exists", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeBackendServiceExists(n string, svc *compute.BackendService) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -398,7 +380,7 @@ func testAccCheckComputeBackendServiceExistsWithIAP(n string, svc *compute.Backe
 		}
 
 		if found.Iap == nil || found.Iap.Enabled == false {
-			return fmt.Errorf("IAP not found or not enabled.")
+			return fmt.Errorf("IAP not found or not enabled. Saw %v", found.Iap)
 		}
 
 		*svc = *found
