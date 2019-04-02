@@ -7,6 +7,7 @@ FEATURES:
 * **New Resource**: `google_access_context_manager_service_perimeter` is now available at GA. [GH-3358]
 
 ENHANCEMENTS:
+* compute: `google_compute_backend_service` is now generated with Magic Modules, adding configurable timeouts, multiple import formats, `creation_timestamp` output. [GH-3345]
 * dns: `google_dns_managed_zone.private_visibility_config`, part of private DNS, is now generally available. [GH-3352]
 
 BUG FIXES:
