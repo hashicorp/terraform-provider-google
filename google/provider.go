@@ -165,7 +165,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloudiot_registry":                     resourceCloudIoTRegistry(),
 			"google_composer_environment":                  resourceComposerEnvironment(),
 			"google_compute_attached_disk":                 resourceComputeAttachedDisk(),
-			"google_compute_backend_service":               resourceComputeBackendService(),
 			"google_compute_global_forwarding_rule":        resourceComputeGlobalForwardingRule(),
 			"google_compute_instance":                      resourceComputeInstance(),
 			"google_compute_instance_from_template":        resourceComputeInstanceFromTemplate(),
