@@ -117,6 +117,7 @@ func Provider() terraform.ResourceProvider {
 			"google_project_organization_policy":              dataSourceGoogleProjectOrganizationPolicy(),
 			"google_project_services":                         dataSourceGoogleProjectServices(),
 			"google_service_account":                          dataSourceGoogleServiceAccount(),
+			"google_service_account_access_token":             dataSourceGoogleServiceAccountAccessToken(),
 			"google_service_account_key":                      dataSourceGoogleServiceAccountKey(),
 			"google_storage_bucket_object":                    dataSourceGoogleStorageBucketObject(),
 			"google_storage_object_signed_url":                dataSourceGoogleSignedUrl(),
