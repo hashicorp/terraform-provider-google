@@ -1,5 +1,11 @@
 ## 2.4.0 (Unreleased)
 
+
+FEATURES:
+* **New Resource**: `google_access_context_manager_access_policy` is now available at GA. [GH-3358]
+* **New Resource**: `google_access_context_manager_access_level` is now available at GA. [GH-3358]
+* **New Resource**: `google_access_context_manager_service_perimeter` is now available at GA. [GH-3358]
+
 ENHANCEMENTS:
 * dns: `google_dns_managed_zone.private_visibility_config`, part of private DNS, is now generally available. [GH-3352]
 
