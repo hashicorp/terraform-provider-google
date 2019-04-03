@@ -139,6 +139,56 @@ resource "google_compute_network" "network-2" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dns_managed_zone_private_peering&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dns Managed Zone Private Peering
+
+
+```hcl
+resource "google_dns_managed_zone" "peering-zone" {
+  provider = "google-beta"
+
+  name = "peering-zone"
+  dns_name = "peering.example.com."
+  description = "Example private DNS peering zone"
+
+  visibility = "private"
+
+  private_visibility_config {
+    networks {
+      network_url =  "${google_compute_network.network-source.self_link}"
+    }
+  }
+
+  peering_config {
+    target_network {
+      network_url = "${google_compute_network.network-target.self_link}"
+    }
+  }
+}
+
+resource "google_compute_network" "network-source" {
+  provider = "google-beta"
+
+  name = "network-source"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network" "network-target" {
+  provider = "google-beta"
+
+  name = "network-target"
+  auto_create_subnetworks = false
+}
+
+provider "google-beta" {
+  region = "us-central1"
+  zone   = "us-central1-a"
+}
+```
 
 ## Argument Reference
 

@@ -88,11 +88,12 @@ func resourceDnsManagedZone() *schema.Resource {
 				},
 			},
 			"visibility": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"private", "public", ""}, false),
-				Default:      "public",
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				ValidateFunc:     validation.StringInSlice([]string{"private", "public", ""}, false),
+				DiffSuppressFunc: caseDiffSuppress,
+				Default:          "public",
 			},
 			"name_servers": {
 				Type:     schema.TypeList,
