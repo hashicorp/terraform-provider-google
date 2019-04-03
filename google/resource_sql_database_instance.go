@@ -697,8 +697,13 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	instance, err := config.clientSqlAdmin.Instances.Get(project,
-		d.Id()).Do()
+	var instance *sqladmin.DatabaseInstance
+	err = retry(
+		func() error {
+			instance, err = config.clientSqlAdmin.Instances.Get(project, d.Id()).Do()
+			return err
+		},
+	)
 
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SQL Database Instance %q", d.Get("name").(string)))
