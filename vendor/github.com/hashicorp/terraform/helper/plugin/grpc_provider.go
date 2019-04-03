@@ -183,6 +183,12 @@ func (s *GRPCProviderServer) PrepareProviderConfig(_ context.Context, req *proto
 		return resp, nil
 	}
 
+	// Ensure there are no nulls that will cause helper/schema to panic.
+	if err := validateConfigNulls(configVal, nil); err != nil {
+		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
+		return resp, nil
+	}
+
 	config := terraform.NewResourceConfigShimmed(configVal, blockForShimming)
 	schema.FixupAsSingleResourceConfigIn(config, s.provider.Schema)
 
@@ -229,6 +235,12 @@ func (s *GRPCProviderServer) ValidateDataSourceConfig(_ context.Context, req *pr
 
 	configVal, err := msgpack.Unmarshal(req.Config.Msgpack, blockForCore.ImpliedType())
 	if err != nil {
+		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
+		return resp, nil
+	}
+
+	// Ensure there are no nulls that will cause helper/schema to panic.
+	if err := validateConfigNulls(configVal, nil); err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
@@ -424,6 +436,12 @@ func (s *GRPCProviderServer) Configure(_ context.Context, req *proto.Configure_R
 
 	s.provider.TerraformVersion = req.TerraformVersion
 
+	// Ensure there are no nulls that will cause helper/schema to panic.
+	if err := validateConfigNulls(configVal, nil); err != nil {
+		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
+		return resp, nil
+	}
+
 	config := terraform.NewResourceConfigShimmed(configVal, blockForShimming)
 	schema.FixupAsSingleResourceConfigIn(config, s.provider.Schema)
 	err = s.provider.Configure(config)
@@ -552,6 +570,12 @@ func (s *GRPCProviderServer) PlanResourceChange(_ context.Context, req *proto.Pl
 	}
 
 	priorState.Meta = priorPrivate
+
+	// Ensure there are no nulls that will cause helper/schema to panic.
+	if err := validateConfigNulls(proposedNewStateVal, nil); err != nil {
+		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
+		return resp, nil
+	}
 
 	// turn the proposed state into a legacy configuration
 	cfg := terraform.NewResourceConfigShimmed(proposedNewStateVal, blockForShimming)
@@ -978,6 +1002,12 @@ func (s *GRPCProviderServer) ReadDataSource(_ context.Context, req *proto.ReadDa
 		Type: req.TypeName,
 	}
 
+	// Ensure there are no nulls that will cause helper/schema to panic.
+	if err := validateConfigNulls(configVal, nil); err != nil {
+		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
+		return resp, nil
+	}
+
 	config := terraform.NewResourceConfigShimmed(configVal, blockForShimming)
 	schema.FixupAsSingleResourceConfigIn(config, s.provider.DataSourcesMap[req.TypeName].Schema)
 
@@ -1144,6 +1174,14 @@ func normalizeNullValues(dst, src cty.Value, preferDst bool) cty.Value {
 	ty := dst.Type()
 
 	if !src.IsNull() && !src.IsKnown() {
+		// While this seems backwards to return src when preferDst is set, it
+		// means this might be a plan scenario, and it must retain unknown
+		// interpolated placeholders, which could be lost if we're only updating
+		// a resource. If this is a read scenario, then there shouldn't be any
+		// unknowns all.
+		if dst.IsNull() && preferDst {
+			return src
+		}
 		return dst
 	}
 
@@ -1176,11 +1214,8 @@ func normalizeNullValues(dst, src cty.Value, preferDst bool) cty.Value {
 			dstMap = map[string]cty.Value{}
 		}
 
-		ei := src.ElementIterator()
-		for ei.Next() {
-			k, v := ei.Element()
-			key := k.AsString()
-
+		srcMap := src.AsValueMap()
+		for key, v := range srcMap {
 			dstVal := dstMap[key]
 			if dstVal == cty.NilVal {
 				if preferDst && ty.IsMapType() {
@@ -1203,6 +1238,24 @@ func normalizeNullValues(dst, src cty.Value, preferDst bool) cty.Value {
 		}
 
 		if ty.IsMapType() {
+			// helper/schema will populate an optional+computed map with
+			// unknowns which we have to fixup here.
+			// It would be preferable to simply prevent any known value from
+			// becoming unknown, but concessions have to be made to retain the
+			// broken legacy behavior when possible.
+			for k, srcVal := range srcMap {
+				if !srcVal.IsNull() && srcVal.IsKnown() {
+					dstVal, ok := dstMap[k]
+					if !ok {
+						continue
+					}
+
+					if !dstVal.IsNull() && !dstVal.IsKnown() {
+						dstMap[k] = srcVal
+					}
+				}
+			}
+
 			return cty.MapVal(dstMap)
 		}
 
@@ -1217,12 +1270,29 @@ func normalizeNullValues(dst, src cty.Value, preferDst bool) cty.Value {
 		}
 
 	case ty.IsListType(), ty.IsTupleType():
-		// If the dst is nil, and the src is known, then we lost an empty value
+		// If the dst is null, and the src is known, then we lost an empty value
 		// so take the original.
 		if dst.IsNull() {
 			if src.IsWhollyKnown() && src.LengthInt() == 0 && !preferDst {
 				return src
 			}
+
+			// if dst is null and src only contains unknown values, then we lost
+			// those during a plan (which is when preferDst is set, there would
+			// be no unknowns during read).
+			if preferDst && !src.IsNull() {
+				allUnknown := true
+				for _, v := range src.AsValueSlice() {
+					if v.IsKnown() {
+						allUnknown = false
+						break
+					}
+				}
+				if allUnknown {
+					return src
+				}
+			}
+
 			return dst
 		}
 
@@ -1250,4 +1320,54 @@ func normalizeNullValues(dst, src cty.Value, preferDst bool) cty.Value {
 	}
 
 	return dst
+}
+
+// validateConfigNulls checks a config value for unsupported nulls before
+// attempting to shim the value. While null values can mostly be ignored in the
+// configuration, since they're not supported in HCL1, the case where a null
+// appears in a list-like attribute (list, set, tuple) will present a nil value
+// to helper/schema which can panic. Return an error to the user in this case,
+// indicating the attribute with the null value.
+func validateConfigNulls(v cty.Value, path cty.Path) []*proto.Diagnostic {
+	var diags []*proto.Diagnostic
+	if v.IsNull() || !v.IsKnown() {
+		return diags
+	}
+
+	switch {
+	case v.Type().IsListType() || v.Type().IsSetType() || v.Type().IsTupleType():
+		it := v.ElementIterator()
+		for it.Next() {
+			kv, ev := it.Element()
+			if ev.IsNull() {
+				diags = append(diags, &proto.Diagnostic{
+					Severity:  proto.Diagnostic_ERROR,
+					Summary:   "Null value found in list",
+					Detail:    "Null values are not allowed for this attribute value.",
+					Attribute: convert.PathToAttributePath(append(path, cty.IndexStep{Key: kv})),
+				})
+				continue
+			}
+
+			d := validateConfigNulls(ev, append(path, cty.IndexStep{Key: kv}))
+			diags = convert.AppendProtoDiag(diags, d)
+		}
+
+	case v.Type().IsMapType() || v.Type().IsObjectType():
+		it := v.ElementIterator()
+		for it.Next() {
+			kv, ev := it.Element()
+			var step cty.PathStep
+			switch {
+			case v.Type().IsMapType():
+				step = cty.IndexStep{Key: kv}
+			case v.Type().IsObjectType():
+				step = cty.GetAttrStep{Name: kv.AsString()}
+			}
+			d := validateConfigNulls(ev, append(path, step))
+			diags = convert.AppendProtoDiag(diags, d)
+		}
+	}
+
+	return diags
 }
