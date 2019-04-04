@@ -110,6 +110,13 @@ The following arguments are supported:
   (Optional)
   Settings for enabling Cloud Identity Aware Proxy  Structure is documented below.
 
+* `load_balancing_scheme` -
+  (Optional)
+  Indicates whether the backend service will be used with internal or
+  external load balancing. A backend service created for one type of
+  load balancing cannot be used with the other. One of `INTERNAL` or
+  `EXTERNAL`. Defaults to `EXTERNAL`.
+
 * `port_name` -
   (Optional)
   Name of backend port. The same name should appear in the instance
@@ -227,6 +234,18 @@ The `cdn_policy` block supports:
 * `cache_key_policy` -
   (Optional)
   The CacheKeyPolicy for this CdnPolicy.  Structure is documented below.
+
+* `signed_url_cache_max_age_sec` -
+  (Optional)
+  Maximum number of seconds the response to a signed URL request
+  will be considered fresh, defaults to 1hr (3600s). After this
+  time period, the response will be revalidated before
+  being served.
+  When serving responses to signed URL requests, Cloud CDN will
+  internally behave as though all responses from this backend had a
+  "Cache-Control: public, max-age=[TTL]" header, regardless of any
+  existing Cache-Control header. The actual headers served in
+  responses will not be altered.
 
 
 The `cache_key_policy` block supports:
