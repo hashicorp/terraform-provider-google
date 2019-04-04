@@ -9,6 +9,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * compute: `google_compute_backend_service` is now generated with Magic Modules, adding configurable timeouts, multiple import formats, `creation_timestamp` output. [GH-3345]
+* compute: `google_compute_backend_service` now supports `load_balancing_scheme` and `cdn_policy.signed_url_cache_max_age_sec`. [GH-3375]
 * dns: `google_dns_managed_zone.private_visibility_config`, part of private DNS, is now generally available. [GH-3352]
 
 BUG FIXES:
