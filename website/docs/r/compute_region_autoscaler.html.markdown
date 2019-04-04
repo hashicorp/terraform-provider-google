@@ -285,7 +285,7 @@ The `metric` block supports:
   The metric must have a value type of INT64 or DOUBLE.
 
 * `target` -
-  (Required)
+  (Optional)
   The target value of the metric that autoscaler should
   maintain. This must be a positive value. A utilization
   metric scales number of virtual machines handling requests
@@ -296,7 +296,7 @@ The `metric` block supports:
   of the instances.
 
 * `type` -
-  (Required)
+  (Optional)
   Defines how target utilization value is expressed for a
   Stackdriver Monitoring metric. Either GAUGE, DELTA_PER_SECOND,
   or DELTA_PER_MINUTE.
