@@ -102,19 +102,16 @@ func getCidrBlocks() (map[string][]string, error) {
 		splitedResponse = strings.Split(response, " ")
 
 		for _, sp := range splitedResponse {
-			if strings.HasPrefix(sp, "ip") {
-
-				cdrBlock := strings.Split(sp, ":")[1]
+			if strings.HasPrefix(sp, "ip4") {
+				cdrBlock := strings.Replace(sp, "ip4:", "", 1)
+				cidrBlocks["cidr_blocks_ipv4"] = append(cidrBlocks["cidr_blocks_ipv4"], cdrBlock)
 				cidrBlocks["cidr_blocks"] = append(cidrBlocks["cidr_blocks"], cdrBlock)
 
-				if strings.HasPrefix(sp, "ip4") {
-					cdrBlock := strings.Replace(sp, "ip4:", "", 1)
-					cidrBlocks["cidr_blocks_ipv4"] = append(cidrBlocks["cidr_blocks_ipv4"], cdrBlock)
+			} else if strings.HasPrefix(sp, "ip6") {
+				cdrBlock := strings.Replace(sp, "ip6:", "", 1)
+				cidrBlocks["cidr_blocks_ipv6"] = append(cidrBlocks["cidr_blocks_ipv6"], cdrBlock)
+				cidrBlocks["cidr_blocks"] = append(cidrBlocks["cidr_blocks"], cdrBlock)
 
-				} else if strings.HasPrefix(sp, "ip6") {
-					cdrBlock := strings.Replace(sp, "ip6:", "", 1)
-					cidrBlocks["cidr_blocks_ipv6"] = append(cidrBlocks["cidr_blocks_ipv6"], cdrBlock)
-				}
 			} else if strings.HasPrefix(sp, "include:") {
 				cidr_block := strings.Replace(sp, "include:", "", 1)
 				dnsNetblockList = append(dnsNetblockList, cidr_block)
