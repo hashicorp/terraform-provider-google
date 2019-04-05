@@ -76,6 +76,11 @@ func resourceComputeNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"delete_default_routes_on_create": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -170,6 +175,35 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 
 	log.Printf("[DEBUG] Finished creating Network %q: %#v", d.Id(), res)
 
+	if d.Get("delete_default_routes_on_create").(bool) {
+		token := ""
+		for paginate := true; paginate; {
+			networkLink := fmt.Sprintf("%s/%s", url, d.Get("name").(string))
+			filter := fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", networkLink)
+			log.Printf("[DEBUG] Getting routes for network %q with filter '%q'", d.Get("name").(string), filter)
+			resp, err := config.clientCompute.Routes.List(project).Filter(filter).Do()
+			if err != nil {
+				return fmt.Errorf("Error listing routes in proj: %s", err)
+			}
+
+			log.Printf("[DEBUG] Found %d routes rules in %q network", len(resp.Items), d.Get("name").(string))
+
+			for _, route := range resp.Items {
+				op, err := config.clientCompute.Routes.Delete(project, route.Name).Do()
+				if err != nil {
+					return fmt.Errorf("Error deleting route: %s", err)
+				}
+				err = computeSharedOperationWait(config.clientCompute, op, project, "Deleting Route")
+				if err != nil {
+					return err
+				}
+			}
+
+			token = resp.NextPageToken
+			paginate = token != ""
+		}
+	}
+
 	return resourceComputeNetworkRead(d, meta)
 }
 
@@ -184,6 +218,11 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 	res, err := sendRequest(config, "GET", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNetwork %q", d.Id()))
+	}
+
+	res, err = resourceComputeNetworkDecoder(d, meta, res)
+	if err != nil {
+		return err
 	}
 
 	project, err := getProject(d, config)
@@ -321,6 +360,9 @@ func resourceComputeNetworkImport(d *schema.ResourceData, meta interface{}) ([]*
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+	// Explicitly set to default as a workaround for `ImportStateVerify` tests, and so that users
+	// don't see a diff immediately after import.
+	d.Set("delete_default_routes_on_create", false)
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -388,4 +430,12 @@ func resourceComputeNetworkEncoder(d *schema.ResourceData, meta interface{}, obj
 	}
 
 	return obj, nil
+}
+
+func resourceComputeNetworkDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	// Explicitly set to default if not set
+	if _, ok := d.GetOk("delete_default_routes_on_create"); !ok {
+		d.Set("delete_default_routes_on_create", false)
+	}
+	return res, nil
 }
