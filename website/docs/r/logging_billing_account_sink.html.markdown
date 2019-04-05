@@ -24,7 +24,7 @@ resource "google_logging_billing_account_sink" "my-sink" {
     name = "my-sink"
     billing_account = "ABCDEF-012345-GHIJKL"
 
-    # Can export to pubsub, cloud storage, or bigtable
+    # Can export to pubsub, cloud storage, or bigquery
     destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 }
 
