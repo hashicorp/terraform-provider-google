@@ -16,7 +16,7 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testGoogleCloudBuildTrigger_basic(),
+				Config: testAccCloudBuildTrigger_basic(),
 			},
 			{
 				ResourceName:      "google_cloudbuild_trigger.build_trigger",
@@ -24,7 +24,35 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testGoogleCloudBuildTrigger_updated(),
+				Config: testAccCloudBuildTrigger_updated(),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccCloudBuildTrigger_disable(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_basic(),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCloudBuildTrigger_basicDisabled(),
 			},
 			{
 				ResourceName:      "google_cloudbuild_trigger.build_trigger",
@@ -55,9 +83,39 @@ func TestAccCloudBuildTrigger_fullStep(t *testing.T) {
 	})
 }
 
-func testGoogleCloudBuildTrigger_basic() string {
+func testAccCloudBuildTrigger_basic() string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
+  description = "acceptance test build trigger"
+  trigger_template {
+    branch_name = "master"
+    repo_name   = "some-repo"
+  }
+  build {
+    images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+    tags = ["team-a", "service-b"]
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+    }
+    step {
+      name = "gcr.io/cloud-builders/go"
+      args = ["build", "my_package"]
+      env = ["env1=two"]
+    }
+    step {
+      name = "gcr.io/cloud-builders/docker"
+      args = ["build", "-t", "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA", "-f", "Dockerfile", "."]
+    }
+  }
+}
+  `)
+}
+
+func testAccCloudBuildTrigger_basicDisabled() string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "build_trigger" {
+  disabled = true
   description = "acceptance test build trigger"
   trigger_template {
     branch_name = "master"
@@ -110,7 +168,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   `)
 }
 
-func testGoogleCloudBuildTrigger_updated() string {
+func testAccCloudBuildTrigger_updated() string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
   description = "acceptance test build trigger updated"
