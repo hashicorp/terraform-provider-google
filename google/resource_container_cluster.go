@@ -778,6 +778,13 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
 	waitErr := containerOperationWait(config, op, project, location, "creating GKE cluster", timeoutInMinutes)
 	if waitErr != nil {
+		// Try a GET on the cluster so we can see the state in debug logs. This will help classify error states.
+		_, getErr := config.clientContainerBeta.Projects.Locations.Clusters.Get(containerClusterFullName(project, location, clusterName)).Do()
+		if getErr != nil {
+			// Make errcheck happy
+			log.Printf("[WARN] Cluster %s was created in an error state and not found", clusterName)
+		}
+
 		if deleteErr := cleanFailedContainerCluster(d, meta); deleteErr != nil {
 			log.Printf("[WARN] Unable to clean up cluster from failed creation: %s", deleteErr)
 		} else {
