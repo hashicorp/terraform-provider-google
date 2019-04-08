@@ -148,7 +148,7 @@ func resourceCloudBuildTrigger() *schema.Resource {
 				Optional: true,
 			},
 			"disabled": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeBool,
 				Optional: true,
 			},
 			"filename": {
