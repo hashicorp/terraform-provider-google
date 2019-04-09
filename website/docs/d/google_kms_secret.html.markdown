@@ -64,7 +64,7 @@ resource "random_id" "db_name_suffix" {
 }
 
 resource "google_sql_database_instance" "master" {
-	name = "master-instance-${random_id.db_name_suffix.hex}"
+  name = "master-instance-${random_id.db_name_suffix.hex}"
 
   settings {
     tier = "D0"
