@@ -117,12 +117,6 @@ func TestAccBigQueryDataset_regionalLocation(t *testing.T) {
 	t.Parallel()
 
 	datasetID1 := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	datasetID2 := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	datasetID3 := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	datasetID4 := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	datasetID5 := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	datasetID6 := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	datasetID7 := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -130,55 +124,7 @@ func TestAccBigQueryDataset_regionalLocation(t *testing.T) {
 		CheckDestroy: testAccCheckBigQueryDatasetDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigQueryRegionalDataset(datasetID1, "asia-east1"),
-			},
-			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccBigQueryRegionalDataset(datasetID2, "asia-northeast1"),
-			},
-			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccBigQueryRegionalDataset(datasetID3, "asia-southeast1"),
-			},
-			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccBigQueryRegionalDataset(datasetID4, "australia-southeast1"),
-			},
-			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccBigQueryRegionalDataset(datasetID5, "europe-north1"),
-			},
-			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccBigQueryRegionalDataset(datasetID6, "europe-west2"),
-			},
-			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccBigQueryRegionalDataset(datasetID7, "us-east4"),
+				Config: testAccBigQueryRegionalDataset(datasetID1, "asia-south1"),
 			},
 			{
 				ResourceName:      "google_bigquery_dataset.test",
