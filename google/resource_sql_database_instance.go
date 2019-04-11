@@ -492,6 +492,9 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	op, err := config.clientSqlAdmin.Instances.Insert(project, instance).Do()
 	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 {
+			return fmt.Errorf("Error, failed to create instance %s with error code 409: %s. This may be due to a name collision - SQL instance names cannot be reused within a week.", instance.Name, err)
+		}
 		return fmt.Errorf("Error, failed to create instance %s: %s", instance.Name, err)
 	}
 
