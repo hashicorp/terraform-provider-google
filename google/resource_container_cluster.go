@@ -23,7 +23,6 @@ var (
 			"cidr_blocks": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Computed: true,
 				Elem:     cidrBlockConfig,
 			},
 		},
