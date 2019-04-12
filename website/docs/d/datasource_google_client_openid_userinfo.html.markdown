@@ -84,7 +84,7 @@ resource "kubernetes_cluster_role_binding" "user" {
 
   subject {
     kind = "User"
-    name = "${data.google_client_openid_useremail.provider_identity.email}"
+    name = "${data.google_client_openid_userinfo.provider_identity.email}"
   }
 }
 ```
