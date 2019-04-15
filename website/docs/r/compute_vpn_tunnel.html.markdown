@@ -126,7 +126,7 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
     "google_compute_forwarding_rule.fr_udp4500",
   ]
 
-  labels {
+  labels = {
     foo = "bar"
   }
 }
