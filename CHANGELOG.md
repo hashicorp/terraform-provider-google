@@ -1,24 +1,24 @@
-## 2.4.0 (Unreleased)
+## 2.4.0 (April 15, 2019)
 
 
 FEATURES:
-* **New Resource**: `google_access_context_manager_access_policy` is now available at GA. [GH-3358]
-* **New Resource**: `google_access_context_manager_access_level` is now available at GA. [GH-3358]
-* **New Resource**: `google_access_context_manager_service_perimeter` is now available at GA. [GH-3358]
-* **New Datasource**: `google_service_account_access_token` is now available. [GH-3357]
+* **New Resource**: `google_access_context_manager_access_policy` is now available at GA. ([#3358](https://github.com/terraform-providers/terraform-provider-google/issues/3358))
+* **New Resource**: `google_access_context_manager_access_level` is now available at GA. ([#3358](https://github.com/terraform-providers/terraform-provider-google/issues/3358))
+* **New Resource**: `google_access_context_manager_service_perimeter` is now available at GA. ([#3358](https://github.com/terraform-providers/terraform-provider-google/issues/3358))
+* **New Datasource**: `google_service_account_access_token` is now available. ([#3357](https://github.com/terraform-providers/terraform-provider-google/issues/3357))
 
 ENHANCEMENTS:
-* compute: `google_compute_backend_service` is now generated with Magic Modules, adding configurable timeouts, multiple import formats, `creation_timestamp` output. [GH-3345]
-* compute: `google_compute_backend_service` now supports `load_balancing_scheme` and `cdn_policy.signed_url_cache_max_age_sec`. [GH-3375]
-* compute: `google_compute_network` now supports `delete_default_routes_on_create` to delete pre-created routes at network creation time. [GH-3391]
-* dns: `google_dns_managed_zone.private_visibility_config`, part of private DNS, is now generally available. [GH-3352]
+* compute: `google_compute_backend_service` is now generated with Magic Modules, adding configurable timeouts, multiple import formats, `creation_timestamp` output. ([#3345](https://github.com/terraform-providers/terraform-provider-google/issues/3345))
+* compute: `google_compute_backend_service` now supports `load_balancing_scheme` and `cdn_policy.signed_url_cache_max_age_sec`. ([#3375](https://github.com/terraform-providers/terraform-provider-google/issues/3375))
+* compute: `google_compute_network` now supports `delete_default_routes_on_create` to delete pre-created routes at network creation time. ([#3391](https://github.com/terraform-providers/terraform-provider-google/issues/3391))
+* dns: `google_dns_managed_zone.private_visibility_config`, part of private DNS, is now generally available. ([#3352](https://github.com/terraform-providers/terraform-provider-google/issues/3352))
 
 BUG FIXES:
-* container: `google_container_cluster` will ignore out of band changes on `node_ipv4_cidr_block`. [GH-3319]
-* container: `google_container_cluster` will now reject config with both `node_pool` and `remove_default_node_pool` defined [GH-3422]
-* container: `google_container_cluster` will allow >20 `cidr_blocks` in `master_authorized_networks_config`. [GH-3397]
-* netblock: `data.google_netblock_ip_ranges.cidr_blocks` will better handle ipv6 input. [GH-3390]
-* sql: `google_sql_database_instance` will retry reads during Terraform refreshes if it hits a rate limit. [GH-3366]
+* container: `google_container_cluster` will ignore out of band changes on `node_ipv4_cidr_block`. ([#3319](https://github.com/terraform-providers/terraform-provider-google/issues/3319))
+* container: `google_container_cluster` will now reject config with both `node_pool` and `remove_default_node_pool` defined ([#3422](https://github.com/terraform-providers/terraform-provider-google/issues/3422))
+* container: `google_container_cluster` will allow >20 `cidr_blocks` in `master_authorized_networks_config`. ([#3397](https://github.com/terraform-providers/terraform-provider-google/issues/3397))
+* netblock: `data.google_netblock_ip_ranges.cidr_blocks` will better handle ipv6 input. ([#3390](https://github.com/terraform-providers/terraform-provider-google/issues/3390))
+* sql: `google_sql_database_instance` will retry reads during Terraform refreshes if it hits a rate limit. ([#3366](https://github.com/terraform-providers/terraform-provider-google/issues/3366))
 
 ## 2.3.0 (March 26, 2019)
 
