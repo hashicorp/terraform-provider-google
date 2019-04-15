@@ -370,10 +370,11 @@ func resourceComputeInstance() *schema.Resource {
 			},
 
 			"guest_accelerator": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:       schema.TypeList,
+				Optional:   true,
+				Computed:   true,
+				ForceNew:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"count": {

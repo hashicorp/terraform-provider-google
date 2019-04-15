@@ -125,6 +125,50 @@ func TestAccComputeInstanceFromTemplate_overrideScratchDisk(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	templateName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	resourceName := "google_compute_instance_from_template.inst"
+
+	// First config is a basic instance from template, second tests the empty list syntax
+	config1 := testAccComputeInstanceFromTemplate_012_removableFieldsTpl(templateName) +
+		testAccComputeInstanceFromTemplate_012_removableFields1(instanceName)
+	config2 := testAccComputeInstanceFromTemplate_012_removableFieldsTpl(templateName) +
+		testAccComputeInstanceFromTemplate_012_removableFields2(instanceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config1,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+
+					resource.TestCheckResourceAttr(resourceName, "service_account.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "service_account.0.scopes.#", "3"),
+				),
+			},
+			{
+				Config: config2,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+
+					// Check that fields were able to be removed
+					resource.TestCheckResourceAttr(resourceName, "service_account.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "scratch_disk.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "attached_disk.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "network_interface.0.alias_ip_range.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceFromTemplateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -389,4 +433,82 @@ resource "google_compute_instance_from_template" "inst" {
 	}
 }
 `, templateDisk, overrideDisk, template, instance)
+}
+
+func testAccComputeInstanceFromTemplate_012_removableFieldsTpl(template string) string {
+
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name = "%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		auto_delete = true
+		disk_size_gb = 20
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	metadata = {
+		foo = "bar"
+	}
+
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+
+	can_ip_forward = true
+}
+`, template)
+}
+
+func testAccComputeInstanceFromTemplate_012_removableFields1(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_from_template" "inst" {
+	name           = "%s"
+	zone           = "us-central1-a"
+
+	allow_stopping_for_update = true
+
+	source_instance_template = "${google_compute_instance_template.foobar.self_link}"
+}
+`, instance)
+}
+
+func testAccComputeInstanceFromTemplate_012_removableFields2(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance_from_template" "inst" {
+	name           = "%s"
+	zone           = "us-central1-a"
+
+	allow_stopping_for_update = true
+
+	source_instance_template = "${google_compute_instance_template.foobar.self_link}"
+
+	// Overrides
+	network_interface {
+		alias_ip_range = []
+	}
+
+	service_account = []
+
+	scratch_disk = []
+
+	attached_disk = []
+
+	timeouts {
+		create = "10m"
+		update = "10m"
+	}
+}
+`, instance)
 }
