@@ -117,7 +117,6 @@ func resourceComputeSubnetwork() *schema.Resource {
 			},
 			"secondary_ip_range": {
 				Type:     schema.TypeList,
-				Computed: true,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
