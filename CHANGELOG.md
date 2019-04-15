@@ -1,4 +1,13 @@
-## 2.4.1 (Unreleased)
+## 2.5.0 (Unreleased)
+
+BACKWARDS INCOMPATIBILITIES
+* all: This is the first release to use the 0.12 SDK required for Terraform 0.12 support. Some provider behaviour may have changed as a result of changes made by the new SDK version.
+* container: `google_container_cluster` will have a diff if `master_authorized_networks.cidr_blocks` defined in config doesn't exactly match the real state; if so, it will need to be reconciled. [GH-3427]
+
+
+BUG FIXES:
+* container: `google_container_cluster` catch out of band changes to `master_authorized_networks.cidr_blocks`. [GH-3427]
+
 ## 2.4.0 (April 15, 2019)
 
 
