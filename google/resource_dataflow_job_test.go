@@ -276,7 +276,7 @@ resource "google_dataflow_job" "big_data" {
 	template_gcs_path = "gs://dataflow-templates/wordcount/template_file"
 	temp_gcs_location = "${google_storage_bucket.temp.url}"
 
-	parameters {
+	parameters = {
 		inputFile = "gs://dataflow-samples/shakespeare/kinglear.txt"
 		output    = "${google_storage_bucket.temp.url}/output"
 	}

@@ -573,21 +573,12 @@ func resourceContainerCluster() *schema.Resource {
 				ConflictsWith: []string{"node_pool"},
 			},
 
-			"private_cluster": {
-				Removed:  "Use private_cluster_config.enable_private_nodes instead.",
-				Computed: true,
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-			},
-
 			"private_cluster_config": {
 				Type:             schema.TypeList,
 				Optional:         true,
 				MaxItems:         1,
 				Computed:         true,
 				DiffSuppressFunc: containerClusterPrivateClusterConfigSuppress,
-				ConflictsWith:    []string{"private_cluster", "master_ipv4_cidr_block"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enable_private_endpoint": {
@@ -618,13 +609,6 @@ func resourceContainerCluster() *schema.Resource {
 						},
 					},
 				},
-			},
-
-			"master_ipv4_cidr_block": {
-				Removed:  "Use private_cluster_config.master_ipv4_cidr_block instead.",
-				Computed: true,
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 
 			"resource_labels": {

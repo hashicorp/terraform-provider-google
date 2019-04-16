@@ -268,13 +268,6 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Computed: true,
 			},
 
-			"retry_on_failure": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
-				Removed:  "This field is removed. Use `event_trigger.failure_policy.retry` instead.",
-			},
-
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
