@@ -89,9 +89,10 @@ func TestAccProject_billing(t *testing.T) {
 			},
 			// Make sure import supports billing account
 			{
-				ResourceName:      "google_project.acceptance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_project.acceptance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"skip_delete"},
 			},
 			// Update to a different  billing account
 			{
@@ -129,9 +130,10 @@ func TestAccProject_labels(t *testing.T) {
 			},
 			// Make sure import supports labels
 			{
-				ResourceName:      "google_project.acceptance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_project.acceptance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"skip_delete"},
 			},
 			// update project with labels
 			{
