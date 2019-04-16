@@ -159,7 +159,6 @@ func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 					testAccCheckComputeInstanceExists(resourceName, &instance),
 
 					// Check that fields were able to be removed
-					resource.TestCheckResourceAttr(resourceName, "service_account.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "scratch_disk.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "attached_disk.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "network_interface.0.alias_ip_range.#", "0"),

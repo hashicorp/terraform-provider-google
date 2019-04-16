@@ -169,8 +169,8 @@ should be located. These must be in the same region as the cluster zone for
 zonal clusters, or in the region of a regional cluster. In a multi-zonal cluster,
 the number of nodes specified in `initial_node_count` is created in
 all specified zones as well as the primary zone. If specified for a regional
-cluster, nodes will only be created in these zones. `additional_zones` has been 
-deprecated in favour of `node_locations`. 
+cluster, nodes will only be created in these zones. `additional_zones` has been
+deprecated in favour of `node_locations`.
 
 * `addons_config` - (Optional) The configuration for addons supported by GKE.
     Structure is documented below.
@@ -471,6 +471,8 @@ The `node_config` block supports:
 
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance.
     Structure documented below.
+    To support removal of guest_accelerators in Terraform 0.12 this field is an
+    [Attribute as Block](/docs/configuration/attr-as-blocks.html)
 
 * `image_type` - (Optional) The image type to use for this node. Note that changing the image type
     will delete and recreate all nodes in the node pool.
