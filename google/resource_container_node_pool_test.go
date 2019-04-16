@@ -99,7 +99,7 @@ func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 				ImportStateVerify: true,
 				// autoscaling.# = 0 is equivalent to no autoscaling at all,
 				// but will still cause an import diff
-				ImportStateVerifyIgnore: []string{"autoscaling.#"},
+				ImportStateVerifyIgnore: []string{"autoscaling.#", "max_pods_per_node"},
 			},
 			{
 				Config: testAccContainerNodePool_withNodeConfigUpdate(cluster, nodePool),
@@ -406,6 +406,30 @@ func TestAccContainerNodePool_version(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_regionalClusters(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_regionalClusters(cluster, np),
+			},
+			{
+				ResourceName:            "google_container_node_pool.np",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"max_pods_per_node"},
+			},
+		},
+	})
+}
+
 func testAccCheckContainerNodePoolDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -438,29 +462,6 @@ func testAccCheckContainerNodePoolDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func TestAccContainerNodePool_regionalClusters(t *testing.T) {
-	t.Parallel()
-
-	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
-	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerNodePoolDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerNodePool_regionalClusters(cluster, np),
-			},
-			{
-				ResourceName:      "google_container_node_pool.np",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
 }
 
 func testAccContainerNodePool_basic(cluster, np string) string {
