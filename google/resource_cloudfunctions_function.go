@@ -268,6 +268,13 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Computed: true,
 			},
 
+			"max_instances": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      0,
+				ValidateFunc: validation.IntAtLeast(0),
+			},
+
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -366,6 +373,10 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.EnvironmentVariables = expandEnvironmentVariables(d)
 	}
 
+	if v, ok := d.GetOk("max_instances"); ok {
+		function.MaxInstances = int64(v.(int))
+	}
+
 	log.Printf("[DEBUG] Creating cloud function: %s", function.Name)
 	op, err := config.clientCloudFunctions.Projects.Locations.Functions.Create(
 		cloudFuncId.locationId(), function).Do()
@@ -432,7 +443,7 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	d.Set("event_trigger", flattenEventTrigger(function.EventTrigger))
-
+	d.Set("max_instances", function.MaxInstances)
 	d.Set("region", cloudFuncId.Region)
 	d.Set("project", cloudFuncId.Project)
 
@@ -500,12 +511,17 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("environment_variables") {
 		function.EnvironmentVariables = expandEnvironmentVariables(d)
-		updateMaskArr = append(updateMaskArr, "environment_variables")
+		updateMaskArr = append(updateMaskArr, "environmentVariables")
 	}
 
 	if d.HasChange("event_trigger") {
 		function.EventTrigger = expandEventTrigger(d.Get("event_trigger").([]interface{}), project)
 		updateMaskArr = append(updateMaskArr, "eventTrigger", "eventTrigger.failurePolicy.retry")
+	}
+
+	if d.HasChange("max_instances") {
+		function.MaxInstances = int64(d.Get("max_instances").(int))
+		updateMaskArr = append(updateMaskArr, "maxInstances")
 	}
 
 	if len(updateMaskArr) > 0 {
