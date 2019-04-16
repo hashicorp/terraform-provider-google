@@ -212,7 +212,8 @@ deprecated in favour of `node_locations`.
 
 * `ip_allocation_policy` - (Optional) Configuration for cluster IP allocation. As of now, only pre-allocated subnetworks (custom type with secondary ranges) are supported.
     This will activate IP aliases. See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases)
-    Structure is documented below.
+    Structure is documented below. This field is marked to use [Attribute as Block](/docs/configuration/attr-as-blocks.html)
+    in order to support explicit removal with `ip_allocation_policy = []`.
 
 * `logging_service` - (Optional) The logging service that the cluster should
     write logs to. Available options include `logging.googleapis.com`,

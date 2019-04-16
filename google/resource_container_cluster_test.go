@@ -274,7 +274,7 @@ func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName, []string{}, "cidr_blocks = []"),
+				Config: testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName, []string{}, ""),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.with_master_authorized_networks",
 						"master_authorized_networks_config.#", "1"),
@@ -1153,6 +1153,39 @@ func TestAccContainerCluster_withIPAllocationPolicy_createSubnetwork(t *testing.
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerCluster_withIPAllocationPolicy_createSubnetwork(cluster),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_ip_allocation_policy",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+// This test will intentionally perform a recreate. Without attr syntax, there's
+// no way to go from allocation policy set -> unset without one.
+func TestAccContainerCluster_withIPAllocationPolicy_explicitEmpty(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withIPAllocationPolicy_createSubnetwork(cluster),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_ip_allocation_policy",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_withIPAllocationPolicy_explicitEmpty(cluster),
 			},
 			{
 				ResourceName:        "google_container_cluster.with_ip_allocation_policy",
@@ -2293,6 +2326,17 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
 }`, cluster)
 }
 
+func testAccContainerCluster_withIPAllocationPolicy_explicitEmpty(cluster string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_ip_allocation_policy" {
+	name = "%s"
+	zone = "us-central1-a"
+
+	initial_node_count = 1
+	ip_allocation_policy = []
+}`, cluster)
+}
+
 func testAccContainerCluster_withPrivateClusterConfig(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "container_network" {
@@ -2331,7 +2375,7 @@ resource "google_container_cluster" "with_private_cluster" {
 		enable_private_nodes = true
 		master_ipv4_cidr_block = "10.42.0.0/28"
 	}
-	master_authorized_networks_config { cidr_blocks = [] }
+	master_authorized_networks_config { }
 	ip_allocation_policy {
 		cluster_secondary_range_name  = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.0.range_name}"
 		services_secondary_range_name = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.1.range_name}"
