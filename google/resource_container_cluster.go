@@ -493,11 +493,12 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"ip_allocation_policy": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:       schema.TypeList,
+				MaxItems:   1,
+				ForceNew:   true,
+				Optional:   true,
+				Computed:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"use_ip_aliases": {
@@ -575,8 +576,8 @@ func resourceContainerCluster() *schema.Resource {
 
 			"private_cluster_config": {
 				Type:             schema.TypeList,
-				Optional:         true,
 				MaxItems:         1,
+				Optional:         true,
 				Computed:         true,
 				DiffSuppressFunc: containerClusterPrivateClusterConfigSuppress,
 				Elem: &schema.Resource{
