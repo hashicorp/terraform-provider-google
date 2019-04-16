@@ -51,7 +51,7 @@ func computeInstanceFromTemplateSchema() map[string]*schema.Schema {
 	// Remove deprecated/removed fields that are never d.Set. We can't
 	// programatically remove all of them, because some of them still have d.Set
 	// calls.
-	for _, field := range []string{"create_timeout", "disk", "network"} {
+	for _, field := range []string{"disk", "network"} {
 		delete(s, field)
 	}
 
