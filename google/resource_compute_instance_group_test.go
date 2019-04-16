@@ -73,37 +73,6 @@ func TestAccComputeInstanceGroup_rename(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstanceGroup_recreatedInstances(t *testing.T) {
-	t.Parallel()
-
-	var instanceGroup compute.InstanceGroup
-	var instanceName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccComputeInstanceGroup_destroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeInstanceGroup_update(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccComputeInstanceGroup_exists(
-						"google_compute_instance_group.update", &instanceGroup),
-				),
-			},
-			{
-				Config: testAccComputeInstanceGroup_recreateInstances(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccComputeInstanceGroup_exists(
-						"google_compute_instance_group.update", &instanceGroup),
-					testAccComputeInstanceGroup_updated(
-						"google_compute_instance_group.update", 2, &instanceGroup),
-				),
-			},
-		},
-	})
-}
-
 func TestAccComputeInstanceGroup_update(t *testing.T) {
 	t.Parallel()
 
@@ -535,49 +504,6 @@ func testAccComputeInstanceGroup_update2(instance string) string {
 		named_port {
 			name = "test"
 			port = "8444"
-		}
-	}`, instance, instance)
-}
-
-func testAccComputeInstanceGroup_recreateInstances(instance string) string {
-	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
-
-	resource "google_compute_instance" "ig_instance" {
-		name = "%s-${count.index}"
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		zone = "us-central1-c"
-		count = 2
-
-		boot_disk {
-			initialize_params {
-				image = "${data.google_compute_image.my_image.self_link}"
-			}
-		}
-
-		metadata_startup_script = "echo 'foo'"
-
-		network_interface {
-			network = "default"
-		}
-	}
-
-	resource "google_compute_instance_group" "update" {
-		description = "Terraform test instance group"
-		name = "%s"
-		zone = "us-central1-c"
-		instances = google_compute_instance.ig_instance.*.self_link
-		named_port {
-			name = "http"
-			port = "8080"
-		}
-		named_port {
-			name = "https"
-			port = "8443"
 		}
 	}`, instance, instance)
 }
