@@ -1480,9 +1480,12 @@ func resourceComputeBackendServiceDecoder(d *schema.ResourceData, meta interface
 	// We need to pretend IAP isn't there if it's disabled for Terraform to maintain
 	// BC behaviour with the handwritten resource.
 	v, ok := res["iap"]
-	m := v.(map[string]interface{})
-	if ok && m["enabled"] == false {
-		delete(res, "iap")
+	if ok {
+		m := v.(map[string]interface{})
+
+		if m["enabled"] == false {
+			delete(res, "iap")
+		}
 	}
 
 	return res, nil
