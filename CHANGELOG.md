@@ -1,4 +1,9 @@
 ## 2.5.1 (Unreleased)
+
+BUG FIXES:
+* compute: `google_compute_backend_service` handles empty/nil `iap` block created by previous providers properly. ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3459))
+* compute: `google_compute_backend_service` does not permadiff when visiblity is set to default and returned as empty from API ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3461))
+
 ## 2.5.0 (April 18, 2019)
 
 BACKWARDS INCOMPATIBILITIES
