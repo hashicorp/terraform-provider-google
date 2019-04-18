@@ -335,6 +335,9 @@ func flattenDnsManagedZoneLabels(v interface{}, d *schema.ResourceData) interfac
 }
 
 func flattenDnsManagedZoneVisibility(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil || v.(string) == "" {
+		return "public"
+	}
 	return v
 }
 

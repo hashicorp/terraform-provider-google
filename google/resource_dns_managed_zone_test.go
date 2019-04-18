@@ -77,6 +77,8 @@ resource "google_dns_managed_zone" "foobar" {
 	labels = {
 		foo = "bar"
 	}
+
+	visibility = "public"
 }`, suffix, suffix, description)
 }
 
