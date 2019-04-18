@@ -1219,11 +1219,7 @@ func expandComputeBackendServiceBackendDescription(v interface{}, d TerraformRes
 }
 
 func expandComputeBackendServiceBackendGroup(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	f, err := parseZonalFieldValue("instanceGroups", v.(string), "project", "zone", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for group: %s", err)
-	}
-	return f.RelativeLink(), nil
+	return v, nil
 }
 
 func expandComputeBackendServiceBackendMaxConnections(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
