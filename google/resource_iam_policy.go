@@ -81,7 +81,7 @@ func ResourceIamPolicyRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 			return err
 		}
 
-		policy, err := updater.GetResourceIamPolicy()
+		policy, err := iamPolicyReadWithRetry(updater)
 		if err != nil {
 			if isGoogleApiErrorWithCode(err, 404) {
 				log.Printf("[DEBUG]: Policy does not exist for non-existent resource %q", updater.GetResourceId())
