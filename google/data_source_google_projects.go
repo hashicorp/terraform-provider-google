@@ -33,21 +33,34 @@ func datasourceGoogleProjectsRead(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*Config)
 
 	params := make(map[string]string)
+	projects := make([]map[string]interface{}, 0)
 
-	params["filter"] = d.Get("filter").(string)
-	url := "https://cloudresourcemanager.googleapis.com/v1/projects"
+	for {
+		params["filter"] = d.Get("filter").(string)
+		url := "https://cloudresourcemanager.googleapis.com/v1/projects"
 
-	url, err := addQueryParams(url, params)
-	if err != nil {
-		return err
+		url, err := addQueryParams(url, params)
+		if err != nil {
+			return err
+		}
+
+		res, err := sendRequest(config, "GET", url, nil)
+		if err != nil {
+			return fmt.Errorf("Error retrieving projects: %s", err)
+		}
+
+		pageProjects := flattenDatasourceGoogleProjectsList(res["projects"])
+		projects = append(projects, pageProjects...)
+
+		pToken, ok := res["nextPageToken"]
+		if ok && pToken != nil && pToken.(string) != "" {
+			params["pageToken"] = pToken.(string)
+		} else {
+			break
+		}
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return fmt.Errorf("Error retrieving projects: %s", err)
-	}
-
-	if err := d.Set("projects", flattenDatasourceGoogleProjectsProjects(res["projects"], d)); err != nil {
+	if err := d.Set("projects", projects); err != nil {
 		return fmt.Errorf("Error retrieving projects: %s", err)
 	}
 
@@ -56,23 +69,21 @@ func datasourceGoogleProjectsRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func flattenDatasourceGoogleProjectsProjects(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDatasourceGoogleProjectsList(v interface{}) []map[string]interface{} {
 	if v == nil {
-		return v
+		return make([]map[string]interface{}, 0)
 	}
 
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
+	ls := v.([]interface{})
+	projects := make([]map[string]interface{}, 0, len(ls))
+	for _, raw := range ls {
+		p := raw.(map[string]interface{})
+		if pId, ok := p["projectId"]; ok {
+			projects = append(projects, map[string]interface{}{
+				"project_id": pId,
+			})
 		}
-		transformed = append(transformed, map[string]interface{}{
-			"project_id": original["projectId"],
-		})
 	}
 
-	return transformed
+	return projects
 }
