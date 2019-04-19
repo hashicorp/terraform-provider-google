@@ -77,7 +77,7 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 		}
 
 		eBinding := getResourceIamBinding(d)
-		p, err := updater.GetResourceIamPolicy()
+		p, err := iamPolicyReadWithRetry(updater)
 		if err != nil {
 			if isGoogleApiErrorWithCode(err, 404) {
 				log.Printf("[DEBUG]: Binding for role %q not found for non-existent resource %s, removing from state file.", updater.DescribeResource(), eBinding.Role)
