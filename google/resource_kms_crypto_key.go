@@ -38,7 +38,7 @@ func resourceKmsCryptoKey() *schema.Resource {
 			"rotation_period": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateKmsCryptoKeyRotationPeriod,
+				ValidateFunc: orEmpty(validateKmsCryptoKeyRotationPeriod),
 			},
 			"version_template": {
 				Type:     schema.TypeList,
