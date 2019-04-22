@@ -2,7 +2,8 @@
 
 BUG FIXES:
 * compute: `google_compute_backend_service` handles empty/nil `iap` block created by previous providers properly. ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3459))
-* compute: `google_compute_backend_service` does not permadiff when visiblity is set to default and returned as empty from API ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3461))
+* compute: `google_compute_backend_service` allows multiple instance types in `backends.group` again. [GH-3463]
+* dns: `google_dns_managed_zone` does not permadiff when visiblity is set to default and returned as empty from API ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3461))
 
 ## 2.5.0 (April 18, 2019)
 
