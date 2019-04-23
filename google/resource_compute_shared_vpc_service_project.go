@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"google.golang.org/api/compute/v1"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 
 	"log"
 
@@ -42,17 +42,18 @@ func resourceComputeSharedVpcServiceProjectCreate(d *schema.ResourceData, meta i
 	hostProject := d.Get("host_project").(string)
 	serviceProject := d.Get("service_project").(string)
 
-	req := &compute.ProjectsEnableXpnResourceRequest{
-		XpnResource: &compute.XpnResourceId{
+	req := &computeBeta.ProjectsEnableXpnResourceRequest{
+		XpnResource: &computeBeta.XpnResourceId{
 			Id:   serviceProject,
 			Type: "PROJECT",
 		},
 	}
-	op, err := config.clientCompute.Projects.EnableXpnResource(hostProject, req).Do()
+	op, err := config.clientComputeBeta.Projects.EnableXpnResource(hostProject, req).Do()
 	if err != nil {
 		return err
 	}
-	if err = computeOperationWait(config.clientCompute, op, hostProject, "Enabling Shared VPC Resource"); err != nil {
+	err = computeBetaOperationWaitTime(config.clientCompute, op, hostProject, "Enabling Shared VPC Resource", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	if err != nil {
 		return err
 	}
 
@@ -96,7 +97,7 @@ func resourceComputeSharedVpcServiceProjectDelete(d *schema.ResourceData, meta i
 	hostProject := d.Get("host_project").(string)
 	serviceProject := d.Get("service_project").(string)
 
-	if err := disableXpnResource(config, hostProject, serviceProject); err != nil {
+	if err := disableXpnResource(d, config, hostProject, serviceProject); err != nil {
 		// Don't fail if the service project is already disabled.
 		if !isDisabledXpnResourceError(err) {
 			return fmt.Errorf("Error disabling Shared VPC Resource %q: %s", serviceProject, err)
@@ -106,18 +107,19 @@ func resourceComputeSharedVpcServiceProjectDelete(d *schema.ResourceData, meta i
 	return nil
 }
 
-func disableXpnResource(config *Config, hostProject, project string) error {
-	req := &compute.ProjectsDisableXpnResourceRequest{
-		XpnResource: &compute.XpnResourceId{
+func disableXpnResource(d *schema.ResourceData, config *Config, hostProject, project string) error {
+	req := &computeBeta.ProjectsDisableXpnResourceRequest{
+		XpnResource: &computeBeta.XpnResourceId{
 			Id:   project,
 			Type: "PROJECT",
 		},
 	}
-	op, err := config.clientCompute.Projects.DisableXpnResource(hostProject, req).Do()
+	op, err := config.clientComputeBeta.Projects.DisableXpnResource(hostProject, req).Do()
 	if err != nil {
 		return err
 	}
-	if err = computeOperationWait(config.clientCompute, op, hostProject, "Disabling Shared VPC Resource"); err != nil {
+	err = computeBetaOperationWaitTime(config.clientCompute, op, hostProject, "Disabling Shared VPC Resource", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	if err != nil {
 		return err
 	}
 	return nil
