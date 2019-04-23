@@ -282,6 +282,40 @@ func TestAccComputeInstance_diskEncryption(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_kmsDiskEncryption(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	bootKmsKeyName := "projects/project/locations/us-central1/keyRings/testing-cloud-kms/cryptoKeys/key-0/cryptoKeyVersions/1"
+	diskNameToEncryptionKey := map[string]*compute.CustomerEncryptionKey{
+		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
+			KmsKeyName: "projects/project/locations/us-central1/keyRings/testing-cloud-kms/cryptoKeys/key-1/cryptoKeyVersions/1",
+		},
+		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
+			KmsKeyName: "projects/project/locations/us-central1/keyRings/testing-cloud-kms/cryptoKeys/key-2/cryptoKeyVersions/1",
+		},
+		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
+			KmsKeyName: "projects/project/locations/us-central1/keyRings/testing-cloud-kms/cryptoKeys/key-3/cryptoKeyVersions/1",
+		},
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_disks_encryption(bootKmsKeyName, diskNameToEncryptionKey, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceDiskKmsEncryptionKey("google_compute_instance.foobar", &instance, bootKmsKeyName, diskNameToEncryptionKey),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_attachedDisk(t *testing.T) {
 	t.Parallel()
 
@@ -1356,6 +1390,50 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 				expectedEncryptionKey := key.Sha256
 				if encryptionKey != expectedEncryptionKey {
 					return fmt.Errorf("Attached disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, encryptionKey)
+				}
+			}
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceDiskKmsEncryptionKey(n string, instance *compute.Instance, bootDiskEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		for i, disk := range instance.Disks {
+			if disk.Boot {
+				attr := rs.Primary.Attributes["boot_disk.0.kms_key_self_link"]
+				if attr != bootDiskEncryptionKey {
+					return fmt.Errorf("Boot disk has wrong encryption key in state.\nExpected: %s\nActual: %s", bootDiskEncryptionKey, attr)
+				}
+				if disk.DiskEncryptionKey == nil && attr != "" {
+					return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", i, attr)
+				}
+			} else {
+				if disk.DiskEncryptionKey != nil {
+					expectedKey := diskNameToEncryptionKey[GetResourceNameFromSelfLink(disk.Source)].KmsKeyName
+					if disk.DiskEncryptionKey.KmsKeyName != expectedKey {
+						return fmt.Errorf("Disk %d has unexpected encryption key in GCP.\nExpected: %s\nActual: %s", i, expectedKey, disk.DiskEncryptionKey.Sha256)
+					}
+				}
+			}
+		}
+
+		numAttachedDisks, err := strconv.Atoi(rs.Primary.Attributes["attached_disk.#"])
+		if err != nil {
+			return fmt.Errorf("Error converting value of attached_disk.#")
+		}
+		for i := 0; i < numAttachedDisks; i++ {
+			diskName := GetResourceNameFromSelfLink(rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.source", i)])
+			kmsKeyName := rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.kms_key_self_link", i)]
+			if key, ok := diskNameToEncryptionKey[diskName]; ok {
+				expectedEncryptionKey := key.KmsKeyName
+				if kmsKeyName != expectedEncryptionKey {
+					return fmt.Errorf("Attached disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, kmsKeyName)
 				}
 			}
 		}

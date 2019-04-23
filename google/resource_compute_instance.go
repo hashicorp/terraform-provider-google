@@ -75,6 +75,12 @@ func resourceComputeInstance() *schema.Resource {
 							Computed: true,
 						},
 
+						"kms_key_self_link": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+
 						"initialize_params": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -270,6 +276,11 @@ func resourceComputeInstance() *schema.Resource {
 							Sensitive: true,
 						},
 
+						"kms_key_self_link": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
 						"disk_encryption_key_sha256": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -353,6 +364,12 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:  true,
 							ForceNew:  true,
 							Sensitive: true,
+						},
+
+						"kms_key_self_link": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
 						},
 
 						"disk_encryption_key_sha256": {
@@ -860,6 +877,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 				if inConfig {
 					di["disk_encryption_key_raw"] = d.Get(fmt.Sprintf("attached_disk.%d.disk_encryption_key_raw", adIndex))
 				}
+				di["kms_key_self_link"] = key.KmsKeyName
 				di["disk_encryption_key_sha256"] = key.Sha256
 			}
 			// We want the disks to remain in the order we set in the config, so if a disk
@@ -1371,6 +1389,12 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 			RawKey: v.(string),
 		}
 	}
+
+	if v, ok := diskConfig["kms_key_self_link"]; ok {
+		disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
+			KmsKeyName: v.(string),
+		}
+	}
 	return disk, nil
 }
 
@@ -1506,6 +1530,12 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 		}
 	}
 
+	if v, ok := d.GetOk("boot_disk.0.kms_key_self_link"); ok {
+		disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
+			KmsKeyName: v.(string),
+		}
+	}
+
 	if v, ok := d.GetOk("boot_disk.0.source"); ok {
 		source, err := ParseDiskFieldValue(v.(string), d, config)
 		if err != nil {
@@ -1576,6 +1606,7 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, con
 
 	if disk.DiskEncryptionKey != nil {
 		result["disk_encryption_key_sha256"] = disk.DiskEncryptionKey.Sha256
+		result["kms_key_self_link"] = disk.DiskEncryptionKey.KmsKeyName
 	}
 
 	return []map[string]interface{}{result}
