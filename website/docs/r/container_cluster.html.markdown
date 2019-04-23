@@ -22,6 +22,7 @@ plaintext. [Read more about sensitive data in state](/docs/state/sensitive-data.
 resource "google_container_cluster" "primary" {
   name     = "my-gke-cluster"
   location = "us-central1"
+  project  =  "project-name"
 
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
