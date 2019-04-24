@@ -96,6 +96,20 @@ func resourceDataflowJob() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+
+			"network": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+			},
+
+			"subnetwork": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+			},
 		},
 	}
 }
@@ -121,10 +135,12 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 	params := expandStringMap(d, "parameters")
 
 	env := dataflow.RuntimeEnvironment{
+		MaxWorkers:          int64(d.Get("max_workers").(int)),
+		Network:             d.Get("network").(string),
+		ServiceAccountEmail: d.Get("service_account_email").(string),
+		Subnetwork:          d.Get("subnetwork").(string),
 		TempLocation:        d.Get("temp_gcs_location").(string),
 		Zone:                zone,
-		MaxWorkers:          int64(d.Get("max_workers").(int)),
-		ServiceAccountEmail: d.Get("service_account_email").(string),
 	}
 
 	request := dataflow.CreateJobFromTemplateRequest{

@@ -68,6 +68,46 @@ func TestAccDataflowJobCreateWithServiceAccount(t *testing.T) {
 	})
 }
 
+func TestAccDataflowJobCreateWithNetwork(t *testing.T) {
+	t.Parallel()
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataflowJobDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataflowJobWithNetwork,
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataflowJobExists(
+						"google_dataflow_job.big_data"),
+					testAccDataflowJobHasNetwork(
+						"google_dataflow_job.big_data"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataflowJobCreateWithSubnetwork(t *testing.T) {
+	t.Parallel()
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataflowJobDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataflowJobWithSubnetwork,
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataflowJobExists(
+						"google_dataflow_job.big_data"),
+					testAccDataflowJobHasSubnetwork(
+						"google_dataflow_job.big_data"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDataflowJobDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "google_dataflow_job" {
@@ -124,6 +164,86 @@ func testAccDataflowJobExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("Job does not exist")
 		}
 
+		return nil
+	}
+}
+
+func testAccDataflowJobHasNetwork(n string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		var network string
+		filter := fmt.Sprintf("properties.labels.dataflow_job_id = %s", rs.Primary.ID)
+
+		retryErr := resource.Retry(1*time.Minute, func() *resource.RetryError {
+			instanceTemplates, err := config.clientCompute.InstanceTemplates.List(config.Project).Filter(filter).MaxResults(2).Fields("items/properties/networkInterfaces/network").Do()
+			if err != nil {
+				return resource.NonRetryableError(err)
+			}
+			if len(instanceTemplates.Items) == 0 {
+				return resource.RetryableError(fmt.Errorf("No instance templates for job %s", rs.Primary.ID))
+			}
+			if len(instanceTemplates.Items) > 1 {
+				return resource.NonRetryableError(fmt.Errorf("Wrong number of matching instance templates for dataflow job: %s, %d", rs.Primary.ID, len(instanceTemplates.Items)))
+			}
+			network = instanceTemplates.Items[0].Properties.NetworkInterfaces[0].Network
+			return nil
+		})
+
+		if retryErr != nil {
+			return fmt.Errorf("Error getting network from instance template: %s", retryErr)
+		}
+		if GetResourceNameFromSelfLink(network) != GetResourceNameFromSelfLink(rs.Primary.Attributes["network"]) {
+			return fmt.Errorf("Network mismatch: %s != %s", network, rs.Primary.Attributes["network"])
+		}
+		return nil
+	}
+}
+
+func testAccDataflowJobHasSubnetwork(n string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		var subnetwork string
+		filter := fmt.Sprintf("properties.labels.dataflow_job_id = %s", rs.Primary.ID)
+
+		retryErr := resource.Retry(1*time.Minute, func() *resource.RetryError {
+			instanceTemplates, err := config.clientCompute.InstanceTemplates.List(config.Project).Filter(filter).MaxResults(2).Fields("items/properties/networkInterfaces/subnetwork").Do()
+			if err != nil {
+				return resource.NonRetryableError(err)
+			}
+			if len(instanceTemplates.Items) == 0 {
+				return resource.RetryableError(fmt.Errorf("No instance templates for job %s", rs.Primary.ID))
+			}
+			if len(instanceTemplates.Items) > 1 {
+				return resource.NonRetryableError(fmt.Errorf("Wrong number of matching instance templates for dataflow job: %s, %d", rs.Primary.ID, len(instanceTemplates.Items)))
+			}
+			subnetwork = instanceTemplates.Items[0].Properties.NetworkInterfaces[0].Subnetwork
+			return nil
+		})
+
+		if retryErr != nil {
+			return fmt.Errorf("Error getting subnetwork from instance template: %s", retryErr)
+		}
+		if GetResourceNameFromSelfLink(subnetwork) != GetResourceNameFromSelfLink(rs.Primary.Attributes["subnetwork"]) {
+			return fmt.Errorf("Subnetwork mismatch: %s != %s", subnetwork, rs.Primary.Attributes["subnetwork"])
+		}
 		return nil
 	}
 }
@@ -246,6 +366,70 @@ resource "google_dataflow_job" "big_data" {
 
 	on_delete = "cancel"
 }`, acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
+
+var testAccDataflowJobWithNetwork = fmt.Sprintf(`
+resource "google_storage_bucket" "temp" {
+	name = "dfjob-test-%s-temp"
+
+	force_destroy = true
+}
+
+resource "google_compute_network" "net" {
+	name = "dfjob-test-%s-net"
+	auto_create_subnetworks = true
+}
+
+resource "google_dataflow_job" "big_data" {
+	name = "dfjob-test-%s"
+
+	template_gcs_path = "gs://dataflow-templates/wordcount/template_file"
+	temp_gcs_location = "${google_storage_bucket.temp.url}"
+	network = "${google_compute_network.net.name}"
+
+	parameters = {
+		inputFile = "gs://dataflow-samples/shakespeare/kinglear.txt"
+		output    = "${google_storage_bucket.temp.url}/output"
+	}
+	zone = "us-central1-f"
+	project = "%s"
+
+	on_delete = "cancel"
+}`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
+
+var testAccDataflowJobWithSubnetwork = fmt.Sprintf(`
+resource "google_storage_bucket" "temp" {
+	name = "dfjob-test-%s-temp"
+
+	force_destroy = true
+}
+
+resource "google_compute_network" "net" {
+	name = "dfjob-test-%s-net"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnet" {
+	name = "dfjob-test-%s-subnet"
+	ip_cidr_range = "10.2.0.0/16"
+	network = "${google_compute_network.net.self_link}"
+}
+
+resource "google_dataflow_job" "big_data" {
+	name = "dfjob-test-%s"
+
+	template_gcs_path = "gs://dataflow-templates/wordcount/template_file"
+	temp_gcs_location = "${google_storage_bucket.temp.url}"
+	subnetwork = "${google_compute_subnetwork.subnet.self_link}"
+
+	parameters = {
+		inputFile = "gs://dataflow-samples/shakespeare/kinglear.txt"
+		output    = "${google_storage_bucket.temp.url}/output"
+	}
+	zone = "us-central1-f"
+	project = "%s"
+
+	on_delete = "cancel"
+}`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
 
 var testAccDataflowJobWithServiceAccount = fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
