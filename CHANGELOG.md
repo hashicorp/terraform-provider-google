@@ -1,4 +1,4 @@
-## 2.5.2 (Unreleased)
+## 2.6.0 (Unreleased)
 
 FEATURES: 
 * **New Datasource**: `google_compute_node_types` for sole-tenant node types is now available. ([#3446](https://github.com/terraform-providers/terraform-provider-google/pull/3446))
@@ -7,6 +7,7 @@ FEATURES:
 ENHANCEMENTS:
 
 BUG FIXES:
+* compute: `google_compute_instance` now retries updating metadata when fingerprints are mismatched. [GH-3372]
 
 ## 2.5.1 (April 22, 2019)
 
