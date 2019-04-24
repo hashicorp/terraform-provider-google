@@ -125,6 +125,20 @@ func isFailedPreconditionError(err error) bool {
 	return false
 }
 
+var FINGERPRINT_FAIL_ERRORS = []string{"Invalid fingerprint.", "Supplied fingerprint does not match current metadata fingerprint."}
+
+// We've encountered a few common fingerprint-related strings; if this is one of
+// them, we're confident this is an error due to fingerprints.
+func isFingerprintError(err error) bool {
+	for _, msg := range FINGERPRINT_FAIL_ERRORS {
+		if strings.Contains(err.Error(), msg) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func isConflictError(err error) bool {
 	if e, ok := err.(*googleapi.Error); ok && e.Code == 409 {
 		return true
@@ -366,6 +380,11 @@ func isRetryableError(err error) bool {
 		// look at the contents of the error message.
 		// See https://github.com/terraform-providers/terraform-provider-google/issues/3279
 		log.Printf("[DEBUG] Dismissed an error as retryable based on error code 409 and error reason 'operationInProgress': %s", err)
+		return true
+	}
+
+	if gerr, ok := err.(*googleapi.Error); ok && (gerr.Code == 412) && isFingerprintError(err) {
+		log.Printf("[DEBUG] Dismissed an error as retryable as a fingerprint mismatch: %s", err)
 		return true
 	}
 

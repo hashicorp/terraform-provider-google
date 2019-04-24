@@ -933,14 +933,34 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return err
 		}
 
-		op, err := config.clientCompute.Instances.SetMetadata(project, zone, d.Id(), metadataV1).Do()
-		if err != nil {
-			return fmt.Errorf("Error updating metadata: %s", err)
-		}
+		// We're retrying for an error 412 where the metadata fingerprint is out of date
+		err = retry(
+			func() error {
+				// retrieve up-to-date metadata from the API in case several updates hit simultaneously. instances
+				// sometimes but not always share metadata fingerprints.
+				instance, err := config.clientComputeBeta.Instances.Get(project, zone, d.Id()).Do()
+				if err != nil {
+					return fmt.Errorf("Error retrieving metadata: %s", err)
+				}
 
-		opErr := computeOperationWaitTime(config.clientCompute, op, project, "metadata to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-		if opErr != nil {
-			return opErr
+				metadataV1.Fingerprint = instance.Metadata.Fingerprint
+
+				op, err := config.clientCompute.Instances.SetMetadata(project, zone, d.Id(), metadataV1).Do()
+				if err != nil {
+					return fmt.Errorf("Error updating metadata: %s", err)
+				}
+
+				opErr := computeOperationWaitTime(config.clientCompute, op, project, "metadata to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+				if opErr != nil {
+					return opErr
+				}
+
+				return nil
+			},
+		)
+
+		if err != nil {
+			return err
 		}
 
 		d.SetPartial("metadata")
