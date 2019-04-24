@@ -134,8 +134,7 @@ type-specific `region` for regional clusters / `zone` for zonal clusters.
 * `node_config` - (Optional) The node configuration of the pool. See
     [google_container_cluster](container_cluster.html) for schema.
 
-* `node_count` - (Optional) The number of nodes per instance group. This field can be used to
-    update the number of nodes per instance group but should not be used alongside `autoscaling`.
+* `node_count` - (Required) The number of nodes per instance group. This field needs to be used otherwise `autoscaling` will never kick in.
 
 * `project` - (Optional) The ID of the project in which to create the node pool. If blank,
     the provider-configured project will be used.
