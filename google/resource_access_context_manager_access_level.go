@@ -360,7 +360,7 @@ func resourceAccessContextManagerAccessLevelDelete(d *schema.ResourceData, meta 
 func resourceAccessContextManagerAccessLevelImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	// current import_formats can't import ids with forward slashes in them.
+	// current import_formats can't import fields with forward slashes in their value
 	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
