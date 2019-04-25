@@ -5,6 +5,7 @@ FEATURES:
 * **New Resource**: `google_compute_node_template` for sole-tenant node templates is now available. ([#3446](https://github.com/terraform-providers/terraform-provider-google/pull/3446))
 
 ENHANCEMENTS:
+* dataflow: `google_dataflow_job`'s `network` and `subnetwork` can be configured. [GH-3476]
 
 BUG FIXES:
 * compute: `google_compute_instance` now retries updating metadata when fingerprints are mismatched. [GH-3372]
