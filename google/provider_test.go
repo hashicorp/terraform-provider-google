@@ -29,6 +29,10 @@ var projectEnvVars = []string{
 	"CLOUDSDK_CORE_PROJECT",
 }
 
+var firestoreProjectEnvVars = []string{
+	"GOOGLE_FIRESTORE_PROJECT",
+}
+
 var regionEnvVars = []string{
 	"GOOGLE_REGION",
 	"GCLOUD_REGION",
@@ -180,6 +184,13 @@ func getTestRegionFromEnv() string {
 
 func getTestZoneFromEnv() string {
 	return multiEnvSearch(zoneEnvVars)
+}
+
+// Firestore can't be enabled at the same time as Datastore, so we need a new
+// project to manage it until we can enable Firestore programatically.
+func getTestFirestoreProjectFromEnv(t *testing.T) string {
+	skipIfEnvNotSet(t, firestoreProjectEnvVars...)
+	return multiEnvSearch(firestoreProjectEnvVars)
 }
 
 func getTestOrgFromEnv(t *testing.T) string {
