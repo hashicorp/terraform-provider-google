@@ -58,6 +58,10 @@ resource "google_monitoring_alert_policy" "alert_policy" {
       }
     }
   }
+
+  user_labels = {
+    foo = "bar"
+  }
 }
 ```
 
@@ -584,9 +588,13 @@ The `aggregations` block supports:
   entries in this field is
   `projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID]`
 
-* `labels` -
+* `user_labels` -
   (Optional)
-  User-supplied key/value data to be used for organizing AlertPolicy objects.
+  This field is intended to be used for organizing and identifying the AlertPolicy
+  objects.The field can contain up to 64 entries. Each key and value is limited
+  to 63 Unicode characters or 128 bytes, whichever is smaller. Labels and values
+  can contain only lowercase letters, numerals, underscores, and dashes. Keys
+  must begin with a letter.
 
 * `documentation` -
   (Optional)
