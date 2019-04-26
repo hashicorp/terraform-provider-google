@@ -634,6 +634,14 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
+	// When parsing a subnetwork by name, we expect region or zone to be set.
+	// Users may have set location to either value, so set that value.
+	if isZone(location) {
+		d.Set("zone", location)
+	} else {
+		d.Set("region", location)
+	}
+
 	clusterName := d.Get("name").(string)
 
 	cluster := &containerBeta.Cluster{
