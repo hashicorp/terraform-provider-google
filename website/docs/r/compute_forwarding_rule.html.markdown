@@ -42,13 +42,62 @@ To get more information about ForwardingRule, see:
 
 ```hcl
 resource "google_compute_forwarding_rule" "default" {
-  name       = "website-forwarding-rule"
+  name       = ""
   target     = "${google_compute_target_pool.default.self_link}"
   port_range = "80"
 }
 
 resource "google_compute_target_pool" "default" {
   name = "website-target-pool"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=forwarding_rule_internallb&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Forwarding Rule Internallb
+
+
+```hcl
+// Forwarding rule for Internal Load Balancing
+resource "google_compute_forwarding_rule" "default" {
+  name                  = "website-forwarding-rule"
+  region                = "us-central1"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = "${google_compute_region_backend_service.backend.self_link}"
+  all_ports             = true
+  network               = "${google_compute_network.default.name}"
+  subnetwork            = "${google_compute_subnetwork.default.name}"
+}
+
+resource "google_compute_region_backend_service" "backend" {
+  name                  = "website-backend"
+  region                = "us-central1"
+  health_checks         = ["${google_compute_health_check.hc.self_link}"]
+}
+
+resource "google_compute_health_check" "hc" {
+  name               = "check-website-backend"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_network" "default" {
+  name = "website-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "website-net"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = "${google_compute_network.default.self_link}"
 }
 ```
 
@@ -113,15 +162,12 @@ The following arguments are supported:
 
 * `backend_service` -
   (Optional)
-  A reference to a BackendService to receive the matched traffic.
-  This is used for internal load balancing.
-  (not used for external load balancing)
+  A BackendService to receive the matched traffic. This is used only
+  for INTERNAL load balancing.
 
 * `ip_version` -
-  (Optional)
-  The IP Version that will be used by this forwarding rule. Valid
-  options are IPV4 or IPV6. This can only be specified for a global
-  forwarding rule.
+  (Optional, Deprecated)
+  ipVersion is not a valid field for regional forwarding rules.
 
 * `load_balancing_scheme` -
   (Optional)
@@ -136,7 +182,7 @@ The following arguments are supported:
   For internal load balancing, this field identifies the network that
   the load balanced IP should belong to for this Forwarding Rule. If
   this field is not specified, the default network will be used.
-  This field is not used for external load balancing.
+  This field is only used for INTERNAL load balancing.
 
 * `port_range` -
   (Optional)
@@ -169,28 +215,27 @@ The following arguments are supported:
 
 * `subnetwork` -
   (Optional)
-  A reference to a subnetwork.
-  For internal load balancing, this field identifies the subnetwork that
-  the load balanced IP should belong to for this Forwarding Rule.
+  The subnetwork that the load balanced IP should belong to for this
+  Forwarding Rule.  This field is only used for INTERNAL load balancing.
   If the network specified is in auto subnet mode, this field is
   optional. However, if the network is in custom subnet mode, a
   subnetwork must be specified.
-  This field is not used for external load balancing.
 
 * `target` -
   (Optional)
+  This field is only used for EXTERNAL load balancing.
   A reference to a TargetPool resource to receive the matched traffic.
-  For regional forwarding rules, this target must live in the same
-  region as the forwarding rule. For global forwarding rules, this
-  target must be a global load balancing resource. The forwarded traffic
-  must be of a type appropriate to the target object.
-  This field is not used for internal load balancing.
+  This target must live in the same region as the forwarding rule.
+  The forwarded traffic must be of a type appropriate to the target
+  object.
 
 * `all_ports` -
   (Optional)
-  When the load balancing scheme is INTERNAL and protocol is TCP/UDP, omit
-  `port`/`port_range` and specify this field as `true` to allow packets addressed
-  to any ports to be forwarded to the backends configured with this forwarding rule.
+  For internal TCP/UDP load balancing (i.e. load balancing scheme is
+  INTERNAL and protocol is TCP/UDP), set this to true to allow packets
+  addressed to any ports to be forwarded to the backends configured
+  with this forwarding rule. Used with backend service. Cannot be set
+  if port or portRange are set.
 
 * `network_tier` -
   (Optional)
@@ -209,7 +254,7 @@ The following arguments are supported:
   character must be a lowercase letter, and all following characters
   must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
-  This field is only used for internal load balancing.
+  This field is only used for INTERNAL load balancing.
 
 * `region` -
   (Optional)
@@ -229,7 +274,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `service_name` -
   The internal fully qualified service name for this Forwarding Rule.
-  This field is only used for internal load balancing.
+  This field is only used for INTERNAL load balancing.
 * `self_link` - The URI of the created resource.
 
 

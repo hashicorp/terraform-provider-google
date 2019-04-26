@@ -82,6 +82,7 @@ func resourceComputeForwardingRule() *schema.Resource {
 			"ip_version": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Deprecated:   "ipVersion is not used for regional forwarding rules. Please remove this field if you are using it.",
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
 			},
