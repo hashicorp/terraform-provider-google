@@ -2,10 +2,18 @@ TEST?=$$(go list ./... |grep -v 'vendor')
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=google
 
+# Path to Terraform plugins
+PLUGIN_PATH ?= "${HOME}/.terraform.d/plugins"
+
 default: build
 
 build: fmtcheck
 	go install
+
+dev:
+	@mkdir -p "${PLUGIN_PATH}"
+	@go build \
+		-o "${PLUGIN_PATH}/terraform-provider-google"
 
 test: fmtcheck
 	go test -i $(TEST) || exit 1
@@ -57,4 +65,3 @@ endif
 	@$(MAKE) -C $(GOPATH)/src/$(WEBSITE_REPO) website-provider-test PROVIDER_PATH=$(shell pwd) PROVIDER_NAME=$(PKG_NAME)
 
 .PHONY: build test testacc vet fmt fmtcheck lint tools errcheck test-compile website website-test
-
