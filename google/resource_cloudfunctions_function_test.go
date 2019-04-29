@@ -90,6 +90,8 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 						"description", "test function"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"available_memory_mb", "128"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"max_instances", "10"),
 					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_HTTP, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
@@ -157,6 +159,8 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 						"description", "test function updated"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"timeout", "91"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"max_instances", "15"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-updated-label-value", &function),
 					testAccCloudFunctionsFunctionHasLabel("a-new-label", "a-new-label-value", &function),
 					testAccCloudFunctionsFunctionHasEnvironmentVariable("TEST_ENV_VARIABLE",
@@ -498,6 +502,7 @@ resource "google_cloudfunctions_function" "function" {
   environment_variables = {
 	TEST_ENV_VARIABLE = "test-env-variable-value"
   }
+  max_instances = 10
 }
 `, bucketName, zipFilePath, functionName)
 }
@@ -532,6 +537,7 @@ resource "google_cloudfunctions_function" "function" {
 	TEST_ENV_VARIABLE = "test-env-variable-value"
 	NEW_ENV_VARIABLE = "new-env-variable-value"
   }
+  max_instances = 15
 }`, bucketName, zipFilePath, functionName)
 }
 
