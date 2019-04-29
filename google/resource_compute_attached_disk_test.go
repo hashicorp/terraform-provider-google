@@ -279,7 +279,7 @@ resource "google_compute_instance" "test" {
 }
 
 resource "google_compute_attached_disk" "test" {
-  count    = ["${length(google_compute_disk.many.*.name)}"]
+  count    = "${length(google_compute_disk.many.*.name)}"
   disk     = "${google_compute_disk.many.*.self_link[count.index]}"
   instance = "${google_compute_instance.test.self_link}"
 }`, diskPrefix, count, instanceName)
