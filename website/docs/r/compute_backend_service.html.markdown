@@ -16,16 +16,23 @@ layout: "google"
 page_title: "Google: google_compute_backend_service"
 sidebar_current: "docs-google-compute-backend-service"
 description: |-
-  Creates a BackendService resource in the specified project using the data
-  included in the request.
+  A Backend Service defines a group of virtual machines that will serve
+  traffic for load balancing.
 ---
 
 # google\_compute\_backend\_service
 
-Creates a BackendService resource in the specified project using the data
-included in the request.
+A Backend Service defines a group of virtual machines that will serve
+traffic for load balancing. This resource is a global backend service,
+appropriate for external load balancing. For internal load balancing, use
+a regional backend service instead.
 
 
+To get more information about BackendService, see:
+
+* [API documentation](https://cloud.google.com/compute/docs/reference/v1/backendServices)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/compute/docs/load-balancing/http/backend-service)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -59,8 +66,6 @@ The following arguments are supported:
   The list of URLs to the HttpHealthCheck or HttpsHealthCheck resource
   for health checking this BackendService. Currently at most one health
   check can be specified, and a health check is required.
-  For internal load balancing, a URL to a HealthCheck resource must be
-  specified instead.
 
 * `name` -
   (Required)
@@ -104,7 +109,6 @@ The following arguments are supported:
 * `enable_cdn` -
   (Optional)
   If true, enable Cloud CDN for this BackendService.
-  When the load balancing scheme is INTERNAL, this field is not used.
 
 * `iap` -
   (Optional)
@@ -114,22 +118,19 @@ The following arguments are supported:
   (Optional)
   Indicates whether the backend service will be used with internal or
   external load balancing. A backend service created for one type of
-  load balancing cannot be used with the other. One of `INTERNAL` or
-  `EXTERNAL`. Defaults to `EXTERNAL`.
+  load balancing cannot be used with the other. Must be `EXTERNAL` for
+  a global backend service. Defaults to `EXTERNAL`.
 
 * `port_name` -
   (Optional)
   Name of backend port. The same name should appear in the instance
   groups referenced by this service. Required when the load balancing
   scheme is EXTERNAL.
-  When the load balancing scheme is INTERNAL, this field is not used.
 
 * `protocol` -
   (Optional)
   The protocol this BackendService uses to communicate with backends.
   Possible values are HTTP, HTTPS, TCP, and SSL. The default is HTTP.
-  For internal load balancing, the possible values are TCP and UDP, and
-  the default is TCP.
 
 * `security_policy` -
   (Optional)
@@ -140,8 +141,6 @@ The following arguments are supported:
   Type of session affinity to use. The default is NONE.
   When the load balancing scheme is EXTERNAL, can be NONE, CLIENT_IP, or
   GENERATED_COOKIE.
-  When the load balancing scheme is INTERNAL, can be NONE, CLIENT_IP,
-  CLIENT_IP_PROTO, or CLIENT_IP_PORT_PROTO.
   When the protocol is UDP, this field is not used.
 
 * `timeout_sec` -
@@ -160,7 +159,6 @@ The `backend` block supports:
   For global HTTP(S) or TCP/SSL load balancing, the default is
   UTILIZATION. Valid values are UTILIZATION, RATE (for HTTP(S))
   and CONNECTION (for TCP/SSL).
-  This cannot be used for internal load balancing.
 
 * `capacity_scaler` -
   (Optional)
@@ -170,7 +168,6 @@ The `backend` block supports:
   of its configured capacity (depending on balancingMode). A
   setting of 0 means the group is completely drained, offering
   0% of its available Capacity. Valid range is [0.0,1.0].
-  This cannot be used for internal load balancing.
 
 * `description` -
   (Optional)
@@ -193,10 +190,6 @@ The `backend` block supports:
   Note that you must specify an Instance Group or Network Endpoint
   Group resource using the fully-qualified URL, rather than a
   partial URL.
-  When the BackendService has load balancing scheme INTERNAL, the
-  instance group must be within the same region as the
-  BackendService. Network Endpoint Groups are not supported for
-  INTERNAL load balancing scheme.
 
 * `max_connections` -
   (Optional)
@@ -204,7 +197,6 @@ The `backend` block supports:
   be used with either CONNECTION or UTILIZATION balancing modes.
   For CONNECTION mode, either maxConnections or
   maxConnectionsPerInstance must be set.
-  This cannot be used for internal load balancing.
 
 * `max_connections_per_instance` -
   (Optional)
@@ -214,7 +206,6 @@ The `backend` block supports:
   UTILIZATION balancing modes.
   For CONNECTION mode, either maxConnections or
   maxConnectionsPerInstance must be set.
-  This cannot be used for internal load balancing.
 
 * `max_rate` -
   (Optional)
@@ -222,7 +213,6 @@ The `backend` block supports:
   Can be used with either RATE or UTILIZATION balancing modes,
   but required if RATE mode. For RATE mode, either maxRate or
   maxRatePerInstance must be set.
-  This cannot be used for internal load balancing.
 
 * `max_rate_per_instance` -
   (Optional)
@@ -230,14 +220,12 @@ The `backend` block supports:
   instance can handle. This is used to calculate the capacity of
   the group. Can be used in either balancing mode. For RATE mode,
   either maxRate or maxRatePerInstance must be set.
-  This cannot be used for internal load balancing.
 
 * `max_utilization` -
   (Optional)
   Used when balancingMode is UTILIZATION. This ratio defines the
   CPU utilization target for the group. The default is 0.8. Valid
   range is [0.0, 1.0].
-  This cannot be used for internal load balancing.
 
 The `cdn_policy` block supports:
 
