@@ -14,6 +14,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * compute: `google_compute_instance` now retries updating metadata when fingerprints are mismatched. [GH-3372]
+* compute: `google_compute_subnetwork.secondary_ip_ranges` doesn't cause a diff on out of band changes, allows updating to empty list of ranges. [GH-3496]
 * container: `google_container_cluster` setting networks / subnetworks by name works with `location`. [GH-3492]
 * container: `google_container_cluster` removed an overly restrictive validation restricting `node_pool` and `remove_default_node_pool` being specified at the same time. [GH-3497]
 
