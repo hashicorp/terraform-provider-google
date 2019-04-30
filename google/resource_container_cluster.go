@@ -572,6 +572,22 @@ func resourceContainerCluster() *schema.Resource {
 				Optional: true,
 			},
 
+			"authenticator_groups_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"security_group": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
 			"private_cluster_config": {
 				Type:             schema.TypeList,
 				MaxItems:         1,
@@ -738,6 +754,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.NodeConfig = expandNodeConfig([]interface{}{})
 	}
 
+	if v, ok := d.GetOk("authenticator_groups_config"); ok {
+		cluster.AuthenticatorGroupsConfig = expandAuthenticatorGroupsConfig(v)
+	}
+
 	if v, ok := d.GetOk("node_config"); ok {
 		cluster.NodeConfig = expandNodeConfig(v)
 	}
@@ -889,6 +909,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("ip_allocation_policy", flattenIPAllocationPolicy(cluster.IpAllocationPolicy, d, config)); err != nil {
+		return err
+	}
+
+	if err := d.Set("authenticator_groups_config", flattenAuthenticatorGroupsConfig(cluster.AuthenticatorGroupsConfig)); err != nil {
 		return err
 	}
 
@@ -1680,6 +1704,20 @@ func expandNetworkPolicy(configured interface{}) *containerBeta.NetworkPolicy {
 	return result
 }
 
+func expandAuthenticatorGroupsConfig(configured interface{}) *containerBeta.AuthenticatorGroupsConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+	result := &containerBeta.AuthenticatorGroupsConfig{}
+	config := l[0].(map[string]interface{})
+	if securityGroup, ok := config["security_group"]; ok {
+		result.Enabled = true
+		result.SecurityGroup = securityGroup.(string)
+	}
+	return result
+}
+
 func expandPrivateClusterConfig(configured interface{}) *containerBeta.PrivateClusterConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 {
@@ -1766,6 +1804,17 @@ func flattenClusterNodePools(d *schema.ResourceData, config *Config, c []*contai
 	}
 
 	return nodePools, nil
+}
+
+func flattenAuthenticatorGroupsConfig(c *containerBeta.AuthenticatorGroupsConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"security_group": c.SecurityGroup,
+		},
+	}
 }
 
 func flattenPrivateClusterConfig(c *containerBeta.PrivateClusterConfig) []map[string]interface{} {
