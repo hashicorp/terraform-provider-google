@@ -86,7 +86,8 @@ resource "google_compute_router_nat" "advanced-nat" {
   nat_ips                            = ["${google_compute_address.address.*.self_link}"]
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
   subnetwork {
-    name = "${google_compute_subnetwork.subnetwork.self_link}"
+    name                    = "${google_compute_subnetwork.subnetwork.self_link}"
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
   }
 }
 ```
