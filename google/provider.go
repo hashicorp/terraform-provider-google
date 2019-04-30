@@ -146,6 +146,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 		GeneratedCloudBuildResourcesMap,
 		GeneratedCloudSchedulerResourcesMap,
 		GeneratedDnsResourcesMap,
+		GeneratedFilestoreResourcesMap,
 		GeneratedFirestoreResourcesMap,
 		GeneratedPubsubResourcesMap,
 		GeneratedRedisResourcesMap,
