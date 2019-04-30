@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -27,14 +26,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
-)
-
-const (
-	computeDiskUserRegexString = "^(?:https://www.googleapis.com/compute/v1/projects/)?(" + ProjectRegex + ")/zones/([-_a-zA-Z0-9]*)/instances/([-_a-zA-Z0-9]*)$"
-)
-
-var (
-	computeDiskUserRegex = regexp.MustCompile(computeDiskUserRegexString)
 )
 
 // Is the new disk size smaller than the old one?
@@ -775,13 +766,11 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 
 		for _, instance := range convertStringArr(v) {
 			self := d.Get("self_link").(string)
-			if !computeDiskUserRegex.MatchString(instance) {
-				return fmt.Errorf("Unknown user %q of disk %q", instance, self)
+			instanceProject, instanceZone, instanceName, err := GetLocationalResourcePropertiesFromSelfLinkString(instance)
+			if err != nil {
+				return err
 			}
-			matches := computeDiskUserRegex.FindStringSubmatch(instance)
-			instanceProject := matches[1]
-			instanceZone := matches[2]
-			instanceName := matches[3]
+
 			i, err := config.clientCompute.Instances.Get(instanceProject, instanceZone, instanceName).Do()
 			if err != nil {
 				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
