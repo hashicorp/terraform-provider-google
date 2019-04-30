@@ -389,6 +389,41 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				},
 			},
 
+			"shielded_instance_config": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				ForceNew: true,
+				// Since this block is used by the API based on which
+				// image being used, the field needs to be marked as Computed.
+				Computed:         true,
+				DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_secure_boot": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+							ForceNew: true,
+						},
+
+						"enable_vtpm": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+							ForceNew: true,
+						},
+
+						"enable_integrity_monitoring": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
 			"guest_accelerator": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -644,6 +679,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		Scheduling:        scheduling,
 		ServiceAccounts:   expandServiceAccounts(d.Get("service_account").([]interface{})),
 		Tags:              resourceInstanceTags(d),
+		ShieldedVmConfig:  expandShieldedVmConfigs(d),
 	}
 
 	if _, ok := d.GetOk("labels"); ok {
@@ -839,6 +875,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	if instanceTemplate.Properties.GuestAccelerators != nil {
 		if err = d.Set("guest_accelerator", flattenGuestAccelerators(instanceTemplate.Properties.GuestAccelerators)); err != nil {
 			return fmt.Errorf("Error setting guest_accelerator: %s", err)
+		}
+	}
+	if instanceTemplate.Properties.ShieldedVmConfig != nil {
+		if err = d.Set("shielded_instance_config", flattenShieldedVmConfig(instanceTemplate.Properties.ShieldedVmConfig)); err != nil {
+			return fmt.Errorf("Error setting shielded_instance_config: %s", err)
 		}
 	}
 	return nil

@@ -510,6 +510,37 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
+			"shielded_instance_config": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				// Since this block is used by the API based on which
+				// image being used, the field needs to be marked as Computed.
+				Computed:         true,
+				DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_secure_boot": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+
+						"enable_vtpm": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
+
+						"enable_integrity_monitoring": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
+					},
+				},
+			},
+
 			"tags": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -685,6 +716,7 @@ func expandComputeInstance(project string, zone *compute.Zone, d *schema.Resourc
 		DeletionProtection: d.Get("deletion_protection").(bool),
 		Hostname:           d.Get("hostname").(string),
 		ForceSendFields:    []string{"CanIpForward", "DeletionProtection"},
+		ShieldedVmConfig:   expandShieldedVmConfigs(d),
 	}, nil
 }
 
@@ -904,6 +936,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("scratch_disk", scratchDisks)
 	d.Set("scheduling", flattenScheduling(instance.Scheduling))
 	d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators))
+	d.Set("shielded_instance_config", flattenShieldedVmConfig(instance.ShieldedVmConfig))
 	d.Set("cpu_platform", instance.CpuPlatform)
 	d.Set("min_cpu_platform", instance.MinCpuPlatform)
 	d.Set("deletion_protection", instance.DeletionProtection)
@@ -1364,6 +1397,22 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if opErr != nil {
 			return opErr
 		}
+	}
+
+	if d.HasChange("shielded_instance_config") {
+		shieldedVmConfig := expandShieldedVmConfigs(d)
+
+		op, err := config.clientComputeBeta.Instances.UpdateShieldedVmConfig(project, zone, d.Id(), shieldedVmConfig).Do()
+		if err != nil {
+			return fmt.Errorf("Error updating shielded vm config: %s", err)
+		}
+
+		opErr := computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutUpdate).Minutes()), "shielded vm config update")
+		if opErr != nil {
+			return opErr
+		}
+
+		d.SetPartial("shielded_instance_config")
 	}
 
 	// We made it, disable partial mode

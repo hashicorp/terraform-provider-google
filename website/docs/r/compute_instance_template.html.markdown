@@ -244,6 +244,9 @@ The following arguments are supported:
 * `min_cpu_platform` - (Optional) Specifies a minimum CPU platform. Applicable values are the friendly names of CPU platforms, such as
 `Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
 
+* `shielded_instance_config` - (Optional) Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is documented below.
+	**Note**: [`shielded_instance_config`](#shielded_instance_config) can only be used with boot images with shielded vm support. See the complete list [here](https://cloud.google.com/compute/docs/images#shielded-images).
+
 The `disk` block supports:
 
 * `auto_delete` - (Optional) Whether or not the disk should be auto-deleted.
@@ -273,7 +276,7 @@ The `disk` block supports:
     read-write mode.
 
 * `source` - (Required if source_image not set) The name (**not self_link**)
-    of the disk (such as those managed by `google_compute_disk`) to attach. 
+    of the disk (such as those managed by `google_compute_disk`) to attach.
 
 * `disk_type` - (Optional) The GCE disk type. Can be either `"pd-ssd"`,
     `"local-ssd"`, or `"pd-standard"`.
@@ -372,7 +375,7 @@ The `scheduling` block supports:
 * `preemptible` - (Optional) Allows instance to be preempted. This defaults to
     false. Read more on this
     [here](https://cloud.google.com/compute/docs/instances/preemptible).
-    
+
 * `node_affinities` - (Optional) Specifies node affinities or anti-affinities
    to determine which sole-tenant nodes your instances and managed instance
    groups will use as host systems. Read more on sole-tenant node creation
@@ -393,6 +396,14 @@ The `node_affinities` block supports:
     or `NOT` for anti-affinities.
 
 * `value` (Required) - The values for the node affinity label.
+
+The `shielded_instance_config` block supports:
+
+* `enable_secure_boot` (Optional) -- Verify the digital signature of all boot components, and halt the boot process if signature verification fails. Defaults to false.
+
+* `enable_vtpm` (Optional) -- Use a virtualized trusted platform module, which is a specialized computer chip you can use to encrypt objects like keys and certificates. Defaults to true.
+
+* `enable_integrity_monitoring` (Optional) -- Compare the most recent boot measurements to the integrity policy baseline and return a pair of pass/fail results depending on whether they match or not. Defaults to true.
 
 ## Attributes Reference
 

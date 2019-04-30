@@ -134,6 +134,9 @@ The following arguments are supported:
 
 * `tags` - (Optional) A list of tags to attach to the instance.
 
+* `shielded_instance_config` - (Optional) Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is documented below.
+	**Note**: [`shielded_instance_config`](#shielded_instance_config) can only be used with boot images with shielded vm support. See the complete list [here](https://cloud.google.com/compute/docs/images#shielded-images).
+
 ---
 
 The `boot_disk` block supports:
@@ -303,6 +306,14 @@ The `node_affinities` block supports:
     or `NOT` for anti-affinities.
 
 * `value` (Required) - The values for the node affinity label.
+
+The `shielded_instance_config` block supports:
+
+* `enable_secure_boot` (Optional) -- Verify the digital signature of all boot components, and halt the boot process if signature verification fails. Defaults to false.
+
+* `enable_vtpm` (Optional) -- Use a virtualized trusted platform module, which is a specialized computer chip you can use to encrypt objects like keys and certificates. Defaults to true.
+
+* `enable_integrity_monitoring` (Optional) -- Compare the most recent boot measurements to the integrity policy baseline and return a pair of pass/fail results depending on whether they match or not. Defaults to true.
 
 ## Attributes Reference
 
