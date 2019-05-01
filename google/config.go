@@ -36,6 +36,7 @@ import (
 	"google.golang.org/api/iam/v1"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 	cloudlogging "google.golang.org/api/logging/v2"
+	"google.golang.org/api/option"
 	"google.golang.org/api/pubsub/v1"
 	runtimeconfig "google.golang.org/api/runtimeconfig/v1beta1"
 	"google.golang.org/api/servicemanagement/v1"
@@ -130,162 +131,164 @@ func (c *Config) LoadAndValidate() error {
 	c.client = client
 	c.userAgent = userAgent
 
+	context := context.Background()
+
 	log.Printf("[INFO] Instantiating GCE client...")
-	c.clientCompute, err = compute.New(client)
+	c.clientCompute, err = compute.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientCompute.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating GCE Beta client...")
-	c.clientComputeBeta, err = computeBeta.New(client)
+	c.clientComputeBeta, err = computeBeta.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientComputeBeta.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating GKE client...")
-	c.clientContainer, err = container.New(client)
+	c.clientContainer, err = container.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientContainer.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating GKE Beta client...")
-	c.clientContainerBeta, err = containerBeta.New(client)
+	c.clientContainerBeta, err = containerBeta.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientContainerBeta.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud DNS client...")
-	c.clientDns, err = dns.New(client)
+	c.clientDns, err = dns.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientDns.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud DNS Beta client...")
-	c.clientDnsBeta, err = dnsBeta.New(client)
+	c.clientDnsBeta, err = dnsBeta.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientDnsBeta.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud KMS Client...")
-	c.clientKms, err = cloudkms.New(client)
+	c.clientKms, err = cloudkms.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientKms.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Stackdriver Logging client...")
-	c.clientLogging, err = cloudlogging.New(client)
+	c.clientLogging, err = cloudlogging.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientLogging.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Storage Client...")
-	c.clientStorage, err = storage.New(client)
+	c.clientStorage, err = storage.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientStorage.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google SqlAdmin Client...")
-	c.clientSqlAdmin, err = sqladmin.New(client)
+	c.clientSqlAdmin, err = sqladmin.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientSqlAdmin.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Pubsub Client...")
-	c.clientPubsub, err = pubsub.New(client)
+	c.clientPubsub, err = pubsub.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientPubsub.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Dataflow Client...")
-	c.clientDataflow, err = dataflow.New(client)
+	c.clientDataflow, err = dataflow.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientDataflow.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud ResourceManager Client...")
-	c.clientResourceManager, err = cloudresourcemanager.New(client)
+	c.clientResourceManager, err = cloudresourcemanager.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientResourceManager.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud ResourceManager V Client...")
-	c.clientResourceManagerV2Beta1, err = resourceManagerV2Beta1.New(client)
+	c.clientResourceManagerV2Beta1, err = resourceManagerV2Beta1.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientResourceManagerV2Beta1.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud Runtimeconfig Client...")
-	c.clientRuntimeconfig, err = runtimeconfig.New(client)
+	c.clientRuntimeconfig, err = runtimeconfig.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientRuntimeconfig.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud IAM Client...")
-	c.clientIAM, err = iam.New(client)
+	c.clientIAM, err = iam.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientIAM.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud IAMCredentials Client...")
-	c.clientIamCredentials, err = iamcredentials.New(client)
+	c.clientIamCredentials, err = iamcredentials.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientIamCredentials.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud Service Management Client...")
-	c.clientServiceMan, err = servicemanagement.New(client)
+	c.clientServiceMan, err = servicemanagement.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientServiceMan.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud Service Usage Client...")
-	c.clientServiceUsage, err = serviceusage.New(client)
+	c.clientServiceUsage, err = serviceusage.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientServiceUsage.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud Billing Client...")
-	c.clientBilling, err = cloudbilling.New(client)
+	c.clientBilling, err = cloudbilling.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientBilling.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud Build Client...")
-	c.clientBuild, err = cloudbuild.New(client)
+	c.clientBuild, err = cloudbuild.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientBuild.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud BigQuery Client...")
-	c.clientBigQuery, err = bigquery.New(client)
+	c.clientBigQuery, err = bigquery.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientBigQuery.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud CloudFunctions Client...")
-	c.clientCloudFunctions, err = cloudfunctions.New(client)
+	c.clientCloudFunctions, err = cloudfunctions.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
@@ -297,55 +300,55 @@ func (c *Config) LoadAndValidate() error {
 	}
 
 	log.Printf("[INFO] Instantiating Google Cloud Source Repo Client...")
-	c.clientSourceRepo, err = sourcerepo.New(client)
+	c.clientSourceRepo, err = sourcerepo.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientSourceRepo.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud Spanner Client...")
-	c.clientSpanner, err = spanner.New(client)
+	c.clientSpanner, err = spanner.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientSpanner.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud Dataproc Client...")
-	c.clientDataproc, err = dataproc.New(client)
+	c.clientDataproc, err = dataproc.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientDataproc.UserAgent = userAgent
 
-	c.clientFilestore, err = file.New(client)
+	c.clientFilestore, err = file.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientFilestore.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud IoT Core Client...")
-	c.clientCloudIoT, err = cloudiot.New(client)
+	c.clientCloudIoT, err = cloudiot.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientCloudIoT.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating App Engine Client...")
-	c.clientAppEngine, err = appengine.New(client)
+	c.clientAppEngine, err = appengine.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientAppEngine.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Cloud Composer Client...")
-	c.clientComposer, err = composer.New(client)
+	c.clientComposer, err = composer.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientComposer.UserAgent = userAgent
 
 	log.Printf("[INFO] Instantiating Google Cloud Storage Transfer Client...")
-	c.clientStorageTransfer, err = storagetransfer.New(client)
+	c.clientStorageTransfer, err = storagetransfer.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
