@@ -22,6 +22,7 @@ var GeneratedComputeResourcesMap = map[string]*schema.Resource{
 	"google_compute_backend_bucket":                 resourceComputeBackendBucket(),
 	"google_compute_backend_bucket_signed_url_key":  resourceComputeBackendBucketSignedUrlKey(),
 	"google_compute_backend_service":                resourceComputeBackendService(),
+	"google_compute_region_backend_service":         resourceComputeRegionBackendService(),
 	"google_compute_backend_service_signed_url_key": resourceComputeBackendServiceSignedUrlKey(),
 	"google_compute_disk":                           resourceComputeDisk(),
 	"google_compute_firewall":                       resourceComputeFirewall(),
