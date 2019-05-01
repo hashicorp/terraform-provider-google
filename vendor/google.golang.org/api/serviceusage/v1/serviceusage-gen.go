@@ -1,4 +1,4 @@
-// Copyright 2018 Google Inc. All rights reserved.
+// Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -6,13 +6,39 @@
 
 // Package serviceusage provides access to the Service Usage API.
 //
-// See https://cloud.google.com/service-usage/
+// For product documentation, see: https://cloud.google.com/service-usage/
+//
+// Creating a client
 //
 // Usage example:
 //
 //   import "google.golang.org/api/serviceusage/v1"
 //   ...
-//   serviceusageService, err := serviceusage.New(oauthHttpClient)
+//   ctx := context.Background()
+//   serviceusageService, err := serviceusage.NewService(ctx)
+//
+// In this example, Google Application Default Credentials are used for authentication.
+//
+// For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
+//
+// Other authentication options
+//
+// By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
+//
+//   serviceusageService, err := serviceusage.NewService(ctx, option.WithScopes(serviceusage.ServiceManagementScope))
+//
+// To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
+//
+//   serviceusageService, err := serviceusage.NewService(ctx, option.WithAPIKey("AIza..."))
+//
+// To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
+//
+//   config := &oauth2.Config{...}
+//   // ...
+//   token, err := config.Exchange(ctx, ...)
+//   serviceusageService, err := serviceusage.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//
+// See https://godoc.org/google.golang.org/api/option/ for details on options.
 package serviceusage // import "google.golang.org/api/serviceusage/v1"
 
 import (
@@ -29,6 +55,8 @@ import (
 
 	gensupport "google.golang.org/api/gensupport"
 	googleapi "google.golang.org/api/googleapi"
+	option "google.golang.org/api/option"
+	htransport "google.golang.org/api/transport/http"
 )
 
 // Always reference these packages, just in case the auto-generated code
@@ -62,6 +90,34 @@ const (
 	ServiceManagementScope = "https://www.googleapis.com/auth/service.management"
 )
 
+// NewService creates a new Service.
+func NewService(ctx context.Context, opts ...option.ClientOption) (*Service, error) {
+	scopesOption := option.WithScopes(
+		"https://www.googleapis.com/auth/cloud-platform",
+		"https://www.googleapis.com/auth/cloud-platform.read-only",
+		"https://www.googleapis.com/auth/service.management",
+	)
+	// NOTE: prepend, so we don't override user-specified scopes.
+	opts = append([]option.ClientOption{scopesOption}, opts...)
+	client, endpoint, err := htransport.NewClient(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	s, err := New(client)
+	if err != nil {
+		return nil, err
+	}
+	if endpoint != "" {
+		s.BasePath = endpoint
+	}
+	return s, nil
+}
+
+// New creates a new Service. It uses the provided http.Client for requests.
+//
+// Deprecated: please use NewService instead.
+// To provide a custom HTTP client, use option.WithHTTPClient.
+// If you are using google.golang.org/api/googleapis/transport.APIKey, use option.WithAPIKey with NewService instead.
 func New(client *http.Client) (*Service, error) {
 	if client == nil {
 		return nil, errors.New("client is nil")
@@ -205,11 +261,12 @@ func (s *Api) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// AuthProvider: Configuration for an anthentication provider, including
+// AuthProvider: Configuration for an authentication provider, including
 // support for
-// [JSON Web Token
-// (JWT)](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32)
-// .
+// [JSON Web
+// Token
+// (JWT)](https://tools.ietf.org/html/draft-ietf-oauth-json-web-tok
+// en-32).
 type AuthProvider struct {
 	// Audiences: The list of
 	// JWT
@@ -256,18 +313,21 @@ type AuthProvider struct {
 	Issuer string `json:"issuer,omitempty"`
 
 	// JwksUri: URL of the provider's public key set to validate signature
-	// of the JWT. See
+	// of the JWT.
+	// See
 	// [OpenID
-	// Discovery](https://openid.net/specs/openid-connect-discovery-1_0.html#
-	// ProviderMetadata).
+	// Discovery](https://openid.net/specs/openid-connect-discove
+	// ry-1_0.html#ProviderMetadata).
 	// Optional if the key set document:
 	//  - can be retrieved from
 	//    [OpenID
-	// Discovery](https://openid.net/specs/openid-connect-discovery-1_0.html
 	//
-	//    of the issuer.
-	//  - can be inferred from the email domain of the issuer (e.g. a Google
-	// service account).
+	// Discovery](https://openid.net/specs/openid-connect-discovery-1_0.html
+	// of
+	//    the issuer.
+	//  - can be inferred from the email domain of the issuer (e.g. a
+	// Google
+	//  service account).
 	//
 	// Example: https://www.googleapis.com/oauth2/v1/certs
 	JwksUri string `json:"jwksUri,omitempty"`
@@ -297,9 +357,10 @@ func (s *AuthProvider) MarshalJSON() ([]byte, error) {
 
 // AuthRequirement: User-defined authentication requirements, including
 // support for
-// [JSON Web Token
-// (JWT)](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32)
-// .
+// [JSON Web
+// Token
+// (JWT)](https://tools.ietf.org/html/draft-ietf-oauth-json-web-tok
+// en-32).
 type AuthRequirement struct {
 	// Audiences: NOTE: This will be deprecated soon, once
 	// AuthProvider.audiences is
@@ -545,6 +606,10 @@ type BackendRule struct {
 	// seconds.
 	Deadline float64 `json:"deadline,omitempty"`
 
+	// JwtAudience: The JWT audience is used when generating a JWT id token
+	// for the backend.
+	JwtAudience string `json:"jwtAudience,omitempty"`
+
 	// MinDeadline: Minimum deadline in seconds needed for this method.
 	// Calls having deadline
 	// value lower than this will be rejected.
@@ -554,6 +619,64 @@ type BackendRule struct {
 	// of a long running
 	// operation. The default is no deadline.
 	OperationDeadline float64 `json:"operationDeadline,omitempty"`
+
+	// Possible values:
+	//   "PATH_TRANSLATION_UNSPECIFIED"
+	//   "CONSTANT_ADDRESS" - Use the backend address as-is, with no
+	// modification to the path. If the
+	// URL pattern contains variables, the variable names and values will
+	// be
+	// appended to the query string. If a query string parameter and a
+	// URL
+	// pattern variable have the same name, this may result in duplicate
+	// keys in
+	// the query string.
+	//
+	// # Examples
+	//
+	// Given the following operation config:
+	//
+	//     Method path:        /api/company/{cid}/user/{uid}
+	//     Backend address:
+	// https://example.cloudfunctions.net/getUser
+	//
+	// Requests to the following request paths will call the backend at
+	// the
+	// translated path:
+	//
+	//     Request path: /api/company/widgetworks/user/johndoe
+	//     Translated:
+	//
+	// https://example.cloudfunctions.net/getUser?cid=widgetworks&uid=johndoe
+	//
+	//     Request path: /api/company/widgetworks/user/johndoe?timezone=EST
+	//     Translated:
+	//
+	// https://example.cloudfunctions.net/getUser?timezone=EST&cid=widgetworks&uid=johndoe
+	//   "APPEND_PATH_TO_ADDRESS" - The request path will be appended to the
+	// backend address.
+	//
+	// # Examples
+	//
+	// Given the following operation config:
+	//
+	//     Method path:        /api/company/{cid}/user/{uid}
+	//     Backend address:    https://example.appspot.com
+	//
+	// Requests to the following request paths will call the backend at
+	// the
+	// translated path:
+	//
+	//     Request path: /api/company/widgetworks/user/johndoe
+	//     Translated:
+	//
+	// https://example.appspot.com/api/company/widgetworks/user/johndoe
+	//
+	//     Request path: /api/company/widgetworks/user/johndoe?timezone=EST
+	//     Translated:
+	//
+	// https://example.appspot.com/api/company/widgetworks/user/johndoe?timezone=EST
+	PathTranslation string `json:"pathTranslation,omitempty"`
 
 	// Selector: Selects the methods to which this rule applies.
 	//
@@ -599,6 +722,64 @@ func (s *BackendRule) UnmarshalJSON(data []byte) error {
 	s.MinDeadline = float64(s1.MinDeadline)
 	s.OperationDeadline = float64(s1.OperationDeadline)
 	return nil
+}
+
+// BatchCreateAdminOverridesResponse: Response message for
+// BatchCreateAdminOverrides
+type BatchCreateAdminOverridesResponse struct {
+	// Overrides: The overrides that were created.
+	Overrides []*QuotaOverride `json:"overrides,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Overrides") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Overrides") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BatchCreateAdminOverridesResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod BatchCreateAdminOverridesResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// BatchCreateConsumerOverridesResponse: Response message for
+// BatchCreateConsumerOverrides
+type BatchCreateConsumerOverridesResponse struct {
+	// Overrides: The overrides that were created.
+	Overrides []*QuotaOverride `json:"overrides,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Overrides") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Overrides") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *BatchCreateConsumerOverridesResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod BatchCreateConsumerOverridesResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // BatchEnableServicesRequest: Request message for the
@@ -1263,8 +1444,8 @@ func (s *Documentation) MarshalJSON() ([]byte, error) {
 // individual API elements.
 type DocumentationRule struct {
 	// DeprecationDescription: Deprecation description of the selected
-	// element(s). It can be provided if an
-	// element is marked as `deprecated`.
+	// element(s). It can be provided if
+	// an element is marked as `deprecated`.
 	DeprecationDescription string `json:"deprecationDescription,omitempty"`
 
 	// Description: Description of the selected API(s).
@@ -1277,10 +1458,10 @@ type DocumentationRule struct {
 	// Wildcards are only allowed at the end and for a whole component of
 	// the
 	// qualified name, i.e. "foo.*" is ok, but not "foo.b*" or "foo.*.bar".
-	// To
-	// specify a default for all applicable elements, the whole pattern
-	// "*"
-	// is used.
+	// A
+	// wildcard will match one or more components. To specify a default for
+	// all
+	// applicable elements, the whole pattern "*" is used.
 	Selector string `json:"selector,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
@@ -1446,11 +1627,13 @@ type Endpoint struct {
 
 	// Target: The specification of an Internet routable address of API
 	// frontend that will
-	// handle requests to this [API
-	// Endpoint](https://cloud.google.com/apis/design/glossary).
-	// It should be either a valid IPv4 address or a fully-qualified domain
-	// name.
-	// For example, "8.8.8.8" or "myservice.appspot.com".
+	// handle requests to this
+	// [API
+	// Endpoint](https://cloud.google.com/apis/design/glossary). It should
+	// be
+	// either a valid IPv4 address or a fully-qualified domain name. For
+	// example,
+	// "8.8.8.8" or "myservice.appspot.com".
 	Target string `json:"target,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Aliases") to
@@ -1792,8 +1975,12 @@ type GoogleApiService struct {
 	// Monitoring: Monitoring configuration.
 	Monitoring *Monitoring `json:"monitoring,omitempty"`
 
-	// Name: The DNS address at which this service is available,
-	// e.g. `calendar.googleapis.com`.
+	// Name: The service name, which is a DNS-like logical identifier for
+	// the
+	// service, such as `calendar.googleapis.com`. The service
+	// name
+	// typically goes through DNS verification to make sure the owner
+	// of the service also owns the DNS name.
 	Name string `json:"name,omitempty"`
 
 	// ProducerProjectId: The Google project that owns this service.
@@ -2024,7 +2211,7 @@ func (s *GoogleApiServiceusageV1ServiceConfig) MarshalJSON() ([]byte, error) {
 // HttpRule, each specifying the mapping of an RPC method
 // to one or more HTTP REST API methods.
 type Http struct {
-	// FullyDecodeReservedExpansion: When set to true, URL path parmeters
+	// FullyDecodeReservedExpansion: When set to true, URL path parameters
 	// will be fully URI-decoded except in
 	// cases of single segment matches in reserved expansion, where "%2F"
 	// will be
@@ -2155,9 +2342,11 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 //
 // HTTP | gRPC
 // -----|-----
-// `GET /v1/messages/123456?revision=2&sub.subfield=foo` |
+// `GET /v1/messages/123456?revision=2&sub.subfield=foo`
+// |
 // `GetMessage(message_id: "123456" revision: 2 sub:
-// SubMessage(subfield: "foo"))`
+// SubMessage(subfield:
+// "foo"))`
 //
 // Note that fields which are mapped to URL query parameters must have
 // a
@@ -2198,7 +2387,8 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // HTTP | gRPC
 // -----|-----
 // `PATCH /v1/messages/123456 { "text": "Hi!" }` |
-// `UpdateMessage(message_id: "123456" message { text: "Hi!" })`
+// `UpdateMessage(message_id:
+// "123456" message { text: "Hi!" })`
 //
 // The special name `*` can be used in the body mapping to define
 // that
@@ -2227,7 +2417,8 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // HTTP | gRPC
 // -----|-----
 // `PATCH /v1/messages/123456 { "text": "Hi!" }` |
-// `UpdateMessage(message_id: "123456" text: "Hi!")`
+// `UpdateMessage(message_id:
+// "123456" text: "Hi!")`
 //
 // Note that when using `*` in the body mapping, it is not possible
 // to
@@ -2264,7 +2455,8 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // -----|-----
 // `GET /v1/messages/123456` | `GetMessage(message_id: "123456")`
 // `GET /v1/users/me/messages/123456` | `GetMessage(user_id: "me"
-// message_id: "123456")`
+// message_id:
+// "123456")`
 //
 // ## Rules for HTTP mapping
 //
@@ -2327,9 +2519,9 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // server side does the reverse decoding. Such variables show up in
 // the
 // [Discovery
-// Document](https://developers.google.com/discovery/v1/reference/apis)
-// a
-// s `{var}`.
+// Document](https://developers.google.com/discovery/v1/re
+// ference/apis) as
+// `{var}`.
 //
 // If a variable contains multiple path segments, such as
 // "{var=foo/*}"
@@ -2339,11 +2531,12 @@ func (s *Http) MarshalJSON() ([]byte, error) {
 // percent-encoded.
 // The server side does the reverse decoding, except "%2F" and "%2f" are
 // left
-// unchanged. Such variables show up in the
+// unchanged. Such variables show up in
+// the
 // [Discovery
-// Document](https://developers.google.com/discovery/v1/reference/apis)
-// a
-// s `{+var}`.
+// Document](https://developers.google.com/discovery/v1/re
+// ference/apis) as
+// `{+var}`.
 //
 // ## Using gRPC API Service Configuration
 //
@@ -3702,8 +3895,8 @@ func (s *Option) MarshalJSON() ([]byte, error) {
 // nested documentation set structure.
 type Page struct {
 	// Content: The Markdown content of the page. You can use <code>&#40;==
-	// include {path} ==&#41;</code>
-	// to include content from a Markdown file.
+	// include {path}
+	// ==&#41;</code> to include content from a Markdown file.
 	Content string `json:"content,omitempty"`
 
 	// Name: The name of the page. It will be used as an identity of the
@@ -3760,7 +3953,7 @@ func (s *Page) MarshalJSON() ([]byte, error) {
 // service
 // usage.
 //
-// The quota configuration works this way:
+// The metric based quota configuration works this way:
 // - The service configuration defines a set of metrics.
 // - For API calls, the quota.metric_rules maps methods to metrics with
 //   corresponding costs.
@@ -3809,6 +4002,8 @@ func (s *Page) MarshalJSON() ([]byte, error) {
 //        display_name: Write requests
 //        metric_kind: DELTA
 //        value_type: INT64
+//
+//
 type Quota struct {
 	// Limits: List of `QuotaLimit` definitions for the service.
 	Limits []*QuotaLimit `json:"limits,omitempty"`
@@ -3982,6 +4177,83 @@ func (s *QuotaLimit) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// QuotaOverride: A quota override
+type QuotaOverride struct {
+	// Dimensions: If this map is nonempty, then this override applies only
+	// to specific values
+	// for dimensions defined in the limit unit.
+	//
+	// For example, an override on a limit with the unit
+	// 1/{project}/{region}
+	// could contain an entry with the key "region" and the value
+	// "us-east-1";
+	// the override is only applied to quota consumed in that region.
+	//
+	// This map has the following restrictions:
+	// - Keys that are not defined in the limit's unit are not valid keys.
+	//   Any string appearing in {brackets} in the unit (besides {project}
+	// or
+	//   {user}) is a defined key.
+	// - "project" is not a valid key; the project is already specified in
+	//   the parent resource name.
+	// - "user" is not a valid key; the API does not support quota
+	// overrides
+	//   that apply only to a specific user.
+	// - If "region" appears as a key, its value must be a valid Cloud
+	// region.
+	// - If "zone" appears as a key, its value must be a valid Cloud zone.
+	// - If any valid key other than "region" or "zone" appears in the map,
+	// then
+	//   all valid keys other than "region" or "zone" must also appear in
+	// the map.
+	Dimensions map[string]string `json:"dimensions,omitempty"`
+
+	// Name: The resource name of the override.
+	// This name is generated by the server when the override is
+	// created.
+	//
+	// Example names would
+	// be:
+	// `projects/123/services/compute.googleapis.com/consumerQuotaMetrics
+	// /compute.googleapis.com%2Fcpus/limits/%2Fproject%2Fregion/adminOverrid
+	// es/4a3f2c1d`
+	// `projects/123/services/compute.googleapis.com/consumerQuo
+	// taMetrics/compute.googleapis.com%2Fcpus/limits/%2Fproject%2Fregion/con
+	// sumerOverrides/4a3f2c1d`
+	//
+	// The resource name is intended to be opaque and should not be parsed
+	// for
+	// its component strings, since its representation could change in the
+	// future.
+	Name string `json:"name,omitempty"`
+
+	// OverrideValue: The overriding quota limit value.
+	// Can be any nonnegative integer, or -1 (unlimited quota).
+	OverrideValue int64 `json:"overrideValue,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "Dimensions") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Dimensions") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *QuotaOverride) MarshalJSON() ([]byte, error) {
+	type NoMethod QuotaOverride
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // SourceContext: `SourceContext` represents information about the
 // source of a
 // protobuf element, like the file in which it is defined.
@@ -4044,20 +4316,20 @@ func (s *SourceInfo) MarshalJSON() ([]byte, error) {
 }
 
 // Status: The `Status` type defines a logical error model that is
-// suitable for different
-// programming environments, including REST APIs and RPC APIs. It is
-// used by
-// [gRPC](https://github.com/grpc). The error model is designed to
-// be:
+// suitable for
+// different programming environments, including REST APIs and RPC APIs.
+// It is
+// used by [gRPC](https://github.com/grpc). The error model is designed
+// to be:
 //
 // - Simple to use and understand for most users
 // - Flexible enough to meet unexpected needs
 //
 // # Overview
 //
-// The `Status` message contains three pieces of data: error code, error
-// message,
-// and error details. The error code should be an enum value
+// The `Status` message contains three pieces of data: error code,
+// error
+// message, and error details. The error code should be an enum value
 // of
 // google.rpc.Code, but it may accept additional error codes if needed.
 // The
@@ -5170,8 +5442,6 @@ type ServicesBatchEnableCall struct {
 // atomic: if enabling
 // any service fails, then the entire batch fails, and no state changes
 // occur.
-//
-// Operation<response: BatchEnableServicesResponse>
 func (r *ServicesService) BatchEnable(parent string, batchenableservicesrequest *BatchEnableServicesRequest) *ServicesBatchEnableCall {
 	c := &ServicesBatchEnableCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.parent = parent
@@ -5269,7 +5539,7 @@ func (c *ServicesBatchEnableCall) Do(opts ...googleapi.CallOption) (*Operation, 
 	}
 	return ret, nil
 	// {
-	//   "description": "Enable multiple services on a project. The operation is atomic: if enabling\nany service fails, then the entire batch fails, and no state changes occur.\n\nOperation\u003cresponse: BatchEnableServicesResponse\u003e",
+	//   "description": "Enable multiple services on a project. The operation is atomic: if enabling\nany service fails, then the entire batch fails, and no state changes occur.",
 	//   "flatPath": "v1/{v1Id}/{v1Id1}/services:batchEnable",
 	//   "httpMethod": "POST",
 	//   "id": "serviceusage.services.batchEnable",
@@ -5322,8 +5592,6 @@ type ServicesDisableCall struct {
 // currently enabled. Callers will receive a `FAILED_PRECONDITION`
 // status if
 // the target service is not currently enabled.
-//
-// Operation<response: DisableServiceResponse>
 func (r *ServicesService) Disable(name string, disableservicerequest *DisableServiceRequest) *ServicesDisableCall {
 	c := &ServicesDisableCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5421,7 +5689,7 @@ func (c *ServicesDisableCall) Do(opts ...googleapi.CallOption) (*Operation, erro
 	}
 	return ret, nil
 	// {
-	//   "description": "Disable a service so that it can no longer be used with a project.\nThis prevents unintended usage that may cause unexpected billing\ncharges or security leaks.\n\nIt is not valid to call the disable method on a service that is not\ncurrently enabled. Callers will receive a `FAILED_PRECONDITION` status if\nthe target service is not currently enabled.\n\nOperation\u003cresponse: DisableServiceResponse\u003e",
+	//   "description": "Disable a service so that it can no longer be used with a project.\nThis prevents unintended usage that may cause unexpected billing\ncharges or security leaks.\n\nIt is not valid to call the disable method on a service that is not\ncurrently enabled. Callers will receive a `FAILED_PRECONDITION` status if\nthe target service is not currently enabled.",
 	//   "flatPath": "v1/{v1Id}/{v1Id1}/services/{servicesId}:disable",
 	//   "httpMethod": "POST",
 	//   "id": "serviceusage.services.disable",
@@ -5463,10 +5731,7 @@ type ServicesEnableCall struct {
 	header_              http.Header
 }
 
-// Enable: Enable a service so that it can be used with a
-// project.
-//
-// Operation<response: EnableServiceResponse>
+// Enable: Enable a service so that it can be used with a project.
 func (r *ServicesService) Enable(name string, enableservicerequest *EnableServiceRequest) *ServicesEnableCall {
 	c := &ServicesEnableCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.name = name
@@ -5564,7 +5829,7 @@ func (c *ServicesEnableCall) Do(opts ...googleapi.CallOption) (*Operation, error
 	}
 	return ret, nil
 	// {
-	//   "description": "Enable a service so that it can be used with a project.\n\nOperation\u003cresponse: EnableServiceResponse\u003e",
+	//   "description": "Enable a service so that it can be used with a project.",
 	//   "flatPath": "v1/{v1Id}/{v1Id1}/services/{servicesId}:enable",
 	//   "httpMethod": "POST",
 	//   "id": "serviceusage.services.enable",

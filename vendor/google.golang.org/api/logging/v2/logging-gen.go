@@ -1,4 +1,4 @@
-// Copyright 2018 Google Inc. All rights reserved.
+// Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,13 +8,39 @@
 //
 // This package is DEPRECATED. Use package cloud.google.com/go/logging instead.
 //
-// See https://cloud.google.com/logging/docs/
+// For product documentation, see: https://cloud.google.com/logging/docs/
+//
+// Creating a client
 //
 // Usage example:
 //
 //   import "google.golang.org/api/logging/v2"
 //   ...
-//   loggingService, err := logging.New(oauthHttpClient)
+//   ctx := context.Background()
+//   loggingService, err := logging.NewService(ctx)
+//
+// In this example, Google Application Default Credentials are used for authentication.
+//
+// For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
+//
+// Other authentication options
+//
+// By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
+//
+//   loggingService, err := logging.NewService(ctx, option.WithScopes(logging.LoggingWriteScope))
+//
+// To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
+//
+//   loggingService, err := logging.NewService(ctx, option.WithAPIKey("AIza..."))
+//
+// To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
+//
+//   config := &oauth2.Config{...}
+//   // ...
+//   token, err := config.Exchange(ctx, ...)
+//   loggingService, err := logging.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//
+// See https://godoc.org/google.golang.org/api/option/ for details on options.
 package logging // import "google.golang.org/api/logging/v2"
 
 import (
@@ -31,6 +57,8 @@ import (
 
 	gensupport "google.golang.org/api/gensupport"
 	googleapi "google.golang.org/api/googleapi"
+	option "google.golang.org/api/option"
+	htransport "google.golang.org/api/transport/http"
 )
 
 // Always reference these packages, just in case the auto-generated code
@@ -70,6 +98,36 @@ const (
 	LoggingWriteScope = "https://www.googleapis.com/auth/logging.write"
 )
 
+// NewService creates a new Service.
+func NewService(ctx context.Context, opts ...option.ClientOption) (*Service, error) {
+	scopesOption := option.WithScopes(
+		"https://www.googleapis.com/auth/cloud-platform",
+		"https://www.googleapis.com/auth/cloud-platform.read-only",
+		"https://www.googleapis.com/auth/logging.admin",
+		"https://www.googleapis.com/auth/logging.read",
+		"https://www.googleapis.com/auth/logging.write",
+	)
+	// NOTE: prepend, so we don't override user-specified scopes.
+	opts = append([]option.ClientOption{scopesOption}, opts...)
+	client, endpoint, err := htransport.NewClient(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	s, err := New(client)
+	if err != nil {
+		return nil, err
+	}
+	if endpoint != "" {
+		s.BasePath = endpoint
+	}
+	return s, nil
+}
+
+// New creates a new Service. It uses the provided http.Client for requests.
+//
+// Deprecated: please use NewService instead.
+// To provide a custom HTTP client, use option.WithHTTPClient.
+// If you are using google.golang.org/api/googleapis/transport.APIKey, use option.WithAPIKey with NewService instead.
 func New(client *http.Client) (*Service, error) {
 	if client == nil {
 		return nil, errors.New("client is nil")
@@ -573,7 +631,8 @@ type HttpRequest struct {
 	Status int64 `json:"status,omitempty"`
 
 	// UserAgent: The user agent sent by the client. Example: "Mozilla/4.0
-	// (compatible; MSIE 6.0; Windows 98; Q312461; .NET CLR 1.0.3705)".
+	// (compatible; MSIE 6.0; Windows 98; Q312461; .NET
+	// CLR 1.0.3705)".
 	UserAgent string `json:"userAgent,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "CacheFillBytes") to
@@ -767,9 +826,7 @@ type ListLogEntriesRequest struct {
 
 	// ProjectIds: Deprecated. Use resource_names instead. One or more
 	// project identifiers or project numbers from which to retrieve log
-	// entries. Example: "my-project-1A". If present, these project
-	// identifiers are converted to resource name format and added to the
-	// list of resources in resource_names.
+	// entries. Example: "my-project-1A".
 	ProjectIds []string `json:"projectIds,omitempty"`
 
 	// ResourceNames: Required. Names of one or more parent resources from
@@ -1040,7 +1097,7 @@ type LogEntry struct {
 	// "folders/[FOLDER_ID]/logs/[LOG_ID]"
 	// A project number may optionally be used in place of PROJECT_ID. The
 	// project number is translated to its corresponding PROJECT_ID
-	// internally  and the log_name field will contain PROJECT_ID in queries
+	// internally and the log_name field will contain PROJECT_ID in queries
 	// and exports.[LOG_ID] must be URL-encoded within log_name. Example:
 	// "organizations/1234567890/logs/cloudresourcemanager.googleapis.com%2Fa
 	// ctivity". [LOG_ID] must be less than 512 characters long and can only
@@ -1053,9 +1110,15 @@ type LogEntry struct {
 	// never return any results.
 	LogName string `json:"logName,omitempty"`
 
-	// Metadata: Output only. Additional metadata about the monitored
-	// resource. Only k8s_container, k8s_pod, and k8s_node
-	// MonitoredResources have this field populated.
+	// Metadata: Deprecated. Output only. Additional metadata about the
+	// monitored resource.Only k8s_container, k8s_pod, and k8s_node
+	// MonitoredResources have this field populated for GKE versions older
+	// than 1.12.6. For GKE versions 1.12.6 and above, the metadata field
+	// has been deprecated. The Kubernetes pod labels that used to be in
+	// metadata.userLabels will now be present in the labels field with a
+	// key prefix of k8s-pod/. The Stackdriver system labels that were
+	// present in the metadata.systemLabels field will no longer be
+	// available in the LogEntry.
 	Metadata *MonitoredResourceMetadata `json:"metadata,omitempty"`
 
 	// Operation: Optional. Information about an operation associated with
@@ -1072,7 +1135,7 @@ type LogEntry struct {
 	ReceiveTimestamp string `json:"receiveTimestamp,omitempty"`
 
 	// Resource: Required. The primary monitored resource associated with
-	// this log entry. Example: a log entry that reports a database error
+	// this log entry.Example: a log entry that reports a database error
 	// would be associated with the monitored resource designating the
 	// particular database that reported the error.
 	Resource *MonitoredResource `json:"resource,omitempty"`
@@ -1100,9 +1163,9 @@ type LogEntry struct {
 	SourceLocation *LogEntrySourceLocation `json:"sourceLocation,omitempty"`
 
 	// SpanId: Optional. The span ID within the trace associated with the
-	// log entry. For Trace spans, this is the same format that the Trace
-	// API v2 uses: a 16-character hexadecimal encoding of an 8-byte array,
-	// such as <code>"000000000000004a"</code>.
+	// log entry.For Trace spans, this is the same format that the Trace API
+	// v2 uses: a 16-character hexadecimal encoding of an 8-byte array, such
+	// as <code>"000000000000004a"</code>.
 	SpanId string `json:"spanId,omitempty"`
 
 	// TextPayload: The log entry payload, represented as a Unicode string
@@ -1129,7 +1192,7 @@ type LogEntry struct {
 	Trace string `json:"trace,omitempty"`
 
 	// TraceSampled: Optional. The sampling decision of the trace associated
-	// with the log entry. True means that the trace resource name in the
+	// with the log entry.True means that the trace resource name in the
 	// trace field was sampled for storage in a trace backend. False means
 	// that the trace was not sampled for storage when this log entry was
 	// written, or the sampling decision was unknown at the time. A
@@ -1252,11 +1315,15 @@ func (s *LogEntrySourceLocation) MarshalJSON() ([]byte, error) {
 // entries before they are excluded. Audit log entries and log entries
 // from Amazon Web Services are never excluded.
 type LogExclusion struct {
+	// CreateTime: Output only. The creation timestamp of the exclusion.This
+	// field may not be present for older exclusions.
+	CreateTime string `json:"createTime,omitempty"`
+
 	// Description: Optional. A description of this exclusion.
 	Description string `json:"description,omitempty"`
 
 	// Disabled: Optional. If set to True, then this exclusion is disabled
-	// and it does not exclude any log entries. You can use exclusions.patch
+	// and it does not exclude any log entries. You can update an exclusion
 	// to change the value of this field.
 	Disabled bool `json:"disabled,omitempty"`
 
@@ -1274,11 +1341,15 @@ type LogExclusion struct {
 	// periods.
 	Name string `json:"name,omitempty"`
 
+	// UpdateTime: Output only. The last update timestamp of the
+	// exclusion.This field may not be present for older exclusions.
+	UpdateTime string `json:"updateTime,omitempty"`
+
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "Description") to
+	// ForceSendFields is a list of field names (e.g. "CreateTime") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -1286,10 +1357,10 @@ type LogExclusion struct {
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Description") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "CreateTime") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -1366,6 +1437,10 @@ type LogMetric struct {
 	// values.
 	BucketOptions *BucketOptions `json:"bucketOptions,omitempty"`
 
+	// CreateTime: Output only. The creation timestamp of the metric.This
+	// field may not be present for older metrics.
+	CreateTime string `json:"createTime,omitempty"`
+
 	// Description: Optional. A description of this metric, which is used in
 	// documentation. The maximum length of the description is 8000
 	// characters.
@@ -1421,6 +1496,10 @@ type LogMetric struct {
 	// API parameter, then the metric identifier must be URL-encoded.
 	// Example: "projects/my-project/metrics/nginx%2Frequests".
 	Name string `json:"name,omitempty"`
+
+	// UpdateTime: Output only. The last update timestamp of the metric.This
+	// field may not be present for older metrics.
+	UpdateTime string `json:"updateTime,omitempty"`
 
 	// ValueExtractor: Optional. A value_extractor is required when using a
 	// distribution logs-based metric to extract the values to record from a
@@ -1481,6 +1560,10 @@ func (s *LogMetric) MarshalJSON() ([]byte, error) {
 // which log entries are exported. The sink must be created within a
 // project, organization, billing account, or folder.
 type LogSink struct {
+	// CreateTime: Output only. The creation timestamp of the sink.This
+	// field may not be present for older sinks.
+	CreateTime string `json:"createTime,omitempty"`
+
 	// Destination: Required. The export
 	// destination:
 	// "storage.googleapis.com/[GCS_BUCKET]"
@@ -1490,7 +1573,7 @@ type LogSink struct {
 	// /projects/[PROJECT_ID]/topics/[TOPIC_ID]"
 	// The sink's writer_identity, set when the sink is created, must have
 	// permission to write to the destination or else the log entries are
-	// not exported. For more information, see Exporting Logs With Sinks.
+	// not exported. For more information, see Exporting Logs with Sinks.
 	Destination string `json:"destination,omitempty"`
 
 	// Filter: Optional. An advanced logs filter. The only exported log
@@ -1537,13 +1620,17 @@ type LogSink struct {
 	//   "V1" - LogEntry version 1 format.
 	OutputVersionFormat string `json:"outputVersionFormat,omitempty"`
 
+	// UpdateTime: Output only. The last update timestamp of the sink.This
+	// field may not be present for older sinks.
+	UpdateTime string `json:"updateTime,omitempty"`
+
 	// WriterIdentity: Output only. An IAM identity&mdash;a service account
 	// or group&mdash;under which Logging writes the exported log entries to
 	// the sink's destination. This field is set by sinks.create and
-	// sinks.update, based on the setting of unique_writer_identity in those
+	// sinks.update based on the value of unique_writer_identity in those
 	// methods.Until you grant this identity write-access to the
 	// destination, log entry exports from this sink will fail. For more
-	// information, see Granting access for a resource. Consult the
+	// information, see Granting Access for a Resource. Consult the
 	// destination service's documentation to determine the appropriate IAM
 	// roles to assign to the identity.
 	WriterIdentity string `json:"writerIdentity,omitempty"`
@@ -1552,7 +1639,7 @@ type LogSink struct {
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "Destination") to
+	// ForceSendFields is a list of field names (e.g. "CreateTime") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -1560,10 +1647,10 @@ type LogSink struct {
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "Destination") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "CreateTime") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -4043,7 +4130,7 @@ type BillingAccountsSinksPatchCall struct {
 
 // Patch: Updates a sink. This method replaces the following fields in
 // the existing sink with values from the new sink: destination, and
-// filter. The updated sink might also have a new writer_identity; see
+// filter.The updated sink might also have a new writer_identity; see
 // the unique_writer_identity field.
 func (r *BillingAccountsSinksService) Patch(sinkNameid string, logsink *LogSink) *BillingAccountsSinksPatchCall {
 	c := &BillingAccountsSinksPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -4173,7 +4260,7 @@ func (c *BillingAccountsSinksPatchCall) Do(opts ...googleapi.CallOption) (*LogSi
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter. The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
+	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter.The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
 	//   "flatPath": "v2/billingAccounts/{billingAccountsId}/sinks/{sinksId}",
 	//   "httpMethod": "PATCH",
 	//   "id": "logging.billingAccounts.sinks.patch",
@@ -4228,7 +4315,7 @@ type BillingAccountsSinksUpdateCall struct {
 
 // Update: Updates a sink. This method replaces the following fields in
 // the existing sink with values from the new sink: destination, and
-// filter. The updated sink might also have a new writer_identity; see
+// filter.The updated sink might also have a new writer_identity; see
 // the unique_writer_identity field.
 func (r *BillingAccountsSinksService) Update(sinkNameid string, logsink *LogSink) *BillingAccountsSinksUpdateCall {
 	c := &BillingAccountsSinksUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -4358,7 +4445,7 @@ func (c *BillingAccountsSinksUpdateCall) Do(opts ...googleapi.CallOption) (*LogS
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter. The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
+	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter.The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
 	//   "flatPath": "v2/billingAccounts/{billingAccountsId}/sinks/{sinksId}",
 	//   "httpMethod": "PUT",
 	//   "id": "logging.billingAccounts.sinks.update",
@@ -7209,7 +7296,7 @@ type FoldersSinksPatchCall struct {
 
 // Patch: Updates a sink. This method replaces the following fields in
 // the existing sink with values from the new sink: destination, and
-// filter. The updated sink might also have a new writer_identity; see
+// filter.The updated sink might also have a new writer_identity; see
 // the unique_writer_identity field.
 func (r *FoldersSinksService) Patch(sinkNameid string, logsink *LogSink) *FoldersSinksPatchCall {
 	c := &FoldersSinksPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -7339,7 +7426,7 @@ func (c *FoldersSinksPatchCall) Do(opts ...googleapi.CallOption) (*LogSink, erro
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter. The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
+	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter.The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
 	//   "flatPath": "v2/folders/{foldersId}/sinks/{sinksId}",
 	//   "httpMethod": "PATCH",
 	//   "id": "logging.folders.sinks.patch",
@@ -7394,7 +7481,7 @@ type FoldersSinksUpdateCall struct {
 
 // Update: Updates a sink. This method replaces the following fields in
 // the existing sink with values from the new sink: destination, and
-// filter. The updated sink might also have a new writer_identity; see
+// filter.The updated sink might also have a new writer_identity; see
 // the unique_writer_identity field.
 func (r *FoldersSinksService) Update(sinkNameid string, logsink *LogSink) *FoldersSinksUpdateCall {
 	c := &FoldersSinksUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -7524,7 +7611,7 @@ func (c *FoldersSinksUpdateCall) Do(opts ...googleapi.CallOption) (*LogSink, err
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter. The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
+	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter.The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
 	//   "flatPath": "v2/folders/{foldersId}/sinks/{sinksId}",
 	//   "httpMethod": "PUT",
 	//   "id": "logging.folders.sinks.update",
@@ -9837,7 +9924,7 @@ type OrganizationsSinksPatchCall struct {
 
 // Patch: Updates a sink. This method replaces the following fields in
 // the existing sink with values from the new sink: destination, and
-// filter. The updated sink might also have a new writer_identity; see
+// filter.The updated sink might also have a new writer_identity; see
 // the unique_writer_identity field.
 func (r *OrganizationsSinksService) Patch(sinkNameid string, logsink *LogSink) *OrganizationsSinksPatchCall {
 	c := &OrganizationsSinksPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -9967,7 +10054,7 @@ func (c *OrganizationsSinksPatchCall) Do(opts ...googleapi.CallOption) (*LogSink
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter. The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
+	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter.The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
 	//   "flatPath": "v2/organizations/{organizationsId}/sinks/{sinksId}",
 	//   "httpMethod": "PATCH",
 	//   "id": "logging.organizations.sinks.patch",
@@ -10022,7 +10109,7 @@ type OrganizationsSinksUpdateCall struct {
 
 // Update: Updates a sink. This method replaces the following fields in
 // the existing sink with values from the new sink: destination, and
-// filter. The updated sink might also have a new writer_identity; see
+// filter.The updated sink might also have a new writer_identity; see
 // the unique_writer_identity field.
 func (r *OrganizationsSinksService) Update(sinkNameid string, logsink *LogSink) *OrganizationsSinksUpdateCall {
 	c := &OrganizationsSinksUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -10152,7 +10239,7 @@ func (c *OrganizationsSinksUpdateCall) Do(opts ...googleapi.CallOption) (*LogSin
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter. The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
+	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter.The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
 	//   "flatPath": "v2/organizations/{organizationsId}/sinks/{sinksId}",
 	//   "httpMethod": "PUT",
 	//   "id": "logging.organizations.sinks.update",
@@ -12705,7 +12792,7 @@ type ProjectsSinksPatchCall struct {
 
 // Patch: Updates a sink. This method replaces the following fields in
 // the existing sink with values from the new sink: destination, and
-// filter. The updated sink might also have a new writer_identity; see
+// filter.The updated sink might also have a new writer_identity; see
 // the unique_writer_identity field.
 func (r *ProjectsSinksService) Patch(sinkNameid string, logsink *LogSink) *ProjectsSinksPatchCall {
 	c := &ProjectsSinksPatchCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -12835,7 +12922,7 @@ func (c *ProjectsSinksPatchCall) Do(opts ...googleapi.CallOption) (*LogSink, err
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter. The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
+	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter.The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
 	//   "flatPath": "v2/projects/{projectsId}/sinks/{sinksId}",
 	//   "httpMethod": "PATCH",
 	//   "id": "logging.projects.sinks.patch",
@@ -12890,7 +12977,7 @@ type ProjectsSinksUpdateCall struct {
 
 // Update: Updates a sink. This method replaces the following fields in
 // the existing sink with values from the new sink: destination, and
-// filter. The updated sink might also have a new writer_identity; see
+// filter.The updated sink might also have a new writer_identity; see
 // the unique_writer_identity field.
 func (r *ProjectsSinksService) Update(sinkNameid string, logsink *LogSink) *ProjectsSinksUpdateCall {
 	c := &ProjectsSinksUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -13020,7 +13107,7 @@ func (c *ProjectsSinksUpdateCall) Do(opts ...googleapi.CallOption) (*LogSink, er
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter. The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
+	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter.The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
 	//   "flatPath": "v2/projects/{projectsId}/sinks/{sinksId}",
 	//   "httpMethod": "PUT",
 	//   "id": "logging.projects.sinks.update",
@@ -13714,7 +13801,7 @@ type SinksUpdateCall struct {
 
 // Update: Updates a sink. This method replaces the following fields in
 // the existing sink with values from the new sink: destination, and
-// filter. The updated sink might also have a new writer_identity; see
+// filter.The updated sink might also have a new writer_identity; see
 // the unique_writer_identity field.
 func (r *SinksService) Update(sinkNameid string, logsink *LogSink) *SinksUpdateCall {
 	c := &SinksUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -13844,7 +13931,7 @@ func (c *SinksUpdateCall) Do(opts ...googleapi.CallOption) (*LogSink, error) {
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter. The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
+	//   "description": "Updates a sink. This method replaces the following fields in the existing sink with values from the new sink: destination, and filter.The updated sink might also have a new writer_identity; see the unique_writer_identity field.",
 	//   "flatPath": "v2/{v2Id}/{v2Id1}/sinks/{sinksId}",
 	//   "httpMethod": "PUT",
 	//   "id": "logging.sinks.update",
