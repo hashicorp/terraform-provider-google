@@ -164,7 +164,7 @@ func buildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *Co
 		if m == "zone" {
 			return zone
 		}
-		v, ok := d.GetOk(m)
+		v, ok := d.GetOkExists(m)
 		if ok {
 			return fmt.Sprintf("%v", v)
 		}
