@@ -11,6 +11,7 @@ FEATURES:
 ENHANCEMENTS:
 * dataflow: `google_dataflow_job`'s `network` and `subnetwork` can be configured. [GH-3476]
 * monitoring: `google_monitoring_alert_policy` `user_labels` support was added. [GH-3494]
+* compute: `google_compute_region_backend_service` is now generated with Magic Modules, adding configurable timeouts, multiple import formats, `creation_timestamp` output. ([#3521](https://github.com/terraform-providers/terraform-provider-google/pull/3521))
 
 BUG FIXES:
 * compute: `google_compute_instance` now retries updating metadata when fingerprints are mismatched. [GH-3372]
