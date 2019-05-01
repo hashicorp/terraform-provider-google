@@ -25,9 +25,16 @@ Fields that are only available in beta versions of the Google Cloud Platform API
 
 ## Vendoring Libraries
 
-When adding support for just-released GCP features, you'll often need to vendor a new version of the Google API client. The Google provider uses Go Modules; use `GO111MODULES=on go get {{dependency}}`, and the new dependencies will be included in your PR.
+When adding support for just-released GCP features, you'll often need to vendor a new version of the Google API client.
+The Google provider uses Go Modules; use the commands listed below and the new dependencies will be included in your PR.
 
-If you're developing against Magic Modules, vendoring changes is done automatically by the Magician at PR time; you may need to `go get` locally, but those changes don't need to be included in your PR.
+```bash
+GO111MODULES=on go get {{dependency}}
+GO111MODULES=on go mod tidy
+GO111MODULES=on go mod vendor
+```
+
+If you're developing against Magic Modules, vendoring changes needs to be done against each of the providers Magic Modules builds. At time of writing, that's this provider (`google`) and [`google-beta`](https://github.com/terraform-providers/terraform-provider-google-beta).
 
 ## Tests
 
