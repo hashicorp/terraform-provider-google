@@ -27,10 +27,6 @@ var functionAllowedMemory = map[int]bool{
 	2048: true,
 }
 
-// For now CloudFunctions are allowed only in the following locations.
-// Please see https://cloud.google.com/about/locations/
-var validCloudFunctionRegion = validation.StringInSlice([]string{"us-central1", "us-east1", "europe-west1", "europe-west2", "asia-east2", "asia-northeast1"}, true)
-
 const functionDefaultAllowedMemoryMb = 256
 
 type cloudFunctionId struct {
@@ -283,11 +279,10 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 
 			"region": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ValidateFunc: validCloudFunctionRegion,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 		},
 	}
