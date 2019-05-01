@@ -1,4 +1,4 @@
-// Copyright 2018 Google Inc. All rights reserved.
+// Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -8,13 +8,35 @@
 //
 // This package is DEPRECATED. Use package cloud.google.com/go/dataproc/apiv1 instead.
 //
-// See https://cloud.google.com/dataproc/
+// For product documentation, see: https://cloud.google.com/dataproc/
+//
+// Creating a client
 //
 // Usage example:
 //
 //   import "google.golang.org/api/dataproc/v1"
 //   ...
-//   dataprocService, err := dataproc.New(oauthHttpClient)
+//   ctx := context.Background()
+//   dataprocService, err := dataproc.NewService(ctx)
+//
+// In this example, Google Application Default Credentials are used for authentication.
+//
+// For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
+//
+// Other authentication options
+//
+// To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
+//
+//   dataprocService, err := dataproc.NewService(ctx, option.WithAPIKey("AIza..."))
+//
+// To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
+//
+//   config := &oauth2.Config{...}
+//   // ...
+//   token, err := config.Exchange(ctx, ...)
+//   dataprocService, err := dataproc.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//
+// See https://godoc.org/google.golang.org/api/option/ for details on options.
 package dataproc // import "google.golang.org/api/dataproc/v1"
 
 import (
@@ -31,6 +53,8 @@ import (
 
 	gensupport "google.golang.org/api/gensupport"
 	googleapi "google.golang.org/api/googleapi"
+	option "google.golang.org/api/option"
+	htransport "google.golang.org/api/transport/http"
 )
 
 // Always reference these packages, just in case the auto-generated code
@@ -58,6 +82,32 @@ const (
 	CloudPlatformScope = "https://www.googleapis.com/auth/cloud-platform"
 )
 
+// NewService creates a new Service.
+func NewService(ctx context.Context, opts ...option.ClientOption) (*Service, error) {
+	scopesOption := option.WithScopes(
+		"https://www.googleapis.com/auth/cloud-platform",
+	)
+	// NOTE: prepend, so we don't override user-specified scopes.
+	opts = append([]option.ClientOption{scopesOption}, opts...)
+	client, endpoint, err := htransport.NewClient(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	s, err := New(client)
+	if err != nil {
+		return nil, err
+	}
+	if endpoint != "" {
+		s.BasePath = endpoint
+	}
+	return s, nil
+}
+
+// New creates a new Service. It uses the provided http.Client for requests.
+//
+// Deprecated: please use NewService instead.
+// To provide a custom HTTP client, use option.WithHTTPClient.
+// If you are using google.golang.org/api/googleapis/transport.APIKey, use option.WithAPIKey with NewService instead.
 func New(client *http.Client) (*Service, error) {
 	if client == nil {
 		return nil, errors.New("client is nil")
@@ -242,8 +292,8 @@ type Binding struct {
 	// my-other-app@appspot.gserviceaccount.com.
 	// group:{emailid}: An email address that represents a Google group.
 	// For example, admins@example.com.
-	// domain:{domain}: A Google Apps domain name that represents all the
-	// users of that domain. For example, google.com or example.com.
+	// domain:{domain}: The G Suite domain (primary) that represents all the
+	//  users of that domain. For example, google.com or example.com.
 	Members []string `json:"members,omitempty"`
 
 	// Role: Role that is assigned to members. For example, roles/viewer,
@@ -345,19 +395,19 @@ func (s *Cluster) MarshalJSON() ([]byte, error) {
 
 // ClusterConfig: The cluster config.
 type ClusterConfig struct {
-	// ConfigBucket: Optional. A Cloud Storage staging bucket used for
-	// sharing generated SSH keys and config. If you do not specify a
-	// staging bucket, Cloud Dataproc will determine an appropriate Cloud
-	// Storage location (US, ASIA, or EU) for your cluster's staging bucket
-	// according to the Google Compute Engine zone where your cluster is
-	// deployed, and then it will create and manage this project-level,
-	// per-location bucket for you.
+	// ConfigBucket: Optional. A Google Cloud Storage bucket used to stage
+	// job dependencies, config files, and job driver console output. If you
+	// do not specify a staging bucket, Cloud Dataproc will determine a
+	// Cloud Storage location (US, ASIA, or EU) for your cluster's staging
+	// bucket according to the Google Compute Engine zone where your cluster
+	// is deployed, and then create and manage this project-level,
+	// per-location bucket (see Cloud Dataproc staging bucket).
 	ConfigBucket string `json:"configBucket,omitempty"`
 
 	// EncryptionConfig: Optional. Encryption settings for the cluster.
 	EncryptionConfig *EncryptionConfig `json:"encryptionConfig,omitempty"`
 
-	// GceClusterConfig: Required. The shared Compute Engine config settings
+	// GceClusterConfig: Optional. The shared Compute Engine config settings
 	// for all instances in a cluster.
 	GceClusterConfig *GceClusterConfig `json:"gceClusterConfig,omitempty"`
 
@@ -1336,12 +1386,11 @@ func (s *JobPlacement) MarshalJSON() ([]byte, error) {
 
 // JobReference: Encapsulates the full scoping used to reference a job.
 type JobReference struct {
-	// JobId: Optional. The job ID, which must be unique within the project.
-	// The job ID is generated by the server upon job submission or provided
-	// by the user as a means to perform retries without creating duplicate
-	// jobs. The ID must contain only letters (a-z, A-Z), numbers (0-9),
+	// JobId: Optional. The job ID, which must be unique within the
+	// project.The ID must contain only letters (a-z, A-Z), numbers (0-9),
 	// underscores (_), or hyphens (-). The maximum length is 100
-	// characters.
+	// characters.If not specified by the caller, the job ID will be
+	// provided by the server.
 	JobId string `json:"jobId,omitempty"`
 
 	// ProjectId: Required. The ID of the Google Cloud Platform project that
@@ -2246,10 +2295,22 @@ type SoftwareConfig struct {
 	// "preview" version. If unspecified, it defaults to the latest version.
 	ImageVersion string `json:"imageVersion,omitempty"`
 
+	// OptionalComponents: The set of optional components to activate on the
+	// cluster.
+	//
+	// Possible values:
+	//   "COMPONENT_UNSPECIFIED" - Unspecified component.
+	//   "ANACONDA" - The Anaconda python distribution.
+	//   "HIVE_WEBHCAT" - The Hive Web HCatalog (the REST service for
+	// accessing HCatalog).
+	//   "JUPYTER" - The Jupyter Notebook.
+	//   "ZEPPELIN" - The Zeppelin notebook.
+	OptionalComponents []string `json:"optionalComponents,omitempty"`
+
 	// Properties: Optional. The properties to set on daemon config
-	// files.Property keys are specified in prefix:property format, such as
-	// core:fs.defaultFS. The following are supported prefixes and their
-	// mappings:
+	// files.Property keys are specified in prefix:property format, for
+	// example core:hadoop.tmp.dir. The following are supported prefixes and
+	// their mappings:
 	// capacity-scheduler: capacity-scheduler.xml
 	// core: core-site.xml
 	// distcp: distcp-default.xml
