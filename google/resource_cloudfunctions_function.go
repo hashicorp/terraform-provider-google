@@ -300,14 +300,6 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	// We do this extra validation here since most regions are not valid, and the
-	// error message that Cloud Functions has for "wrong region" is not specific.
-	// Provider-level region fetching skips validation, because it's not possible
-	// for the provider-level region to know about the field-level validator.
-	_, errs := validCloudFunctionRegion(region, "region")
-	if len(errs) > 0 {
-		return errs[0]
-	}
 
 	cloudFuncId := &cloudFunctionId{
 		Project: project,
