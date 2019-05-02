@@ -189,7 +189,6 @@ resource "google_compute_attached_disk" "test" {
 resource "google_compute_region_disk" "region" {
   name = "%s"
 	region = "us-central1"
-	size = 10
   replica_zones = ["us-central1-b", "us-central1-a"]
 }
 
