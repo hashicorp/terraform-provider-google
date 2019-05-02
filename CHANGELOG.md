@@ -6,6 +6,7 @@ DEPRECATIONS:
 FEATURES: 
 * **New Datasource**: `google_compute_node_types` for sole-tenant node types is now available. ([#3446](https://github.com/terraform-providers/terraform-provider-google/pull/3446))
 * **New Resource**: `google_compute_node_template` for sole-tenant node templates is now available. ([#3446](https://github.com/terraform-providers/terraform-provider-google/pull/3446))
+* **New Resource**: `google_filestore_instance` is now available at GA. [GH-3522]
 * **New Resource**: `google_firestore_index` is now available to configure composite indexes on Firestore. [GH-3484]
 
 ENHANCEMENTS:
@@ -18,7 +19,6 @@ BUG FIXES:
 * compute: `google_compute_subnetwork.secondary_ip_ranges` doesn't cause a diff on out of band changes, allows updating to empty list of ranges. [GH-3496]
 * container: `google_container_cluster` setting networks / subnetworks by name works with `location`. [GH-3492]
 * container: `google_container_cluster` removed an overly restrictive validation restricting `node_pool` and `remove_default_node_pool` being specified at the same time. [GH-3497]
-* storage: `data_source_google_storage_bucket_object` now correctly URL encodes the slashes in a file name [GH-1613]
 
 ## 2.5.1 (April 22, 2019)
 
