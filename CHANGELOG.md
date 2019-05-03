@@ -16,6 +16,7 @@ ENHANCEMENTS:
 * compute: `google_compute_region_backend_service` is now generated with Magic Modules, adding configurable timeouts, multiple import formats, `creation_timestamp` output. ([#3521](https://github.com/terraform-providers/terraform-provider-google/pull/3521))
 
 BUG FIXES:
+* cloudfunctions: `google_cloudfunctions_fucntion` no longer restricts an outdated list of `region`s [GH-3530]
 * compute: `google_compute_instance` now retries updating metadata when fingerprints are mismatched. [GH-3372]
 * compute: `google_compute_subnetwork.secondary_ip_ranges` doesn't cause a diff on out of band changes, allows updating to empty list of ranges. [GH-3496]
 * container: `google_container_cluster` setting networks / subnetworks by name works with `location`. [GH-3492]
