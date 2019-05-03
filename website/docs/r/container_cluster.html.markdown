@@ -181,6 +181,9 @@ deprecated in favour of `node_locations`.
 * `cluster_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
     Configuration for per-cluster autoscaling features, including node autoprovisioning. See [guide in Google docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning). Structure is documented below.
 
+* `database_encryption` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)).
+    Structure is documented below.
+
 * `description` - (Optional) Description of the cluster.
 
 * `default_max_pods_per_node` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The default maximum number of pods per node in this cluster.
@@ -343,6 +346,12 @@ addons_config {
   }
 }
 ```
+
+The `database_encryption` block supports:
+
+* `state` - (Required) `ENCRYPTED` or `DECRYPTED`
+
+* `key_name` - (Required) the key to use to encrypt/decrypt secrets.  See the [DatabaseEncryption definition](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#Cluster.DatabaseEncryption) for more information.
 
 The `istio_config` block supports:
 

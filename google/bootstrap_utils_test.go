@@ -18,9 +18,15 @@ type bootstrappedKMS struct {
 	*cloudkms.CryptoKey
 }
 
+// BootstrapKMSKey returns a KMS key in the "global" location.
+// See BootstrapKMSKeyInLocation.
+func BootstrapKMSKey(t *testing.T) bootstrappedKMS {
+	return BootstrapKMSKeyInLocation(t, "global")
+}
+
 /**
-* BootstrapKMSkey will return a KMS key that can be used in tests that are
-* testing KMS integration with other resources.
+* BootstrapKMSKeyWithLocation will return a KMS key in a particular location
+* that can be used in tests that are testing KMS integration with other resources.
 *
 * This will either return an existing key or create one if it hasn't been created
 * in the project yet. The motivation is because keyrings don't get deleted and we
@@ -28,7 +34,7 @@ type bootstrappedKMS struct {
 * to incur the overhead of creating a new project for each test that needs to use
 * a KMS key.
 **/
-func BootstrapKMSKey(t *testing.T) bootstrappedKMS {
+func BootstrapKMSKeyInLocation(t *testing.T, locationID string) bootstrappedKMS {
 	if v := os.Getenv("TF_ACC"); v == "" {
 		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
 
@@ -40,7 +46,6 @@ func BootstrapKMSKey(t *testing.T) bootstrappedKMS {
 	}
 
 	projectID := getTestProjectFromEnv()
-	locationID := "global"
 	keyRingParent := fmt.Sprintf("projects/%s/locations/%s", projectID, locationID)
 	keyRingName := fmt.Sprintf("%s/keyRings/%s", keyRingParent, SharedKeyRing)
 	keyParent := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", projectID, locationID, SharedKeyRing)
