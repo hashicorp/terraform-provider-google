@@ -202,6 +202,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_folder_organization_policy":            resourceGoogleFolderOrganizationPolicy(),
 			"google_logging_billing_account_sink":          resourceLoggingBillingAccountSink(),
 			"google_logging_billing_account_exclusion":     ResourceLoggingExclusion(BillingAccountLoggingExclusionSchema, NewBillingAccountLoggingExclusionUpdater, billingAccountLoggingExclusionIdParseFunc),
+			"google_logging_metric":                        resourceLoggingMetric(),
 			"google_logging_organization_sink":             resourceLoggingOrganizationSink(),
 			"google_logging_organization_exclusion":        ResourceLoggingExclusion(OrganizationLoggingExclusionSchema, NewOrganizationLoggingExclusionUpdater, organizationLoggingExclusionIdParseFunc),
 			"google_logging_folder_sink":                   resourceLoggingFolderSink(),
