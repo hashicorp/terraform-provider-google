@@ -3,6 +3,7 @@ package google
 import (
 	"crypto/sha256"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -277,8 +278,9 @@ func resourceComputeInstance() *schema.Resource {
 						},
 
 						"kms_key_self_link": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"boot_disk.0.disk_encryption_key_raw"},
 						},
 
 						"disk_encryption_key_sha256": {
@@ -364,12 +366,6 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:  true,
 							ForceNew:  true,
 							Sensitive: true,
-						},
-
-						"kms_key_self_link": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
 						},
 
 						"disk_encryption_key_sha256": {
@@ -1384,15 +1380,20 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 		disk.DeviceName = v.(string)
 	}
 
-	if v, ok := diskConfig["disk_encryption_key_raw"]; ok {
+	keyValue, keyOk := diskConfig["disk_encryption_key_raw"]
+	if keyOk {
 		disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
-			RawKey: v.(string),
+			RawKey: keyValue.(string),
 		}
 	}
 
-	if v, ok := diskConfig["kms_key_self_link"]; ok {
+	kmsValue, kmsOk := diskConfig["kms_key_self_link"]
+	if kmsOk {
+		if keyOk {
+			return nil, errors.New("Only one of kms_key_self_link and disk_encryption_key_raw can be set")
+		}
 		disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
-			KmsKeyName: v.(string),
+			KmsKeyName: kmsValue.(string),
 		}
 	}
 	return disk, nil

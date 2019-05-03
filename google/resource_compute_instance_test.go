@@ -306,12 +306,13 @@ func TestAccComputeInstance_kmsDiskEncryption(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstance_disks_encryption(bootKmsKeyName, diskNameToEncryptionKey, instanceName),
+				Config: testAccComputeInstance_disks_kms(bootKmsKeyName, diskNameToEncryptionKey, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceDiskKmsEncryptionKey("google_compute_instance.foobar", &instance, bootKmsKeyName, diskNameToEncryptionKey),
 				),
 			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -2097,6 +2098,104 @@ resource "google_compute_instance" "foobar" {
 		"instance-testd-"+acctest.RandString(10),
 		instance, bootEncryptionKey,
 		diskNameToEncryptionKey[diskNames[0]].RawKey, diskNameToEncryptionKey[diskNames[1]].RawKey, diskNameToEncryptionKey[diskNames[2]].RawKey)
+}
+
+func testAccComputeInstance_disks_kms(bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance string) string {
+	diskNames := []string{}
+	for k := range diskNameToEncryptionKey {
+		diskNames = append(diskNames, k)
+	}
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+
+	disk_encryption_key {
+		kms_key_self_link = "%s"
+	}
+}
+
+resource "google_compute_disk" "foobar2" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+
+	disk_encryption_key {
+		kms_key_self_link = "%s"
+	}
+}
+
+resource "google_compute_disk" "foobar3" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+
+	disk_encryption_key {
+		kms_key_self_link = "%s"
+	}
+}
+
+resource "google_compute_disk" "foobar4" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+		kms_key_self_link = "%s"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar.self_link}"
+		kms_key_self_link = "%s"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar2.self_link}"
+		kms_key_self_link = "%s"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar4.self_link}"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar3.self_link}"
+		kms_key_self_link = "%s"
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	metadata = {
+		foo = "bar"
+	}
+}
+`, diskNames[0], diskNameToEncryptionKey[diskNames[0]].KmsKeyName,
+		diskNames[1], diskNameToEncryptionKey[diskNames[1]].KmsKeyName,
+		diskNames[2], diskNameToEncryptionKey[diskNames[2]].KmsKeyName,
+		"instance-testd-"+acctest.RandString(10),
+		instance, bootEncryptionKey,
+		diskNameToEncryptionKey[diskNames[0]].KmsKeyName, diskNameToEncryptionKey[diskNames[1]].KmsKeyName, diskNameToEncryptionKey[diskNames[2]].KmsKeyName)
 }
 
 func testAccComputeInstance_attachedDisk(disk, instance string) string {
