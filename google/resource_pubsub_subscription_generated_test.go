@@ -67,6 +67,10 @@ resource "google_pubsub_subscription" "example" {
   retain_acked_messages = true
 
   ack_deadline_seconds = 20
+
+  expiration_policy {
+    ttl = "300000.5s"
+  }
 }
 `, context)
 }
