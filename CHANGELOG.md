@@ -15,7 +15,7 @@ ENHANCEMENTS:
 * dataflow: `google_dataflow_job`'s `network` and `subnetwork` can be configured. [GH-3476]
 * monitoring: `google_monitoring_alert_policy` `user_labels` support was added. [GH-3494]
 * compute: `google_compute_region_backend_service` is now generated with Magic Modules, adding configurable timeouts, multiple import formats, `creation_timestamp` output. ([#3521](https://github.com/terraform-providers/terraform-provider-google/pull/3521))
-* pubsub: `google_pubsub_subscription` now supports setting an `expiration_policy`.
+* pubsub: `google_pubsub_subscription` now supports setting an `expiration_policy`. ([#1703](https://github.com/GoogleCloudPlatform/magic-modules/pull/1703))
 
 BUG FIXES:
 * cloudfunctions: `google_cloudfunctions_fucntion` no longer restricts an outdated list of `region`s [GH-3530]
