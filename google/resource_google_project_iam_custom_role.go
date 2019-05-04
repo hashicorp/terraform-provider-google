@@ -21,9 +21,10 @@ func resourceGoogleProjectIamCustomRole() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"role_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateIAMCustomRoleID,
 			},
 			"title": {
 				Type:     schema.TypeString,
