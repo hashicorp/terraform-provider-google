@@ -27,6 +27,9 @@ const (
 	// Format of default Compute service accounts created by Google
 	// ${PROJECT_ID}-compute@developer.gserviceaccount.com where PROJECT_ID is an int64 (max 20 digits)
 	ComputeServiceAccountNameRegex = "[0-9]{1,20}-compute@developer.gserviceaccount.com"
+
+	// https://cloud.google.com/iam/docs/understanding-custom-roles#naming_the_role
+	IAMCustomRoleIDRegex = "^[a-zA-Z0-9_\\.\\-]{1,30}$"
 )
 
 var (
@@ -151,6 +154,15 @@ func validateCloudIoTID(v interface{}, k string) (warnings []string, errors []er
 	if !regexp.MustCompile(CloudIoTIdRegex).MatchString(value) {
 		errors = append(errors, fmt.Errorf(
 			"%q (%q) doesn't match regexp %q", k, value, CloudIoTIdRegex))
+	}
+	return
+}
+
+func validateIAMCustomRoleID(v interface{}, k string) (warnings []string, errors []error) {
+	value := v.(string)
+	if !regexp.MustCompile(IAMCustomRoleIDRegex).MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q (%q) doesn't match regexp %q", k, value, IAMCustomRoleIDRegex))
 	}
 	return
 }
