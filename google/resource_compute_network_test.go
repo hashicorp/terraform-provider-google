@@ -150,6 +150,21 @@ func TestAccComputeNetwork_default_routing_mode(t *testing.T) {
 	})
 }
 
+func TestAccComputeNetwork_networkDeleteDefaultRoute(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeNetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_deleteDefaultRoute(),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeNetworkExists(n string, network *compute.Network) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -283,4 +298,13 @@ resource "google_compute_network" "acc_network_routing_mode" {
 	name         = "network-test-%s"
 	routing_mode = "%s"
 }`, network, routingMode)
+}
+
+func testAccComputeNetwork_deleteDefaultRoute() string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "bar" {
+	name = "network-test-%s"
+	delete_default_routes_on_create = true
+	auto_create_subnetworks = false
+}`, acctest.RandString(10))
 }

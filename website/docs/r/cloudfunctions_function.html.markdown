@@ -80,6 +80,8 @@ The following arguments are supported:
 * `source_repository` - (Optional) Represents parameters related to source repository where a function is hosted.
   Cannot be set alongside `source_archive_bucket` or `source_archive_object`. Structure is documented below.
 
+* `max_instances` - (Optional) The limit on the maximum number of function instances that may coexist at a given time.
+
 The `event_trigger` block supports:
 
 * `event_type` - (Required) The type of event to observe. For example: `"google.storage.object.finalize"`.

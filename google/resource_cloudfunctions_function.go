@@ -27,10 +27,6 @@ var functionAllowedMemory = map[int]bool{
 	2048: true,
 }
 
-// For now CloudFunctions are allowed only in the following locations.
-// Please see https://cloud.google.com/about/locations/
-var validCloudFunctionRegion = validation.StringInSlice([]string{"us-central1", "us-east1", "europe-west1", "asia-northeast1"}, true)
-
 const functionDefaultAllowedMemoryMb = 256
 
 type cloudFunctionId struct {
@@ -72,6 +68,28 @@ func joinMapKeys(mapToJoin *map[int]bool) string {
 	return strings.Join(keys, ",")
 }
 
+func validateResourceCloudFunctionsFunctionName(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if len(value) > 48 {
+		errors = append(errors, fmt.Errorf(
+			"%q cannot be longer than 48 characters", k))
+	}
+	if !regexp.MustCompile("^[a-zA-Z0-9-_]+$").MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q can only contain letters, numbers, underscores and hyphens", k))
+	}
+	if !regexp.MustCompile("^[a-zA-Z]").MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q must start with a letter", k))
+	}
+	if !regexp.MustCompile("[a-zA-Z0-9]$").MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q must end with a number or a letter", k))
+	}
+	return
+}
+
 func resourceCloudFunctionsFunction() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudFunctionsCreate,
@@ -91,30 +109,10 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-
-					if len(value) > 48 {
-						errors = append(errors, fmt.Errorf(
-							"%q cannot be longer than 48 characters", k))
-					}
-					if !regexp.MustCompile("^[a-zA-Z0-9-]+$").MatchString(value) {
-						errors = append(errors, fmt.Errorf(
-							"%q can only contain letters, numbers and hyphens", k))
-					}
-					if !regexp.MustCompile("^[a-zA-Z]").MatchString(value) {
-						errors = append(errors, fmt.Errorf(
-							"%q must start with a letter", k))
-					}
-					if !regexp.MustCompile("[a-zA-Z0-9]$").MatchString(value) {
-						errors = append(errors, fmt.Errorf(
-							"%q must end with a number or a letter", k))
-					}
-					return
-				},
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateResourceCloudFunctionsFunctionName,
 			},
 
 			"source_archive_bucket": {
@@ -266,11 +264,11 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Computed: true,
 			},
 
-			"retry_on_failure": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
-				Removed:  "This field is removed. Use `event_trigger.failure_policy.retry` instead.",
+			"max_instances": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      0,
+				ValidateFunc: validation.IntAtLeast(0),
 			},
 
 			"project": {
@@ -281,11 +279,10 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 
 			"region": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ValidateFunc: validCloudFunctionRegion,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 		},
 	}
@@ -302,14 +299,6 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	region, err := getRegion(d, config)
 	if err != nil {
 		return err
-	}
-	// We do this extra validation here since most regions are not valid, and the
-	// error message that Cloud Functions has for "wrong region" is not specific.
-	// Provider-level region fetching skips validation, because it's not possible
-	// for the provider-level region to know about the field-level validator.
-	_, errs := validCloudFunctionRegion(region, "region")
-	if len(errs) > 0 {
-		return errs[0]
 	}
 
 	cloudFuncId := &cloudFunctionId{
@@ -369,6 +358,10 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 
 	if _, ok := d.GetOk("environment_variables"); ok {
 		function.EnvironmentVariables = expandEnvironmentVariables(d)
+	}
+
+	if v, ok := d.GetOk("max_instances"); ok {
+		function.MaxInstances = int64(v.(int))
 	}
 
 	log.Printf("[DEBUG] Creating cloud function: %s", function.Name)
@@ -437,7 +430,7 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	d.Set("event_trigger", flattenEventTrigger(function.EventTrigger))
-
+	d.Set("max_instances", function.MaxInstances)
 	d.Set("region", cloudFuncId.Region)
 	d.Set("project", cloudFuncId.Project)
 
@@ -505,12 +498,17 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("environment_variables") {
 		function.EnvironmentVariables = expandEnvironmentVariables(d)
-		updateMaskArr = append(updateMaskArr, "environment_variables")
+		updateMaskArr = append(updateMaskArr, "environmentVariables")
 	}
 
 	if d.HasChange("event_trigger") {
 		function.EventTrigger = expandEventTrigger(d.Get("event_trigger").([]interface{}), project)
 		updateMaskArr = append(updateMaskArr, "eventTrigger", "eventTrigger.failurePolicy.retry")
+	}
+
+	if d.HasChange("max_instances") {
+		function.MaxInstances = int64(d.Get("max_instances").(int))
+		updateMaskArr = append(updateMaskArr, "maxInstances")
 	}
 
 	if len(updateMaskArr) > 0 {

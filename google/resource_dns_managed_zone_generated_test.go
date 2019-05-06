@@ -65,6 +65,64 @@ resource "random_id" "rnd" {
 `, context)
 }
 
+func TestAccDnsManagedZone_dnsManagedZonePrivateExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsManagedZoneDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsManagedZone_dnsManagedZonePrivateExample(context),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.private-zone",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDnsManagedZone_dnsManagedZonePrivateExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_dns_managed_zone" "private-zone" {
+  name = "private-zone-%{random_suffix}"
+  dns_name = "private.example.com."
+  description = "Example private DNS zone"
+  labels = {
+    foo = "bar"
+  }
+
+  visibility = "private"
+
+  private_visibility_config {
+    networks {
+      network_url =  "${google_compute_network.network-1.self_link}"
+    }
+    networks {
+      network_url =  "${google_compute_network.network-2.self_link}"
+    }
+  }
+}
+
+resource "google_compute_network" "network-1" {
+  name = "network-1-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network" "network-2" {
+  name = "network-2-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
 func testAccCheckDnsManagedZoneDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_dns_managed_zone" {

@@ -48,6 +48,9 @@ var schemaNodeConfig = &schema.Schema{
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+				// Legacy config mode allows removing GPU's from an existing resource
+				// See https://www.terraform.io/docs/configuration/attr-as-blocks.html
+				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"count": {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
+	"google.golang.org/api/googleapi"
 )
 
 type Waiter interface {
@@ -22,7 +23,9 @@ type Waiter interface {
 	SetOp(interface{}) error
 
 	// QueryOp sends a request to the server to get the current status of the
-	// operation.
+	// operation. It's expected that QueryOp will return exactly one of an
+	// operation or an error as non-nil, and that requests will be retried by
+	// specific implementations of the method.
 	QueryOp() (interface{}, error)
 
 	// OpName is the name of the operation and is used to log its status.
@@ -90,31 +93,27 @@ func OperationDone(w Waiter) bool {
 
 func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		// First, read the operation from the server.
 		op, err := w.QueryOp()
-
-		// If we got a non-retryable error, return it.
 		if err != nil {
-			if !isRetryableError(err) {
-				return nil, "", fmt.Errorf("Not retriable error: %s", err)
+			// Importantly, this error is in the GET to the operation, and isn't an error
+			// with the resource CRUD request itself.
+			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+				log.Printf("[DEBUG] Dismissed an operation GET as retryable based on error code being 404: %s", err)
+				return op, "done: false", nil
 			}
-			if op == nil {
-				return nil, "", fmt.Errorf("Cannot continue, Operation is nil. %s", err)
-			}
+
+			return nil, "", fmt.Errorf("error while retrieving operation: %s", err)
 		}
 
-		// Try to set the operation (so we can check it's Error/State),
-		// and fail if we can't.
 		if err = w.SetOp(op); err != nil {
-			return nil, "", fmt.Errorf("Cannot continue %s", err)
+			return nil, "", fmt.Errorf("Cannot continue, unable to use operation: %s", err)
 		}
 
-		// Fail if the operation object contains an error.
 		if err = w.Error(); err != nil {
 			return nil, "", err
 		}
-		log.Printf("[DEBUG] Got %v while polling for operation %s's status", w.State(), w.OpName())
 
+		log.Printf("[DEBUG] Got %v while polling for operation %s's status", w.State(), w.OpName())
 		return op, w.State(), nil
 	}
 }

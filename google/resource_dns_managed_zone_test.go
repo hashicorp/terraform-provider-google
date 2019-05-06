@@ -38,6 +38,36 @@ func TestAccDnsManagedZone_update(t *testing.T) {
 	})
 }
 
+func TestAccDnsManagedZone_privateUpdate(t *testing.T) {
+	t.Parallel()
+
+	zoneSuffix := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsManagedZoneDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsManagedZone_privateUpdate(zoneSuffix, "network-1", "network-2"),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.private",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDnsManagedZone_privateUpdate(zoneSuffix, "network-2", "network-3"),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.private",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccDnsManagedZone_basic(suffix, description string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
@@ -47,7 +77,42 @@ resource "google_dns_managed_zone" "foobar" {
 	labels = {
 		foo = "bar"
 	}
+
+	visibility = "public"
 }`, suffix, suffix, description)
+}
+
+func testAccDnsManagedZone_privateUpdate(suffix, first_network, second_network string) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "private" {
+  name = "private-zone-%s"
+  dns_name = "private.example.com."
+  description = "Example private DNS zone"
+  visibility = "private"
+  private_visibility_config {
+    networks {
+      network_url = "${google_compute_network.%s.self_link}"
+    }
+    networks {
+      network_url = "${google_compute_network.%s.self_link}"
+    }
+  }
+}
+
+resource "google_compute_network" "network-1" {
+  name = "network-1-%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network" "network-2" {
+  name = "network-2-%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network" "network-3" {
+  name = "network-3-%s"
+  auto_create_subnetworks = false
+}`, suffix, first_network, second_network, suffix, suffix, suffix)
 }
 
 func TestDnsManagedZoneImport_parseImportId(t *testing.T) {

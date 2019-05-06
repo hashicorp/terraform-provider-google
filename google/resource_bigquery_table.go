@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strings"
+	"regexp"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/structure"
@@ -493,15 +493,16 @@ type bigQueryTableId struct {
 }
 
 func parseBigQueryTableId(id string) (*bigQueryTableId, error) {
-	parts := strings.FieldsFunc(id, func(r rune) bool { return r == ':' || r == '.' })
-
-	if len(parts) != 3 {
+	// Expected format is "PROJECT:DATASET.TABLE", but the project can itself have . and : in it.
+	// Those characters are not valid dataset or table components, so just split on the last two.
+	matchRegex := regexp.MustCompile("^(.+):([^:.]+)\\.([^:.]+)$")
+	subMatches := matchRegex.FindStringSubmatch(id)
+	if subMatches == nil {
 		return nil, fmt.Errorf("Invalid BigQuery table specifier. Expecting {project}:{dataset-id}.{table-id}, got %s", id)
 	}
-
 	return &bigQueryTableId{
-		Project:   parts[0],
-		DatasetId: parts[1],
-		TableId:   parts[2],
+		Project:   subMatches[1],
+		DatasetId: subMatches[2],
+		TableId:   subMatches[3],
 	}, nil
 }

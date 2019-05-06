@@ -6,8 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
-	"google.golang.org/api/compute/v1"
 )
 
 func TestAccComputeBackendBucket_basicModified(t *testing.T) {
@@ -16,7 +14,6 @@ func TestAccComputeBackendBucket_basicModified(t *testing.T) {
 	backendName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	storageName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	secondStorageName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	var svc compute.BackendBucket
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -25,62 +22,30 @@ func TestAccComputeBackendBucket_basicModified(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_basic(backendName, storageName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBackendBucketExists(
-						"google_compute_backend_bucket.foobar", &svc),
-				),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccComputeBackendBucket_basicModified(
 					backendName, storageName, secondStorageName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBackendBucketExists(
-						"google_compute_backend_bucket.foobar", &svc),
-				),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
-
-	if svc.BucketName != secondStorageName {
-		t.Errorf("Expected BucketName to be %q, got %q", secondStorageName, svc.BucketName)
-	}
 }
 
-func testAccCheckComputeBackendBucketExists(n string, svc *compute.BackendBucket) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		found, err := config.clientCompute.BackendBuckets.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Backend bucket %s not found", rs.Primary.ID)
-		}
-
-		*svc = *found
-
-		return nil
-	}
-}
-
-func TestAccComputeBackendBucket_withCdnEnabled(t *testing.T) {
+func TestAccComputeBackendBucket_withCdnPolicy(t *testing.T) {
 	t.Parallel()
 
 	backendName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	storageName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	var svc compute.BackendBucket
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -88,19 +53,15 @@ func TestAccComputeBackendBucket_withCdnEnabled(t *testing.T) {
 		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeBackendBucket_withCdnEnabled(
-					backendName, storageName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeBackendBucketExists(
-						"google_compute_backend_bucket.foobar", &svc),
-				),
+				Config: testAccComputeBackendBucket_withCdnPolicy(backendName, storageName),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
-
-	if svc.EnableCdn != true {
-		t.Errorf("Expected EnableCdn == true, got %t", svc.EnableCdn)
-	}
 }
 
 func testAccComputeBackendBucket_basic(backendName, storageName string) string {
@@ -136,12 +97,15 @@ resource "google_storage_bucket" "bucket_two" {
 `, backendName, bucketOne, bucketTwo)
 }
 
-func testAccComputeBackendBucket_withCdnEnabled(backendName, storageName string) string {
+func testAccComputeBackendBucket_withCdnPolicy(backendName, storageName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_bucket" "foobar" {
   name        = "%s"
   bucket_name = "${google_storage_bucket.bucket.name}"
   enable_cdn  = true
+  cdn_policy {
+  	signed_url_cache_max_age_sec = 1000
+  }
 }
 
 resource "google_storage_bucket" "bucket" {

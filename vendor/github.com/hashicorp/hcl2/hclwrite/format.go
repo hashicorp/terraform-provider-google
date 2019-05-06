@@ -79,12 +79,12 @@ func formatIndent(lines []formatLine) {
 		netBrackets := 0
 		for _, token := range line.lead {
 			netBrackets += tokenBracketChange(token)
-		}
-		for _, token := range line.assign {
-			netBrackets += tokenBracketChange(token)
 			if token.Type == hclsyntax.TokenOHeredoc {
 				inHeredoc = true
 			}
+		}
+		for _, token := range line.assign {
+			netBrackets += tokenBracketChange(token)
 		}
 
 		switch {
@@ -324,6 +324,10 @@ func spaceAfterToken(subject, before, after *Token) bool {
 		return true
 	case subject.Type == hclsyntax.TokenCBrace && after.Type == hclsyntax.TokenTemplateSeqEnd:
 		return true
+
+	// Don't add spaces between interpolated items
+	case subject.Type == hclsyntax.TokenTemplateSeqEnd && after.Type == hclsyntax.TokenTemplateInterp:
+		return false
 
 	case tokenBracketChange(subject) > 0:
 		// No spaces after open brackets

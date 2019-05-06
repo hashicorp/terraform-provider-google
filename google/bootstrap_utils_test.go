@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"google.golang.org/api/cloudkms/v1"
+	"google.golang.org/api/iam/v1"
 )
 
 var SharedKeyRing = "tftest-shared-keyring-1"
@@ -17,9 +18,15 @@ type bootstrappedKMS struct {
 	*cloudkms.CryptoKey
 }
 
+// BootstrapKMSKey returns a KMS key in the "global" location.
+// See BootstrapKMSKeyInLocation.
+func BootstrapKMSKey(t *testing.T) bootstrappedKMS {
+	return BootstrapKMSKeyInLocation(t, "global")
+}
+
 /**
-* BootstrapKMSkey will return a KMS key that can be used in tests that are
-* testing KMS integration with other resources.
+* BootstrapKMSKeyWithLocation will return a KMS key in a particular location
+* that can be used in tests that are testing KMS integration with other resources.
 *
 * This will either return an existing key or create one if it hasn't been created
 * in the project yet. The motivation is because keyrings don't get deleted and we
@@ -27,7 +34,7 @@ type bootstrappedKMS struct {
 * to incur the overhead of creating a new project for each test that needs to use
 * a KMS key.
 **/
-func BootstrapKMSKey(t *testing.T) bootstrappedKMS {
+func BootstrapKMSKeyInLocation(t *testing.T, locationID string) bootstrappedKMS {
 	if v := os.Getenv("TF_ACC"); v == "" {
 		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
 
@@ -39,7 +46,6 @@ func BootstrapKMSKey(t *testing.T) bootstrappedKMS {
 	}
 
 	projectID := getTestProjectFromEnv()
-	locationID := "global"
 	keyRingParent := fmt.Sprintf("projects/%s/locations/%s", projectID, locationID)
 	keyRingName := fmt.Sprintf("%s/keyRings/%s", keyRingParent, SharedKeyRing)
 	keyParent := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", projectID, locationID, SharedKeyRing)
@@ -102,4 +108,97 @@ func BootstrapKMSKey(t *testing.T) bootstrappedKMS {
 		keyRing,
 		cryptoKey,
 	}
+}
+
+var serviceAccountEmail = "tf-bootstrap-service-account"
+var serviceAccountDisplay = "Bootstrapped Service Account for Terraform tests"
+
+// Some tests need a second service account, other than the test runner, to assert functionality on.
+// This provides a well-known service account that can be used when dynamically creating a service
+// account isn't an option.
+func getOrCreateServiceAccount(config Config, project string) (*iam.ServiceAccount, error) {
+	name := fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", project, serviceAccountEmail, project)
+	log.Printf("[DEBUG] Verifying %s as bootstrapped service account.\n", name)
+
+	sa, err := config.clientIAM.Projects.ServiceAccounts.Get(name).Do()
+	if err != nil && !isGoogleApiErrorWithCode(err, 404) {
+		return nil, err
+	}
+
+	if sa == nil {
+		log.Printf("[DEBUG] Account missing. Creating %s as bootstrapped service account.\n", name)
+		sa = &iam.ServiceAccount{
+			DisplayName: serviceAccountDisplay,
+		}
+
+		r := &iam.CreateServiceAccountRequest{
+			AccountId:      serviceAccountEmail,
+			ServiceAccount: sa,
+		}
+		sa, err = config.clientIAM.Projects.ServiceAccounts.Create("projects/"+project, r).Do()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return sa, nil
+}
+
+// In order to test impersonation we need to grant the testRunner's account the ability to grant tokens
+// on a different service account. Granting permissions takes time and there is no operation to wait on
+// so instead this creates a single service account once per test-suite with the correct permissions.
+// The first time this test is run it will fail, but subsequent runs will succeed.
+func impersonationServiceAccountPermissions(config Config, sa *iam.ServiceAccount, testRunner string) error {
+	log.Printf("[DEBUG] Setting service account permissions.\n")
+	policy := iam.Policy{
+		Bindings: []*iam.Binding{},
+	}
+
+	binding := &iam.Binding{
+		Role:    "roles/iam.serviceAccountTokenCreator",
+		Members: []string{"serviceAccount:" + sa.Email, "serviceAccount:" + testRunner},
+	}
+	policy.Bindings = append(policy.Bindings, binding)
+
+	// Overwrite the roles each time on this service account. This is because this account is
+	// only created for the test suite and will stop snowflaking of permissions to get tests
+	// to run. Overwriting permissions on 1 service account shouldn't affect others.
+	_, err := config.clientIAM.Projects.ServiceAccounts.SetIamPolicy(sa.Name, &iam.SetIamPolicyRequest{
+		Policy: &policy,
+	}).Do()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
+	if v := os.Getenv("TF_ACC"); v == "" {
+		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+		return ""
+	}
+
+	config := Config{
+		Credentials: getTestCredsFromEnv(),
+		Project:     getTestProjectFromEnv(),
+		Region:      getTestRegionFromEnv(),
+		Zone:        getTestZoneFromEnv(),
+	}
+
+	if err := config.LoadAndValidate(); err != nil {
+		t.Fatalf("Bootstrapping failed. Unable to load test config: %s", err)
+	}
+
+	sa, err := getOrCreateServiceAccount(config, project)
+	if err != nil {
+		t.Fatalf("Bootstrapping failed. Cannot retrieve service account, %s", err)
+	}
+
+	err = impersonationServiceAccountPermissions(config, sa, testRunner)
+	if err != nil {
+		t.Fatalf("Bootstrapping failed. Cannot set service account permissions, %s", err)
+	}
+
+	return sa.Email
 }

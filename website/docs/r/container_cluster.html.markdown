@@ -51,8 +51,6 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
     }
 
     oauth_scopes = [
-      "https://www.googleapis.com/auth/compute",
-      "https://www.googleapis.com/auth/devstorage.read_only",
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
@@ -90,8 +88,6 @@ resource "google_container_cluster" "primary" {
 
   node_config {
     oauth_scopes = [
-      "https://www.googleapis.com/auth/compute",
-      "https://www.googleapis.com/auth/devstorage.read_only",
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
@@ -173,8 +169,8 @@ should be located. These must be in the same region as the cluster zone for
 zonal clusters, or in the region of a regional cluster. In a multi-zonal cluster,
 the number of nodes specified in `initial_node_count` is created in
 all specified zones as well as the primary zone. If specified for a regional
-cluster, nodes will only be created in these zones. `additional_zones` has been 
-deprecated in favour of `node_locations`. 
+cluster, nodes will only be created in these zones. `additional_zones` has been
+deprecated in favour of `node_locations`.
 
 * `addons_config` - (Optional) The configuration for addons supported by GKE.
     Structure is documented below.
@@ -183,11 +179,18 @@ deprecated in favour of `node_locations`.
     this cluster. Default is an automatically assigned CIDR.
 
 * `cluster_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
-    Configuration for cluster autoscaling (also called autoprovisioning), as described in
-    [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning).
+    Configuration for per-cluster autoscaling features, including node autoprovisioning. See [guide in Google docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning). Structure is documented below.
+
+* `database_encryption` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)).
     Structure is documented below.
 
 * `description` - (Optional) Description of the cluster.
+
+* `default_max_pods_per_node` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The default maximum number of pods per node in this cluster.
+    Note that this does not work on node pools which are "route-based" - that is, node
+    pools belonging to clusters that do not have IP Aliasing enabled.
+    See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr)
+    for more information.
 
 * `enable_binary_authorization` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Enable Binary Authorization for this cluster.
     If enabled, all container images will be validated by Google Binary Authorization.
@@ -212,7 +215,8 @@ deprecated in favour of `node_locations`.
 
 * `ip_allocation_policy` - (Optional) Configuration for cluster IP allocation. As of now, only pre-allocated subnetworks (custom type with secondary ranges) are supported.
     This will activate IP aliases. See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases)
-    Structure is documented below.
+    Structure is documented below. This field is marked to use [Attribute as Block](/docs/configuration/attr-as-blocks.html)
+    in order to support explicit removal with `ip_allocation_policy = []`.
 
 * `logging_service` - (Optional) The logging service that the cluster should
     write logs to. Available options include `logging.googleapis.com`,
@@ -309,23 +313,23 @@ The `addons_config` block supports:
     It ensures that a Heapster pod is running in the cluster, which is also used by the Cloud Monitoring service.
     It is enabled by default;
     set `disabled = true` to disable.
-    
+
 * `http_load_balancing` - (Optional) The status of the HTTP (L7) load balancing
     controller addon, which makes it easy to set up HTTP load balancers for services in a
     cluster. It is enabled by default; set `disabled = true` to disable.
-    
+
 * `kubernetes_dashboard` - (Optional) The status of the Kubernetes Dashboard
     add-on, which controls whether the Kubernetes Dashboard is enabled for this cluster.
     It is enabled by default; set `disabled = true` to disable.
-    
+
 * `network_policy_config` - (Optional) Whether we should enable the network policy addon
     for the master.  This must be enabled in order to enable network policy for the nodes.
     It can only be disabled if the nodes already do not have network policies enabled.
     Defaults to disabled; set `disabled = false` to enable.
-    
+
 * `istio_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)).
     Structure is documented below.
-    
+
 * `cloudrun_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)).
     The status of the CloudRun addon. It requires `istio_config` enabled. It is disabled by default.
     Set `disabled = false` to enable. This addon can only be enabled at cluster creation time.
@@ -343,15 +347,23 @@ addons_config {
 }
 ```
 
+The `database_encryption` block supports:
+
+* `state` - (Required) `ENCRYPTED` or `DECRYPTED`
+
+* `key_name` - (Required) the key to use to encrypt/decrypt secrets.  See the [DatabaseEncryption definition](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#Cluster.DatabaseEncryption) for more information.
+
 The `istio_config` block supports:
+
 * `disabled` - (Optional) The status of the Istio addon, which makes it easy to set up Istio for services in a
     cluster. It is disabled by default. Set `disabled = false` to enable.
+
 * `auth` - (Optional) The authentication type between services in Istio. Available options include `AUTH_MUTUAL_TLS`.
 
 The `cluster_autoscaling` block supports:
-* `enabled` - (Required) Whether cluster autoscaling (also called autoprovisioning) is
-    enabled.  To set this to true, make sure your config meets the rest of the
-    requirements.  Notably, you'll need `min_master_version` of at least `1.11.2`.
+
+* `enabled` - (Required) Whether cluster-wide autoscaling is enabled (i.e.node autoprovisioning is enabled). To set this to true, make sure your config meets the rest of the requirements.  Notably, you'll need `min_master_version` of at least `1.11.2`.
+
 * `resource_limits` - (Optional) A list of limits on the autoprovisioning.
     See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
     for an explanation of what options are available.  If enabling autoprovisioning, make
@@ -361,7 +373,7 @@ The `resource_limits` block supports:
 
 * `resource_type` - (Required) See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
     for a list of permitted types - `cpu`, `memory`, and others.
-    
+
 * `minimum` - (Optional) The minimum value for the resource type specified.
 
 * `maximum` - (Optional) The maximum value for the resource type specified.
@@ -443,8 +455,8 @@ This block also contains several computed attributes, documented below. If this 
 
 The `master_authorized_networks_config` block supports:
 
-* `cidr_blocks` - (Optional) Defines up to 20 external networks that can access
-    Kubernetes master through HTTPS.
+* `cidr_blocks` - (Optional) External networks that can access the
+    Kubernetes cluster master through HTTPS.
 
 The `master_authorized_networks_config.cidr_blocks` block supports:
 
@@ -469,6 +481,8 @@ The `node_config` block supports:
 
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance.
     Structure documented below.
+    To support removal of guest_accelerators in Terraform 0.12 this field is an
+    [Attribute as Block](/docs/configuration/attr-as-blocks.html)
 
 * `image_type` - (Optional) The image type to use for this node. Note that changing the image type
     will delete and recreate all nodes in the node pool.
@@ -499,8 +513,10 @@ The `node_config` block supports:
     either FQDNs, or scope aliases. The following scopes are necessary to ensure
     the correct functioning of the cluster:
 
-  * `compute-rw` (`https://www.googleapis.com/auth/compute`)
-  * `storage-ro` (`https://www.googleapis.com/auth/devstorage.read_only`)
+  * `storage-ro` (`https://www.googleapis.com/auth/devstorage.read_only`),
+    if the cluster must read private images from GCR.
+    Note this will grant read access to ALL GCS content unless you also
+    specify a custom role. See https://cloud.google.com/kubernetes-engine/docs/how-to/access-scopes
   * `logging-write` (`https://www.googleapis.com/auth/logging.write`),
     if `logging_service` points to Google
   * `monitoring` (`https://www.googleapis.com/auth/monitoring`),

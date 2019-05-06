@@ -275,6 +275,9 @@ None
     from a private key file on disk, you would run `base64 -w0 <file>`.
 
     **Note**: Git 2.3+ is required to use this feature.
+  
+  * `depth` - The Git clone depth. The provided number specifies the last `n`
+    revisions to clone from the repository.
 
 ### Mercurial (`hg`)
 

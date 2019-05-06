@@ -166,8 +166,8 @@ Router can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_compute_router.default projects/{{project}}/regions/{{region}}/routers/{{name}}
-$ terraform import google_compute_router.default {{region}}/{{name}}
 $ terraform import google_compute_router.default {{project}}/{{region}}/{{name}}
+$ terraform import google_compute_router.default {{region}}/{{name}}
 $ terraform import google_compute_router.default {{name}}
 ```
 

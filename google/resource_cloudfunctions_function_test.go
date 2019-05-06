@@ -25,6 +25,41 @@ const testPubSubTriggerPath = "./test-fixtures/cloudfunctions/pubsub_trigger.js"
 const testBucketTriggerPath = "./test-fixtures/cloudfunctions/bucket_trigger.js"
 const testFirestoreTriggerPath = "./test-fixtures/cloudfunctions/firestore_trigger.js"
 
+func TestCloudFunctionsFunction_nameValidator(t *testing.T) {
+	validNames := []string{
+		"a",
+		"aA",
+		"a0",
+		"has-hyphen",
+		"has_underscore",
+		"hasUpperCase",
+		"allChars_-A0",
+	}
+	for _, tc := range validNames {
+		wrns, errs := validateResourceCloudFunctionsFunctionName(tc, "function.name")
+		if len(wrns) > 0 {
+			t.Errorf("Expected no validation warnings for test case %q, got: %+v", tc, wrns)
+		}
+		if len(errs) > 0 {
+			t.Errorf("Expected no validation errors for test name %q, got: %+v", tc, errs)
+		}
+	}
+
+	invalidNames := []string{
+		"0startsWithNumber",
+		"endsWith_",
+		"endsWith-",
+		"bad*Character",
+		"aFunctionsNameThatIsLongerThanFortyEightCharacters",
+	}
+	for _, tc := range invalidNames {
+		_, errs := validateResourceCloudFunctionsFunctionName(tc, "function.name")
+		if len(errs) == 0 {
+			t.Errorf("Expected errors for invalid test name %q, got none", tc)
+		}
+	}
+}
+
 func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	t.Parallel()
 
@@ -55,6 +90,8 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 						"description", "test function"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"available_memory_mb", "128"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"max_instances", "10"),
 					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_HTTP, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
@@ -122,6 +159,8 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 						"description", "test function updated"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"timeout", "91"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"max_instances", "15"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-updated-label-value", &function),
 					testAccCloudFunctionsFunctionHasLabel("a-new-label", "a-new-label-value", &function),
 					testAccCloudFunctionsFunctionHasEnvironmentVariable("TEST_ENV_VARIABLE",
@@ -463,6 +502,7 @@ resource "google_cloudfunctions_function" "function" {
   environment_variables = {
 	TEST_ENV_VARIABLE = "test-env-variable-value"
   }
+  max_instances = 10
 }
 `, bucketName, zipFilePath, functionName)
 }
@@ -497,6 +537,7 @@ resource "google_cloudfunctions_function" "function" {
 	TEST_ENV_VARIABLE = "test-env-variable-value"
 	NEW_ENV_VARIABLE = "new-env-variable-value"
   }
+  max_instances = 15
 }`, bucketName, zipFilePath, functionName)
 }
 

@@ -173,6 +173,7 @@ func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 		},
 	})
 }
+
 func TestAccComputeInstanceTemplate_networkIPAddress(t *testing.T) {
 	t.Parallel()
 
@@ -345,6 +346,7 @@ func TestAccComputeInstanceTemplate_metadata_startup_script(t *testing.T) {
 		},
 	})
 }
+
 func TestAccComputeInstanceTemplate_primaryAliasIpRange(t *testing.T) {
 	t.Parallel()
 
@@ -488,6 +490,26 @@ func TestAccComputeInstanceTemplate_EncryptKMS(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
 				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_soleTenantNodeAffinities(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_soleTenantInstanceTemplate(),
 			},
 			{
 				ResourceName:      "google_compute_instance_template.foobar",
@@ -1448,4 +1470,41 @@ resource "google_compute_instance_template" "foobar" {
         my_label = "foobar"
     }
 }`, acctest.RandString(10), kmsLink)
+}
+
+func testAccComputeInstanceTemplate_soleTenantInstanceTemplate() string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		auto_delete = true
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	scheduling {
+		preemptible = false
+		automatic_restart = true
+		node_affinities {
+      		key = "tfacc"
+      		operator = "IN"
+      		values = ["testinstancetemplate"]
+        }
+	}
+
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+}`, acctest.RandString(10))
 }

@@ -16,7 +16,6 @@ import (
 	"github.com/mitchellh/hashstructure"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceComputeInstance() *schema.Resource {
@@ -285,12 +284,6 @@ func resourceComputeInstance() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"create_timeout": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Removed:  "Use timeouts block instead.",
-			},
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -370,10 +363,11 @@ func resourceComputeInstance() *schema.Resource {
 			},
 
 			"guest_accelerator": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:       schema.TypeList,
+				Optional:   true,
+				Computed:   true,
+				ForceNew:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"count": {
@@ -395,7 +389,6 @@ func resourceComputeInstance() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
 			},
 
 			"metadata": {
@@ -446,6 +439,14 @@ func resourceComputeInstance() *schema.Resource {
 							Optional: true,
 							Default:  false,
 							ForceNew: true,
+						},
+
+						"node_affinities": {
+							Type:             schema.TypeSet,
+							Optional:         true,
+							ForceNew:         true,
+							Elem:             instanceSchedulingNodeAffinitiesElemSchema(),
+							DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
 						},
 					},
 				},
@@ -631,22 +632,9 @@ func expandComputeInstance(project string, zone *compute.Zone, d *schema.Resourc
 		disks = append(disks, disk)
 	}
 
-	sch := d.Get("scheduling").([]interface{})
-	var scheduling *computeBeta.Scheduling
-	if len(sch) == 0 {
-		// TF doesn't do anything about defaults inside of nested objects, so if
-		// scheduling hasn't been set, then send it with its default values.
-		scheduling = &computeBeta.Scheduling{
-			AutomaticRestart: googleapi.Bool(true),
-		}
-	} else {
-		prefix := "scheduling.0"
-		scheduling = &computeBeta.Scheduling{
-			AutomaticRestart:  googleapi.Bool(d.Get(prefix + ".automatic_restart").(bool)),
-			Preemptible:       d.Get(prefix + ".preemptible").(bool),
-			OnHostMaintenance: d.Get(prefix + ".on_host_maintenance").(string),
-			ForceSendFields:   []string{"AutomaticRestart", "Preemptible"},
-		}
+	scheduling, err := expandScheduling(d.Get("scheduling"))
+	if err != nil {
+		return nil, fmt.Errorf("Error creating scheduling: %s", err)
 	}
 
 	metadata, err := resourceInstanceMetadata(d)
@@ -939,14 +927,34 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return err
 		}
 
-		op, err := config.clientCompute.Instances.SetMetadata(project, zone, d.Id(), metadataV1).Do()
-		if err != nil {
-			return fmt.Errorf("Error updating metadata: %s", err)
-		}
+		// We're retrying for an error 412 where the metadata fingerprint is out of date
+		err = retry(
+			func() error {
+				// retrieve up-to-date metadata from the API in case several updates hit simultaneously. instances
+				// sometimes but not always share metadata fingerprints.
+				instance, err := config.clientComputeBeta.Instances.Get(project, zone, d.Id()).Do()
+				if err != nil {
+					return fmt.Errorf("Error retrieving metadata: %s", err)
+				}
 
-		opErr := computeOperationWaitTime(config.clientCompute, op, project, "metadata to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-		if opErr != nil {
-			return opErr
+				metadataV1.Fingerprint = instance.Metadata.Fingerprint
+
+				op, err := config.clientCompute.Instances.SetMetadata(project, zone, d.Id(), metadataV1).Do()
+				if err != nil {
+					return fmt.Errorf("Error updating metadata: %s", err)
+				}
+
+				opErr := computeOperationWaitTime(config.clientCompute, op, project, "metadata to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+				if opErr != nil {
+					return opErr
+				}
+
+				return nil
+			},
+		)
+
+		if err != nil {
+			return err
 		}
 
 		d.SetPartial("metadata")
@@ -991,22 +999,20 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("scheduling") {
-		prefix := "scheduling.0"
-		scheduling := &compute.Scheduling{
-			AutomaticRestart:  googleapi.Bool(d.Get(prefix + ".automatic_restart").(bool)),
-			Preemptible:       d.Get(prefix + ".preemptible").(bool),
-			OnHostMaintenance: d.Get(prefix + ".on_host_maintenance").(string),
-			ForceSendFields:   []string{"AutomaticRestart", "Preemptible"},
+		scheduling, err := expandScheduling(d.Get("scheduling"))
+		if err != nil {
+			return fmt.Errorf("Error creating request data to update scheduling: %s", err)
 		}
 
-		op, err := config.clientCompute.Instances.SetScheduling(project,
-			zone, d.Id(), scheduling).Do()
-
+		op, err := config.clientComputeBeta.Instances.SetScheduling(
+			project, zone, d.Id(), scheduling).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating scheduling policy: %s", err)
 		}
 
-		opErr := computeOperationWaitTime(config.clientCompute, op, project, "scheduling policy update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		opErr := computeBetaOperationWaitTime(
+			config.clientCompute, op, project, "scheduling policy update",
+			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 		if opErr != nil {
 			return opErr
 		}

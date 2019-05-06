@@ -1,4 +1,4 @@
-// Copyright 2018 Google Inc. All rights reserved.
+// Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -6,13 +6,39 @@
 
 // Package dataflow provides access to the Dataflow API.
 //
-// See https://cloud.google.com/dataflow
+// For product documentation, see: https://cloud.google.com/dataflow
+//
+// Creating a client
 //
 // Usage example:
 //
 //   import "google.golang.org/api/dataflow/v1b3"
 //   ...
-//   dataflowService, err := dataflow.New(oauthHttpClient)
+//   ctx := context.Background()
+//   dataflowService, err := dataflow.NewService(ctx)
+//
+// In this example, Google Application Default Credentials are used for authentication.
+//
+// For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
+//
+// Other authentication options
+//
+// By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
+//
+//   dataflowService, err := dataflow.NewService(ctx, option.WithScopes(dataflow.UserinfoEmailScope))
+//
+// To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
+//
+//   dataflowService, err := dataflow.NewService(ctx, option.WithAPIKey("AIza..."))
+//
+// To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
+//
+//   config := &oauth2.Config{...}
+//   // ...
+//   token, err := config.Exchange(ctx, ...)
+//   dataflowService, err := dataflow.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//
+// See https://godoc.org/google.golang.org/api/option/ for details on options.
 package dataflow // import "google.golang.org/api/dataflow/v1b3"
 
 import (
@@ -29,6 +55,8 @@ import (
 
 	gensupport "google.golang.org/api/gensupport"
 	googleapi "google.golang.org/api/googleapi"
+	option "google.golang.org/api/option"
+	htransport "google.golang.org/api/transport/http"
 )
 
 // Always reference these packages, just in case the auto-generated code
@@ -65,6 +93,35 @@ const (
 	UserinfoEmailScope = "https://www.googleapis.com/auth/userinfo.email"
 )
 
+// NewService creates a new Service.
+func NewService(ctx context.Context, opts ...option.ClientOption) (*Service, error) {
+	scopesOption := option.WithScopes(
+		"https://www.googleapis.com/auth/cloud-platform",
+		"https://www.googleapis.com/auth/compute",
+		"https://www.googleapis.com/auth/compute.readonly",
+		"https://www.googleapis.com/auth/userinfo.email",
+	)
+	// NOTE: prepend, so we don't override user-specified scopes.
+	opts = append([]option.ClientOption{scopesOption}, opts...)
+	client, endpoint, err := htransport.NewClient(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	s, err := New(client)
+	if err != nil {
+		return nil, err
+	}
+	if endpoint != "" {
+		s.BasePath = endpoint
+	}
+	return s, nil
+}
+
+// New creates a new Service. It uses the provided http.Client for requests.
+//
+// Deprecated: please use NewService instead.
+// To provide a custom HTTP client, use option.WithHTTPClient.
+// If you are using google.golang.org/api/googleapis/transport.APIKey, use option.WithAPIKey with NewService instead.
 func New(client *http.Client) (*Service, error) {
 	if client == nil {
 		return nil, errors.New("client is nil")
@@ -1125,7 +1182,11 @@ type CreateJobFromTemplateRequest struct {
 	// JobName: Required. The job name to use for the created job.
 	JobName string `json:"jobName,omitempty"`
 
-	// Location: The location to which to direct the request.
+	// Location: The [regional
+	// endpoint]
+	// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+	// dpoints) to
+	// which to direct the request.
 	Location string `json:"location,omitempty"`
 
 	// Parameters: The runtime parameters to pass to the job.
@@ -1572,6 +1633,15 @@ type Environment struct {
 	// Experiments: The list of experiments to enable.
 	Experiments []string `json:"experiments,omitempty"`
 
+	// FlexResourceSchedulingGoal: Which Flexible Resource Scheduling mode
+	// to run in.
+	//
+	// Possible values:
+	//   "FLEXRS_UNSPECIFIED" - Run in the default mode.
+	//   "FLEXRS_SPEED_OPTIMIZED" - Optimize for lower execution time.
+	//   "FLEXRS_COST_OPTIMIZED" - Optimize for lower cost.
+	FlexResourceSchedulingGoal string `json:"flexResourceSchedulingGoal,omitempty"`
+
 	// InternalExperiments: Experimental settings.
 	InternalExperiments googleapi.RawMessage `json:"internalExperiments,omitempty"`
 
@@ -1587,6 +1657,16 @@ type Environment struct {
 	// ServiceAccountEmail: Identity to run virtual machines as. Defaults to
 	// the default account.
 	ServiceAccountEmail string `json:"serviceAccountEmail,omitempty"`
+
+	// ServiceKmsKeyName: If set, contains the Cloud KMS key identifier used
+	// to encrypt data
+	// at rest, AKA a Customer Managed Encryption Key (CMEK).
+	//
+	// Format:
+	//
+	// projects/PROJECT_ID/locations/LOCATION/keyRings/KEY_RING/cryptoKeys/KE
+	// Y
+	ServiceKmsKeyName string `json:"serviceKmsKeyName,omitempty"`
 
 	// TempStoragePrefix: The prefix of the resources the system should use
 	// for temporary
@@ -1817,10 +1897,17 @@ func (s *ExecutionStageSummary) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// FailedLocation: Indicates which location failed to respond to a
-// request for data.
+// FailedLocation: Indicates which [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints) failed
+// to respond to a request for data.
 type FailedLocation struct {
-	// Name: The name of the failed location.
+	// Name: The name of the [regional
+	// endpoint]
+	// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+	// dpoints) that
+	// failed to respond.
 	Name string `json:"name,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Name") to
@@ -1986,7 +2073,11 @@ type GetDebugConfigRequest struct {
 	// requested.
 	ComponentId string `json:"componentId,omitempty"`
 
-	// Location: The location which contains the job specified by job_id.
+	// Location: The [regional
+	// endpoint]
+	// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+	// dpoints) that
+	// contains the job specified by job_id.
 	Location string `json:"location,omitempty"`
 
 	// WorkerId: The worker id, i.e., VM hostname.
@@ -2465,7 +2556,11 @@ type Job struct {
 	// size.
 	Labels map[string]string `json:"labels,omitempty"`
 
-	// Location: The location that contains this job.
+	// Location: The [regional
+	// endpoint]
+	// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+	// dpoints) that
+	// contains this job.
 	Location string `json:"location,omitempty"`
 
 	// Name: The user-specified Cloud Dataflow job name.
@@ -2820,7 +2915,7 @@ func (s *JobMessage) MarshalJSON() ([]byte, error) {
 
 // JobMetadata: Metadata available primarily for filtering jobs. Will be
 // included in the
-// ListJob response and Job SUMMARY view+.
+// ListJob response and Job SUMMARY view.
 type JobMetadata struct {
 	// BigTableDetails: Identification of a BigTable source used in the
 	// Dataflow job.
@@ -2873,8 +2968,8 @@ func (s *JobMetadata) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// JobMetrics: JobMetrics contains a collection of metrics descibing the
-// detailed progress
+// JobMetrics: JobMetrics contains a collection of metrics describing
+// the detailed progress
 // of a Dataflow job. Metrics correspond to user-defined and
 // system-defined
 // metrics in the job.
@@ -3091,11 +3186,19 @@ type LeaseWorkItemRequest struct {
 	// CurrentWorkerTime: The current timestamp at the worker.
 	CurrentWorkerTime string `json:"currentWorkerTime,omitempty"`
 
-	// Location: The location which contains the WorkItem's job.
+	// Location: The [regional
+	// endpoint]
+	// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+	// dpoints) that
+	// contains the WorkItem's job.
 	Location string `json:"location,omitempty"`
 
 	// RequestedLeaseDuration: The initial lease period.
 	RequestedLeaseDuration string `json:"requestedLeaseDuration,omitempty"`
+
+	// UnifiedWorkerRequest: Untranslated bag-of-bytes WorkRequest from
+	// UnifiedWorker.
+	UnifiedWorkerRequest googleapi.RawMessage `json:"unifiedWorkerRequest,omitempty"`
 
 	// WorkItemTypes: Filter for WorkItem type.
 	WorkItemTypes []string `json:"workItemTypes,omitempty"`
@@ -3136,6 +3239,10 @@ func (s *LeaseWorkItemRequest) MarshalJSON() ([]byte, error) {
 
 // LeaseWorkItemResponse: Response to a request to lease WorkItems.
 type LeaseWorkItemResponse struct {
+	// UnifiedWorkerResponse: Untranslated bag-of-bytes WorkResponse for
+	// UnifiedWorker.
+	UnifiedWorkerResponse googleapi.RawMessage `json:"unifiedWorkerResponse,omitempty"`
+
 	// WorkItems: A list of the leased WorkItems.
 	WorkItems []*WorkItem `json:"workItems,omitempty"`
 
@@ -3143,20 +3250,22 @@ type LeaseWorkItemResponse struct {
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "WorkItems") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
+	// ForceSendFields is a list of field names (e.g.
+	// "UnifiedWorkerResponse") to unconditionally include in API requests.
+	// By default, fields with empty values are omitted from API requests.
+	// However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "WorkItems") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "UnifiedWorkerResponse") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -3210,7 +3319,10 @@ func (s *ListJobMessagesResponse) MarshalJSON() ([]byte, error) {
 // This may be a partial
 // response, depending on the page size in the ListJobsRequest.
 type ListJobsResponse struct {
-	// FailedLocation: Zero or more messages describing locations that
+	// FailedLocation: Zero or more messages describing the [regional
+	// endpoints]
+	// (https://cloud.google.com/dataflow/docs/concepts/regional-e
+	// ndpoints) that
 	// failed to respond.
 	FailedLocation []*FailedLocation `json:"failedLocation,omitempty"`
 
@@ -3867,7 +3979,7 @@ func (s *PartialGroupByKeyInstruction) MarshalJSON() ([]byte, error) {
 // pipeline as well as the executed
 // form.  This data is provided by the Dataflow service for ease of
 // visualizing
-// the pipeline and interpretting Dataflow provided metrics.
+// the pipeline and interpreting Dataflow provided metrics.
 type PipelineDescription struct {
 	// DisplayData: Pipeline level display data.
 	DisplayData []*DisplayData `json:"displayData,omitempty"`
@@ -4081,8 +4193,16 @@ type ReportWorkItemStatusRequest struct {
 	// CurrentWorkerTime: The current timestamp at the worker.
 	CurrentWorkerTime string `json:"currentWorkerTime,omitempty"`
 
-	// Location: The location which contains the WorkItem's job.
+	// Location: The [regional
+	// endpoint]
+	// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+	// dpoints) that
+	// contains the WorkItem's job.
 	Location string `json:"location,omitempty"`
+
+	// UnifiedWorkerRequest: Untranslated bag-of-bytes
+	// WorkProgressUpdateRequest from UnifiedWorker.
+	UnifiedWorkerRequest googleapi.RawMessage `json:"unifiedWorkerRequest,omitempty"`
 
 	// WorkItemStatuses: The order is unimportant, except that the order of
 	// the
@@ -4126,6 +4246,10 @@ func (s *ReportWorkItemStatusRequest) MarshalJSON() ([]byte, error) {
 // ReportWorkItemStatusResponse: Response from a request to report the
 // status of WorkItems.
 type ReportWorkItemStatusResponse struct {
+	// UnifiedWorkerResponse: Untranslated bag-of-bytes
+	// WorkProgressUpdateResponse for UnifiedWorker.
+	UnifiedWorkerResponse googleapi.RawMessage `json:"unifiedWorkerResponse,omitempty"`
+
 	// WorkItemServiceStates: A set of messages indicating the service-side
 	// state for each
 	// WorkItem whose status was reported, in the same order as
@@ -4140,7 +4264,7 @@ type ReportWorkItemStatusResponse struct {
 	googleapi.ServerResponse `json:"-"`
 
 	// ForceSendFields is a list of field names (e.g.
-	// "WorkItemServiceStates") to unconditionally include in API requests.
+	// "UnifiedWorkerResponse") to unconditionally include in API requests.
 	// By default, fields with empty values are omitted from API requests.
 	// However, any non-pointer, non-interface field appearing in
 	// ForceSendFields will be sent to the server regardless of whether the
@@ -4148,7 +4272,7 @@ type ReportWorkItemStatusResponse struct {
 	// Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "WorkItemServiceStates") to
+	// NullFields is a list of field names (e.g. "UnifiedWorkerResponse") to
 	// include in API requests with the JSON null value. By default, fields
 	// with empty values are omitted from API requests. However, any field
 	// with an empty value appearing in NullFields will be sent to the
@@ -4334,7 +4458,7 @@ func (s *RuntimeEnvironment) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// SdkVersion: The version of the SDK used to run the jobl
+// SdkVersion: The version of the SDK used to run the job.
 type SdkVersion struct {
 	// SdkSupportStatus: The support status for this SDK version.
 	//
@@ -4354,7 +4478,7 @@ type SdkVersion struct {
 	Version string `json:"version,omitempty"`
 
 	// VersionDisplayName: A readable string describing the version of the
-	// sdk.
+	// SDK.
 	VersionDisplayName string `json:"versionDisplayName,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "SdkSupportStatus") to
@@ -4390,7 +4514,11 @@ type SendDebugCaptureRequest struct {
 	// Data: The encoded debug information.
 	Data string `json:"data,omitempty"`
 
-	// Location: The location which contains the job specified by job_id.
+	// Location: The [regional
+	// endpoint]
+	// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+	// dpoints) that
+	// contains the job specified by job_id.
 	Location string `json:"location,omitempty"`
 
 	// WorkerId: The worker id, i.e., VM hostname.
@@ -4430,7 +4558,11 @@ type SendDebugCaptureResponse struct {
 // SendWorkerMessagesRequest: A request for sending worker messages to
 // the service.
 type SendWorkerMessagesRequest struct {
-	// Location: The location which contains the job
+	// Location: The [regional
+	// endpoint]
+	// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+	// dpoints) that
+	// contains the job.
 	Location string `json:"location,omitempty"`
 
 	// WorkerMessages: The WorkerMessages to send.
@@ -5385,20 +5517,20 @@ func (s *StateFamilyConfig) MarshalJSON() ([]byte, error) {
 }
 
 // Status: The `Status` type defines a logical error model that is
-// suitable for different
-// programming environments, including REST APIs and RPC APIs. It is
-// used by
-// [gRPC](https://github.com/grpc). The error model is designed to
-// be:
+// suitable for
+// different programming environments, including REST APIs and RPC APIs.
+// It is
+// used by [gRPC](https://github.com/grpc). The error model is designed
+// to be:
 //
 // - Simple to use and understand for most users
 // - Flexible enough to meet unexpected needs
 //
 // # Overview
 //
-// The `Status` message contains three pieces of data: error code, error
-// message,
-// and error details. The error code should be an enum value
+// The `Status` message contains three pieces of data: error code,
+// error
+// message, and error details. The error code should be an enum value
 // of
 // google.rpc.Code, but it may accept additional error codes if needed.
 // The
@@ -5663,6 +5795,11 @@ type StreamingComputationConfig struct {
 	// SystemName: System defined name for this computation.
 	SystemName string `json:"systemName,omitempty"`
 
+	// TransformUserNameToStateFamily: Map from user name of stateful
+	// transforms in this stage to their state
+	// family.
+	TransformUserNameToStateFamily map[string]string `json:"transformUserNameToStateFamily,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g. "ComputationId") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
@@ -5769,6 +5906,10 @@ func (s *StreamingComputationTask) MarshalJSON() ([]byte, error) {
 // StreamingConfigTask: A task that carries configuration information
 // for streaming computations.
 type StreamingConfigTask struct {
+	// MaxWorkItemCommitBytes: Maximum size for work item commit supported
+	// windmill storage layer.
+	MaxWorkItemCommitBytes int64 `json:"maxWorkItemCommitBytes,omitempty,string"`
+
 	// StreamingComputationConfigs: Set of computation configuration
 	// information.
 	StreamingComputationConfigs []*StreamingComputationConfig `json:"streamingComputationConfigs,omitempty"`
@@ -5792,21 +5933,21 @@ type StreamingConfigTask struct {
 	WindmillServicePort int64 `json:"windmillServicePort,omitempty,string"`
 
 	// ForceSendFields is a list of field names (e.g.
-	// "StreamingComputationConfigs") to unconditionally include in API
-	// requests. By default, fields with empty values are omitted from API
-	// requests. However, any non-pointer, non-interface field appearing in
+	// "MaxWorkItemCommitBytes") to unconditionally include in API requests.
+	// By default, fields with empty values are omitted from API requests.
+	// However, any non-pointer, non-interface field appearing in
 	// ForceSendFields will be sent to the server regardless of whether the
 	// field is empty or not. This may be used to include empty fields in
 	// Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g.
-	// "StreamingComputationConfigs") to include in API requests with the
-	// JSON null value. By default, fields with empty values are omitted
-	// from API requests. However, any field with an empty value appearing
-	// in NullFields will be sent to the server as null. It is an error if a
-	// field in this list has a non-empty value. This may be used to include
-	// null fields in Patch requests.
+	// NullFields is a list of field names (e.g. "MaxWorkItemCommitBytes")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
 	NullFields []string `json:"-"`
 }
 
@@ -5962,8 +6103,8 @@ func (s *StringList) MarshalJSON() ([]byte, error) {
 // message for
 // programmatic consumption.
 type StructuredMessage struct {
-	// MessageKey: Idenfier for this message type.  Used by external systems
-	// to
+	// MessageKey: Identifier for this message type.  Used by external
+	// systems to
 	// internationalize or personalize message.
 	MessageKey string `json:"messageKey,omitempty"`
 
@@ -7377,7 +7518,10 @@ func (c *ProjectsJobsAggregatedCall) Filter(filter string) *ProjectsJobsAggregat
 	return c
 }
 
-// Location sets the optional parameter "location": The location that
+// Location sets the optional parameter "location": The [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints) that
 // contains this job.
 func (c *ProjectsJobsAggregatedCall) Location(location string) *ProjectsJobsAggregatedCall {
 	c.urlParams_.Set("location", location)
@@ -7533,7 +7677,7 @@ func (c *ProjectsJobsAggregatedCall) Do(opts ...googleapi.CallOption) (*ListJobs
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location that contains this job.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains this job.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -7613,6 +7757,16 @@ type ProjectsJobsCreateCall struct {
 }
 
 // Create: Creates a Cloud Dataflow job.
+//
+// To create a job, we recommend using `projects.locations.jobs.create`
+// with a
+// [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints). Using
+// `projects.jobs.create` is not recommended, as your job will always
+// start
+// in `us-central1`.
 func (r *ProjectsJobsService) Create(projectId string, job *Job) *ProjectsJobsCreateCall {
 	c := &ProjectsJobsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectId = projectId
@@ -7620,7 +7774,10 @@ func (r *ProjectsJobsService) Create(projectId string, job *Job) *ProjectsJobsCr
 	return c
 }
 
-// Location sets the optional parameter "location": The location that
+// Location sets the optional parameter "location": The [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints) that
 // contains this job.
 func (c *ProjectsJobsCreateCall) Location(location string) *ProjectsJobsCreateCall {
 	c.urlParams_.Set("location", location)
@@ -7737,7 +7894,7 @@ func (c *ProjectsJobsCreateCall) Do(opts ...googleapi.CallOption) (*Job, error) 
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a Cloud Dataflow job.",
+	//   "description": "Creates a Cloud Dataflow job.\n\nTo create a job, we recommend using `projects.locations.jobs.create` with a\n[regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using\n`projects.jobs.create` is not recommended, as your job will always start\nin `us-central1`.",
 	//   "flatPath": "v1b3/projects/{projectId}/jobs",
 	//   "httpMethod": "POST",
 	//   "id": "dataflow.projects.jobs.create",
@@ -7746,7 +7903,7 @@ func (c *ProjectsJobsCreateCall) Do(opts ...googleapi.CallOption) (*Job, error) 
 	//   ],
 	//   "parameters": {
 	//     "location": {
-	//       "description": "The location that contains this job.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains this job.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -7803,6 +7960,16 @@ type ProjectsJobsGetCall struct {
 }
 
 // Get: Gets the state of the specified Cloud Dataflow job.
+//
+// To get the state of a job, we recommend using
+// `projects.locations.jobs.get`
+// with a [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints). Using
+// `projects.jobs.get` is not recommended, as you can only get the state
+// of
+// jobs that are running in `us-central1`.
 func (r *ProjectsJobsService) Get(projectId string, jobId string) *ProjectsJobsGetCall {
 	c := &ProjectsJobsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectId = projectId
@@ -7810,7 +7977,10 @@ func (r *ProjectsJobsService) Get(projectId string, jobId string) *ProjectsJobsG
 	return c
 }
 
-// Location sets the optional parameter "location": The location that
+// Location sets the optional parameter "location": The [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints) that
 // contains this job.
 func (c *ProjectsJobsGetCall) Location(location string) *ProjectsJobsGetCall {
 	c.urlParams_.Set("location", location)
@@ -7929,7 +8099,7 @@ func (c *ProjectsJobsGetCall) Do(opts ...googleapi.CallOption) (*Job, error) {
 	}
 	return ret, nil
 	// {
-	//   "description": "Gets the state of the specified Cloud Dataflow job.",
+	//   "description": "Gets the state of the specified Cloud Dataflow job.\n\nTo get the state of a job, we recommend using `projects.locations.jobs.get`\nwith a [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using\n`projects.jobs.get` is not recommended, as you can only get the state of\njobs that are running in `us-central1`.",
 	//   "flatPath": "v1b3/projects/{projectId}/jobs/{jobId}",
 	//   "httpMethod": "GET",
 	//   "id": "dataflow.projects.jobs.get",
@@ -7945,7 +8115,7 @@ func (c *ProjectsJobsGetCall) Do(opts ...googleapi.CallOption) (*Job, error) {
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location that contains this job.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains this job.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -7994,6 +8164,16 @@ type ProjectsJobsGetMetricsCall struct {
 }
 
 // GetMetrics: Request the job status.
+//
+// To request the status of a job, we recommend
+// using
+// `projects.locations.jobs.getMetrics` with a [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints). Using
+// `projects.jobs.getMetrics` is not recommended, as you can only
+// request the
+// status of jobs that are running in `us-central1`.
 func (r *ProjectsJobsService) GetMetrics(projectId string, jobId string) *ProjectsJobsGetMetricsCall {
 	c := &ProjectsJobsGetMetricsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectId = projectId
@@ -8001,7 +8181,10 @@ func (r *ProjectsJobsService) GetMetrics(projectId string, jobId string) *Projec
 	return c
 }
 
-// Location sets the optional parameter "location": The location which
+// Location sets the optional parameter "location": The [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints) that
 // contains the job specified by job_id.
 func (c *ProjectsJobsGetMetricsCall) Location(location string) *ProjectsJobsGetMetricsCall {
 	c.urlParams_.Set("location", location)
@@ -8115,7 +8298,7 @@ func (c *ProjectsJobsGetMetricsCall) Do(opts ...googleapi.CallOption) (*JobMetri
 	}
 	return ret, nil
 	// {
-	//   "description": "Request the job status.",
+	//   "description": "Request the job status.\n\nTo request the status of a job, we recommend using\n`projects.locations.jobs.getMetrics` with a [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using\n`projects.jobs.getMetrics` is not recommended, as you can only request the\nstatus of jobs that are running in `us-central1`.",
 	//   "flatPath": "v1b3/projects/{projectId}/jobs/{jobId}/metrics",
 	//   "httpMethod": "GET",
 	//   "id": "dataflow.projects.jobs.getMetrics",
@@ -8131,7 +8314,7 @@ func (c *ProjectsJobsGetMetricsCall) Do(opts ...googleapi.CallOption) (*JobMetri
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location which contains the job specified by job_id.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains the job specified by job_id.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -8173,7 +8356,19 @@ type ProjectsJobsListCall struct {
 	header_      http.Header
 }
 
-// List: List the jobs of a project in a given region.
+// List: List the jobs of a project.
+//
+// To list the jobs of a project in a region, we recommend
+// using
+// `projects.locations.jobs.get` with a [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints). To
+// list the all jobs across all regions, use `projects.jobs.aggregated`.
+// Using
+// `projects.jobs.list` is not recommended, as you can only get the list
+// of
+// jobs that are running in `us-central1`.
 func (r *ProjectsJobsService) List(projectId string) *ProjectsJobsListCall {
 	c := &ProjectsJobsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectId = projectId
@@ -8193,7 +8388,10 @@ func (c *ProjectsJobsListCall) Filter(filter string) *ProjectsJobsListCall {
 	return c
 }
 
-// Location sets the optional parameter "location": The location that
+// Location sets the optional parameter "location": The [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints) that
 // contains this job.
 func (c *ProjectsJobsListCall) Location(location string) *ProjectsJobsListCall {
 	c.urlParams_.Set("location", location)
@@ -8329,7 +8527,7 @@ func (c *ProjectsJobsListCall) Do(opts ...googleapi.CallOption) (*ListJobsRespon
 	}
 	return ret, nil
 	// {
-	//   "description": "List the jobs of a project in a given region.",
+	//   "description": "List the jobs of a project.\n\nTo list the jobs of a project in a region, we recommend using\n`projects.locations.jobs.get` with a [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). To\nlist the all jobs across all regions, use `projects.jobs.aggregated`. Using\n`projects.jobs.list` is not recommended, as you can only get the list of\njobs that are running in `us-central1`.",
 	//   "flatPath": "v1b3/projects/{projectId}/jobs",
 	//   "httpMethod": "GET",
 	//   "id": "dataflow.projects.jobs.list",
@@ -8349,7 +8547,7 @@ func (c *ProjectsJobsListCall) Do(opts ...googleapi.CallOption) (*ListJobsRespon
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location that contains this job.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains this job.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -8581,6 +8779,16 @@ type ProjectsJobsUpdateCall struct {
 }
 
 // Update: Updates the state of an existing Cloud Dataflow job.
+//
+// To update the state of an existing job, we recommend
+// using
+// `projects.locations.jobs.update` with a [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints). Using
+// `projects.jobs.update` is not recommended, as you can only update the
+// state
+// of jobs that are running in `us-central1`.
 func (r *ProjectsJobsService) Update(projectId string, jobId string, job *Job) *ProjectsJobsUpdateCall {
 	c := &ProjectsJobsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectId = projectId
@@ -8589,7 +8797,10 @@ func (r *ProjectsJobsService) Update(projectId string, jobId string, job *Job) *
 	return c
 }
 
-// Location sets the optional parameter "location": The location that
+// Location sets the optional parameter "location": The [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints) that
 // contains this job.
 func (c *ProjectsJobsUpdateCall) Location(location string) *ProjectsJobsUpdateCall {
 	c.urlParams_.Set("location", location)
@@ -8687,7 +8898,7 @@ func (c *ProjectsJobsUpdateCall) Do(opts ...googleapi.CallOption) (*Job, error) 
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates the state of an existing Cloud Dataflow job.",
+	//   "description": "Updates the state of an existing Cloud Dataflow job.\n\nTo update the state of an existing job, we recommend using\n`projects.locations.jobs.update` with a [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using\n`projects.jobs.update` is not recommended, as you can only update the state\nof jobs that are running in `us-central1`.",
 	//   "flatPath": "v1b3/projects/{projectId}/jobs/{jobId}",
 	//   "httpMethod": "PUT",
 	//   "id": "dataflow.projects.jobs.update",
@@ -8703,7 +8914,7 @@ func (c *ProjectsJobsUpdateCall) Do(opts ...googleapi.CallOption) (*Job, error) 
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location that contains this job.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains this job.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -9047,6 +9258,16 @@ type ProjectsJobsMessagesListCall struct {
 }
 
 // List: Request the job status.
+//
+// To request the status of a job, we recommend
+// using
+// `projects.locations.jobs.messages.list` with a [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints). Using
+// `projects.jobs.messages.list` is not recommended, as you can only
+// request
+// the status of jobs that are running in `us-central1`.
 func (r *ProjectsJobsMessagesService) List(projectId string, jobId string) *ProjectsJobsMessagesListCall {
 	c := &ProjectsJobsMessagesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectId = projectId
@@ -9062,7 +9283,10 @@ func (c *ProjectsJobsMessagesListCall) EndTime(endTime string) *ProjectsJobsMess
 	return c
 }
 
-// Location sets the optional parameter "location": The location which
+// Location sets the optional parameter "location": The [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints) that
 // contains the job specified by job_id.
 func (c *ProjectsJobsMessagesListCall) Location(location string) *ProjectsJobsMessagesListCall {
 	c.urlParams_.Set("location", location)
@@ -9210,7 +9434,7 @@ func (c *ProjectsJobsMessagesListCall) Do(opts ...googleapi.CallOption) (*ListJo
 	}
 	return ret, nil
 	// {
-	//   "description": "Request the job status.",
+	//   "description": "Request the job status.\n\nTo request the status of a job, we recommend using\n`projects.locations.jobs.messages.list` with a [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using\n`projects.jobs.messages.list` is not recommended, as you can only request\nthe status of jobs that are running in `us-central1`.",
 	//   "flatPath": "v1b3/projects/{projectId}/jobs/{jobId}/messages",
 	//   "httpMethod": "GET",
 	//   "id": "dataflow.projects.jobs.messages.list",
@@ -9232,7 +9456,7 @@ func (c *ProjectsJobsMessagesListCall) Do(opts ...googleapi.CallOption) (*ListJo
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location which contains the job specified by job_id.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains the job specified by job_id.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -9733,7 +9957,7 @@ func (c *ProjectsLocationsWorkerMessagesCall) Do(opts ...googleapi.CallOption) (
 	//   ],
 	//   "parameters": {
 	//     "location": {
-	//       "description": "The location which contains the job",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains the job.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -9775,6 +9999,16 @@ type ProjectsLocationsJobsCreateCall struct {
 }
 
 // Create: Creates a Cloud Dataflow job.
+//
+// To create a job, we recommend using `projects.locations.jobs.create`
+// with a
+// [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints). Using
+// `projects.jobs.create` is not recommended, as your job will always
+// start
+// in `us-central1`.
 func (r *ProjectsLocationsJobsService) Create(projectId string, location string, job *Job) *ProjectsLocationsJobsCreateCall {
 	c := &ProjectsLocationsJobsCreateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectId = projectId
@@ -9894,7 +10128,7 @@ func (c *ProjectsLocationsJobsCreateCall) Do(opts ...googleapi.CallOption) (*Job
 	}
 	return ret, nil
 	// {
-	//   "description": "Creates a Cloud Dataflow job.",
+	//   "description": "Creates a Cloud Dataflow job.\n\nTo create a job, we recommend using `projects.locations.jobs.create` with a\n[regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using\n`projects.jobs.create` is not recommended, as your job will always start\nin `us-central1`.",
 	//   "flatPath": "v1b3/projects/{projectId}/locations/{location}/jobs",
 	//   "httpMethod": "POST",
 	//   "id": "dataflow.projects.locations.jobs.create",
@@ -9904,7 +10138,7 @@ func (c *ProjectsLocationsJobsCreateCall) Do(opts ...googleapi.CallOption) (*Job
 	//   ],
 	//   "parameters": {
 	//     "location": {
-	//       "description": "The location that contains this job.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains this job.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -9963,6 +10197,16 @@ type ProjectsLocationsJobsGetCall struct {
 }
 
 // Get: Gets the state of the specified Cloud Dataflow job.
+//
+// To get the state of a job, we recommend using
+// `projects.locations.jobs.get`
+// with a [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints). Using
+// `projects.jobs.get` is not recommended, as you can only get the state
+// of
+// jobs that are running in `us-central1`.
 func (r *ProjectsLocationsJobsService) Get(projectId string, location string, jobId string) *ProjectsLocationsJobsGetCall {
 	c := &ProjectsLocationsJobsGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectId = projectId
@@ -10084,7 +10328,7 @@ func (c *ProjectsLocationsJobsGetCall) Do(opts ...googleapi.CallOption) (*Job, e
 	}
 	return ret, nil
 	// {
-	//   "description": "Gets the state of the specified Cloud Dataflow job.",
+	//   "description": "Gets the state of the specified Cloud Dataflow job.\n\nTo get the state of a job, we recommend using `projects.locations.jobs.get`\nwith a [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using\n`projects.jobs.get` is not recommended, as you can only get the state of\njobs that are running in `us-central1`.",
 	//   "flatPath": "v1b3/projects/{projectId}/locations/{location}/jobs/{jobId}",
 	//   "httpMethod": "GET",
 	//   "id": "dataflow.projects.locations.jobs.get",
@@ -10101,7 +10345,7 @@ func (c *ProjectsLocationsJobsGetCall) Do(opts ...googleapi.CallOption) (*Job, e
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location that contains this job.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains this job.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -10152,6 +10396,16 @@ type ProjectsLocationsJobsGetMetricsCall struct {
 }
 
 // GetMetrics: Request the job status.
+//
+// To request the status of a job, we recommend
+// using
+// `projects.locations.jobs.getMetrics` with a [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints). Using
+// `projects.jobs.getMetrics` is not recommended, as you can only
+// request the
+// status of jobs that are running in `us-central1`.
 func (r *ProjectsLocationsJobsService) GetMetrics(projectId string, location string, jobId string) *ProjectsLocationsJobsGetMetricsCall {
 	c := &ProjectsLocationsJobsGetMetricsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectId = projectId
@@ -10268,7 +10522,7 @@ func (c *ProjectsLocationsJobsGetMetricsCall) Do(opts ...googleapi.CallOption) (
 	}
 	return ret, nil
 	// {
-	//   "description": "Request the job status.",
+	//   "description": "Request the job status.\n\nTo request the status of a job, we recommend using\n`projects.locations.jobs.getMetrics` with a [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using\n`projects.jobs.getMetrics` is not recommended, as you can only request the\nstatus of jobs that are running in `us-central1`.",
 	//   "flatPath": "v1b3/projects/{projectId}/locations/{location}/jobs/{jobId}/metrics",
 	//   "httpMethod": "GET",
 	//   "id": "dataflow.projects.locations.jobs.getMetrics",
@@ -10285,7 +10539,7 @@ func (c *ProjectsLocationsJobsGetMetricsCall) Do(opts ...googleapi.CallOption) (
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location which contains the job specified by job_id.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains the job specified by job_id.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -10329,7 +10583,19 @@ type ProjectsLocationsJobsListCall struct {
 	header_      http.Header
 }
 
-// List: List the jobs of a project in a given region.
+// List: List the jobs of a project.
+//
+// To list the jobs of a project in a region, we recommend
+// using
+// `projects.locations.jobs.get` with a [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints). To
+// list the all jobs across all regions, use `projects.jobs.aggregated`.
+// Using
+// `projects.jobs.list` is not recommended, as you can only get the list
+// of
+// jobs that are running in `us-central1`.
 func (r *ProjectsLocationsJobsService) List(projectId string, location string) *ProjectsLocationsJobsListCall {
 	c := &ProjectsLocationsJobsListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectId = projectId
@@ -10480,7 +10746,7 @@ func (c *ProjectsLocationsJobsListCall) Do(opts ...googleapi.CallOption) (*ListJ
 	}
 	return ret, nil
 	// {
-	//   "description": "List the jobs of a project in a given region.",
+	//   "description": "List the jobs of a project.\n\nTo list the jobs of a project in a region, we recommend using\n`projects.locations.jobs.get` with a [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). To\nlist the all jobs across all regions, use `projects.jobs.aggregated`. Using\n`projects.jobs.list` is not recommended, as you can only get the list of\njobs that are running in `us-central1`.",
 	//   "flatPath": "v1b3/projects/{projectId}/locations/{location}/jobs",
 	//   "httpMethod": "GET",
 	//   "id": "dataflow.projects.locations.jobs.list",
@@ -10501,7 +10767,7 @@ func (c *ProjectsLocationsJobsListCall) Do(opts ...googleapi.CallOption) (*ListJ
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location that contains this job.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains this job.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -10745,6 +11011,16 @@ type ProjectsLocationsJobsUpdateCall struct {
 }
 
 // Update: Updates the state of an existing Cloud Dataflow job.
+//
+// To update the state of an existing job, we recommend
+// using
+// `projects.locations.jobs.update` with a [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints). Using
+// `projects.jobs.update` is not recommended, as you can only update the
+// state
+// of jobs that are running in `us-central1`.
 func (r *ProjectsLocationsJobsService) Update(projectId string, location string, jobId string, job *Job) *ProjectsLocationsJobsUpdateCall {
 	c := &ProjectsLocationsJobsUpdateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectId = projectId
@@ -10846,7 +11122,7 @@ func (c *ProjectsLocationsJobsUpdateCall) Do(opts ...googleapi.CallOption) (*Job
 	}
 	return ret, nil
 	// {
-	//   "description": "Updates the state of an existing Cloud Dataflow job.",
+	//   "description": "Updates the state of an existing Cloud Dataflow job.\n\nTo update the state of an existing job, we recommend using\n`projects.locations.jobs.update` with a [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using\n`projects.jobs.update` is not recommended, as you can only update the state\nof jobs that are running in `us-central1`.",
 	//   "flatPath": "v1b3/projects/{projectId}/locations/{location}/jobs/{jobId}",
 	//   "httpMethod": "PUT",
 	//   "id": "dataflow.projects.locations.jobs.update",
@@ -10863,7 +11139,7 @@ func (c *ProjectsLocationsJobsUpdateCall) Do(opts ...googleapi.CallOption) (*Job
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location that contains this job.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains this job.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -11025,7 +11301,7 @@ func (c *ProjectsLocationsJobsDebugGetConfigCall) Do(opts ...googleapi.CallOptio
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location which contains the job specified by job_id.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains the job specified by job_id.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -11186,7 +11462,7 @@ func (c *ProjectsLocationsJobsDebugSendCaptureCall) Do(opts ...googleapi.CallOpt
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location which contains the job specified by job_id.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains the job specified by job_id.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -11229,6 +11505,16 @@ type ProjectsLocationsJobsMessagesListCall struct {
 }
 
 // List: Request the job status.
+//
+// To request the status of a job, we recommend
+// using
+// `projects.locations.jobs.messages.list` with a [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints). Using
+// `projects.jobs.messages.list` is not recommended, as you can only
+// request
+// the status of jobs that are running in `us-central1`.
 func (r *ProjectsLocationsJobsMessagesService) List(projectId string, location string, jobId string) *ProjectsLocationsJobsMessagesListCall {
 	c := &ProjectsLocationsJobsMessagesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
 	c.projectId = projectId
@@ -11387,7 +11673,7 @@ func (c *ProjectsLocationsJobsMessagesListCall) Do(opts ...googleapi.CallOption)
 	}
 	return ret, nil
 	// {
-	//   "description": "Request the job status.",
+	//   "description": "Request the job status.\n\nTo request the status of a job, we recommend using\n`projects.locations.jobs.messages.list` with a [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints). Using\n`projects.jobs.messages.list` is not recommended, as you can only request\nthe status of jobs that are running in `us-central1`.",
 	//   "flatPath": "v1b3/projects/{projectId}/locations/{location}/jobs/{jobId}/messages",
 	//   "httpMethod": "GET",
 	//   "id": "dataflow.projects.locations.jobs.messages.list",
@@ -11410,7 +11696,7 @@ func (c *ProjectsLocationsJobsMessagesListCall) Do(opts ...googleapi.CallOption)
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location which contains the job specified by job_id.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains the job specified by job_id.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -11619,7 +11905,7 @@ func (c *ProjectsLocationsJobsWorkItemsLeaseCall) Do(opts ...googleapi.CallOptio
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location which contains the WorkItem's job.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains the WorkItem's job.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -11781,7 +12067,7 @@ func (c *ProjectsLocationsJobsWorkItemsReportStatusCall) Do(opts ...googleapi.Ca
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location which contains the WorkItem's job.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) that\ncontains the WorkItem's job.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -11932,7 +12218,7 @@ func (c *ProjectsLocationsTemplatesCreateCall) Do(opts ...googleapi.CallOption) 
 	//   ],
 	//   "parameters": {
 	//     "location": {
-	//       "description": "The location to which to direct the request.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) to\nwhich to direct the request.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -12114,7 +12400,7 @@ func (c *ProjectsLocationsTemplatesGetCall) Do(opts ...googleapi.CallOption) (*G
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location to which to direct the request.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) to\nwhich to direct the request.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -12320,7 +12606,7 @@ func (c *ProjectsLocationsTemplatesLaunchCall) Do(opts ...googleapi.CallOption) 
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location to which to direct the request.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) to\nwhich to direct the request.",
 	//       "location": "path",
 	//       "required": true,
 	//       "type": "string"
@@ -12522,7 +12808,10 @@ func (c *ProjectsTemplatesGetCall) GcsPath(gcsPath string) *ProjectsTemplatesGet
 	return c
 }
 
-// Location sets the optional parameter "location": The location to
+// Location sets the optional parameter "location": The [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints) to
 // which to direct the request.
 func (c *ProjectsTemplatesGetCall) Location(location string) *ProjectsTemplatesGetCall {
 	c.urlParams_.Set("location", location)
@@ -12651,7 +12940,7 @@ func (c *ProjectsTemplatesGetCall) Do(opts ...googleapi.CallOption) (*GetTemplat
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location to which to direct the request.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) to\nwhich to direct the request.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
@@ -12730,7 +13019,10 @@ func (c *ProjectsTemplatesLaunchCall) GcsPath(gcsPath string) *ProjectsTemplates
 	return c
 }
 
-// Location sets the optional parameter "location": The location to
+// Location sets the optional parameter "location": The [regional
+// endpoint]
+// (https://cloud.google.com/dataflow/docs/concepts/regional-en
+// dpoints) to
 // which to direct the request.
 func (c *ProjectsTemplatesLaunchCall) Location(location string) *ProjectsTemplatesLaunchCall {
 	c.urlParams_.Set("location", location)
@@ -12859,7 +13151,7 @@ func (c *ProjectsTemplatesLaunchCall) Do(opts ...googleapi.CallOption) (*LaunchT
 	//       "type": "string"
 	//     },
 	//     "location": {
-	//       "description": "The location to which to direct the request.",
+	//       "description": "The [regional endpoint]\n(https://cloud.google.com/dataflow/docs/concepts/regional-endpoints) to\nwhich to direct the request.",
 	//       "location": "query",
 	//       "type": "string"
 	//     },

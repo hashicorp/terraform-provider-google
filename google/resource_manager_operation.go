@@ -31,7 +31,7 @@ func (w *ResourceManagerOperationWaiter) QueryOp() (interface{}, error) {
 	return sendRequest(w.Config, "GET", url, nil)
 }
 
-func resourceManagerOperationWaitTime(config *Config, op map[string]interface{}, project, activity string, timeoutMinutes int) error {
+func resourceManagerOperationWaitTime(config *Config, op map[string]interface{}, activity string, timeoutMinutes int) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

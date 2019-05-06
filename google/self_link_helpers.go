@@ -106,15 +106,7 @@ func GetRegionalResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, c
 
 func getResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *Config, locationType LocationType) (string, string, string, error) {
 	if selfLink, ok := d.GetOk("self_link"); ok {
-		parsed, err := url.Parse(selfLink.(string))
-		if err != nil {
-			return "", "", "", err
-		}
-
-		s := strings.Split(parsed.Path, "/")
-		// https://www.googleapis.com/compute/beta/projects/project_name/regions/region_name/instanceGroups/foobarbaz
-		// =>  project_name, region_name, foobarbaz
-		return s[4], s[6], s[8], nil
+		return GetLocationalResourcePropertiesFromSelfLinkString(selfLink.(string))
 	} else {
 		project, err := getProject(d, config)
 		if err != nil {
@@ -141,4 +133,15 @@ func getResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *C
 		}
 		return project, location, name, nil
 	}
+}
+
+// given a full locational (non-global) self link, returns the project + region/zone + name or an error
+func GetLocationalResourcePropertiesFromSelfLinkString(selfLink string) (string, string, string, error) {
+	parsed, err := url.Parse(selfLink)
+	if err != nil {
+		return "", "", "", err
+	}
+
+	s := strings.Split(parsed.Path, "/")
+	return s[4], s[6], s[8], nil
 }

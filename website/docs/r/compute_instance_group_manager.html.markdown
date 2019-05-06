@@ -57,19 +57,21 @@ resource "google_compute_instance_group_manager" "appserver" {
 ## Example Usage with multiple versions (`google-beta` provider)
 ```hcl
 resource "google_compute_instance_group_manager" "appserver" {
+  provider = "google-beta"
   name = "appserver-igm"
 
   base_instance_name = "app"
-  update_strategy    = "NONE"
   zone               = "us-central1-a"
 
   target_size  = 5
 
   version {
+    name = "appserver"
     instance_template  = "${google_compute_instance_template.appserver.self_link}"
   }
 
   version {
+    name = "appserver-canary"
     instance_template  = "${google_compute_instance_template.appserver-canary.self_link}"
     target_size {
       fixed = 1

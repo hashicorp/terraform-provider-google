@@ -247,7 +247,6 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Type:     schema.TypeMap,
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
 						},
 					},
 				},
@@ -493,11 +492,10 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	op, err := config.clientSqlAdmin.Instances.Insert(project, instance).Do()
 	if err != nil {
-		if googleapiError, ok := err.(*googleapi.Error); ok && googleapiError.Code == 409 {
-			return fmt.Errorf("Error, the name %s is unavailable because it was used recently", instance.Name)
-		} else {
-			return fmt.Errorf("Error, failed to create instance %s: %s", instance.Name, err)
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 {
+			return fmt.Errorf("Error, failed to create instance %s with error code 409: %s. This may be due to a name collision - SQL instance names cannot be reused within a week.", instance.Name, err)
 		}
+		return fmt.Errorf("Error, failed to create instance %s: %s", instance.Name, err)
 	}
 
 	d.SetId(instance.Name)
@@ -702,8 +700,13 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	instance, err := config.clientSqlAdmin.Instances.Get(project,
-		d.Id()).Do()
+	var instance *sqladmin.DatabaseInstance
+	err = retry(
+		func() error {
+			instance, err = config.clientSqlAdmin.Instances.Get(project, d.Id()).Do()
+			return err
+		},
+	)
 
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SQL Database Instance %q", d.Get("name").(string)))

@@ -9,7 +9,6 @@ import (
 	"github.com/apparentlymart/go-textseg/textseg"
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/zclconf/go-cty/cty"
-	"github.com/zclconf/go-cty/cty/convert"
 )
 
 type parser struct {
@@ -236,10 +235,18 @@ func (p *parser) finishParsingBodyAttribute(ident Token, singleLine bool) (Node,
 			end := p.Peek()
 			if end.Type != TokenNewline && end.Type != TokenEOF {
 				if !p.recovery {
+					summary := "Missing newline after argument"
+					detail := "An argument definition must end with a newline."
+
+					if end.Type == TokenComma {
+						summary = "Unexpected comma after argument"
+						detail = "Argument definitions must be separated by newlines, not commas. " + detail
+					}
+
 					diags = append(diags, &hcl.Diagnostic{
 						Severity: hcl.DiagError,
-						Summary:  "Missing newline after argument",
-						Detail:   "An argument definition must end with a newline.",
+						Summary:  summary,
+						Detail:   detail,
 						Subject:  &end.Range,
 						Context:  hcl.RangeBetween(ident.Range, end.Range).Ptr(),
 					})
@@ -286,19 +293,9 @@ Token:
 			diags = append(diags, labelDiags...)
 			labels = append(labels, label)
 			labelRanges = append(labelRanges, labelRange)
-			if labelDiags.HasErrors() {
-				p.recoverAfterBodyItem()
-				return &Block{
-					Type:   blockType,
-					Labels: labels,
-					Body:   nil,
-
-					TypeRange:       ident.Range,
-					LabelRanges:     labelRanges,
-					OpenBraceRange:  ident.Range, // placeholder
-					CloseBraceRange: ident.Range, // placeholder
-				}, diags
-			}
+			// parseQuoteStringLiteral recovers up to the closing quote
+			// if it encounters problems, so we can continue looking for
+			// more labels and eventually the block body even.
 
 		case TokenIdent:
 			tok = p.Read() // eat token
@@ -1050,11 +1047,10 @@ func (p *parser) parseExpressionTerm() (Expression, hcl.Diagnostics) {
 }
 
 func (p *parser) numberLitValue(tok Token) (cty.Value, hcl.Diagnostics) {
-	// We'll lean on the cty converter to do the conversion, to ensure that
-	// the behavior is the same as what would happen if converting a
-	// non-literal string to a number.
-	numStrVal := cty.StringVal(string(tok.Bytes))
-	numVal, err := convert.Convert(numStrVal, cty.Number)
+	// The cty.ParseNumberVal is always the same behavior as converting a
+	// string to a number, ensuring we always interpret decimal numbers in
+	// the same way.
+	numVal, err := cty.ParseNumberVal(string(tok.Bytes))
 	if err != nil {
 		ret := cty.UnknownVal(cty.Number)
 		return ret, hcl.Diagnostics{
@@ -1246,7 +1242,13 @@ func (p *parser) parseObjectCons() (Expression, hcl.Diagnostics) {
 		panic("parseObjectCons called without peeker pointing to open brace")
 	}
 
-	if forKeyword.TokenMatches(p.Peek()) {
+	// We must temporarily stop looking at newlines here while we check for
+	// a "for" keyword, since for expressions are _not_ newline-sensitive,
+	// even though object constructors are.
+	p.PushIncludeNewlines(false)
+	isFor := forKeyword.TokenMatches(p.Peek())
+	p.PopIncludeNewlines()
+	if isFor {
 		return p.finishParsingForExpr(open)
 	}
 
@@ -1381,6 +1383,8 @@ func (p *parser) parseObjectCons() (Expression, hcl.Diagnostics) {
 }
 
 func (p *parser) finishParsingForExpr(open Token) (Expression, hcl.Diagnostics) {
+	p.PushIncludeNewlines(false)
+	defer p.PopIncludeNewlines()
 	introducer := p.Read()
 	if !forKeyword.TokenMatches(introducer) {
 		// Should never happen if callers are behaving
@@ -1648,7 +1652,16 @@ Token:
 				Subject: &tok.Range,
 				Context: hcl.RangeBetween(oQuote.Range, tok.Range).Ptr(),
 			})
-			p.recover(TokenTemplateSeqEnd)
+
+			// Now that we're returning an error callers won't attempt to use
+			// the result for any real operations, but they might try to use
+			// the partial AST for other analyses, so we'll leave a marker
+			// to indicate that there was something invalid in the string to
+			// help avoid misinterpretation of the partial result
+			ret.WriteString(which)
+			ret.WriteString("{ ... }")
+
+			p.recover(TokenTemplateSeqEnd) // we'll try to keep parsing after the sequence ends
 
 		case TokenEOF:
 			diags = append(diags, &hcl.Diagnostic{
@@ -1669,7 +1682,7 @@ Token:
 				Subject:  &tok.Range,
 				Context:  hcl.RangeBetween(oQuote.Range, tok.Range).Ptr(),
 			})
-			p.recover(TokenOQuote)
+			p.recover(TokenCQuote)
 			break Token
 
 		}

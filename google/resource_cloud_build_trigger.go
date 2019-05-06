@@ -68,9 +68,66 @@ func resourceCloudBuildTrigger() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
+									"dir": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"entrypoint": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"env": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"id": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
 									"name": {
 										Type:     schema.TypeString,
 										Optional: true,
+									},
+									"secret_env": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"timeout": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"timing": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"volumes": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"path": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+											},
+										},
+									},
+									"wait_for": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
 									},
 								},
 							},
@@ -91,7 +148,7 @@ func resourceCloudBuildTrigger() *schema.Resource {
 				Optional: true,
 			},
 			"disabled": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeBool,
 				Optional: true,
 			},
 			"filename": {
@@ -538,8 +595,17 @@ func flattenCloudBuildTriggerBuildStep(v interface{}, d *schema.ResourceData) in
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name": flattenCloudBuildTriggerBuildStepName(original["name"], d),
-			"args": flattenCloudBuildTriggerBuildStepArgs(original["args"], d),
+			"name":       flattenCloudBuildTriggerBuildStepName(original["name"], d),
+			"args":       flattenCloudBuildTriggerBuildStepArgs(original["args"], d),
+			"env":        flattenCloudBuildTriggerBuildStepEnv(original["env"], d),
+			"id":         flattenCloudBuildTriggerBuildStepId(original["id"], d),
+			"entrypoint": flattenCloudBuildTriggerBuildStepEntrypoint(original["entrypoint"], d),
+			"dir":        flattenCloudBuildTriggerBuildStepDir(original["dir"], d),
+			"secret_env": flattenCloudBuildTriggerBuildStepSecretEnv(original["secretEnv"], d),
+			"timeout":    flattenCloudBuildTriggerBuildStepTimeout(original["timeout"], d),
+			"timing":     flattenCloudBuildTriggerBuildStepTiming(original["timing"], d),
+			"volumes":    flattenCloudBuildTriggerBuildStepVolumes(original["volumes"], d),
+			"wait_for":   flattenCloudBuildTriggerBuildStepWaitFor(original["waitFor"], d),
 		})
 	}
 	return transformed
@@ -549,6 +615,65 @@ func flattenCloudBuildTriggerBuildStepName(v interface{}, d *schema.ResourceData
 }
 
 func flattenCloudBuildTriggerBuildStepArgs(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildStepEnv(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildStepId(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildStepEntrypoint(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildStepDir(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildStepSecretEnv(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildStepTimeout(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildStepTiming(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildStepVolumes(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name": flattenCloudBuildTriggerBuildStepVolumesName(original["name"], d),
+			"path": flattenCloudBuildTriggerBuildStepVolumesPath(original["path"], d),
+		})
+	}
+	return transformed
+}
+func flattenCloudBuildTriggerBuildStepVolumesName(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildStepVolumesPath(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildStepWaitFor(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -726,6 +851,69 @@ func expandCloudBuildTriggerBuildStep(v interface{}, d TerraformResourceData, co
 			transformed["args"] = transformedArgs
 		}
 
+		transformedEnv, err := expandCloudBuildTriggerBuildStepEnv(original["env"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEnv); val.IsValid() && !isEmptyValue(val) {
+			transformed["env"] = transformedEnv
+		}
+
+		transformedId, err := expandCloudBuildTriggerBuildStepId(original["id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedId); val.IsValid() && !isEmptyValue(val) {
+			transformed["id"] = transformedId
+		}
+
+		transformedEntrypoint, err := expandCloudBuildTriggerBuildStepEntrypoint(original["entrypoint"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEntrypoint); val.IsValid() && !isEmptyValue(val) {
+			transformed["entrypoint"] = transformedEntrypoint
+		}
+
+		transformedDir, err := expandCloudBuildTriggerBuildStepDir(original["dir"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDir); val.IsValid() && !isEmptyValue(val) {
+			transformed["dir"] = transformedDir
+		}
+
+		transformedSecretEnv, err := expandCloudBuildTriggerBuildStepSecretEnv(original["secret_env"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSecretEnv); val.IsValid() && !isEmptyValue(val) {
+			transformed["secretEnv"] = transformedSecretEnv
+		}
+
+		transformedTimeout, err := expandCloudBuildTriggerBuildStepTimeout(original["timeout"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTimeout); val.IsValid() && !isEmptyValue(val) {
+			transformed["timeout"] = transformedTimeout
+		}
+
+		transformedTiming, err := expandCloudBuildTriggerBuildStepTiming(original["timing"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTiming); val.IsValid() && !isEmptyValue(val) {
+			transformed["timing"] = transformedTiming
+		}
+
+		transformedVolumes, err := expandCloudBuildTriggerBuildStepVolumes(original["volumes"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVolumes); val.IsValid() && !isEmptyValue(val) {
+			transformed["volumes"] = transformedVolumes
+		}
+
+		transformedWaitFor, err := expandCloudBuildTriggerBuildStepWaitFor(original["wait_for"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedWaitFor); val.IsValid() && !isEmptyValue(val) {
+			transformed["waitFor"] = transformedWaitFor
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -736,5 +924,74 @@ func expandCloudBuildTriggerBuildStepName(v interface{}, d TerraformResourceData
 }
 
 func expandCloudBuildTriggerBuildStepArgs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildStepEnv(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildStepId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildStepEntrypoint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildStepDir(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildStepSecretEnv(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildStepTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildStepTiming(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildStepVolumes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandCloudBuildTriggerBuildStepVolumesName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedPath, err := expandCloudBuildTriggerBuildStepVolumesPath(original["path"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !isEmptyValue(val) {
+			transformed["path"] = transformedPath
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandCloudBuildTriggerBuildStepVolumesName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildStepVolumesPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildStepWaitFor(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
