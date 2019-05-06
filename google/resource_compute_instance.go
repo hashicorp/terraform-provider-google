@@ -16,7 +16,6 @@ import (
 	"github.com/mitchellh/hashstructure"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceComputeInstance() *schema.Resource {
@@ -441,6 +440,14 @@ func resourceComputeInstance() *schema.Resource {
 							Default:  false,
 							ForceNew: true,
 						},
+
+						"node_affinities": {
+							Type:             schema.TypeSet,
+							Optional:         true,
+							ForceNew:         true,
+							Elem:             instanceSchedulingNodeAffinitiesElemSchema(),
+							DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
+						},
 					},
 				},
 			},
@@ -625,22 +632,9 @@ func expandComputeInstance(project string, zone *compute.Zone, d *schema.Resourc
 		disks = append(disks, disk)
 	}
 
-	sch := d.Get("scheduling").([]interface{})
-	var scheduling *computeBeta.Scheduling
-	if len(sch) == 0 {
-		// TF doesn't do anything about defaults inside of nested objects, so if
-		// scheduling hasn't been set, then send it with its default values.
-		scheduling = &computeBeta.Scheduling{
-			AutomaticRestart: googleapi.Bool(true),
-		}
-	} else {
-		prefix := "scheduling.0"
-		scheduling = &computeBeta.Scheduling{
-			AutomaticRestart:  googleapi.Bool(d.Get(prefix + ".automatic_restart").(bool)),
-			Preemptible:       d.Get(prefix + ".preemptible").(bool),
-			OnHostMaintenance: d.Get(prefix + ".on_host_maintenance").(string),
-			ForceSendFields:   []string{"AutomaticRestart", "Preemptible"},
-		}
+	scheduling, err := expandScheduling(d.Get("scheduling"))
+	if err != nil {
+		return nil, fmt.Errorf("Error creating scheduling: %s", err)
 	}
 
 	metadata, err := resourceInstanceMetadata(d)
@@ -1005,22 +999,20 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("scheduling") {
-		prefix := "scheduling.0"
-		scheduling := &compute.Scheduling{
-			AutomaticRestart:  googleapi.Bool(d.Get(prefix + ".automatic_restart").(bool)),
-			Preemptible:       d.Get(prefix + ".preemptible").(bool),
-			OnHostMaintenance: d.Get(prefix + ".on_host_maintenance").(string),
-			ForceSendFields:   []string{"AutomaticRestart", "Preemptible"},
+		scheduling, err := expandScheduling(d.Get("scheduling"))
+		if err != nil {
+			return fmt.Errorf("Error creating request data to update scheduling: %s", err)
 		}
 
-		op, err := config.clientCompute.Instances.SetScheduling(project,
-			zone, d.Id(), scheduling).Do()
-
+		op, err := config.clientComputeBeta.Instances.SetScheduling(
+			project, zone, d.Id(), scheduling).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating scheduling policy: %s", err)
 		}
 
-		opErr := computeOperationWaitTime(config.clientCompute, op, project, "scheduling policy update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		opErr := computeBetaOperationWaitTime(
+			config.clientCompute, op, project, "scheduling policy update",
+			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 		if opErr != nil {
 			return opErr
 		}
