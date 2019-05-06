@@ -15,7 +15,7 @@ Get information about a Google Compute Image. Check that your service account ha
 
 ```hcl
 data "google_compute_image" "my_image" {
-  name    = "debian-9"
+  family  = "debian-9"
   project = "debian-cloud"
 }
 
