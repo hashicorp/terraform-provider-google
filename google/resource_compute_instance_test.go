@@ -615,7 +615,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_service_account(t *testing.T) {
+func TestAccComputeInstance_serviceAccount(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
@@ -627,7 +627,7 @@ func TestAccComputeInstance_service_account(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstance_service_account(instanceName),
+				Config: testAccComputeInstance_serviceAccount(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
@@ -661,6 +661,38 @@ func TestAccComputeInstance_scheduling(t *testing.T) {
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
 				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+			{
+				Config: testAccComputeInstance_schedulingUpdated(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
+func TestAccComputeInstance_soleTenantNodeAffinities(t *testing.T) {
+	t.Parallel()
+
+	var instanceName = fmt.Sprintf("soletenanttest-%s", acctest.RandString(10))
+	var templateName = fmt.Sprintf("nodetmpl-%s", acctest.RandString(10))
+	var groupName = fmt.Sprintf("nodegroup-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_soleTenantNodeAffinities(instanceName, templateName, groupName),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+			{
+				Config: testAccComputeInstance_soleTenantNodeAffinitiesUpdated(instanceName, templateName, groupName),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
@@ -2378,7 +2410,7 @@ resource "google_compute_instance" "scratch" {
 `, instance)
 }
 
-func testAccComputeInstance_service_account(instance string) string {
+func testAccComputeInstance_serviceAccount(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
@@ -2435,6 +2467,36 @@ resource "google_compute_instance" "foobar" {
 
 	scheduling {
 		automatic_restart = false
+	}
+}
+`, instance)
+}
+
+func testAccComputeInstance_schedulingUpdated(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	scheduling {
+		automatic_restart = false
+		preemptible = true
 	}
 }
 `, instance)
@@ -3054,4 +3116,130 @@ resource "google_compute_instance" "foobar" {
 	allow_stopping_for_update = true
 }
 `, instance)
+}
+
+func testAccComputeInstance_soleTenantNodeAffinities(instance, nodeTemplate, nodeGroup string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name = "%s"
+  machine_type = "n1-standard-2"
+  zone = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "${data.google_compute_image.my_image.self_link}"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    node_affinities {
+      key = "tfacc"
+      operator = "IN"
+      values = ["test"]
+    }
+
+    node_affinities {
+      key = "compute.googleapis.com/node-group-name"
+      operator = "IN"
+      values = ["${google_compute_node_group.nodes.name}"]
+    }
+  }
+}
+
+data "google_compute_node_types" "central1a" {
+  zone = "us-central1-a"
+}
+
+
+resource "google_compute_node_template" "nodetmpl" {
+  name = "%s"
+  region = "us-central1"
+
+  node_affinity_labels = {
+    tfacc = "test"
+  }
+
+  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  size = 1
+  node_template = "${google_compute_node_template.nodetmpl.self_link}"
+}
+`, instance, nodeTemplate, nodeGroup)
+}
+
+func testAccComputeInstance_soleTenantNodeAffinitiesUpdated(instance, nodeTemplate, nodeGroup string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name = "%s"
+  machine_type = "n1-standard-2"
+  zone = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "${data.google_compute_image.my_image.self_link}"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    node_affinities {
+      key = "tfacc"
+      operator = "IN"
+      values = ["test", "updatedlabel"]
+    }
+
+    node_affinities {
+      key = "compute.googleapis.com/node-group-name"
+      operator = "IN"
+      values = ["${google_compute_node_group.nodes.name}"]
+    }
+  }
+}
+
+data "google_compute_node_types" "central1a" {
+  zone = "us-central1-a"
+}
+
+
+resource "google_compute_node_template" "nodetmpl" {
+  name = "%s"
+  region = "us-central1"
+
+  node_affinity_labels = {
+    tfacc = "test"
+  }
+
+  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  size = 1
+  node_template = "${google_compute_node_template.nodetmpl.self_link}"
+}
+`, instance, nodeTemplate, nodeGroup)
 }

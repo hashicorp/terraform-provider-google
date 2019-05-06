@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	computeBeta "google.golang.org/api/compute/v0.beta"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceComputeInstanceTemplate() *schema.Resource {
@@ -320,6 +319,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"preemptible": {
@@ -341,6 +341,14 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
+						},
+
+						"node_affinities": {
+							Type:             schema.TypeSet,
+							Optional:         true,
+							ForceNew:         true,
+							Elem:             instanceSchedulingNodeAffinitiesElemSchema(),
+							DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
 						},
 					},
 				},
@@ -604,70 +612,40 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	instanceProperties := &computeBeta.InstanceProperties{
-		CanIpForward:   d.Get("can_ip_forward").(bool),
-		Description:    d.Get("instance_description").(string),
-		MachineType:    d.Get("machine_type").(string),
-		MinCpuPlatform: d.Get("min_cpu_platform").(string),
-	}
-
 	disks, err := buildDisks(d, config)
 	if err != nil {
 		return err
 	}
-	instanceProperties.Disks = disks
 
 	metadata, err := resourceInstanceMetadata(d)
 	if err != nil {
 		return err
 	}
-	instanceProperties.Metadata = metadata
+
 	networks, err := expandNetworkInterfaces(d, config)
 	if err != nil {
 		return err
 	}
-	instanceProperties.NetworkInterfaces = networks
 
-	instanceProperties.Scheduling = &computeBeta.Scheduling{}
-	instanceProperties.Scheduling.OnHostMaintenance = "MIGRATE"
-
-	forceSendFieldsScheduling := make([]string, 0, 3)
-	var hasSendMaintenance bool
-	hasSendMaintenance = false
-	if v, ok := d.GetOk("scheduling"); ok {
-		_schedulings := v.([]interface{})
-		if len(_schedulings) > 1 {
-			return fmt.Errorf("Error, at most one `scheduling` block can be defined")
-		}
-		_scheduling := _schedulings[0].(map[string]interface{})
-
-		// "automatic_restart" has a default value and is always safe to dereference
-		automaticRestart := _scheduling["automatic_restart"].(bool)
-		instanceProperties.Scheduling.AutomaticRestart = googleapi.Bool(automaticRestart)
-		forceSendFieldsScheduling = append(forceSendFieldsScheduling, "AutomaticRestart")
-
-		if vp, okp := _scheduling["on_host_maintenance"]; okp {
-			instanceProperties.Scheduling.OnHostMaintenance = vp.(string)
-			forceSendFieldsScheduling = append(forceSendFieldsScheduling, "OnHostMaintenance")
-			hasSendMaintenance = true
-		}
-
-		if vp, okp := _scheduling["preemptible"]; okp {
-			instanceProperties.Scheduling.Preemptible = vp.(bool)
-			forceSendFieldsScheduling = append(forceSendFieldsScheduling, "Preemptible")
-			if vp.(bool) && !hasSendMaintenance {
-				instanceProperties.Scheduling.OnHostMaintenance = "TERMINATE"
-				forceSendFieldsScheduling = append(forceSendFieldsScheduling, "OnHostMaintenance")
-			}
-		}
+	scheduling, err := expandResourceComputeInstanceTemplateScheduling(d, config)
+	if err != nil {
+		return err
 	}
-	instanceProperties.Scheduling.ForceSendFields = forceSendFieldsScheduling
 
-	instanceProperties.ServiceAccounts = expandServiceAccounts(d.Get("service_account").([]interface{}))
+	instanceProperties := &computeBeta.InstanceProperties{
+		CanIpForward:      d.Get("can_ip_forward").(bool),
+		Description:       d.Get("instance_description").(string),
+		GuestAccelerators: expandInstanceTemplateGuestAccelerators(d, config),
+		MachineType:       d.Get("machine_type").(string),
+		MinCpuPlatform:    d.Get("min_cpu_platform").(string),
+		Disks:             disks,
+		Metadata:          metadata,
+		NetworkInterfaces: networks,
+		Scheduling:        scheduling,
+		ServiceAccounts:   expandServiceAccounts(d.Get("service_account").([]interface{})),
+		Tags:              resourceInstanceTags(d),
+	}
 
-	instanceProperties.GuestAccelerators = expandInstanceTemplateGuestAccelerators(d, config)
-
-	instanceProperties.Tags = resourceInstanceTags(d)
 	if _, ok := d.GetOk("labels"); ok {
 		instanceProperties.Labels = expandLabels(d)
 	}
@@ -887,4 +865,28 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 
 	d.SetId("")
 	return nil
+}
+
+// This wraps the general compute instance helper expandScheduling.
+// Default value of OnHostMaintenance depends on the value of Preemptible,
+// so we can't set a default in schema
+func expandResourceComputeInstanceTemplateScheduling(d *schema.ResourceData, meta interface{}) (*computeBeta.Scheduling, error) {
+	v, ok := d.GetOk("scheduling")
+	if !ok || v == nil {
+		// We can't set defaults for lists (e.g. scheduling)
+		return &computeBeta.Scheduling{
+			OnHostMaintenance: "MIGRATE",
+		}, nil
+	}
+
+	expanded, err := expandScheduling(v)
+	if err != nil {
+		return nil, err
+	}
+
+	// Make sure we have an appropriate value for OnHostMaintenance if Preemptible
+	if expanded.Preemptible && expanded.OnHostMaintenance == "" {
+		expanded.OnHostMaintenance = "TERMINATE"
+	}
+	return expanded, nil
 }
