@@ -21,8 +21,12 @@ a restricted host and strong password.
 ### SQL First Generation
 
 ```hcl
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
+}
+
 resource "google_sql_database_instance" "master" {
-  name = "master-instance"
+  name = "master-instance-${random_id.db_name_suffix.hex}"
   database_version = "MYSQL_5_6"
   # First-generation instance regions are not the conventional
   # Google Compute Engine regions. See argument reference below.
@@ -91,8 +95,12 @@ data "null_data_source" "auth_netw_postgres_allowed_2" {
   }
 }
 
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
+}
+
 resource "google_sql_database_instance" "postgres" {
-  name = "postgres-instance"
+  name = "postgres-instance-${random_id.db_name_suffix.hex}"
   database_version = "POSTGRES_9_6"
 
   settings {
@@ -136,10 +144,14 @@ resource "google_service_networking_connection" "private_vpc_connection" {
   reserved_peering_ranges = ["${google_compute_global_address.private_ip_address.name}"]
 }
 
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
+}
+
 resource "google_sql_database_instance" "instance" {
   provider = "google-beta"
 
-  name = "private-instance"
+  name = "private-instance-${random_id.db_name_suffix.hex}"
   region = "us-central1"
 
   depends_on = [
