@@ -48,12 +48,42 @@ data "google_compute_node_types" "central1a" {
 resource "google_compute_node_template" "template" {
   name = "soletenant-tmpl"
   region = "us-central1"
+  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=node_template_server_binding&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Node Template Server Binding
+
+
+```hcl
+provider "google-beta" {
+  region = "us-central1"
+  zone   = "us-central1-a"
+}
+
+data "google_compute_node_types" "central1a" {
+  provider = "google-beta"
+  zone = "us-central1-a"
+}
+
+resource "google_compute_node_template" "template" {
+  provider = "google-beta"
+
+  name = "soletenant-with-licenses"
+  region = "us-central1"
+  node_type = "${data.google_compute_node_types.central1a.names[0]}"
 
   node_affinity_labels = {
     foo = "baz"
   }
 
-  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+  server_binding {
+    type = "RESTART_NODE_ON_MINIMAL_SERVERS"
+  }
 }
 ```
 
