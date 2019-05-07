@@ -28,16 +28,6 @@ BUG FIXES:
 * container: `google_container_cluster` removed an overly restrictive validation restricting `node_pool` and `remove_default_node_pool` being specified at the same time. [GH-3497]
 * storage: `data.google_storage_bucket_object` now correctly URL encodes the slashes in a file name [GH-1613]
 
-## 2.4.1 (April 30, 2019)
-
-NOTES:
-This 2.4.1 release is a bugfix release for 2.4.0. It backports the fixes applied in the 2.5.1 release to the 2.4.0 series.
-
-BUG FIXES:
-* compute: `google_compute_backend_service` handles empty/nil `iap` block created by previous providers properly. ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3459))
-* compute: `google_compute_backend_service` allows multiple instance types in `backends.group` again. ([#3463](https://github.com/terraform-providers/terraform-provider-google/issues/3463))
-* dns: `google_dns_managed_zone` does not permadiff when visiblity is set to default and returned as empty from API ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3461))
-
 ## 2.5.1 (April 22, 2019)
 
 BUG FIXES:
@@ -63,6 +53,16 @@ BACKWARDS INCOMPATIBILITIES:
 
 BUG FIXES:
 * container: `google_container_cluster` catch out of band changes to `master_authorized_networks.cidr_blocks`. ([#3427](https://github.com/terraform-providers/terraform-provider-google/issues/3427))
+
+## 2.4.1 (April 30, 2019)
+
+NOTES:
+This 2.4.1 release is a bugfix release for 2.4.0. It backports the fixes applied in the 2.5.1 release to the 2.4.0 series.
+
+BUG FIXES:
+* compute: `google_compute_backend_service` handles empty/nil `iap` block created by previous providers properly. ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3459))
+* compute: `google_compute_backend_service` allows multiple instance types in `backends.group` again. ([#3463](https://github.com/terraform-providers/terraform-provider-google/issues/3463))
+* dns: `google_dns_managed_zone` does not permadiff when visiblity is set to default and returned as empty from API ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3461))
 
 ## 2.4.0 (April 15, 2019)
 
