@@ -161,7 +161,7 @@ The `cluster_config` block supports:
    in a cluster.. Structure defined below.
 
 * `preemptible_worker_config` (Optional) The Google Compute Engine config settings for the additional (aka
-   preemptible) instancesin a cluster. Structure defined below.
+   preemptible) instances in a cluster. Structure defined below.
 
 * `software_config` (Optional) The config settings for software inside the cluster.
    Structure defined below.
