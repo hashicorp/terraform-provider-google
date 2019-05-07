@@ -1,3 +1,4 @@
+## 2.6.1 (Unreleased)
 ## 2.6.0 (May 07, 2019)
 
 DEPRECATIONS:
