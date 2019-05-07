@@ -610,7 +610,7 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
-      "vertical_pod_autoscaling": {
+			"vertical_pod_autoscaling": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
@@ -624,7 +624,7 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
-      "resource_labels": {
+			"resource_labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -911,7 +911,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-  if err := d.Set("vertical_pod_autoscaling", flattenVerticalPodAutoscaling(cluster.VerticalPodAutoscaling)); err != nil {
+	if err := d.Set("vertical_pod_autoscaling", flattenVerticalPodAutoscaling(cluster.VerticalPodAutoscaling)); err != nil {
 		return err
 	}
 
@@ -1386,7 +1386,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		d.SetPartial("master_auth")
 	}
 
-  if d.HasChange("vertical_pod_autoscaling") {
+	if d.HasChange("vertical_pod_autoscaling") {
 		if ac, ok := d.GetOk("vertical_pod_autoscaling"); ok {
 			req := &containerBeta.UpdateClusterRequest{
 				Update: &containerBeta.ClusterUpdate{
@@ -1405,7 +1405,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			d.SetPartial("vertical_pod_autoscaling")
 		}
 
-  }
+	}
 
 	if d.HasChange("resource_labels") {
 		resourceLabels := d.Get("resource_labels").(map[string]interface{})
@@ -1744,7 +1744,7 @@ func expandVerticalPodAutoscaling(configured interface{}) *containerBeta.Vertica
 	if enabled, ok := config["enabled"]; ok && enabled.(bool) {
 		result.Enabled = true
 	}
-  return result
+	return result
 }
 
 func expandPodSecurityPolicyConfig(configured interface{}) *containerBeta.PodSecurityPolicyConfig {
@@ -1840,12 +1840,12 @@ func flattenVerticalPodAutoscaling(c *containerBeta.VerticalPodAutoscaling) []ma
 	result := []map[string]interface{}{}
 	if c != nil {
 		result = append(result, map[string]interface{}{
-			"enabled":  c.Enabled,
+			"enabled": c.Enabled,
 		})
 	} else {
 		// Explicitly set the network policy to the default.
 		result = append(result, map[string]interface{}{
-			"enabled":  false,
+			"enabled": false,
 		})
 	}
 	return result
