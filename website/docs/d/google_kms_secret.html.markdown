@@ -59,8 +59,12 @@ data "google_kms_secret" "sql_user_password" {
   ciphertext = "CiQAqD+xX4SXOSziF4a8JYvq4spfAuWhhYSNul33H85HnVtNQW4SOgDu2UZ46dQCRFl5MF6ekabviN8xq+F+2035ZJ85B+xTYXqNf4mZs0RJitnWWuXlYQh6axnnJYu3kDU="
 }
 
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
+}
+
 resource "google_sql_database_instance" "master" {
-  name = "master-instance"
+  name = "master-instance-${random_id.db_name_suffix.hex}"
 
   settings {
     tier = "D0"
