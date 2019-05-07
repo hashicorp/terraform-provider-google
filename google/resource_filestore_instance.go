@@ -232,9 +232,6 @@ func resourceFilestoreInstanceRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
-	if err := d.Set("name", flattenFilestoreInstanceName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
 	if err := d.Set("description", flattenFilestoreInstanceDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -376,13 +373,6 @@ func resourceFilestoreInstanceImport(d *schema.ResourceData, meta interface{}) (
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
-}
-
-func flattenFilestoreInstanceName(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil {
-		return v
-	}
-	return NameFromSelfLinkStateFunc(v)
 }
 
 func flattenFilestoreInstanceDescription(v interface{}, d *schema.ResourceData) interface{} {
