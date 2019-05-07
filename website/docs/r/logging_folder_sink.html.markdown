@@ -22,7 +22,7 @@ resource "google_logging_folder_sink" "my-sink" {
     name        = "my-sink"
     folder      = "${google_folder.my-folder.name}"
 
-    # Can export to pubsub, cloud storage, or bigtable
+    # Can export to pubsub, cloud storage, or bigquery
     destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 
     # Log all WARN or higher severity messages relating to instances
