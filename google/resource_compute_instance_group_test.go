@@ -15,7 +15,9 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 	t.Parallel()
 
 	var instanceGroup compute.InstanceGroup
+	var resourceName = "google_compute_instance_group.basic"
 	var instanceName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
+	var zone = "us-central1-c"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -23,7 +25,7 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 		CheckDestroy: testAccComputeInstanceGroup_destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstanceGroup_basic(instanceName),
+				Config: testAccComputeInstanceGroup_basic(zone, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccComputeInstanceGroup_exists(
 						"google_compute_instance_group.basic", &instanceGroup),
@@ -32,9 +34,15 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_instance_group.basic",
+				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateId:     fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), zone, instanceName),
 			},
 		},
 	})
@@ -307,7 +315,7 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(nInstanceGroup string, nNetwo
 	}
 }
 
-func testAccComputeInstanceGroup_basic(instance string) string {
+func testAccComputeInstanceGroup_basic(zone, instance string) string {
 	return fmt.Sprintf(`
 	data "google_compute_image" "my_image" {
 		family  = "debian-9"
@@ -334,7 +342,7 @@ func testAccComputeInstanceGroup_basic(instance string) string {
 	resource "google_compute_instance_group" "basic" {
 		description = "Terraform test instance group"
 		name = "%s"
-		zone = "us-central1-c"
+		zone = "%s"
 		instances = [ "${google_compute_instance.ig_instance.self_link}" ]
 		named_port {
 			name = "http"
@@ -349,7 +357,7 @@ func testAccComputeInstanceGroup_basic(instance string) string {
 	resource "google_compute_instance_group" "empty" {
 		description = "Terraform test instance group empty"
 		name = "%s-empty"
-		zone = "us-central1-c"
+		zone = "%s"
 		named_port {
 			name = "http"
 			port = "8080"
@@ -358,7 +366,7 @@ func testAccComputeInstanceGroup_basic(instance string) string {
 			name = "https"
 			port = "8443"
 		}
-	}`, instance, instance, instance)
+	}`, instance, instance, zone, instance, zone)
 }
 
 func testAccComputeInstanceGroup_rename(instance, instanceGroup, backend, health string) string {
