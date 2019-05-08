@@ -871,10 +871,17 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			}
 			if key := disk.DiskEncryptionKey; key != nil {
 				if inConfig {
-					di["disk_encryption_key_raw"] = d.Get(fmt.Sprintf("attached_disk.%d.disk_encryption_key_raw", adIndex))
+					rawKey := d.Get(fmt.Sprintf("attached_disk.%d.disk_encryption_key_raw", adIndex))
+					if rawKey != "" {
+						di["disk_encryption_key_raw"] = rawKey
+					}
 				}
-				di["kms_key_self_link"] = key.KmsKeyName
-				di["disk_encryption_key_sha256"] = key.Sha256
+				if key.KmsKeyName != "" {
+					di["kms_key_self_link"] = key.KmsKeyName
+				}
+				if key.Sha256 != "" {
+					di["disk_encryption_key_sha256"] = key.Sha256
+				}
 			}
 			// We want the disks to remain in the order we set in the config, so if a disk
 			// is present in the config, make sure it's at the correct index. Otherwise, append it.
@@ -1382,18 +1389,22 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 
 	keyValue, keyOk := diskConfig["disk_encryption_key_raw"]
 	if keyOk {
-		disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
-			RawKey: keyValue.(string),
+		if keyValue != "" {
+			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
+				RawKey: keyValue.(string),
+			}
 		}
 	}
 
 	kmsValue, kmsOk := diskConfig["kms_key_self_link"]
 	if kmsOk {
-		if keyOk {
+		if keyOk && keyValue != "" && kmsValue != "" {
 			return nil, errors.New("Only one of kms_key_self_link and disk_encryption_key_raw can be set")
 		}
-		disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
-			KmsKeyName: kmsValue.(string),
+		if kmsValue != "" {
+			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
+				KmsKeyName: kmsValue.(string),
+			}
 		}
 	}
 	return disk, nil
@@ -1526,14 +1537,18 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.disk_encryption_key_raw"); ok {
-		disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
-			RawKey: v.(string),
+		if v != "" {
+			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
+				RawKey: v.(string),
+			}
 		}
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.kms_key_self_link"); ok {
-		disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
-			KmsKeyName: v.(string),
+		if v != "" {
+			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
+				KmsKeyName: v.(string),
+			}
 		}
 	}
 
@@ -1606,8 +1621,12 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, con
 	}
 
 	if disk.DiskEncryptionKey != nil {
-		result["disk_encryption_key_sha256"] = disk.DiskEncryptionKey.Sha256
-		result["kms_key_self_link"] = disk.DiskEncryptionKey.KmsKeyName
+		if disk.DiskEncryptionKey.Sha256 != "" {
+			result["disk_encryption_key_sha256"] = disk.DiskEncryptionKey.Sha256
+		}
+		if disk.DiskEncryptionKey.KmsKeyName != "" {
+			result["kms_key_self_link"] = disk.DiskEncryptionKey.KmsKeyName
+		}
 	}
 
 	return []map[string]interface{}{result}
