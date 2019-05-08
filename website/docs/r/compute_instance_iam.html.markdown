@@ -42,7 +42,7 @@ resource "google_compute_instance_iam_policy" "instance" {
 ```hcl
 resource "google_compute_instance_iam_binding" "instance" {
   instance_name = "your-instance-name"
-  role       = "roles/compute.osLoginr"
+  role       = "roles/compute.osLogin"
 
   members = [
     "user:jane@example.com",
@@ -107,13 +107,13 @@ For all import syntaxes, the "resource in question" can take any of the followin
 IAM member imports use space-delimited identifiers; the resource in question, the role, and the member identity, e.g.
 
 ```
-$ terraform import google_compute_instance_iam_member.instance "project-name/zone-name/instance-name roles/compute.networkUser user:foo@example.com"
+$ terraform import google_compute_instance_iam_member.instance "project-name/zone-name/instance-name roles/compute.osLogin user:foo@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers; the resource in question and the role, e.g.
 
 ```
-$ terraform import google_compute_instance_iam_binding.instance "project-name/zone-name/instance-name roles/compute.networkUser"
+$ terraform import google_compute_instance_iam_binding.instance "project-name/zone-name/instance-name roles/compute.osLogin"
 ```
 
 IAM policy imports use the identifier of the resource in question, e.g.
