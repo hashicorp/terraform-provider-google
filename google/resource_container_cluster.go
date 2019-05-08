@@ -1743,12 +1743,10 @@ func expandVerticalPodAutoscaling(configured interface{}) *containerBeta.Vertica
 	if len(l) == 0 {
 		return nil
 	}
-	result := &containerBeta.VerticalPodAutoscaling{}
 	config := l[0].(map[string]interface{})
-	if enabled, ok := config["enabled"]; ok && enabled.(bool) {
-		result.Enabled = true
+	return &containerBeta.VerticalPodAutoscaling{
+		Enabled: config["enabled"].(bool),
 	}
-	return result
 }
 
 func expandPodSecurityPolicyConfig(configured interface{}) *containerBeta.PodSecurityPolicyConfig {
@@ -1841,18 +1839,14 @@ func flattenPrivateClusterConfig(c *containerBeta.PrivateClusterConfig) []map[st
 }
 
 func flattenVerticalPodAutoscaling(c *containerBeta.VerticalPodAutoscaling) []map[string]interface{} {
-	result := []map[string]interface{}{}
-	if c != nil {
-		result = append(result, map[string]interface{}{
-			"enabled": c.Enabled,
-		})
-	} else {
-		// Explicitly set the network policy to the default.
-		result = append(result, map[string]interface{}{
-			"enabled": false,
-		})
+	if c == nil {
+		return nil
 	}
-	return result
+	return []map[string]interface{}{
+		{
+			"enabled": c.Enabled,
+		},
+	}
 }
 
 func flattenIPAllocationPolicy(c *containerBeta.IPAllocationPolicy, d *schema.ResourceData, config *Config) []map[string]interface{} {
