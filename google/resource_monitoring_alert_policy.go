@@ -19,6 +19,7 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -507,6 +508,41 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Updating AlertPolicy %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("display_name") {
+		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("combiner") {
+		updateMask = append(updateMask, "combiner")
+	}
+
+	if d.HasChange("enabled") {
+		updateMask = append(updateMask, "enabled")
+	}
+
+	if d.HasChange("conditions") {
+		updateMask = append(updateMask, "conditions")
+	}
+
+	if d.HasChange("notification_channels") {
+		updateMask = append(updateMask, "notificationChannels")
+	}
+
+	if d.HasChange("user_labels") {
+		updateMask = append(updateMask, "userLabels")
+	}
+
+	if d.HasChange("documentation") {
+		updateMask = append(updateMask, "documentation")
+	}
+	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// won't set it
+	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 	_, err = sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
