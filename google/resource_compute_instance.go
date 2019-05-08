@@ -77,9 +77,10 @@ func resourceComputeInstance() *schema.Resource {
 						},
 
 						"kms_key_self_link": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:          schema.TypeString,
+							Optional:      true,
+							ForceNew:      true,
+							ConflictsWith: []string{"boot_disk.0.disk_encryption_key_raw"},
 						},
 
 						"initialize_params": {
@@ -278,9 +279,8 @@ func resourceComputeInstance() *schema.Resource {
 						},
 
 						"kms_key_self_link": {
-							Type:          schema.TypeString,
-							Optional:      true,
-							ConflictsWith: []string{"boot_disk.0.disk_encryption_key_raw"},
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 
 						"disk_encryption_key_sha256": {
