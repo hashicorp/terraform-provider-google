@@ -379,12 +379,17 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 
 func resourceComputeInstanceGroupImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("Invalid compute instance group specifier. Expecting {zone}/{name}")
+	if len(parts) == 2 {
+		d.Set("zone", parts[0])
+		d.Set("name", parts[1])
+	} else if len(parts) == 3 {
+		d.Set("project", parts[0])
+		d.Set("zone", parts[1])
+		d.Set("name", parts[2])
+		d.SetId(parts[1] + "/" + parts[2])
+	} else {
+		return nil, fmt.Errorf("Invalid compute instance group specifier. Expecting {zone}/{name} or {project}/{zone}/{name}")
 	}
-
-	d.Set("zone", parts[0])
-	d.Set("name", parts[1])
 
 	return []*schema.ResourceData{d}, nil
 }
