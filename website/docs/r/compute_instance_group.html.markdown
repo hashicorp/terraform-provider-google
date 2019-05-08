@@ -175,9 +175,8 @@ This resource provides the following
 
 ## Import
 
-Instance group can be imported using the `zone` and `name` with an optional `project`, e.g.
+Instance group can be imported using the `zone` and `name`, e.g.
 
 ```
 $ terraform import google_compute_instance_group.webservers us-central1-a/terraform-webservers
-$ terraform import google_compute_instance_group.webservers big-project/us-central1-a/terraform-webservers
 ```
