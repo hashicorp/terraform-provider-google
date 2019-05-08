@@ -677,7 +677,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		IpAllocationPolicy:      expandIPAllocationPolicy(d.Get("ip_allocation_policy")),
 		PodSecurityPolicyConfig: expandPodSecurityPolicyConfig(d.Get("pod_security_policy_config")),
 		MasterAuth:              expandMasterAuth(d.Get("master_auth")),
-		VerticalPodAutoscaling:  expandVerticalPodAutoscaling(d.Get("vertical_pod_autoscaling")),
 		ResourceLabels:          expandStringMap(d, "resource_labels"),
 	}
 
@@ -760,6 +759,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("private_cluster_config"); ok {
 		cluster.PrivateClusterConfig = expandPrivateClusterConfig(v)
+	}
+
+	if v, ok := d.GetOk("vertical_pod_autoscaling"); ok {
+		cluster.VerticalPodAutoscaling = expandVerticalPodAutoscaling(v)
 	}
 
 	req := &containerBeta.CreateClusterRequest{
