@@ -62,6 +62,10 @@ func ParseMachineTypesFieldValue(machineType string, d TerraformResourceData, co
 	return parseZonalFieldValue("machineTypes", machineType, "project", "zone", d, config, false)
 }
 
+func ParseInstanceFieldValue(instance string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
+	return parseZonalFieldValue("instances", instance, "project", "zone", d, config, false)
+}
+
 func ParseInstanceGroupFieldValue(instanceGroup string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
 	return parseZonalFieldValue("instanceGroups", instanceGroup, "project", "zone", d, config, false)
 }
