@@ -1,12 +1,19 @@
 ## 2.7.0 (Unreleased)
 
+BACKWARDS INCOMPATIBILITIES:
+* cloudfunctions: `google_cloudfunctions_function.runtime` now has an explicit default value of `nodejs6`. Users who have a different value set in the API but the value undefined in their config will see a diff. [GH-3605]
+
 FEATURES: 
 * **New Resources**: `google_compute_instance_iam_binding`, `google_compute_instance_iam_member`, and `google_compute_instance_iam_policy` are now available. ([#3551](https://github.com/terraform-providers/terraform-provider-google/pull/3551))
 
 BUG FIXES:
+* cloudfunctions: `google_cloudfunctions_function.runtime` now has an explicit default value of `nodejs6`. [GH-3605]
 * monitoring: patching `google_monitoring_alert_policy` is more likely to succeed [GH-3587]
 
 ## 2.6.0 (May 07, 2019)
+
+KNOWN ISSUES:
+* cloudfunctions: `google_cloudfunctions_function`s without a `runtime` set will fail to create due to an upstream API change. You can work around this by setting an explicit `runtime` in `2.X` series releases.
 
 DEPRECATIONS:
 * monitoring: `google_monitoring_alert_policy` `labels` was deprecated, as the field was never used and it was typed incorrectly. ([#3494](https://github.com/terraform-providers/terraform-provider-google/issues/3494))
