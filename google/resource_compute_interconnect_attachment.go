@@ -94,6 +94,7 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 			},
 			"vlan_tag8021q": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 			},
