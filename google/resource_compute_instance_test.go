@@ -287,16 +287,18 @@ func TestAccComputeInstance_kmsDiskEncryption(t *testing.T) {
 
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-	bootKmsKeyName := "projects/project/locations/us-central1/keyRings/testing-cloud-kms/cryptoKeys/key-0/cryptoKeyVersions/1"
+	kms := BootstrapKMSKey(t)
+
+	bootKmsKeyName := kms.CryptoKey.Name
 	diskNameToEncryptionKey := map[string]*compute.CustomerEncryptionKey{
 		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
-			KmsKeyName: "projects/project/locations/us-central1/keyRings/testing-cloud-kms/cryptoKeys/key-1/cryptoKeyVersions/1",
+			KmsKeyName: kms.CryptoKey.Name,
 		},
 		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
-			KmsKeyName: "projects/project/locations/us-central1/keyRings/testing-cloud-kms/cryptoKeys/key-2/cryptoKeyVersions/1",
+			KmsKeyName: kms.CryptoKey.Name,
 		},
 		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
-			KmsKeyName: "projects/project/locations/us-central1/keyRings/testing-cloud-kms/cryptoKeys/key-3/cryptoKeyVersions/1",
+			KmsKeyName: kms.CryptoKey.Name,
 		},
 	}
 
@@ -306,7 +308,7 @@ func TestAccComputeInstance_kmsDiskEncryption(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstance_disks_kms(bootKmsKeyName, diskNameToEncryptionKey, instanceName),
+				Config: testAccComputeInstance_disks_kms(getTestProjectFromEnv(), bootKmsKeyName, diskNameToEncryptionKey, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceDiskKmsEncryptionKey("google_compute_instance.foobar", &instance, bootKmsKeyName, diskNameToEncryptionKey),
@@ -2100,15 +2102,25 @@ resource "google_compute_instance" "foobar" {
 		diskNameToEncryptionKey[diskNames[0]].RawKey, diskNameToEncryptionKey[diskNames[1]].RawKey, diskNameToEncryptionKey[diskNames[2]].RawKey)
 }
 
-func testAccComputeInstance_disks_kms(bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance string) string {
+func testAccComputeInstance_disks_kms(pid string, bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance string) string {
 	diskNames := []string{}
 	for k := range diskNameToEncryptionKey {
 		diskNames = append(diskNames, k)
 	}
 	return fmt.Sprintf(`
+data "google_project" "project" {
+	project_id = "%s"
+}
+
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
 	project = "debian-cloud"
+}
+
+resource "google_project_iam_member" "kms-project-binding" {
+  project = "${data.google_project.project.project_id}"
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
 }
 
 resource "google_compute_disk" "foobar" {
@@ -2190,7 +2202,7 @@ resource "google_compute_instance" "foobar" {
 		foo = "bar"
 	}
 }
-`, diskNames[0], diskNameToEncryptionKey[diskNames[0]].KmsKeyName,
+`, pid, diskNames[0], diskNameToEncryptionKey[diskNames[0]].KmsKeyName,
 		diskNames[1], diskNameToEncryptionKey[diskNames[1]].KmsKeyName,
 		diskNames[2], diskNameToEncryptionKey[diskNames[2]].KmsKeyName,
 		"instance-testd-"+acctest.RandString(10),
