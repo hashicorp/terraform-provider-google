@@ -185,7 +185,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"runtime": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "nodejs6",
 			},
 
 			"service_account_email": {

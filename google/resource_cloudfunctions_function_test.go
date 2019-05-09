@@ -560,6 +560,7 @@ resource "google_pubsub_topic" "sub" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
+  runtime               = "nodejs8"
   available_memory_mb   = 128
   source_archive_bucket = "${google_storage_bucket.bucket.name}"
   source_archive_object = "${google_storage_bucket_object.archive.name}"
@@ -590,6 +591,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
+  runtime               = "nodejs6"
   available_memory_mb   = 128
   source_archive_bucket = "${google_storage_bucket.bucket.name}"
   source_archive_object = "${google_storage_bucket_object.archive.name}"
