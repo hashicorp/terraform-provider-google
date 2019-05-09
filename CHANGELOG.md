@@ -3,6 +3,9 @@
 FEATURES: 
 * **New Resources**: `google_compute_instance_iam_binding`, `google_compute_instance_iam_member`, and `google_compute_instance_iam_policy` are now available. ([#3551](https://github.com/terraform-providers/terraform-provider-google/pull/3551))
 
+BUG FIXES:
+* monitoring: patching `google_monitoring_alert_policy` is more likely to succeed [GH-3587]
+
 ## 2.6.0 (May 07, 2019)
 
 DEPRECATIONS:
