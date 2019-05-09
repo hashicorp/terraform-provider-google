@@ -154,7 +154,8 @@ The `boot_disk` block supports:
     Structure is documented below.
 
 * `source` - (Optional) The name or self_link of the existing disk (such as those managed by
-    `google_compute_disk`) to attach.
+    `google_compute_disk`) or disk image. To create an instance from a snapshot, first create a
+    `google_compute_disk` from a snapshot and reference it here.
 
 The `initialize_params` block supports:
 
