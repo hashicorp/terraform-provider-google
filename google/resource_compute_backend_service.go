@@ -50,13 +50,16 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 			v = ""
 		}
 
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+		buf.WriteString(fmt.Sprintf("%v-", v))
 	}
 	if v, ok := m["capacity_scaler"]; ok {
 		if v == nil {
 			v = 0.0
 		}
 
+		// floats can't be added to the hash with %v as the other values are because
+		// %v and %f are not equivalent strings so this must remain as a float so that
+		// the hash function doesn't return something else.
 		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))
 	}
 	if v, ok := m["description"]; ok {
@@ -65,20 +68,23 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 		}
 
 		log.Printf("[DEBUG] writing description %s", v)
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+		buf.WriteString(fmt.Sprintf("%v-", v))
 	}
 	if v, ok := m["max_rate"]; ok {
 		if v == nil {
 			v = 0
 		}
 
-		buf.WriteString(fmt.Sprintf("%d-", int64(v.(int))))
+		buf.WriteString(fmt.Sprintf("%v-", v))
 	}
 	if v, ok := m["max_rate_per_instance"]; ok {
 		if v == nil {
 			v = 0.0
 		}
 
+		// floats can't be added to the hash with %v as the other values are because
+		// %v and %f are not equivalent strings so this must remain as a float so that
+		// the hash function doesn't return something else.
 		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))
 	}
 	if v, ok := m["max_connections"]; ok {
@@ -86,72 +92,23 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 			v = 0
 		}
 
-		switch v := v.(type) {
-		case float64:
-			// The Golang JSON library can't tell int values apart from floats,
-			// because MM doesn't give fields strong types. Since another value
-			// in this block was a real float, it assumed this was a float too.
-			// It's not.
-			// Note that math.Round in Go is from float64 -> float64, so it will
-			// be a noop. int(floatVal) truncates extra parts, so if the float64
-			// representation of an int falls below the real value we'll have
-			// the wrong value. eg if 3 was represented as 2.999999, that would
-			// convert to 2. So we add 0.5, ensuring that we'll truncate to the
-			// correct value. This wouldn't remain true if we were far enough
-			// from 0 that we were off by > 0.5, but no float conversion *could*
-			// work correctly in that case. 53-bit floating types as the only
-			// numeric type was not a good idea, thanks Javascript.
-			var vInt int
-			if v < 0 {
-				vInt = int(v - 0.5)
-			} else {
-				vInt = int(v + 0.5)
-			}
-
-			log.Printf("[DEBUG] writing float value %f as integer value %v", v, vInt)
-			buf.WriteString(fmt.Sprintf("%d-", vInt))
-		default:
-			buf.WriteString(fmt.Sprintf("%d-", int64(v.(int))))
-		}
+		buf.WriteString(fmt.Sprintf("%v-", v))
 	}
 	if v, ok := m["max_connections_per_instance"]; ok {
 		if v == nil {
 			v = 0
 		}
 
-		switch v := v.(type) {
-		case float64:
-			// The Golang JSON library can't tell int values apart from floats,
-			// because MM doesn't give fields strong types. Since another value
-			// in this block was a real float, it assumed this was a float too.
-			// It's not.
-			// Note that math.Round in Go is from float64 -> float64, so it will
-			// be a noop. int(floatVal) truncates extra parts, so if the float64
-			// representation of an int falls below the real value we'll have
-			// the wrong value. eg if 3 was represented as 2.999999, that would
-			// convert to 2. So we add 0.5, ensuring that we'll truncate to the
-			// correct value. This wouldn't remain true if we were far enough
-			// from 0 that we were off by > 0.5, but no float conversion *could*
-			// work correctly in that case. 53-bit floating types as the only
-			// numeric type was not a good idea, thanks Javascript.
-			var vInt int
-			if v < 0 {
-				vInt = int(v - 0.5)
-			} else {
-				vInt = int(v + 0.5)
-			}
-
-			log.Printf("[DEBUG] writing float value %f as integer value %v", v, vInt)
-			buf.WriteString(fmt.Sprintf("%d-", vInt))
-		default:
-			buf.WriteString(fmt.Sprintf("%d-", int64(v.(int))))
-		}
+		buf.WriteString(fmt.Sprintf("%v-", v))
 	}
 	if v, ok := m["max_rate_per_instance"]; ok {
 		if v == nil {
 			v = 0.0
 		}
 
+		// floats can't be added to the hash with %v as the other values are because
+		// %v and %f are not equivalent strings so this must remain as a float so that
+		// the hash function doesn't return something else.
 		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))
 	}
 
