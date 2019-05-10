@@ -147,7 +147,12 @@ The `boot_disk` block supports:
 * `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
     encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
-    to encrypt this disk.
+    to encrypt this disk. Only one of `kms_key_self_link` and `disk_encryption_key_raw`
+    may be set.
+
+* `kms_key_self_link` - (Optional) The self_link of the encryption key that is
+    stored in Google Cloud KMS to encrypt this disk. Only one of `kms_key_self_link`
+    and `disk_encryption_key_raw` may be set.
 
 * `initialize_params` - (Optional) Parameters for a new disk that will be created
     alongside the new instance. Either `initialize_params` or `source` must be set.
@@ -194,7 +199,11 @@ The `attached_disk` block supports:
 * `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
     encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
-    to encrypt this disk.
+    to encrypt this disk. Only one of `kms_key_self_link` and `disk_encryption_key_raw` may be set.
+
+* `kms_key_self_link` - (Optional) The self_link of the encryption key that is
+    stored in Google Cloud KMS to encrypt this disk. Only one of `kms_key_self_link`
+    and `disk_encryption_key_raw` may be set.
 
 The `network_interface` block supports:
 
