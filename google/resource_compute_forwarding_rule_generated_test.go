@@ -51,7 +51,7 @@ func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
 func testAccComputeForwardingRule_forwardingRuleBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_forwarding_rule" "default" {
-  name       = ""
+  name       = "website-forwarding-rule-%{random_suffix}"
   target     = "${google_compute_target_pool.default.self_link}"
   port_range = "80"
 }
