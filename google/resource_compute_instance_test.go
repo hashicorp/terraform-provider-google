@@ -282,6 +282,43 @@ func TestAccComputeInstance_diskEncryption(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_kmsDiskEncryption(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	kms := BootstrapKMSKey(t)
+
+	bootKmsKeyName := kms.CryptoKey.Name
+	diskNameToEncryptionKey := map[string]*compute.CustomerEncryptionKey{
+		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
+			KmsKeyName: kms.CryptoKey.Name,
+		},
+		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
+			KmsKeyName: kms.CryptoKey.Name,
+		},
+		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
+			KmsKeyName: kms.CryptoKey.Name,
+		},
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_disks_kms(getTestProjectFromEnv(), bootKmsKeyName, diskNameToEncryptionKey, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceDiskKmsEncryptionKey("google_compute_instance.foobar", &instance, bootKmsKeyName, diskNameToEncryptionKey),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
 func TestAccComputeInstance_attachedDisk(t *testing.T) {
 	t.Parallel()
 
@@ -1395,6 +1432,53 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 	}
 }
 
+func testAccCheckComputeInstanceDiskKmsEncryptionKey(n string, instance *compute.Instance, bootDiskEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		for i, disk := range instance.Disks {
+			if disk.Boot {
+				attr := rs.Primary.Attributes["boot_disk.0.kms_key_self_link"]
+				if attr != bootDiskEncryptionKey {
+					return fmt.Errorf("Boot disk has wrong encryption key in state.\nExpected: %s\nActual: %s", bootDiskEncryptionKey, attr)
+				}
+				if disk.DiskEncryptionKey == nil && attr != "" {
+					return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", i, attr)
+				}
+			} else {
+				if disk.DiskEncryptionKey != nil {
+					expectedKey := diskNameToEncryptionKey[GetResourceNameFromSelfLink(disk.Source)].KmsKeyName
+					// The response for crypto keys often includes the version of the key which needs to be removed
+					// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
+					actualKey := strings.Split(disk.DiskEncryptionKey.KmsKeyName, "/cryptoKeyVersions")[0]
+					if actualKey != expectedKey {
+						return fmt.Errorf("Disk %d has unexpected encryption key in GCP.\nExpected: %s\nActual: %s", i, expectedKey, actualKey)
+					}
+				}
+			}
+		}
+
+		numAttachedDisks, err := strconv.Atoi(rs.Primary.Attributes["attached_disk.#"])
+		if err != nil {
+			return fmt.Errorf("Error converting value of attached_disk.#")
+		}
+		for i := 0; i < numAttachedDisks; i++ {
+			diskName := GetResourceNameFromSelfLink(rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.source", i)])
+			kmsKeyName := rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.kms_key_self_link", i)]
+			if key, ok := diskNameToEncryptionKey[diskName]; ok {
+				expectedEncryptionKey := key.KmsKeyName
+				if kmsKeyName != expectedEncryptionKey {
+					return fmt.Errorf("Attached disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, kmsKeyName)
+				}
+			}
+		}
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceTag(instance *compute.Instance, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instance.Tags == nil {
@@ -2051,6 +2135,114 @@ resource "google_compute_instance" "foobar" {
 		"instance-testd-"+acctest.RandString(10),
 		instance, bootEncryptionKey,
 		diskNameToEncryptionKey[diskNames[0]].RawKey, diskNameToEncryptionKey[diskNames[1]].RawKey, diskNameToEncryptionKey[diskNames[2]].RawKey)
+}
+
+func testAccComputeInstance_disks_kms(pid string, bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance string) string {
+	diskNames := []string{}
+	for k := range diskNameToEncryptionKey {
+		diskNames = append(diskNames, k)
+	}
+	return fmt.Sprintf(`
+data "google_project" "project" {
+	project_id = "%s"
+}
+
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_project_iam_member" "kms-project-binding" {
+  project = "${data.google_project.project.project_id}"
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+
+	disk_encryption_key {
+		kms_key_self_link = "%s"
+	}
+}
+
+resource "google_compute_disk" "foobar2" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+
+	disk_encryption_key {
+		kms_key_self_link = "%s"
+	}
+}
+
+resource "google_compute_disk" "foobar3" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+
+	disk_encryption_key {
+		kms_key_self_link = "%s"
+	}
+}
+
+resource "google_compute_disk" "foobar4" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+		kms_key_self_link = "%s"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar.self_link}"
+		kms_key_self_link = "%s"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar2.self_link}"
+		kms_key_self_link = "%s"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar4.self_link}"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar3.self_link}"
+		kms_key_self_link = "%s"
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	metadata = {
+		foo = "bar"
+	}
+}
+`, pid, diskNames[0], diskNameToEncryptionKey[diskNames[0]].KmsKeyName,
+		diskNames[1], diskNameToEncryptionKey[diskNames[1]].KmsKeyName,
+		diskNames[2], diskNameToEncryptionKey[diskNames[2]].KmsKeyName,
+		"instance-testd-"+acctest.RandString(10),
+		instance, bootEncryptionKey,
+		diskNameToEncryptionKey[diskNames[0]].KmsKeyName, diskNameToEncryptionKey[diskNames[1]].KmsKeyName, diskNameToEncryptionKey[diskNames[2]].KmsKeyName)
 }
 
 func testAccComputeInstance_attachedDisk(disk, instance string) string {
