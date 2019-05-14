@@ -303,7 +303,7 @@ to the datasource. A `region` can have a different set of supported versions tha
 * `resource_labels` - (Optional) The GCE resource labels (a map of key/value pairs) to be applied to the cluster.
 
 * `subnetwork` - (Optional) The name or self_link of the Google Compute Engine subnetwork in
-    which the cluster's instances are launched.
+    which the cluster's instances are launched. Requires a `network` to be provided.
 
 The `addons_config` block supports:
 
