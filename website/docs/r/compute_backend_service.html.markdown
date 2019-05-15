@@ -130,7 +130,9 @@ The following arguments are supported:
 * `protocol` -
   (Optional)
   The protocol this BackendService uses to communicate with backends.
-  Possible values are HTTP, HTTPS, TCP, and SSL. The default is HTTP.
+  Possible values are HTTP, HTTPS, HTTP2, TCP, and SSL. The default is
+  HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
+  types and may result in errors if used with the GA API.
 
 * `security_policy` -
   (Optional)
