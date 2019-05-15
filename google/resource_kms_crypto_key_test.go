@@ -137,6 +137,7 @@ func TestAccKmsCryptoKey_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleKmsCryptoKeyWasRemovedFromState("google_kms_crypto_key.crypto_key"),
 					testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(projectId, location, keyRingName, cryptoKeyName),
+					testAccCheckGoogleKmsCryptoKeyRotationDisabled(projectId, location, keyRingName, cryptoKeyName),
 				),
 			},
 		},
@@ -189,16 +190,15 @@ func TestAccKmsCryptoKey_rotation(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleKmsCryptoKeyWasRemovedFromState("google_kms_crypto_key.crypto_key"),
 					testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(projectId, location, keyRingName, cryptoKeyName),
+					testAccCheckGoogleKmsCryptoKeyRotationDisabled(projectId, location, keyRingName, cryptoKeyName),
 				),
 			},
 		},
 	})
 }
 
-/*
-	KMS KeyRings cannot be deleted. This ensures that the CryptoKey resource was removed from state,
-	even though the server-side resource was not removed.
-*/
+// KMS KeyRings cannot be deleted. This ensures that the CryptoKey resource was removed from state,
+// even though the server-side resource was not removed.
 func testAccCheckGoogleKmsCryptoKeyWasRemovedFromState(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		_, ok := s.RootModule().Resources[resourceName]
@@ -211,11 +211,8 @@ func testAccCheckGoogleKmsCryptoKeyWasRemovedFromState(resourceName string) reso
 	}
 }
 
-/*
-	KMS KeyRings cannot be deleted. This ensures that the CryptoKey resource's CryptoKeyVersion
-	sub-resources were scheduled to be destroyed, rendering the key itself inoperable.
-*/
-
+// KMS KeyRings cannot be deleted. This ensures that the CryptoKey resource's CryptoKeyVersion
+// sub-resources were scheduled to be destroyed, rendering the key itself inoperable.
 func testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(projectId, location, keyRingName, cryptoKeyName string) resource.TestCheckFunc {
 	return func(_ *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -239,10 +236,31 @@ func testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(projectId, location, keyRin
 	}
 }
 
-/*
-	This test runs in its own project, otherwise the test project would start to get filled
-	with undeletable resources
-*/
+// KMS KeyRings cannot be deleted. This ensures that the CryptoKey autorotation
+// was disabled to prevent more versions of the key from being created.
+func testAccCheckGoogleKmsCryptoKeyRotationDisabled(projectId, location, keyRingName, cryptoKeyName string) resource.TestCheckFunc {
+	return func(_ *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+		gcpResourceUri := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s", projectId, location, keyRingName, cryptoKeyName)
+
+		response, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Get(gcpResourceUri).Do()
+		if err != nil {
+			return fmt.Errorf("Unexpected failure while verifying 'deleted' crypto key: %s", err)
+		}
+
+		if response.NextRotationTime != "" {
+			return fmt.Errorf("Expected empty nextRotationTime for 'deleted' crypto key, got %s", response.NextRotationTime)
+		}
+		if response.RotationPeriod != "" {
+			return fmt.Errorf("Expected empty RotationPeriod for 'deleted' crypto key, got %s", response.RotationPeriod)
+		}
+
+		return nil
+	}
+}
+
+// This test runs in its own project, otherwise the test project would start to get filled
+// with undeletable resources
 func testGoogleKmsCryptoKey_basic(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {

@@ -224,12 +224,24 @@ func clearCryptoKeyVersions(cryptoKeyId *kmsCryptoKeyId, config *Config) error {
 	return nil
 }
 
-/*
-	Because KMS CryptoKey resources cannot be deleted on GCP, we are only going to remove it from state
-	and destroy all its versions, rendering the key useless for encryption and decryption of data.
-	Re-creation of this resource through Terraform will produce an error.
-*/
+func disableCryptoKeyRotation(cryptoKeyId *kmsCryptoKeyId, config *Config) error {
+	keyClient := config.clientKms.Projects.Locations.KeyRings.CryptoKeys
+	_, err := keyClient.Patch(cryptoKeyId.cryptoKeyId(), &cloudkms.CryptoKey{
+		NullFields: []string{"rotationPeriod", "nextRotationTime"},
+	}).
+		UpdateMask("rotationPeriod,nextRotationTime").Do()
 
+	return err
+}
+
+// Because KMS CryptoKey keys cannot be deleted (in GCP proper), we "delete"
+// the key ring by
+// a) marking all key versions for destruction (24hr soft-delete)
+// b) disabling rotation of the key
+// c) removing it from state
+// This disables all usage of previous versions of the key and makes it
+// generally useless for encryption and decryption of data.
+// Re-creation of this resource through Terraform will produce an error.
 func resourceKmsCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -242,10 +254,16 @@ func resourceKmsCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error 
 [WARNING] KMS CryptoKey resources cannot be deleted from GCP. The CryptoKey %s will be removed from Terraform state,
 and all its CryptoKeyVersions will be destroyed, but it will still be present on the server.`, cryptoKeyId.cryptoKeyId())
 
-	err = clearCryptoKeyVersions(cryptoKeyId, config)
-
-	if err != nil {
+	// Delete all versions of the key
+	if err := clearCryptoKeyVersions(cryptoKeyId, config); err != nil {
 		return err
+	}
+
+	// Make sure automatic key rotation is disabled.
+	if err := disableCryptoKeyRotation(cryptoKeyId, config); err != nil {
+		return fmt.Errorf(
+			"While cryptoKeyVersions were cleared, Terraform was unable to disable automatic rotation of key due to an error: %s."+
+				"Please retry or manually disable automatic rotation to prevent creation of a new version of this key.", err)
 	}
 
 	d.SetId("")
