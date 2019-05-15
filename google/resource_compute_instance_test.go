@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -1115,7 +1116,9 @@ func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
 func TestAccComputeInstance_hostname(t *testing.T) {
 	t.Parallel()
 
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -1125,6 +1128,53 @@ func TestAccComputeInstance_hostname(t *testing.T) {
 				Config: testAccComputeInstance_hostname(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_compute_instance.foobar", "hostname"),
+					testAccCheckComputeInstanceLacksShieldedVmConfig(&instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
+func TestAccComputeInstance_shieldedVmConfig1(t *testing.T) {
+	t.Parallel()
+
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_shieldedVmConfig(instanceName, true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasShieldedVmConfig(&instance, true, true, true),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
+func TestAccComputeInstance_shieldedVmConfig2(t *testing.T) {
+	t.Parallel()
+
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_shieldedVmConfig(instanceName, true, true, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasShieldedVmConfig(&instance, true, true, false),
 				),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
@@ -1189,8 +1239,19 @@ func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckComputeInstanceExists(n string, instance *compute.Instance) resource.TestCheckFunc {
-	return testAccCheckComputeInstanceExistsInProject(n, getTestProjectFromEnv(), instance)
+func testAccCheckComputeInstanceExists(n string, instance interface{}) resource.TestCheckFunc {
+	if instance == nil {
+		panic("Attempted to check existence of Instance that was nil.")
+	}
+
+	switch instance.(type) {
+	case *compute.Instance:
+		return testAccCheckComputeInstanceExistsInProject(n, getTestProjectFromEnv(), instance.(*compute.Instance))
+	case *computeBeta.Instance:
+		return testAccCheckComputeBetaInstanceExistsInProject(n, getTestProjectFromEnv(), instance.(*computeBeta.Instance))
+	default:
+		panic("Attempted to check existence of an Instance of unknown type.")
+	}
 }
 
 func testAccCheckComputeInstanceExistsInProject(n, p string, instance *compute.Instance) resource.TestCheckFunc {
@@ -1207,6 +1268,35 @@ func testAccCheckComputeInstanceExistsInProject(n, p string, instance *compute.I
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Instances.Get(
+			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if found.Name != rs.Primary.ID {
+			return fmt.Errorf("Instance not found")
+		}
+
+		*instance = *found
+
+		return nil
+	}
+}
+
+func testAccCheckComputeBetaInstanceExistsInProject(n, p string, instance *computeBeta.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.clientComputeBeta.Instances.Get(
 			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 		if err != nil {
 			return err
@@ -1644,6 +1734,34 @@ func testAccCheckComputeInstanceHasConfiguredDeletionProtection(instance *comput
 	return func(s *terraform.State) error {
 		if instance.DeletionProtection != configuredDeletionProtection {
 			return fmt.Errorf("Wrong deletion protection flag: expected %t, got %t", configuredDeletionProtection, instance.DeletionProtection)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasShieldedVmConfig(instance *computeBeta.Instance, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) resource.TestCheckFunc {
+
+	return func(s *terraform.State) error {
+		if instance.ShieldedVmConfig.EnableSecureBoot != enableSecureBoot {
+			return fmt.Errorf("Wrong shieldedVmConfig enableSecureBoot: expected %t, got, %t", enableSecureBoot, instance.ShieldedVmConfig.EnableSecureBoot)
+		}
+
+		if instance.ShieldedVmConfig.EnableVtpm != enableVtpm {
+			return fmt.Errorf("Wrong shieldedVmConfig enableVtpm: expected %t, got, %t", enableVtpm, instance.ShieldedVmConfig.EnableVtpm)
+		}
+
+		if instance.ShieldedVmConfig.EnableIntegrityMonitoring != enableIntegrityMonitoring {
+			return fmt.Errorf("Wrong shieldedVmConfig enableIntegrityMonitoring: expected %t, got, %t", enableIntegrityMonitoring, instance.ShieldedVmConfig.EnableIntegrityMonitoring)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceLacksShieldedVmConfig(instance *computeBeta.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.ShieldedVmConfig != nil {
+			return fmt.Errorf("Expected no shielded vm config")
 		}
 
 		return nil
@@ -3434,4 +3552,35 @@ resource "google_compute_node_group" "nodes" {
   node_template = "${google_compute_node_template.nodetmpl.self_link}"
 }
 `, instance, nodeTemplate, nodeGroup)
+}
+
+func testAccComputeInstance_shieldedVmConfig(instance string, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "centos-7"
+	project = "gce-uefi-images"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	shielded_instance_config {
+		enable_secure_boot          = %t
+		enable_vtpm                 = %t
+		enable_integrity_monitoring = %t
+	}
+}
+`, instance, enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
 }

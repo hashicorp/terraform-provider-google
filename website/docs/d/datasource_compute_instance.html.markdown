@@ -85,6 +85,8 @@ The following arguments are supported:
 
 * `cpu_platform` - The CPU platform used by this instance.
 
+* `shielded_instance_config` - The shielded vm config being used by the instance. Structure is documented below.
+
 * `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
 
 * `network_interface.0.access_config.0.nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
@@ -192,3 +194,11 @@ The `guest_accelerator` block supports:
 * `count` - The number of the guest accelerator cards exposed to this instance.
 
 [network-tier]: https://cloud.google.com/network-tiers/docs/overview
+
+The `shielded_instance_config` block supports:
+
+* `enable_secure_boot` -- Whether secure boot is enabled for the instance.
+
+* `enable_vtpm` -- Whether the instance uses vTPM.
+
+* `enable_integrity_monitoring` -- Whether integrity monitoring is enabled for the instance.
