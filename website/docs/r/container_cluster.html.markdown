@@ -564,7 +564,7 @@ The `private_cluster_config` block supports:
 
 * `master_ipv4_cidr_block` (Optional) - The IP range in CIDR notation to use for the hosted master network. This range will be used for
     assigning internal IP addresses to the master or set of masters, as well as the ILB VIP. This range must not overlap with any other ranges
-    in use within the cluster's network.
+    in use within the cluster's network, and it must be a /28 subnet. See [Limitations](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters#limitations) in the GCP docs.
 
 In addition, the `private_cluster_config` allows access to the following read-only fields:
 
