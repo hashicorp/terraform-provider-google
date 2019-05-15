@@ -99,7 +99,7 @@ func resourceSqlDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 			instance_name, err)
 	}
 
-	err = sqladminOperationWaitTime(config, op, project, "Insert Database", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	err = sqlAdminOperationWaitTime(config.clientSqlAdmin, op, project, "Insert Database", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for insertion of %s "+
@@ -181,7 +181,7 @@ func resourceSqlDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 			instance_name, err)
 	}
 
-	err = sqladminOperationWaitTime(config, op, project, "Update Database", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+	err = sqlAdminOperationWaitTime(config.clientSqlAdmin, op, project, "Update Database", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for update of %s "+
@@ -217,7 +217,7 @@ func resourceSqlDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 			instance_name, err)
 	}
 
-	err = sqladminOperationWaitTime(config, op, project, "Delete Database", int(d.Timeout(schema.TimeoutDelete).Minutes()))
+	err = sqlAdminOperationWaitTime(config.clientSqlAdmin, op, project, "Delete Database", int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for deletion of %s "+
