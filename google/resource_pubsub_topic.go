@@ -27,6 +27,7 @@ func resourcePubsubTopic() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePubsubTopicCreate,
 		Read:   resourcePubsubTopicRead,
+		Update: resourcePubsubTopicUpdate,
 		Delete: resourcePubsubTopicDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -35,6 +36,7 @@ func resourcePubsubTopic() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(240 * time.Second),
+			Update: schema.DefaultTimeout(240 * time.Second),
 			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
 
@@ -48,7 +50,6 @@ func resourcePubsubTopic() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"project": {
@@ -130,6 +131,38 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	obj := make(map[string]interface{})
+	nameProp, err := expandPubsubTopicName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
+	labelsProp, err := expandPubsubTopicLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+
+	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/topics/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Topic %q: %#v", d.Id(), obj)
+	_, err = sendRequestWithTimeout(config, "PUT", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return fmt.Errorf("Error updating Topic %q: %s", d.Id(), err)
+	}
+
+	return resourcePubsubTopicRead(d, meta)
 }
 
 func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
