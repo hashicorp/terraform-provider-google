@@ -23,12 +23,12 @@ func TestAccServiceAccountIamBinding(t *testing.T) {
 			{
 				Config: testAccServiceAccountIamBinding_basic(account),
 				Check: testAccCheckGoogleServiceAccountIam(account, "roles/viewer", []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s", serviceAccountCanonicalEmail(account)),
 				}),
 			},
 			{
 				ResourceName:      "google_service_account_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s %s", getServiceAccountCanonicalId(account), "roles/viewer"),
+				ImportStateId:     fmt.Sprintf("%s %s", serviceAccountCanonicalId(account), "roles/viewer"),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -40,7 +40,7 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 	t.Parallel()
 
 	account := acctest.RandomWithPrefix("tf-test")
-	identity := fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv())
+	identity := fmt.Sprintf("serviceAccount:%s", serviceAccountCanonicalEmail(account))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -52,7 +52,7 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_service_account_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s %s %s", getServiceAccountCanonicalId(account), "roles/editor", identity),
+				ImportStateId:     fmt.Sprintf("%s %s %s", serviceAccountCanonicalId(account), "roles/editor", identity),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -72,12 +72,12 @@ func TestAccServiceAccountIamPolicy(t *testing.T) {
 			{
 				Config: testAccServiceAccountIamPolicy_basic(account),
 				Check: testAccCheckGoogleServiceAccountIam(account, "roles/owner", []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s", serviceAccountCanonicalEmail(account)),
 				}),
 			},
 			{
 				ResourceName:      "google_service_account_iam_policy.foo",
-				ImportStateId:     getServiceAccountCanonicalId(account),
+				ImportStateId:     serviceAccountCanonicalId(account),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -88,7 +88,7 @@ func TestAccServiceAccountIamPolicy(t *testing.T) {
 func testAccCheckGoogleServiceAccountIam(account, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		p, err := config.clientIAM.Projects.ServiceAccounts.GetIamPolicy(getServiceAccountCanonicalId(account)).Do()
+		p, err := config.clientIAM.Projects.ServiceAccounts.GetIamPolicy(serviceAccountCanonicalId(account)).Do()
 		if err != nil {
 			return err
 		}
@@ -110,8 +110,12 @@ func testAccCheckGoogleServiceAccountIam(account, role string, members []string)
 	}
 }
 
-func getServiceAccountCanonicalId(account string) string {
+func serviceAccountCanonicalId(account string) string {
 	return fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", getTestProjectFromEnv(), account, getTestProjectFromEnv())
+}
+
+func serviceAccountCanonicalEmail(account string) string {
+	return fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv())
 }
 
 func testAccServiceAccountIamBinding_basic(account string) string {
