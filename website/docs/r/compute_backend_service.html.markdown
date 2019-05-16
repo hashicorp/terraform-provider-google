@@ -149,6 +149,7 @@ The following arguments are supported:
   (Optional)
   How many seconds to wait for the backend before considering it a
   failed request. Default is 30 seconds. Valid range is [1, 86400].
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

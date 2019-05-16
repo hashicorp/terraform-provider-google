@@ -108,6 +108,7 @@ The `fields` block supports:
 * `query_scope` -
   (Optional)
   The scope at which a query is run. Defaults to `"COLLECTION"`.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

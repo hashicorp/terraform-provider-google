@@ -160,6 +160,7 @@ The following arguments are supported:
   HTTP target.
   If the job providers a http_target the cron will 
   send a request to the targeted url  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

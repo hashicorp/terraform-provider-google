@@ -192,6 +192,7 @@ The following arguments are supported:
   network that may make network connections as specified in allowed[].
   If no targetTags are specified, the firewall rule applies to all
   instances on the specified network.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

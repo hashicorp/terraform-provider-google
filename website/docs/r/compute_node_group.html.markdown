@@ -92,6 +92,7 @@ The following arguments are supported:
 * `zone` -
   (Optional)
   Zone where this node group is located
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

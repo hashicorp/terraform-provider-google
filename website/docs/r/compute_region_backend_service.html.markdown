@@ -126,6 +126,7 @@ The following arguments are supported:
   (Optional)
   This signifies what the ForwardingRule will be used for and can only
   be INTERNAL for RegionBackendServices
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

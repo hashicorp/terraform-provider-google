@@ -152,6 +152,7 @@ The `labels` block supports:
   (Optional)
   The bucketOptions are required when the logs-based metric is using a DISTRIBUTION value type and it
   describes the bucket boundaries used to create a histogram of the extracted values.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

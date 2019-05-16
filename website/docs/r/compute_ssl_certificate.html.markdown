@@ -193,6 +193,7 @@ The following arguments are supported:
   character, which cannot be a dash.
 
   These are in the same namespace as the managed SSL certificates.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

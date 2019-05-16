@@ -226,6 +226,7 @@ The following arguments are supported:
   (Optional)
   For privately visible zones, the set of Virtual Private Cloud
   resources that the zone is visible from.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
