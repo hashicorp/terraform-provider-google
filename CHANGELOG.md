@@ -5,8 +5,10 @@ BACKWARDS INCOMPATIBILITIES:
 
 FEATURES: 
 * **New Resources**: `google_compute_instance_iam_binding`, `google_compute_instance_iam_member`, and `google_compute_instance_iam_policy` are now available. ([#3551](https://github.com/terraform-providers/terraform-provider-google/pull/3551))
+* **New Resources**: IAM resources for Dataproc jobs and clusters (`google_dataproc_job_iam_policy`, `google_dataproc_job_iam_member`, `google_dataproc_job_iam_binding`, `google_dataproc_cluster_iam_policy`, `google_dataproc_cluster_iam_member`, `google_dataproc_cluster_iam_binding`) are now available. [#3632](https://github.com/terraform-providers/terraform-provider-google/pull/3632)
 
 ENHANCEMENTS:
+* compute: `google_compute_backend_service` now supports `HTTP2` protocol (beta-only feature, use with GA provider at own risk)[#3631](https://github.com/terraform-providers/terraform-provider-google/pull/3631)
 * compute: Add support for creating instances with CMEK [GH-3481]
 * compute: Can now specify project when importing instance groups [GH-2504]
 * compute: `google_compute_instance` now supports `shielded_instance_config` for verifiable integrity of your VM instances. [GH-3531]
