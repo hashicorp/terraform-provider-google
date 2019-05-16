@@ -144,11 +144,15 @@ func resourceGoogleOrganizationPolicy() *schema.Resource {
 }
 
 func resourceGoogleOrganizationPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+	d.SetId(fmt.Sprintf("%s:%s", d.Get("org_id"), d.Get("constraint").(string)))
+
+	if isOrganizationPolicyUnset(d) {
+		return resourceGoogleOrganizationPolicyDelete(d, meta)
+	}
+
 	if err := setOrganizationPolicy(d, meta); err != nil {
 		return err
 	}
-
-	d.SetId(fmt.Sprintf("%s:%s", d.Get("org_id"), d.Get("constraint").(string)))
 
 	return resourceGoogleOrganizationPolicyRead(d, meta)
 }
@@ -177,6 +181,10 @@ func resourceGoogleOrganizationPolicyRead(d *schema.ResourceData, meta interface
 }
 
 func resourceGoogleOrganizationPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+	if isOrganizationPolicyUnset(d) {
+		return resourceGoogleOrganizationPolicyDelete(d, meta)
+	}
+
 	if err := setOrganizationPolicy(d, meta); err != nil {
 		return err
 	}
@@ -209,6 +217,19 @@ func resourceGoogleOrganizationPolicyImportState(d *schema.ResourceData, meta in
 	d.Set("constraint", parts[1])
 
 	return []*schema.ResourceData{d}, nil
+}
+
+// Organization policies can be "inherited from parent" the UI, and this is the default
+// state of the resource without any policy set. In order to revert to this state the current
+// resource cannot be updated it must instead be Deleted. This allows Terraform to assert that
+// no policy has been set even if previously one had.
+// See https://github.com/terraform-providers/terraform-provider-google/issues/3607
+func isOrganizationPolicyUnset(d *schema.ResourceData) bool {
+	listPolicy := d.Get("list_policy").([]interface{})
+	booleanPolicy := d.Get("boolean_policy").([]interface{})
+	restorePolicy := d.Get("restore_policy").([]interface{})
+
+	return len(listPolicy)+len(booleanPolicy)+len(restorePolicy) == 0
 }
 
 func setOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
