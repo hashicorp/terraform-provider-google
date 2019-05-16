@@ -9,6 +9,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * compute: Add support for creating instances with CMEK [GH-3481]
+* compute: Can now specify project when importing instance groups [GH-2504]
 
 BUG FIXES:
 * cloudfunctions: `google_cloudfunctions_function.runtime` now has an explicit default value of `nodejs6`. [GH-3605]
