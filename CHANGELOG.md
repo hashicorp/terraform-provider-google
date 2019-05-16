@@ -2,7 +2,6 @@
 
 BACKWARDS INCOMPATIBILITIES:
 * cloudfunctions: `google_cloudfunctions_function.runtime` now has an explicit default value of `nodejs6`. Users who have a different value set in the API but the value undefined in their config will see a diff. [GH-3605]
-* 
 
 FEATURES: 
 * **New Resources**: `google_compute_instance_iam_binding`, `google_compute_instance_iam_member`, and `google_compute_instance_iam_policy` are now available. ([#3551](https://github.com/terraform-providers/terraform-provider-google/pull/3551))
@@ -10,6 +9,8 @@ FEATURES:
 ENHANCEMENTS:
 * compute: Add support for creating instances with CMEK [GH-3481]
 * compute: Can now specify project when importing instance groups [GH-2504]
+* compute: `google_compute_instance` now supports `shielded_instance_config` for verifiable integrity of your VM instances. [GH-3531]
+* compute: `google_compute_instance_template` now supports `shielded_instance_config` for verifiable integrity of your VM instances. [GH-3531]
 
 BUG FIXES:
 * cloudfunctions: `google_cloudfunctions_function.runtime` now has an explicit default value of `nodejs6`. [GH-3605]
