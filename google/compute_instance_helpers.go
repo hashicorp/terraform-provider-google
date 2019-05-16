@@ -303,3 +303,29 @@ func resourceInstanceTags(d TerraformResourceData) *computeBeta.Tags {
 
 	return tags
 }
+
+func expandShieldedVmConfigs(d *schema.ResourceData) *computeBeta.ShieldedVmConfig {
+	if _, ok := d.GetOk("shielded_instance_config"); !ok {
+		return nil
+	}
+
+	prefix := "shielded_instance_config.0"
+	return &computeBeta.ShieldedVmConfig{
+		EnableSecureBoot:          d.Get(prefix + ".enable_secure_boot").(bool),
+		EnableVtpm:                d.Get(prefix + ".enable_vtpm").(bool),
+		EnableIntegrityMonitoring: d.Get(prefix + ".enable_integrity_monitoring").(bool),
+		ForceSendFields:           []string{"EnableSecureBoot", "EnableVtpm", "EnableIntegrityMonitoring"},
+	}
+}
+
+func flattenShieldedVmConfig(shieldedVmConfig *computeBeta.ShieldedVmConfig) []map[string]bool {
+	if shieldedVmConfig == nil {
+		return nil
+	}
+
+	return []map[string]bool{{
+		"enable_secure_boot":          shieldedVmConfig.EnableSecureBoot,
+		"enable_vtpm":                 shieldedVmConfig.EnableVtpm,
+		"enable_integrity_monitoring": shieldedVmConfig.EnableIntegrityMonitoring,
+	}}
+}
