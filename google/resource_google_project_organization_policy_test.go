@@ -22,6 +22,7 @@ func TestAccProjectOrganizationPolicy(t *testing.T) {
 		"list_denySome":  testAccProjectOrganizationPolicy_list_denySome,
 		"list_update":    testAccProjectOrganizationPolicy_list_update,
 		"restore_policy": testAccProjectOrganizationPolicy_restore_defaultTrue,
+		"empty_policy":   testAccProjectOrganizationPolicy_none,
 	}
 
 	for name, tc := range testCases {
@@ -172,6 +173,27 @@ func testAccProjectOrganizationPolicy_restore_defaultTrue(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_project_organization_policy.restore",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccProjectOrganizationPolicy_none(t *testing.T) {
+	projectId := getTestProjectFromEnv()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProjectOrganizationPolicyConfig_none(projectId),
+				Check:  testAccCheckGoogleProjectOrganizationPolicyDestroy,
+			},
+			{
+				ResourceName:      "google_project_organization_policy.none",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -383,6 +405,15 @@ resource "google_project_organization_policy" "restore" {
     restore_policy {
         default = true
     }
+}
+`, pid)
+}
+
+func testAccProjectOrganizationPolicyConfig_none(pid string) string {
+	return fmt.Sprintf(`
+resource "google_project_organization_policy" "none" {
+  project    = "%s"
+  constraint = "constraints/serviceuser.services"
 }
 `, pid)
 }

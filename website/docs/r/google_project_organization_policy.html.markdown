@@ -93,6 +93,9 @@ The following arguments are supported:
 
 * `restore_policy` - (Optional) A restore policy is a constraint to restore the default policy. Structure is documented below.
 
+~> **Note:** If none of [`boolean_policy`, `list_policy`, `restore_policy`] are defined the policy for a given constraint will
+effectively be unset. This is represented in the UI as the constraint being 'Inherited'.
+
 - - -
 
 The `boolean_policy` block supports:

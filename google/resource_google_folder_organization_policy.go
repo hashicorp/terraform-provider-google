@@ -51,11 +51,15 @@ func resourceFolderOrgPolicyImporter(d *schema.ResourceData, meta interface{}) (
 }
 
 func resourceGoogleFolderOrganizationPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+	d.SetId(fmt.Sprintf("%s:%s", d.Get("folder"), d.Get("constraint")))
+
+	if isOrganizationPolicyUnset(d) {
+		return resourceGoogleFolderOrganizationPolicyDelete(d, meta)
+	}
+
 	if err := setFolderOrganizationPolicy(d, meta); err != nil {
 		return err
 	}
-
-	d.SetId(fmt.Sprintf("%s:%s", d.Get("folder"), d.Get("constraint")))
 
 	return resourceGoogleFolderOrganizationPolicyRead(d, meta)
 }
@@ -84,6 +88,10 @@ func resourceGoogleFolderOrganizationPolicyRead(d *schema.ResourceData, meta int
 }
 
 func resourceGoogleFolderOrganizationPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+	if isOrganizationPolicyUnset(d) {
+		return resourceGoogleFolderOrganizationPolicyDelete(d, meta)
+	}
+
 	if err := setFolderOrganizationPolicy(d, meta); err != nil {
 		return err
 	}
