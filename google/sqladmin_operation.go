@@ -95,13 +95,13 @@ func (w *SqlAdminOperationWaiter) TargetStates() []string {
 	return []string{"DONE"}
 }
 
-func sqladminOperationWait(config *Config, op *sqladmin.Operation, project, activity string) error {
-	return sqladminOperationWaitTime(config, op, project, activity, 10)
+func sqlAdminOperationWait(service *sqladmin.Service, op *sqladmin.Operation, project, activity string) error {
+	return sqlAdminOperationWaitTime(service, op, project, activity, 10)
 }
 
-func sqladminOperationWaitTime(config *Config, op *sqladmin.Operation, project, activity string, timeoutMinutes int) error {
+func sqlAdminOperationWaitTime(service *sqladmin.Service, op *sqladmin.Operation, project, activity string, timeoutMinutes int) error {
 	w := &SqlAdminOperationWaiter{
-		Service: config.clientSqlAdmin,
+		Service: service,
 		Op:      op,
 		Project: project,
 	}
