@@ -173,6 +173,7 @@ The following arguments are supported:
   (Optional)
   The Region in which the created address should reside.
   If it is not provided, the provider region is used.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

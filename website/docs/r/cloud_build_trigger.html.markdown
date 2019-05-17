@@ -111,6 +111,7 @@ The following arguments are supported:
 * `build` -
   (Optional)
   Contents of the build template. Either a filename or build template must be provided.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

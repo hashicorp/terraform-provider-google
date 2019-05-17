@@ -121,6 +121,7 @@ The following arguments are supported:
 * `ssl_health_check` -
   (Optional)
   A nested object resource  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

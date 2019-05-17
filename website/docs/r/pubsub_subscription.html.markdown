@@ -178,6 +178,7 @@ The following arguments are supported:
   operations on the subscription. If expirationPolicy is not set, a default
   policy with ttl of 31 days will be used. The minimum allowed value for
   expirationPolicy.ttl is 1 day.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

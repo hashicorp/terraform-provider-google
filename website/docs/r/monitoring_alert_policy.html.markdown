@@ -602,6 +602,7 @@ The `aggregations` block supports:
   notifications, and incidents. To avoid confusion, don't use the same
   display name for multiple policies in the same project. The name is
   limited to 512 Unicode characters.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

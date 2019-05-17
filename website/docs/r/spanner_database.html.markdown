@@ -78,6 +78,7 @@ The following arguments are supported:
   database. Statements can create tables, indexes, etc. These statements
   execute atomically with the creation of the database: if there is an
   error in any statement, the database is not created.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

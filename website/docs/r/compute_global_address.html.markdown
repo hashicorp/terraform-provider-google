@@ -84,6 +84,7 @@ The following arguments are supported:
   The type of the address to reserve, default is EXTERNAL.
   * EXTERNAL indicates public/external single IP address.
   * INTERNAL indicates internal IP ranges belonging to some network.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
