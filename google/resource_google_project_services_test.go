@@ -168,6 +168,8 @@ func TestAccProjectServices_ignoreUnenablableServices(t *testing.T) {
 		"pubsub.googleapis.com",
 		"oslogin.googleapis.com",
 		"bigquery-json.googleapis.com",
+		"iam.googleapis.com",
+		"iamcredentials.googleapis.com",
 	}
 
 	resource.Test(t, resource.TestCase{
