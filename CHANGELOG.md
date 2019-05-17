@@ -11,6 +11,7 @@ FEATURES:
 * **New Resources**: IAM resources for Dataproc jobs and clusters (`google_dataproc_job_iam_policy`, `google_dataproc_job_iam_member`, `google_dataproc_job_iam_binding`, `google_dataproc_cluster_iam_policy`, `google_dataproc_cluster_iam_member`, `google_dataproc_cluster_iam_binding`) are now available. [#3632](https://github.com/terraform-providers/terraform-provider-google/pull/3632)
 
 ENHANCEMENTS:
+* provider: Add GCP zone to `google_client_config` datasource [GH-3262]
 * compute: `google_compute_backend_service` now supports `HTTP2` protocol (beta-only feature, use with GA provider at own risk)[#3631](https://github.com/terraform-providers/terraform-provider-google/pull/3631)
 * compute: Add support for creating instances with CMEK [GH-3481]
 * compute: Can now specify project when importing instance groups [GH-2504]
