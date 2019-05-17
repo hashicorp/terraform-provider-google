@@ -1,5 +1,8 @@
 ## 2.7.0 (Unreleased)
 
+NOTE:
+* Several resources were previously undocumented on the site or changelog; they should be added to both with this release. `google_compute_backend_bucket_signed_url_key` and `google_compute_backend_service_signed_url_key` were introduced in `2.4.0`.
+
 BACKWARDS INCOMPATIBILITIES:
 * cloudfunctions: `google_cloudfunctions_function.runtime` now has an explicit default value of `nodejs6`. Users who have a different value set in the API but the value undefined in their config will see a diff. [GH-3605]
 
@@ -99,6 +102,8 @@ FEATURES:
 * **New Resource**: `google_access_context_manager_access_policy` is now available at GA. ([#3358](https://github.com/terraform-providers/terraform-provider-google/issues/3358))
 * **New Resource**: `google_access_context_manager_access_level` is now available at GA. ([#3358](https://github.com/terraform-providers/terraform-provider-google/issues/3358))
 * **New Resource**: `google_access_context_manager_service_perimeter` is now available at GA. ([#3358](https://github.com/terraform-providers/terraform-provider-google/issues/3358))
+* **New Resource**: `google_compute_backend_bucket_signed_url_key` is now available. [GH-3229]
+* **New Resource**: `google_compute_backend_service_signed_url_key` is now available. [GH-3359]
 * **New Datasource**: `google_service_account_access_token` is now available. ([#3357](https://github.com/terraform-providers/terraform-provider-google/issues/3357))
 
 ENHANCEMENTS:
