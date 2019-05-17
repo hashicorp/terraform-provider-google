@@ -42,7 +42,7 @@ To get more information about ForwardingRule, see:
 
 ```hcl
 resource "google_compute_forwarding_rule" "default" {
-  name       = ""
+  name       = "website-forwarding-rule"
   target     = "${google_compute_target_pool.default.self_link}"
   port_range = "80"
 }
