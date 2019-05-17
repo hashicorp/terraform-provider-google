@@ -15,6 +15,12 @@ test: fmtcheck
 testacc: fmtcheck
 	TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test $(TEST) -v $(TESTARGS) -timeout 240m -ldflags="-X=github.com/terraform-providers/terraform-provider-google/version.ProviderVersion=acc"
 
+testacc-confirm: confirm testacc
+
+confirm:
+	go test $(TEST) -list $(subst -run=,,$(TESTARGS))
+	@echo -n "Confirm? (y/n) " && read ans && [ $${ans:-N} = y ]
+
 fmt:
 	@echo "==> Fixing source code with gofmt..."
 	gofmt -w -s ./$(PKG_NAME)
