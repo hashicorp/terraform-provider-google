@@ -96,11 +96,12 @@ func resourceStorageTransferJob() *schema.Resource {
 							Elem:     dateObjectSchema(),
 						},
 						"start_time_of_day": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							MaxItems: 1,
-							Elem:     timeObjectSchema(),
+							Type:             schema.TypeList,
+							Optional:         true,
+							ForceNew:         true,
+							MaxItems:         1,
+							Elem:             timeObjectSchema(),
+							DiffSuppressFunc: diffSuppressEmptyStartTimeOfDay,
 						},
 					},
 				},
@@ -299,6 +300,10 @@ func httpDataSchema() *schema.Resource {
 			},
 		},
 	}
+}
+
+func diffSuppressEmptyStartTimeOfDay(k, old, new string, d *schema.ResourceData) bool {
+	return k == "schedule.0.start_time_of_day.#" && old == "1" && new == "0"
 }
 
 func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) error {

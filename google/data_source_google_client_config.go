@@ -20,11 +20,6 @@ func dataSourceGoogleClientConfig() *schema.Resource {
 				Computed: true,
 			},
 
-			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"access_token": {
 				Type:      schema.TypeString,
 				Computed:  true,
@@ -40,7 +35,6 @@ func dataSourceClientConfigRead(d *schema.ResourceData, meta interface{}) error 
 	d.SetId(time.Now().UTC().String())
 	d.Set("project", config.Project)
 	d.Set("region", config.Region)
-	d.Set("zone", config.Zone)
 
 	token, err := config.tokenSource.Token()
 	if err != nil {
