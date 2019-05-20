@@ -184,7 +184,7 @@ The `schedule_start_date` and `schedule_end_date` blocks support:
 
 * `day` - (Required) Day of month. Must be from 1 to 31 and valid for the year and month.
 
-The `schedule_start_date` blocks support:
+The `start_time_of_day` blocks support:
 
 * `hours` - (Required) Hours of day in 24 hour format. Should be from 0 to 23
 
