@@ -17,6 +17,7 @@ ENHANCEMENTS:
 * compute: Can now specify project when importing instance groups [GH-2504]
 * compute: `google_compute_instance` now supports `shielded_instance_config` for verifiable integrity of your VM instances. [GH-3531]
 * compute: `google_compute_instance_template` now supports `shielded_instance_config` for verifiable integrity of your VM instances. [GH-3531]
+* container: use the cluster subnet to look up the node cidr block [GH-3654]
 
 BUG FIXES:
 * cloudfunctions: `google_cloudfunctions_function.runtime` now has an explicit default value of `nodejs6`. [GH-3605]
