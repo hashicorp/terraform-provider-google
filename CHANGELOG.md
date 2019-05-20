@@ -23,6 +23,7 @@ BUG FIXES:
 * cloudfunctions: `google_cloudfunctions_function.runtime` now has an explicit default value of `nodejs6`. [GH-3605]
 * monitoring: updating `google_monitoring_alert_policy` is more likely to succeed [GH-3587]
 * kms: `google_kms_crypto_key` now (in addition to marking all crypto key versions for destruction) correctly disables auto-rotation for destroyed keys [GH-3624](https://github.com/terraform-providers/terraform-provider-google/pull/3624)
+* iam: Increase IAM custom role length validation to match API. [GH-3660]
 
 ## 2.6.0 (May 07, 2019)
 
