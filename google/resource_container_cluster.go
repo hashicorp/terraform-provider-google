@@ -888,7 +888,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	if err := d.Set("ip_allocation_policy", flattenIPAllocationPolicy(cluster.IpAllocationPolicy, d, config)); err != nil {
+	if err := d.Set("ip_allocation_policy", flattenIPAllocationPolicy(cluster, d, config)); err != nil {
 		return err
 	}
 
@@ -1783,35 +1783,36 @@ func flattenPrivateClusterConfig(c *containerBeta.PrivateClusterConfig) []map[st
 	}
 }
 
-func flattenIPAllocationPolicy(c *containerBeta.IPAllocationPolicy, d *schema.ResourceData, config *Config) []map[string]interface{} {
-	if c == nil {
+func flattenIPAllocationPolicy(c *containerBeta.Cluster, d *schema.ResourceData, config *Config) []map[string]interface{} {
+	if c == nil || c.IpAllocationPolicy == nil {
 		return nil
 	}
-	node_cidr_block := ""
-	if c.SubnetworkName != "" {
-		subnetwork, err := ParseSubnetworkFieldValue(c.SubnetworkName, d, config)
+	nodeCidrBlock := ""
+	if c.Subnetwork != "" {
+		subnetwork, err := ParseSubnetworkFieldValue(c.Subnetwork, d, config)
 		if err == nil {
 			sn, err := config.clientCompute.Subnetworks.Get(subnetwork.Project, subnetwork.Region, subnetwork.Name).Do()
 			if err == nil {
-				node_cidr_block = sn.IpCidrRange
+				nodeCidrBlock = sn.IpCidrRange
 			}
 		} else {
 			log.Printf("[WARN] Unable to parse subnetwork name, got error while trying to get new subnetwork: %s", err)
 		}
 	}
+	p := c.IpAllocationPolicy
 	return []map[string]interface{}{
 		{
-			"use_ip_aliases": c.UseIpAliases,
+			"use_ip_aliases": p.UseIpAliases,
 
-			"create_subnetwork": c.CreateSubnetwork,
-			"subnetwork_name":   c.SubnetworkName,
+			"create_subnetwork": p.CreateSubnetwork,
+			"subnetwork_name":   p.SubnetworkName,
 
-			"cluster_ipv4_cidr_block":  c.ClusterIpv4CidrBlock,
-			"services_ipv4_cidr_block": c.ServicesIpv4CidrBlock,
-			"node_ipv4_cidr_block":     node_cidr_block,
+			"cluster_ipv4_cidr_block":  p.ClusterIpv4CidrBlock,
+			"services_ipv4_cidr_block": p.ServicesIpv4CidrBlock,
+			"node_ipv4_cidr_block":     nodeCidrBlock,
 
-			"cluster_secondary_range_name":  c.ClusterSecondaryRangeName,
-			"services_secondary_range_name": c.ServicesSecondaryRangeName,
+			"cluster_secondary_range_name":  p.ClusterSecondaryRangeName,
+			"services_secondary_range_name": p.ServicesSecondaryRangeName,
 		},
 	}
 }
