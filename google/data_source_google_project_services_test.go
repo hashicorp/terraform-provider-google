@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccDataSourceGoogleProjectServices_basic(t *testing.T) {
@@ -21,46 +20,18 @@ func TestAccDataSourceGoogleProjectServices_basic(t *testing.T) {
 			{
 				Config: testAccCheckGoogleProjectServicesConfig(project, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceGoogleProjectServicesCheck("data.google_project_services.project_services", "google_project_services.project_services"),
+					checkDataSourceStateMatchesResourceStateWithIgnores(
+						"data.google_project_services.project_services",
+						"google_project_services.project_services",
+						map[string]struct{}{
+							// Virtual fields
+							"disable_on_destroy": {},
+						},
+					),
 				),
 			},
 		},
 	})
-}
-
-func testAccDataSourceGoogleProjectServicesCheck(dataSourceName string, resourceName string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		ds, ok := s.RootModule().Resources[dataSourceName]
-		if !ok {
-			return fmt.Errorf("root module has no resource called %s", dataSourceName)
-		}
-
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("can't find %s in state", resourceName)
-		}
-
-		dsAttr := ds.Primary.Attributes
-		rsAttr := rs.Primary.Attributes
-
-		projectAttrToCheck := []string{
-			"project",
-			"services",
-		}
-
-		for _, attr := range projectAttrToCheck {
-			if dsAttr[attr] != rsAttr[attr] {
-				return fmt.Errorf(
-					"%s is %s; want %s",
-					attr,
-					dsAttr[attr],
-					rsAttr[attr],
-				)
-			}
-		}
-
-		return nil
-	}
 }
 
 func testAccCheckGoogleProjectServicesConfig(project, org string) string {
@@ -72,11 +43,11 @@ resource "google_project" "project" {
 }
 
 resource "google_project_services" "project_services" {
-	project = "${google_project.project.id}"
+	project = "${google_project.project.project_id}"
 	services = ["admin.googleapis.com"]
 }
 
 data "google_project_services" "project_services" {
-	project = "${google_project.project.id}"
+	project = "${google_project_services.project_services.project}"
 }`, project, project, org)
 }
