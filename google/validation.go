@@ -29,7 +29,7 @@ const (
 	ComputeServiceAccountNameRegex = "[0-9]{1,20}-compute@developer.gserviceaccount.com"
 
 	// https://cloud.google.com/iam/docs/understanding-custom-roles#naming_the_role
-	IAMCustomRoleIDRegex = "^[a-zA-Z0-9_\\.\\-]{1,30}$"
+	IAMCustomRoleIDRegex = "^[a-zA-Z0-9_\\.]{3,64}$"
 )
 
 var (
