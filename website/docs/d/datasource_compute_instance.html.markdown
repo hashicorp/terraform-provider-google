@@ -43,7 +43,7 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-* `boot_disk` - The boot disk for the instance. Sructure is documented below.
+* `boot_disk` - The boot disk for the instance. Structure is documented below.
 
 * `machine_type` - The machine type to create.
 
