@@ -1,32 +1,34 @@
-## 2.7.0 (Unreleased)
+## 2.7.1 (Unreleased)
+
+## 2.7.0 (May 21, 2019)
 
 NOTE:
 * Several resources were previously undocumented on the site or changelog; they should be added to both with this release. `google_compute_backend_bucket_signed_url_key` and `google_compute_backend_service_signed_url_key` were introduced in `2.4.0`.
 
 BACKWARDS INCOMPATIBILITIES:
-* cloudfunctions: `google_cloudfunctions_function.runtime` now has an explicit default value of `nodejs6`. Users who have a different value set in the API but the value undefined in their config will see a diff. [GH-3605]
+* cloudfunctions: `google_cloudfunctions_function.runtime` now has an explicit default value of `nodejs6`. Users who have a different value set in the API but the value undefined in their config will see a diff. ([#3605](https://github.com/terraform-providers/terraform-provider-google/issues/3605))
 
 FEATURES:
 * **New Resources**: `google_compute_instance_iam_binding`, `google_compute_instance_iam_member`, and `google_compute_instance_iam_policy` are now available. ([#3551](https://github.com/terraform-providers/terraform-provider-google/pull/3551))
 * **New Resources**: IAM resources for Dataproc jobs and clusters (`google_dataproc_job_iam_policy`, `google_dataproc_job_iam_member`, `google_dataproc_job_iam_binding`, `google_dataproc_cluster_iam_policy`, `google_dataproc_cluster_iam_member`, `google_dataproc_cluster_iam_binding`) are now available. [#3632](https://github.com/terraform-providers/terraform-provider-google/pull/3632)
 
 ENHANCEMENTS:
-* provider: Add GCP zone to `google_client_config` datasource [GH-3262]
+* provider: Add GCP zone to `google_client_config` datasource ([#3262](https://github.com/terraform-providers/terraform-provider-google/issues/3262))
 * compute: `google_compute_backend_service` now supports `HTTP2` protocol (beta-only feature, use with GA provider at own risk)[#3631](https://github.com/terraform-providers/terraform-provider-google/pull/3631)
-* compute: `interconnect_attachment` Make vlanTag8021q computed for using PARTNER attachments [GH-3600]
-* compute: Add support for creating instances with CMEK [GH-3481]
-* compute: Can now specify project when importing instance groups [GH-2504]
-* compute: `google_compute_organization_policies*` Allow all organization policies to be removed/unset from a constraint. [GH-3611]
-* compute: `google_compute_instance` now supports `shielded_instance_config` for verifiable integrity of your VM instances. [GH-3531]
-* compute: `google_compute_instance_template` now supports `shielded_instance_config` for verifiable integrity of your VM instances. [GH-3531]
-* container: use the cluster subnet to look up the node cidr block [GH-3654]
+* compute: `interconnect_attachment` Make vlanTag8021q computed for using PARTNER attachments ([#3600](https://github.com/terraform-providers/terraform-provider-google/issues/3600))
+* compute: Add support for creating instances with CMEK ([#3481](https://github.com/terraform-providers/terraform-provider-google/issues/3481))
+* compute: Can now specify project when importing instance groups ([#2504](https://github.com/terraform-providers/terraform-provider-google/issues/2504))
+* compute: `google_compute_organization_policies*` Allow all organization policies to be removed/unset from a constraint. ([#3611](https://github.com/terraform-providers/terraform-provider-google/issues/3611))
+* compute: `google_compute_instance` now supports `shielded_instance_config` for verifiable integrity of your VM instances. ([#3531](https://github.com/terraform-providers/terraform-provider-google/issues/3531))
+* compute: `google_compute_instance_template` now supports `shielded_instance_config` for verifiable integrity of your VM instances. ([#3531](https://github.com/terraform-providers/terraform-provider-google/issues/3531))
+* container: use the cluster subnet to look up the node cidr block ([#3654](https://github.com/terraform-providers/terraform-provider-google/issues/3654))
 
 BUG FIXES:
-* cloudfunctions: `google_cloudfunctions_function.runtime` now has an explicit default value of `nodejs6`. [GH-3605]
-* compute: Fix panic in `compute_backend_service` hash function [GH-3610]
-* monitoring: updating `google_monitoring_alert_policy` is more likely to succeed [GH-3587]
-* kms: `google_kms_crypto_key` now (in addition to marking all crypto key versions for destruction) correctly disables auto-rotation for destroyed keys [GH-3624](https://github.com/terraform-providers/terraform-provider-google/pull/3624)
-* iam: Increase IAM custom role length validation to match API. [GH-3660]
+* cloudfunctions: `google_cloudfunctions_function.runtime` now has an explicit default value of `nodejs6`. ([#3605](https://github.com/terraform-providers/terraform-provider-google/issues/3605))
+* compute: Fix panic in `compute_backend_service` hash function ([#3610](https://github.com/terraform-providers/terraform-provider-google/issues/3610))
+* monitoring: updating `google_monitoring_alert_policy` is more likely to succeed ([#3587](https://github.com/terraform-providers/terraform-provider-google/issues/3587))
+* kms: `google_kms_crypto_key` now (in addition to marking all crypto key versions for destruction) correctly disables auto-rotation for destroyed keys [[#3624](https://github.com/terraform-providers/terraform-provider-google/issues/3624)](https://github.com/terraform-providers/terraform-provider-google/pull/3624)
+* iam: Increase IAM custom role length validation to match API. ([#3660](https://github.com/terraform-providers/terraform-provider-google/issues/3660))
 
 ## 2.6.0 (May 07, 2019)
 
