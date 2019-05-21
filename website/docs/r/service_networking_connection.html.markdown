@@ -20,11 +20,11 @@ and
 
 ```hcl
 resource "google_compute_network" "peering_network" {
-  name = "peering_network"
+  name = "peering-network"
 }
 
 resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "private_ip_alloc"
+  name          = "private-ip-alloc"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
