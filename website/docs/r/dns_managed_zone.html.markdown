@@ -212,6 +212,10 @@ The following arguments are supported:
   (Optional)
   A textual description field. Defaults to 'Managed by Terraform'.
 
+* `dnssec_config` -
+  (Optional)
+  DNSSEC configuration  Structure is documented below.
+
 * `labels` -
   (Optional)
   A set of key/value label pairs to assign to this ManagedZone.
@@ -230,6 +234,43 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `dnssec_config` block supports:
+
+* `kind` -
+  (Optional)
+  Identifies what kind of resource this is
+
+* `non_existence` -
+  (Optional)
+  Specifies the mechanism used to provide authenticated denial-of-existence responses. Output only while state is not OFF.
+
+* `state` -
+  (Optional)
+  Specifies whether DNSSEC is enabled, and what mode it is in
+
+* `default_key_specs` -
+  (Optional)
+  Specifies parameters that will be used for generating initial DnsKeys for this ManagedZone. Output only while state is not OFF  Structure is documented below.
+
+
+The `default_key_specs` block supports:
+
+* `algorithm` -
+  (Optional)
+  String mnemonic specifying the DNSSEC algorithm of this key
+
+* `key_length` -
+  (Optional)
+  Length of the keys in bits
+
+* `key_type` -
+  (Optional)
+  Specifies whether this is a key signing key (KSK) or a zone signing key (ZSK). Key signing keys have the Secure Entry Point flag set and, when active, will only be used to sign resource record sets of type DNSKEY. Zone signing keys do not have the Secure Entry Point flag set and will be used to sign all other types of resource record sets.
+
+* `kind` -
+  (Optional)
+  Identifies what kind of resource this is
 
 The `private_visibility_config` block supports:
 

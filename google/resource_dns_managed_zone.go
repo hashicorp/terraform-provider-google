@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/hashcode"
@@ -58,6 +59,66 @@ func resourceDnsManagedZone() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "Managed by Terraform",
+			},
+			"dnssec_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"default_key_specs": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"algorithm": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.StringInSlice([]string{"ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512", ""}, false),
+									},
+									"key_length": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										ForceNew: true,
+									},
+									"key_type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.StringInSlice([]string{"keySigning", "zoneSigning", ""}, false),
+									},
+									"kind": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Default:  "dns#dnsKeySpec",
+									},
+								},
+							},
+						},
+						"kind": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Default:  "dns#managedZoneDnsSecConfig",
+						},
+						"non_existence": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"nsec", "nsec3", ""}, false),
+						},
+						"state": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"off", "on", "transfer", ""}, false),
+						},
+					},
+				},
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -140,6 +201,12 @@ func resourceDnsManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("dns_name"); !isEmptyValue(reflect.ValueOf(dnsNameProp)) && (ok || !reflect.DeepEqual(v, dnsNameProp)) {
 		obj["dnsName"] = dnsNameProp
 	}
+	dnssecConfigProp, err := expandDnsManagedZoneDnssecConfig(d.Get("dnssec_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dnssec_config"); !isEmptyValue(reflect.ValueOf(dnssecConfigProp)) && (ok || !reflect.DeepEqual(v, dnssecConfigProp)) {
+		obj["dnssecConfig"] = dnssecConfigProp
+	}
 	nameProp, err := expandDnsManagedZoneName(d.Get("name"), d, config)
 	if err != nil {
 		return err
@@ -213,6 +280,9 @@ func resourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 	if err := d.Set("dns_name", flattenDnsManagedZoneDnsName(res["dnsName"], d)); err != nil {
+		return fmt.Errorf("Error reading ManagedZone: %s", err)
+	}
+	if err := d.Set("dnssec_config", flattenDnsManagedZoneDnssecConfig(res["dnssecConfig"], d)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 	if err := d.Set("name", flattenDnsManagedZoneName(res["name"], d)); err != nil {
@@ -322,6 +392,80 @@ func flattenDnsManagedZoneDnsName(v interface{}, d *schema.ResourceData) interfa
 	return v
 }
 
+func flattenDnsManagedZoneDnssecConfig(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kind"] =
+		flattenDnsManagedZoneDnssecConfigKind(original["kind"], d)
+	transformed["non_existence"] =
+		flattenDnsManagedZoneDnssecConfigNonExistence(original["nonExistence"], d)
+	transformed["state"] =
+		flattenDnsManagedZoneDnssecConfigState(original["state"], d)
+	transformed["default_key_specs"] =
+		flattenDnsManagedZoneDnssecConfigDefaultKeySpecs(original["defaultKeySpecs"], d)
+	return []interface{}{transformed}
+}
+func flattenDnsManagedZoneDnssecConfigKind(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenDnsManagedZoneDnssecConfigNonExistence(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenDnsManagedZoneDnssecConfigState(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenDnsManagedZoneDnssecConfigDefaultKeySpecs(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"algorithm":  flattenDnsManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(original["algorithm"], d),
+			"key_length": flattenDnsManagedZoneDnssecConfigDefaultKeySpecsKeyLength(original["keyLength"], d),
+			"key_type":   flattenDnsManagedZoneDnssecConfigDefaultKeySpecsKeyType(original["keyType"], d),
+			"kind":       flattenDnsManagedZoneDnssecConfigDefaultKeySpecsKind(original["kind"], d),
+		})
+	}
+	return transformed
+}
+func flattenDnsManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenDnsManagedZoneDnssecConfigDefaultKeySpecsKeyLength(v interface{}, d *schema.ResourceData) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		} // let terraform core handle it if we can't convert the string to an int.
+	}
+	return v
+}
+
+func flattenDnsManagedZoneDnssecConfigDefaultKeySpecsKeyType(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenDnsManagedZoneDnssecConfigDefaultKeySpecsKind(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
 func flattenDnsManagedZoneName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
@@ -389,6 +533,117 @@ func expandDnsManagedZoneDescription(v interface{}, d TerraformResourceData, con
 }
 
 func expandDnsManagedZoneDnsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDnsManagedZoneDnssecConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKind, err := expandDnsManagedZoneDnssecConfigKind(original["kind"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKind); val.IsValid() && !isEmptyValue(val) {
+		transformed["kind"] = transformedKind
+	}
+
+	transformedNonExistence, err := expandDnsManagedZoneDnssecConfigNonExistence(original["non_existence"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNonExistence); val.IsValid() && !isEmptyValue(val) {
+		transformed["nonExistence"] = transformedNonExistence
+	}
+
+	transformedState, err := expandDnsManagedZoneDnssecConfigState(original["state"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedState); val.IsValid() && !isEmptyValue(val) {
+		transformed["state"] = transformedState
+	}
+
+	transformedDefaultKeySpecs, err := expandDnsManagedZoneDnssecConfigDefaultKeySpecs(original["default_key_specs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultKeySpecs); val.IsValid() && !isEmptyValue(val) {
+		transformed["defaultKeySpecs"] = transformedDefaultKeySpecs
+	}
+
+	return transformed, nil
+}
+
+func expandDnsManagedZoneDnssecConfigKind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDnsManagedZoneDnssecConfigNonExistence(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDnsManagedZoneDnssecConfigState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDnsManagedZoneDnssecConfigDefaultKeySpecs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedAlgorithm, err := expandDnsManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(original["algorithm"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAlgorithm); val.IsValid() && !isEmptyValue(val) {
+			transformed["algorithm"] = transformedAlgorithm
+		}
+
+		transformedKeyLength, err := expandDnsManagedZoneDnssecConfigDefaultKeySpecsKeyLength(original["key_length"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedKeyLength); val.IsValid() && !isEmptyValue(val) {
+			transformed["keyLength"] = transformedKeyLength
+		}
+
+		transformedKeyType, err := expandDnsManagedZoneDnssecConfigDefaultKeySpecsKeyType(original["key_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedKeyType); val.IsValid() && !isEmptyValue(val) {
+			transformed["keyType"] = transformedKeyType
+		}
+
+		transformedKind, err := expandDnsManagedZoneDnssecConfigDefaultKeySpecsKind(original["kind"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedKind); val.IsValid() && !isEmptyValue(val) {
+			transformed["kind"] = transformedKind
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDnsManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDnsManagedZoneDnssecConfigDefaultKeySpecsKeyLength(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDnsManagedZoneDnssecConfigDefaultKeySpecsKeyType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDnsManagedZoneDnssecConfigDefaultKeySpecsKind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
