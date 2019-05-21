@@ -304,13 +304,17 @@ func flattenNestedResourceManagerLien(d *schema.ResourceData, meta interface{}, 
 	items := v.([]interface{})
 	for _, vRaw := range items {
 		item := vRaw.(map[string]interface{})
-		itemIdV := d.Get("name")
-		actualIdV := flattenResourceManagerLienName(item["name"], d)
-		log.Printf("[DEBUG] Checking if item's name (%#v) is equal to resource's (%#v)", itemIdV, actualIdV)
-		if !reflect.DeepEqual(itemIdV, actualIdV) {
+		var expectedV, itemV interface{}
+		var err error
+
+		expectedV = d.Get("name")
+		itemV = flattenResourceManagerLienName(item["name"], d)
+		log.Printf("[DEBUG] Checking if item's name (%#v) is equal to resource's (%#v)", itemV, expectedV)
+		if !reflect.DeepEqual(itemV, expectedV) {
 			continue
 		}
-		return item, nil
+
+		return item, err
 	}
 	return nil, nil
 }
