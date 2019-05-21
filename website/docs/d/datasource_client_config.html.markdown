@@ -51,4 +51,6 @@ In addition to the arguments listed above, the following attributes are exported
 
 * `region` - The region to operate under.
 
+* `zone` - The zone to operate under.
+
 * `access_token` - The OAuth2 access token used by the client to authenticate against the Google Cloud API.
