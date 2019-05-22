@@ -389,6 +389,8 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 				return fmt.Errorf("At most one website block is allowed")
 			}
 
+			sb.Website = &storage.BucketWebsite{}
+
 			// Setting fields to "" to be explicit that the PATCH call will
 			// delete this field.
 			if len(websites) == 0 || websites[0] == nil {
@@ -396,7 +398,6 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 				sb.Website.MainPageSuffix = ""
 			} else {
 				website := websites[0].(map[string]interface{})
-				sb.Website = &storage.BucketWebsite{}
 				if v, ok := website["not_found_page"]; ok {
 					sb.Website.NotFoundPage = v.(string)
 				} else {
