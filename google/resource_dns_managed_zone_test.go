@@ -96,6 +96,14 @@ resource "google_dns_managed_zone" "private" {
     networks {
       network_url = "${google_compute_network.%s.self_link}"
     }
+    dnssec_config {
+      state             = "on"
+      default_key_specs {
+        algorithm       = "rsasha1"
+        key_length      = "128"
+        key_type        = "zoneSigning"
+      }
+    }
   }
 }
 
