@@ -376,7 +376,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("cdn_policy"); !isEmptyValue(reflect.ValueOf(cdnPolicyProp)) && (ok || !reflect.DeepEqual(v, cdnPolicyProp)) {
 		obj["cdnPolicy"] = cdnPolicyProp
 	}
-	connectionDrainingProp, err := expandComputeBackendServiceConnectionDraining(d, config)
+	connectionDrainingProp, err := expandComputeBackendServiceConnectionDraining(nil, d, config)
 	if err != nil {
 		return err
 	} else if !isEmptyValue(reflect.ValueOf(connectionDrainingProp)) {
@@ -557,12 +557,15 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("cdn_policy", flattenComputeBackendServiceCdnPolicy(res["cdnPolicy"], d)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if v, ok := res["connectionDraining"].(map[string]interface{}); res["connectionDraining"] != nil && ok {
-		if err := d.Set("connection_draining_timeout_sec", flattenComputeBackendServiceConnectionDrainingConnection_draining_timeout_sec(v["drainingTimeoutSec"], d)); err != nil {
-			return fmt.Errorf("Error reading BackendService: %s", err)
+	// Terraform must set the top level schema field, but since this object contains collapsed properties
+	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
+	if flattenedProp := flattenComputeBackendServiceConnectionDraining(res["connectionDraining"], d); flattenedProp != nil {
+		casted := flattenedProp.([]interface{})[0]
+		if casted != nil {
+			for k, v := range casted.(map[string]interface{}) {
+				d.Set(k, v)
+			}
 		}
-	} else {
-		d.Set("connection_draining_timeout_sec", nil)
 	}
 	if err := d.Set("creation_timestamp", flattenComputeBackendServiceCreationTimestamp(res["creationTimestamp"], d)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
@@ -632,10 +635,10 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("cdn_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cdnPolicyProp)) {
 		obj["cdnPolicy"] = cdnPolicyProp
 	}
-	connectionDrainingProp, err := expandComputeBackendServiceConnectionDraining(d, config)
+	connectionDrainingProp, err := expandComputeBackendServiceConnectionDraining(nil, d, config)
 	if err != nil {
 		return err
-	} else if !isEmptyValue(reflect.ValueOf(connectionDrainingProp)) {
+	} else if v, ok := d.GetOkExists("connection_draining"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, connectionDrainingProp)) {
 		obj["connectionDraining"] = connectionDrainingProp
 	}
 	fingerprintProp, err := expandComputeBackendServiceFingerprint(d.Get("fingerprint"), d, config)
@@ -985,6 +988,19 @@ func flattenComputeBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{},
 	return v
 }
 
+func flattenComputeBackendServiceConnectionDraining(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["connection_draining_timeout_sec"] =
+		flattenComputeBackendServiceConnectionDrainingConnection_draining_timeout_sec(original["drainingTimeoutSec"], d)
+	return []interface{}{transformed}
+}
 func flattenComputeBackendServiceConnectionDrainingConnection_draining_timeout_sec(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
@@ -1299,9 +1315,8 @@ func expandComputeBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, 
 	return v, nil
 }
 
-func expandComputeBackendServiceConnectionDraining(d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeBackendServiceConnectionDraining(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
-	// Note that nesting flattened objects won't work because we don't handle them properly here.
 	transformedConnection_draining_timeout_sec, err := expandComputeBackendServiceConnectionDrainingConnection_draining_timeout_sec(d.Get("connection_draining_timeout_sec"), d, config)
 	if err != nil {
 		return nil, err

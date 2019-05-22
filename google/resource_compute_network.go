@@ -123,7 +123,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("auto_create_subnetworks"); !isEmptyValue(reflect.ValueOf(autoCreateSubnetworksProp)) && (ok || !reflect.DeepEqual(v, autoCreateSubnetworksProp)) {
 		obj["autoCreateSubnetworks"] = autoCreateSubnetworksProp
 	}
-	routingConfigProp, err := expandComputeNetworkRoutingConfig(d, config)
+	routingConfigProp, err := expandComputeNetworkRoutingConfig(nil, d, config)
 	if err != nil {
 		return err
 	} else if !isEmptyValue(reflect.ValueOf(routingConfigProp)) {
@@ -248,12 +248,15 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("auto_create_subnetworks", flattenComputeNetworkAutoCreateSubnetworks(res["autoCreateSubnetworks"], d)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
-	if v, ok := res["routingConfig"].(map[string]interface{}); res["routingConfig"] != nil && ok {
-		if err := d.Set("routing_mode", flattenComputeNetworkRoutingConfigRoutingMode(v["routingMode"], d)); err != nil {
-			return fmt.Errorf("Error reading Network: %s", err)
+	// Terraform must set the top level schema field, but since this object contains collapsed properties
+	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
+	if flattenedProp := flattenComputeNetworkRoutingConfig(res["routingConfig"], d); flattenedProp != nil {
+		casted := flattenedProp.([]interface{})[0]
+		if casted != nil {
+			for k, v := range casted.(map[string]interface{}) {
+				d.Set(k, v)
+			}
 		}
-	} else {
-		d.Set("routing_mode", nil)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
@@ -269,12 +272,8 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("routing_mode") {
 		obj := make(map[string]interface{})
-		routingConfigProp, err := expandComputeNetworkRoutingConfig(d, config)
-		if err != nil {
-			return err
-		} else if !isEmptyValue(reflect.ValueOf(routingConfigProp)) {
-			obj["routingConfig"] = routingConfigProp
-		}
+		routingModeProp := d.Get("routing_mode")
+		obj["routingMode"] = routingModeProp
 
 		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/networks/{{name}}")
 		if err != nil {
@@ -303,7 +302,7 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 
-		d.SetPartial("routing_config")
+		d.SetPartial("routing_mode")
 	}
 
 	d.Partial(false)
@@ -387,6 +386,19 @@ func flattenComputeNetworkAutoCreateSubnetworks(v interface{}, d *schema.Resourc
 	return v
 }
 
+func flattenComputeNetworkRoutingConfig(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["routing_mode"] =
+		flattenComputeNetworkRoutingConfigRoutingMode(original["routingMode"], d)
+	return []interface{}{transformed}
+}
 func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
@@ -407,9 +419,8 @@ func expandComputeNetworkAutoCreateSubnetworks(v interface{}, d TerraformResourc
 	return v, nil
 }
 
-func expandComputeNetworkRoutingConfig(d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeNetworkRoutingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
-	// Note that nesting flattened objects won't work because we don't handle them properly here.
 	transformedRoutingMode, err := expandComputeNetworkRoutingConfigRoutingMode(d.Get("routing_mode"), d, config)
 	if err != nil {
 		return nil, err
