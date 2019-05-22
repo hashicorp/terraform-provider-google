@@ -199,7 +199,7 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("timeout_sec"); !isEmptyValue(reflect.ValueOf(timeoutSecProp)) && (ok || !reflect.DeepEqual(v, timeoutSecProp)) {
 		obj["timeoutSec"] = timeoutSecProp
 	}
-	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(d, config)
+	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
 	if err != nil {
 		return err
 	} else if !isEmptyValue(reflect.ValueOf(connectionDrainingProp)) {
@@ -303,12 +303,15 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	if err := d.Set("timeout_sec", flattenComputeRegionBackendServiceTimeoutSec(res["timeoutSec"], d)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
-	if v, ok := res["connectionDraining"].(map[string]interface{}); res["connectionDraining"] != nil && ok {
-		if err := d.Set("connection_draining_timeout_sec", flattenComputeRegionBackendServiceConnectionDrainingConnection_draining_timeout_sec(v["drainingTimeoutSec"], d)); err != nil {
-			return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	// Terraform must set the top level schema field, but since this object contains collapsed properties
+	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
+	if flattenedProp := flattenComputeRegionBackendServiceConnectionDraining(res["connectionDraining"], d); flattenedProp != nil {
+		casted := flattenedProp.([]interface{})[0]
+		if casted != nil {
+			for k, v := range casted.(map[string]interface{}) {
+				d.Set(k, v)
+			}
 		}
-	} else {
-		d.Set("connection_draining_timeout_sec", nil)
 	}
 	if err := d.Set("load_balancing_scheme", flattenComputeRegionBackendServiceLoadBalancingScheme(res["loadBalancingScheme"], d)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
@@ -378,10 +381,10 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeoutSecProp)) {
 		obj["timeoutSec"] = timeoutSecProp
 	}
-	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(d, config)
+	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
 	if err != nil {
 		return err
-	} else if !isEmptyValue(reflect.ValueOf(connectionDrainingProp)) {
+	} else if v, ok := d.GetOkExists("connection_draining"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, connectionDrainingProp)) {
 		obj["connectionDraining"] = connectionDrainingProp
 	}
 	loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
@@ -551,6 +554,19 @@ func flattenComputeRegionBackendServiceTimeoutSec(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenComputeRegionBackendServiceConnectionDraining(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["connection_draining_timeout_sec"] =
+		flattenComputeRegionBackendServiceConnectionDrainingConnection_draining_timeout_sec(original["drainingTimeoutSec"], d)
+	return []interface{}{transformed}
+}
 func flattenComputeRegionBackendServiceConnectionDrainingConnection_draining_timeout_sec(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
@@ -640,9 +656,8 @@ func expandComputeRegionBackendServiceTimeoutSec(v interface{}, d TerraformResou
 	return v, nil
 }
 
-func expandComputeRegionBackendServiceConnectionDraining(d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionBackendServiceConnectionDraining(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
-	// Note that nesting flattened objects won't work because we don't handle them properly here.
 	transformedConnection_draining_timeout_sec, err := expandComputeRegionBackendServiceConnectionDrainingConnection_draining_timeout_sec(d.Get("connection_draining_timeout_sec"), d, config)
 	if err != nil {
 		return nil, err
