@@ -204,15 +204,6 @@ The following arguments are supported:
   be a dash, lowercase letter, or digit,
   except the last character, which cannot be a dash.
 
-* `target_vpn_gateway` -
-  (Required)
-  URL of the Target VPN gateway with which this VPN tunnel is
-  associated.
-
-* `peer_ip` -
-  (Required)
-  IP address of the peer VPN gateway. Only IPv4 is supported.
-
 * `shared_secret` -
   (Required)
   Shared secret used to set the secure session between the Cloud VPN
@@ -226,9 +217,18 @@ The following arguments are supported:
   (Optional)
   An optional description of this resource.
 
+* `target_vpn_gateway` -
+  (Optional)
+  URL of the Target VPN gateway with which this VPN tunnel is
+  associated.
+
 * `router` -
   (Optional)
   URL of router resource to be used for dynamic routing.
+
+* `peer_ip` -
+  (Optional)
+  IP address of the peer VPN gateway. Only IPv4 is supported.
 
 * `ike_version` -
   (Optional)
