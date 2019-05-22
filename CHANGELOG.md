@@ -1,5 +1,8 @@
 ## 2.7.1 (Unreleased)
 
+BUG FIXES:
+* storage: Fix occasional crash when updating storage buckets [GH-3686]
+
 ## 2.7.0 (May 21, 2019)
 
 NOTE:
