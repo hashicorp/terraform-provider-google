@@ -8,7 +8,7 @@ description: |-
 
 # Google Cloud Platform Provider
 
--> Want more information about upgrading from `1.X` of the provider to `2.0.0`? Check out the [2.0.0 Upgrade Guide](https://terraform.io/docs/providers/google/version_2_upgrade.html).
+-> Try out Terraform 0.12 with the Google provider! `google` and `google-beta` are 0.12-compatible from `2.5.0` onwards.
 
 The Google provider is used to configure your [Google Cloud Platform](https://cloud.google.com/) infrastructure. 
 See the [Getting Started](/docs/providers/google/getting_started.html) page for an introduction to using the provider.
