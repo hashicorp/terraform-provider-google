@@ -1,4 +1,7 @@
-## 2.7.1 (Unreleased)
+## 2.8.0 (Unreleased)
+
+FEATURES:
+* **New Datasource**: `google_compute_ssl_certificate` [GH-3683]
 
 BUG FIXES:
 * storage: Fix occasional crash when updating storage buckets [GH-3686]
