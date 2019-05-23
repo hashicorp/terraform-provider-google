@@ -150,23 +150,11 @@ func resourceComputeVpnTunnel() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"peer_ip": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validatePeerAddr,
-			},
 			"shared_secret": {
 				Type:      schema.TypeString,
 				Required:  true,
 				ForceNew:  true,
 				Sensitive: true,
-			},
-			"target_vpn_gateway": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -189,6 +177,13 @@ func resourceComputeVpnTunnel() *schema.Resource {
 				},
 				Set: schema.HashString,
 			},
+			"peer_ip": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validatePeerAddr,
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -207,6 +202,12 @@ func resourceComputeVpnTunnel() *schema.Resource {
 				Set: schema.HashString,
 			},
 			"router": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+			},
+			"target_vpn_gateway": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
