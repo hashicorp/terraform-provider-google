@@ -50,7 +50,7 @@ resource "google_compute_instance_iam_binding" "instance" {
 }
 ```
 
-## google\compute\_instance\_iam\_member
+## google\_compute\_instance\_iam\_member
 
 ```hcl
 resource "google_compute_instance_iam_member" "instance" {
