@@ -138,7 +138,7 @@ github.com/hashicorp/hil/parser
 github.com/hashicorp/hil/scanner
 # github.com/hashicorp/logutils v1.0.0
 github.com/hashicorp/logutils
-# github.com/hashicorp/terraform v0.12.0-rc1.0.20190517222244-f19903073985
+# github.com/hashicorp/terraform v0.12.0
 github.com/hashicorp/terraform/plugin
 github.com/hashicorp/terraform/helper/customdiff
 github.com/hashicorp/terraform/helper/encryption
