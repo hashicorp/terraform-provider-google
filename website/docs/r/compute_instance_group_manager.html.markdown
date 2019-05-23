@@ -239,8 +239,10 @@ exported:
 
 ## Import
 
-Instance group managers can be imported using the `name`, e.g.
+Instance group managers can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_compute_instance_group_manager.appserver appserver-igm
+$ terraform import google_compute_instance_group_manager.appserver {{project}}/{{zone}}/{{name}}
+$ terraform import google_compute_instance_group_manager.appserver {{project}}/{{name}}
+$ terraform import google_compute_instance_group_manager.appserver {{name}}
 ```
