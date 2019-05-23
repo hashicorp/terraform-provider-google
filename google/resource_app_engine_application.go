@@ -41,23 +41,6 @@ func resourceAppEngineApplication() *schema.Resource {
 			"location_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"northamerica-northeast1",
-					"us-central",
-					"us-west2",
-					"us-east1",
-					"us-east4",
-					"southamerica-east1",
-					"europe-west",
-					"europe-west2",
-					"europe-west3",
-					"europe-west6",
-					"asia-northeast1",
-					"asia-northeast2",
-					"asia-east2",
-					"asia-south1",
-					"australia-southeast1",
-				}, false),
 			},
 			"serving_status": {
 				Type:     schema.TypeString,
