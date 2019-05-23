@@ -305,6 +305,9 @@ to the datasource. A `region` can have a different set of supported versions tha
 * `subnetwork` - (Optional) The name or self_link of the Google Compute Engine subnetwork in
     which the cluster's instances are launched.
 
+* `vertical_pod_autoscaling` - Vertical Pod Autoscaling automatically adjusts the resources of pods controlled by it.
+    Structure is documented below.
+
 The `addons_config` block supports:
 
 * `horizontal_pod_autoscaling` - (Optional) The status of the Horizontal Pod Autoscaling
@@ -590,6 +593,10 @@ The `workload_metadata_config` block supports:
     * UNSPECIFIED: Not Set
     * SECURE: Prevent workloads not in hostNetwork from accessing certain VM metadata, specifically kube-env, which contains Kubelet credentials, and the instance identity token. See [Metadata Concealment](https://cloud.google.com/kubernetes-engine/docs/how-to/metadata-proxy) documentation.
     * EXPOSE: Expose all VM metadata to pods.
+
+The `vertical_pod_autoscaling` block supports:
+
+* `enabled` (Required) - Enables vertical pod autoscaling
 
 ## Attributes Reference
 
