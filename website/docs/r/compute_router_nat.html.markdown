@@ -89,6 +89,10 @@ resource "google_compute_router_nat" "advanced-nat" {
     name                    = "${google_compute_subnetwork.default.self_link}"
     source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
   }
+  log_config {
+    filter = "TRANSLATIONS_ONLY"
+    enable = true
+  }
 }
 ```
 
@@ -157,6 +161,13 @@ The `subnetwork` block supports:
 * `secondary_ip_range_names` - (Optional) List of the secondary ranges of the subnetwork
     that are allowed to use NAT. This can be populated only if
     `LIST_OF_SECONDARY_IP_RANGES` is one of the values in `source_ip_ranges_to_nat`.
+
+The `log_config` block supports:
+
+* `filter` - (Required) Specifies the desired filtering of logs on this NAT.
+    Valid values include: `ALL`, `ERRORS_ONLY`, `TRANSLATIONS_ONLY`
+
+* `enable` - (Required) Whether to export logs.
 
 ## Import
 

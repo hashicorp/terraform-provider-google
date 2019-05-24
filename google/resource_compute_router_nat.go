@@ -43,6 +43,24 @@ var (
 	}
 )
 
+var (
+	routerNatLogConfig = &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enable": {
+				Type:     schema.TypeBool,
+				ForceNew: true,
+				Required: true,
+			},
+			"filter": {
+				Type:         schema.TypeString,
+				ForceNew:     true,
+				Required:     true,
+				ValidateFunc: validation.StringInSlice([]string{"ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"}, false),
+			},
+		},
+	}
+)
+
 func resourceComputeRouterNat() *schema.Resource {
 	return &schema.Resource{
 		// TODO(https://github.com/GoogleCloudPlatform/magic-modules/issues/963): Implement Update
@@ -119,6 +137,13 @@ func resourceComputeRouterNat() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"log_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem:     routerNatLogConfig,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -189,6 +214,10 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 		nat.Subnetworks = expandSubnetworks(v.(*schema.Set).List())
 	}
 
+	if v, ok := d.GetOk("log_config"); ok {
+		nat.LogConfig = expandLogConfig(v)
+	}
+
 	log.Printf("[INFO] Adding nat %s", natName)
 	nats = append(nats, nat)
 	patchRouter := &computeBeta.Router{
@@ -256,6 +285,10 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 			d.Set("project", project)
 
 			if err := d.Set("subnetwork", flattenRouterNatSubnetworkToNatBeta(nat.Subnetworks)); err != nil {
+				return fmt.Errorf("Error reading router nat: %s", err)
+			}
+
+			if err := d.Set("log_config", flattenRouterNatLogConfig(nat.LogConfig)); err != nil {
 				return fmt.Errorf("Error reading router nat: %s", err)
 			}
 
@@ -351,6 +384,30 @@ func resourceComputeRouterNatImportState(d *schema.ResourceData, meta interface{
 	d.Set("name", parts[2])
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func flattenRouterNatLogConfig(logConfig *computeBeta.RouterNatLogConfig) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, 1)
+	if logConfig != nil {
+		cfg := map[string]interface{}{}
+		cfg["filter"] = logConfig.Filter
+		cfg["enable"] = logConfig.Enable
+		result = append(result, cfg)
+	}
+	return result
+}
+
+func expandLogConfig(logConfigs interface{}) *computeBeta.RouterNatLogConfig {
+	configs := logConfigs.([]interface{})
+	if len(configs) == 0 || configs[0] == nil {
+		return nil
+	}
+	cfg := configs[0].(map[string]interface{})
+	result := computeBeta.RouterNatLogConfig{
+		Filter: cfg["filter"].(string),
+		Enable: cfg["enable"].(bool),
+	}
+	return &result
 }
 
 func expandSubnetworks(subnetworks []interface{}) []*computeBeta.RouterNatSubnetworkToNat {
