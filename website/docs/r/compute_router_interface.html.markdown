@@ -35,13 +35,23 @@ The following arguments are supported:
 * `router` - (Required) The name of the router this interface will be attached to.
     Changing this forces a new interface to be created.
 
-* `vpn_tunnel` - (Required) The name or resource link to the VPN tunnel this
-    interface will be linked to. Changing this forces a new interface to be created.
+In addition to the above required fields, a router interface must have specified
+either `ip_range` or exactly one of `vpn_tunnel` or `interconnect_attachment`,
+or both.
 
 - - -
 
 * `ip_range` - (Optional) IP address and range of the interface. The IP range must be
     in the RFC3927 link-local IP space. Changing this forces a new interface to be created.
+
+* `vpn_tunnel` - (Optional) The name or resource link to the VPN tunnel this
+    interface will be linked to. Changing this forces a new interface to be created. Only
+    one of `vpn_tunnel` and `interconnect_attachment` can be specified.
+
+* `interconnect_attachment` - (Optional) The name or resource link to the
+  VLAN interconnect for this interface. Changing this forces a new interface to
+  be created. Only one of `vpn_tunnel` and `interconnect_attachment` can be
+  specified.
 
 * `project` - (Optional) The ID of the project in which this interface's router belongs. If it
     is not provided, the provider project is used. Changing this forces a new interface to be created.
