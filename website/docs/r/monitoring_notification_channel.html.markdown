@@ -27,12 +27,25 @@ when a policy violation is detected. Examples of channels include email, SMS,
 and third-party messaging applications. Fields containing sensitive information
 like authentication tokens or contact info are only partially populated on retrieval.
 
+Notification Channels are designed to be flexible and are made up of a supported `type`
+and labels to configure that channel. Each `type` has specific labels that need to be
+present for that channel to be correctly configured. The labels that are required to be
+present for one channel `type` are often different than those requried for another.
+Due to these loose constraints it's often best to set up a channel through the UI
+and import to Terraform when setting up a brand new channel type to determine which
+labels are required.
+
+A list of supported channels per project the `list` endpoint can be
+accessed programatically or through the api explorer at  https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.notificationChannelDescriptors/list .
+This provides the channel type and all of the required labels that must be passed.
+
 
 To get more information about NotificationChannel, see:
 
 * [API documentation](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.notificationChannels)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/monitoring/api/v3/)
+    * [Notification Options](https://cloud.google.com/monitoring/support/notification-options)
+    * [Monitoring API Documentation](https://cloud.google.com/monitoring/api/v3/)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=notification_channel_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
