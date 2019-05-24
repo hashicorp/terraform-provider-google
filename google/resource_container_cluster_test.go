@@ -12,6 +12,69 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
+func TestContainerClusterIpAllocationCustomizeDiff(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		BeforePolicy      []interface{}
+		AfterPolicy       []interface{}
+		ExpectDiffCleared bool
+	}{
+		"empty to false value": {
+			BeforePolicy: []interface{}{},
+			AfterPolicy: []interface{}{
+				map[string]interface{}{
+					"use_ip_aliases": false,
+				},
+			},
+			ExpectDiffCleared: true,
+		},
+		"empty to true value": {
+			BeforePolicy: []interface{}{},
+			AfterPolicy: []interface{}{
+				map[string]interface{}{
+					"use_ip_aliases": true,
+				},
+			},
+			ExpectDiffCleared: false,
+		},
+		"empty to empty": {
+			BeforePolicy:      []interface{}{},
+			AfterPolicy:       []interface{}{},
+			ExpectDiffCleared: false,
+		},
+		"non-empty to non-empty": {
+			BeforePolicy: []interface{}{
+				map[string]interface{}{
+					"use_ip_aliases": false,
+				},
+			},
+			AfterPolicy: []interface{}{
+				map[string]interface{}{
+					"use_ip_aliases": false,
+				},
+			},
+		},
+	}
+
+	for tn, tc := range cases {
+		d := &ResourceDiffMock{
+			Before: map[string]interface{}{
+				"ip_allocation_policy": tc.BeforePolicy,
+			},
+			After: map[string]interface{}{
+				"ip_allocation_policy": tc.AfterPolicy,
+			},
+		}
+		if err := resourceContainerClusterIpAllocationCustomizeDiffFunc(d); err != nil {
+			t.Errorf("%s failed, error calculating diff: %s", tn, err)
+		}
+		if _, ok := d.Cleared["ip_allocation_policy"]; ok != tc.ExpectDiffCleared {
+			t.Errorf("%s failed, expected cleared to be %v, was %v", tn, tc.ExpectDiffCleared, ok)
+		}
+	}
+}
+
 func TestAccContainerCluster_basic(t *testing.T) {
 	t.Parallel()
 

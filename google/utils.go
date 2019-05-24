@@ -27,6 +27,11 @@ type TerraformResourceData interface {
 	Id() string
 }
 
+type TerraformResourceDiff interface {
+	GetChange(string) (interface{}, interface{})
+	Clear(string) error
+}
+
 // getRegionFromZone returns the region from a zone for Google cloud.
 func getRegionFromZone(zone string) string {
 	if zone != "" && len(zone) > 2 {

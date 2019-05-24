@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"regexp"
 	"strings"
 	"time"
@@ -52,6 +53,8 @@ func resourceContainerCluster() *schema.Resource {
 		Read:   resourceContainerClusterRead,
 		Update: resourceContainerClusterUpdate,
 		Delete: resourceContainerClusterDelete,
+
+		CustomizeDiff: resourceContainerClusterIpAllocationCustomizeDiff,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -617,6 +620,36 @@ func resourceContainerCluster() *schema.Resource {
 			},
 		},
 	}
+}
+
+func resourceContainerClusterIpAllocationCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	// separate func to allow unit testing
+	return resourceContainerClusterIpAllocationCustomizeDiffFunc(diff)
+}
+
+func resourceContainerClusterIpAllocationCustomizeDiffFunc(diff TerraformResourceDiff) error {
+	o, n := diff.GetChange("ip_allocation_policy")
+
+	oList := o.([]interface{})
+	nList := n.([]interface{})
+	if len(oList) > 0 || len(nList) == 0 {
+		// we only care about going from unset to set, so return early if the field was set before
+		// or is unset now
+		return nil
+	}
+
+	// Unset is equivalent to a block where all the values are zero
+	// This might change if use_ip_aliases ends up defaulting to true server-side.
+	// The console says it will eventually, but it's unclear whether that's in the API
+	// too or just client code.
+	polMap := nList[0].(map[string]interface{})
+	for _, v := range polMap {
+		if !isEmptyValue(reflect.ValueOf(v)) {
+			// found a non-empty value, so continue with the diff as it was
+			return nil
+		}
+	}
+	return diff.Clear("ip_allocation_policy")
 }
 
 func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) error {
