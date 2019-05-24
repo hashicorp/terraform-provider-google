@@ -115,7 +115,7 @@ var invalidPeerAddrs = []struct {
 }
 
 func getVpnTunnelLink(config *Config, project string, region string, tunnel string) (string, error) {
-	if !strings.HasPrefix(tunnel, "https://www.googleapis.com/compute/") {
+	if !strings.Contains(tunnel, "/") {
 		// Tunnel value provided is just the name, lookup the tunnel SelfLink
 		tunnelData, err := config.clientCompute.VpnTunnels.Get(
 			project, region, tunnel).Do()
