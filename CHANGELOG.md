@@ -6,6 +6,14 @@ FEATURES:
 BUG FIXES:
 * storage: Fix occasional crash when updating storage buckets [GH-3686]
 
+ENHANCEMENTS:
+* compute: `google_compute_router_interface` now supports specifying an `interconnect_attachment`. ([#2116](https://github.com/terraform-providers/terraform-provider-google/issues/2116))
+* compute: `google_compute_router_nat` now supports specifying a `log_config` block ([#3548](https://github.com/terraform-providers/terraform-provider-google/issues/3548))
+* compute: `google_compute_network_peering` now supports importing/exporting custom routes ([#3394](https://github.com/terraform-providers/terraform-provider-google/issues/3394))
+
+DEPRECATIONS:
+* compute: The `auto_create_routes` field on `google_compute_network_peering` has been deprecated because it is not user configurable. ([#3394](https://github.com/terraform-providers/terraform-provider-google/issues/3394))
+
 ## 2.7.0 (May 21, 2019)
 
 NOTE:
