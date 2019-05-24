@@ -8,7 +8,8 @@ description: |-
 
 # Google Provider Versions
 
-Starting with version `1.19.0`, there are two versions of the Google provider:
+Starting with the `1.19.0` release, there are two versions of the Google
+provider:
 
 * `google`
 
@@ -23,8 +24,8 @@ supports GCP products and features that are in beta, while `google` does not.
 Fields and resources that are only present in `google-beta` will be marked as
 such in the shared provider documentation.
 
-`1.X` versions of the `google` provider supported beta features; from `2.0.0`
-onwards, beta features are only supported in `google-beta`.
+`1.X` series releases of the `google` provider supported beta features; from
+`2.0.0` onwards, beta features are only supported in `google-beta`.
 
 Beta GCP features have no deprecation policy and no SLA, but are otherwise considered to be feature-complete
 with only minor outstanding issues after their Alpha period. Beta is when GCP
