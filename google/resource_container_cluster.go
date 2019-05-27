@@ -1908,6 +1908,24 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 	d.Set("name", clusterName)
 	d.SetId(clusterName)
 
+	if config.WaitOnImport {
+		err := resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+			name := containerClusterFullName(project, location, clusterName)
+			cluster, err := config.clientContainerBeta.Projects.Locations.Clusters.Get(name).Do()
+			if err != nil {
+				return resource.NonRetryableError(err)
+			}
+			if cluster.Status != "RUNNING" {
+				return resource.RetryableError(fmt.Errorf("Cluster %q has status %q with message %q", d.Get("name"), cluster.Status, cluster.StatusMessage))
+			}
+			return nil
+		})
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 

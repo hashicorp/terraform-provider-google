@@ -74,6 +74,12 @@ func Provider() terraform.ResourceProvider {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+
+			"wait_on_import": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -283,9 +289,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := Config{
-		Project: d.Get("project").(string),
-		Region:  d.Get("region").(string),
-		Zone:    d.Get("zone").(string),
+		Project:      d.Get("project").(string),
+		Region:       d.Get("region").(string),
+		Zone:         d.Get("zone").(string),
+		WaitOnImport: d.Get("wait_on_import").(bool),
 	}
 
 	// Add credential source

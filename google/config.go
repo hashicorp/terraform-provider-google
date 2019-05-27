@@ -51,12 +51,13 @@ import (
 // Config is the configuration structure used to instantiate the Google
 // provider.
 type Config struct {
-	Credentials string
-	AccessToken string
-	Project     string
-	Region      string
-	Zone        string
-	Scopes      []string
+	Credentials  string
+	AccessToken  string
+	Project      string
+	Region       string
+	Zone         string
+	Scopes       []string
+	WaitOnImport bool
 
 	client    *http.Client
 	userAgent string
