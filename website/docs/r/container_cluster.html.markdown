@@ -16,7 +16,66 @@ and [the API reference](https://cloud.google.com/kubernetes-engine/docs/referenc
 passwords as well as certificate outputs will be stored in the raw state as
 plaintext. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
 
-## Example Usage - with a separately managed node pool (recommended)
+## Example Usage - with the default node pool (Recommended)
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "marcellus-wallace"
+  location           = "us-central1-a"
+  initial_node_count = 3
+
+  # Setting an empty username and password explicitly disables basic auth
+  master_auth {
+    username = ""
+    password = ""
+  }
+
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+
+    metadata {
+      disable-legacy-endpoints = "true"
+    }
+
+    labels = {
+      foo = "bar"
+    }
+
+    tags = ["foo", "bar"]
+  }
+
+  timeouts {
+    create = "30m"
+    update = "40m"
+  }
+}
+
+# The following outputs allow authentication and connectivity to the GKE Cluster
+# by using certificate-based authentication.
+output "client_certificate" {
+  value = "${google_container_cluster.primary.master_auth.0.client_certificate}"
+}
+
+output "client_key" {
+  value = "${google_container_cluster.primary.master_auth.0.client_key}"
+}
+
+output "cluster_ca_certificate" {
+  value = "${google_container_cluster.primary.master_auth.0.cluster_ca_certificate}"
+}
+```
+
+## Example Usage - with a separately managed node pool
+
+~> **Warning:** Until
+[#2114](https://github.com/terraform-providers/terraform-provider-google/issues/2115)
+is resolved, this will most likely recreate the cluster on each terraform
+apply! Until this is fixed, the safest alternative is to use the default node
+pool provided, as described above.
+
 
 ```hcl
 resource "google_container_cluster" "primary" {
@@ -72,57 +131,6 @@ output "cluster_ca_certificate" {
 }
 ```
 
-## Example Usage - with the default node pool
-
-```hcl
-resource "google_container_cluster" "primary" {
-  name               = "marcellus-wallace"
-  location           = "us-central1-a"
-  initial_node_count = 3
-
-  # Setting an empty username and password explicitly disables basic auth
-  master_auth {
-    username = ""
-    password = ""
-  }
-
-  node_config {
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring",
-    ]
-
-    metadata {
-      disable-legacy-endpoints = "true"
-    }
-
-    labels = {
-      foo = "bar"
-    }
-
-    tags = ["foo", "bar"]
-  }
-
-  timeouts {
-    create = "30m"
-    update = "40m"
-  }
-}
-
-# The following outputs allow authentication and connectivity to the GKE Cluster
-# by using certificate-based authentication.
-output "client_certificate" {
-  value = "${google_container_cluster.primary.master_auth.0.client_certificate}"
-}
-
-output "client_key" {
-  value = "${google_container_cluster.primary.master_auth.0.client_key}"
-}
-
-output "cluster_ca_certificate" {
-  value = "${google_container_cluster.primary.master_auth.0.cluster_ca_certificate}"
-}
-```
 
 ## Argument Reference
 
