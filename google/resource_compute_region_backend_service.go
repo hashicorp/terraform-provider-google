@@ -23,8 +23,13 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/api/compute/v1"
 )
+
+func migrateStateNoop(v int, is *terraform.InstanceState, meta interface{}) (*terraform.InstanceState, error) {
+	return is, nil
+}
 
 func resourceComputeRegionBackendService() *schema.Resource {
 	return &schema.Resource{
@@ -44,6 +49,7 @@ func resourceComputeRegionBackendService() *schema.Resource {
 		},
 
 		SchemaVersion: 1,
+		MigrateState:  migrateStateNoop,
 
 		Schema: map[string]*schema.Schema{
 			"health_checks": {
