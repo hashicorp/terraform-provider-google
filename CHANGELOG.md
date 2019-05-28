@@ -13,6 +13,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * compute: allow setting firewall priority to 0 [GH-3700]
+* container: allow going from no ip_allocation_policy to a blank-equivalent one [GH-3723]
 * storage: Fix occasional crash when updating storage buckets [GH-3686]
 
 ## 2.7.0 (May 21, 2019)
