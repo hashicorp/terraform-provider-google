@@ -62,6 +62,24 @@ func (d *ResourceDataMock) Id() string {
 	return d.id
 }
 
+type ResourceDiffMock struct {
+	Before  map[string]interface{}
+	After   map[string]interface{}
+	Cleared map[string]struct{}
+}
+
+func (d *ResourceDiffMock) GetChange(key string) (interface{}, interface{}) {
+	return d.Before[key], d.After[key]
+}
+
+func (d *ResourceDiffMock) Clear(key string) error {
+	if d.Cleared == nil {
+		d.Cleared = map[string]struct{}{}
+	}
+	d.Cleared[key] = struct{}{}
+	return nil
+}
+
 func toBool(attribute string) (bool, error) {
 	// Handle the case where an unset value defaults to false
 	if attribute == "" {
