@@ -787,7 +787,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	// If the existing config specifies "metadata.startup-script" instead of "metadata_startup_script",
 	// we shouldn't move the remote metadata.startup-script to metadata_startup_script.  Otherwise,
 	// we should.
-	if ss, ok := existingMetadata["startup-script"]; !ok || ss == "" {
+	if _, ok := existingMetadata["startup-script"]; !ok {
 		d.Set("metadata_startup_script", md["startup-script"])
 		// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
 		// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
