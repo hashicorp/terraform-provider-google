@@ -14,6 +14,7 @@ ENHANCEMENTS:
 BUG FIXES:
 * compute: allow setting firewall priority to 0 [GH-3700]
 * compute: Resolved an issue where `google_compute_region_backend_service` was unable to perform a state migration. [GH-3731]
+* compute: allow empty metadata.startup-script on instances [GH-3732]
 * container: allow going from no ip_allocation_policy to a blank-equivalent one [GH-3723]
 * storage: Fix occasional crash when updating storage buckets [GH-3686]
 
