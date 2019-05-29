@@ -29,10 +29,13 @@ resource "google_container_cluster" "primary" {
   remove_default_node_pool = true
   initial_node_count = 1
 
-  # Setting an empty username and password explicitly disables basic auth
   master_auth {
     username = ""
     password = ""
+
+    client_certificate_config {
+      issue_client_certificate = false
+    }
   }
 }
 
@@ -56,20 +59,6 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
     ]
   }
 }
-
-# The following outputs allow authentication and connectivity to the GKE Cluster
-# by using certificate-based authentication.
-output "client_certificate" {
-  value = "${google_container_cluster.primary.master_auth.0.client_certificate}"
-}
-
-output "client_key" {
-  value = "${google_container_cluster.primary.master_auth.0.client_key}"
-}
-
-output "cluster_ca_certificate" {
-  value = "${google_container_cluster.primary.master_auth.0.cluster_ca_certificate}"
-}
 ```
 
 ## Example Usage - with the default node pool
@@ -80,10 +69,13 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   initial_node_count = 3
 
-  # Setting an empty username and password explicitly disables basic auth
   master_auth {
     username = ""
     password = ""
+
+    client_certificate_config {
+      issue_client_certificate = false
+    }
   }
 
   node_config {
@@ -107,20 +99,6 @@ resource "google_container_cluster" "primary" {
     create = "30m"
     update = "40m"
   }
-}
-
-# The following outputs allow authentication and connectivity to the GKE Cluster
-# by using certificate-based authentication.
-output "client_certificate" {
-  value = "${google_container_cluster.primary.master_auth.0.client_certificate}"
-}
-
-output "client_key" {
-  value = "${google_container_cluster.primary.master_auth.0.client_key}"
-}
-
-output "cluster_ca_certificate" {
-  value = "${google_container_cluster.primary.master_auth.0.cluster_ca_certificate}"
 }
 ```
 
