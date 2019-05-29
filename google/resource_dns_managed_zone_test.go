@@ -68,6 +68,50 @@ func TestAccDnsManagedZone_privateUpdate(t *testing.T) {
 	})
 }
 
+func TestAccDnsManagedZone_dnssec_on(t *testing.T) {
+	t.Parallel()
+
+	zoneSuffix := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsManagedZoneDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsManagedZone_dnssec_on(zoneSuffix),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccDnsManagedZone_dnssec_off(t *testing.T) {
+	t.Parallel()
+
+	zoneSuffix := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsManagedZoneDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsManagedZone_dnssec_off(zoneSuffix),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccDnsManagedZone_basic(suffix, description string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
@@ -80,6 +124,40 @@ resource "google_dns_managed_zone" "foobar" {
 
 	visibility = "public"
 }`, suffix, suffix, description)
+}
+
+func testAccDnsManagedZone_dnssec_on(suffix string) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "foobar" {
+  name     = "mzone-test-%s"
+  dns_name = "tf-acctest-%s.hashicorptest.com."
+
+  dnssec_config {
+    state = "on"
+    default_key_specs {
+      algorithm  = "rsasha256"
+      key_length = "2048"
+      key_type   = "zoneSigning"
+    }
+    default_key_specs {
+      algorithm  = "rsasha256"
+      key_length = "2048"
+      key_type   = "keySigning"
+    }
+  }
+}`, suffix, suffix)
+}
+
+func testAccDnsManagedZone_dnssec_off(suffix string) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "foobar" {
+  name     = "mzone-test-%s"
+  dns_name = "tf-acctest-%s.hashicorptest.com."
+
+  dnssec_config {
+    state = "off"
+  }
+}`, suffix, suffix)
 }
 
 func testAccDnsManagedZone_privateUpdate(suffix, first_network, second_network string) string {
@@ -95,14 +173,6 @@ resource "google_dns_managed_zone" "private" {
     }
     networks {
       network_url = "${google_compute_network.%s.self_link}"
-    }
-    dnssec_config {
-      state             = "on"
-      default_key_specs {
-        algorithm       = "rsasha1"
-        key_length      = "128"
-        key_type        = "zoneSigning"
-      }
     }
   }
 }

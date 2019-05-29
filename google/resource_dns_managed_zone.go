@@ -69,6 +69,7 @@ func resourceDnsManagedZone() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"default_key_specs": {
 							Type:     schema.TypeList,
+							Computed: true,
 							Optional: true,
 							ForceNew: true,
 							Elem: &schema.Resource{
@@ -107,6 +108,7 @@ func resourceDnsManagedZone() *schema.Resource {
 						},
 						"non_existence": {
 							Type:         schema.TypeString,
+							Computed:     true,
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"nsec", "nsec3", ""}, false),
