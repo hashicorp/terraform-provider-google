@@ -228,8 +228,8 @@ func testAccComposerEnvironmentDestroy(s *terraform.State) error {
 func testAccComposerEnvironment_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
-  name           = "%s"
-  region         = "us-central1"
+	name           = "%s"
+	region         = "us-central1"
 }
 `, name)
 }
@@ -244,6 +244,7 @@ resource "google_composer_environment" "test" {
 		node_count = 4
 
 		software_config {
+
 			airflow_config_overrides = {
 			  core-load_example = "True"
 			}
