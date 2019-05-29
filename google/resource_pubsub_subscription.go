@@ -183,7 +183,7 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	expirationPolicyProp, err := expandPubsubSubscriptionExpirationPolicy(d.Get("expiration_policy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("expiration_policy"); !isEmptyValue(reflect.ValueOf(expirationPolicyProp)) && (ok || !reflect.DeepEqual(v, expirationPolicyProp)) {
+	} else if v, ok := d.GetOkExists("expiration_policy"); ok || !reflect.DeepEqual(v, expirationPolicyProp) {
 		obj["expirationPolicy"] = expirationPolicyProp
 	}
 
@@ -301,7 +301,7 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	expirationPolicyProp, err := expandPubsubSubscriptionExpirationPolicy(d.Get("expiration_policy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("expiration_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, expirationPolicyProp)) {
+	} else if v, ok := d.GetOkExists("expiration_policy"); ok || !reflect.DeepEqual(v, expirationPolicyProp) {
 		obj["expirationPolicy"] = expirationPolicyProp
 	}
 
@@ -455,9 +455,6 @@ func flattenPubsubSubscriptionExpirationPolicy(v interface{}, d *schema.Resource
 		return nil
 	}
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
 	transformed["ttl"] =
 		flattenPubsubSubscriptionExpirationPolicyTtl(original["ttl"], d)
@@ -576,8 +573,13 @@ func expandPubsubSubscriptionRetainAckedMessages(v interface{}, d TerraformResou
 
 func expandPubsubSubscriptionExpirationPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})
@@ -605,7 +607,9 @@ func resourcePubsubSubscriptionUpdateEncoder(d *schema.ResourceData, meta interf
 
 func resourcePubsubSubscriptionDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 
+	// path is a derived field from the API-side `name`
 	path := fmt.Sprintf("projects/%s/subscriptions/%s", d.Get("project"), d.Get("name"))
 	d.Set("path", path)
+
 	return res, nil
 }
