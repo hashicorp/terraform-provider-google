@@ -5,8 +5,6 @@ import (
 	"log"
 	"time"
 
-	"strings"
-
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	computeBeta "google.golang.org/api/compute/v0.beta"
@@ -68,7 +66,7 @@ func resourceComputeRouterNat() *schema.Resource {
 		Read:   resourceComputeRouterNatRead,
 		Delete: resourceComputeRouterNatDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceComputeRouterNatImportState,
+			State: resourceComputeRouterNatImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -229,7 +227,7 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
-	d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, natName))
+	d.SetId(fmt.Sprintf("%s/%s/%s/%s", project, region, routerName, natName))
 	err = computeBetaOperationWaitTime(config.clientCompute, op, project, "Patching router", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if err != nil {
 		d.SetId("")
@@ -373,15 +371,18 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceComputeRouterNatImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid router nat specifier. Expecting {region}/{router}/{nat}")
+func resourceComputeRouterNatImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	if err := parseImportId([]string{"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)", "(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)", "(?P<router>[^/]+)/(?P<name>[^/]+)"}, d, config); err != nil {
+		return nil, err
 	}
 
-	d.Set("region", parts[0])
-	d.Set("router", parts[1])
-	d.Set("name", parts[2])
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
 }
