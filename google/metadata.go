@@ -3,6 +3,7 @@ package google
 import (
 	"errors"
 	"fmt"
+
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
@@ -135,7 +136,7 @@ func resourceInstanceMetadata(d TerraformResourceData) (*computeBeta.Metadata, e
 	m := &computeBeta.Metadata{}
 	mdMap := d.Get("metadata").(map[string]interface{})
 	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {
-		if ss, ok := mdMap["startup-script"]; ok && ss != "" {
+		if _, ok := mdMap["startup-script"]; ok {
 			return nil, errors.New("Cannot provide both metadata_startup_script and metadata.startup-script.")
 		}
 		mdMap["startup-script"] = v

@@ -168,6 +168,29 @@ func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(t *testing.T) {
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	templateName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	resourceName := "google_compute_instance_from_template.inst"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(instanceName, templateName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "metadata.startup-script", ""),
+				),
+			},
+		},
+	})
+
+}
+
 func testAccCheckComputeInstanceFromTemplateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -510,4 +533,46 @@ resource "google_compute_instance_from_template" "inst" {
 	}
 }
 `, instance)
+}
+
+func testAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(instance, template string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name = "%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		auto_delete = true
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	metadata = {
+		startup-script = "#!/bin/bash\necho Hello"
+	}
+
+	can_ip_forward = true
+}
+
+resource "google_compute_instance_from_template" "inst" {
+	name = "%s"
+	zone = "us-central1-a"
+
+	source_instance_template = "${google_compute_instance_template.foobar.self_link}"
+
+	// Overrides
+	metadata = {
+		startup-script = ""
+	}
+}
+`, template, instance)
 }
