@@ -272,8 +272,12 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("routing_mode") {
 		obj := make(map[string]interface{})
-		routingModeProp := d.Get("routing_mode")
-		obj["routingMode"] = routingModeProp
+		routingConfigProp, err := expandComputeNetworkRoutingConfig(nil, d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("routing_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, routingConfigProp)) {
+			obj["routingConfig"] = routingConfigProp
+		}
 
 		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/networks/{{name}}")
 		if err != nil {
