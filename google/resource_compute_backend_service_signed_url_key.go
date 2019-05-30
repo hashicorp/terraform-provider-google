@@ -256,32 +256,40 @@ func flattenNestedComputeBackendServiceSignedUrlKey(d *schema.ResourceData, meta
 		return nil, nil
 	}
 
-	// Final nested resource is either a list of resources we need to filter
-	// or just the resource itself, which we return.
 	switch v.(type) {
 	case []interface{}:
 		break
 	case map[string]interface{}:
-		return v.(map[string]interface{}), nil
+		// Construct list out of single nested resource
+		v = []interface{}{v}
 	default:
-		return nil, fmt.Errorf("invalid value for cdnPolicy.signedUrlKeyNames: %v", v)
+		return nil, fmt.Errorf("expected list or map for value cdnPolicy.signedUrlKeyNames. Actual value: %v", v)
 	}
 
+	expectedName, err := expandComputeBackendServiceSignedUrlKeyName(d.Get("name"), d, meta.(*Config))
+	if err != nil {
+		return nil, err
+	}
+
+	// Search list for this resource.
 	items := v.([]interface{})
-	for _, vRaw := range items {
-		// If only an id is given in parent resource,
-		// construct a resource map for that id KV pair.
-		item := map[string]interface{}{"keyName": vRaw}
-		itemIdV, err := expandComputeBackendServiceSignedUrlKeyName(d.Get("name"), d, meta.(*Config))
-		if err != nil {
-			return nil, err
-		}
-		actualIdV := flattenComputeBackendServiceSignedUrlKeyName(item["keyName"], d)
-		log.Printf("[DEBUG] Checking if item's keyName (%#v) is equal to resource's (%#v)", itemIdV, actualIdV)
-		if !reflect.DeepEqual(itemIdV, actualIdV) {
+	for _, itemRaw := range items {
+		if itemRaw == nil {
 			continue
 		}
+		// List response only contains the ID - construct a response object.
+		item := map[string]interface{}{
+			"keyName": itemRaw,
+		}
+
+		itemName := flattenComputeBackendServiceSignedUrlKeyName(item["keyName"], d)
+		if !reflect.DeepEqual(itemName, expectedName) {
+			log.Printf("[DEBUG] Skipping item with keyName= %#v, looking for %#v)", itemName, expectedName)
+			continue
+		}
+		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
 		return item, nil
 	}
+
 	return nil, nil
 }
