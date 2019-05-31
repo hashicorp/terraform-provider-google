@@ -52,6 +52,7 @@ The following arguments are supported:
 * `service_account_email` - (Optional) The Service Account email used to create the job.
 * `network` - (Optional) The network to which VMs will be assigned. If it is not provided, "default" will be used.
 * `subnetwork` - (Optional) The subnetwork to which VMs will be assigned. Should be of the form "regions/REGION/subnetworks/SUBNETWORK".
+* `machine_type` - (Optional) The machine type to use for the job.
 
 
 ## Attributes Reference
