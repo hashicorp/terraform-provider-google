@@ -171,8 +171,13 @@ The `log_config` block supports:
 
 ## Import
 
-Router NATs can be imported using the `region`, `router`, and `name`, e.g.
+Router NATs can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_compute_router_nat.my-nat us-central1/router-1/nat-1
+$ terraform import google_compute_router_nat.default {{project}}/{{region}}/{{router}}/{{name}}
+$ terraform import google_compute_router_nat.default {{region}}/{{router}}/{{name}}
+$ terraform import google_compute_router_nat.default {{router}}/{{name}}
 ```
+
+-> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
+as an argument so that Terraform uses the correct provider to import your resource.
