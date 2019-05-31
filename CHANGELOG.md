@@ -18,6 +18,8 @@ BUG FIXES:
 * compute: Resolved an issue where `google_compute_region_backend_service` was unable to perform a state migration. [GH-3731]
 * compute: allow empty metadata.startup-script on instances [GH-3732]
 * container: allow going from no ip_allocation_policy to a blank-equivalent one [GH-3723]
+* container: `google_container_cluster` will no longer diff unnecessarily on `issue_client_certificate`. [GH-3751]
+* container: `google_container_cluster` can enable client certificates on GKE `1.12+` series releases. [GH-3751]
 * storage: Fix occasional crash when updating storage buckets [GH-3686]
 
 ## 2.7.0 (May 21, 2019)
