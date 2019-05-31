@@ -24,8 +24,10 @@ description: |-
 
 A Backend Service defines a group of virtual machines that will serve
 traffic for load balancing. This resource is a global backend service,
-appropriate for external load balancing. For internal load balancing, use
-a regional backend service instead.
+appropriate for external load balancing or self-managed internal load balancing. 
+For managed internal load balancing, use a regional backend service instead.
+
+Currently self-managed internal load balancing is only available in beta.
 
 
 To get more information about BackendService, see:
@@ -66,6 +68,7 @@ The following arguments are supported:
   The list of URLs to the HttpHealthCheck or HttpsHealthCheck resource
   for health checking this BackendService. Currently at most one health
   check can be specified, and a health check is required.
+  For internal load balancing, a URL to a HealthCheck resource must be specified instead.
 
 * `name` -
   (Required)
@@ -118,8 +121,8 @@ The following arguments are supported:
   (Optional)
   Indicates whether the backend service will be used with internal or
   external load balancing. A backend service created for one type of
-  load balancing cannot be used with the other. Must be `EXTERNAL` for
-  a global backend service. Defaults to `EXTERNAL`.
+  load balancing cannot be used with the other. Must be `EXTERNAL` or
+  `INTERNAL_SELF_MANAGED` for a global backend service. Defaults to `EXTERNAL`.
 
 * `port_name` -
   (Optional)
