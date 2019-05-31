@@ -290,28 +290,41 @@ func flattenNestedResourceManagerLien(d *schema.ResourceData, meta interface{}, 
 		return nil, nil
 	}
 
-	// Final nested resource is either a list of resources we need to filter
-	// or just the resource itself, which we return.
 	switch v.(type) {
 	case []interface{}:
 		break
 	case map[string]interface{}:
-		return v.(map[string]interface{}), nil
+		// Construct list out of single nested resource
+		v = []interface{}{v}
 	default:
-		return nil, fmt.Errorf("invalid value for liens: %v", v)
+		return nil, fmt.Errorf("expected list or map for value liens. Actual value: %v", v)
 	}
 
+	expectedName := d.Get("name")
+
+	// Search list for this resource.
 	items := v.([]interface{})
-	for _, vRaw := range items {
-		item := vRaw.(map[string]interface{})
-		itemIdV := d.Get("name")
-		actualIdV := flattenResourceManagerLienName(item["name"], d)
-		log.Printf("[DEBUG] Checking if item's name (%#v) is equal to resource's (%#v)", itemIdV, actualIdV)
-		if !reflect.DeepEqual(itemIdV, actualIdV) {
+	for _, itemRaw := range items {
+		if itemRaw == nil {
 			continue
 		}
+		item := itemRaw.(map[string]interface{})
+
+		// Decode list item before comparing.
+		item, err := resourceResourceManagerLienDecoder(d, meta, item)
+		if err != nil {
+			return nil, err
+		}
+
+		itemName := flattenResourceManagerLienName(item["name"], d)
+		if !reflect.DeepEqual(itemName, expectedName) {
+			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedName)
+			continue
+		}
+		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
 		return item, nil
 	}
+
 	return nil, nil
 }
 
