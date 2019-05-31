@@ -10,6 +10,7 @@ FEATURES:
 ENHANCEMENTS:
 * compute: `google_compute_router_interface` now supports specifying an `interconnect_attachment`. ([#2116](https://github.com/terraform-providers/terraform-provider-google/issues/2116))
 * compute: `google_compute_router_nat` now supports specifying a `log_config` block ([#3548](https://github.com/terraform-providers/terraform-provider-google/issues/3548))
+* compute: `google_compute_router_nat` now supports more import formats. [GH-3762]
 * compute: `google_compute_network_peering` now supports importing/exporting custom routes ([#3394](https://github.com/terraform-providers/terraform-provider-google/issues/3394))
 * pubsub: `google_pubsub_subscription` supports setting an `expiration_policy` with no `ttl`. [GH-3742]
 
