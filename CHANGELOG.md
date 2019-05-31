@@ -5,6 +5,7 @@ DEPRECATIONS:
 
 FEATURES:
 * **New Datasource**: `google_compute_ssl_certificate` [GH-3683]
+* **New Datasource**: `google_composer_image_versions` [GH-3694]
 
 ENHANCEMENTS:
 * compute: `google_compute_router_interface` now supports specifying an `interconnect_attachment`. ([#2116](https://github.com/terraform-providers/terraform-provider-google/issues/2116))
