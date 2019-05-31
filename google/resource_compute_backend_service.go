@@ -254,7 +254,7 @@ func resourceComputeBackendService() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "INTERNAL_SELF_MANAGED", ""}, false),
 				Default:      "EXTERNAL",
 			},
 			"port_name": {

@@ -78,6 +78,13 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
 			},
+			"load_balancing_scheme": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"INTERNAL_SELF_MANAGED", "EXTERNAL", ""}, false),
+				Default:      "EXTERNAL",
+			},
 			"port_range": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -125,6 +132,12 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("ip_version"); !isEmptyValue(reflect.ValueOf(ipVersionProp)) && (ok || !reflect.DeepEqual(v, ipVersionProp)) {
 		obj["ipVersion"] = ipVersionProp
+	}
+	loadBalancingSchemeProp, err := expandComputeGlobalForwardingRuleLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !isEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
+		obj["loadBalancingScheme"] = loadBalancingSchemeProp
 	}
 	nameProp, err := expandComputeGlobalForwardingRuleName(d.Get("name"), d, config)
 	if err != nil {
@@ -219,6 +232,9 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
 	if err := d.Set("ip_version", flattenComputeGlobalForwardingRuleIpVersion(res["ipVersion"], d)); err != nil {
+		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
+	}
+	if err := d.Set("load_balancing_scheme", flattenComputeGlobalForwardingRuleLoadBalancingScheme(res["loadBalancingScheme"], d)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
 	if err := d.Set("name", flattenComputeGlobalForwardingRuleName(res["name"], d)); err != nil {
@@ -355,6 +371,10 @@ func flattenComputeGlobalForwardingRuleIpVersion(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenComputeGlobalForwardingRuleLoadBalancingScheme(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
 func flattenComputeGlobalForwardingRuleName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
@@ -380,6 +400,10 @@ func expandComputeGlobalForwardingRuleIPProtocol(v interface{}, d TerraformResou
 }
 
 func expandComputeGlobalForwardingRuleIpVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeGlobalForwardingRuleLoadBalancingScheme(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
