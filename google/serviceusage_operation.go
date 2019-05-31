@@ -15,7 +15,13 @@ func (w *ServiceUsageOperationWaiter) QueryOp() (interface{}, error) {
 	if w == nil {
 		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
 	}
-	return w.Service.Operations.Get(w.Op.Name).Do()
+
+	var op *serviceusage.Operation
+	err := retryTimeDuration(func() (opErr error) {
+		op, opErr = w.Service.Operations.Get(w.Op.Name).Do()
+		return opErr
+	}, DefaultRequestTimeout)
+	return op, err
 }
 
 func serviceUsageOperationWait(config *Config, op *serviceusage.Operation, activity string) error {
