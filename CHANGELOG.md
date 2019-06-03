@@ -28,6 +28,7 @@ BUG FIXES:
 * container: Allow going from no ip_allocation_policy to a blank-equivalent one. ([#3723](https://github.com/terraform-providers/terraform-provider-google/pull/3723))
 * container: `google_container_cluster` will no longer diff unnecessarily on `issue_client_certificate`. ([#3751](https://github.com/terraform-providers/terraform-provider-google/pull/3751))
 * container: `google_container_cluster` can enable client certificates on GKE `1.12+` series releases. ([#3751](https://github.com/terraform-providers/terraform-provider-google/pull/3751))
+* container: `google_container_cluster` now retries the call to remove default node pools during cluster creation ([#3769](https://github.com/terraform-providers/terraform-provider-google/pull/3769))
 * storage: Fix occasional crash when updating storage buckets ([#3686](https://github.com/terraform-providers/terraform-provider-google/pull/3686))
 
 ## 2.7.0 (May 21, 2019)
