@@ -145,7 +145,7 @@ resource "google_compute_backend_service" "default" {
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
 
   backend {
-    group = "${google_compute_instance_group_manager.foobar.instance_group}"
+    group = "${google_compute_instance_group_manager.igm.instance_group}"
     balancing_mode = "RATE"
     capacity_scaler = 0.4
     max_rate_per_instance = 50
@@ -160,21 +160,21 @@ data "google_compute_image" "debian_image" {
   project  = "debian-cloud"
 }
 
-resource "google_compute_instance_group_manager" "foobar" {
+resource "google_compute_instance_group_manager" "igm" {
   provider           = "google-beta"
   name               = "igm-internal"
   version {
-    instance_template  = "${google_compute_instance_template.foobar.self_link}"
+    instance_template  = "${google_compute_instance_template.instance_template.self_link}"
     name               = "primary"
   }
-  base_instance_name = "foobar"
+  base_instance_name = "internal-glb"
   zone               = "us-central1-f"
   target_size        = 1
 }
 
-resource "google_compute_instance_template" "foobar" {
+resource "google_compute_instance_template" "instance_template" {
   provider     = "google-beta"
-  name         = "instance-template-internal"
+  name         = "template-backend"
   machine_type = "n1-standard-1"
 
   network_interface {
