@@ -110,6 +110,12 @@ func resourceDataflowJob() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
+
+			"machine_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -140,6 +146,7 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 		ServiceAccountEmail: d.Get("service_account_email").(string),
 		Subnetwork:          d.Get("subnetwork").(string),
 		TempLocation:        d.Get("temp_gcs_location").(string),
+		MachineType:         d.Get("machine_type").(string),
 		Zone:                zone,
 	}
 
