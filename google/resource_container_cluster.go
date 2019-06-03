@@ -497,6 +497,11 @@ func resourceContainerCluster() *schema.Resource {
 				Computed: true,
 			},
 
+			"services_ipv4_cidr": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"ip_allocation_policy": {
 				Type:       schema.TypeList,
 				MaxItems:   1,
@@ -902,6 +907,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("master_version", cluster.CurrentMasterVersion)
 	d.Set("node_version", cluster.CurrentNodeVersion)
 	d.Set("cluster_ipv4_cidr", cluster.ClusterIpv4Cidr)
+	d.Set("services_ipv4_cidr", cluster.ServicesIpv4Cidr)
 	d.Set("description", cluster.Description)
 	d.Set("enable_kubernetes_alpha", cluster.EnableKubernetesAlpha)
 	d.Set("enable_legacy_abac", cluster.LegacyAbac.Enabled)

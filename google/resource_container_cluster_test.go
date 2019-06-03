@@ -86,6 +86,9 @@ func TestAccContainerCluster_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerCluster_basic(clusterName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "services_ipv4_cidr"),
+				),
 			},
 			{
 				ResourceName:        "google_container_cluster.primary",
