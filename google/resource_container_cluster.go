@@ -826,13 +826,16 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if d.Get("remove_default_node_pool").(bool) {
 		parent := fmt.Sprintf("%s/nodePools/%s", containerClusterFullName(project, location, clusterName), "default-pool")
-		op, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Delete(parent).Do()
+		err = retry(func() error {
+			op, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Delete(parent).Do()
+			return err
+		})
 		if err != nil {
 			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
 		}
 		err = containerOperationWait(config, op, project, location, "removing default node pool", timeoutInMinutes)
 		if err != nil {
-			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
+			return errwrap.Wrapf("Error while waiting to delete default node pool: {{err}}", err)
 		}
 	}
 
