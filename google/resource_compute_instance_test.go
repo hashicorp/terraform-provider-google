@@ -2676,6 +2676,9 @@ resource "google_compute_instance" "foobar" {
 		initialize_params {
 			image	= "${data.google_compute_image.my_image.self_link}"
 			type	= "%s"
+			labels  = {
+				foo = "bar"
+			}
 		}
 	}
 
