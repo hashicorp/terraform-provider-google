@@ -267,6 +267,10 @@ to the datasource. A `region` can have a different set of supported versions tha
     [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
     Structure is documented below.
 
+* `authenticator_groups_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Configuration for the
+    [Google Groups for GKE](https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control#groups-setup-gsuite) feature.
+    Structure is documented below.
+
 * `private_cluster_config` - (Optional) A set of options for creating
     a private cluster. Structure is documented below.
 
@@ -360,6 +364,10 @@ The `resource_limits` block supports:
 * `minimum` - (Optional) The minimum value for the resource type specified.
 
 * `maximum` - (Optional) The maximum value for the resource type specified.
+
+The `authenticator_groups_config` block supports:
+
+* `security_group` - (Required) The name of the RBAC security group for use with Google security groups in Kubernetes RBAC. Group name must be in format `gke-security-groups@yourdomain.com`.
 
 The `maintenance_policy` block supports:
 
