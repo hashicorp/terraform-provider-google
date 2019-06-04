@@ -8,7 +8,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"regexp"
 )
 
 func TestAccTpuTensorflowVersions_basic(t *testing.T) {
@@ -54,13 +53,9 @@ func testAccCheckGoogleTpuTensorflowVersions(n string) resource.TestCheckFunc {
 
 		for i := 0; i < cnt; i++ {
 			idx := fmt.Sprintf("versions.%d", i)
-			v, ok := rs.Primary.Attributes[idx]
+			_, ok := rs.Primary.Attributes[idx]
 			if !ok {
 				return fmt.Errorf("expected %q, version not found", idx)
-			}
-
-			if !regexp.MustCompile(`^([0-9]+\.)+[0-9]+$`).MatchString(v) {
-				return fmt.Errorf("unexpected version format for %q, value is %v", idx, v)
 			}
 		}
 		return nil
