@@ -41,6 +41,10 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
       "https://www.googleapis.com/auth/monitoring",
     ]
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 ```
 
@@ -56,6 +60,10 @@ resource "google_container_node_pool" "np" {
   timeouts {
     create = "30m"
     update = "20m"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
