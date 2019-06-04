@@ -261,6 +261,11 @@ func resourceStorageBucket() *schema.Resource {
 					},
 				},
 			},
+			"bucket_policy_only": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 	}
 }
@@ -279,9 +284,10 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	// Create a bucket, setting the labels, location and name.
 	sb := &storage.Bucket{
-		Name:     bucket,
-		Labels:   expandLabels(d),
-		Location: location,
+		Name:             bucket,
+		Labels:           expandLabels(d),
+		Location:         location,
+		IamConfiguration: expandIamConfiguration(d),
 	}
 
 	if v, ok := d.GetOk("storage_class"); ok {
@@ -455,6 +461,10 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
+	if d.HasChange("bucket_policy_only") {
+		sb.IamConfiguration = expandIamConfiguration(d)
+	}
+
 	res, err := config.clientStorage.Buckets.Patch(d.Get("name").(string), sb).Do()
 
 	if err != nil {
@@ -514,6 +524,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
 	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
 	d.Set("labels", res.Labels)
+	d.Set("bucket_policy_only", res.IamConfiguration.BucketPolicyOnly.Enabled)
 
 	if res.Billing == nil {
 		d.Set("requester_pays", nil)
@@ -781,6 +792,16 @@ func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleC
 		}
 	}
 	return ruleCondition
+}
+
+func expandIamConfiguration(d *schema.ResourceData) *storage.BucketIamConfiguration {
+	iamConfig := &storage.BucketIamConfiguration{}
+	if v, ok := d.GetOk("bucket_policy_only"); ok {
+		iamConfig.BucketPolicyOnly = &storage.BucketIamConfigurationBucketPolicyOnly{
+			Enabled: v.(bool),
+		}
+	}
+	return iamConfig
 }
 
 func expandStorageBucketLifecycle(v interface{}) (*storage.BucketLifecycle, error) {
