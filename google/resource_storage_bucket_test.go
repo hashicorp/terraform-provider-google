@@ -762,6 +762,35 @@ func TestAccStorageBucket_encryption(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_bucketPolicyOnly(t *testing.T) {
+	t.Parallel()
+
+	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucket_bucketPolicyOnly(bucketName, false),
+			},
+			{
+				ResourceName:      "google_storage_bucket.bucket",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccStorageBucket_bucketPolicyOnly(bucketName, true),
+			},
+			{
+				ResourceName:      "google_storage_bucket.bucket",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_labels(t *testing.T) {
 	t.Parallel()
 
@@ -1247,6 +1276,15 @@ resource "google_storage_bucket" "bucket" {
 	}
 }
 `, bucketName)
+}
+
+func testAccStorageBucket_bucketPolicyOnly(bucketName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name = "%s"
+	bucket_policy_only = %t
+}
+`, bucketName, enabled)
 }
 
 func testAccStorageBucket_encryption(context map[string]interface{}) string {
