@@ -287,8 +287,12 @@ to the datasource. A `region` can have a different set of supported versions tha
 * `subnetwork` - (Optional) The name or self_link of the Google Compute Engine subnetwork in
     which the cluster's instances are launched.
 
-* `vertical_pod_autoscaling` - Vertical Pod Autoscaling automatically adjusts the resources of pods controlled by it.
+* `vertical_pod_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
+    Vertical Pod Autoscaling automatically adjusts the resources of pods controlled by it.
     Structure is documented below.
+
+* `enable_intranode_visibility` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
+    Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.
 
 The `addons_config` block supports:
 
