@@ -1,4 +1,5 @@
-## 2.8.0 (Unreleased)
+## 2.8.1 (Unreleased)
+## 2.8.0 (June 04, 2019)
 
 
 DEPRECATIONS:
