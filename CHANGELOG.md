@@ -1,4 +1,12 @@
 ## 2.8.1 (Unreleased)
+
+FEATURES:
+
+ENHANCEMENTS:
+
+BUGS:
+* compute: `google_project_iam` When importing resources `project` no longer needs to be set in the config post import [3777]
+
 ## 2.8.0 (June 04, 2019)
 
 
