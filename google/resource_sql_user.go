@@ -159,20 +159,19 @@ func resourceSqlUserUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		name := d.Get("name").(string)
 		instance := d.Get("instance").(string)
-		host := d.Get("host").(string)
 		password := d.Get("password").(string)
+		host := d.Get("host").(string)
 
 		user := &sqladmin.User{
 			Name:     name,
 			Instance: instance,
 			Password: password,
-			Host:     host,
 		}
 
 		mutexKV.Lock(instanceMutexKey(project, instance))
 		defer mutexKV.Unlock(instanceMutexKey(project, instance))
 		op, err := config.clientSqlAdmin.Users.Update(project, instance, name,
-			user).Do()
+			user).Host(host).Do()
 
 		if err != nil {
 			return fmt.Errorf("Error, failed to update"+
