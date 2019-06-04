@@ -14,7 +14,7 @@ import (
 var tfObjectAcl, errObjectAcl = ioutil.TempFile("", "tf-gce-test")
 
 func testAclObjectName() string {
-	return fmt.Sprintf("%s-%d", "tf-test-acl-object",
+	return fmt.Sprintf("%s-%d", "prefix/tf-test-acl-object",
 		rand.New(rand.NewSource(time.Now().UnixNano())).Int())
 }
 

@@ -80,7 +80,7 @@ func testAccCheckStorageObjectAccessControlDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/storage/v1/b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/storage/v1/b/{{bucket}}/o/{{%object}}/acl/{{entity}}")
 		if err != nil {
 			return err
 		}
