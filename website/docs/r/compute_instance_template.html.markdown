@@ -287,6 +287,11 @@ The `disk` block supports:
 * `type` - (Optional) The type of GCE disk, can be either `"SCRATCH"` or
     `"PERSISTENT"`.
 
+* `labels` - (Optional) A set of key/value label pairs to assign to the disk.
+
+    If you are creating a new disk, these labels are added to the disk.
+    If you are attaching an existing disk, these labels are ignored.
+    
 * `disk_encryption_key` - (Optional) Encrypts or decrypts a disk using a customer-supplied encryption key.
 
     If you are creating a new disk, this field encrypts the new disk using an encryption key that you provide. If you are attaching an existing disk that is already encrypted, this field decrypts the disk using the customer-supplied encryption key.

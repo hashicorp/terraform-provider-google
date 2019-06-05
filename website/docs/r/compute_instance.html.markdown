@@ -182,6 +182,8 @@ The `initialize_params` block supports:
     For instance, the image `centos-6-v20180104` includes its family name `centos-6`.
     These images can be referred by family name here.
 
+* `labels` - (Optional) A set of key/value label pairs to assign to the boot disk.
+
 The `scratch_disk` block supports:
 
 * `interface` - (Optional) The disk interface to use for attaching this disk; either SCSI or NVME.
