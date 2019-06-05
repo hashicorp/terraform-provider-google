@@ -185,6 +185,11 @@ The following arguments are supported:
 
 The `push_config` block supports:
 
+* `oidc_token` -
+  (Optional)
+  If specified, Pub/Sub will generate and attach an OIDC JWT token as
+  an Authorization header in the HTTP request for every pushed message.  Structure is documented below.
+
 * `push_endpoint` -
   (Required)
   A URL locating the endpoint to which messages should be pushed.
@@ -211,6 +216,25 @@ The `push_config` block supports:
   The possible values for this attribute are:
   - v1beta1: uses the push format defined in the v1beta1 Pub/Sub API.
   - v1 or v1beta2: uses the push format defined in the v1 Pub/Sub API.
+
+
+The `oidc_token` block supports:
+
+* `service_account_email` -
+  (Required)
+  Service account email to be used for generating the OIDC token.
+  The caller (for subscriptions.create, subscriptions.patch, and
+  subscriptions.modifyPushConfig RPCs) must have the
+  iam.serviceAccounts.actAs permission for the service account.
+
+* `audience` -
+  (Optional)
+  Audience to be used when generating OIDC token. The audience claim
+  identifies the recipients that the JWT is intended for. The audience
+  value is a single case-sensitive string. Having multiple values (array)
+  for the audience field is not supported. More info about the OIDC JWT
+  token audience here: https://tools.ietf.org/html/rfc7519#section-4.1.3
+  Note: if not specified, the Push endpoint URL will be used.
 
 The `expiration_policy` block supports:
 
