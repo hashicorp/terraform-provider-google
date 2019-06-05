@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -221,6 +222,22 @@ func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_disksInvalid(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeInstanceTemplate_disksInvalid(),
+				ExpectError: regexp.MustCompile("Cannot use `source`.*"),
 			},
 		},
 	})
@@ -1177,6 +1194,49 @@ resource "google_compute_instance_template" "foobar" {
 
 	disk {
 		source = "${google_compute_disk.foobar.name}"
+		auto_delete = false
+		boot = false
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	metadata = {
+		foo = "bar"
+	}
+}`, acctest.RandString(10), acctest.RandString(10))
+}
+
+func testAccComputeInstanceTemplate_disksInvalid() string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "instancet-test-%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		auto_delete = true
+		disk_size_gb = 100
+		boot = true
+	}
+
+	disk {
+		source = "${google_compute_disk.foobar.name}"
+		disk_size_gb = 50
 		auto_delete = false
 		boot = false
 	}
