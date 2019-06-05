@@ -56,7 +56,14 @@ func (w *ContainerOperationWaiter) QueryOp() (interface{}, error) {
 	}
 	name := fmt.Sprintf("projects/%s/locations/%s/operations/%s",
 		w.Project, w.Location, w.Op.Name)
-	return w.Service.Projects.Locations.Operations.Get(name).Do()
+
+	var op *container.Operation
+	err := retryTimeDuration(func() (opErr error) {
+		op, opErr = w.Service.Projects.Locations.Operations.Get(name).Do()
+		return opErr
+	}, DefaultRequestTimeout)
+
+	return op, err
 }
 
 func (w *ContainerOperationWaiter) OpName() string {
