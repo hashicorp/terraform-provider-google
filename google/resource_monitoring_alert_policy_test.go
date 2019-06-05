@@ -12,7 +12,26 @@ import (
 // Stackdriver tests cannot be run in parallel otherwise they will error out with:
 // Error 503: Too many concurrent edits to the project configuration. Please try again.
 
-func TestAccMonitoringAlertPolicy_basic(t *testing.T) {
+func TestAccMonitoringAlertPolicy(t *testing.T) {
+	testCases := map[string]func(t *testing.T){
+		"basic":  testAccMonitoringAlertPolicy_basic,
+		"full":   testAccMonitoringAlertPolicy_full,
+		"update": testAccMonitoringAlertPolicy_update,
+	}
+
+	for name, tc := range testCases {
+		// shadow the tc variable into scope so that when
+		// the loop continues, if t.Run hasn't executed tc(t)
+		// yet, we don't have a race condition
+		// see https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			tc(t)
+		})
+	}
+}
+
+func testAccMonitoringAlertPolicy_basic(t *testing.T) {
 
 	alertName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	conditionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -24,7 +43,7 @@ func TestAccMonitoringAlertPolicy_basic(t *testing.T) {
 		CheckDestroy: testAccCheckAlertPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringAlertPolicy_basic(alertName, conditionName, "ALIGN_RATE", filter),
+				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, "ALIGN_RATE", filter),
 			},
 			{
 				ResourceName:      "google_monitoring_alert_policy.basic",
@@ -35,7 +54,7 @@ func TestAccMonitoringAlertPolicy_basic(t *testing.T) {
 	})
 }
 
-func TestAccMonitoringAlertPolicy_update(t *testing.T) {
+func testAccMonitoringAlertPolicy_update(t *testing.T) {
 
 	alertName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	conditionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -50,7 +69,7 @@ func TestAccMonitoringAlertPolicy_update(t *testing.T) {
 		CheckDestroy: testAccCheckAlertPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringAlertPolicy_basic(alertName, conditionName, aligner1, filter1),
+				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner1, filter1),
 			},
 			{
 				ResourceName:      "google_monitoring_alert_policy.basic",
@@ -58,7 +77,7 @@ func TestAccMonitoringAlertPolicy_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccMonitoringAlertPolicy_basic(alertName, conditionName, aligner2, filter2),
+				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner2, filter2),
 			},
 			{
 				ResourceName:      "google_monitoring_alert_policy.basic",
@@ -69,7 +88,7 @@ func TestAccMonitoringAlertPolicy_update(t *testing.T) {
 	})
 }
 
-func TestAccMonitoringAlertPolicy_full(t *testing.T) {
+func testAccMonitoringAlertPolicy_full(t *testing.T) {
 
 	alertName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	conditionName1 := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -81,7 +100,7 @@ func TestAccMonitoringAlertPolicy_full(t *testing.T) {
 		CheckDestroy: testAccCheckAlertPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringAlertPolicy_full(alertName, conditionName1, conditionName2),
+				Config: testAccMonitoringAlertPolicy_fullCfg(alertName, conditionName1, conditionName2),
 			},
 			{
 				ResourceName:      "google_monitoring_alert_policy.full",
@@ -113,7 +132,7 @@ func testAccCheckAlertPolicyDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccMonitoringAlertPolicy_basic(alertName, conditionName, aligner, filter string) string {
+func testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner, filter string) string {
 	return fmt.Sprintf(`
 resource "google_monitoring_alert_policy" "basic" {
   display_name = "%s"
@@ -139,7 +158,7 @@ resource "google_monitoring_alert_policy" "basic" {
 `, alertName, conditionName, aligner, filter)
 }
 
-func testAccMonitoringAlertPolicy_full(alertName, conditionName1, conditionName2 string) string {
+func testAccMonitoringAlertPolicy_fullCfg(alertName, conditionName1, conditionName2 string) string {
 	return fmt.Sprintf(`
 resource "google_monitoring_alert_policy" "full" {
   display_name = "%s"
