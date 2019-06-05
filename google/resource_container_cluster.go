@@ -628,10 +628,9 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"enable_intranode_visibility": {
-				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:     schema.TypeBool,
-				Default:  false,
 				Optional: true,
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 			},
 		},
 	}
