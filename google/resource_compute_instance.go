@@ -81,6 +81,7 @@ func resourceComputeInstance() *schema.Resource {
 							ForceNew:         true,
 							ConflictsWith:    []string{"boot_disk.0.disk_encryption_key_raw"},
 							DiffSuppressFunc: compareSelfLinkRelativePaths,
+							Computed:         true,
 						},
 
 						"initialize_params": {
@@ -282,6 +283,7 @@ func resourceComputeInstance() *schema.Resource {
 							Type:             schema.TypeString,
 							Optional:         true,
 							DiffSuppressFunc: compareSelfLinkRelativePaths,
+							Computed:         true,
 						},
 
 						"disk_encryption_key_sha256": {
