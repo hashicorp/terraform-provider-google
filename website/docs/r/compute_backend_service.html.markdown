@@ -65,7 +65,7 @@ The following arguments are supported:
 
 * `health_checks` -
   (Required)
-  The list of URLs to the HttpHealthCheck or HttpsHealthCheck resource
+  The set of URLs to the HttpHealthCheck or HttpsHealthCheck resource
   for health checking this BackendService. Currently at most one health
   check can be specified, and a health check is required.
   For internal load balancing, a URL to a HealthCheck resource must be specified instead.
@@ -94,7 +94,7 @@ The following arguments are supported:
 
 * `backend` -
   (Optional)
-  The list of backends that serve this BackendService.  Structure is documented below.
+  The set of backends that serve this BackendService.  Structure is documented below.
 
 * `cdn_policy` -
   (Optional)
