@@ -477,14 +477,18 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 
 func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
 	config := meta.(*Config)
-	project, err := getProjectFromDiff(diff, config)
-	if err != nil {
-		return err
-	}
+
 	numDisks := diff.Get("disk.#").(int)
 	for i := 0; i < numDisks; i++ {
 		key := fmt.Sprintf("disk.%d.source_image", i)
 		if diff.HasChange(key) {
+			// project must be retrieved once we know there is a diff to resolve, otherwise it will
+			// attempt to retrieve project during `plan` before all calculated fields are ready
+			// see https://github.com/terraform-providers/terraform-provider-google/issues/2878
+			project, err := getProjectFromDiff(diff, config)
+			if err != nil {
+				return err
+			}
 			old, new := diff.GetChange(key)
 			if old == "" || new == "" {
 				// no sense in resolving empty strings
