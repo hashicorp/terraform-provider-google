@@ -9,6 +9,7 @@ ENHANCEMENTS:
 BUG FIXES:
 * compute: `google_project_iam` When importing resources `project` no longer needs to be set in the config post import [GH-3777]
 * compute: `google_sql_user` User's can now be updated to change their password [GH-3785]
+* compute: `google_compute_instance_template` Fixed issue so project can now be specified by interpolated varibles. [GH-3798]
 
 ## 2.8.0 (June 04, 2019)
 
