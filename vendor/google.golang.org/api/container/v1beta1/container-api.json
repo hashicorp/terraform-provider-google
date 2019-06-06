@@ -377,10 +377,7 @@
                   "path": "v1beta1/{+parent}/jwks",
                   "response": {
                     "$ref": "GetJSONWebKeysResponse"
-                  },
-                  "scopes": [
-                    "https://www.googleapis.com/auth/cloud-platform"
-                  ]
+                  }
                 },
                 "list": {
                   "description": "Lists all clusters owned by a project in either the specified zone or all\nzones.",
@@ -1079,10 +1076,7 @@
                       "path": "v1beta1/{+parent}/.well-known/openid-configuration",
                       "response": {
                         "$ref": "GetOpenIDConfigResponse"
-                      },
-                      "scopes": [
-                        "https://www.googleapis.com/auth/cloud-platform"
-                      ]
+                      }
                     }
                   }
                 }
@@ -2489,7 +2483,7 @@
       }
     }
   },
-  "revision": "20190319",
+  "revision": "20190418",
   "rootUrl": "https://container.googleapis.com/",
   "schemas": {
     "AcceleratorConfig": {
@@ -2564,6 +2558,24 @@
         },
         "description": {
           "description": "[Output only] This field is set when upgrades are about to commence\nwith the description of the upgrade.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "AutoprovisioningNodePoolDefaults": {
+      "description": "AutoprovisioningNodePoolDefaults contains defaults for a node pool created\nby NAP.",
+      "id": "AutoprovisioningNodePoolDefaults",
+      "properties": {
+        "oauthScopes": {
+          "description": "Scopes that are used by NAP when creating node pools. If oauth_scopes are\nspecified, service_account should be empty.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "serviceAccount": {
+          "description": "The Google Cloud Platform Service Account to be used by the node VMs. If\nservice_account is specified, scopes should be empty.",
           "type": "string"
         }
       },
@@ -2696,7 +2708,7 @@
           "type": "integer"
         },
         "currentNodeVersion": {
-          "description": "[Output only] Deprecated, use\n[NodePool.version](/kubernetes-engine/docs/reference/rest/v1beta1/projects.zones.clusters.nodePool)\ninstead. The current version of the node software components.\nIf they are currently at multiple versions because they're in the process\nof being upgraded, this reflects the minimum version of all nodes.",
+          "description": "[Output only] Deprecated, use\n[NodePool.version](/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters.nodePools)\ninstead. The current version of the node software components.\nIf they are currently at multiple versions because they're in the process\nof being upgraded, this reflects the minimum version of all nodes.",
           "type": "string"
         },
         "databaseEncryption": {
@@ -2732,7 +2744,7 @@
           "type": "string"
         },
         "initialNodeCount": {
-          "description": "The number of nodes to create in this cluster. You must ensure that your\nCompute Engine \u003ca href=\"/compute/docs/resource-quotas\"\u003eresource quota\u003c/a\u003e\nis sufficient for this number of instances. You must also have available\nfirewall and routes quota.\nFor requests, this field should only be used in lieu of a\n\"node_pool\" object, since this configuration (along with the\n\"node_config\") will be used to create a \"NodePool\" object with an\nauto-generated name. Do not use this and a node_pool at the same time.",
+          "description": "The number of nodes to create in this cluster. You must ensure that your\nCompute Engine \u003ca href=\"/compute/docs/resource-quotas\"\u003eresource quota\u003c/a\u003e\nis sufficient for this number of instances. You must also have available\nfirewall and routes quota.\nFor requests, this field should only be used in lieu of a\n\"node_pool\" object, since this configuration (along with the\n\"node_config\") will be used to create a \"NodePool\" object with an\nauto-generated name. Do not use this and a node_pool at the same time.\n\nThis field is deprecated, use node_pool.initial_node_count instead.",
           "format": "int32",
           "type": "integer"
         },
@@ -2808,7 +2820,7 @@
         },
         "nodeConfig": {
           "$ref": "NodeConfig",
-          "description": "Parameters used in creating the cluster's nodes.\nSee `nodeConfig` for the description of its properties.\nFor requests, this field should only be used in lieu of a\n\"node_pool\" object, since this configuration (along with the\n\"initial_node_count\") will be used to create a \"NodePool\" object with an\nauto-generated name. Do not use this and a node_pool at the same time.\nFor responses, this field will be populated with the node configuration of\nthe first node pool.\n\nIf unspecified, the defaults are used."
+          "description": "Parameters used in creating the cluster's nodes.\nFor requests, this field should only be used in lieu of a\n\"node_pool\" object, since this configuration (along with the\n\"initial_node_count\") will be used to create a \"NodePool\" object with an\nauto-generated name. Do not use this and a node_pool at the same time.\nFor responses, this field will be populated with the node configuration of\nthe first node pool. (For configuration of each node pool, see\n`node_pool.config`)\n\nIf unspecified, the defaults are used.\nThis field is deprecated, use node_pool.config instead."
         },
         "nodeIpv4CidrSize": {
           "description": "[Output only] The size of the address space on each node for hosting\ncontainers. This is provisioned from within the `container_ipv4_cidr`\nrange.",
@@ -2902,6 +2914,10 @@
       "description": "ClusterAutoscaling contains global, per-cluster information\nrequired by Cluster Autoscaler to automatically adjust\nthe size of the cluster and create/delete\nnode pools based on the current needs.",
       "id": "ClusterAutoscaling",
       "properties": {
+        "autoprovisioningNodePoolDefaults": {
+          "$ref": "AutoprovisioningNodePoolDefaults",
+          "description": "AutoprovisioningNodePoolDefaults contains defaults for a node pool\ncreated by NAP."
+        },
         "enableNodeAutoprovisioning": {
           "description": "Enables automatic node pool creation and deletion.",
           "type": "boolean"
@@ -3132,43 +3148,43 @@
       "id": "GetOpenIDConfigResponse",
       "properties": {
         "claims_supported": {
-          "description": "NOLINT",
+          "description": "Supported claims.",
           "items": {
             "type": "string"
           },
           "type": "array"
         },
         "grant_types": {
-          "description": "NOLINT",
+          "description": "Supported grant types.",
           "items": {
             "type": "string"
           },
           "type": "array"
         },
         "id_token_signing_alg_values_supported": {
-          "description": "NOLINT",
+          "description": "supported ID Token signing Algorithms.",
           "items": {
             "type": "string"
           },
           "type": "array"
         },
         "issuer": {
-          "description": "NOLINT",
+          "description": "OIDC Issuer.",
           "type": "string"
         },
         "jwks_uri": {
-          "description": "NOLINT",
+          "description": "JSON Web Key uri.",
           "type": "string"
         },
         "response_types_supported": {
-          "description": "NOLINT",
+          "description": "Supported response types.",
           "items": {
             "type": "string"
           },
           "type": "array"
         },
         "subject_types_supported": {
-          "description": "NOLINT",
+          "description": "Supported subject types.",
           "items": {
             "type": "string"
           },
@@ -3297,39 +3313,39 @@
       "id": "Jwk",
       "properties": {
         "alg": {
-          "description": "NOLINT",
+          "description": "Algorithm.",
           "type": "string"
         },
         "crv": {
-          "description": "NOLINT",
+          "description": "Used for ECDSA keys.",
           "type": "string"
         },
         "e": {
-          "description": "NOLINT",
+          "description": "Used for RSA keys.",
           "type": "string"
         },
         "kid": {
-          "description": "NOLINT",
+          "description": "Key ID.",
           "type": "string"
         },
         "kty": {
-          "description": "NOLINT",
+          "description": "Key Type.",
           "type": "string"
         },
         "n": {
-          "description": "Fields for RSA keys.\nNOLINT",
+          "description": "Used for RSA keys.",
           "type": "string"
         },
         "use": {
-          "description": "NOLINT",
+          "description": "Permitted uses for the public keys.",
           "type": "string"
         },
         "x": {
-          "description": "Fields for ECDSA keys.\nNOLINT",
+          "description": "Used for ECDSA keys.",
           "type": "string"
         },
         "y": {
-          "description": "NOLINT",
+          "description": "Used for ECDSA keys.",
           "type": "string"
         }
       },
@@ -3701,6 +3717,10 @@
           "description": "Whether the nodes are created as preemptible VM instances. See:\nhttps://cloud.google.com/compute/docs/instances/preemptible for more\ninforamtion about preemptible VM instances.",
           "type": "boolean"
         },
+        "sandboxConfig": {
+          "$ref": "SandboxConfig",
+          "description": "Sandbox configuration for this node."
+        },
         "serviceAccount": {
           "description": "The Google Cloud Platform Service Account to be used by the node VMs. If\nno Service Account is specified, the \"default\" service account is used.",
           "type": "string"
@@ -3787,6 +3807,11 @@
         "name": {
           "description": "The name of the node pool.",
           "type": "string"
+        },
+        "podIpv4CidrSize": {
+          "description": "[Output only] The pod CIDR block size per node in this node pool.",
+          "format": "int32",
+          "type": "integer"
         },
         "selfLink": {
           "description": "[Output only] Server-defined URL for the resource.",
@@ -4141,6 +4166,17 @@
         },
         "zone": {
           "description": "Deprecated. The name of the Google Compute Engine\n[zone](/compute/docs/zones#available) in which the cluster\nresides.\nThis field has been deprecated and replaced by the name field.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "SandboxConfig": {
+      "description": "SandboxConfig contains configurations of the sandbox to use for the node.",
+      "id": "SandboxConfig",
+      "properties": {
+        "sandboxType": {
+          "description": "Type of the sandbox to use for the node (e.g. 'gvisor')",
           "type": "string"
         }
       },

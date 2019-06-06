@@ -29,9 +29,9 @@ When adding support for just-released GCP features, you'll often need to vendor 
 The Google provider uses Go Modules; use the commands listed below and the new dependencies will be included in your PR.
 
 ```bash
-GO111MODULES=on go get {{dependency}}
-GO111MODULES=on go mod tidy
-GO111MODULES=on go mod vendor
+GO111MODULE=on go get {{dependency}}
+GO111MODULE=on go mod tidy
+GO111MODULE=on go mod vendor
 ```
 
 If you're developing against Magic Modules, vendoring changes needs to be done against each of the providers Magic Modules builds. At time of writing, that's this provider (`google`) and [`google-beta`](https://github.com/terraform-providers/terraform-provider-google-beta).
