@@ -573,7 +573,7 @@
       }
     }
   },
-  "revision": "20190323",
+  "revision": "20190507",
   "rootUrl": "https://cloudbuild.googleapis.com/",
   "schemas": {
     "ArtifactObjects": {
@@ -1051,6 +1051,13 @@
           "description": "Substitutions data for Build resource.",
           "type": "object"
         },
+        "tags": {
+          "description": "Tags for annotation of a `BuildTrigger`",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "triggerTemplate": {
           "$ref": "RepoSource",
           "description": "Template describing the types of source changes to trigger a build.\n\nBranch and tag names in trigger templates are interpreted as regular\nexpressions. Any branch or tag change that matches that regular expression\nwill trigger a build."
@@ -1248,7 +1255,7 @@
           "type": "object"
         },
         "name": {
-          "description": "The server-assigned name, which is only unique within the same service that\noriginally returns it. If you use the default HTTP mapping, the\n`name` should have the format of `operations/some/unique/name`.",
+          "description": "The server-assigned name, which is only unique within the same service that\noriginally returns it. If you use the default HTTP mapping, the\n`name` should be a resource name ending with `operations/{unique_id}`.",
           "type": "string"
         },
         "response": {
