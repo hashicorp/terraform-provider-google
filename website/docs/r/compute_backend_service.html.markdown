@@ -24,7 +24,7 @@ description: |-
 
 A Backend Service defines a group of virtual machines that will serve
 traffic for load balancing. This resource is a global backend service,
-appropriate for external load balancing or self-managed internal load balancing. 
+appropriate for external load balancing or self-managed internal load balancing.
 For managed internal load balancing, use a regional backend service instead.
 
 Currently self-managed internal load balancing is only available in beta.
