@@ -567,6 +567,12 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 
 		if v, ok := d.GetOk(prefix + ".source"); ok {
 			disk.Source = v.(string)
+			conflicts := []string{"disk_size_gb", "disk_name", "disk_type", "source_image", "labels"}
+			for _, conflict := range conflicts {
+				if _, ok := d.GetOk(prefix + "." + conflict); ok {
+					return nil, fmt.Errorf("Cannot use `source` with any of the fields in %s", conflicts)
+				}
+			}
 		} else {
 			disk.InitializeParams = &computeBeta.AttachedDiskInitializeParams{}
 
