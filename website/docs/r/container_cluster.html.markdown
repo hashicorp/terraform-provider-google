@@ -291,6 +291,10 @@ to the datasource. A `region` can have a different set of supported versions tha
     Vertical Pod Autoscaling automatically adjusts the resources of pods controlled by it.
     Structure is documented below.
 
+* `workload_identity_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
+    Workload Identity allows Kubernetes service accounts to act as a user-managed
+    [Google IAM Service Account](https://cloud.google.com/iam/docs/service-accounts#user-managed_service_accounts).
+
 * `enable_intranode_visibility` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
     Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.
 
@@ -583,6 +587,7 @@ The `workload_metadata_config` block supports:
     * UNSPECIFIED: Not Set
     * SECURE: Prevent workloads not in hostNetwork from accessing certain VM metadata, specifically kube-env, which contains Kubelet credentials, and the instance identity token. See [Metadata Concealment](https://cloud.google.com/kubernetes-engine/docs/how-to/metadata-proxy) documentation.
     * EXPOSE: Expose all VM metadata to pods.
+    * GKE_METADATA_SERVER: Enables [workload identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) on the node.
 
 The `vertical_pod_autoscaling` block supports:
 
