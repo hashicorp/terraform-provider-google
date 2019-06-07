@@ -11,6 +11,7 @@ BUG FIXES:
 * compute: `google_sql_user` User's can now be updated to change their password [GH-3785]
 * compute: `google_compute_instance_template` Fixed issue so project can now be specified by interpolated varibles. [GH-3798]
 * compute: `google_container_cluster` and `google_node_pool` now retry correctly when polling for status of an operation. [GH-3801]
+* compute: `google_compute_instance_template` Throw error when using incompatible disk fields instead of continual plan diff [GH-3789]
 
 ## 2.8.0 (June 04, 2019)
 
