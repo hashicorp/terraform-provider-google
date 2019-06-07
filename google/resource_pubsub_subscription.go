@@ -187,6 +187,11 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 		obj["expirationPolicy"] = expirationPolicyProp
 	}
 
+	obj, err = resourcePubsubSubscriptionEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
@@ -597,6 +602,11 @@ func expandPubsubSubscriptionExpirationPolicy(v interface{}, d TerraformResource
 
 func expandPubsubSubscriptionExpirationPolicyTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourcePubsubSubscriptionEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	delete(obj, "name")
+	return obj, nil
 }
 
 func resourcePubsubSubscriptionUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
