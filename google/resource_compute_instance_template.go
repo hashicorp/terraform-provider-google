@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -726,46 +727,212 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	return resourceComputeInstanceTemplateRead(d, meta)
 }
 
-func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData, defaultProject string) ([]map[string]interface{}, error) {
-	result := make([]map[string]interface{}, 0, len(disks))
-	for _, disk := range disks {
-		diskMap := make(map[string]interface{})
-		if disk.InitializeParams != nil {
-			if disk.InitializeParams.SourceImage != "" {
-				selfLink, err := resolvedImageSelfLink(defaultProject, disk.InitializeParams.SourceImage)
-				if err != nil {
-					return nil, errwrap.Wrapf("Error expanding source image input to self_link: {{err}}", err)
-				}
-				path, err := getRelativePath(selfLink)
-				if err != nil {
-					return nil, errwrap.Wrapf("Error getting relative path for source image: {{err}}", err)
-				}
-				diskMap["source_image"] = path
-			} else {
-				diskMap["source_image"] = ""
-			}
-			diskMap["disk_type"] = disk.InitializeParams.DiskType
-			diskMap["disk_name"] = disk.InitializeParams.DiskName
-			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
-		}
+type diskCharacteristics struct {
+	mode        string
+	diskType    string
+	diskSizeGb  string
+	autoDelete  bool
+	sourceImage string
+}
 
-		if disk.DiskEncryptionKey != nil {
-			encryption := make([]map[string]interface{}, 1)
-			encryption[0] = make(map[string]interface{})
-			encryption[0]["kms_key_self_link"] = disk.DiskEncryptionKey.KmsKeyName
-			diskMap["disk_encryption_key"] = encryption
-		}
-
-		diskMap["auto_delete"] = disk.AutoDelete
-		diskMap["boot"] = disk.Boot
-		diskMap["device_name"] = disk.DeviceName
-		diskMap["interface"] = disk.Interface
-		diskMap["source"] = ConvertSelfLinkToV1(disk.Source)
-		diskMap["mode"] = disk.Mode
-		diskMap["type"] = disk.Type
-		result = append(result, diskMap)
+func diskCharacteristicsFromMap(m map[string]interface{}) diskCharacteristics {
+	dc := diskCharacteristics{}
+	if v := m["mode"]; v == nil || v.(string) == "" {
+		// mode has an apply-time default of READ_WRITE
+		dc.mode = "READ_WRITE"
+	} else {
+		dc.mode = v.(string)
 	}
-	return result, nil
+
+	if v := m["disk_type"]; v != nil {
+		dc.diskType = v.(string)
+	}
+
+	if v := m["disk_size_gb"]; v != nil {
+		// Terraform and GCP return ints as different types (int vs int64), so just
+		// use strings to compare for simplicity.
+		dc.diskSizeGb = fmt.Sprintf("%v", v)
+	}
+
+	if v := m["auto_delete"]; v != nil {
+		dc.autoDelete = v.(bool)
+	}
+
+	if v := m["source_image"]; v != nil {
+		dc.sourceImage = v.(string)
+	}
+	return dc
+}
+
+func flattenDisk(disk *computeBeta.AttachedDisk, defaultProject string) (map[string]interface{}, error) {
+	diskMap := make(map[string]interface{})
+	if disk.InitializeParams != nil {
+		if disk.InitializeParams.SourceImage != "" {
+			selfLink, err := resolvedImageSelfLink(defaultProject, disk.InitializeParams.SourceImage)
+			if err != nil {
+				return nil, errwrap.Wrapf("Error expanding source image input to self_link: {{err}}", err)
+			}
+			path, err := getRelativePath(selfLink)
+			if err != nil {
+				return nil, errwrap.Wrapf("Error getting relative path for source image: {{err}}", err)
+			}
+			diskMap["source_image"] = path
+		} else {
+			diskMap["source_image"] = ""
+		}
+		diskMap["disk_type"] = disk.InitializeParams.DiskType
+		diskMap["disk_name"] = disk.InitializeParams.DiskName
+		diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
+	}
+
+	if disk.DiskEncryptionKey != nil {
+		encryption := make([]map[string]interface{}, 1)
+		encryption[0] = make(map[string]interface{})
+		encryption[0]["kms_key_self_link"] = disk.DiskEncryptionKey.KmsKeyName
+		diskMap["disk_encryption_key"] = encryption
+	}
+
+	diskMap["auto_delete"] = disk.AutoDelete
+	diskMap["boot"] = disk.Boot
+	diskMap["device_name"] = disk.DeviceName
+	diskMap["interface"] = disk.Interface
+	diskMap["source"] = ConvertSelfLinkToV1(disk.Source)
+	diskMap["mode"] = disk.Mode
+	diskMap["type"] = disk.Type
+
+	return diskMap, nil
+}
+
+func reorderDisks(configDisks []interface{}, apiDisks []map[string]interface{}) []map[string]interface{} {
+	if len(apiDisks) != len(configDisks) {
+		// There are different numbers of disks in state and returned from the API, so it's not
+		// worth trying to reorder them since it'll be a diff anyway.
+		return apiDisks
+	}
+
+	result := make([]map[string]interface{}, len(apiDisks), len(apiDisks))
+
+	/*
+		Disks aren't necessarily returned from the API in the same order they were sent, so gather
+		information about the ones in state that we can use to map it back. We can't do this by
+		just looping over all of the disks, because you could end up matching things in the wrong
+		order. For example, if the config disks contain the following disks:
+		disk 1: auto delete = false, size = 10
+		disk 2: auto delete = false, size = 10, device name = "disk 2"
+		disk 3: type = scratch
+		And the disks returned from the API are:
+		disk a: auto delete = false, size = 10, device name = "disk 2"
+		disk b: auto delete = false, size = 10, device name = "disk 1"
+		disk c: type = scratch
+		Then disk a will match disk 1, disk b won't match any disk, and c will match 3, making the
+		final order a, c, b, which is wrong. To get disk a to match disk 2, we have to go in order
+		of fields most specifically able to identify a disk to least.
+	*/
+	disksByDeviceName := map[string]int{}
+	scratchDisksByInterface := map[string][]int{}
+	attachedDisksBySource := map[string]int{}
+	attachedDisksByDiskName := map[string]int{}
+	attachedDisksByCharacteristics := []int{}
+
+	for i, d := range configDisks {
+		if i == 0 {
+			// boot disk
+			continue
+		}
+		disk := d.(map[string]interface{})
+		if v := disk["device_name"]; v.(string) != "" {
+			disksByDeviceName[v.(string)] = i
+		} else if v := disk["type"]; v.(string) == "SCRATCH" {
+			iface := disk["interface"].(string)
+			if iface == "" {
+				// apply-time default
+				iface = "SCSI"
+			}
+			scratchDisksByInterface[iface] = append(scratchDisksByInterface[iface], i)
+		} else if v := disk["source"]; v.(string) != "" {
+			attachedDisksBySource[v.(string)] = i
+		} else if v := disk["disk_name"]; v.(string) != "" {
+			attachedDisksByDiskName[v.(string)] = i
+		} else {
+			attachedDisksByCharacteristics = append(attachedDisksByCharacteristics, i)
+		}
+	}
+
+	// Align the disks, going from the most specific criteria to the least.
+	for _, apiDisk := range apiDisks {
+		// 1. This resource only works if the boot disk is the first one (which should be fixed
+		//	  separately), so put the boot disk first.
+		if apiDisk["boot"].(bool) {
+			result[0] = apiDisk
+
+			// 2. All disks have a unique device name
+		} else if i, ok := disksByDeviceName[apiDisk["device_name"].(string)]; ok {
+			result[i] = apiDisk
+
+			// 3. Scratch disks are all the same except device name and interface, so match them by
+			//    interface.
+		} else if apiDisk["type"].(string) == "SCRATCH" {
+			iface := apiDisk["interface"].(string)
+			indexes := scratchDisksByInterface[iface]
+			if len(indexes) > 0 {
+				result[indexes[0]] = apiDisk
+				scratchDisksByInterface[iface] = indexes[1:]
+			} else {
+				result = append(result, apiDisk)
+			}
+
+			// 4. Each attached disk will have a different source, so match by that.
+		} else if i, ok := attachedDisksBySource[apiDisk["source"].(string)]; ok {
+			result[i] = apiDisk
+
+			// 5. If a disk was created for this resource via initializeParams, it will have a
+			//    unique name.
+		} else if v, ok := apiDisk["disk_name"]; ok && attachedDisksByDiskName[v.(string)] != 0 {
+			result[attachedDisksByDiskName[v.(string)]] = apiDisk
+
+			// 6. If no unique keys exist on this disk, then use a combination of its remaining
+			//    characteristics to see whether it matches exactly.
+		} else {
+			found := false
+			for arrayIndex, i := range attachedDisksByCharacteristics {
+				configDisk := configDisks[i].(map[string]interface{})
+				stateDc := diskCharacteristicsFromMap(configDisk)
+				readDc := diskCharacteristicsFromMap(apiDisk)
+				if reflect.DeepEqual(stateDc, readDc) {
+					result[i] = apiDisk
+					attachedDisksByCharacteristics = append(attachedDisksByCharacteristics[:arrayIndex], attachedDisksByCharacteristics[arrayIndex+1:]...)
+					found = true
+					break
+				}
+			}
+			if !found {
+				result = append(result, apiDisk)
+			}
+		}
+	}
+
+	// Remove nils from map in case there were disks that could not be matched
+	ds := []map[string]interface{}{}
+	for _, d := range result {
+		if d != nil {
+			ds = append(ds, d)
+		}
+	}
+	return ds
+}
+
+func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData, defaultProject string) ([]map[string]interface{}, error) {
+	apiDisks := make([]map[string]interface{}, len(disks))
+
+	for i, disk := range disks {
+		d, err := flattenDisk(disk, defaultProject)
+		if err != nil {
+			return nil, err
+		}
+		apiDisks[i] = d
+	}
+
+	return reorderDisks(d.Get("disk").([]interface{}), apiDisks), nil
 }
 
 func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{}) error {
