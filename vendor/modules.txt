@@ -346,6 +346,7 @@ google.golang.org/api/container/v1
 google.golang.org/api/container/v1beta1
 google.golang.org/api/dataflow/v1b3
 google.golang.org/api/dataproc/v1
+google.golang.org/api/dataproc/v1beta2
 google.golang.org/api/dns/v1
 google.golang.org/api/dns/v1beta2
 google.golang.org/api/file/v1beta1
