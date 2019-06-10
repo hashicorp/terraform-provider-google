@@ -78,6 +78,11 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["labels"] = labelsProp
 	}
 
+	obj, err = resourcePubsubTopicEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/topics/{{name}}")
 	if err != nil {
 		return err
@@ -191,4 +196,9 @@ func expandPubsubTopicLabels(v interface{}, d TerraformResourceData, config *Con
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourcePubsubTopicEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	delete(obj, "name")
+	return obj, nil
 }
