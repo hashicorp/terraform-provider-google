@@ -107,12 +107,12 @@ func expandScheduling(v interface{}) (*computeBeta.Scheduling, error) {
 				continue
 			}
 			nodeAff := nodeAffRaw.(map[string]interface{})
-			tranformed := &computeBeta.SchedulingNodeAffinity{
+			transformed := &computeBeta.SchedulingNodeAffinity{
 				Key:      nodeAff["key"].(string),
 				Operator: nodeAff["operator"].(string),
 				Values:   convertStringArr(nodeAff["values"].(*schema.Set).List()),
 			}
-			scheduling.NodeAffinities = append(scheduling.NodeAffinities, tranformed)
+			scheduling.NodeAffinities = append(scheduling.NodeAffinities, transformed)
 		}
 	}
 
