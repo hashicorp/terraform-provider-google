@@ -236,6 +236,9 @@ resource "google_composer_environment" "test" {
 
 func testAccComposerEnvironment_update(name string) string {
 	return fmt.Sprintf(`
+data "google_composer_image_versions" "all" {
+}
+
 resource "google_composer_environment" "test" {
 	name = "%s"
 	region = "us-central1"
