@@ -6,17 +6,11 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
-
-	"strings"
-
-	"google.golang.org/api/compute/v1"
 )
 
 func TestAccComputeFirewall_update(t *testing.T) {
 	t.Parallel()
 
-	var firewall compute.Firewall
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 
@@ -27,11 +21,6 @@ func TestAccComputeFirewall_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_basic(networkName, firewallName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeFirewallExists(
-						"google_compute_firewall.foobar", &firewall),
-					testAccCheckComputeFirewallApiVersion(&firewall),
-				),
 			},
 			{
 				ResourceName:      "google_compute_firewall.foobar",
@@ -40,13 +29,6 @@ func TestAccComputeFirewall_update(t *testing.T) {
 			},
 			{
 				Config: testAccComputeFirewall_update(networkName, firewallName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeFirewallExists(
-						"google_compute_firewall.foobar", &firewall),
-					testAccCheckComputeFirewallPorts(
-						&firewall, "80-255"),
-					testAccCheckComputeFirewallApiVersion(&firewall),
-				),
 			},
 			{
 				ResourceName:      "google_compute_firewall.foobar",
@@ -55,11 +37,6 @@ func TestAccComputeFirewall_update(t *testing.T) {
 			},
 			{
 				Config: testAccComputeFirewall_basic(networkName, firewallName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeFirewallExists(
-						"google_compute_firewall.foobar", &firewall),
-					testAccCheckComputeFirewallApiVersion(&firewall),
-				),
 			},
 			{
 				ResourceName:      "google_compute_firewall.foobar",
@@ -73,7 +50,6 @@ func TestAccComputeFirewall_update(t *testing.T) {
 func TestAccComputeFirewall_priority(t *testing.T) {
 	t.Parallel()
 
-	var firewall compute.Firewall
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 
@@ -84,12 +60,6 @@ func TestAccComputeFirewall_priority(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_priority(networkName, firewallName, 1001),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeFirewallExists(
-						"google_compute_firewall.foobar", &firewall),
-					testAccCheckComputeFirewallHasPriority(&firewall, 1001),
-					testAccCheckComputeFirewallApiVersion(&firewall),
-				),
 			},
 			{
 				ResourceName:      "google_compute_firewall.foobar",
@@ -103,7 +73,6 @@ func TestAccComputeFirewall_priority(t *testing.T) {
 func TestAccComputeFirewall_noSource(t *testing.T) {
 	t.Parallel()
 
-	var firewall compute.Firewall
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 
@@ -114,11 +83,6 @@ func TestAccComputeFirewall_noSource(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_noSource(networkName, firewallName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeFirewallExists(
-						"google_compute_firewall.foobar", &firewall),
-					testAccCheckComputeFirewallApiVersion(&firewall),
-				),
 			},
 			{
 				ResourceName:      "google_compute_firewall.foobar",
@@ -132,7 +96,6 @@ func TestAccComputeFirewall_noSource(t *testing.T) {
 func TestAccComputeFirewall_denied(t *testing.T) {
 	t.Parallel()
 
-	var firewall compute.Firewall
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 
@@ -143,11 +106,6 @@ func TestAccComputeFirewall_denied(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_denied(networkName, firewallName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeFirewallExists("google_compute_firewall.foobar", &firewall),
-					testAccCheckComputeFirewallDenyPorts(&firewall, "22"),
-					testAccCheckComputeFirewallApiVersion(&firewall),
-				),
 			},
 			{
 				ResourceName:      "google_compute_firewall.foobar",
@@ -161,7 +119,6 @@ func TestAccComputeFirewall_denied(t *testing.T) {
 func TestAccComputeFirewall_egress(t *testing.T) {
 	t.Parallel()
 
-	var firewall compute.Firewall
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 
@@ -172,11 +129,6 @@ func TestAccComputeFirewall_egress(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_egress(networkName, firewallName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeFirewallExists("google_compute_firewall.foobar", &firewall),
-					testAccCheckComputeFirewallEgress(&firewall),
-					testAccCheckComputeFirewallApiVersion(&firewall),
-				),
 			},
 			{
 				ResourceName:      "google_compute_firewall.foobar",
@@ -190,15 +142,11 @@ func TestAccComputeFirewall_egress(t *testing.T) {
 func TestAccComputeFirewall_serviceAccounts(t *testing.T) {
 	t.Parallel()
 
-	var firewall compute.Firewall
 	networkName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	firewallName := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 
 	sourceSa := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
 	targetSa := fmt.Sprintf("firewall-test-%s", acctest.RandString(10))
-	project := getTestProjectFromEnv()
-	sourceSaEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sourceSa, project)
-	targetSaEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", targetSa, project)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -207,11 +155,6 @@ func TestAccComputeFirewall_serviceAccounts(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_serviceAccounts(sourceSa, targetSa, networkName, firewallName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeFirewallExists("google_compute_firewall.foobar", &firewall),
-					testAccCheckComputeFirewallServiceAccounts(sourceSaEmail, targetSaEmail, &firewall),
-					testAccCheckComputeFirewallApiVersion(&firewall),
-				),
 			},
 			{
 				ResourceName:      "google_compute_firewall.foobar",
@@ -253,118 +196,15 @@ func TestAccComputeFirewall_disabled(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeFirewallExists(n string, firewall *compute.Firewall) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		found, err := config.clientCompute.Firewalls.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Firewall not found")
-		}
-
-		*firewall = *found
-
-		return nil
-	}
-}
-
-func testAccCheckComputeFirewallHasPriority(firewall *compute.Firewall, priority int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if firewall.Priority != int64(priority) {
-			return fmt.Errorf("Priority for firewall does not match: expected %d, found %d", priority, firewall.Priority)
-		}
-		return nil
-	}
-}
-
-func testAccCheckComputeFirewallPorts(
-	firewall *compute.Firewall, ports string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if len(firewall.Allowed) == 0 {
-			return fmt.Errorf("no allowed rules")
-		}
-
-		if firewall.Allowed[0].Ports[0] != ports {
-			return fmt.Errorf("bad: %#v", firewall.Allowed[0].Ports)
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckComputeFirewallDenyPorts(firewall *compute.Firewall, ports string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if len(firewall.Denied) == 0 {
-			return fmt.Errorf("no denied rules")
-		}
-
-		if firewall.Denied[0].Ports[0] != ports {
-			return fmt.Errorf("bad: %#v", firewall.Denied[0].Ports)
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckComputeFirewallEgress(firewall *compute.Firewall) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if firewall.Direction != "EGRESS" {
-			return fmt.Errorf("firewall not EGRESS")
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckComputeFirewallServiceAccounts(sourceSa, targetSa string, firewall *compute.Firewall) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if len(firewall.SourceServiceAccounts) != 1 || firewall.SourceServiceAccounts[0] != sourceSa {
-			return fmt.Errorf("Expected sourceServiceAccount of %s, got %v", sourceSa, firewall.SourceServiceAccounts)
-		}
-		if len(firewall.TargetServiceAccounts) != 1 || firewall.TargetServiceAccounts[0] != targetSa {
-			return fmt.Errorf("Expected targetServiceAccount of %s, got %v", targetSa, firewall.TargetServiceAccounts)
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckComputeFirewallApiVersion(firewall *compute.Firewall) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		// The self-link of the network field is used to determine which API was used when fetching
-		// the state from the API.
-		if !strings.Contains(firewall.Network, "compute/v1") {
-			return fmt.Errorf("firewall v1 API was not used")
-		}
-
-		return nil
-	}
-}
-
 func testAccComputeFirewall_basic(network, firewall string) string {
 	return fmt.Sprintf(`
 	resource "google_compute_network" "foobar" {
 		name = "%s"
 		auto_create_subnetworks = false
-		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {
-		name = "firewall-test-%s"
+		name = "%s"
 		description = "Resource created for Terraform acceptance testing"
 		network = "${google_compute_network.foobar.name}"
 		source_tags = ["foo"]
@@ -380,11 +220,10 @@ func testAccComputeFirewall_update(network, firewall string) string {
 	resource "google_compute_network" "foobar" {
 		name = "%s"
 		auto_create_subnetworks = false
-		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {
-		name = "firewall-test-%s"
+		name = "%s"
 		description = "Resource created for Terraform acceptance testing"
 		network = "${google_compute_network.foobar.self_link}"
 		source_tags = ["foo"]
@@ -402,11 +241,10 @@ func testAccComputeFirewall_priority(network, firewall string, priority int) str
 	resource "google_compute_network" "foobar" {
 		name = "%s"
 		auto_create_subnetworks = false
-		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {
-		name = "firewall-test-%s"
+		name = "%s"
 		description = "Resource created for Terraform acceptance testing"
 		network = "${google_compute_network.foobar.name}"
 		source_tags = ["foo"]
@@ -423,11 +261,10 @@ func testAccComputeFirewall_noSource(network, firewall string) string {
 	resource "google_compute_network" "foobar" {
 		name = "%s"
 		auto_create_subnetworks = false
-		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {
-		name = "firewall-test-%s"
+		name = "%s"
 		description = "Resource created for Terraform acceptance testing"
 		network = "${google_compute_network.foobar.name}"
 
@@ -443,11 +280,10 @@ func testAccComputeFirewall_denied(network, firewall string) string {
 	resource "google_compute_network" "foobar" {
 		name = "%s"
 		auto_create_subnetworks = false
-		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {
-		name = "firewall-test-%s"
+		name = "%s"
 		description = "Resource created for Terraform acceptance testing"
 		network = "${google_compute_network.foobar.name}"
 		source_tags = ["foo"]
@@ -464,11 +300,10 @@ func testAccComputeFirewall_egress(network, firewall string) string {
 	resource "google_compute_network" "foobar" {
 		name = "%s"
 		auto_create_subnetworks = false
-		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {
-		name = "firewall-test-%s"
+		name = "%s"
 		direction = "EGRESS"
 		description = "Resource created for Terraform acceptance testing"
 		network = "${google_compute_network.foobar.name}"
@@ -492,10 +327,11 @@ func testAccComputeFirewall_serviceAccounts(sourceSa, targetSa, network, firewal
 
 	resource "google_compute_network" "foobar" {
 		name = "%s"
+		auto_create_subnetworks = false
 	}
 
 	resource "google_compute_firewall" "foobar" {
-		name = "firewall-test-%s"
+		name = "%s"
 		description = "Resource created for Terraform acceptance testing"
 		network = "${google_compute_network.foobar.name}"
 
@@ -513,11 +349,10 @@ func testAccComputeFirewall_disabled(network, firewall string) string {
 	resource "google_compute_network" "foobar" {
 		name = "%s"
 		auto_create_subnetworks = false
-		ipv4_range = "10.0.0.0/16"
 	}
 
 	resource "google_compute_firewall" "foobar" {
-		name = "firewall-test-%s"
+		name = "%s"
 		description = "Resource created for Terraform acceptance testing"
 		network = "${google_compute_network.foobar.name}"
 		source_tags = ["foo"]
