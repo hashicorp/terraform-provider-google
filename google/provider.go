@@ -270,9 +270,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			// Legacy roles such as roles/storage.legacyBucketReader are automatically added
 			// when creating a bucket. For this reason, it is better not to add the authoritative
 			// google_storage_bucket_iam_policy resource.
-			"google_storage_bucket_iam_binding": ResourceIamBinding(IamStorageBucketSchema, NewStorageBucketIamUpdater),
-			"google_storage_bucket_iam_member":  ResourceIamMember(IamStorageBucketSchema, NewStorageBucketIamUpdater),
-			"google_storage_bucket_iam_policy":  ResourceIamPolicy(IamStorageBucketSchema, NewStorageBucketIamUpdater),
+			"google_storage_bucket_iam_binding": ResourceIamBindingWithImport(IamStorageBucketSchema, NewStorageBucketIamUpdater, StorageBucketIdParseFunc),
+			"google_storage_bucket_iam_member":  ResourceIamMemberWithImport(IamStorageBucketSchema, NewStorageBucketIamUpdater, StorageBucketIdParseFunc),
+			"google_storage_bucket_iam_policy":  ResourceIamPolicyWithImport(IamStorageBucketSchema, NewStorageBucketIamUpdater, StorageBucketIdParseFunc),
 			"google_storage_bucket_object":      resourceStorageBucketObject(),
 			"google_storage_object_acl":         resourceStorageObjectAcl(),
 			"google_storage_default_object_acl": resourceStorageDefaultObjectAcl(),
