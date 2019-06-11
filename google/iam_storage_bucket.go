@@ -16,6 +16,11 @@ var IamStorageBucketSchema = map[string]*schema.Schema{
 	},
 }
 
+func StorageBucketIdParseFunc(d *schema.ResourceData, _ *Config) error {
+	d.Set("bucket", d.Id())
+	return nil
+}
+
 type StorageBucketIamUpdater struct {
 	bucket string
 	Config *Config
