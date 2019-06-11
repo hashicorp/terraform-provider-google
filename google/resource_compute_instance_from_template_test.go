@@ -241,6 +241,12 @@ resource "google_compute_instance_template" "foobar" {
 		boot = false
 	}
 
+	disk {
+		disk_type = "local-ssd"
+		type = "SCRATCH"
+		interface = "NVME"
+	}
+
 	network_interface {
 		network = "default"
 	}

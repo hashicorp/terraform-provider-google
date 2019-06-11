@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -15,6 +16,150 @@ import (
 )
 
 const DEFAULT_MIN_CPU_TEST_VALUE = "Intel Haswell"
+
+func TestComputeInstanceTemplate_reorderDisks(t *testing.T) {
+	t.Parallel()
+
+	cBoot := map[string]interface{}{
+		"source": "boot-source",
+	}
+	cFallThrough := map[string]interface{}{
+		"auto_delete": true,
+	}
+	cDeviceName := map[string]interface{}{
+		"device_name": "disk-1",
+	}
+	cScratch := map[string]interface{}{
+		"type": "SCRATCH",
+	}
+	cSource := map[string]interface{}{
+		"source": "disk-source",
+	}
+	cScratchNvme := map[string]interface{}{
+		"type":      "SCRATCH",
+		"interface": "NVME",
+	}
+
+	aBoot := map[string]interface{}{
+		"source": "boot-source",
+		"boot":   true,
+	}
+	aScratchNvme := map[string]interface{}{
+		"device_name": "scratch-1",
+		"type":        "SCRATCH",
+		"interface":   "NVME",
+	}
+	aSource := map[string]interface{}{
+		"device_name": "disk-2",
+		"source":      "disk-source",
+	}
+	aScratchScsi := map[string]interface{}{
+		"device_name": "scratch-2",
+		"type":        "SCRATCH",
+		"interface":   "SCSI",
+	}
+	aFallThrough := map[string]interface{}{
+		"device_name": "disk-3",
+		"auto_delete": true,
+		"source":      "fake-source",
+	}
+	aFallThrough2 := map[string]interface{}{
+		"device_name": "disk-4",
+		"auto_delete": true,
+		"source":      "fake-source",
+	}
+	aDeviceName := map[string]interface{}{
+		"device_name": "disk-1",
+		"auto_delete": true,
+		"source":      "fake-source-2",
+	}
+	aNoMatch := map[string]interface{}{
+		"device_name": "disk-2",
+		"source":      "disk-source-doesn't-match",
+	}
+
+	cases := map[string]struct {
+		ConfigDisks    []interface{}
+		ApiDisks       []map[string]interface{}
+		ExpectedResult []map[string]interface{}
+	}{
+		"all disks represented": {
+			ApiDisks: []map[string]interface{}{
+				aBoot, aScratchNvme, aSource, aScratchScsi, aFallThrough, aDeviceName,
+			},
+			ConfigDisks: []interface{}{
+				cBoot, cFallThrough, cDeviceName, cScratch, cSource, cScratchNvme,
+			},
+			ExpectedResult: []map[string]interface{}{
+				aBoot, aFallThrough, aDeviceName, aScratchScsi, aSource, aScratchNvme,
+			},
+		},
+		"one non-match": {
+			ApiDisks: []map[string]interface{}{
+				aBoot, aNoMatch, aScratchNvme, aScratchScsi, aFallThrough, aDeviceName,
+			},
+			ConfigDisks: []interface{}{
+				cBoot, cFallThrough, cDeviceName, cScratch, cSource, cScratchNvme,
+			},
+			ExpectedResult: []map[string]interface{}{
+				aBoot, aFallThrough, aDeviceName, aScratchScsi, aScratchNvme, aNoMatch,
+			},
+		},
+		"two fallthroughs": {
+			ApiDisks: []map[string]interface{}{
+				aBoot, aScratchNvme, aFallThrough, aSource, aScratchScsi, aFallThrough2, aDeviceName,
+			},
+			ConfigDisks: []interface{}{
+				cBoot, cFallThrough, cDeviceName, cScratch, cFallThrough, cSource, cScratchNvme,
+			},
+			ExpectedResult: []map[string]interface{}{
+				aBoot, aFallThrough, aDeviceName, aScratchScsi, aFallThrough2, aSource, aScratchNvme,
+			},
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			// Disks read using d.Get will always have values for all keys, so set those values
+			for _, disk := range tc.ConfigDisks {
+				d := disk.(map[string]interface{})
+				for _, k := range []string{"auto_delete", "boot"} {
+					if _, ok := d[k]; !ok {
+						d[k] = false
+					}
+				}
+				for _, k := range []string{"device_name", "disk_name", "interface", "mode", "source", "type"} {
+					if _, ok := d[k]; !ok {
+						d[k] = ""
+					}
+				}
+			}
+
+			// flattened disks always set auto_delete, boot, device_name, interface, mode, source, and type
+			for _, d := range tc.ApiDisks {
+				for _, k := range []string{"auto_delete", "boot"} {
+					if _, ok := d[k]; !ok {
+						d[k] = false
+					}
+				}
+
+				for _, k := range []string{"device_name", "interface", "mode", "source"} {
+					if _, ok := d[k]; !ok {
+						d[k] = ""
+					}
+				}
+				if _, ok := d["type"]; !ok {
+					d["type"] = "PERSISTENT"
+				}
+			}
+
+			result := reorderDisks(tc.ConfigDisks, tc.ApiDisks)
+			if !reflect.DeepEqual(tc.ExpectedResult, result) {
+				t.Errorf("reordering did not match\nExpected: %+v\nActual: %+v", tc.ExpectedResult, result)
+			}
+		})
+	}
+}
 
 func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 	t.Parallel()
