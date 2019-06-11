@@ -11,6 +11,8 @@ BUG FIXES:
 * compute: `google_sql_user` User's can now be updated to change their password [GH-3785]
 * compute: `google_compute_instance_template` Fixed issue so project can now be specified by interpolated varibles. [GH-3798]
 * compute: `google_compute_instance_template` Throw error when using incompatible disk fields instead of continual plan diff [GH-3789]
+* compute: `google_compute_instance_from_template` Make sure disk type is expanded to a URL [GH-3717]
+* comptue: `google_compute_instance_template` Attempt to put disks in state in the same order they were specified [GH-3717]
 * container: `google_container_cluster` and `google_node_pool` now retry correctly when polling for status of an operation. [GH-3801]
 * pubsub: `google_pubsub_subscription` and `google_pubsub_topic` resources can be created inside VPC service controls. [GH-3818]
 
