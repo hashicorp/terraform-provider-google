@@ -144,6 +144,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 	return mergeResourceMaps(
 		GeneratedAccessContextManagerResourcesMap,
 		GeneratedAppEngineResourcesMap,
+		GeneratedBigqueryDataTransferResourcesMap,
 		GeneratedComputeResourcesMap,
 		GeneratedCloudBuildResourcesMap,
 		GeneratedCloudSchedulerResourcesMap,
