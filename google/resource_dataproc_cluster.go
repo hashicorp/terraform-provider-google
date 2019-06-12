@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 
-	"google.golang.org/api/dataproc/v1"
+	dataproc "google.golang.org/api/dataproc/v1beta2"
 )
 
 func resourceDataprocCluster() *schema.Resource {
@@ -206,7 +206,6 @@ func resourceDataprocCluster() *schema.Resource {
 									// API does not honour this if set ...
 									// It always uses whatever is specified for the worker_config
 									// "machine_type": { ... }
-
 									"disk_config": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -459,7 +458,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Create the cluster
-	op, err := config.clientDataproc.Projects.Regions.Clusters.Create(
+	op, err := config.clientDataprocBeta.Projects.Regions.Clusters.Create(
 		project, region, cluster).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating Dataproc cluster: %s", err)
@@ -757,7 +756,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if len(updMask) > 0 {
-		patch := config.clientDataproc.Projects.Regions.Clusters.Patch(
+		patch := config.clientDataprocBeta.Projects.Regions.Clusters.Patch(
 			project, region, clusterName, cluster)
 		op, err := patch.UpdateMask(strings.Join(updMask, ",")).Do()
 		if err != nil {
@@ -787,7 +786,7 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	region := d.Get("region").(string)
 	clusterName := d.Get("name").(string)
 
-	cluster, err := config.clientDataproc.Projects.Regions.Clusters.Get(
+	cluster, err := config.clientDataprocBeta.Projects.Regions.Clusters.Get(
 		project, region, clusterName).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Dataproc Cluster %q", clusterName))
@@ -975,7 +974,7 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
 	log.Printf("[DEBUG] Deleting Dataproc cluster %s", clusterName)
-	op, err := config.clientDataproc.Projects.Regions.Clusters.Delete(
+	op, err := config.clientDataprocBeta.Projects.Regions.Clusters.Delete(
 		project, region, clusterName).Do()
 	if err != nil {
 		return err

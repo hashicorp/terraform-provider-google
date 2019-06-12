@@ -30,6 +30,7 @@ import (
 	containerBeta "google.golang.org/api/container/v1beta1"
 	dataflow "google.golang.org/api/dataflow/v1b3"
 	"google.golang.org/api/dataproc/v1"
+	dataprocBeta "google.golang.org/api/dataproc/v1beta2"
 	"google.golang.org/api/dns/v1"
 	dnsBeta "google.golang.org/api/dns/v1beta2"
 	file "google.golang.org/api/file/v1beta1"
@@ -71,6 +72,7 @@ type Config struct {
 	clientContainer              *container.Service
 	clientContainerBeta          *containerBeta.Service
 	clientDataproc               *dataproc.Service
+	clientDataprocBeta           *dataprocBeta.Service
 	clientDataflow               *dataflow.Service
 	clientDns                    *dns.Service
 	clientDnsBeta                *dnsBeta.Service
@@ -319,6 +321,13 @@ func (c *Config) LoadAndValidate() error {
 		return err
 	}
 	c.clientDataproc.UserAgent = userAgent
+
+	log.Printf("[INFO] Instantiating Google Cloud Dataproc Beta client...")
+	c.clientDataprocBeta, err = dataprocBeta.NewService(context, option.WithHTTPClient(client))
+	if err != nil {
+		return err
+	}
+	c.clientDataprocBeta.UserAgent = userAgent
 
 	c.clientFilestore, err = file.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
