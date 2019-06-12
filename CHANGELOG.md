@@ -3,6 +3,7 @@
 FEATURES:
 
 ENHANCEMENTS:
+* kms: `kms_crypto_key` supports `purpose` [GH-3843]
 * storage: `google_storage_bucket` now supports enabling `bucket_policy_only` access control. ([#1878](https://github.com/GoogleCloudPlatform/magic-modules/pull/1878))
 
 
