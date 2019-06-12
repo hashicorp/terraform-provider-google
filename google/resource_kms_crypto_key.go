@@ -40,6 +40,13 @@ func resourceKmsCryptoKey() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: orEmpty(validateKmsCryptoKeyRotationPeriod),
 			},
+			"purpose": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      "ENCRYPT_DECRYPT",
+				ValidateFunc: validation.StringInSlice([]string{"ENCRYPT_DECRYPT", "ASYMMETRIC_SIGN", "ASYMMETRIC_DECRYPT"}, false),
+			},
 			"version_template": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -107,7 +114,7 @@ func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	key := cloudkms.CryptoKey{
-		Purpose:         "ENCRYPT_DECRYPT",
+		Purpose:         d.Get("purpose").(string),
 		VersionTemplate: expandVersionTemplate(d.Get("version_template").([]interface{})),
 	}
 
@@ -193,6 +200,7 @@ func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", cryptoKeyId.Name)
 	d.Set("rotation_period", cryptoKey.RotationPeriod)
 	d.Set("self_link", cryptoKey.Name)
+	d.Set("purpose", cryptoKey.Purpose)
 
 	if err = d.Set("version_template", flattenVersionTemplate(cryptoKey.VersionTemplate)); err != nil {
 		return fmt.Errorf("Error setting version_template in state: %s", err.Error())

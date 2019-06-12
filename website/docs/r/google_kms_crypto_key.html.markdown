@@ -60,6 +60,8 @@ The following arguments are supported:
     of a decimal number with up to 9 fractional digits, followed by the letter s (seconds). It must be greater than
     a day (ie, 86400).
 
+* `purpose` - (Optional) Defines the cryptographic capabilities of the key.
+
 * `version_template` - (Optional) A template describing settings for new crypto key versions. Structure is documented below.
 
 ---
