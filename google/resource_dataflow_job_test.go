@@ -440,7 +440,7 @@ resource "google_storage_bucket" "temp" {
 }
 
 resource "google_service_account" "dataflow-sa" {
-  account_id   = "dataflow-sa"
+  account_id   = "dfjob-test-%s"
   display_name = "DataFlow Service Account"
 }
 
@@ -470,4 +470,4 @@ resource "google_dataflow_job" "big_data" {
 	service_account_email = "${google_service_account.dataflow-sa.email}"
 
 	on_delete = "cancel"
-}`, acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
+}`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
