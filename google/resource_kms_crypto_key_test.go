@@ -288,6 +288,7 @@ resource "google_kms_crypto_key" "crypto_key" {
 	name            = "%s"
 	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
 	rotation_period = "1000000s"
+	purpose         = "ENCRYPT_DECRYPT"
 	version_template {
 		algorithm =        "GOOGLE_SYMMETRIC_ENCRYPTION"
 		protection_level = "SOFTWARE"
