@@ -1,7 +1,7 @@
 module github.com/terraform-providers/terraform-provider-google
 
 require (
-	cloud.google.com/go v0.36.0
+	cloud.google.com/go v0.38.0
 	github.com/apparentlymart/go-cidr v1.0.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dustinkirkland/golang-petname v0.0.0-20170921220637-d3c2ba80e75e // indirect
@@ -15,10 +15,11 @@ require (
 	github.com/hashicorp/terraform v0.12.0
 	github.com/hashicorp/vault v1.0.1 // indirect
 	github.com/keybase/go-crypto v0.0.0-20181127160227-255a5089e85a // indirect
+	github.com/kr/pty v1.1.3 // indirect
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/stoewer/go-strcase v1.0.2
 	github.com/terraform-providers/terraform-provider-random v2.0.0+incompatible
-	golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421
-	google.golang.org/api v0.5.0
+	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
+	google.golang.org/api v0.6.0
 )
