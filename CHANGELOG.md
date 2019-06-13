@@ -2,6 +2,8 @@
 
 FEATURES:
 
+* **Custom Endpoint Support**: The Google provider supports custom endpoints, allowing you to use GCP-like APIs such as emulators. [GH-3787]
+
 ENHANCEMENTS:
 * kms: `kms_crypto_key` supports `purpose` [GH-3843]
 * storage: `google_storage_bucket` now supports enabling `bucket_policy_only` access control. ([#1878](https://github.com/GoogleCloudPlatform/magic-modules/pull/1878))
