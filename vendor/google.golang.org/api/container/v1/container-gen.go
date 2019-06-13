@@ -748,7 +748,9 @@ type Cluster struct {
 	// node for hosting
 	// containers. This is provisioned from within the
 	// `container_ipv4_cidr`
-	// range.
+	// range. This field will only be set when cluster is in route-based
+	// network
+	// mode.
 	NodeIpv4CidrSize int64 `json:"nodeIpv4CidrSize,omitempty"`
 
 	// NodePools: The node pools associated with this cluster.
@@ -1138,7 +1140,7 @@ type DailyMaintenanceWindow struct {
 	// maintenance operations.
 	// Time format should be in
 	// [RFC3339](https://www.ietf.org/rfc/rfc3339.txt)
-	// format "HH:MM”, where HH : [00-23] and MM : [00-59] GMT.
+	// format "HH:MM", where HH : [00-23] and MM : [00-59] GMT.
 	StartTime string `json:"startTime,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Duration") to

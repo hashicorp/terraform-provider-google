@@ -727,7 +727,7 @@
                 "getIamPolicy": {
                   "description": "Gets the access control policy for a resource. Returns an empty policy if the resource exists and does not have a policy set.",
                   "flatPath": "v1beta2/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}:getIamPolicy",
-                  "httpMethod": "POST",
+                  "httpMethod": "GET",
                   "id": "dataproc.projects.regions.autoscalingPolicies.getIamPolicy",
                   "parameterOrder": [
                     "resource"
@@ -742,9 +742,6 @@
                     }
                   },
                   "path": "v1beta2/{+resource}:getIamPolicy",
-                  "request": {
-                    "$ref": "GetIamPolicyRequest"
-                  },
                   "response": {
                     "$ref": "Policy"
                   },
@@ -2086,7 +2083,7 @@
       }
     }
   },
-  "revision": "20190417",
+  "revision": "20190511",
   "rootUrl": "https://dataproc.googleapis.com/",
   "schemas": {
     "AcceleratorConfig": {
@@ -3331,7 +3328,7 @@
           "type": "object"
         },
         "name": {
-          "description": "The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the name should have the format of operations/some/unique/name.",
+          "description": "The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the name should be a resource name ending with operations/{unique_id}.",
           "type": "string"
         },
         "response": {
