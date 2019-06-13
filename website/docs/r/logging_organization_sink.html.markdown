@@ -33,12 +33,10 @@ resource "google_storage_bucket" "log-bucket" {
     name = "organization-logging-bucket"
 }
 
-resource "google_project_iam_binding" "log-writer" {
+resource "google_project_iam_member" "log-writer" {
     role    = "roles/storage.objectCreator"
 
-    members = [
-        "${google_logging_organization_sink.my-sink.writer_identity}",
-    ]
+    member = "${google_logging_organization_sink.my-sink.writer_identity}"
 }
 ```
 
