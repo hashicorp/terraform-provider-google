@@ -2,7 +2,7 @@
 
 FEATURES:
 
-* **Custom Endpoint Support**: The Google provider supports custom endpoints, allowing you to use GCP-like APIs such as emulators. [GH-3787]
+* **Custom Endpoint Support**: The Google provider supports custom endpoints, allowing you to use GCP-like APIs such as emulators. See the [Provider Reference](https://www.terraform.io/docs/providers/google/provider_reference.html) for details. [GH-3787]
 
 ENHANCEMENTS:
 * kms: `kms_crypto_key` supports `purpose` [GH-3843]
