@@ -77,7 +77,7 @@ func testAccCheckCloudBuildTriggerDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://cloudbuild.googleapis.com/v1/projects/{{project}}/triggers/{{trigger_id}}")
+		url, err := replaceVarsForTest(rs, "{{CloudBuildBasePath}}projects/{{project}}/triggers/{{trigger_id}}")
 		if err != nil {
 			return err
 		}

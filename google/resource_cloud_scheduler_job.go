@@ -285,7 +285,7 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 		obj["httpTarget"] = httpTargetProp
 	}
 
-	url, err := replaceVars(d, config, "https://cloudscheduler.googleapis.com/v1/projects/{{project}}/locations/{{region}}/jobs")
+	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs")
 	if err != nil {
 		return err
 	}
@@ -311,7 +311,7 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://cloudscheduler.googleapis.com/v1/projects/{{project}}/locations/{{region}}/jobs/{{name}}")
+	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -368,7 +368,7 @@ func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) err
 func resourceCloudSchedulerJobDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://cloudscheduler.googleapis.com/v1/projects/{{project}}/locations/{{region}}/jobs/{{name}}")
+	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
 		return err
 	}

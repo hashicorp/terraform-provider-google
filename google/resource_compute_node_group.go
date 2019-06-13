@@ -123,7 +123,7 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 		obj["zone"] = zoneProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/nodeGroups?initialNodeCount={{size}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups?initialNodeCount={{size}}")
 	if err != nil {
 		return err
 	}
@@ -169,7 +169,7 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 func resourceComputeNodeGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -226,7 +226,7 @@ func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) er
 			obj["nodeTemplate"] = nodeTemplateProp
 		}
 
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}/setNodeTemplate")
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}/setNodeTemplate")
 		if err != nil {
 			return err
 		}
@@ -264,7 +264,7 @@ func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) er
 func resourceComputeNodeGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
 	if err != nil {
 		return err
 	}

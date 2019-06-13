@@ -212,7 +212,7 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 		obj["region"] = regionProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/interconnectAttachments")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/interconnectAttachments")
 	if err != nil {
 		return err
 	}
@@ -258,7 +258,7 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/interconnectAttachments/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/interconnectAttachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -337,7 +337,7 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 func resourceComputeInterconnectAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/interconnectAttachments/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/interconnectAttachments/{{name}}")
 	if err != nil {
 		return err
 	}

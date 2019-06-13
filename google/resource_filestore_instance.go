@@ -174,7 +174,7 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		obj["networks"] = networksProp
 	}
 
-	url, err := replaceVars(d, config, "https://file.googleapis.com/v1/projects/{{project}}/locations/{{zone}}/instances?instanceId={{name}}")
+	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{zone}}/instances?instanceId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -214,7 +214,7 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 func resourceFilestoreInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://file.googleapis.com/v1/projects/{{project}}/locations/{{zone}}/instances/{{name}}")
+	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{zone}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -280,7 +280,7 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["fileShares"] = fileSharesProp
 	}
 
-	url, err := replaceVars(d, config, "https://file.googleapis.com/v1/projects/{{project}}/locations/{{zone}}/instances/{{name}}")
+	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{zone}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -330,7 +330,7 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 func resourceFilestoreInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://file.googleapis.com/v1/projects/{{project}}/locations/{{zone}}/instances/{{name}}")
+	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{zone}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}

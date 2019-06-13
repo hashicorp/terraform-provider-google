@@ -125,7 +125,7 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 		obj["addressType"] = addressTypeProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/addresses")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/addresses")
 	if err != nil {
 		return err
 	}
@@ -171,7 +171,7 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/addresses/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/addresses/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -217,7 +217,7 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 func resourceComputeGlobalAddressDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/addresses/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/addresses/{{name}}")
 	if err != nil {
 		return err
 	}

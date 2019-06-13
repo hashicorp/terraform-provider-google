@@ -108,7 +108,7 @@ func testAccCheckMonitoringGroupDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://monitoring.googleapis.com/v3/{{name}}")
+		url, err := replaceVarsForTest(rs, "{{MonitoringBasePath}}{{name}}")
 		if err != nil {
 			return err
 		}

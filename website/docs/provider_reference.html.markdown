@@ -97,6 +97,13 @@ authenticate HTTP requests to GCP APIs. This is an alternative to `credentials`,
 and ignores the `scopes` field. If both are specified, `access_token` will be
 used over the `credentials` field.
 
+* `{{service}}_custom_endpoint` - (Optional) The endpoint for a service's APIs,
+such as `compute_custom_endpoint`. Defaults to the production GCP endpoint for
+the service. This can be used to configure the Google provider to communicate
+with GCP-like APIs such as [the Cloud Functions emulator](https://github.com/googlearchive/cloud-functions-emulator).
+Values are expected to include the version of the service, such as
+`https://www.googleapis.com/compute/v1/`.
+
 ### Full Reference
 
 * `credentials` - (Optional) Either the path to or the contents of a
@@ -190,6 +197,76 @@ an access token using the service account key specified in `credentials`.
     * https://www.googleapis.com/auth/cloud-platform
     * https://www.googleapis.com/auth/ndev.clouddns.readwrite
     * https://www.googleapis.com/auth/devstorage.full_control
+
+---
+
+* `{{service}}_custom_endpoint` - (Optional) The endpoint for a service's APIs,
+such as `compute_custom_endpoint`. Defaults to the production GCP endpoint for
+the service. This can be used to configure the Google provider to communicate
+with GCP-like APIs such as [the Cloud Functions emulator](https://github.com/googlearchive/cloud-functions-emulator).
+Values are expected to include the version of the service, such as
+`https://www.googleapis.com/compute/v1/`.
+
+~> Support for custom endpoints is on a best-effort basis. The underlying
+endpoint and default values for a resource can be changed at any time without
+being considered a breaking change.
+
+A full list of configurable keys, their default value (in the `google` provider
+followed by `google-beta` if they differ), and an environment variable that can
+be used for configuration are below:
+
+* `access_context_manager_custom_endpoint` (`GOOGLE_ACCESS_CONTEXT_MANAGER_CUSTOM_ENDPOINT`) - `https://accesscontextmanager.googleapis.com/v1/`
+* `app_engine_custom_endpoint` (`GOOGLE_APP_ENGINE_CUSTOM_ENDPOINT`) - `https://appengine.googleapis.com/v1/`
+* `bigquery_custom_endpoint` (`GOOGLE_BIGQUERY_CUSTOM_ENDPOINT`) - `https://www.googleapis.com/bigquery/v2/`
+* `cloud_billing_custom_endpoint` (`GOOGLE_CLOUD_BILLING_CUSTOM_ENDPOINT`) - `https://cloudbilling.googleapis.com/v1/`
+* `cloud_build_custom_endpoint` (`GOOGLE_CLOUD_BUILD_CUSTOM_ENDPOINT`) - `https://cloudbuild.googleapis.com/v1/`
+* `cloud_functions_custom_endpoint` (`GOOGLE_CLOUD_FUNCTIONS_CUSTOM_ENDPOINT`) - `https://cloudfunctions.googleapis.com/v1/`
+* `cloud_iot_custom_endpoint` (`GOOGLE_CLOUD_IOT_CUSTOM_ENDPOINT`) - `https://cloudiot.googleapis.com/v1/`
+* `cloud_scheduler_custom_endpoint` (`GOOGLE_CLOUD_SCHEDULER_CUSTOM_ENDPOINT`) - `https://cloudscheduler.googleapis.com/v1/`
+* `composer_custom_endpoint` (`GOOGLE_COMPOSER_CUSTOM_ENDPOINT`) - `https://composer.googleapis.com/v1beta1/`
+* `compute_custom_endpoint` (`GOOGLE_COMPUTE_CUSTOM_ENDPOINT`) - `https://www.googleapis.com/compute/v1/` | `https://www.googleapis.com/compute/beta/`
+* `compute_beta_custom_endpoint` (`GOOGLE_COMPUTE_BETA_CUSTOM_ENDPOINT`) - `https://www.googleapis.com/compute/beta/`
+* `container_custom_endpoint` (`GOOGLE_CONTAINER_CUSTOM_ENDPOINT`) - `https://container.googleapis.com/v1/`
+* `container_beta_custom_endpoint` (`GOOGLE_CONTAINER_BETA_CUSTOM_ENDPOINT`) - `https://container.googleapis.com/v1beta1/`
+* `dataproc_custom_endpoint` (`GOOGLE_DATAPROC_CUSTOM_ENDPOINT`) - `https://dataproc.googleapis.com/v1/`
+* `dataproc_beta_custom_endpoint` (`GOOGLE_DATAPROC_BETA_CUSTOM_ENDPOINT`) - `https://dataproc.googleapis.com/v1beta2/`
+* `dataflow_custom_endpoint` (`GOOGLE_DATAFLOW_CUSTOM_ENDPOINT`) - `https://dataflow.googleapis.com/v1b3/`
+* `dns_custom_endpoint` (`GOOGLE_DNS_CUSTOM_ENDPOINT`) - `https://www.googleapis.com/dns/v1/` | `https://www.googleapis.com/dns/v1beta2/`
+* `dns_beta_custom_endpoint` (`GOOGLE_DNS_BETA_CUSTOM_ENDPOINT`) - `https://www.googleapis.com/dns/v1beta2/`
+* `filestore_custom_endpoint` (`GOOGLE_FILESTORE_CUSTOM_ENDPOINT`) - `https://file.googleapis.com/v1/`
+* `firestore_custom_endpoint` (`GOOGLE_FIRESTORE_CUSTOM_ENDPOINT`) - `https://firestore.googleapis.com/v1/`
+* `iam_custom_endpoint` (`GOOGLE_IAM_CUSTOM_ENDPOINT`) - `https://iam.googleapis.com/v1/`
+* `iam_credentials_custom_endpoint` (`GOOGLE_IAM_CREDENTIALS_CUSTOM_ENDPOINT`) - `https://iamcredentials.googleapis.com/v1/`
+* `kms_custom_endpoint` (`GOOGLE_KMS_CUSTOM_ENDPOINT`) - `https://cloudkms.googleapis.com/v1/`
+* `logging_custom_endpoint` (`GOOGLE_LOGGING_CUSTOM_ENDPOINT`) - `https://logging.googleapis.com/v2/`
+* `monitoring_custom_endpoint` (`GOOGLE_MONITORING_CUSTOM_ENDPOINT`) - `https://monitoring.googleapis.com/v3/`
+* `pubsub_custom_endpoint` (`GOOGLE_PUBSUB_CUSTOM_ENDPOINT`) - `https://pubsub.googleapis.com/v1/`
+* `redis_custom_endpoint` (`GOOGLE_REDIS_CUSTOM_ENDPOINT`) - `https://redis.googleapis.com/v1/` | `https://redis.googleapis.com/v1beta1/`
+* `resource_manager_custom_endpoint` (`GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT`) - `https://cloudresourcemanager.googleapis.com/v1/`
+* `resource_manager_v2beta1_custom_endpoint` (`GOOGLE_RESOURCE_MANAGER_V2BETA1_CUSTOM_ENDPOINT`) - `https://cloudresourcemanager.googleapis.com/v2beta1/`
+* `runtimeconfig_custom_endpoint` (`GOOGLE_RUNTIMECONFIG_CUSTOM_ENDPOINT`) - `https://runtimeconfig.googleapis.com/v1beta1/`
+* `service_management_custom_endpoint` (`GOOGLE_SERVICE_MANAGEMENT_CUSTOM_ENDPOINT`) - `https://servicemanagement.googleapis.com/v1/`
+* `service_usage_custom_endpoint` (`GOOGLE_SERVICE_USAGE_CUSTOM_ENDPOINT`) - `https://serviceusage.googleapis.com/v1/`
+* `source_repo_custom_endpoint` (`GOOGLE_SOURCE_REPO_CUSTOM_ENDPOINT`) - `https://sourcerepo.googleapis.com/v1/`
+* `spanner_custom_endpoint` (`GOOGLE_SPANNER_CUSTOM_ENDPOINT`) - `https://spanner.googleapis.com/v1/`
+* `sql_custom_endpoint` (`GOOGLE_SQL_CUSTOM_ENDPOINT`) - `https://www.googleapis.com/sql/v1beta4/`
+* `storage_custom_endpoint` (`GOOGLE_STORAGE_CUSTOM_ENDPOINT`) - `https://www.googleapis.com/storage/v1/`
+* `storage_transfer_custom_endpoint` (`GOOGLE_STORAGE_TRANSFER_CUSTOM_ENDPOINT`) - `https://storagetransfer.googleapis.com/v1/`
+* `tpu_custom_endpoint` (`GOOGLE_TPU_CUSTOM_ENDPOINT`) - `https://tpu.googleapis.com/v1/`
+
+The following keys are available exclusively in the `google-beta` provider:
+
+* `binary_authorization_custom_endpoint` (`GOOGLE_BINARY_AUTHORIZATION_CUSTOM_ENDPOINT`) - `https://binaryauthorization.googleapis.com/v1beta1/`
+* `container_analysis_custom_endpoint` (`GOOGLE_CONTAINER_ANALYSIS_CUSTOM_ENDPOINT`) - `https://containeranalysis.googleapis.com/v1beta1/`
+* `iap_custom_endpoint` (`GOOGLE_IAP_CUSTOM_ENDPOINT`) - `https://iap.googleapis.com/v1beta1/`
+* `monitoring_custom_endpoint` (`GOOGLE_MONITORING_CUSTOM_ENDPOINT`) - `https://monitoring.googleapis.com/v3/`
+* `security_scanner_custom_endpoint` (`GOOGLE_SECURITY_SCANNER_CUSTOM_ENDPOINT`) - `https://websecurityscanner.googleapis.com/v1beta/`
+* `service_networking_custom_endpoint` (`GOOGLE_SERVICE_NETWORKING_CUSTOM_ENDPOINT`) - `https://servicenetworking.googleapis.com/v1beta/`
+
+-> Note that some endpoints are a versioned variant of another. These exist in
+cases where the `google` provider uses multiple distinct endpoints, and both
+need to be set. Additionally, in `google-beta`, they'll often use the same value
+as their versioned counterpart but that won't necessarily always be the case.
 
 [OAuth 2.0 access token]: https://developers.google.com/identity/protocols/OAuth2
 [service account key file]: https://cloud.google.com/iam/docs/creating-managing-service-account-keys

@@ -135,7 +135,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/networks")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks")
 	if err != nil {
 		return err
 	}
@@ -210,7 +210,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/networks/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -279,7 +279,7 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 			obj["routingConfig"] = routingConfigProp
 		}
 
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/networks/{{name}}")
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{name}}")
 		if err != nil {
 			return err
 		}
@@ -317,7 +317,7 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/networks/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{name}}")
 	if err != nil {
 		return err
 	}

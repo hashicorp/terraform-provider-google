@@ -108,7 +108,7 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/projects/{{project}}/groups")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}projects/{{project}}/groups")
 	if err != nil {
 		return err
 	}
@@ -142,7 +142,7 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -215,7 +215,7 @@ func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) err
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -240,7 +240,7 @@ func resourceMonitoringGroupDelete(d *schema.ResourceData, meta interface{}) err
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}

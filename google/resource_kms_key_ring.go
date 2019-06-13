@@ -85,7 +85,7 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://cloudkms.googleapis.com/v1/projects/{{project}}/locations/{{location}}/keyRings?keyRingId={{name}}")
+	url, err := replaceVars(d, config, "{{KmsBasePath}}projects/{{project}}/locations/{{location}}/keyRings?keyRingId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://cloudkms.googleapis.com/v1/projects/{{project}}/locations/{{location}}/keyRings/{{name}}")
+	url, err := replaceVars(d, config, "{{KmsBasePath}}projects/{{project}}/locations/{{location}}/keyRings/{{name}}")
 	if err != nil {
 		return err
 	}

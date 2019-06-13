@@ -110,7 +110,7 @@ func resourceComputeVpnGatewayCreate(d *schema.ResourceData, meta interface{}) e
 		obj["region"] = regionProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/targetVpnGateways")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetVpnGateways")
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func resourceComputeVpnGatewayCreate(d *schema.ResourceData, meta interface{}) e
 func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -199,7 +199,7 @@ func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) err
 func resourceComputeVpnGatewayDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}")
 	if err != nil {
 		return err
 	}

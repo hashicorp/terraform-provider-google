@@ -158,7 +158,7 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 		obj["target"] = targetProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/forwardingRules")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/forwardingRules")
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/forwardingRules/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/forwardingRules/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -267,7 +267,7 @@ func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta inte
 			obj["target"] = targetProp
 		}
 
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/forwardingRules/{{name}}/setTarget")
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/forwardingRules/{{name}}/setTarget")
 		if err != nil {
 			return err
 		}
@@ -305,7 +305,7 @@ func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta inte
 func resourceComputeGlobalForwardingRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/forwardingRules/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/forwardingRules/{{name}}")
 	if err != nil {
 		return err
 	}

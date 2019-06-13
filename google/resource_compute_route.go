@@ -189,7 +189,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 		obj["nextHopVpnTunnel"] = nextHopVpnTunnelProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/routes")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes")
 	if err != nil {
 		return err
 	}
@@ -235,7 +235,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/routes/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -301,7 +301,7 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/routes/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes/{{name}}")
 	if err != nil {
 		return err
 	}

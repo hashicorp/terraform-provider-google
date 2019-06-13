@@ -67,7 +67,7 @@ func testAccCheckAccessContextManagerAccessPolicyDestroy(s *terraform.State) err
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://accesscontextmanager.googleapis.com/v1beta/accessPolicies/{{name}}")
+		url, err := replaceVarsForTest(rs, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 		if err != nil {
 			return err
 		}

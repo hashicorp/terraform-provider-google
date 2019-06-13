@@ -281,7 +281,7 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 		obj["build"] = buildProp
 	}
 
-	url, err := replaceVars(d, config, "https://cloudbuild.googleapis.com/v1/projects/{{project}}/triggers")
+	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/triggers")
 	if err != nil {
 		return err
 	}
@@ -322,7 +322,7 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://cloudbuild.googleapis.com/v1/projects/{{project}}/triggers/{{trigger_id}}")
+	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return err
 	}
@@ -427,7 +427,7 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["build"] = buildProp
 	}
 
-	url, err := replaceVars(d, config, "https://cloudbuild.googleapis.com/v1/projects/{{project}}/triggers/{{trigger_id}}")
+	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return err
 	}
@@ -446,7 +446,7 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 func resourceCloudBuildTriggerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://cloudbuild.googleapis.com/v1/projects/{{project}}/triggers/{{trigger_id}}")
+	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return err
 	}

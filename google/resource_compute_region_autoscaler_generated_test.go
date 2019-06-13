@@ -122,7 +122,7 @@ func testAccCheckComputeRegionAutoscalerDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
+		url, err := replaceVarsForTest(rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
 		if err != nil {
 			return err
 		}

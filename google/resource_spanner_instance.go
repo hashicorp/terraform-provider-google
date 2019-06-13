@@ -125,7 +125,7 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://spanner.googleapis.com/v1/projects/{{project}}/instances")
+	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances")
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://spanner.googleapis.com/v1/projects/{{project}}/instances/{{name}}")
+	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -249,7 +249,7 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://spanner.googleapis.com/v1/projects/{{project}}/instances/{{name}}")
+	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -280,7 +280,7 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://spanner.googleapis.com/v1/projects/{{project}}/instances/{{name}}")
+	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}

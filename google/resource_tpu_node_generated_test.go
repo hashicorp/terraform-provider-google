@@ -132,7 +132,7 @@ func testAccCheckTpuNodeDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://tpu.googleapis.com/v1/projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
+		url, err := replaceVarsForTest(rs, "{{TpuBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 		if err != nil {
 			return err
 		}

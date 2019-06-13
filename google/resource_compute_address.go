@@ -158,7 +158,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["region"] = regionProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/addresses")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/addresses")
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/addresses/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/addresses/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -259,7 +259,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/addresses/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/addresses/{{name}}")
 	if err != nil {
 		return err
 	}

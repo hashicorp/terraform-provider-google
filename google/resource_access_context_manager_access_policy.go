@@ -84,7 +84,7 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 		obj["title"] = titleProp
 	}
 
-	url, err := replaceVars(d, config, "https://accesscontextmanager.googleapis.com/v1/accessPolicies")
+	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies")
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://accesscontextmanager.googleapis.com/v1/accessPolicies/{{name}}")
+	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 		obj["title"] = titleProp
 	}
 
-	url, err := replaceVars(d, config, "https://accesscontextmanager.googleapis.com/v1/accessPolicies/{{name}}")
+	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -207,7 +207,7 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 func resourceAccessContextManagerAccessPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://accesscontextmanager.googleapis.com/v1/accessPolicies/{{name}}")
+	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
 		return err
 	}

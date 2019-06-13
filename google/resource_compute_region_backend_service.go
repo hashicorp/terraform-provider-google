@@ -218,7 +218,7 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		obj["loadBalancingScheme"] = loadBalancingSchemeProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/backendServices")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices")
 	if err != nil {
 		return err
 	}
@@ -264,7 +264,7 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -400,7 +400,7 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		obj["loadBalancingScheme"] = loadBalancingSchemeProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -436,7 +436,7 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 func resourceComputeRegionBackendServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
 	if err != nil {
 		return err
 	}

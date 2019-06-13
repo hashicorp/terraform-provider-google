@@ -156,7 +156,7 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://accesscontextmanager.googleapis.com/v1/{{parent}}/servicePerimeters")
+	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters")
 	if err != nil {
 		return err
 	}
@@ -192,7 +192,7 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://accesscontextmanager.googleapis.com/v1/{{name}}")
+	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -255,7 +255,7 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://accesscontextmanager.googleapis.com/v1/{{name}}")
+	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -300,7 +300,7 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 func resourceAccessContextManagerServicePerimeterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://accesscontextmanager.googleapis.com/v1/{{name}}")
+	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}

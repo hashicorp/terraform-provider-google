@@ -51,12 +51,14 @@ func BootstrapKMSKeyInLocation(t *testing.T, locationID string) bootstrappedKMS 
 	keyParent := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", projectID, locationID, SharedKeyRing)
 	keyName := fmt.Sprintf("%s/cryptoKeys/%s", keyParent, SharedCyptoKey)
 
-	config := Config{
+	config := &Config{
 		Credentials: getTestCredsFromEnv(),
 		Project:     getTestProjectFromEnv(),
 		Region:      getTestRegionFromEnv(),
 		Zone:        getTestZoneFromEnv(),
 	}
+
+	ConfigureBasePaths(config)
 
 	if err := config.LoadAndValidate(); err != nil {
 		t.Errorf("Unable to bootstrap KMS key: %s", err)
@@ -116,7 +118,7 @@ var serviceAccountDisplay = "Bootstrapped Service Account for Terraform tests"
 // Some tests need a second service account, other than the test runner, to assert functionality on.
 // This provides a well-known service account that can be used when dynamically creating a service
 // account isn't an option.
-func getOrCreateServiceAccount(config Config, project string) (*iam.ServiceAccount, error) {
+func getOrCreateServiceAccount(config *Config, project string) (*iam.ServiceAccount, error) {
 	name := fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", project, serviceAccountEmail, project)
 	log.Printf("[DEBUG] Verifying %s as bootstrapped service account.\n", name)
 
@@ -148,7 +150,7 @@ func getOrCreateServiceAccount(config Config, project string) (*iam.ServiceAccou
 // on a different service account. Granting permissions takes time and there is no operation to wait on
 // so instead this creates a single service account once per test-suite with the correct permissions.
 // The first time this test is run it will fail, but subsequent runs will succeed.
-func impersonationServiceAccountPermissions(config Config, sa *iam.ServiceAccount, testRunner string) error {
+func impersonationServiceAccountPermissions(config *Config, sa *iam.ServiceAccount, testRunner string) error {
 	log.Printf("[DEBUG] Setting service account permissions.\n")
 	policy := iam.Policy{
 		Bindings: []*iam.Binding{},
@@ -179,12 +181,14 @@ func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
 		return ""
 	}
 
-	config := Config{
+	config := &Config{
 		Credentials: getTestCredsFromEnv(),
 		Project:     getTestProjectFromEnv(),
 		Region:      getTestRegionFromEnv(),
 		Zone:        getTestZoneFromEnv(),
 	}
+
+	ConfigureBasePaths(config)
 
 	if err := config.LoadAndValidate(); err != nil {
 		t.Fatalf("Bootstrapping failed. Unable to load test config: %s", err)

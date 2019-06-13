@@ -86,7 +86,7 @@ func checkComputeBackendBucketSignedUrlKeyExists(s *terraform.State) (bool, erro
 		config := testAccProvider.Meta().(*Config)
 		keyName := rs.Primary.ID
 
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendBuckets/{{backend_bucket}}")
+		url, err := replaceVarsForTest(rs, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{backend_bucket}}")
 		if err != nil {
 			return false, err
 		}

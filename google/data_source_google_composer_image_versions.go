@@ -56,7 +56,7 @@ func dataSourceGoogleComposerImageVersionsRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://composer.googleapis.com/v1/projects/{{project}}/locations/{{region}}/imageVersions")
+	url, err := replaceVars(d, config, "{{ComposerBasePath}}projects/{{project}}/locations/{{region}}/imageVersions")
 	if err != nil {
 		return err
 	}

@@ -198,7 +198,7 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 		obj["sourceDisk"] = sourceDiskProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/images")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images")
 	if err != nil {
 		return err
 	}
@@ -244,7 +244,7 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/images/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -319,7 +319,7 @@ func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error 
 			obj["labelFingerprint"] = labelFingerprintProp
 		}
 
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/images/{{name}}/setLabels")
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}/setLabels")
 		if err != nil {
 			return err
 		}
@@ -358,7 +358,7 @@ func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error 
 func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/images/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}")
 	if err != nil {
 		return err
 	}

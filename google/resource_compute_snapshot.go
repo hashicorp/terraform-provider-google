@@ -232,7 +232,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 		obj["sourceDiskEncryptionKey"] = sourceDiskEncryptionKeyProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/disks/{{source_disk}}/createSnapshot")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{source_disk}}/createSnapshot")
 	if err != nil {
 		return err
 	}
@@ -278,7 +278,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/snapshots/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/snapshots/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -361,7 +361,7 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 			obj["labelFingerprint"] = labelFingerprintProp
 		}
 
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/snapshots/{{name}}/setLabels")
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/snapshots/{{name}}/setLabels")
 		if err != nil {
 			return err
 		}
@@ -400,7 +400,7 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/snapshots/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/snapshots/{{name}}")
 	if err != nil {
 		return err
 	}

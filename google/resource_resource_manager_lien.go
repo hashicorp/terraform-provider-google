@@ -105,7 +105,7 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 		obj["restrictions"] = restrictionsProp
 	}
 
-	url, err := replaceVars(d, config, "https://cloudresourcemanager.googleapis.com/v1/liens")
+	url, err := replaceVars(d, config, "{{ResourceManagerBasePath}}liens")
 	if err != nil {
 		return err
 	}
@@ -141,7 +141,7 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://cloudresourcemanager.googleapis.com/v1/liens?parent={{parent}}")
+	url, err := replaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
 	if err != nil {
 		return err
 	}
@@ -193,7 +193,7 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://cloudresourcemanager.googleapis.com/v1/liens?parent={{parent}}")
+	url, err := replaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
 	if err != nil {
 		return err
 	}
@@ -203,7 +203,7 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 	// in theory, we should find a way to disable the default URL and not construct
 	// both, but that's a problem for another day. Today, we cheat.
 	log.Printf("[DEBUG] replacing URL %q with a custom delete URL", url)
-	url, err = replaceVars(d, config, "https://cloudresourcemanager.googleapis.com/v1/liens/{{name}}")
+	url, err = replaceVars(d, config, "{{ResourceManagerBasePath}}liens/{{name}}")
 	if err != nil {
 		return err
 	}
