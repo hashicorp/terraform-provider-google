@@ -179,6 +179,15 @@ func buildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *Co
 				return fmt.Sprintf("%v", v)
 			}
 		}
+
+		// terraform-google-conversion doesn't provide a provider config in tests.
+		if config != nil {
+			// Attempt to draw values from the provider config if it's present.
+			if f := reflect.Indirect(reflect.ValueOf(config)).FieldByName(m); f.IsValid() {
+				return f.String()
+			}
+		}
+
 		return ""
 	}
 

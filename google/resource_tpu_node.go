@@ -219,7 +219,7 @@ func resourceTpuNodeCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "https://tpu.googleapis.com/v1/projects/{{project}}/locations/{{zone}}/nodes?nodeId={{name}}")
+	url, err := replaceVars(d, config, "{{TpuBasePath}}projects/{{project}}/locations/{{zone}}/nodes?nodeId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -259,7 +259,7 @@ func resourceTpuNodeCreate(d *schema.ResourceData, meta interface{}) error {
 func resourceTpuNodeRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://tpu.googleapis.com/v1/projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
+	url, err := replaceVars(d, config, "{{TpuBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -325,7 +325,7 @@ func resourceTpuNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 			obj["tensorflowVersion"] = tensorflowVersionProp
 		}
 
-		url, err := replaceVars(d, config, "https://tpu.googleapis.com/v1/projects/{{project}}/locations/{{zone}}/nodes/{{name}}:reimage")
+		url, err := replaceVars(d, config, "{{TpuBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}:reimage")
 		if err != nil {
 			return err
 		}
@@ -358,7 +358,7 @@ func resourceTpuNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 func resourceTpuNodeDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://tpu.googleapis.com/v1/projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
+	url, err := replaceVars(d, config, "{{TpuBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 	if err != nil {
 		return err
 	}

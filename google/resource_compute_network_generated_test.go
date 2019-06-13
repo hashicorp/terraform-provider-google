@@ -67,7 +67,7 @@ func testAccCheckComputeNetworkDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/networks/{{name}}")
+		url, err := replaceVarsForTest(rs, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{name}}")
 		if err != nil {
 			return err
 		}

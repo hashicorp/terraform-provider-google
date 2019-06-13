@@ -16,6 +16,19 @@ package google
 
 import "github.com/hashicorp/terraform/helper/schema"
 
+// If the base path has changed as a result of your PR, make sure to update
+// the provider_reference page!
+var ComputeDefaultBasePath = "https://www.googleapis.com/compute/v1/"
+var ComputeCustomEndpointEntryKey = "compute_custom_endpoint"
+var ComputeCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_COMPUTE_CUSTOM_ENDPOINT",
+	}, ComputeDefaultBasePath),
+}
+
 var GeneratedComputeResourcesMap = map[string]*schema.Resource{
 	"google_compute_address":                        resourceComputeAddress(),
 	"google_compute_autoscaler":                     resourceComputeAutoscaler(),

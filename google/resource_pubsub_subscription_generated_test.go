@@ -86,7 +86,7 @@ func testAccCheckPubsubSubscriptionDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://pubsub.googleapis.com/v1/projects/{{project}}/subscriptions/{{name}}")
+		url, err := replaceVarsForTest(rs, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 		if err != nil {
 			return err
 		}

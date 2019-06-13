@@ -129,7 +129,7 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 		obj["name"] = nameProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendBuckets")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets")
 	if err != nil {
 		return err
 	}
@@ -175,7 +175,7 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendBuckets/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -253,7 +253,7 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 		obj["name"] = nameProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendBuckets/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -289,7 +289,7 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendBuckets/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}")
 	if err != nil {
 		return err
 	}

@@ -134,7 +134,7 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://firestore.googleapis.com/v1/projects/{{project}}/databases/{{database}}/collectionGroups/{{collection}}/indexes")
+	url, err := replaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{database}}/collectionGroups/{{collection}}/indexes")
 	if err != nil {
 		return err
 	}
@@ -182,7 +182,7 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://firestore.googleapis.com/v1/{{name}}")
+	url, err := replaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -216,7 +216,7 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 func resourceFirestoreIndexDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://firestore.googleapis.com/v1/{{name}}")
+	url, err := replaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}

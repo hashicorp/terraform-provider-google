@@ -316,7 +316,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 		obj["targetTags"] = targetTagsProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/firewalls")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls")
 	if err != nil {
 		return err
 	}
@@ -362,7 +362,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/firewalls/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -509,7 +509,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["targetTags"] = targetTagsProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/firewalls/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -545,7 +545,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/firewalls/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
 		return err
 	}

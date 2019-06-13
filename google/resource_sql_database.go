@@ -112,7 +112,7 @@ func resourceSqlDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/sql/v1beta4/projects/{{project}}/instances/{{instance}}/databases")
+	url, err := replaceVars(d, config, "{{SqlBasePath}}projects/{{project}}/instances/{{instance}}/databases")
 	if err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func resourceSqlDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 func resourceSqlDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/sql/v1beta4/projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+	url, err := replaceVars(d, config, "{{SqlBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -231,7 +231,7 @@ func resourceSqlDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/sql/v1beta4/projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+	url, err := replaceVars(d, config, "{{SqlBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -274,7 +274,7 @@ func resourceSqlDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/sql/v1beta4/projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+	url, err := replaceVars(d, config, "{{SqlBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}

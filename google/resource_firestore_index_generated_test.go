@@ -86,7 +86,7 @@ func testAccCheckFirestoreIndexDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://firestore.googleapis.com/v1/{{name}}")
+		url, err := replaceVarsForTest(rs, "{{FirestoreBasePath}}{{name}}")
 		if err != nil {
 			return err
 		}

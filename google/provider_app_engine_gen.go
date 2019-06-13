@@ -16,6 +16,19 @@ package google
 
 import "github.com/hashicorp/terraform/helper/schema"
 
+// If the base path has changed as a result of your PR, make sure to update
+// the provider_reference page!
+var AppEngineDefaultBasePath = "https://appengine.googleapis.com/v1/"
+var AppEngineCustomEndpointEntryKey = "app_engine_custom_endpoint"
+var AppEngineCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_APP_ENGINE_CUSTOM_ENDPOINT",
+	}, AppEngineDefaultBasePath),
+}
+
 var GeneratedAppEngineResourcesMap = map[string]*schema.Resource{
 	"google_app_engine_firewall_rule": resourceAppEngineFirewallRule(),
 }

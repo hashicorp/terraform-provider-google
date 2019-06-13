@@ -16,6 +16,19 @@ package google
 
 import "github.com/hashicorp/terraform/helper/schema"
 
+// If the base path has changed as a result of your PR, make sure to update
+// the provider_reference page!
+var SourceRepoDefaultBasePath = "https://sourcerepo.googleapis.com/v1/"
+var SourceRepoCustomEndpointEntryKey = "source_repo_custom_endpoint"
+var SourceRepoCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_SOURCE_REPO_CUSTOM_ENDPOINT",
+	}, SourceRepoDefaultBasePath),
+}
+
 var GeneratedSourceRepoResourcesMap = map[string]*schema.Resource{
 	"google_sourcerepo_repository": resourceSourceRepoRepository(),
 }

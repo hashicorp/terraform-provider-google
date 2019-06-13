@@ -198,7 +198,7 @@ func resourceAccessContextManagerAccessLevelCreate(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://accesscontextmanager.googleapis.com/v1/{{parent}}/accessLevels")
+	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels")
 	if err != nil {
 		return err
 	}
@@ -234,7 +234,7 @@ func resourceAccessContextManagerAccessLevelCreate(d *schema.ResourceData, meta 
 func resourceAccessContextManagerAccessLevelRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://accesscontextmanager.googleapis.com/v1/{{name}}")
+	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -288,7 +288,7 @@ func resourceAccessContextManagerAccessLevelUpdate(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://accesscontextmanager.googleapis.com/v1/{{name}}")
+	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -333,7 +333,7 @@ func resourceAccessContextManagerAccessLevelUpdate(d *schema.ResourceData, meta 
 func resourceAccessContextManagerAccessLevelDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://accesscontextmanager.googleapis.com/v1/{{name}}")
+	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}

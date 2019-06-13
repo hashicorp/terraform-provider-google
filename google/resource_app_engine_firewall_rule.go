@@ -100,7 +100,7 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 		obj["priority"] = priorityProp
 	}
 
-	url, err := replaceVars(d, config, "https://appengine.googleapis.com/v1/apps/{{project}}/firewall/ingressRules")
+	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules")
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 func resourceAppEngineFirewallRuleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://appengine.googleapis.com/v1/apps/{{project}}/firewall/ingressRules/{{priority}}")
+	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return err
 	}
@@ -189,7 +189,7 @@ func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{
 		obj["priority"] = priorityProp
 	}
 
-	url, err := replaceVars(d, config, "https://appengine.googleapis.com/v1/apps/{{project}}/firewall/ingressRules/{{priority}}")
+	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return err
 	}
@@ -230,7 +230,7 @@ func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{
 func resourceAppEngineFirewallRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://appengine.googleapis.com/v1/apps/{{project}}/firewall/ingressRules/{{priority}}")
+	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return err
 	}

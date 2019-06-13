@@ -192,7 +192,7 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/subscriptions/{{name}}")
+	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -218,7 +218,7 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/subscriptions/{{name}}")
+	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -315,7 +315,7 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/subscriptions/{{name}}")
+	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -364,7 +364,7 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/subscriptions/{{name}}")
+	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}

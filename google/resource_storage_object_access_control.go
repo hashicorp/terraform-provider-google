@@ -128,7 +128,7 @@ func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta inter
 		obj["role"] = roleProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/storage/v1/b/{{bucket}}/o/{{object}}/acl")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl")
 	if err != nil {
 		return err
 	}
@@ -154,7 +154,7 @@ func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta inter
 func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/storage/v1/b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -224,7 +224,7 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 		obj["role"] = roleProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/storage/v1/b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -242,7 +242,7 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 func resourceStorageObjectAccessControlDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/storage/v1/b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}

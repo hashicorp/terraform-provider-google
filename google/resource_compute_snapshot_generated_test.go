@@ -86,7 +86,7 @@ func testAccCheckComputeSnapshotDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/snapshots/{{name}}")
+		url, err := replaceVarsForTest(rs, "{{ComputeBasePath}}projects/{{project}}/global/snapshots/{{name}}")
 		if err != nil {
 			return err
 		}

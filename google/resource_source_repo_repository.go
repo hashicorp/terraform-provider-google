@@ -75,7 +75,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 		obj["name"] = nameProp
 	}
 
-	url, err := replaceVars(d, config, "https://sourcerepo.googleapis.com/v1/projects/{{project}}/repos")
+	url, err := replaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos")
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://sourcerepo.googleapis.com/v1/projects/{{project}}/repos/{{name}}")
+	url, err := replaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://sourcerepo.googleapis.com/v1/projects/{{project}}/repos/{{name}}")
+	url, err := replaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
 	if err != nil {
 		return err
 	}

@@ -309,7 +309,7 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/vpnTunnels")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/vpnTunnels")
 	if err != nil {
 		return err
 	}
@@ -355,7 +355,7 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -419,7 +419,7 @@ func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) erro
 func resourceComputeVpnTunnelDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}")
 	if err != nil {
 		return err
 	}

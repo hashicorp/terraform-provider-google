@@ -74,7 +74,7 @@ func testAccCheckStorageDefaultObjectAccessControlDestroy(s *terraform.State) er
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/storage/v1/b/{{bucket}}/defaultObjectAcl/{{entity}}")
+		url, err := replaceVarsForTest(rs, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl/{{entity}}")
 		if err != nil {
 			return err
 		}

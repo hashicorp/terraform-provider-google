@@ -169,7 +169,7 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/routers")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers")
 	if err != nil {
 		return err
 	}
@@ -215,7 +215,7 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/routers/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -282,7 +282,7 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/routers/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -325,7 +325,7 @@ func resourceComputeRouterDelete(d *schema.ResourceData, meta interface{}) error
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/routers/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{name}}")
 	if err != nil {
 		return err
 	}

@@ -16,6 +16,19 @@ package google
 
 import "github.com/hashicorp/terraform/helper/schema"
 
+// If the base path has changed as a result of your PR, make sure to update
+// the provider_reference page!
+var AccessContextManagerDefaultBasePath = "https://accesscontextmanager.googleapis.com/v1/"
+var AccessContextManagerCustomEndpointEntryKey = "access_context_manager_custom_endpoint"
+var AccessContextManagerCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_ACCESS_CONTEXT_MANAGER_CUSTOM_ENDPOINT",
+	}, AccessContextManagerDefaultBasePath),
+}
+
 var GeneratedAccessContextManagerResourcesMap = map[string]*schema.Resource{
 	"google_access_context_manager_access_policy":     resourceAccessContextManagerAccessPolicy(),
 	"google_access_context_manager_access_level":      resourceAccessContextManagerAccessLevel(),

@@ -94,7 +94,7 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendServices/{{backend_service}}/addSignedUrlKey")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}/addSignedUrlKey")
 	if err != nil {
 		return err
 	}
@@ -140,7 +140,7 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 func resourceComputeBackendServiceSignedUrlKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendServices/{{backend_service}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}")
 	if err != nil {
 		return err
 	}
@@ -187,7 +187,7 @@ func resourceComputeBackendServiceSignedUrlKeyDelete(d *schema.ResourceData, met
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/backendServices/{{backend_service}}/deleteSignedUrlKey?keyName={{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}/deleteSignedUrlKey?keyName={{name}}")
 	if err != nil {
 		return err
 	}

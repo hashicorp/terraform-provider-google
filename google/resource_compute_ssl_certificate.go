@@ -135,7 +135,7 @@ func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{
 		obj["privateKey"] = privateKeyProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/sslCertificates")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates")
 	if err != nil {
 		return err
 	}
@@ -181,7 +181,7 @@ func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{
 func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/sslCertificates/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -224,7 +224,7 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 func resourceComputeSslCertificateDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/sslCertificates/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
 	if err != nil {
 		return err
 	}

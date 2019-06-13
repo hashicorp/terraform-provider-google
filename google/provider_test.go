@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/terraform-providers/terraform-provider-random/random"
@@ -143,6 +146,53 @@ func TestProvider_loadCredentialsFromJSON(t *testing.T) {
 	if len(es) != 0 {
 		t.Errorf("Expected %d errors, got %v", len(es), es)
 	}
+}
+
+func TestAccProviderBasePath_setBasePath(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeAddressDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProviderBasePath_setBasePath("https://www.googleapis.com/compute/beta/", acctest.RandString(10)),
+			},
+			{
+				ResourceName:      "google_compute_address.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeAddressDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", acctest.RandString(10)),
+				ExpectError: regexp.MustCompile("got HTTP response code 404 with body"),
+			},
+		},
+	})
+}
+
+func testAccProviderBasePath_setBasePath(endpoint, name string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  compute_custom_endpoint = "%s"
+}
+
+resource "google_compute_address" "default" {
+	name = "address-test-%s"
+}`, endpoint, name)
 }
 
 // getTestRegion has the same logic as the provider's getRegion, to be used in tests.

@@ -140,7 +140,7 @@ func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interfac
 		obj["urlMap"] = urlMapProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpsProxies")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies")
 	if err != nil {
 		return err
 	}
@@ -186,7 +186,7 @@ func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interfac
 func resourceComputeTargetHttpsProxyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpsProxies/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -249,7 +249,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 			obj["quicOverride"] = quicOverrideProp
 		}
 
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpsProxies/{{name}}/setQuicOverride")
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}/setQuicOverride")
 		if err != nil {
 			return err
 		}
@@ -287,7 +287,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 			obj["sslCertificates"] = sslCertificatesProp
 		}
 
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/targetHttpsProxies/{{name}}/setSslCertificates")
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/targetHttpsProxies/{{name}}/setSslCertificates")
 		if err != nil {
 			return err
 		}
@@ -325,7 +325,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 			obj["sslPolicy"] = sslPolicyProp
 		}
 
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpsProxies/{{name}}/setSslPolicy")
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}/setSslPolicy")
 		if err != nil {
 			return err
 		}
@@ -363,7 +363,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 			obj["urlMap"] = urlMapProp
 		}
 
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/targetHttpsProxies/{{name}}/setUrlMap")
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/targetHttpsProxies/{{name}}/setUrlMap")
 		if err != nil {
 			return err
 		}
@@ -401,7 +401,7 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 func resourceComputeTargetHttpsProxyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpsProxies/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}")
 	if err != nil {
 		return err
 	}

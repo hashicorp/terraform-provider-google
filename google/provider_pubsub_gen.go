@@ -16,6 +16,19 @@ package google
 
 import "github.com/hashicorp/terraform/helper/schema"
 
+// If the base path has changed as a result of your PR, make sure to update
+// the provider_reference page!
+var PubsubDefaultBasePath = "https://pubsub.googleapis.com/v1/"
+var PubsubCustomEndpointEntryKey = "pubsub_custom_endpoint"
+var PubsubCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_PUBSUB_CUSTOM_ENDPOINT",
+	}, PubsubDefaultBasePath),
+}
+
 var GeneratedPubsubResourcesMap = map[string]*schema.Resource{
 	"google_pubsub_topic":        resourcePubsubTopic(),
 	"google_pubsub_subscription": resourcePubsubSubscription(),
