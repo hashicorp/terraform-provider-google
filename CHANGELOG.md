@@ -10,6 +10,7 @@ ENHANCEMENTS:
 * kms: `kms_crypto_key` supports `purpose` [GH-3843]
 * storage: `google_storage_bucket` now supports enabling `bucket_policy_only` access control. ([#1878](https://github.com/terraform-providers/terraform-provider-google/pull/1878)
 * storage: IAM resources for storage buckets (`google_storage_bucket_iam_*`) now all support import [GH-3830]
+* pubsub: `google_pubsub_topic` Updates for labels are now supported [GH-3828]
 
 
 BUG FIXES:
