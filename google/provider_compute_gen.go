@@ -48,6 +48,8 @@ var GeneratedComputeResourcesMap = map[string]*schema.Resource{
 	"google_compute_image":                          resourceComputeImage(),
 	"google_compute_interconnect_attachment":        resourceComputeInterconnectAttachment(),
 	"google_compute_network":                        resourceComputeNetwork(),
+	"google_compute_network_endpoint":               resourceComputeNetworkEndpoint(),
+	"google_compute_network_endpoint_group":         resourceComputeNetworkEndpointGroup(),
 	"google_compute_node_group":                     resourceComputeNodeGroup(),
 	"google_compute_node_template":                  resourceComputeNodeTemplate(),
 	"google_compute_region_autoscaler":              resourceComputeRegionAutoscaler(),
