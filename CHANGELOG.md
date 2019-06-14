@@ -3,10 +3,13 @@
 FEATURES:
 
 * **Custom Endpoint Support**: The Google provider supports custom endpoints, allowing you to use GCP-like APIs such as emulators. See the [Provider Reference](https://www.terraform.io/docs/providers/google/provider_reference.html) for details. [GH-3787]
+* **New Resource** Network endpoint groups (`google_compute_network_endpoint_group`) and fine-grained resource endpoints (`google_compute_network_endpoint`) are now available. [GH-3832]
+
 
 ENHANCEMENTS:
 * kms: `kms_crypto_key` supports `purpose` [GH-3843]
-* storage: `google_storage_bucket` now supports enabling `bucket_policy_only` access control. ([#1878](https://github.com/GoogleCloudPlatform/magic-modules/pull/1878))
+* storage: `google_storage_bucket` now supports enabling `bucket_policy_only` access control. ([#1878](https://github.com/terraform-providers/terraform-provider-google/pull/1878)
+* storage: IAM resources for storage buckets (`google_storage_bucket_iam_*`) now all support import [GH-3830]
 
 
 BUG FIXES:
