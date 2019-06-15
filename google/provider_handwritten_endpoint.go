@@ -194,6 +194,17 @@ var ServiceManagementCustomEndpointEntry = &schema.Schema{
 	}, ServiceManagementDefaultBasePath),
 }
 
+var ServiceNetworkingDefaultBasePath = "https://servicenetworking.googleapis.com/v1/"
+var ServiceNetworkingCustomEndpointEntryKey = "service_networking_custom_endpoint"
+var ServiceNetworkingCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_SERVICE_NETWORKING_CUSTOM_ENDPOINT",
+	}, ServiceNetworkingDefaultBasePath),
+}
+
 var ServiceUsageDefaultBasePath = "https://serviceusage.googleapis.com/v1/"
 var ServiceUsageCustomEndpointEntryKey = "service_usage_custom_endpoint"
 var ServiceUsageCustomEndpointEntry = &schema.Schema{

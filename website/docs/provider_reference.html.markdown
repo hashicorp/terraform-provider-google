@@ -246,6 +246,7 @@ be used for configuration are below:
 * `resource_manager_v2beta1_custom_endpoint` (`GOOGLE_RESOURCE_MANAGER_V2BETA1_CUSTOM_ENDPOINT`) - `https://cloudresourcemanager.googleapis.com/v2beta1/`
 * `runtimeconfig_custom_endpoint` (`GOOGLE_RUNTIMECONFIG_CUSTOM_ENDPOINT`) - `https://runtimeconfig.googleapis.com/v1beta1/`
 * `service_management_custom_endpoint` (`GOOGLE_SERVICE_MANAGEMENT_CUSTOM_ENDPOINT`) - `https://servicemanagement.googleapis.com/v1/`
+* `service_networking_custom_endpoint` (`GOOGLE_SERVICE_NETWORKING_CUSTOM_ENDPOINT`) - `https://servicenetworking.googleapis.com/v1/`
 * `service_usage_custom_endpoint` (`GOOGLE_SERVICE_USAGE_CUSTOM_ENDPOINT`) - `https://serviceusage.googleapis.com/v1/`
 * `source_repo_custom_endpoint` (`GOOGLE_SOURCE_REPO_CUSTOM_ENDPOINT`) - `https://sourcerepo.googleapis.com/v1/`
 * `spanner_custom_endpoint` (`GOOGLE_SPANNER_CUSTOM_ENDPOINT`) - `https://spanner.googleapis.com/v1/`
@@ -261,7 +262,6 @@ The following keys are available exclusively in the `google-beta` provider:
 * `iap_custom_endpoint` (`GOOGLE_IAP_CUSTOM_ENDPOINT`) - `https://iap.googleapis.com/v1beta1/`
 * `monitoring_custom_endpoint` (`GOOGLE_MONITORING_CUSTOM_ENDPOINT`) - `https://monitoring.googleapis.com/v3/`
 * `security_scanner_custom_endpoint` (`GOOGLE_SECURITY_SCANNER_CUSTOM_ENDPOINT`) - `https://websecurityscanner.googleapis.com/v1beta/`
-* `service_networking_custom_endpoint` (`GOOGLE_SERVICE_NETWORKING_CUSTOM_ENDPOINT`) - `https://servicenetworking.googleapis.com/v1beta/`
 
 -> Note that some endpoints are a versioned variant of another. These exist in
 cases where the `google` provider uses multiple distinct endpoints, and both
