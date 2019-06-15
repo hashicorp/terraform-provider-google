@@ -111,6 +111,7 @@ func Provider() terraform.ResourceProvider {
 			RuntimeconfigCustomEndpointEntryKey:          RuntimeconfigCustomEndpointEntry,
 			IAMCustomEndpointEntryKey:                    IAMCustomEndpointEntry,
 			ServiceManagementCustomEndpointEntryKey:      ServiceManagementCustomEndpointEntry,
+			ServiceNetworkingCustomEndpointEntryKey:      ServiceNetworkingCustomEndpointEntry,
 			ServiceUsageCustomEndpointEntryKey:           ServiceUsageCustomEndpointEntry,
 			BigQueryCustomEndpointEntryKey:               BigQueryCustomEndpointEntry,
 			CloudFunctionsCustomEndpointEntryKey:         CloudFunctionsCustomEndpointEntry,
@@ -270,6 +271,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_kms_crypto_key":                        resourceKmsCryptoKey(),
 			"google_kms_crypto_key_iam_binding":            ResourceIamBindingWithImport(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
 			"google_kms_crypto_key_iam_member":             ResourceIamMemberWithImport(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
+			"google_service_networking_connection":         resourceServiceNetworkingConnection(),
 			"google_spanner_instance_iam_binding":          ResourceIamBindingWithImport(IamSpannerInstanceSchema, NewSpannerInstanceIamUpdater, SpannerInstanceIdParseFunc),
 			"google_spanner_instance_iam_member":           ResourceIamMemberWithImport(IamSpannerInstanceSchema, NewSpannerInstanceIamUpdater, SpannerInstanceIdParseFunc),
 			"google_spanner_instance_iam_policy":           ResourceIamPolicyWithImport(IamSpannerInstanceSchema, NewSpannerInstanceIamUpdater, SpannerInstanceIdParseFunc),
@@ -380,6 +382,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config.RuntimeconfigBasePath = d.Get(RuntimeconfigCustomEndpointEntryKey).(string)
 	config.IAMBasePath = d.Get(IAMCustomEndpointEntryKey).(string)
 	config.ServiceManagementBasePath = d.Get(ServiceManagementCustomEndpointEntryKey).(string)
+	config.ServiceNetworkingBasePath = d.Get(ServiceNetworkingCustomEndpointEntryKey).(string)
 	config.ServiceUsageBasePath = d.Get(ServiceUsageCustomEndpointEntryKey).(string)
 	config.BigQueryBasePath = d.Get(BigQueryCustomEndpointEntryKey).(string)
 	config.CloudFunctionsBasePath = d.Get(CloudFunctionsCustomEndpointEntryKey).(string)
@@ -431,6 +434,7 @@ func ConfigureBasePaths(c *Config) {
 	c.RuntimeconfigBasePath = RuntimeconfigDefaultBasePath
 	c.IAMBasePath = IAMDefaultBasePath
 	c.ServiceManagementBasePath = ServiceManagementDefaultBasePath
+	c.ServiceNetworkingBasePath = ServiceNetworkingDefaultBasePath
 	c.ServiceUsageBasePath = ServiceUsageDefaultBasePath
 	c.BigQueryBasePath = BigQueryDefaultBasePath
 	c.CloudFunctionsBasePath = CloudFunctionsDefaultBasePath

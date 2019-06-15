@@ -42,6 +42,7 @@ import (
 	"google.golang.org/api/pubsub/v1"
 	runtimeconfig "google.golang.org/api/runtimeconfig/v1beta1"
 	"google.golang.org/api/servicemanagement/v1"
+	"google.golang.org/api/servicenetworking/v1"
 	"google.golang.org/api/serviceusage/v1"
 	"google.golang.org/api/sourcerepo/v1"
 	"google.golang.org/api/spanner/v1"
@@ -163,6 +164,9 @@ type Config struct {
 
 	AppEngineBasePath string
 	clientAppEngine   *appengine.APIService
+
+	ServiceNetworkingBasePath string
+	clientServiceNetworking   *servicenetworking.APIService
 
 	StorageTransferBasePath string
 	clientStorageTransfer   *storagetransfer.Service
@@ -493,6 +497,15 @@ func (c *Config) LoadAndValidate() error {
 	}
 	c.clientComposer.UserAgent = userAgent
 	c.clientComposer.BasePath = composerClientBasePath
+
+	serviceNetworkingClientBasePath := removeBasePathVersion(c.ServiceNetworkingBasePath)
+	log.Printf("[INFO] Instantiating Service Networking client for path %s", serviceNetworkingClientBasePath)
+	c.clientServiceNetworking, err = servicenetworking.NewService(context, option.WithHTTPClient(client))
+	if err != nil {
+		return err
+	}
+	c.clientServiceNetworking.UserAgent = userAgent
+	c.clientServiceNetworking.BasePath = serviceNetworkingClientBasePath
 
 	storageTransferClientBasePath := removeBasePathVersion(c.StorageTransferBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Storage Transfer client for path %s", storageTransferClientBasePath)
