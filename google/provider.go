@@ -268,7 +268,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_kms_key_ring_iam_binding":              ResourceIamBindingWithImport(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
 			"google_kms_key_ring_iam_member":               ResourceIamMemberWithImport(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
 			"google_kms_key_ring_iam_policy":               ResourceIamPolicyWithImport(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
-			"google_kms_crypto_key":                        resourceKmsCryptoKey(),
 			"google_kms_crypto_key_iam_binding":            ResourceIamBindingWithImport(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
 			"google_kms_crypto_key_iam_member":             ResourceIamMemberWithImport(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
 			"google_service_networking_connection":         resourceServiceNetworkingConnection(),

@@ -197,6 +197,51 @@ func TestAccKmsCryptoKey_rotation(t *testing.T) {
 	})
 }
 
+func TestAccKmsCryptoKey_template(t *testing.T) {
+	t.Parallel()
+
+	projectId := "terraform-" + acctest.RandString(10)
+	projectOrg := getTestOrgFromEnv(t)
+	location := getTestRegionFromEnv()
+	projectBillingAccount := getTestBillingAccountFromEnv(t)
+	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	algorithm := "EC_SIGN_P256_SHA256"
+	updatedAlgorithm := "EC_SIGN_P384_SHA384"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleKmsCryptoKey_template(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, algorithm),
+			},
+			{
+				ResourceName:      "google_kms_crypto_key.crypto_key",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testGoogleKmsCryptoKey_template(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, updatedAlgorithm),
+			},
+			{
+				ResourceName:      "google_kms_crypto_key.crypto_key",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
+			{
+				Config: testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleKmsCryptoKeyWasRemovedFromState("google_kms_crypto_key.crypto_key"),
+					testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(projectId, location, keyRingName, cryptoKeyName),
+					testAccCheckGoogleKmsCryptoKeyRotationDisabled(projectId, location, keyRingName, cryptoKeyName),
+				),
+			},
+		},
+	})
+}
+
 // KMS KeyRings cannot be deleted. This ensures that the CryptoKey resource was removed from state,
 // even though the server-side resource was not removed.
 func testAccCheckGoogleKmsCryptoKeyWasRemovedFromState(resourceName string) resource.TestCheckFunc {
@@ -287,12 +332,6 @@ resource "google_kms_key_ring" "key_ring" {
 resource "google_kms_crypto_key" "crypto_key" {
 	name            = "%s"
 	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
-	rotation_period = "1000000s"
-	purpose         = "ENCRYPT_DECRYPT"
-	version_template {
-		algorithm =        "GOOGLE_SYMMETRIC_ENCRYPTION"
-		protection_level = "SOFTWARE"
-	}
 }
 	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
 }
@@ -356,6 +395,41 @@ resource "google_kms_crypto_key" "crypto_key" {
 	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
 }
 	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
+}
+
+func testGoogleKmsCryptoKey_template(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, algorithm string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+	name            = "%s"
+	project_id      = "%s"
+	org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_services" "acceptance" {
+	project = "${google_project.acceptance.project_id}"
+
+	services = [
+	  "cloudkms.googleapis.com",
+	]
+}
+
+resource "google_kms_key_ring" "key_ring" {
+	project  = "${google_project_services.acceptance.project}"
+	name     = "%s"
+	location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+	name            = "%s"
+	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
+	purpose  = "ASYMMETRIC_SIGN"
+
+	version_template {
+		algorithm = "%s"
+	}
+}
+	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, algorithm)
 }
 
 func testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName string) string {
