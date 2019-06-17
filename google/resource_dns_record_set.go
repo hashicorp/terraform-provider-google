@@ -6,9 +6,10 @@ import (
 
 	"strings"
 
+	"net"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/dns/v1"
-	"net"
 )
 
 func resourceDnsRecordSet() *schema.Resource {
@@ -300,13 +301,19 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceDnsRecordSetImportState(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid dns record specifier. Expecting {zone-name}/{record-name}/{record-type}. The record name must include a trailing '.' at the end.")
+	if len(parts) == 3 {
+		d.Set("managed_zone", parts[0])
+		d.Set("name", parts[1])
+		d.Set("type", parts[2])
+	} else if len(parts) == 4 {
+		d.Set("project", parts[0])
+		d.Set("managed_zone", parts[1])
+		d.Set("name", parts[2])
+		d.Set("type", parts[3])
+		d.SetId(parts[1] + "/" + parts[2] + "/" + parts[3])
+	} else {
+		return nil, fmt.Errorf("Invalid dns record specifier. Expecting {zone-name}/{record-name}/{record-type} or {project}/{zone-name}/{record-name}/{record-type}. The record name must include a trailing '.' at the end.")
 	}
-
-	d.Set("managed_zone", parts[0])
-	d.Set("name", parts[1])
-	d.Set("type", parts[2])
 
 	return []*schema.ResourceData{d}, nil
 }

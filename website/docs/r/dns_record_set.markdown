@@ -159,10 +159,11 @@ Only the arguments listed above are exposed as attributes.
 
 ## Import
 
-DNS record set can be imported using the `zone name`, `record name` and record `type`, e.g.
+DNS record sets can be imported using either of these accepted formats:
 
 ```
-$ terraform import google_dns_record_set.frontend prod-zone/frontend.prod.mydomain.com./A
+$ terraform import google_dns_record_set.frontend {{project}}/{{zone}}/{{name}}/{{type}}
+$ terraform import google_dns_record_set.frontend {{zone}}/{{name}}/{{type}}
 ```
 
 Note: The record name must include the trailing dot at the end.
