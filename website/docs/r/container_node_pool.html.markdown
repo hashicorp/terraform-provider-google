@@ -83,7 +83,7 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/monitoring",
     ]
 
-    metadata {
+    metadata = {
       disable-legacy-endpoints = "true"
     }
 
