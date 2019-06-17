@@ -125,11 +125,13 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 
 	var user *sqladmin.User
 	for _, currentUser := range users.Items {
-		// The second part of this conditional is irrelevant for postgres instances because
-		// host and currentUser.Host will always both be empty.
-		if currentUser.Name == name && currentUser.Host == host {
-			user = currentUser
-			break
+		if currentUser.Name == name {
+			// Host can only be empty for postgres instances,
+			// so don't compare the host if the API host is empty.
+			if currentUser.Host == "" || currentUser.Host == host {
+				user = currentUser
+				break
+			}
 		}
 	}
 
