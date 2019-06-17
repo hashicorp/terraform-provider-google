@@ -21,6 +21,7 @@ BUG FIXES:
 * compute: `google_compute_instance_from_template` Make sure disk type is expanded to a URL [GH-3717]
 * comptue: `google_compute_instance_template` Attempt to put disks in state in the same order they were specified [GH-3717]
 * container: `google_container_cluster` and `google_node_pool` now retry correctly when polling for status of an operation. [GH-3801]
+* dns: `google_dns_record_set` overrides all existing record types on create, not just NS [GH-3859]
 * pubsub: `google_pubsub_subscription` and `google_pubsub_topic` resources can be created inside VPC service controls. [GH-3818]
 * redis: `google_redis_instance` Fall back to region from `location_id` when region isn't specified [GH-3846]
 
