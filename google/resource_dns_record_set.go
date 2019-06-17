@@ -95,31 +95,25 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 		},
 	}
 
-	// we need to replace NS record sets in the same call. That means
-	// we need to list all the current NS record sets attached to the
-	// zone and add them to the change as deletions. We can't just add
-	// new NS record sets, or we'll get an error about the NS record set
-	// already existing; see terraform-providers/terraform-provider-google#95.
-	// We also can't just remove the NS recordsets on creation, as at
-	// least one is required. So the solution is to "update in place" by
-	// putting the addition and the removal in the same API call.
-	if rType == "NS" {
-		log.Printf("[DEBUG] DNS record list request for %q", zone)
-		res, err := config.clientDns.ResourceRecordSets.List(project, zone).Do()
-		if err != nil {
-			return fmt.Errorf("Error retrieving record sets for %q: %s", zone, err)
-		}
-		var deletions []*dns.ResourceRecordSet
+	// The terraform provider is authoritative, so what we do here is check if
+	// any records that we are trying to create already exist and make sure we
+	// delete them, before adding in the changes requested.  Normally this would
+	// result in an AlreadyExistsError.
+	log.Printf("[DEBUG] DNS record list request for %q", zone)
+	res, err := config.clientDns.ResourceRecordSets.List(project, zone).Do()
+	if err != nil {
+		return fmt.Errorf("Error retrieving record sets for %q: %s", zone, err)
+	}
+	var deletions []*dns.ResourceRecordSet
 
-		for _, record := range res.Rrsets {
-			if record.Type != "NS" || record.Name != name {
-				continue
-			}
-			deletions = append(deletions, record)
+	for _, record := range res.Rrsets {
+		if record.Type != rType || record.Name != name {
+			continue
 		}
-		if len(deletions) > 0 {
-			chg.Deletions = deletions
-		}
+		deletions = append(deletions, record)
+	}
+	if len(deletions) > 0 {
+		chg.Deletions = deletions
 	}
 
 	log.Printf("[DEBUG] DNS Record create request: %#v", chg)
