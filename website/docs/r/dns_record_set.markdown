@@ -11,11 +11,7 @@ description: |-
 Manages a set of DNS records within Google Cloud DNS. For more information see [the official documentation](https://cloud.google.com/dns/records/) and
 [API](https://cloud.google.com/dns/api/v1/resourceRecordSets).
 
-~> **Note:** The Google Cloud DNS API requires NS records be present at all
-times. To accommodate this, when creating NS records, the default records
-Google automatically creates will be silently overwritten.  Also, when
-destroying NS records, Terraform will not actually remove NS records, but will
-report that it did.
+~> **Note:** The provider treats this resource as an authoritative record set. This means existing records (including the default records) for the given type will be overwritten when you create this resource in Terraform. In addition, the Google Cloud DNS API requires NS records to be present at all times, so Terraform will not actually remove NS records during destroy but will report that it did.
 
 ## Example Usage
 
