@@ -98,13 +98,14 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 			break
 		}
 		if binding == nil {
-			log.Printf("[DEBUG]: Binding for role %q not found in policy for %s, removing from state file.", eBinding.Role, updater.DescribeResource())
-			d.SetId("")
+			log.Printf("[DEBUG]: Binding for role %q not found in policy for %s, assuming it has no members.", eBinding.Role, updater.DescribeResource())
+			d.Set("role", eBinding.Role)
 			return nil
+		} else {
+			d.Set("role", binding.Role)
+			d.Set("members", binding.Members)
 		}
 		d.Set("etag", p.Etag)
-		d.Set("members", binding.Members)
-		d.Set("role", binding.Role)
 		return nil
 	}
 }
