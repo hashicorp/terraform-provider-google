@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 
-	"google.golang.org/api/dataproc/v1"
+	dataproc "google.golang.org/api/dataproc/v1beta2"
 	"google.golang.org/api/googleapi"
 )
 
@@ -523,7 +523,7 @@ func testAccCheckDataprocClusterDestroy() resource.TestCheckFunc {
 				return err
 			}
 
-			_, err = config.clientDataproc.Projects.Regions.Clusters.Get(
+			_, err = config.clientDataprocBeta.Projects.Regions.Clusters.Get(
 				project, attributes["region"], rs.Primary.ID).Do()
 
 			if err != nil {
@@ -669,7 +669,7 @@ func testAccCheckDataprocClusterExists(n string, cluster *dataproc.Cluster) reso
 			return err
 		}
 
-		found, err := config.clientDataproc.Projects.Regions.Clusters.Get(
+		found, err := config.clientDataprocBeta.Projects.Regions.Clusters.Get(
 			project, rs.Primary.Attributes["region"], rs.Primary.ID).Do()
 		if err != nil {
 			return err
