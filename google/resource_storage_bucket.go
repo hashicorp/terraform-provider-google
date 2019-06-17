@@ -264,7 +264,7 @@ func resourceStorageBucket() *schema.Resource {
 			"bucket_policy_only": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
+				Computed: true,
 			},
 		},
 	}
