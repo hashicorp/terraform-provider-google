@@ -30,5 +30,6 @@ var KmsCustomEndpointEntry = &schema.Schema{
 }
 
 var GeneratedKmsResourcesMap = map[string]*schema.Resource{
-	"google_kms_key_ring": resourceKmsKeyRing(),
+	"google_kms_key_ring":   resourceKmsKeyRing(),
+	"google_kms_crypto_key": resourceKmsCryptoKey(),
 }
