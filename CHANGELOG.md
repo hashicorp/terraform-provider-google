@@ -7,6 +7,7 @@ FEATURES:
 
 
 ENHANCEMENTS:
+* increased default timeouts for `google_compute_instance`, `google_container_cluster`, `google_dataproc_cluster`, and `google_sql_database_instance` [GH-3872]
 * dns: `google_dns_record_set`: allow importing dns record sets in any project [GH-3862]
 * kms: `kms_crypto_key` supports `purpose` [GH-3843]
 * storage: `google_storage_bucket` now supports enabling `bucket_policy_only` access control. ([#1878](https://github.com/terraform-providers/terraform-provider-google/pull/1878)
