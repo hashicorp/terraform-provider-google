@@ -111,8 +111,11 @@ The `access` block supports the following fields (exactly one of `domain`,
 even though they are marked optional):
 
 * `role` - (Required unless `view` is set) Describes the rights granted to
-    the user specified by the other member of the access object. The following
-    string values are supported: `READER`, `WRITER`, `OWNER`.
+    the user specified by the other member of the access object. 
+    Primitive, Predefined and custom roles are supported.
+    Predefined roles that have equivalent primitive roles are swapped 
+    by the API to their Primitive counterparts, and will show a diff post-create. 
+    See [official docs](https://cloud.google.com/bigquery/docs/access-control).
 
 * `domain` - (Optional) A domain to grant access to.
 
