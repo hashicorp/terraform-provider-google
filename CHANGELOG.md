@@ -15,6 +15,7 @@ ENHANCEMENTS:
 
 
 BUG FIXES:
+* bigquery: `google_bigquery_dataset` Relax IAM role restrictions on BQ datasets [GH-3451]
 * compute: `google_project_iam` When importing resources `project` no longer needs to be set in the config post import [GH-3777]
 * compute: `google_compute_instance_template` Fixed issue so project can now be specified by interpolated varibles. [GH-3798]
 * compute: `google_compute_instance_template` Throw error when using incompatible disk fields instead of continual plan diff [GH-3789]
