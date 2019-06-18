@@ -471,11 +471,12 @@ exported:
 * `cluster_config.0.software_config.0.properties` - A list of the properties used to set the daemon config files.
    This will include any values supplied by the user via `cluster_config.software_config.override_properties`
 
+
 ## Timeouts
 
-`google_dataproc_cluster` provides the following
+This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - (Default `10 minutes`) Used for creating clusters.
-- `update` - (Default `5 minutes`) Used for updating clusters
-- `delete` - (Default `5 minutes`) Used for destroying clusters.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
