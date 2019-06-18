@@ -629,15 +629,14 @@ exported:
   notation (e.g. `1.2.3.4/29`). Service addresses are typically put in the last
   `/16` from the container CIDR.
 
-<a id="timeouts"></a>
 ## Timeouts
 
-`google_container_cluster` provides the following
+This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - (Default `30 minutes`) Used for clusters
-- `update` - (Default `30 minutes`) Used for updates to clusters
-- `delete` - (Default `30 minutes`) Used for destroying clusters.
+- `create` - Default is 30 minutes.
+- `update` - Default is 60 minutes.
+- `delete` - Default is 30 minutes.
 
 ## Import
 
