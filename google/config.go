@@ -69,6 +69,7 @@ type Config struct {
 	AccessContextManagerBasePath string
 	CloudSchedulerBasePath       string
 	FirestoreBasePath            string
+	MonitoringBasePath           string
 	RedisBasePath                string
 	TpuBasePath                  string
 
