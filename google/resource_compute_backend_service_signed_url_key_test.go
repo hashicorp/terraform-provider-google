@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"testing"
 
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"strings"
 )
 
 func TestAccComputeBackendServiceSignedUrlKey_basic(t *testing.T) {
@@ -92,25 +93,26 @@ func checkComputeBackendServiceSignedUrlKeyExists(s *terraform.State) (bool, err
 		}
 
 		res, err := sendRequest(config, "GET", url, nil)
-		if err == nil {
-			policyRaw, ok := res["cdnPolicy"]
-			if !ok {
-				return false, nil
-			}
+		if err != nil {
+			return false, err
+		}
+		policyRaw, ok := res["cdnPolicy"]
+		if !ok {
+			return false, nil
+		}
 
-			policy := policyRaw.(map[string]interface{})
-			keyNames, ok := policy["signedUrlKeyNames"]
-			if !ok {
-				return false, nil
-			}
+		policy := policyRaw.(map[string]interface{})
+		keyNames, ok := policy["signedUrlKeyNames"]
+		if !ok {
+			return false, nil
+		}
 
-			// Because the sensitive key value is not returned, all we can do is verify a
-			// key with this name exists and assume the key value hasn't been changed.
-			for _, k := range keyNames.([]interface{}) {
-				if k.(string) == keyName {
-					// Just return empty map to indicate key was found
-					return true, nil
-				}
+		// Because the sensitive key value is not returned, all we can do is verify a
+		// key with this name exists and assume the key value hasn't been changed.
+		for _, k := range keyNames.([]interface{}) {
+			if k.(string) == keyName {
+				// Just return empty map to indicate key was found
+				return true, nil
 			}
 		}
 	}
