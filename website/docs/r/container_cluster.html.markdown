@@ -208,7 +208,11 @@ for more details. Structure is documented below.
     documented below.
 
 * `master_auth` - (Optional) The authentication information for accessing the
-    Kubernetes master. Structure is documented below.
+Kubernetes master. Some values in this block are only returned by the API if
+your service account has permission to get credentials for your GKE cluster. If
+you see an unexpected diff removing a username/password or unsetting your client
+cert, ensure you have the `container.clusters.getCredentials` permission.
+Structure is documented below.
 
 * `master_authorized_networks_config` - (Optional) The desired configuration options
     for master authorized networks. Omit the nested `cidr_blocks` attribute to disallow
