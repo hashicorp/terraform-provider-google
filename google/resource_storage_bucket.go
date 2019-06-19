@@ -524,7 +524,11 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
 	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
 	d.Set("labels", res.Labels)
-	d.Set("bucket_policy_only", res.IamConfiguration.BucketPolicyOnly.Enabled)
+	if res.IamConfiguration != nil && res.IamConfiguration.BucketPolicyOnly != nil {
+		d.Set("bucket_policy_only", res.IamConfiguration.BucketPolicyOnly.Enabled)
+	} else {
+		d.Set("bucket_policy_only", false)
+	}
 
 	if res.Billing == nil {
 		d.Set("requester_pays", nil)
@@ -795,13 +799,13 @@ func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleC
 }
 
 func expandIamConfiguration(d *schema.ResourceData) *storage.BucketIamConfiguration {
-	iamConfig := &storage.BucketIamConfiguration{}
-	if v, ok := d.GetOk("bucket_policy_only"); ok {
-		iamConfig.BucketPolicyOnly = &storage.BucketIamConfigurationBucketPolicyOnly{
-			Enabled: v.(bool),
-		}
+	return &storage.BucketIamConfiguration{
+		ForceSendFields: []string{"BucketPolicyOnly"},
+		BucketPolicyOnly: &storage.BucketIamConfigurationBucketPolicyOnly{
+			Enabled:         d.Get("bucket_policy_only").(bool),
+			ForceSendFields: []string{"Enabled"},
+		},
 	}
-	return iamConfig
 }
 
 func expandStorageBucketLifecycle(v interface{}) (*storage.BucketLifecycle, error) {
