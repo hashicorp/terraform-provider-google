@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -32,6 +33,10 @@ func resourceContainerNodePool() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceContainerNodePoolStateImporter,
 		},
+
+		CustomizeDiff: customdiff.All(
+			resourceNodeConfigEmptyGuestAccelerator,
+		),
 
 		Schema: mergeSchemas(
 			schemaNodePool,

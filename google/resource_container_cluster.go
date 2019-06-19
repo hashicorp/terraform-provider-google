@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/go-version"
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -54,7 +55,10 @@ func resourceContainerCluster() *schema.Resource {
 		Update: resourceContainerClusterUpdate,
 		Delete: resourceContainerClusterDelete,
 
-		CustomizeDiff: resourceContainerClusterIpAllocationCustomizeDiff,
+		CustomizeDiff: customdiff.All(
+			resourceContainerClusterIpAllocationCustomizeDiff,
+			resourceNodeConfigEmptyGuestAccelerator,
+		),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -634,6 +638,63 @@ func resourceContainerCluster() *schema.Resource {
 			},
 		},
 	}
+}
+
+// Setting a guest accelerator block to count=0 is the equivalent to omitting the block: it won't get
+// sent to the API and it won't be stored in state. This diffFunc will try to compare the old + new state
+// by only comparing the blocks with a positive count and ignoring those with count=0
+//
+// One quirk with this approach is that configs with mixed count=0 and count>0 accelerator blocks will
+// show a confusing diff if one of there are config changes that result in a legitimate diff as the count=0
+// blocks will not be in state.
+//
+// This could also be modelled by setting `guest_accelerator = []` in the config. However since the
+// previous syntax requires that schema.SchemaConfigModeAttr is set on the field it is advisable that
+// we have a work around for removing guest accelerators. Also Terraform 0.11 cannot use dynamic blocks
+// so this isn't a solution for module authors who want to dynamically omit guest accelerators
+// See https://github.com/terraform-providers/terraform-provider-google/issues/3786
+func resourceNodeConfigEmptyGuestAccelerator(diff *schema.ResourceDiff, meta interface{}) error {
+	old, new := diff.GetChange("node_config.0.guest_accelerator")
+	oList := old.([]interface{})
+	nList := new.([]interface{})
+
+	if len(nList) == len(oList) || len(nList) == 0 {
+		return nil
+	}
+	var hasAcceleratorWithEmptyCount bool
+	// the list of blocks in a desired state with count=0 accelerator blocks in it
+	// will be longer than the current state.
+	// this index tracks the location of positive count accelerator blocks
+	index := 0
+	for i, item := range nList {
+		accel := item.(map[string]interface{})
+		if accel["count"].(int) == 0 {
+			hasAcceleratorWithEmptyCount = true
+			// Ignore any 'empty' accelerators because they aren't sent to the API
+			continue
+		}
+		if index >= len(oList) {
+			// Return early if there are more positive count accelerator blocks in the desired state
+			// than the current state since a difference in 'legit' blocks is a valid diff.
+			// This will prevent array index overruns
+			return nil
+		}
+		if !reflect.DeepEqual(nList[i], oList[index]) {
+			return nil
+		}
+		index += 1
+	}
+
+	if hasAcceleratorWithEmptyCount && index == len(oList) {
+		// If the number of count>0 blocks match, there are count=0 blocks present and we
+		// haven't already returned due to a legitimate diff
+		err := diff.Clear("node_config.0.guest_accelerator")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func resourceContainerClusterIpAllocationCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
