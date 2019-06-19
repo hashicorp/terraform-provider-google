@@ -1,14 +1,11 @@
 ## 2.9.1 (Unreleased)
 
 ENHANCEMENTS:
-
-
+* Added fields for managing network endpoint group backends in   default timeouts for `google_compute_backend`, including `max_connections_per_endpoint` and `max_rate_per_endpoint` ([#3863](https://github.com/terraform-providers/terraform-provider-google/issues/3863))
 
 ## 2.9.0 (June 19, 2019)
 
 FEATURES:
-* Added fields for managing network endpoint group backends in   default timeouts for `google_compute_backend`, including `max_connections_per_endpoint` and `max_rate_per_endpoint` ([#3863](https://github.com/terraform-providers/terraform-provider-google/issues/3863))
-
 * **Custom Endpoint Support**: The Google provider supports custom endpoints, allowing you to use GCP-like APIs such as emulators. See the [Provider Reference](https://www.terraform.io/docs/providers/google/provider_reference.html) for details. ([#3787](https://github.com/terraform-providers/terraform-provider-google/issues/3787))
 * **New Resource** Network endpoint groups (`google_compute_network_endpoint_group`) and fine-grained resource endpoints (`google_compute_network_endpoint`) are now available. ([#3832](https://github.com/terraform-providers/terraform-provider-google/issues/3832))
 
