@@ -157,7 +157,11 @@ deprecated in favour of `node_locations`.
     this cluster. Default is an automatically assigned CIDR.
 
 * `cluster_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
-    Configuration for per-cluster autoscaling features, including node autoprovisioning. See [guide in Google docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning). Structure is documented below.
+Per-cluster configuration of Node Auto-Provisioning with Cluster Autoscaler to
+automatically adjust the size of the cluster and create/delete node pools based
+on the current needs of the cluster's workload. See the
+[guide to using Node Auto-Provisioning](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
+for more details. Structure is documented below.
 
 * `database_encryption` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)).
     Structure is documented below.
@@ -357,21 +361,23 @@ The `istio_config` block supports:
 
 The `cluster_autoscaling` block supports:
 
-* `enabled` - (Required) Whether cluster-wide autoscaling is enabled (i.e.node autoprovisioning is enabled). To set this to true, make sure your config meets the rest of the requirements.  Notably, you'll need `min_master_version` of at least `1.11.2`.
+* `enabled` - (Required) Whether node auto-provisioning is enabled. Resource
+limits for `cpu` and `memory` must be defined to enable node auto-provisioning.
 
-* `resource_limits` - (Optional) A list of limits on the autoprovisioning.
-    See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
-    for an explanation of what options are available.  If enabling autoprovisioning, make
-    sure to set at least `cpu` and `memory`.  Structure is documented below.
+* `resource_limits` - (Optional) Global constraints for machine resources in the
+cluster. Configuring the `cpu` and `memory` types is required if node
+auto-provisioning is enabled. These limits will apply to node pool autoscaling
+in addition to node auto-provisioning. Structure is documented below.
 
 The `resource_limits` block supports:
 
-* `resource_type` - (Required) See [the docs](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
-    for a list of permitted types - `cpu`, `memory`, and others.
+* `resource_type` - (Required) The type of the resource. For example, `cpu` and
+`memory`.  See the [guide to using Node Auto-Provisioning](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
+for a list of types.
 
-* `minimum` - (Optional) The minimum value for the resource type specified.
+* `minimum` - (Optional) Minimum amount of the resource in the cluster.
 
-* `maximum` - (Optional) The maximum value for the resource type specified.
+* `maximum` - (Optional) Maximum amount of the resource in the cluster.
 
 The `authenticator_groups_config` block supports:
 
