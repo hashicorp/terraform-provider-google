@@ -129,6 +129,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `size` -
   Number of network endpoints in the network endpoint group.
+* `self_link` - The URI of the created resource.
 
 
 ## Timeouts
