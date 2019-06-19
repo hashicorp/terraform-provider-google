@@ -94,6 +94,10 @@ func resourceComputeNetworkEndpointGroup() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"self_link": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -231,6 +235,9 @@ func resourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
 	if err := d.Set("zone", flattenComputeNetworkEndpointGroupZone(res["zone"], d)); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
+	}
+	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
 

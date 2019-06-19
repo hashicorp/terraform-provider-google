@@ -201,8 +201,9 @@ The `backend` block supports:
   (Optional)
   The max number of simultaneous connections for the group. Can
   be used with either CONNECTION or UTILIZATION balancing modes.
-  For CONNECTION mode, either maxConnections or
-  maxConnectionsPerInstance must be set.
+  For CONNECTION mode, either maxConnections or one
+  of maxConnectionsPerInstance or maxConnectionsPerEndpoint,
+  as appropriate for group type, must be set.
 
 * `max_connections_per_instance` -
   (Optional)
@@ -213,12 +214,22 @@ The `backend` block supports:
   For CONNECTION mode, either maxConnections or
   maxConnectionsPerInstance must be set.
 
+* `max_connections_per_endpoint` -
+  (Optional)
+  The max number of simultaneous connections that a single backend
+  network endpoint can handle. This is used to calculate the
+  capacity of the group. Can be used in either CONNECTION or
+  UTILIZATION balancing modes.
+  For CONNECTION mode, either
+  maxConnections or maxConnectionsPerEndpoint must be set.
+
 * `max_rate` -
   (Optional)
   The max requests per second (RPS) of the group.
   Can be used with either RATE or UTILIZATION balancing modes,
-  but required if RATE mode. For RATE mode, either maxRate or
-  maxRatePerInstance must be set.
+  but required if RATE mode. For RATE mode, either maxRate or one
+  of maxRatePerInstance or maxRatePerEndpoint, as appropriate for
+  group type, must be set.
 
 * `max_rate_per_instance` -
   (Optional)
@@ -226,6 +237,13 @@ The `backend` block supports:
   instance can handle. This is used to calculate the capacity of
   the group. Can be used in either balancing mode. For RATE mode,
   either maxRate or maxRatePerInstance must be set.
+
+* `max_rate_per_endpoint` -
+  (Optional)
+  The max requests per second (RPS) that a single backend network
+  endpoint can handle. This is used to calculate the capacity of
+  the group. Can be used in either balancing mode. For RATE mode,
+  either maxRate or maxRatePerEndpoint must be set.
 
 * `max_utilization` -
   (Optional)
