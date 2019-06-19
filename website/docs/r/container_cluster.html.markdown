@@ -526,6 +526,9 @@ The `node_config` block supports:
     are preemptible. See the [official documentation](https://cloud.google.com/container-engine/docs/preemptible-vm)
     for more information. Defaults to false.
 
+* `sandbox_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) [GKE Sandbox](https://cloud.google.com/kubernetes-engine/docs/how-to/sandbox-pods) configuration. When enabling this feature you must specify `image_type = "COS_CONTAINERD"` and `node_version = "1.12.7-gke.17"` or later to use it. 
+    Structure is documented below.
+
 * `service_account` - (Optional) The service account to be used by the Node VMs.
     If not specified, the "default" service account is used.
     In order to use the configured `oauth_scopes` for logging and monitoring, the service account being used needs the
@@ -571,6 +574,13 @@ In addition, the `private_cluster_config` allows access to the following read-on
 * `private_endpoint` - The internal IP address of this cluster's master endpoint.
 
 * `public_endpoint` - The external IP address of this cluster's master endpoint.
+
+The `sandbox_type` block supports:
+
+* `sandbox_type` (Required) Which sandbox to use for pods in the node pool.
+    Accepted values are:
+
+    * `"gvisor"`: Pods run within a gVisor sandbox.
 
 The `taint` block supports:
 

@@ -77,6 +77,8 @@ var schemaNodeConfig = &schema.Schema{
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
+				// Computed=true because GKE Sandbox will automatically add labels to nodes that can/cannot run sandboxed pods.
+				Computed: true,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
@@ -146,9 +148,11 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"taint": {
-				Removed:          "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
-				Type:             schema.TypeList,
-				Optional:         true,
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Type:     schema.TypeList,
+				Optional: true,
+				// Computed=true because GKE Sandbox will automatically add taints to nodes that can/cannot run sandboxed pods.
+				Computed:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: taintDiffSuppress,
 				Elem: &schema.Resource{
@@ -186,6 +190,23 @@ var schemaNodeConfig = &schema.Schema{
 							Required:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "SECURE", "EXPOSE", "GKE_METADATA_SERVER"}, false),
+						},
+					},
+				},
+			},
+
+			"sandbox_config": {
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"sandbox_type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"gvisor"}, false),
 						},
 					},
 				},
