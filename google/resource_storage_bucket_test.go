@@ -772,7 +772,7 @@ func TestAccStorageBucket_bucketPolicyOnly(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageBucket_bucketPolicyOnly(bucketName, false),
+				Config: testAccStorageBucket_bucketPolicyOnly(bucketName, true),
 			},
 			{
 				ResourceName:      "google_storage_bucket.bucket",
@@ -780,7 +780,7 @@ func TestAccStorageBucket_bucketPolicyOnly(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccStorageBucket_bucketPolicyOnly(bucketName, true),
+				Config: testAccStorageBucket_bucketPolicyOnly(bucketName, false),
 			},
 			{
 				ResourceName:      "google_storage_bucket.bucket",
