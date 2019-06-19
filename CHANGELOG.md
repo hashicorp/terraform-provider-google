@@ -22,6 +22,7 @@ BUG FIXES:
 * compute: `google_compute_instance_template` Throw error when using incompatible disk fields instead of continual plan diff [GH-3789]
 * compute: `google_compute_instance_from_template` Make sure disk type is expanded to a URL [GH-3717]
 * compute: `google_compute_instance_template` Attempt to put disks in state in the same order they were specified [GH-3717]
+* container: `google_container_cluster` Stop guest_accelerator from having a permadiff for accelerators with `count=0` [GH-3860]
 * container: `google_container_cluster` and `google_node_pool` now retry correctly when polling for status of an operation. [GH-3801]
 * dns: `google_dns_record_set` overrides all existing record types on create, not just NS [GH-3859]
 * monitoring: `google_monitoring_notification_channel` Allow setting enabled to false [GH-3874]
