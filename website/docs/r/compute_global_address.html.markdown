@@ -79,11 +79,30 @@ The following arguments are supported:
   The IP Version that will be used by this address. Valid options are
   `IPV4` or `IPV6`. The default value is `IPV4`.
 
+* `prefix_length` -
+  (Optional)
+  The prefix length of the IP range. If not present, it means the
+  address field is a single IP address.
+  This field is not applicable to addresses with addressType=EXTERNAL.
+
 * `address_type` -
   (Optional)
   The type of the address to reserve, default is EXTERNAL.
   * EXTERNAL indicates public/external single IP address.
   * INTERNAL indicates internal IP ranges belonging to some network.
+
+* `purpose` -
+  (Optional)
+  The purpose of the resource. For global internal addresses it can be
+  * VPC_PEERING - for peer networks
+  This should only be set when using an Internal address.
+
+* `network` -
+  (Optional)
+  The URL of the network in which to reserve the IP range. The IP range
+  must be in RFC1918 space. The network cannot be deleted if there are
+  any reserved IP ranges referring to it.
+  This should only be set when using an Internal address.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
