@@ -1,7 +1,7 @@
 ## 2.9.1 (Unreleased)
 
 ENHANCEMENTS:
-* Added fields for managing network endpoint group backends in   default timeouts for `google_compute_backend`, including `max_connections_per_endpoint` and `max_rate_per_endpoint` ([#3863](https://github.com/terraform-providers/terraform-provider-google/issues/3863))
+* Added fields for managing network endpoint group backends in `google_compute_backend`, including `max_connections_per_endpoint` and `max_rate_per_endpoint` ([#3863](https://github.com/terraform-providers/terraform-provider-google/issues/3863))
 
 ## 2.9.0 (June 19, 2019)
 
