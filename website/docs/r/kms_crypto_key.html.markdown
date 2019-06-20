@@ -116,6 +116,9 @@ The following arguments are supported:
   (Optional)
   A template describing settings for new crypto key versions.  Structure is documented below.
 
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
 
 The `version_template` block supports:
 

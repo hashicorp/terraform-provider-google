@@ -91,6 +91,12 @@ func resourceKmsCryptoKey() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -123,7 +129,7 @@ func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{KmsBasePath}}{{key_ring}}/cryptoKeys?cryptoKeyId={{name}}")
+	url, err := replaceVars(d, config, "{{KmsBasePath}}projects/{{project}}/keyRings/{{key_ring}}/cryptoKeys?cryptoKeyId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -149,7 +155,7 @@ func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{KmsBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
+	url, err := replaceVars(d, config, "{{KmsBasePath}}projects/{{projects}}/keyRings/{{key_ring}}/cryptoKeys/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -162,6 +168,14 @@ func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	res, err = resourceKmsCryptoKeyDecoder(d, meta, res)
 	if err != nil {
 		return err
+	}
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
 
 	if err := d.Set("purpose", flattenKmsCryptoKeyPurpose(res["purpose"], d)); err != nil {
@@ -199,7 +213,7 @@ func resourceKmsCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{KmsBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
+	url, err := replaceVars(d, config, "{{KmsBasePath}}projects/{{projects}}/keyRings/{{key_ring}}/cryptoKeys/{{name}}")
 	if err != nil {
 		return err
 	}
