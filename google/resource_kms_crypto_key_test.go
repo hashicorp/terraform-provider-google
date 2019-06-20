@@ -109,6 +109,62 @@ func TestCryptoKeyNextRotationCalculation_validation(t *testing.T) {
 	}
 }
 
+func TestCryptoKeyStateUpgradeV0(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		Attributes map[string]interface{}
+		Expected   map[string]string
+		Meta       interface{}
+	}{
+		"change key_ring from terraform id fmt to link fmt": {
+			Attributes: map[string]interface{}{
+				"key_ring": "my-project/my-location/my-key-ring",
+			},
+			Expected: map[string]string{
+				"key_ring": "projects/my-project/locations/my-location/keyRings/my-key-ring",
+			},
+			Meta: &Config{},
+		},
+		"key_ring link fmt stays as link fmt": {
+			Attributes: map[string]interface{}{
+				"key_ring": "projects/my-project/locations/my-location/keyRings/my-key-ring",
+			},
+			Expected: map[string]string{
+				"key_ring": "projects/my-project/locations/my-location/keyRings/my-key-ring",
+			},
+			Meta: &Config{},
+		},
+		"key_ring without project to link fmt": {
+			Attributes: map[string]interface{}{
+				"key_ring": "my-location/my-key-ring",
+			},
+			Expected: map[string]string{
+				"key_ring": "projects/my-project/locations/my-location/keyRings/my-key-ring",
+			},
+			Meta: &Config{
+				Project: "my-project",
+			},
+		},
+	}
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			actual, err := resourceKmsCryptoKeyUpgradeV0(tc.Attributes, tc.Meta)
+
+			if err != nil {
+				t.Error(err)
+			}
+
+			for k, v := range tc.Expected {
+				if actual[k] != v {
+					t.Errorf("expected: %#v -> %#v\n got: %#v -> %#v\n in: %#v",
+						k, v, k, actual[k], actual)
+				}
+			}
+		})
+	}
+}
+
 func TestAccKmsCryptoKey_basic(t *testing.T) {
 	t.Parallel()
 

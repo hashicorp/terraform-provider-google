@@ -42,6 +42,15 @@ func resourceKmsCryptoKey() *schema.Resource {
 			Delete: schema.DefaultTimeout(240 * time.Second),
 		},
 
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceKmsCryptoKeyResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceKmsCryptoKeyUpgradeV0,
+				Version: 0,
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"key_ring": {
 				Type:             schema.TypeString,
@@ -388,4 +397,45 @@ func resourceKmsCryptoKeyDecoder(d *schema.ResourceData, meta interface{}, res m
 	d.Set("self_link", res["name"].(string))
 	res["name"] = d.Get("name").(string)
 	return res, nil
+}
+
+func resourceKmsCryptoKeyResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"key_ring": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"rotation_period": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"version_template": {
+				Type:     schema.TypeList,
+				Optional: true,
+			},
+			"self_link": {
+				Type: schema.TypeString,
+			},
+		},
+	}
+}
+
+func resourceKmsCryptoKeyUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+
+	config := meta.(*Config)
+	keyRingId := rawState["key_ring"].(string)
+	parsed, err := parseKmsKeyRingId(keyRingId, config)
+	if err != nil {
+		return nil, err
+	}
+	rawState["key_ring"] = parsed.keyRingId()
+
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	return rawState, nil
 }
