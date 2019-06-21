@@ -292,6 +292,10 @@ to the datasource. A `region` can have a different set of supported versions tha
 
 * `resource_labels` - (Optional) The GCE resource labels (a map of key/value pairs) to be applied to the cluster.
 
+* `resource_usage_export_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Configuration for the
+    [ResourceUsageExportConfig](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-usage-metering) feature.
+    Structure is documented below.
+
 * `subnetwork` - (Optional) The name or self_link of the Google Compute Engine subnetwork in
     which the cluster's instances are launched.
 
@@ -584,6 +588,24 @@ In addition, the `private_cluster_config` allows access to the following read-on
 * `private_endpoint` - The internal IP address of this cluster's master endpoint.
 
 * `public_endpoint` - The external IP address of this cluster's master endpoint.
+
+The `resource_usage_export_config` block supports:
+
+* `enable_network_egress_metering` (Optional) - Whether to enable network egress metering for this cluster. If enabled, a daemonset will be created
+    in the cluster to meter network egress traffic.
+
+* `bigquery_destination` (Required) - Parameters for using BigQuery as the destination of resource usage export.
+
+* `bigquery_destination.dataset_id` (Required) - The ID of a BigQuery Dataset. For Example:
+
+```
+resource_usage_export_config {
+  enable_network_egress_metering = false
+  bigquery_destination {
+    dataset_id = "cluster_resource_usage"
+  }
+}
+```
 
 The `sandbox_type` block supports:
 
