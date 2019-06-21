@@ -120,11 +120,39 @@ func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interf
 	return nil
 }
 
-// NOTE(craigatgoogle): The API for this resource doesn't define an update, however the behavior
-// of Create serves as a de facto update by overwriting connections with the duplicate
-// tuples: (network/service).
 func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
-	return resourceServiceNetworkingConnectionCreate(d, meta)
+	config := meta.(*Config)
+
+	connectionId, err := parseConnectionId(d.Id())
+	if err != nil {
+		return fmt.Errorf("Failed to find Service Networking Connection, err: %s", err)
+	}
+
+	parentService := formatParentService(connectionId.Service)
+
+	if d.HasChange("reserved_peering_ranges") {
+		network := d.Get("network").(string)
+		serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
+		if err != nil {
+			return fmt.Errorf("Failed to find Service Networking Connection, err: %s", err)
+		}
+
+		connection := &servicenetworking.Connection{
+			Network:               serviceNetworkingNetworkName,
+			ReservedPeeringRanges: convertStringArr(d.Get("reserved_peering_ranges").([]interface{})),
+		}
+
+		// The API docs don't specify that you can do connections/-, but that's what gcloud does,
+		// and it's easier than grabbing the connection name.
+		op, err := config.clientServiceNetworking.Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true).Do()
+		if err != nil {
+			return err
+		}
+		if err := serviceNetworkingOperationWait(config, op, "Update Service Networking Connection"); err != nil {
+			return err
+		}
+	}
+	return resourceServiceNetworkingConnectionRead(d, meta)
 }
 
 // NOTE(craigatgoogle): This resource doesn't have a defined Delete method, however an un-documented
