@@ -28,13 +28,13 @@ data "google_storage_transfer_project_service_account" "default" {
 }
 
 resource "google_storage_bucket" "s3-backup-bucket" {
-  name          = "${var.aws_s3_bucket}"
+  name          = "${var.aws_s3_bucket}-backup"
   storage_class = "NEARLINE"
   project       = "${var.project}"
 }
 
 resource "google_storage_bucket_iam_member" "s3-backup-bucket" {
-  bucket        = "${var.aws_s3_bucket}"
+  bucket        = "${google_storage_bucket.s3-backup-bucket.name}"
   role          = "roles/storage.admin"
   member        = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
   depends_on    = [
@@ -64,7 +64,7 @@ resource "google_storage_transfer_job" "s3-bucket-nightly-backup" {
 			}
 		}
 		gcs_data_sink {
-			bucket_name = "${var.aws_s3_bucket}-backup"
+			bucket_name = "${google_storage_bucket.s3-backup-bucket.name}"
 		}
 	}
 
