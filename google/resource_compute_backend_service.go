@@ -1184,42 +1184,42 @@ func expandComputeBackendServiceBackend(v interface{}, d TerraformResourceData, 
 		transformedMaxConnections, err := expandComputeBackendServiceBackendMaxConnections(original["max_connections"], d, config)
 		if err != nil {
 			return nil, err
-		} else {
+		} else if val := reflect.ValueOf(transformedMaxConnections); val.IsValid() && !isEmptyValue(val) {
 			transformed["maxConnections"] = transformedMaxConnections
 		}
 
 		transformedMaxConnectionsPerInstance, err := expandComputeBackendServiceBackendMaxConnectionsPerInstance(original["max_connections_per_instance"], d, config)
 		if err != nil {
 			return nil, err
-		} else {
+		} else if val := reflect.ValueOf(transformedMaxConnectionsPerInstance); val.IsValid() && !isEmptyValue(val) {
 			transformed["maxConnectionsPerInstance"] = transformedMaxConnectionsPerInstance
 		}
 
 		transformedMaxConnectionsPerEndpoint, err := expandComputeBackendServiceBackendMaxConnectionsPerEndpoint(original["max_connections_per_endpoint"], d, config)
 		if err != nil {
 			return nil, err
-		} else {
+		} else if val := reflect.ValueOf(transformedMaxConnectionsPerEndpoint); val.IsValid() && !isEmptyValue(val) {
 			transformed["maxConnectionsPerEndpoint"] = transformedMaxConnectionsPerEndpoint
 		}
 
 		transformedMaxRate, err := expandComputeBackendServiceBackendMaxRate(original["max_rate"], d, config)
 		if err != nil {
 			return nil, err
-		} else {
+		} else if val := reflect.ValueOf(transformedMaxRate); val.IsValid() && !isEmptyValue(val) {
 			transformed["maxRate"] = transformedMaxRate
 		}
 
 		transformedMaxRatePerInstance, err := expandComputeBackendServiceBackendMaxRatePerInstance(original["max_rate_per_instance"], d, config)
 		if err != nil {
 			return nil, err
-		} else {
+		} else if val := reflect.ValueOf(transformedMaxRatePerInstance); val.IsValid() && !isEmptyValue(val) {
 			transformed["maxRatePerInstance"] = transformedMaxRatePerInstance
 		}
 
 		transformedMaxRatePerEndpoint, err := expandComputeBackendServiceBackendMaxRatePerEndpoint(original["max_rate_per_endpoint"], d, config)
 		if err != nil {
 			return nil, err
-		} else {
+		} else if val := reflect.ValueOf(transformedMaxRatePerEndpoint); val.IsValid() && !isEmptyValue(val) {
 			transformed["maxRatePerEndpoint"] = transformedMaxRatePerEndpoint
 		}
 
