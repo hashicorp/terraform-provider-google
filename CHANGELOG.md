@@ -1,9 +1,9 @@
-## 2.9.1 (Unreleased)
+## 2.9.1 (June 21, 2019)
 
 BUG FIXES:
-* kms: fix regression when reading existing `google_kms_crypto_key` resources [GH-3893]
-* storage: `google_storage_bucket` fix for crash that occurs when running plan on old buckets [GH-3886]
-* storage: `google_storage_bucket` allow updating `bucket_policy_only` to false [GH-3886]
+* kms: fix regression when reading existing `google_kms_crypto_key` resources ([#3893](https://github.com/terraform-providers/terraform-provider-google/issues/3893))
+* storage: `google_storage_bucket` fix for crash that occurs when running plan on old buckets ([#3886](https://github.com/terraform-providers/terraform-provider-google/issues/3886))
+* storage: `google_storage_bucket` allow updating `bucket_policy_only` to false ([#3886](https://github.com/terraform-providers/terraform-provider-google/issues/3886))
 
 ## 2.9.0 (June 19, 2019)
 
