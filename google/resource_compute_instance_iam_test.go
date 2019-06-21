@@ -130,7 +130,7 @@ func testAccComputeInstanceIamMember_basic(zone, instanceName, roleId string) st
     zone          = "${google_compute_instance.test_vm.zone}"
     instance_name = "${google_compute_instance.test_vm.name}"
     role          = "%s"
-    member        = "user:admin@hashicorptest.com"
+    member        = "user:Admin@hashicorptest.com"
   }
 
 `, zone, instanceName, roleId)
@@ -157,7 +157,7 @@ func testAccComputeInstanceIamPolicy_basic(zone, instanceName, roleId string) st
   data "google_iam_policy" "foo" {
     binding {
       role    = "%s"
-      members = ["user:admin@hashicorptest.com"]
+      members = ["user:Admin@hashicorptest.com"]
     }
   }
 
@@ -194,7 +194,7 @@ func testAccComputeInstanceIamBinding_basic(zone, instanceName, roleId string) s
     zone          = "${google_compute_instance.test_vm.zone}"
     instance_name = "${google_compute_instance.test_vm.name}"
     role          = "%s"
-    members       = ["user:admin@hashicorptest.com"]
+    members       = ["user:Admin@hashicorptest.com"]
   }
 
 `, zone, instanceName, roleId)
@@ -223,7 +223,7 @@ func testAccComputeInstanceIamBinding_update(zone, instanceName, roleId string) 
     zone          = "${google_compute_instance.test_vm.zone}"
     instance_name = "${google_compute_instance.test_vm.name}"
     role          = "%s"
-    members       = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+    members       = ["user:Admin@hashicorptest.com", "user:paddy@hashicorp.com"]
   }
 
 `, zone, instanceName, roleId)
