@@ -99,6 +99,10 @@ The following arguments are supported:
 - - -
 
 
+* `labels` -
+  (Optional)
+  Labels with user-defined metadata to apply to this reosure.
+
 * `purpose` -
   (Optional)
   The immutable purpose of this CryptoKey. See the

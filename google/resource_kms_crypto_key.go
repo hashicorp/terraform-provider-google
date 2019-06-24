@@ -63,6 +63,11 @@ func resourceKmsCryptoKey() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"purpose": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -108,6 +113,12 @@ func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
+	labelsProp, err := expandKmsCryptoKeyLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 	purposeProp, err := expandKmsCryptoKeyPurpose(d.Get("purpose"), d, config)
 	if err != nil {
 		return err
@@ -173,6 +184,9 @@ func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	if err := d.Set("labels", flattenKmsCryptoKeyLabels(res["labels"], d)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
 	if err := d.Set("purpose", flattenKmsCryptoKeyPurpose(res["purpose"], d)); err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
@@ -190,6 +204,12 @@ func resourceKmsCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
+	labelsProp, err := expandKmsCryptoKeyLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 	rotationPeriodProp, err := expandKmsCryptoKeyRotationPeriod(d.Get("rotation_period"), d, config)
 	if err != nil {
 		return err
@@ -215,6 +235,10 @@ func resourceKmsCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("[DEBUG] Updating CryptoKey %q: %#v", d.Id(), obj)
 	updateMask := []string{}
+
+	if d.HasChange("labels") {
+		updateMask = append(updateMask, "labels")
+	}
 
 	if d.HasChange("rotation_period") {
 		updateMask = append(updateMask, "rotationPeriod,nextRotationTime")
@@ -283,6 +307,10 @@ func resourceKmsCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	return []*schema.ResourceData{d}, nil
 }
 
+func flattenKmsCryptoKeyLabels(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
 func flattenKmsCryptoKeyPurpose(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
@@ -312,6 +340,17 @@ func flattenKmsCryptoKeyVersionTemplateAlgorithm(v interface{}, d *schema.Resour
 
 func flattenKmsCryptoKeyVersionTemplateProtectionLevel(v interface{}, d *schema.ResourceData) interface{} {
 	return v
+}
+
+func expandKmsCryptoKeyLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandKmsCryptoKeyPurpose(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
