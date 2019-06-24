@@ -2,6 +2,7 @@ package google
 
 import (
 	"encoding/json"
+	"sort"
 	"strconv"
 
 	"github.com/hashicorp/terraform/helper/hashcode"
@@ -97,11 +98,21 @@ func dataSourceGoogleIamPolicyRead(d *schema.ResourceData, meta interface{}) err
 	// Convert each config binding into a cloudresourcemanager.Binding
 	for i, v := range bset.List() {
 		binding := v.(map[string]interface{})
+		members := convertStringSet(binding["members"].(*schema.Set))
+
+		// Sort members to get simpler diffs as it's what the API does
+		sort.Strings(members)
+
 		policy.Bindings[i] = &cloudresourcemanager.Binding{
 			Role:    binding["role"].(string),
-			Members: convertStringSet(binding["members"].(*schema.Set)),
+			Members: members,
 		}
 	}
+
+	// Sort bindings by their role name to get simpler diffs as it's what the API does
+	sort.Slice(bindings, func(i, j int) bool {
+		return bindings[i].Role < bindings[j].Role
+	})
 
 	// Convert each audit_config into a cloudresourcemanager.AuditConfig
 	policy.AuditConfigs = expandAuditConfig(aset)
