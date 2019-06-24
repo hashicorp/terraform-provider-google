@@ -589,6 +589,13 @@ In addition, the `private_cluster_config` allows access to the following read-on
 
 * `public_endpoint` - The external IP address of this cluster's master endpoint.
 
+The `sandbox_type` block supports:
+
+* `sandbox_type` (Required) Which sandbox to use for pods in the node pool.
+    Accepted values are:
+
+    * `"gvisor"`: Pods run within a gVisor sandbox.
+
 The `resource_usage_export_config` block supports:
 
 * `enable_network_egress_metering` (Optional) - Whether to enable network egress metering for this cluster. If enabled, a daemonset will be created
@@ -606,13 +613,6 @@ resource_usage_export_config {
   }
 }
 ```
-
-The `sandbox_type` block supports:
-
-* `sandbox_type` (Required) Which sandbox to use for pods in the node pool.
-    Accepted values are:
-
-    * `"gvisor"`: Pods run within a gVisor sandbox.
 
 The `taint` block supports:
 
