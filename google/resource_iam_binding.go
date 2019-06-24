@@ -20,7 +20,11 @@ var iamBindingSchema = map[string]*schema.Schema{
 		Type:     schema.TypeSet,
 		Required: true,
 		Elem: &schema.Schema{
-			Type: schema.TypeString,
+			Type:             schema.TypeString,
+			DiffSuppressFunc: caseDiffSuppress,
+		},
+		Set: func(v interface{}) int {
+			return schema.HashString(strings.ToLower(v.(string)))
 		},
 	},
 	"etag": {

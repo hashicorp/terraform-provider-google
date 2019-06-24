@@ -17,9 +17,10 @@ var IamMemberBaseSchema = map[string]*schema.Schema{
 		ForceNew: true,
 	},
 	"member": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:             schema.TypeString,
+		Required:         true,
+		ForceNew:         true,
+		DiffSuppressFunc: caseDiffSuppress,
 	},
 	"etag": {
 		Type:     schema.TypeString,
@@ -98,7 +99,7 @@ func resourceIamMemberCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.Cr
 		if err != nil {
 			return err
 		}
-		d.SetId(updater.GetResourceId() + "/" + p.Role + "/" + p.Members[0])
+		d.SetId(updater.GetResourceId() + "/" + p.Role + "/" + strings.ToLower(p.Members[0]))
 		return resourceIamMemberRead(newUpdaterFunc)(d, meta)
 	}
 }
@@ -138,7 +139,7 @@ func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 		}
 		var member string
 		for _, m := range binding.Members {
-			if m == eMember.Members[0] {
+			if strings.ToLower(m) == strings.ToLower(eMember.Members[0]) {
 				member = m
 			}
 		}
@@ -179,7 +180,7 @@ func resourceIamMemberDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.De
 			binding := p.Bindings[bindingToRemove]
 			memberToRemove := -1
 			for pos, m := range binding.Members {
-				if m != member.Members[0] {
+				if strings.ToLower(m) != strings.ToLower(member.Members[0]) {
 					continue
 				}
 				memberToRemove = pos
