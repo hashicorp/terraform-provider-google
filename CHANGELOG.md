@@ -4,6 +4,7 @@ ENHANCEMENTS:
 * Added fields for managing network endpoint group backends in `google_compute_backend`, including `max_connections_per_endpoint` and `max_rate_per_endpoint` ([#3863](https://github.com/terraform-providers/terraform-provider-google/issues/3863))
 
 BUG FIXES:
+* iam: the member field in iam_* resources is now case-insensitive [GH-3900]
 * servicenetworking: `google_service_networking_connection` fix update [GH-3887]
 
 ## 2.9.1 (Unreleased)
