@@ -1,5 +1,8 @@
 ## 2.10.0 (Unreleased)
 
+FEATURES:
+* **New Resource**: `google_compute_project_default_network_tier` [GH-3907]
+
 ENHANCEMENTS:
 * Added fields for managing network endpoint group backends in `google_compute_backend`, including `max_connections_per_endpoint` and `max_rate_per_endpoint` ([#3863](https://github.com/terraform-providers/terraform-provider-google/issues/3863))
 
