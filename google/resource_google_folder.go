@@ -160,7 +160,7 @@ func resourceGoogleFolderDelete(d *schema.ResourceData, meta interface{}) error 
 
 	_, err := config.clientResourceManagerV2Beta1.Folders.Delete(d.Id()).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting folder %s", displayName)
+		return fmt.Errorf("Error deleting folder '%s': %s", displayName, err)
 	}
 
 	return nil
