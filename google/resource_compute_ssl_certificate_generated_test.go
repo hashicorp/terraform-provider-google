@@ -221,7 +221,7 @@ func testAccCheckComputeSslCertificateDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
 		if err != nil {
 			return err
 		}

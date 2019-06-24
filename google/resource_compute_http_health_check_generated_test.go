@@ -71,7 +71,7 @@ func testAccCheckComputeHttpHealthCheckDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "{{ComputeBasePath}}projects/{{project}}/global/httpHealthChecks/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/httpHealthChecks/{{name}}")
 		if err != nil {
 			return err
 		}

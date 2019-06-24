@@ -168,7 +168,7 @@ func testAccCheckCloudSchedulerJobDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 		if err != nil {
 			return err
 		}

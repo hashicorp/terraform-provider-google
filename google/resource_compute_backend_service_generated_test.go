@@ -75,7 +75,7 @@ func testAccCheckComputeBackendServiceDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
 		if err != nil {
 			return err
 		}

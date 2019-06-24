@@ -72,7 +72,7 @@ func testAccCheckSpannerInstanceDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
 		if err != nil {
 			return err
 		}

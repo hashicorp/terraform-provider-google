@@ -1,6 +1,7 @@
 package google
 
 import (
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -10,7 +11,7 @@ import (
 
 // This function isn't a test of transport.go; instead, it is used as an alternative
 // to replaceVars inside tests.
-func replaceVarsForTest(rs *terraform.ResourceState, linkTmpl string) (string, error) {
+func replaceVarsForTest(config *Config, rs *terraform.ResourceState, linkTmpl string) (string, error) {
 	re := regexp.MustCompile("{{([[:word:]]+)}}")
 	var project, region, zone string
 
@@ -40,6 +41,11 @@ func replaceVarsForTest(rs *terraform.ResourceState, linkTmpl string) (string, e
 
 		if v, ok := rs.Primary.Attributes[m]; ok {
 			return v
+		}
+
+		// Attempt to draw values from the provider config
+		if f := reflect.Indirect(reflect.ValueOf(config)).FieldByName(m); f.IsValid() {
+			return f.String()
 		}
 
 		return ""

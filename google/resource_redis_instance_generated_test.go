@@ -122,7 +122,7 @@ func testAccCheckRedisInstanceDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
 		if err != nil {
 			return err
 		}

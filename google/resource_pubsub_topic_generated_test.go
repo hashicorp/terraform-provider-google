@@ -71,7 +71,7 @@ func testAccCheckPubsubTopicDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
 		if err != nil {
 			return err
 		}

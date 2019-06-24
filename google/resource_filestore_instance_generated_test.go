@@ -80,7 +80,7 @@ func testAccCheckFilestoreInstanceDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "{{FilestoreBasePath}}projects/{{project}}/locations/{{zone}}/instances/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{FilestoreBasePath}}projects/{{project}}/locations/{{zone}}/instances/{{name}}")
 		if err != nil {
 			return err
 		}

@@ -134,7 +134,7 @@ func testAccCheckDnsManagedZoneDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "{{DnsBasePath}}projects/{{project}}/managedZones/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{DnsBasePath}}projects/{{project}}/managedZones/{{name}}")
 		if err != nil {
 			return err
 		}

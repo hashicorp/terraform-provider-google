@@ -87,7 +87,7 @@ func checkComputeBackendServiceSignedUrlKeyExists(s *terraform.State) (bool, err
 		config := testAccProvider.Meta().(*Config)
 		keyName := rs.Primary.ID
 
-		url, err := replaceVarsForTest(rs, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}")
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}")
 		if err != nil {
 			return false, err
 		}

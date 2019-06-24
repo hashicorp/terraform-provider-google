@@ -82,7 +82,7 @@ func testAccCheckAppEngineFirewallRuleDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
+		url, err := replaceVarsForTest(config, rs, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 		if err != nil {
 			return err
 		}

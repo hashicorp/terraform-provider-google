@@ -186,7 +186,9 @@ func testAccCheckComputeNetworkEndpointWithPortExists(name, port string) resourc
 			return fmt.Errorf("unexpected port %s for resource %s, expected %s", rs.Primary.Attributes["port"], name, port)
 		}
 
-		negResourceId, err := replaceVarsForTest(rs, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{network_endpoint_group}}")
+		config := testAccProvider.Meta().(*Config)
+
+		negResourceId, err := replaceVarsForTest(config, rs, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{network_endpoint_group}}")
 		if err != nil {
 			return fmt.Errorf("creating URL for getting network endpoint %q failed: %v", name, err)
 		}
