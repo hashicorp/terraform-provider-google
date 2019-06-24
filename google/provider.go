@@ -226,6 +226,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_instance_iam_policy":           ResourceIamPolicyWithImport(IamComputeInstanceSchema, NewComputeInstanceIamUpdater, ComputeInstanceIdParseFunc),
 			"google_compute_instance_template":             resourceComputeInstanceTemplate(),
 			"google_compute_network_peering":               resourceComputeNetworkPeering(),
+			"google_compute_project_default_network_tier":  resourceComputeProjectDefaultNetworkTier(),
 			"google_compute_project_metadata":              resourceComputeProjectMetadata(),
 			"google_compute_project_metadata_item":         resourceComputeProjectMetadataItem(),
 			"google_compute_region_instance_group_manager": resourceComputeRegionInstanceGroupManager(),
