@@ -67,7 +67,7 @@ func testAccCheckAccessContextManagerAccessLevelDestroy(s *terraform.State) erro
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "{{AccessContextManagerBasePath}}{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{name}}")
 		if err != nil {
 			return err
 		}

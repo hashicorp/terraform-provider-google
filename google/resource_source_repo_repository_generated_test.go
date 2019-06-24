@@ -67,7 +67,7 @@ func testAccCheckSourceRepoRepositoryDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
 		if err != nil {
 			return err
 		}

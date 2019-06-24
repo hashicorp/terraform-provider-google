@@ -86,7 +86,7 @@ func testAccCheckComputeTargetTcpProxyDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}")
 		if err != nil {
 			return err
 		}
