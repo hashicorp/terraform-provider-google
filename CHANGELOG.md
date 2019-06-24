@@ -5,6 +5,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * Added fields for managing network endpoint group backends in `google_compute_backend`, including `max_connections_per_endpoint` and `max_rate_per_endpoint` ([#3863](https://github.com/terraform-providers/terraform-provider-google/issues/3863))
+* folder: `google_folder` improve error message on delete [GH-3902]
 
 BUG FIXES:
 * iam: the member field in iam_* resources is now case-insensitive [GH-3900]
