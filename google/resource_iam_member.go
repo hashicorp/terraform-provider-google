@@ -44,7 +44,7 @@ func iamMemberImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 		// Set the ID only to the first part so all IAM types can share the same resourceIdParserFunc.
 		d.SetId(id)
 		d.Set("role", role)
-		d.Set("member", member)
+		d.Set("member", strings.ToLower(member))
 		err := resourceIdParser(d, config)
 		if err != nil {
 			return nil, err
@@ -52,7 +52,7 @@ func iamMemberImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 
 		// Set the ID again so that the ID matches the ID it would have if it had been created via TF.
 		// Use the current ID in case it changed in the resourceIdParserFunc.
-		d.SetId(d.Id() + "/" + role + "/" + member)
+		d.SetId(d.Id() + "/" + role + "/" + strings.ToLower(member))
 		return []*schema.ResourceData{d}, nil
 	}
 }
