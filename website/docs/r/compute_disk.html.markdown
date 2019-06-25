@@ -157,8 +157,9 @@ The following arguments are supported:
 * `snapshot` -
   (Optional)
   The source snapshot used to create this disk. You can provide this as
-  a partial or full URL to the resource. For example, the following are
-  valid values:
+  a partial or full URL to the resource. If the snapshot is in another
+  project than this disk, you must supply a full URL. For example, the
+  following are valid values:
   * `https://www.googleapis.com/compute/v1/projects/project/global/snapshots/snapshot`
   * `projects/project/global/snapshots/snapshot`
   * `global/snapshots/snapshot`
