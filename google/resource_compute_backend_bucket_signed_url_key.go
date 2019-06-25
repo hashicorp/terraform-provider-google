@@ -31,8 +31,8 @@ func resourceComputeBackendBucketSignedUrlKey() *schema.Resource {
 		Delete: resourceComputeBackendBucketSignedUrlKeyDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
