@@ -160,7 +160,10 @@ The following arguments are supported:
   An array of configurations for secondary IP ranges for VM instances
   contained in this subnetwork. The primary IP of such VM must belong
   to the primary ipCidrRange of the subnetwork. The alias IPs may belong
-  to either primary or secondary ranges.  Structure is documented below.
+  to either primary or secondary ranges.
+  This field uses attr-as-block mode to avoid breaking
+  users during the 0.12 upgrade. See [the Attr-as-Block page](https://www.terraform.io/docs/configuration/attr-as-blocks.html)
+  for more details.  Structure is documented below.
 
 * `private_ip_google_access` -
   (Optional)
