@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -27,6 +28,7 @@ func resourcePubsubTopic() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePubsubTopicCreate,
 		Read:   resourcePubsubTopicRead,
+		Update: resourcePubsubTopicUpdate,
 		Delete: resourcePubsubTopicDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -34,8 +36,9 @@ func resourcePubsubTopic() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -48,7 +51,6 @@ func resourcePubsubTopic() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"project": {
@@ -78,7 +80,12 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/topics/{{name}}")
+	obj, err = resourcePubsubTopicEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -104,7 +111,7 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/topics/{{name}}")
+	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -132,10 +139,52 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	obj := make(map[string]interface{})
+	labelsProp, err := expandPubsubTopicLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+
+	obj, err = resourcePubsubTopicUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Topic %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("labels") {
+		updateMask = append(updateMask, "labels")
+	}
+	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// won't set it
+	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+	_, err = sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return fmt.Errorf("Error updating Topic %q: %s", d.Id(), err)
+	}
+
+	return resourcePubsubTopicRead(d, meta)
+}
+
 func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/topics/{{name}}")
+	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -178,11 +227,11 @@ func flattenPubsubTopicLabels(v interface{}, d *schema.ResourceData) interface{}
 	return v
 }
 
-func expandPubsubTopicName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandPubsubTopicName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return GetResourceNameFromSelfLink(v.(string)), nil
 }
 
-func expandPubsubTopicLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandPubsubTopicLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -191,4 +240,15 @@ func expandPubsubTopicLabels(v interface{}, d *schema.ResourceData, config *Conf
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourcePubsubTopicEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	delete(obj, "name")
+	return obj, nil
+}
+
+func resourcePubsubTopicUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	newObj := make(map[string]interface{})
+	newObj["topic"] = obj
+	return newObj, nil
 }

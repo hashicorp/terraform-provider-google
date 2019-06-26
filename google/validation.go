@@ -14,9 +14,10 @@ import (
 
 const (
 	// Copied from the official Google Cloud auto-generated client.
-	ProjectRegex    = "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))"
-	RegionRegex     = "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?"
-	SubnetworkRegex = "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?"
+	ProjectRegex         = "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))"
+	ProjectRegexWildCard = "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?)|-)"
+	RegionRegex          = "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?"
+	SubnetworkRegex      = "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?"
 
 	SubnetworkLinkRegex = "projects/(" + ProjectRegex + ")/regions/(" + RegionRegex + ")/subnetworks/(" + SubnetworkRegex + ")$"
 
@@ -26,6 +27,9 @@ const (
 	// Format of default Compute service accounts created by Google
 	// ${PROJECT_ID}-compute@developer.gserviceaccount.com where PROJECT_ID is an int64 (max 20 digits)
 	ComputeServiceAccountNameRegex = "[0-9]{1,20}-compute@developer.gserviceaccount.com"
+
+	// https://cloud.google.com/iam/docs/understanding-custom-roles#naming_the_role
+	IAMCustomRoleIDRegex = "^[a-zA-Z0-9_\\.]{3,64}$"
 )
 
 var (
@@ -35,7 +39,7 @@ var (
 	// 4 and 28 since the first and last character are excluded.
 	ServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, 4, 28)
 
-	ServiceAccountLinkRegexPrefix = "projects/" + ProjectRegex + "/serviceAccounts/"
+	ServiceAccountLinkRegexPrefix = "projects/" + ProjectRegexWildCard + "/serviceAccounts/"
 	PossibleServiceAccountNames   = []string{
 		AppEngineServiceAccountNameRegex,
 		ComputeServiceAccountNameRegex,
@@ -150,6 +154,15 @@ func validateCloudIoTID(v interface{}, k string) (warnings []string, errors []er
 	if !regexp.MustCompile(CloudIoTIdRegex).MatchString(value) {
 		errors = append(errors, fmt.Errorf(
 			"%q (%q) doesn't match regexp %q", k, value, CloudIoTIdRegex))
+	}
+	return
+}
+
+func validateIAMCustomRoleID(v interface{}, k string) (warnings []string, errors []error) {
+	value := v.(string)
+	if !regexp.MustCompile(IAMCustomRoleIDRegex).MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q (%q) doesn't match regexp %q", k, value, IAMCustomRoleIDRegex))
 	}
 	return
 }

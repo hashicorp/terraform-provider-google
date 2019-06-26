@@ -62,7 +62,15 @@ resource "google_pubsub_subscription" "example" {
     foo = "bar"
   }
 
+  # 20 minutes
+  message_retention_duration = "1200s"
+  retain_acked_messages = true
+
   ack_deadline_seconds = 20
+
+  expiration_policy {
+    ttl = "300000.5s"
+  }
 }
 `, context)
 }
@@ -78,7 +86,7 @@ func testAccCheckPubsubSubscriptionDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://pubsub.googleapis.com/v1/projects/{{project}}/subscriptions/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 		if err != nil {
 			return err
 		}

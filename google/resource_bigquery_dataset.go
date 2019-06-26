@@ -6,7 +6,6 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/bigquery/v2"
 )
 
@@ -68,11 +67,10 @@ func resourceBigQueryDataset() *schema.Resource {
 			// Location: [Experimental] The geographic location where the dataset
 			// should reside.
 			"location": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      "US",
-				ValidateFunc: validation.StringInSlice([]string{"US", "EU", "asia-east1", "asia-northeast1", "asia-southeast1", "australia-southeast1", "europe-north1", "europe-west2", "us-east4"}, false),
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "US",
 			},
 
 			// defaultPartitionExpirationMs: [Optional] The default partition
@@ -139,9 +137,8 @@ func resourceBigQueryDataset() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"role": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"OWNER", "WRITER", "READER"}, false),
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 						"domain": {
 							Type:     schema.TypeString,

@@ -38,9 +38,9 @@ func resourceComputeRouter() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -169,7 +169,7 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/routers")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers")
 	if err != nil {
 		return err
 	}
@@ -215,7 +215,7 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/routers/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -282,7 +282,7 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/routers/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -325,7 +325,7 @@ func resourceComputeRouterDelete(d *schema.ResourceData, meta interface{}) error
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/routers/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -361,7 +361,7 @@ func resourceComputeRouterDelete(d *schema.ResourceData, meta interface{}) error
 
 func resourceComputeRouterImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/routers/(?P<name>[^/]+)", "(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
+	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/routers/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
 
@@ -465,15 +465,15 @@ func flattenComputeRouterRegion(v interface{}, d *schema.ResourceData) interface
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func expandComputeRouterName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouterName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouterDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouterNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
@@ -481,7 +481,7 @@ func expandComputeRouterNetwork(v interface{}, d *schema.ResourceData, config *C
 	return f.RelativeLink(), nil
 }
 
-func expandComputeRouterBgp(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouterBgp(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -521,19 +521,19 @@ func expandComputeRouterBgp(v interface{}, d *schema.ResourceData, config *Confi
 	return transformed, nil
 }
 
-func expandComputeRouterBgpAsn(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouterBgpAsn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterBgpAdvertiseMode(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouterBgpAdvertiseMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterBgpAdvertisedGroups(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouterBgpAdvertisedGroups(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterBgpAdvertisedIpRanges(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouterBgpAdvertisedIpRanges(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -562,15 +562,15 @@ func expandComputeRouterBgpAdvertisedIpRanges(v interface{}, d *schema.ResourceD
 	return req, nil
 }
 
-func expandComputeRouterBgpAdvertisedIpRangesRange(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouterBgpAdvertisedIpRangesRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouterRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)

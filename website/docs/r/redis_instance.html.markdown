@@ -154,6 +154,7 @@ The following arguments are supported:
 * `region` -
   (Optional)
   The name of the Redis region of the instance.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -187,9 +188,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 6 minutes.
-- `update` - Default is 6 minutes.
-- `delete` - Default is 6 minutes.
+- `create` - Default is 10 minutes.
+- `update` - Default is 10 minutes.
+- `delete` - Default is 10 minutes.
 
 ## Import
 

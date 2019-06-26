@@ -2,12 +2,9 @@ package plugin
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"regexp"
-	"sort"
+	"log"
 	"strconv"
-	"strings"
 
 	"github.com/zclconf/go-cty/cty"
 	ctyconvert "github.com/zclconf/go-cty/cty/convert"
@@ -91,9 +88,9 @@ func (s *GRPCProviderServer) getDatasourceSchemaBlock(name string) *configschema
 func (s *GRPCProviderServer) PrepareProviderConfig(_ context.Context, req *proto.PrepareProviderConfig_Request) (*proto.PrepareProviderConfig_Response, error) {
 	resp := &proto.PrepareProviderConfig_Response{}
 
-	block := s.getProviderSchemaBlock()
+	schemaBlock := s.getProviderSchemaBlock()
 
-	configVal, err := msgpack.Unmarshal(req.Config.Msgpack, block.ImpliedType())
+	configVal, err := msgpack.Unmarshal(req.Config.Msgpack, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -164,18 +161,24 @@ func (s *GRPCProviderServer) PrepareProviderConfig(_ context.Context, req *proto
 		return resp, nil
 	}
 
-	configVal, err = block.CoerceValue(configVal)
+	configVal, err = schemaBlock.CoerceValue(configVal)
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
 
-	config := terraform.NewResourceConfigShimmed(configVal, block)
+	// Ensure there are no nulls that will cause helper/schema to panic.
+	if err := validateConfigNulls(configVal, nil); err != nil {
+		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
+		return resp, nil
+	}
+
+	config := terraform.NewResourceConfigShimmed(configVal, schemaBlock)
 
 	warns, errs := s.provider.Validate(config)
 	resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, convert.WarnsAndErrsToProto(warns, errs))
 
-	preparedConfigMP, err := msgpack.Marshal(configVal, block.ImpliedType())
+	preparedConfigMP, err := msgpack.Marshal(configVal, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -189,15 +192,15 @@ func (s *GRPCProviderServer) PrepareProviderConfig(_ context.Context, req *proto
 func (s *GRPCProviderServer) ValidateResourceTypeConfig(_ context.Context, req *proto.ValidateResourceTypeConfig_Request) (*proto.ValidateResourceTypeConfig_Response, error) {
 	resp := &proto.ValidateResourceTypeConfig_Response{}
 
-	block := s.getResourceSchemaBlock(req.TypeName)
+	schemaBlock := s.getResourceSchemaBlock(req.TypeName)
 
-	configVal, err := msgpack.Unmarshal(req.Config.Msgpack, block.ImpliedType())
+	configVal, err := msgpack.Unmarshal(req.Config.Msgpack, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
 
-	config := terraform.NewResourceConfigShimmed(configVal, block)
+	config := terraform.NewResourceConfigShimmed(configVal, schemaBlock)
 
 	warns, errs := s.provider.ValidateResource(req.TypeName, config)
 	resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, convert.WarnsAndErrsToProto(warns, errs))
@@ -208,15 +211,21 @@ func (s *GRPCProviderServer) ValidateResourceTypeConfig(_ context.Context, req *
 func (s *GRPCProviderServer) ValidateDataSourceConfig(_ context.Context, req *proto.ValidateDataSourceConfig_Request) (*proto.ValidateDataSourceConfig_Response, error) {
 	resp := &proto.ValidateDataSourceConfig_Response{}
 
-	block := s.getDatasourceSchemaBlock(req.TypeName)
+	schemaBlock := s.getDatasourceSchemaBlock(req.TypeName)
 
-	configVal, err := msgpack.Unmarshal(req.Config.Msgpack, block.ImpliedType())
+	configVal, err := msgpack.Unmarshal(req.Config.Msgpack, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
 
-	config := terraform.NewResourceConfigShimmed(configVal, block)
+	// Ensure there are no nulls that will cause helper/schema to panic.
+	if err := validateConfigNulls(configVal, nil); err != nil {
+		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
+		return resp, nil
+	}
+
+	config := terraform.NewResourceConfigShimmed(configVal, schemaBlock)
 
 	warns, errs := s.provider.ValidateDataSource(req.TypeName, config)
 	resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, convert.WarnsAndErrsToProto(warns, errs))
@@ -228,30 +237,32 @@ func (s *GRPCProviderServer) UpgradeResourceState(_ context.Context, req *proto.
 	resp := &proto.UpgradeResourceState_Response{}
 
 	res := s.provider.ResourcesMap[req.TypeName]
-	block := res.CoreConfigSchema()
+	schemaBlock := s.getResourceSchemaBlock(req.TypeName)
 
 	version := int(req.Version)
 
-	var jsonMap map[string]interface{}
+	jsonMap := map[string]interface{}{}
 	var err error
 
-	// if there's a JSON state, we need to decode it.
-	if len(req.RawState.Json) > 0 {
-		err = json.Unmarshal(req.RawState.Json, &jsonMap)
-		if err != nil {
-			resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
-			return resp, nil
-		}
-	}
-
+	switch {
 	// We first need to upgrade a flatmap state if it exists.
 	// There should never be both a JSON and Flatmap state in the request.
-	if req.RawState.Flatmap != nil {
+	case len(req.RawState.Flatmap) > 0:
 		jsonMap, version, err = s.upgradeFlatmapState(version, req.RawState.Flatmap, res)
 		if err != nil {
 			resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 			return resp, nil
 		}
+	// if there's a JSON state, we need to decode it.
+	case len(req.RawState.Json) > 0:
+		err = json.Unmarshal(req.RawState.Json, &jsonMap)
+		if err != nil {
+			resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
+			return resp, nil
+		}
+	default:
+		log.Println("[DEBUG] no state provided to upgrade")
+		return resp, nil
 	}
 
 	// complete the upgrade of the JSON states
@@ -261,16 +272,19 @@ func (s *GRPCProviderServer) UpgradeResourceState(_ context.Context, req *proto.
 		return resp, nil
 	}
 
+	// The provider isn't required to clean out removed fields
+	s.removeAttributes(jsonMap, schemaBlock.ImpliedType())
+
 	// now we need to turn the state into the default json representation, so
 	// that it can be re-decoded using the actual schema.
-	val, err := schema.JSONMapToStateValue(jsonMap, block)
+	val, err := schema.JSONMapToStateValue(jsonMap, schemaBlock)
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
 
 	// encode the final state to the expected msgpack format
-	newStateMP, err := msgpack.Marshal(val, block.ImpliedType())
+	newStateMP, err := msgpack.Marshal(val, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -301,11 +315,15 @@ func (s *GRPCProviderServer) upgradeFlatmapState(version int, m map[string]strin
 		requiresMigrate = version < res.StateUpgraders[0].Version
 	}
 
-	if requiresMigrate {
-		if res.MigrateState == nil {
-			return nil, 0, errors.New("cannot upgrade state, missing MigrateState function")
+	if requiresMigrate && res.MigrateState == nil {
+		// Providers were previously allowed to bump the version
+		// without declaring MigrateState.
+		// If there are further upgraders, then we've only updated that far.
+		if len(res.StateUpgraders) > 0 {
+			schemaType = res.StateUpgraders[0].Type
+			upgradedVersion = res.StateUpgraders[0].Version
 		}
-
+	} else if requiresMigrate {
 		is := &terraform.InstanceState{
 			ID:         m["id"],
 			Attributes: m,
@@ -372,6 +390,57 @@ func (s *GRPCProviderServer) upgradeJSONState(version int, m map[string]interfac
 	return m, nil
 }
 
+// Remove any attributes no longer present in the schema, so that the json can
+// be correctly decoded.
+func (s *GRPCProviderServer) removeAttributes(v interface{}, ty cty.Type) {
+	// we're only concerned with finding maps that corespond to object
+	// attributes
+	switch v := v.(type) {
+	case []interface{}:
+		// If these aren't blocks the next call will be a noop
+		if ty.IsListType() || ty.IsSetType() {
+			eTy := ty.ElementType()
+			for _, eV := range v {
+				s.removeAttributes(eV, eTy)
+			}
+		}
+		return
+	case map[string]interface{}:
+		// map blocks aren't yet supported, but handle this just in case
+		if ty.IsMapType() {
+			eTy := ty.ElementType()
+			for _, eV := range v {
+				s.removeAttributes(eV, eTy)
+			}
+			return
+		}
+
+		if ty == cty.DynamicPseudoType {
+			log.Printf("[DEBUG] ignoring dynamic block: %#v\n", v)
+			return
+		}
+
+		if !ty.IsObjectType() {
+			// This shouldn't happen, and will fail to decode further on, so
+			// there's no need to handle it here.
+			log.Printf("[WARN] unexpected type %#v for map in json state", ty)
+			return
+		}
+
+		attrTypes := ty.AttributeTypes()
+		for attr, attrV := range v {
+			attrTy, ok := attrTypes[attr]
+			if !ok {
+				log.Printf("[DEBUG] attribute %q no longer present in schema", attr)
+				delete(v, attr)
+				continue
+			}
+
+			s.removeAttributes(attrV, attrTy)
+		}
+	}
+}
+
 func (s *GRPCProviderServer) Stop(_ context.Context, _ *proto.Stop_Request) (*proto.Stop_Response, error) {
 	resp := &proto.Stop_Response{}
 
@@ -386,9 +455,9 @@ func (s *GRPCProviderServer) Stop(_ context.Context, _ *proto.Stop_Request) (*pr
 func (s *GRPCProviderServer) Configure(_ context.Context, req *proto.Configure_Request) (*proto.Configure_Response, error) {
 	resp := &proto.Configure_Response{}
 
-	block := s.getProviderSchemaBlock()
+	schemaBlock := s.getProviderSchemaBlock()
 
-	configVal, err := msgpack.Unmarshal(req.Config.Msgpack, block.ImpliedType())
+	configVal, err := msgpack.Unmarshal(req.Config.Msgpack, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -396,7 +465,13 @@ func (s *GRPCProviderServer) Configure(_ context.Context, req *proto.Configure_R
 
 	s.provider.TerraformVersion = req.TerraformVersion
 
-	config := terraform.NewResourceConfigShimmed(configVal, block)
+	// Ensure there are no nulls that will cause helper/schema to panic.
+	if err := validateConfigNulls(configVal, nil); err != nil {
+		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
+		return resp, nil
+	}
+
+	config := terraform.NewResourceConfigShimmed(configVal, schemaBlock)
 	err = s.provider.Configure(config)
 	resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 
@@ -407,9 +482,9 @@ func (s *GRPCProviderServer) ReadResource(_ context.Context, req *proto.ReadReso
 	resp := &proto.ReadResource_Response{}
 
 	res := s.provider.ResourcesMap[req.TypeName]
-	block := res.CoreConfigSchema()
+	schemaBlock := s.getResourceSchemaBlock(req.TypeName)
 
-	stateVal, err := msgpack.Unmarshal(req.CurrentState.Msgpack, block.ImpliedType())
+	stateVal, err := msgpack.Unmarshal(req.CurrentState.Msgpack, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -427,18 +502,11 @@ func (s *GRPCProviderServer) ReadResource(_ context.Context, req *proto.ReadReso
 		return resp, nil
 	}
 
-	if newInstanceState != nil {
-		// here we use the prior state to check for unknown/zero containers values
-		// when normalizing the flatmap.
-		stateAttrs := hcl2shim.FlatmapValueFromHCL2(stateVal)
-		newInstanceState.Attributes = normalizeFlatmapContainers(stateAttrs, newInstanceState.Attributes, true)
-	}
-
 	if newInstanceState == nil || newInstanceState.ID == "" {
 		// The old provider API used an empty id to signal that the remote
 		// object appears to have been deleted, but our new protocol expects
 		// to see a null value (in the cty sense) in that case.
-		newStateMP, err := msgpack.Marshal(cty.NullVal(block.ImpliedType()), block.ImpliedType())
+		newStateMP, err := msgpack.Marshal(cty.NullVal(schemaBlock.ImpliedType()), schemaBlock.ImpliedType())
 		if err != nil {
 			resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		}
@@ -451,15 +519,16 @@ func (s *GRPCProviderServer) ReadResource(_ context.Context, req *proto.ReadReso
 	// helper/schema should always copy the ID over, but do it again just to be safe
 	newInstanceState.Attributes["id"] = newInstanceState.ID
 
-	newStateVal, err := hcl2shim.HCL2ValueFromFlatmap(newInstanceState.Attributes, block.ImpliedType())
+	newStateVal, err := hcl2shim.HCL2ValueFromFlatmap(newInstanceState.Attributes, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
 
+	newStateVal = normalizeNullValues(newStateVal, stateVal, false)
 	newStateVal = copyTimeoutValues(newStateVal, stateVal)
 
-	newStateMP, err := msgpack.Marshal(newStateVal, block.ImpliedType())
+	newStateMP, err := msgpack.Marshal(newStateVal, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -468,6 +537,11 @@ func (s *GRPCProviderServer) ReadResource(_ context.Context, req *proto.ReadReso
 	resp.NewState = &proto.DynamicValue{
 		Msgpack: newStateMP,
 	}
+
+	// helper/schema did previously handle private data during refresh, but
+	// core is now going to expect this to be maintained in order to
+	// persist it in the state.
+	resp.Private = req.Private
 
 	return resp, nil
 }
@@ -484,15 +558,17 @@ func (s *GRPCProviderServer) PlanResourceChange(_ context.Context, req *proto.Pl
 	resp.LegacyTypeSystem = true
 
 	res := s.provider.ResourcesMap[req.TypeName]
-	block := res.CoreConfigSchema()
+	schemaBlock := s.getResourceSchemaBlock(req.TypeName)
 
-	priorStateVal, err := msgpack.Unmarshal(req.PriorState.Msgpack, block.ImpliedType())
+	priorStateVal, err := msgpack.Unmarshal(req.PriorState.Msgpack, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
 
-	proposedNewStateVal, err := msgpack.Unmarshal(req.ProposedNewState.Msgpack, block.ImpliedType())
+	create := priorStateVal.IsNull()
+
+	proposedNewStateVal, err := msgpack.Unmarshal(req.ProposedNewState.Msgpack, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -501,6 +577,7 @@ func (s *GRPCProviderServer) PlanResourceChange(_ context.Context, req *proto.Pl
 	// We don't usually plan destroys, but this can return early in any case.
 	if proposedNewStateVal.IsNull() {
 		resp.PlannedState = req.ProposedNewState
+		resp.PlannedPrivate = req.PriorPrivate
 		return resp, nil
 	}
 
@@ -523,8 +600,14 @@ func (s *GRPCProviderServer) PlanResourceChange(_ context.Context, req *proto.Pl
 
 	priorState.Meta = priorPrivate
 
+	// Ensure there are no nulls that will cause helper/schema to panic.
+	if err := validateConfigNulls(proposedNewStateVal, nil); err != nil {
+		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
+		return resp, nil
+	}
+
 	// turn the proposed state into a legacy configuration
-	cfg := terraform.NewResourceConfigShimmed(proposedNewStateVal, block)
+	cfg := terraform.NewResourceConfigShimmed(proposedNewStateVal, schemaBlock)
 
 	diff, err := s.provider.SimpleDiff(info, priorState, cfg)
 	if err != nil {
@@ -533,7 +616,7 @@ func (s *GRPCProviderServer) PlanResourceChange(_ context.Context, req *proto.Pl
 	}
 
 	// if this is a new instance, we need to make sure ID is going to be computed
-	if priorStateVal.IsNull() {
+	if create {
 		if diff == nil {
 			diff = terraform.NewInstanceDiff()
 		}
@@ -557,23 +640,21 @@ func (s *GRPCProviderServer) PlanResourceChange(_ context.Context, req *proto.Pl
 	}
 
 	// now we need to apply the diff to the prior state, so get the planned state
-	plannedAttrs, err := diff.Apply(priorState.Attributes, block)
+	plannedAttrs, err := diff.Apply(priorState.Attributes, schemaBlock)
 
-	plannedAttrs = normalizeFlatmapContainers(priorState.Attributes, plannedAttrs, false)
-
-	plannedStateVal, err := hcl2shim.HCL2ValueFromFlatmap(plannedAttrs, block.ImpliedType())
+	plannedStateVal, err := hcl2shim.HCL2ValueFromFlatmap(plannedAttrs, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
 
-	plannedStateVal, err = block.CoerceValue(plannedStateVal)
+	plannedStateVal, err = schemaBlock.CoerceValue(plannedStateVal)
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
 
-	plannedStateVal = normalizeNullValues(plannedStateVal, proposedNewStateVal, true)
+	plannedStateVal = normalizeNullValues(plannedStateVal, proposedNewStateVal, false)
 
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
@@ -598,11 +679,11 @@ func (s *GRPCProviderServer) PlanResourceChange(_ context.Context, req *proto.Pl
 
 	// if this was creating the resource, we need to set any remaining computed
 	// fields
-	if priorStateVal.IsNull() {
-		plannedStateVal = SetUnknowns(plannedStateVal, block)
+	if create {
+		plannedStateVal = SetUnknowns(plannedStateVal, schemaBlock)
 	}
 
-	plannedMP, err := msgpack.Marshal(plannedStateVal, block.ImpliedType())
+	plannedMP, err := msgpack.Marshal(plannedStateVal, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -655,7 +736,7 @@ func (s *GRPCProviderServer) PlanResourceChange(_ context.Context, req *proto.Pl
 		requiresNew = append(requiresNew, "id")
 	}
 
-	requiresReplace, err := hcl2shim.RequiresReplace(requiresNew, block.ImpliedType())
+	requiresReplace, err := hcl2shim.RequiresReplace(requiresNew, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -676,15 +757,15 @@ func (s *GRPCProviderServer) ApplyResourceChange(_ context.Context, req *proto.A
 	}
 
 	res := s.provider.ResourcesMap[req.TypeName]
-	block := res.CoreConfigSchema()
+	schemaBlock := s.getResourceSchemaBlock(req.TypeName)
 
-	priorStateVal, err := msgpack.Unmarshal(req.PriorState.Msgpack, block.ImpliedType())
+	priorStateVal, err := msgpack.Unmarshal(req.PriorState.Msgpack, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
 
-	plannedStateVal, err := msgpack.Unmarshal(req.PlannedState.Msgpack, block.ImpliedType())
+	plannedStateVal, err := msgpack.Unmarshal(req.PlannedState.Msgpack, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -752,16 +833,14 @@ func (s *GRPCProviderServer) ApplyResourceChange(_ context.Context, req *proto.A
 		diff.Meta = private
 	}
 
-	// We need to turn off any RequiresNew. There could be attributes
-	// without changes in here inserted by helper/schema, but if they have
-	// RequiresNew then the state will will be dropped from the ResourceData.
-	for k := range diff.Attributes {
-		diff.Attributes[k].RequiresNew = false
-	}
-
-	// check that any "removed" attributes actually exist in the prior state, or
-	// helper/schema will confuse itself
 	for k, d := range diff.Attributes {
+		// We need to turn off any RequiresNew. There could be attributes
+		// without changes in here inserted by helper/schema, but if they have
+		// RequiresNew then the state will be dropped from the ResourceData.
+		d.RequiresNew = false
+
+		// Check that any "removed" attributes that don't actually exist in the
+		// prior state, or helper/schema will confuse itself
 		if d.NewRemoved {
 			if _, ok := priorState.Attributes[k]; !ok {
 				delete(diff.Attributes, k)
@@ -774,14 +853,13 @@ func (s *GRPCProviderServer) ApplyResourceChange(_ context.Context, req *proto.A
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 	}
-
-	newStateVal := cty.NullVal(block.ImpliedType())
+	newStateVal := cty.NullVal(schemaBlock.ImpliedType())
 
 	// Always return a null value for destroy.
 	// While this is usually indicated by a nil state, check for missing ID or
 	// attributes in the case of a provider failure.
 	if destroy || newInstanceState == nil || newInstanceState.Attributes == nil || newInstanceState.ID == "" {
-		newStateMP, err := msgpack.Marshal(newStateVal, block.ImpliedType())
+		newStateMP, err := msgpack.Marshal(newStateVal, schemaBlock.ImpliedType())
 		if err != nil {
 			resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 			return resp, nil
@@ -792,23 +870,19 @@ func (s *GRPCProviderServer) ApplyResourceChange(_ context.Context, req *proto.A
 		return resp, nil
 	}
 
-	// here we use the planned state to check for unknown/zero containers values
-	// when normalizing the flatmap.
-	plannedState := hcl2shim.FlatmapValueFromHCL2(plannedStateVal)
-	newInstanceState.Attributes = normalizeFlatmapContainers(plannedState, newInstanceState.Attributes, true)
-
 	// We keep the null val if we destroyed the resource, otherwise build the
 	// entire object, even if the new state was nil.
-	newStateVal, err = schema.StateValueFromInstanceState(newInstanceState, block.ImpliedType())
+	newStateVal, err = schema.StateValueFromInstanceState(newInstanceState, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
 	}
 
-	newStateVal = normalizeNullValues(newStateVal, plannedStateVal, false)
+	newStateVal = normalizeNullValues(newStateVal, plannedStateVal, true)
+
 	newStateVal = copyTimeoutValues(newStateVal, plannedStateVal)
 
-	newStateMP, err := msgpack.Marshal(newStateVal, block.ImpliedType())
+	newStateMP, err := msgpack.Marshal(newStateVal, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -857,14 +931,14 @@ func (s *GRPCProviderServer) ImportResourceState(_ context.Context, req *proto.I
 			resourceType = req.TypeName
 		}
 
-		block := s.getResourceSchemaBlock(resourceType)
-		newStateVal, err := hcl2shim.HCL2ValueFromFlatmap(is.Attributes, block.ImpliedType())
+		schemaBlock := s.getResourceSchemaBlock(resourceType)
+		newStateVal, err := hcl2shim.HCL2ValueFromFlatmap(is.Attributes, schemaBlock.ImpliedType())
 		if err != nil {
 			resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 			return resp, nil
 		}
 
-		newStateMP, err := msgpack.Marshal(newStateVal, block.ImpliedType())
+		newStateMP, err := msgpack.Marshal(newStateVal, schemaBlock.ImpliedType())
 		if err != nil {
 			resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 			return resp, nil
@@ -893,10 +967,9 @@ func (s *GRPCProviderServer) ImportResourceState(_ context.Context, req *proto.I
 func (s *GRPCProviderServer) ReadDataSource(_ context.Context, req *proto.ReadDataSource_Request) (*proto.ReadDataSource_Response, error) {
 	resp := &proto.ReadDataSource_Response{}
 
-	res := s.provider.DataSourcesMap[req.TypeName]
-	block := res.CoreConfigSchema()
+	schemaBlock := s.getDatasourceSchemaBlock(req.TypeName)
 
-	configVal, err := msgpack.Unmarshal(req.Config.Msgpack, block.ImpliedType())
+	configVal, err := msgpack.Unmarshal(req.Config.Msgpack, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -906,7 +979,13 @@ func (s *GRPCProviderServer) ReadDataSource(_ context.Context, req *proto.ReadDa
 		Type: req.TypeName,
 	}
 
-	config := terraform.NewResourceConfigShimmed(configVal, block)
+	// Ensure there are no nulls that will cause helper/schema to panic.
+	if err := validateConfigNulls(configVal, nil); err != nil {
+		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
+		return resp, nil
+	}
+
+	config := terraform.NewResourceConfigShimmed(configVal, schemaBlock)
 
 	// we need to still build the diff separately with the Read method to match
 	// the old behavior
@@ -923,7 +1002,7 @@ func (s *GRPCProviderServer) ReadDataSource(_ context.Context, req *proto.ReadDa
 		return resp, nil
 	}
 
-	newStateVal, err := schema.StateValueFromInstanceState(newInstanceState, block.ImpliedType())
+	newStateVal, err := schema.StateValueFromInstanceState(newInstanceState, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -931,7 +1010,7 @@ func (s *GRPCProviderServer) ReadDataSource(_ context.Context, req *proto.ReadDa
 
 	newStateVal = copyTimeoutValues(newStateVal, configVal)
 
-	newStateMP, err := msgpack.Marshal(newStateVal, block.ImpliedType())
+	newStateMP, err := msgpack.Marshal(newStateVal, schemaBlock.ImpliedType())
 	if err != nil {
 		resp.Diagnostics = convert.AppendProtoDiag(resp.Diagnostics, err)
 		return resp, nil
@@ -976,158 +1055,38 @@ func pathToAttributePath(path cty.Path) *proto.AttributePath {
 	return &proto.AttributePath{Steps: steps}
 }
 
-// normalizeFlatmapContainers removes empty containers, and fixes counts in a
-// set of flatmapped attributes. The prior value is used to determine if there
-// could be zero-length flatmap containers which we need to preserve. This
-// allows a provider to set an empty computed container in the state without
-// creating perpetual diff. This can differ slightly between plan and apply, so
-// the apply flag is passed when called from ApplyResourceChange.
-func normalizeFlatmapContainers(prior map[string]string, attrs map[string]string, apply bool) map[string]string {
-	isCount := regexp.MustCompile(`.\.[%#]$`).MatchString
-
-	// While we can't determine if the value was actually computed here, we will
-	// trust that our shims stored and retrieved a zero-value container
-	// correctly.
-	zeros := map[string]bool{}
-	// Empty blocks have a count of 1 with no other attributes. Just record all
-	// "1"s here to override 0-length blocks when setting the count below.
-	ones := map[string]bool{}
-	for k, v := range prior {
-		if isCount(k) && (v == "0" || v == hcl2shim.UnknownVariableValue) {
-			zeros[k] = true
-		}
-
-		// fixup any 1->0 conversions that happened during Apply
-		if apply && isCount(k) && v == "1" && attrs[k] == "0" {
-			attrs[k] = "1"
-		}
-	}
-
-	for k, v := range attrs {
-		// store any "1" values, since if the length was 1 and there are no
-		// items, it was probably an empty set block. Hopefully checking for a 1
-		// value with no items is sufficient, without cross-referencing the
-		// schema.
-		if isCount(k) && v == "1" {
-			ones[k] = true
-			// make sure we don't have the same key under both categories.
-			delete(zeros, k)
-		}
-	}
-
-	// The "ones" were stored to look for sets with an empty value, so we need
-	// to verify that we only store ones with no attrs.
-	expectedEmptySets := map[string]bool{}
-	for one := range ones {
-		prefix := one[:len(one)-1]
-
-		found := 0
-		for k := range attrs {
-			// since this can be recursive, we check that the attrs isn't also a #.
-			if strings.HasPrefix(k, prefix) && !isCount(k) {
-				found++
-			}
-		}
-
-		if found == 0 {
-			expectedEmptySets[one] = true
-		}
-	}
-
-	// find container keys
-	var keys []string
-	for k, v := range attrs {
-		if !isCount(k) {
-			continue
-		}
-
-		if v == hcl2shim.UnknownVariableValue {
-			// if the index value indicates the container is unknown, skip
-			// updating the counts.
-			continue
-		}
-
-		keys = append(keys, k)
-	}
-
-	// sort the keys in reverse, so that we check the longest subkeys first
-	sort.Slice(keys, func(i, j int) bool {
-		a, b := keys[i], keys[j]
-
-		if strings.HasPrefix(a, b) {
-			return true
-		}
-
-		if strings.HasPrefix(b, a) {
-			return false
-		}
-
-		return a > b
-	})
-
-	for _, k := range keys {
-		prefix := k[:len(k)-1]
-		indexes := map[string]int{}
-		for cand := range attrs {
-			if cand == k {
-				continue
-			}
-
-			if strings.HasPrefix(cand, prefix) {
-				idx := cand[len(prefix):]
-				dot := strings.Index(idx, ".")
-				if dot > 0 {
-					idx = idx[:dot]
-				}
-				indexes[idx]++
-			}
-		}
-
-		switch {
-		case len(indexes) == 0 && zeros[k]:
-			// if there were no keys, but the value was known to be zero, the provider
-			// must have set the computed value to an empty container, and we
-			// need to leave it in the flatmap.
-			attrs[k] = "0"
-		case len(indexes) == 0 && ones[k]:
-			// We need to retain any empty blocks that had a 1 count with no attributes.
-			attrs[k] = "1"
-		case len(indexes) > 0:
-			attrs[k] = strconv.Itoa(len(indexes))
-		default:
-			delete(attrs, k)
-		}
-	}
-
-	for k := range expectedEmptySets {
-		if _, ok := attrs[k]; !ok {
-			attrs[k] = "1"
-		}
-	}
-
-	return attrs
-}
-
 // helper/schema throws away timeout values from the config and stores them in
 // the Private/Meta fields. we need to copy those values into the planned state
 // so that core doesn't see a perpetual diff with the timeout block.
 func copyTimeoutValues(to cty.Value, from cty.Value) cty.Value {
-	// if `from` is null, then there are no attributes, and if `to` is null we
-	// are planning to remove it altogether.
-	if from.IsNull() || to.IsNull() {
+	// if `to` is null we are planning to remove it altogether.
+	if to.IsNull() {
 		return to
+	}
+	toAttrs := to.AsValueMap()
+	// We need to remove the key since the hcl2shims will add a non-null block
+	// because we can't determine if a single block was null from the flatmapped
+	// values. This needs to conform to the correct schema for marshaling, so
+	// change the value to null rather than deleting it from the object map.
+	timeouts, ok := toAttrs[schema.TimeoutsConfigKey]
+	if ok {
+		toAttrs[schema.TimeoutsConfigKey] = cty.NullVal(timeouts.Type())
+	}
+
+	// if from is null then there are no timeouts to copy
+	if from.IsNull() {
+		return cty.ObjectVal(toAttrs)
 	}
 
 	fromAttrs := from.AsValueMap()
-	timeouts, ok := fromAttrs[schema.TimeoutsConfigKey]
+	timeouts, ok = fromAttrs[schema.TimeoutsConfigKey]
 
-	// no timeouts to copy
-	// timeouts shouldn't be unknown, but don't copy possibly invalid values
+	// timeouts shouldn't be unknown, but don't copy possibly invalid values either
 	if !ok || timeouts.IsNull() || !timeouts.IsWhollyKnown() {
-		return to
+		// no timeouts block to copy
+		return cty.ObjectVal(toAttrs)
 	}
 
-	toAttrs := to.AsValueMap()
 	toAttrs[schema.TimeoutsConfigKey] = timeouts
 
 	return cty.ObjectVal(toAttrs)
@@ -1186,25 +1145,27 @@ func stripSchema(s *schema.Schema) *schema.Schema {
 // however it sees fit. This however means that a CustomizeDiffFunction may not
 // be able to change a null to an empty value or vice versa, but that should be
 // very uncommon nor was it reliable before 0.12 either.
-func normalizeNullValues(dst, src cty.Value, plan bool) cty.Value {
+func normalizeNullValues(dst, src cty.Value, apply bool) cty.Value {
 	ty := dst.Type()
-
 	if !src.IsNull() && !src.IsKnown() {
+		// Return src during plan to retain unknown interpolated placeholders,
+		// which could be lost if we're only updating a resource. If this is a
+		// read scenario, then there shouldn't be any unknowns at all.
+		if dst.IsNull() && !apply {
+			return src
+		}
 		return dst
 	}
 
-	// handle null/empty changes for collections
-	if ty.IsCollectionType() {
-		if src.IsNull() && !dst.IsNull() && dst.IsKnown() {
-			if dst.LengthInt() == 0 {
-				return src
-			}
-		}
+	// Handle null/empty changes for collections during apply.
+	// A change between null and empty values prefers src to make sure the state
+	// is consistent between plan and apply.
+	if ty.IsCollectionType() && apply {
+		dstEmpty := !dst.IsNull() && dst.IsKnown() && dst.LengthInt() == 0
+		srcEmpty := !src.IsNull() && src.IsKnown() && src.LengthInt() == 0
 
-		if dst.IsNull() && !src.IsNull() && src.IsKnown() {
-			if src.LengthInt() == 0 {
-				return src
-			}
+		if (src.IsNull() && dstEmpty) || (srcEmpty && dst.IsNull()) {
+			return src
 		}
 	}
 
@@ -1222,33 +1183,54 @@ func normalizeNullValues(dst, src cty.Value, plan bool) cty.Value {
 			dstMap = map[string]cty.Value{}
 		}
 
-		ei := src.ElementIterator()
-		for ei.Next() {
-			k, v := ei.Element()
-			key := k.AsString()
+		srcMap := src.AsValueMap()
+		for key, v := range srcMap {
+			dstVal, ok := dstMap[key]
+			if !ok && apply && ty.IsMapType() {
+				// don't transfer old map values to dst during apply
+				continue
+			}
 
-			dstVal := dstMap[key]
 			if dstVal == cty.NilVal {
-				if plan && ty.IsMapType() {
+				if !apply && ty.IsMapType() {
 					// let plan shape this map however it wants
 					continue
 				}
 				dstVal = cty.NullVal(v.Type())
 			}
-			dstMap[key] = normalizeNullValues(dstVal, v, plan)
+
+			dstMap[key] = normalizeNullValues(dstVal, v, apply)
 		}
 
 		// you can't call MapVal/ObjectVal with empty maps, but nothing was
 		// copied in anyway. If the dst is nil, and the src is known, assume the
 		// src is correct.
 		if len(dstMap) == 0 {
-			if dst.IsNull() && src.IsWhollyKnown() && !plan {
+			if dst.IsNull() && src.IsWhollyKnown() && apply {
 				return src
 			}
 			return dst
 		}
 
 		if ty.IsMapType() {
+			// helper/schema will populate an optional+computed map with
+			// unknowns which we have to fixup here.
+			// It would be preferable to simply prevent any known value from
+			// becoming unknown, but concessions have to be made to retain the
+			// broken legacy behavior when possible.
+			for k, srcVal := range srcMap {
+				if !srcVal.IsNull() && srcVal.IsKnown() {
+					dstVal, ok := dstMap[k]
+					if !ok {
+						continue
+					}
+
+					if !dstVal.IsNull() && !dstVal.IsKnown() {
+						dstMap[k] = srcVal
+					}
+				}
+			}
+
 			return cty.MapVal(dstMap)
 		}
 
@@ -1258,17 +1240,33 @@ func normalizeNullValues(dst, src cty.Value, plan bool) cty.Value {
 		// If the original was wholly known, then we expect that is what the
 		// provider applied. The apply process loses too much information to
 		// reliably re-create the set.
-		if src.IsWhollyKnown() && !plan {
+		if src.IsWhollyKnown() && apply {
 			return src
 		}
 
 	case ty.IsListType(), ty.IsTupleType():
-		// If the dst is nil, and the src is known, then we lost an empty value
+		// If the dst is null, and the src is known, then we lost an empty value
 		// so take the original.
 		if dst.IsNull() {
-			if src.IsWhollyKnown() && !plan {
+			if src.IsWhollyKnown() && src.LengthInt() == 0 && apply {
 				return src
 			}
+
+			// if dst is null and src only contains unknown values, then we lost
+			// those during a read or plan.
+			if !apply && !src.IsNull() {
+				allUnknown := true
+				for _, v := range src.AsValueSlice() {
+					if v.IsKnown() {
+						allUnknown = false
+						break
+					}
+				}
+				if allUnknown {
+					return src
+				}
+			}
+
 			return dst
 		}
 
@@ -1280,7 +1278,7 @@ func normalizeNullValues(dst, src cty.Value, plan bool) cty.Value {
 			dsts := dst.AsValueSlice()
 
 			for i := 0; i < srcLen; i++ {
-				dsts[i] = normalizeNullValues(dsts[i], srcs[i], plan)
+				dsts[i] = normalizeNullValues(dsts[i], srcs[i], apply)
 			}
 
 			if ty.IsTupleType() {
@@ -1290,10 +1288,60 @@ func normalizeNullValues(dst, src cty.Value, plan bool) cty.Value {
 		}
 
 	case ty.IsPrimitiveType():
-		if dst.IsNull() && src.IsWhollyKnown() && !plan {
+		if dst.IsNull() && src.IsWhollyKnown() && apply {
 			return src
 		}
 	}
 
 	return dst
+}
+
+// validateConfigNulls checks a config value for unsupported nulls before
+// attempting to shim the value. While null values can mostly be ignored in the
+// configuration, since they're not supported in HCL1, the case where a null
+// appears in a list-like attribute (list, set, tuple) will present a nil value
+// to helper/schema which can panic. Return an error to the user in this case,
+// indicating the attribute with the null value.
+func validateConfigNulls(v cty.Value, path cty.Path) []*proto.Diagnostic {
+	var diags []*proto.Diagnostic
+	if v.IsNull() || !v.IsKnown() {
+		return diags
+	}
+
+	switch {
+	case v.Type().IsListType() || v.Type().IsSetType() || v.Type().IsTupleType():
+		it := v.ElementIterator()
+		for it.Next() {
+			kv, ev := it.Element()
+			if ev.IsNull() {
+				diags = append(diags, &proto.Diagnostic{
+					Severity:  proto.Diagnostic_ERROR,
+					Summary:   "Null value found in list",
+					Detail:    "Null values are not allowed for this attribute value.",
+					Attribute: convert.PathToAttributePath(append(path, cty.IndexStep{Key: kv})),
+				})
+				continue
+			}
+
+			d := validateConfigNulls(ev, append(path, cty.IndexStep{Key: kv}))
+			diags = convert.AppendProtoDiag(diags, d)
+		}
+
+	case v.Type().IsMapType() || v.Type().IsObjectType():
+		it := v.ElementIterator()
+		for it.Next() {
+			kv, ev := it.Element()
+			var step cty.PathStep
+			switch {
+			case v.Type().IsMapType():
+				step = cty.IndexStep{Key: kv}
+			case v.Type().IsObjectType():
+				step = cty.GetAttrStep{Name: kv.AsString()}
+			}
+			d := validateConfigNulls(ev, append(path, step))
+			diags = convert.AppendProtoDiag(diags, d)
+		}
+	}
+
+	return diags
 }

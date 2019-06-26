@@ -16,6 +16,19 @@ package google
 
 import "github.com/hashicorp/terraform/helper/schema"
 
+// If the base path has changed as a result of your PR, make sure to update
+// the provider_reference page!
+var MonitoringDefaultBasePath = "https://monitoring.googleapis.com/v3/"
+var MonitoringCustomEndpointEntryKey = "monitoring_custom_endpoint"
+var MonitoringCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_MONITORING_CUSTOM_ENDPOINT",
+	}, MonitoringDefaultBasePath),
+}
+
 var GeneratedMonitoringResourcesMap = map[string]*schema.Resource{
 	"google_monitoring_alert_policy":         resourceMonitoringAlertPolicy(),
 	"google_monitoring_group":                resourceMonitoringGroup(),

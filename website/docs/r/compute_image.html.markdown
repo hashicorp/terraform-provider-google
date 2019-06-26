@@ -41,7 +41,7 @@ to create an instance.
 
 To get more information about Image, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/latest/images)
+* [API documentation](https://cloud.google.com/compute/docs/reference/v1/images)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/compute/docs/images)
 
@@ -116,6 +116,7 @@ The following arguments are supported:
   The source disk to create this image based on.
   You must provide either this property or the
   rawDisk.source property but not both to create an image.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

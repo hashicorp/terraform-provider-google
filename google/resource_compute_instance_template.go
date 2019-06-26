@@ -2,13 +2,13 @@ package google
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	computeBeta "google.golang.org/api/compute/v0.beta"
-	"google.golang.org/api/googleapi"
 )
 
 func resourceComputeInstanceTemplate() *schema.Resource {
@@ -320,6 +320,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"preemptible": {
@@ -341,6 +342,14 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
+						},
+
+						"node_affinities": {
+							Type:             schema.TypeSet,
+							Optional:         true,
+							ForceNew:         true,
+							Elem:             instanceSchedulingNodeAffinitiesElemSchema(),
+							DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
 						},
 					},
 				},
@@ -376,6 +385,41 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 								},
 							},
 							Set: stringScopeHashcode,
+						},
+					},
+				},
+			},
+
+			"shielded_instance_config": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				ForceNew: true,
+				// Since this block is used by the API based on which
+				// image being used, the field needs to be marked as Computed.
+				Computed:         true,
+				DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_secure_boot": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+							ForceNew: true,
+						},
+
+						"enable_vtpm": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+							ForceNew: true,
+						},
+
+						"enable_integrity_monitoring": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+							ForceNew: true,
 						},
 					},
 				},
@@ -434,14 +478,18 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 
 func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
 	config := meta.(*Config)
-	project, err := getProjectFromDiff(diff, config)
-	if err != nil {
-		return err
-	}
+
 	numDisks := diff.Get("disk.#").(int)
 	for i := 0; i < numDisks; i++ {
 		key := fmt.Sprintf("disk.%d.source_image", i)
 		if diff.HasChange(key) {
+			// project must be retrieved once we know there is a diff to resolve, otherwise it will
+			// attempt to retrieve project during `plan` before all calculated fields are ready
+			// see https://github.com/terraform-providers/terraform-provider-google/issues/2878
+			project, err := getProjectFromDiff(diff, config)
+			if err != nil {
+				return err
+			}
 			old, new := diff.GetChange(key)
 			if old == "" || new == "" {
 				// no sense in resolving empty strings
@@ -520,6 +568,12 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 
 		if v, ok := d.GetOk(prefix + ".source"); ok {
 			disk.Source = v.(string)
+			conflicts := []string{"disk_size_gb", "disk_name", "disk_type", "source_image", "labels"}
+			for _, conflict := range conflicts {
+				if _, ok := d.GetOk(prefix + "." + conflict); ok {
+					return nil, fmt.Errorf("Cannot use `source` with any of the fields in %s", conflicts)
+				}
+			}
 		} else {
 			disk.InitializeParams = &computeBeta.AttachedDiskInitializeParams{}
 
@@ -604,70 +658,41 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	instanceProperties := &computeBeta.InstanceProperties{
-		CanIpForward:   d.Get("can_ip_forward").(bool),
-		Description:    d.Get("instance_description").(string),
-		MachineType:    d.Get("machine_type").(string),
-		MinCpuPlatform: d.Get("min_cpu_platform").(string),
-	}
-
 	disks, err := buildDisks(d, config)
 	if err != nil {
 		return err
 	}
-	instanceProperties.Disks = disks
 
 	metadata, err := resourceInstanceMetadata(d)
 	if err != nil {
 		return err
 	}
-	instanceProperties.Metadata = metadata
+
 	networks, err := expandNetworkInterfaces(d, config)
 	if err != nil {
 		return err
 	}
-	instanceProperties.NetworkInterfaces = networks
 
-	instanceProperties.Scheduling = &computeBeta.Scheduling{}
-	instanceProperties.Scheduling.OnHostMaintenance = "MIGRATE"
-
-	forceSendFieldsScheduling := make([]string, 0, 3)
-	var hasSendMaintenance bool
-	hasSendMaintenance = false
-	if v, ok := d.GetOk("scheduling"); ok {
-		_schedulings := v.([]interface{})
-		if len(_schedulings) > 1 {
-			return fmt.Errorf("Error, at most one `scheduling` block can be defined")
-		}
-		_scheduling := _schedulings[0].(map[string]interface{})
-
-		// "automatic_restart" has a default value and is always safe to dereference
-		automaticRestart := _scheduling["automatic_restart"].(bool)
-		instanceProperties.Scheduling.AutomaticRestart = googleapi.Bool(automaticRestart)
-		forceSendFieldsScheduling = append(forceSendFieldsScheduling, "AutomaticRestart")
-
-		if vp, okp := _scheduling["on_host_maintenance"]; okp {
-			instanceProperties.Scheduling.OnHostMaintenance = vp.(string)
-			forceSendFieldsScheduling = append(forceSendFieldsScheduling, "OnHostMaintenance")
-			hasSendMaintenance = true
-		}
-
-		if vp, okp := _scheduling["preemptible"]; okp {
-			instanceProperties.Scheduling.Preemptible = vp.(bool)
-			forceSendFieldsScheduling = append(forceSendFieldsScheduling, "Preemptible")
-			if vp.(bool) && !hasSendMaintenance {
-				instanceProperties.Scheduling.OnHostMaintenance = "TERMINATE"
-				forceSendFieldsScheduling = append(forceSendFieldsScheduling, "OnHostMaintenance")
-			}
-		}
+	scheduling, err := expandResourceComputeInstanceTemplateScheduling(d, config)
+	if err != nil {
+		return err
 	}
-	instanceProperties.Scheduling.ForceSendFields = forceSendFieldsScheduling
 
-	instanceProperties.ServiceAccounts = expandServiceAccounts(d.Get("service_account").([]interface{}))
+	instanceProperties := &computeBeta.InstanceProperties{
+		CanIpForward:      d.Get("can_ip_forward").(bool),
+		Description:       d.Get("instance_description").(string),
+		GuestAccelerators: expandInstanceTemplateGuestAccelerators(d, config),
+		MachineType:       d.Get("machine_type").(string),
+		MinCpuPlatform:    d.Get("min_cpu_platform").(string),
+		Disks:             disks,
+		Metadata:          metadata,
+		NetworkInterfaces: networks,
+		Scheduling:        scheduling,
+		ServiceAccounts:   expandServiceAccounts(d.Get("service_account").([]interface{})),
+		Tags:              resourceInstanceTags(d),
+		ShieldedVmConfig:  expandShieldedVmConfigs(d),
+	}
 
-	instanceProperties.GuestAccelerators = expandInstanceTemplateGuestAccelerators(d, config)
-
-	instanceProperties.Tags = resourceInstanceTags(d)
 	if _, ok := d.GetOk("labels"); ok {
 		instanceProperties.Labels = expandLabels(d)
 	}
@@ -702,46 +727,212 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	return resourceComputeInstanceTemplateRead(d, meta)
 }
 
-func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData, defaultProject string) ([]map[string]interface{}, error) {
-	result := make([]map[string]interface{}, 0, len(disks))
-	for _, disk := range disks {
-		diskMap := make(map[string]interface{})
-		if disk.InitializeParams != nil {
-			if disk.InitializeParams.SourceImage != "" {
-				selfLink, err := resolvedImageSelfLink(defaultProject, disk.InitializeParams.SourceImage)
-				if err != nil {
-					return nil, errwrap.Wrapf("Error expanding source image input to self_link: {{err}}", err)
-				}
-				path, err := getRelativePath(selfLink)
-				if err != nil {
-					return nil, errwrap.Wrapf("Error getting relative path for source image: {{err}}", err)
-				}
-				diskMap["source_image"] = path
-			} else {
-				diskMap["source_image"] = ""
-			}
-			diskMap["disk_type"] = disk.InitializeParams.DiskType
-			diskMap["disk_name"] = disk.InitializeParams.DiskName
-			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
-		}
+type diskCharacteristics struct {
+	mode        string
+	diskType    string
+	diskSizeGb  string
+	autoDelete  bool
+	sourceImage string
+}
 
-		if disk.DiskEncryptionKey != nil {
-			encryption := make([]map[string]interface{}, 1)
-			encryption[0] = make(map[string]interface{})
-			encryption[0]["kms_key_self_link"] = disk.DiskEncryptionKey.KmsKeyName
-			diskMap["disk_encryption_key"] = encryption
-		}
-
-		diskMap["auto_delete"] = disk.AutoDelete
-		diskMap["boot"] = disk.Boot
-		diskMap["device_name"] = disk.DeviceName
-		diskMap["interface"] = disk.Interface
-		diskMap["source"] = ConvertSelfLinkToV1(disk.Source)
-		diskMap["mode"] = disk.Mode
-		diskMap["type"] = disk.Type
-		result = append(result, diskMap)
+func diskCharacteristicsFromMap(m map[string]interface{}) diskCharacteristics {
+	dc := diskCharacteristics{}
+	if v := m["mode"]; v == nil || v.(string) == "" {
+		// mode has an apply-time default of READ_WRITE
+		dc.mode = "READ_WRITE"
+	} else {
+		dc.mode = v.(string)
 	}
-	return result, nil
+
+	if v := m["disk_type"]; v != nil {
+		dc.diskType = v.(string)
+	}
+
+	if v := m["disk_size_gb"]; v != nil {
+		// Terraform and GCP return ints as different types (int vs int64), so just
+		// use strings to compare for simplicity.
+		dc.diskSizeGb = fmt.Sprintf("%v", v)
+	}
+
+	if v := m["auto_delete"]; v != nil {
+		dc.autoDelete = v.(bool)
+	}
+
+	if v := m["source_image"]; v != nil {
+		dc.sourceImage = v.(string)
+	}
+	return dc
+}
+
+func flattenDisk(disk *computeBeta.AttachedDisk, defaultProject string) (map[string]interface{}, error) {
+	diskMap := make(map[string]interface{})
+	if disk.InitializeParams != nil {
+		if disk.InitializeParams.SourceImage != "" {
+			selfLink, err := resolvedImageSelfLink(defaultProject, disk.InitializeParams.SourceImage)
+			if err != nil {
+				return nil, errwrap.Wrapf("Error expanding source image input to self_link: {{err}}", err)
+			}
+			path, err := getRelativePath(selfLink)
+			if err != nil {
+				return nil, errwrap.Wrapf("Error getting relative path for source image: {{err}}", err)
+			}
+			diskMap["source_image"] = path
+		} else {
+			diskMap["source_image"] = ""
+		}
+		diskMap["disk_type"] = disk.InitializeParams.DiskType
+		diskMap["disk_name"] = disk.InitializeParams.DiskName
+		diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
+	}
+
+	if disk.DiskEncryptionKey != nil {
+		encryption := make([]map[string]interface{}, 1)
+		encryption[0] = make(map[string]interface{})
+		encryption[0]["kms_key_self_link"] = disk.DiskEncryptionKey.KmsKeyName
+		diskMap["disk_encryption_key"] = encryption
+	}
+
+	diskMap["auto_delete"] = disk.AutoDelete
+	diskMap["boot"] = disk.Boot
+	diskMap["device_name"] = disk.DeviceName
+	diskMap["interface"] = disk.Interface
+	diskMap["source"] = ConvertSelfLinkToV1(disk.Source)
+	diskMap["mode"] = disk.Mode
+	diskMap["type"] = disk.Type
+
+	return diskMap, nil
+}
+
+func reorderDisks(configDisks []interface{}, apiDisks []map[string]interface{}) []map[string]interface{} {
+	if len(apiDisks) != len(configDisks) {
+		// There are different numbers of disks in state and returned from the API, so it's not
+		// worth trying to reorder them since it'll be a diff anyway.
+		return apiDisks
+	}
+
+	result := make([]map[string]interface{}, len(apiDisks), len(apiDisks))
+
+	/*
+		Disks aren't necessarily returned from the API in the same order they were sent, so gather
+		information about the ones in state that we can use to map it back. We can't do this by
+		just looping over all of the disks, because you could end up matching things in the wrong
+		order. For example, if the config disks contain the following disks:
+		disk 1: auto delete = false, size = 10
+		disk 2: auto delete = false, size = 10, device name = "disk 2"
+		disk 3: type = scratch
+		And the disks returned from the API are:
+		disk a: auto delete = false, size = 10, device name = "disk 2"
+		disk b: auto delete = false, size = 10, device name = "disk 1"
+		disk c: type = scratch
+		Then disk a will match disk 1, disk b won't match any disk, and c will match 3, making the
+		final order a, c, b, which is wrong. To get disk a to match disk 2, we have to go in order
+		of fields most specifically able to identify a disk to least.
+	*/
+	disksByDeviceName := map[string]int{}
+	scratchDisksByInterface := map[string][]int{}
+	attachedDisksBySource := map[string]int{}
+	attachedDisksByDiskName := map[string]int{}
+	attachedDisksByCharacteristics := []int{}
+
+	for i, d := range configDisks {
+		if i == 0 {
+			// boot disk
+			continue
+		}
+		disk := d.(map[string]interface{})
+		if v := disk["device_name"]; v.(string) != "" {
+			disksByDeviceName[v.(string)] = i
+		} else if v := disk["type"]; v.(string) == "SCRATCH" {
+			iface := disk["interface"].(string)
+			if iface == "" {
+				// apply-time default
+				iface = "SCSI"
+			}
+			scratchDisksByInterface[iface] = append(scratchDisksByInterface[iface], i)
+		} else if v := disk["source"]; v.(string) != "" {
+			attachedDisksBySource[v.(string)] = i
+		} else if v := disk["disk_name"]; v.(string) != "" {
+			attachedDisksByDiskName[v.(string)] = i
+		} else {
+			attachedDisksByCharacteristics = append(attachedDisksByCharacteristics, i)
+		}
+	}
+
+	// Align the disks, going from the most specific criteria to the least.
+	for _, apiDisk := range apiDisks {
+		// 1. This resource only works if the boot disk is the first one (which should be fixed
+		//	  separately), so put the boot disk first.
+		if apiDisk["boot"].(bool) {
+			result[0] = apiDisk
+
+			// 2. All disks have a unique device name
+		} else if i, ok := disksByDeviceName[apiDisk["device_name"].(string)]; ok {
+			result[i] = apiDisk
+
+			// 3. Scratch disks are all the same except device name and interface, so match them by
+			//    interface.
+		} else if apiDisk["type"].(string) == "SCRATCH" {
+			iface := apiDisk["interface"].(string)
+			indexes := scratchDisksByInterface[iface]
+			if len(indexes) > 0 {
+				result[indexes[0]] = apiDisk
+				scratchDisksByInterface[iface] = indexes[1:]
+			} else {
+				result = append(result, apiDisk)
+			}
+
+			// 4. Each attached disk will have a different source, so match by that.
+		} else if i, ok := attachedDisksBySource[apiDisk["source"].(string)]; ok {
+			result[i] = apiDisk
+
+			// 5. If a disk was created for this resource via initializeParams, it will have a
+			//    unique name.
+		} else if v, ok := apiDisk["disk_name"]; ok && attachedDisksByDiskName[v.(string)] != 0 {
+			result[attachedDisksByDiskName[v.(string)]] = apiDisk
+
+			// 6. If no unique keys exist on this disk, then use a combination of its remaining
+			//    characteristics to see whether it matches exactly.
+		} else {
+			found := false
+			for arrayIndex, i := range attachedDisksByCharacteristics {
+				configDisk := configDisks[i].(map[string]interface{})
+				stateDc := diskCharacteristicsFromMap(configDisk)
+				readDc := diskCharacteristicsFromMap(apiDisk)
+				if reflect.DeepEqual(stateDc, readDc) {
+					result[i] = apiDisk
+					attachedDisksByCharacteristics = append(attachedDisksByCharacteristics[:arrayIndex], attachedDisksByCharacteristics[arrayIndex+1:]...)
+					found = true
+					break
+				}
+			}
+			if !found {
+				result = append(result, apiDisk)
+			}
+		}
+	}
+
+	// Remove nils from map in case there were disks that could not be matched
+	ds := []map[string]interface{}{}
+	for _, d := range result {
+		if d != nil {
+			ds = append(ds, d)
+		}
+	}
+	return ds
+}
+
+func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData, defaultProject string) ([]map[string]interface{}, error) {
+	apiDisks := make([]map[string]interface{}, len(disks))
+
+	for i, disk := range disks {
+		d, err := flattenDisk(disk, defaultProject)
+		if err != nil {
+			return nil, err
+		}
+		apiDisks[i] = d
+	}
+
+	return reorderDisks(d.Get("disk").([]interface{}), apiDisks), nil
 }
 
 func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{}) error {
@@ -863,6 +1054,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error setting guest_accelerator: %s", err)
 		}
 	}
+	if instanceTemplate.Properties.ShieldedVmConfig != nil {
+		if err = d.Set("shielded_instance_config", flattenShieldedVmConfig(instanceTemplate.Properties.ShieldedVmConfig)); err != nil {
+			return fmt.Errorf("Error setting shielded_instance_config: %s", err)
+		}
+	}
 	return nil
 }
 
@@ -887,4 +1083,28 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 
 	d.SetId("")
 	return nil
+}
+
+// This wraps the general compute instance helper expandScheduling.
+// Default value of OnHostMaintenance depends on the value of Preemptible,
+// so we can't set a default in schema
+func expandResourceComputeInstanceTemplateScheduling(d *schema.ResourceData, meta interface{}) (*computeBeta.Scheduling, error) {
+	v, ok := d.GetOk("scheduling")
+	if !ok || v == nil {
+		// We can't set defaults for lists (e.g. scheduling)
+		return &computeBeta.Scheduling{
+			OnHostMaintenance: "MIGRATE",
+		}, nil
+	}
+
+	expanded, err := expandScheduling(v)
+	if err != nil {
+		return nil, err
+	}
+
+	// Make sure we have an appropriate value for OnHostMaintenance if Preemptible
+	if expanded.Preemptible && expanded.OnHostMaintenance == "" {
+		expanded.OnHostMaintenance = "TERMINATE"
+	}
+	return expanded, nil
 }

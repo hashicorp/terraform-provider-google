@@ -11,11 +11,7 @@ description: |-
 Manages a set of DNS records within Google Cloud DNS. For more information see [the official documentation](https://cloud.google.com/dns/records/) and
 [API](https://cloud.google.com/dns/api/v1/resourceRecordSets).
 
-~> **Note:** The Google Cloud DNS API requires NS records be present at all
-times. To accommodate this, when creating NS records, the default records
-Google automatically creates will be silently overwritten.  Also, when
-destroying NS records, Terraform will not actually remove NS records, but will
-report that it did.
+~> **Note:** The provider treats this resource as an authoritative record set. This means existing records (including the default records) for the given type will be overwritten when you create this resource in Terraform. In addition, the Google Cloud DNS API requires NS records to be present at all times, so Terraform will not actually remove NS records during destroy but will report that it did.
 
 ## Example Usage
 
@@ -118,8 +114,10 @@ resource "google_dns_managed_zone" "prod" {
 ```
 
 ### Adding a CNAME record
+
  The list of `rrdatas` should only contain a single string corresponding to the Canonical Name intended.
- ```hcl
+
+```hcl
 resource "google_dns_record_set" "cname" {
   name = "frontend.${google_dns_managed_zone.prod.dns_name}"
   managed_zone = "${google_dns_managed_zone.prod.name}"
@@ -144,7 +142,7 @@ The following arguments are supported:
 * `name` - (Required) The DNS name this record set will apply to.
 
 * `rrdatas` - (Required) The string data for the records in this record set
-    whose meaning depends on the DNS type. For TXT record, if the string data contains spaces, add surrounding `\"` if you don't want your string to get split on spaces.
+    whose meaning depends on the DNS type. For TXT record, if the string data contains spaces, add surrounding `\"` if you don't want your string to get split on spaces. To specify a single record value longer than 255 characters such as a TXT record for DKIM, add `\"\"` inside the Terraform configuration string (e.g. `"first255characters\"\"morecharacters"`).
 
 * `ttl` - (Required) The time-to-live of this record set (seconds).
 
@@ -161,10 +159,11 @@ Only the arguments listed above are exposed as attributes.
 
 ## Import
 
-DNS record set can be imported using the `zone name`, `record name` and record `type`, e.g.
+DNS record sets can be imported using either of these accepted formats:
 
 ```
-$ terraform import google_dns_record_set.frontend prod-zone/frontend.prod.mydomain.com./A
+$ terraform import google_dns_record_set.frontend {{project}}/{{zone}}/{{name}}/{{type}}
+$ terraform import google_dns_record_set.frontend {{zone}}/{{name}}/{{type}}
 ```
 
 Note: The record name must include the trailing dot at the end.

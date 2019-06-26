@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -15,14 +16,26 @@ func dataSourceGoogleContainerEngineVersions() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"zone": {
+			"version_prefix": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"location": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"zone", "region"},
+			},
+			"zone": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Deprecated:    "Use location instead",
+				ConflictsWith: []string{"region", "location"},
 			},
 			"region": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ConflictsWith: []string{"zone"},
+				Deprecated:    "Use location instead",
+				ConflictsWith: []string{"zone", "location"},
 			},
 			"default_cluster_version": {
 				Type:     schema.TypeString,
@@ -63,7 +76,7 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 		return err
 	}
 	if len(location) == 0 {
-		return fmt.Errorf("Cannot determine location: set zone or region in this data source or at provider-level")
+		return fmt.Errorf("Cannot determine location: set location, zone, or region in this data source or at provider-level")
 	}
 
 	location = fmt.Sprintf("projects/%s/locations/%s", project, location)
@@ -72,15 +85,31 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error retrieving available container cluster versions: %s", err.Error())
 	}
 
-	d.Set("valid_master_versions", resp.ValidMasterVersions)
+	validMasterVersions := make([]string, 0)
+	for _, v := range resp.ValidMasterVersions {
+		if strings.HasPrefix(v, d.Get("version_prefix").(string)) {
+			validMasterVersions = append(validMasterVersions, v)
+		}
+	}
+
+	validNodeVersions := make([]string, 0)
+	for _, v := range resp.ValidNodeVersions {
+		if strings.HasPrefix(v, d.Get("version_prefix").(string)) {
+			validNodeVersions = append(validNodeVersions, v)
+		}
+	}
+
+	d.Set("valid_master_versions", validMasterVersions)
+	if len(validMasterVersions) > 0 {
+		d.Set("latest_master_version", validMasterVersions[0])
+	}
+
+	d.Set("valid_node_versions", validNodeVersions)
+	if len(validNodeVersions) > 0 {
+		d.Set("latest_node_version", validNodeVersions[0])
+	}
+
 	d.Set("default_cluster_version", resp.DefaultClusterVersion)
-	d.Set("valid_node_versions", resp.ValidNodeVersions)
-	if len(resp.ValidMasterVersions) > 0 {
-		d.Set("latest_master_version", resp.ValidMasterVersions[0])
-	}
-	if len(resp.ValidNodeVersions) > 0 {
-		d.Set("latest_node_version", resp.ValidNodeVersions[0])
-	}
 
 	d.SetId(time.Now().UTC().String())
 	return nil

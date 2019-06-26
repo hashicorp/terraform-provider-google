@@ -26,6 +26,18 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+func comparePubsubSubscriptionExpirationPolicy(_, old, new string, _ *schema.ResourceData) bool {
+	trimmedNew := strings.TrimLeft(new, "0")
+	trimmedOld := strings.TrimLeft(old, "0")
+	if strings.Contains(trimmedNew, ".") {
+		trimmedNew = strings.TrimRight(strings.TrimSuffix(trimmedNew, "s"), "0") + "s"
+	}
+	if strings.Contains(trimmedOld, ".") {
+		trimmedOld = strings.TrimRight(strings.TrimSuffix(trimmedOld, "s"), "0") + "s"
+	}
+	return trimmedNew == trimmedOld
+}
+
 func resourcePubsubSubscription() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePubsubSubscriptionCreate,
@@ -38,9 +50,9 @@ func resourcePubsubSubscription() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -61,10 +73,30 @@ func resourcePubsubSubscription() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
+			"expiration_policy": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ttl": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: comparePubsubSubscriptionExpirationPolicy,
+						},
+					},
+				},
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"message_retention_duration": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "604800s",
 			},
 			"push_config": {
 				Type:     schema.TypeList,
@@ -83,6 +115,10 @@ func resourcePubsubSubscription() *schema.Resource {
 						},
 					},
 				},
+			},
+			"retain_acked_messages": {
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			"path": {
 				Type:     schema.TypeString,
@@ -132,8 +168,31 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("ack_deadline_seconds"); !isEmptyValue(reflect.ValueOf(ackDeadlineSecondsProp)) && (ok || !reflect.DeepEqual(v, ackDeadlineSecondsProp)) {
 		obj["ackDeadlineSeconds"] = ackDeadlineSecondsProp
 	}
+	messageRetentionDurationProp, err := expandPubsubSubscriptionMessageRetentionDuration(d.Get("message_retention_duration"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("message_retention_duration"); !isEmptyValue(reflect.ValueOf(messageRetentionDurationProp)) && (ok || !reflect.DeepEqual(v, messageRetentionDurationProp)) {
+		obj["messageRetentionDuration"] = messageRetentionDurationProp
+	}
+	retainAckedMessagesProp, err := expandPubsubSubscriptionRetainAckedMessages(d.Get("retain_acked_messages"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("retain_acked_messages"); !isEmptyValue(reflect.ValueOf(retainAckedMessagesProp)) && (ok || !reflect.DeepEqual(v, retainAckedMessagesProp)) {
+		obj["retainAckedMessages"] = retainAckedMessagesProp
+	}
+	expirationPolicyProp, err := expandPubsubSubscriptionExpirationPolicy(d.Get("expiration_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("expiration_policy"); ok || !reflect.DeepEqual(v, expirationPolicyProp) {
+		obj["expirationPolicy"] = expirationPolicyProp
+	}
 
-	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/subscriptions/{{name}}")
+	obj, err = resourcePubsubSubscriptionEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -159,7 +218,7 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/subscriptions/{{name}}")
+	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -197,6 +256,15 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("ack_deadline_seconds", flattenPubsubSubscriptionAckDeadlineSeconds(res["ackDeadlineSeconds"], d)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
+	if err := d.Set("message_retention_duration", flattenPubsubSubscriptionMessageRetentionDuration(res["messageRetentionDuration"], d)); err != nil {
+		return fmt.Errorf("Error reading Subscription: %s", err)
+	}
+	if err := d.Set("retain_acked_messages", flattenPubsubSubscriptionRetainAckedMessages(res["retainAckedMessages"], d)); err != nil {
+		return fmt.Errorf("Error reading Subscription: %s", err)
+	}
+	if err := d.Set("expiration_policy", flattenPubsubSubscriptionExpirationPolicy(res["expirationPolicy"], d)); err != nil {
+		return fmt.Errorf("Error reading Subscription: %s", err)
+	}
 
 	return nil
 }
@@ -223,13 +291,31 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("ack_deadline_seconds"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ackDeadlineSecondsProp)) {
 		obj["ackDeadlineSeconds"] = ackDeadlineSecondsProp
 	}
+	messageRetentionDurationProp, err := expandPubsubSubscriptionMessageRetentionDuration(d.Get("message_retention_duration"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("message_retention_duration"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, messageRetentionDurationProp)) {
+		obj["messageRetentionDuration"] = messageRetentionDurationProp
+	}
+	retainAckedMessagesProp, err := expandPubsubSubscriptionRetainAckedMessages(d.Get("retain_acked_messages"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("retain_acked_messages"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retainAckedMessagesProp)) {
+		obj["retainAckedMessages"] = retainAckedMessagesProp
+	}
+	expirationPolicyProp, err := expandPubsubSubscriptionExpirationPolicy(d.Get("expiration_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("expiration_policy"); ok || !reflect.DeepEqual(v, expirationPolicyProp) {
+		obj["expirationPolicy"] = expirationPolicyProp
+	}
 
 	obj, err = resourcePubsubSubscriptionUpdateEncoder(d, meta, obj)
 	if err != nil {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/subscriptions/{{name}}")
+	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -247,6 +333,18 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("ack_deadline_seconds") {
 		updateMask = append(updateMask, "ackDeadlineSeconds")
+	}
+
+	if d.HasChange("message_retention_duration") {
+		updateMask = append(updateMask, "messageRetentionDuration")
+	}
+
+	if d.HasChange("retain_acked_messages") {
+		updateMask = append(updateMask, "retainAckedMessages")
+	}
+
+	if d.HasChange("expiration_policy") {
+		updateMask = append(updateMask, "expirationPolicy")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -266,7 +364,7 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://pubsub.googleapis.com/v1/projects/{{project}}/subscriptions/{{name}}")
+	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -349,7 +447,29 @@ func flattenPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.Resour
 	return v
 }
 
-func expandPubsubSubscriptionName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func flattenPubsubSubscriptionMessageRetentionDuration(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionRetainAckedMessages(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionExpirationPolicy(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["ttl"] =
+		flattenPubsubSubscriptionExpirationPolicyTtl(original["ttl"], d)
+	return []interface{}{transformed}
+}
+func flattenPubsubSubscriptionExpirationPolicyTtl(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func expandPubsubSubscriptionName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return "", err
@@ -372,7 +492,7 @@ func expandPubsubSubscriptionName(v interface{}, d *schema.ResourceData, config 
 	return fmt.Sprintf("projects/%s/subscriptions/%s", project, subscription), nil
 }
 
-func expandPubsubSubscriptionTopic(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandPubsubSubscriptionTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return "", err
@@ -392,7 +512,7 @@ func expandPubsubSubscriptionTopic(v interface{}, d *schema.ResourceData, config
 	}
 }
 
-func expandPubsubSubscriptionLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandPubsubSubscriptionLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -403,7 +523,7 @@ func expandPubsubSubscriptionLabels(v interface{}, d *schema.ResourceData, confi
 	return m, nil
 }
 
-func expandPubsubSubscriptionPushConfig(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandPubsubSubscriptionPushConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -429,11 +549,11 @@ func expandPubsubSubscriptionPushConfig(v interface{}, d *schema.ResourceData, c
 	return transformed, nil
 }
 
-func expandPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPubsubSubscriptionPushConfigAttributes(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandPubsubSubscriptionPushConfigAttributes(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -444,8 +564,49 @@ func expandPubsubSubscriptionPushConfigAttributes(v interface{}, d *schema.Resou
 	return m, nil
 }
 
-func expandPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandPubsubSubscriptionAckDeadlineSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandPubsubSubscriptionMessageRetentionDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionRetainAckedMessages(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionExpirationPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTtl, err := expandPubsubSubscriptionExpirationPolicyTtl(original["ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTtl); val.IsValid() && !isEmptyValue(val) {
+		transformed["ttl"] = transformedTtl
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubSubscriptionExpirationPolicyTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func resourcePubsubSubscriptionEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	delete(obj, "name")
+	return obj, nil
 }
 
 func resourcePubsubSubscriptionUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
@@ -456,7 +617,9 @@ func resourcePubsubSubscriptionUpdateEncoder(d *schema.ResourceData, meta interf
 
 func resourcePubsubSubscriptionDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 
+	// path is a derived field from the API-side `name`
 	path := fmt.Sprintf("projects/%s/subscriptions/%s", d.Get("project"), d.Get("name"))
 	d.Set("path", path)
+
 	return res, nil
 }

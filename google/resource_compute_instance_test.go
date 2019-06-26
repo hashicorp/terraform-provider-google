@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -278,6 +279,43 @@ func TestAccComputeInstance_diskEncryption(t *testing.T) {
 					testAccCheckComputeInstanceDiskEncryptionKey("google_compute_instance.foobar", &instance, bootEncryptionKeyHash, diskNameToEncryptionKey),
 				),
 			},
+		},
+	})
+}
+
+func TestAccComputeInstance_kmsDiskEncryption(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	kms := BootstrapKMSKey(t)
+
+	bootKmsKeyName := kms.CryptoKey.Name
+	diskNameToEncryptionKey := map[string]*compute.CustomerEncryptionKey{
+		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
+			KmsKeyName: kms.CryptoKey.Name,
+		},
+		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
+			KmsKeyName: kms.CryptoKey.Name,
+		},
+		fmt.Sprintf("instance-testd-%s", acctest.RandString(10)): {
+			KmsKeyName: kms.CryptoKey.Name,
+		},
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_disks_kms(getTestProjectFromEnv(), bootKmsKeyName, diskNameToEncryptionKey, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceDiskKmsEncryptionKey("google_compute_instance.foobar", &instance, bootKmsKeyName, diskNameToEncryptionKey),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -615,7 +653,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_service_account(t *testing.T) {
+func TestAccComputeInstance_serviceAccount(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
@@ -627,7 +665,7 @@ func TestAccComputeInstance_service_account(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstance_service_account(instanceName),
+				Config: testAccComputeInstance_serviceAccount(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
@@ -661,6 +699,38 @@ func TestAccComputeInstance_scheduling(t *testing.T) {
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
 				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+			{
+				Config: testAccComputeInstance_schedulingUpdated(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
+func TestAccComputeInstance_soleTenantNodeAffinities(t *testing.T) {
+	t.Parallel()
+
+	var instanceName = fmt.Sprintf("soletenanttest-%s", acctest.RandString(10))
+	var templateName = fmt.Sprintf("nodetmpl-%s", acctest.RandString(10))
+	var groupName = fmt.Sprintf("nodegroup-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_soleTenantNodeAffinities(instanceName, templateName, groupName),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+			{
+				Config: testAccComputeInstance_soleTenantNodeAffinitiesUpdated(instanceName, templateName, groupName),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
@@ -1046,7 +1116,9 @@ func TestAccComputeInstance_secondaryAliasIpRange(t *testing.T) {
 func TestAccComputeInstance_hostname(t *testing.T) {
 	t.Parallel()
 
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -1056,6 +1128,53 @@ func TestAccComputeInstance_hostname(t *testing.T) {
 				Config: testAccComputeInstance_hostname(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_compute_instance.foobar", "hostname"),
+					testAccCheckComputeInstanceLacksShieldedVmConfig(&instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
+func TestAccComputeInstance_shieldedVmConfig1(t *testing.T) {
+	t.Parallel()
+
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_shieldedVmConfig(instanceName, true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasShieldedVmConfig(&instance, true, true, true),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
+func TestAccComputeInstance_shieldedVmConfig2(t *testing.T) {
+	t.Parallel()
+
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_shieldedVmConfig(instanceName, true, true, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasShieldedVmConfig(&instance, true, true, false),
 				),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
@@ -1120,8 +1239,19 @@ func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckComputeInstanceExists(n string, instance *compute.Instance) resource.TestCheckFunc {
-	return testAccCheckComputeInstanceExistsInProject(n, getTestProjectFromEnv(), instance)
+func testAccCheckComputeInstanceExists(n string, instance interface{}) resource.TestCheckFunc {
+	if instance == nil {
+		panic("Attempted to check existence of Instance that was nil.")
+	}
+
+	switch instance.(type) {
+	case *compute.Instance:
+		return testAccCheckComputeInstanceExistsInProject(n, getTestProjectFromEnv(), instance.(*compute.Instance))
+	case *computeBeta.Instance:
+		return testAccCheckComputeBetaInstanceExistsInProject(n, getTestProjectFromEnv(), instance.(*computeBeta.Instance))
+	default:
+		panic("Attempted to check existence of an Instance of unknown type.")
+	}
 }
 
 func testAccCheckComputeInstanceExistsInProject(n, p string, instance *compute.Instance) resource.TestCheckFunc {
@@ -1138,6 +1268,35 @@ func testAccCheckComputeInstanceExistsInProject(n, p string, instance *compute.I
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Instances.Get(
+			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if found.Name != rs.Primary.ID {
+			return fmt.Errorf("Instance not found")
+		}
+
+		*instance = *found
+
+		return nil
+	}
+}
+
+func testAccCheckComputeBetaInstanceExistsInProject(n, p string, instance *computeBeta.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.clientComputeBeta.Instances.Get(
 			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
 		if err != nil {
 			return err
@@ -1363,6 +1522,53 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 	}
 }
 
+func testAccCheckComputeInstanceDiskKmsEncryptionKey(n string, instance *compute.Instance, bootDiskEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		for i, disk := range instance.Disks {
+			if disk.Boot {
+				attr := rs.Primary.Attributes["boot_disk.0.kms_key_self_link"]
+				if attr != bootDiskEncryptionKey {
+					return fmt.Errorf("Boot disk has wrong encryption key in state.\nExpected: %s\nActual: %s", bootDiskEncryptionKey, attr)
+				}
+				if disk.DiskEncryptionKey == nil && attr != "" {
+					return fmt.Errorf("Disk %d has mismatched encryption key.\nTF State: %+v\nGCP State: <empty>", i, attr)
+				}
+			} else {
+				if disk.DiskEncryptionKey != nil {
+					expectedKey := diskNameToEncryptionKey[GetResourceNameFromSelfLink(disk.Source)].KmsKeyName
+					// The response for crypto keys often includes the version of the key which needs to be removed
+					// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
+					actualKey := strings.Split(disk.DiskEncryptionKey.KmsKeyName, "/cryptoKeyVersions")[0]
+					if actualKey != expectedKey {
+						return fmt.Errorf("Disk %d has unexpected encryption key in GCP.\nExpected: %s\nActual: %s", i, expectedKey, actualKey)
+					}
+				}
+			}
+		}
+
+		numAttachedDisks, err := strconv.Atoi(rs.Primary.Attributes["attached_disk.#"])
+		if err != nil {
+			return fmt.Errorf("Error converting value of attached_disk.#")
+		}
+		for i := 0; i < numAttachedDisks; i++ {
+			diskName := GetResourceNameFromSelfLink(rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.source", i)])
+			kmsKeyName := rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.kms_key_self_link", i)]
+			if key, ok := diskNameToEncryptionKey[diskName]; ok {
+				expectedEncryptionKey := key.KmsKeyName
+				if kmsKeyName != expectedEncryptionKey {
+					return fmt.Errorf("Attached disk %d has unexpected encryption key in state.\nExpected: %s\nActual: %s", i, expectedEncryptionKey, kmsKeyName)
+				}
+			}
+		}
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceTag(instance *compute.Instance, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instance.Tags == nil {
@@ -1528,6 +1734,34 @@ func testAccCheckComputeInstanceHasConfiguredDeletionProtection(instance *comput
 	return func(s *terraform.State) error {
 		if instance.DeletionProtection != configuredDeletionProtection {
 			return fmt.Errorf("Wrong deletion protection flag: expected %t, got %t", configuredDeletionProtection, instance.DeletionProtection)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasShieldedVmConfig(instance *computeBeta.Instance, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) resource.TestCheckFunc {
+
+	return func(s *terraform.State) error {
+		if instance.ShieldedVmConfig.EnableSecureBoot != enableSecureBoot {
+			return fmt.Errorf("Wrong shieldedVmConfig enableSecureBoot: expected %t, got, %t", enableSecureBoot, instance.ShieldedVmConfig.EnableSecureBoot)
+		}
+
+		if instance.ShieldedVmConfig.EnableVtpm != enableVtpm {
+			return fmt.Errorf("Wrong shieldedVmConfig enableVtpm: expected %t, got, %t", enableVtpm, instance.ShieldedVmConfig.EnableVtpm)
+		}
+
+		if instance.ShieldedVmConfig.EnableIntegrityMonitoring != enableIntegrityMonitoring {
+			return fmt.Errorf("Wrong shieldedVmConfig enableIntegrityMonitoring: expected %t, got, %t", enableIntegrityMonitoring, instance.ShieldedVmConfig.EnableIntegrityMonitoring)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceLacksShieldedVmConfig(instance *computeBeta.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.ShieldedVmConfig != nil {
+			return fmt.Errorf("Expected no shielded vm config")
 		}
 
 		return nil
@@ -2021,6 +2255,114 @@ resource "google_compute_instance" "foobar" {
 		diskNameToEncryptionKey[diskNames[0]].RawKey, diskNameToEncryptionKey[diskNames[1]].RawKey, diskNameToEncryptionKey[diskNames[2]].RawKey)
 }
 
+func testAccComputeInstance_disks_kms(pid string, bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance string) string {
+	diskNames := []string{}
+	for k := range diskNameToEncryptionKey {
+		diskNames = append(diskNames, k)
+	}
+	return fmt.Sprintf(`
+data "google_project" "project" {
+	project_id = "%s"
+}
+
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_project_iam_member" "kms-project-binding" {
+  project = "${data.google_project.project.project_id}"
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+
+	disk_encryption_key {
+		kms_key_self_link = "%s"
+	}
+}
+
+resource "google_compute_disk" "foobar2" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+
+	disk_encryption_key {
+		kms_key_self_link = "%s"
+	}
+}
+
+resource "google_compute_disk" "foobar3" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+
+	disk_encryption_key {
+		kms_key_self_link = "%s"
+	}
+}
+
+resource "google_compute_disk" "foobar4" {
+	name = "%s"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+		kms_key_self_link = "%s"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar.self_link}"
+		kms_key_self_link = "%s"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar2.self_link}"
+		kms_key_self_link = "%s"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar4.self_link}"
+	}
+
+	attached_disk {
+		source = "${google_compute_disk.foobar3.self_link}"
+		kms_key_self_link = "%s"
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	metadata = {
+		foo = "bar"
+	}
+}
+`, pid, diskNames[0], diskNameToEncryptionKey[diskNames[0]].KmsKeyName,
+		diskNames[1], diskNameToEncryptionKey[diskNames[1]].KmsKeyName,
+		diskNames[2], diskNameToEncryptionKey[diskNames[2]].KmsKeyName,
+		"instance-testd-"+acctest.RandString(10),
+		instance, bootEncryptionKey,
+		diskNameToEncryptionKey[diskNames[0]].KmsKeyName, diskNameToEncryptionKey[diskNames[1]].KmsKeyName, diskNameToEncryptionKey[diskNames[2]].KmsKeyName)
+}
+
 func testAccComputeInstance_attachedDisk(disk, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -2378,7 +2720,7 @@ resource "google_compute_instance" "scratch" {
 `, instance)
 }
 
-func testAccComputeInstance_service_account(instance string) string {
+func testAccComputeInstance_serviceAccount(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
@@ -2435,6 +2777,36 @@ resource "google_compute_instance" "foobar" {
 
 	scheduling {
 		automatic_restart = false
+	}
+}
+`, instance)
+}
+
+func testAccComputeInstance_schedulingUpdated(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	scheduling {
+		automatic_restart = false
+		preemptible = true
 	}
 }
 `, instance)
@@ -3054,4 +3426,161 @@ resource "google_compute_instance" "foobar" {
 	allow_stopping_for_update = true
 }
 `, instance)
+}
+
+func testAccComputeInstance_soleTenantNodeAffinities(instance, nodeTemplate, nodeGroup string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name = "%s"
+  machine_type = "n1-standard-2"
+  zone = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "${data.google_compute_image.my_image.self_link}"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    node_affinities {
+      key = "tfacc"
+      operator = "IN"
+      values = ["test"]
+    }
+
+    node_affinities {
+      key = "compute.googleapis.com/node-group-name"
+      operator = "IN"
+      values = ["${google_compute_node_group.nodes.name}"]
+    }
+  }
+}
+
+data "google_compute_node_types" "central1a" {
+  zone = "us-central1-a"
+}
+
+
+resource "google_compute_node_template" "nodetmpl" {
+  name = "%s"
+  region = "us-central1"
+
+  node_affinity_labels = {
+    tfacc = "test"
+  }
+
+  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  size = 1
+  node_template = "${google_compute_node_template.nodetmpl.self_link}"
+}
+`, instance, nodeTemplate, nodeGroup)
+}
+
+func testAccComputeInstance_soleTenantNodeAffinitiesUpdated(instance, nodeTemplate, nodeGroup string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name = "%s"
+  machine_type = "n1-standard-2"
+  zone = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "${data.google_compute_image.my_image.self_link}"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    node_affinities {
+      key = "tfacc"
+      operator = "IN"
+      values = ["test", "updatedlabel"]
+    }
+
+    node_affinities {
+      key = "compute.googleapis.com/node-group-name"
+      operator = "IN"
+      values = ["${google_compute_node_group.nodes.name}"]
+    }
+  }
+}
+
+data "google_compute_node_types" "central1a" {
+  zone = "us-central1-a"
+}
+
+
+resource "google_compute_node_template" "nodetmpl" {
+  name = "%s"
+  region = "us-central1"
+
+  node_affinity_labels = {
+    tfacc = "test"
+  }
+
+  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  size = 1
+  node_template = "${google_compute_node_template.nodetmpl.self_link}"
+}
+`, instance, nodeTemplate, nodeGroup)
+}
+
+func testAccComputeInstance_shieldedVmConfig(instance string, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "centos-7"
+	project = "gce-uefi-images"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	shielded_instance_config {
+		enable_secure_boot          = %t
+		enable_vtpm                 = %t
+		enable_integrity_monitoring = %t
+	}
+}
+`, instance, enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
 }

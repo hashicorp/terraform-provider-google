@@ -37,9 +37,9 @@ func resourceStorageDefaultObjectAccessControl() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -128,7 +128,7 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 		obj["role"] = roleProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/storage/v1/b/{{bucket}}/defaultObjectAcl")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl")
 	if err != nil {
 		return err
 	}
@@ -154,7 +154,7 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 func resourceStorageDefaultObjectAccessControlRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/storage/v1/b/{{bucket}}/defaultObjectAcl/{{entity}}")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -221,7 +221,7 @@ func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, met
 		obj["role"] = roleProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/storage/v1/b/{{bucket}}/defaultObjectAcl/{{entity}}")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -239,7 +239,7 @@ func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, met
 func resourceStorageDefaultObjectAccessControlDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/storage/v1/b/{{bucket}}/defaultObjectAcl/{{entity}}")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -328,18 +328,18 @@ func flattenStorageDefaultObjectAccessControlRole(v interface{}, d *schema.Resou
 	return v
 }
 
-func expandStorageDefaultObjectAccessControlBucket(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandStorageDefaultObjectAccessControlBucket(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageDefaultObjectAccessControlEntity(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandStorageDefaultObjectAccessControlEntity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageDefaultObjectAccessControlObject(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandStorageDefaultObjectAccessControlObject(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageDefaultObjectAccessControlRole(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandStorageDefaultObjectAccessControlRole(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

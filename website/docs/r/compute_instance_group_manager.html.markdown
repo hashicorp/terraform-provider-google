@@ -57,19 +57,21 @@ resource "google_compute_instance_group_manager" "appserver" {
 ## Example Usage with multiple versions (`google-beta` provider)
 ```hcl
 resource "google_compute_instance_group_manager" "appserver" {
+  provider = "google-beta"
   name = "appserver-igm"
 
   base_instance_name = "app"
-  update_strategy    = "NONE"
   zone               = "us-central1-a"
 
   target_size  = 5
 
   version {
+    name = "appserver"
     instance_template  = "${google_compute_instance_template.appserver.self_link}"
   }
 
   version {
+    name = "appserver-canary"
     instance_template  = "${google_compute_instance_template.appserver-canary.self_link}"
     target_size {
       fixed = 1
@@ -237,8 +239,10 @@ exported:
 
 ## Import
 
-Instance group managers can be imported using the `name`, e.g.
+Instance group managers can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_compute_instance_group_manager.appserver appserver-igm
+$ terraform import google_compute_instance_group_manager.appserver {{project}}/{{zone}}/{{name}}
+$ terraform import google_compute_instance_group_manager.appserver {{project}}/{{name}}
+$ terraform import google_compute_instance_group_manager.appserver {{name}}
 ```

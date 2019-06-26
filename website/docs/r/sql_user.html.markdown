@@ -19,8 +19,12 @@ Creates a new Google SQL User on a Google SQL User Instance. For more informatio
 Example creating a SQL User.
 
 ```hcl
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
+}
+
 resource "google_sql_database_instance" "master" {
-  name = "master-instance"
+  name = "master-instance-${random_id.db_name_suffix.hex}"
 
   settings {
     tier = "D0"

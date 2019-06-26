@@ -78,6 +78,41 @@ resource "google_compute_network" "custom-test" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=subnetwork_logging_config_beta&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Subnetwork Logging Config Beta
+
+
+```hcl
+resource "google_compute_subnetwork" "subnet-with-logging" {
+  provider      = "google-beta" 
+  name          = "log-test-subnetwork"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = "${google_compute_network.custom-test.self_link}"
+
+  enable_flow_logs = true
+  log_config {
+    aggregation_interval = "INTERVAL_10_MIN"
+    flow_sampling = 0.5
+    metadata = "INCLUDE_ALL_METADATA"
+  }
+}
+
+resource "google_compute_network" "custom-test" {
+  provider                = "google-beta"
+  name                    = "log-test-network"
+  auto_create_subnetworks = false
+}
+
+provider "google-beta"{
+  region = "us-central1"
+  zone   = "us-central1-a"
+}
+```
 
 ## Argument Reference
 
@@ -125,7 +160,10 @@ The following arguments are supported:
   An array of configurations for secondary IP ranges for VM instances
   contained in this subnetwork. The primary IP of such VM must belong
   to the primary ipCidrRange of the subnetwork. The alias IPs may belong
-  to either primary or secondary ranges.  Structure is documented below.
+  to either primary or secondary ranges.
+  This field uses attr-as-block mode to avoid breaking
+  users during the 0.12 upgrade. See [the Attr-as-Block page](https://www.terraform.io/docs/configuration/attr-as-blocks.html)
+  for more details.  Structure is documented below.
 
 * `private_ip_google_access` -
   (Optional)
@@ -135,6 +173,7 @@ The following arguments are supported:
 * `region` -
   (Optional)
   URL of the GCP region for this subnetwork.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -188,8 +227,8 @@ Subnetwork can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_compute_subnetwork.default projects/{{project}}/regions/{{region}}/subnetworks/{{name}}
-$ terraform import google_compute_subnetwork.default {{region}}/{{name}}
 $ terraform import google_compute_subnetwork.default {{project}}/{{region}}/{{name}}
+$ terraform import google_compute_subnetwork.default {{region}}/{{name}}
 $ terraform import google_compute_subnetwork.default {{name}}
 ```
 

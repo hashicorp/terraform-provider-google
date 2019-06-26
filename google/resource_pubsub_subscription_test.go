@@ -8,6 +8,30 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
+func TestAccPubsubSubscription_emptyTTL(t *testing.T) {
+	t.Parallel()
+
+	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(10))
+	subscription := fmt.Sprintf("projects/%s/subscriptions/tf-test-sub-%s", getTestProjectFromEnv(), acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPubsubSubscriptionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_emptyTTL(topic, subscription),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscription,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccPubsubSubscription_fullName(t *testing.T) {
 	t.Parallel()
 
@@ -81,6 +105,24 @@ func TestAccPubsubSubscription_update(t *testing.T) {
 	})
 }
 
+func testAccPubsubSubscription_emptyTTL(topic, subscription string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "foo" {
+	name = "%s"
+}
+
+resource "google_pubsub_subscription" "foo" {
+	name                 = "%s"
+	topic                = "${google_pubsub_topic.foo.id}"
+
+	message_retention_duration = "1200s"
+	retain_acked_messages = true
+	ack_deadline_seconds = 20
+	expiration_policy {}
+}
+`, topic, subscription)
+}
+
 // TODO: Add acceptance test for push delivery.
 //
 // Testing push endpoints is tricky for the following reason:
@@ -107,7 +149,8 @@ resource "google_pubsub_subscription" "foo" {
 		foo = "%s"
 	}
 	ack_deadline_seconds = %d
-}`, topic, subscription, label, deadline)
+}
+`, topic, subscription, label, deadline)
 }
 
 func TestGetComputedTopicName(t *testing.T) {

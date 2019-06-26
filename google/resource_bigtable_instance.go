@@ -138,9 +138,6 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	conf.Clusters = expandBigtableClusters(d.Get("cluster").(*schema.Set).List(), conf.InstanceID)
-	if err != nil {
-		return fmt.Errorf("error expanding clusters: %s", err.Error())
-	}
 
 	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
 	if err != nil {

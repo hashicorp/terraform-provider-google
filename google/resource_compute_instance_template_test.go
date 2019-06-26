@@ -2,6 +2,8 @@ package google
 
 import (
 	"fmt"
+	"reflect"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -9,15 +11,160 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
 const DEFAULT_MIN_CPU_TEST_VALUE = "Intel Haswell"
 
+func TestComputeInstanceTemplate_reorderDisks(t *testing.T) {
+	t.Parallel()
+
+	cBoot := map[string]interface{}{
+		"source": "boot-source",
+	}
+	cFallThrough := map[string]interface{}{
+		"auto_delete": true,
+	}
+	cDeviceName := map[string]interface{}{
+		"device_name": "disk-1",
+	}
+	cScratch := map[string]interface{}{
+		"type": "SCRATCH",
+	}
+	cSource := map[string]interface{}{
+		"source": "disk-source",
+	}
+	cScratchNvme := map[string]interface{}{
+		"type":      "SCRATCH",
+		"interface": "NVME",
+	}
+
+	aBoot := map[string]interface{}{
+		"source": "boot-source",
+		"boot":   true,
+	}
+	aScratchNvme := map[string]interface{}{
+		"device_name": "scratch-1",
+		"type":        "SCRATCH",
+		"interface":   "NVME",
+	}
+	aSource := map[string]interface{}{
+		"device_name": "disk-2",
+		"source":      "disk-source",
+	}
+	aScratchScsi := map[string]interface{}{
+		"device_name": "scratch-2",
+		"type":        "SCRATCH",
+		"interface":   "SCSI",
+	}
+	aFallThrough := map[string]interface{}{
+		"device_name": "disk-3",
+		"auto_delete": true,
+		"source":      "fake-source",
+	}
+	aFallThrough2 := map[string]interface{}{
+		"device_name": "disk-4",
+		"auto_delete": true,
+		"source":      "fake-source",
+	}
+	aDeviceName := map[string]interface{}{
+		"device_name": "disk-1",
+		"auto_delete": true,
+		"source":      "fake-source-2",
+	}
+	aNoMatch := map[string]interface{}{
+		"device_name": "disk-2",
+		"source":      "disk-source-doesn't-match",
+	}
+
+	cases := map[string]struct {
+		ConfigDisks    []interface{}
+		ApiDisks       []map[string]interface{}
+		ExpectedResult []map[string]interface{}
+	}{
+		"all disks represented": {
+			ApiDisks: []map[string]interface{}{
+				aBoot, aScratchNvme, aSource, aScratchScsi, aFallThrough, aDeviceName,
+			},
+			ConfigDisks: []interface{}{
+				cBoot, cFallThrough, cDeviceName, cScratch, cSource, cScratchNvme,
+			},
+			ExpectedResult: []map[string]interface{}{
+				aBoot, aFallThrough, aDeviceName, aScratchScsi, aSource, aScratchNvme,
+			},
+		},
+		"one non-match": {
+			ApiDisks: []map[string]interface{}{
+				aBoot, aNoMatch, aScratchNvme, aScratchScsi, aFallThrough, aDeviceName,
+			},
+			ConfigDisks: []interface{}{
+				cBoot, cFallThrough, cDeviceName, cScratch, cSource, cScratchNvme,
+			},
+			ExpectedResult: []map[string]interface{}{
+				aBoot, aFallThrough, aDeviceName, aScratchScsi, aScratchNvme, aNoMatch,
+			},
+		},
+		"two fallthroughs": {
+			ApiDisks: []map[string]interface{}{
+				aBoot, aScratchNvme, aFallThrough, aSource, aScratchScsi, aFallThrough2, aDeviceName,
+			},
+			ConfigDisks: []interface{}{
+				cBoot, cFallThrough, cDeviceName, cScratch, cFallThrough, cSource, cScratchNvme,
+			},
+			ExpectedResult: []map[string]interface{}{
+				aBoot, aFallThrough, aDeviceName, aScratchScsi, aFallThrough2, aSource, aScratchNvme,
+			},
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			// Disks read using d.Get will always have values for all keys, so set those values
+			for _, disk := range tc.ConfigDisks {
+				d := disk.(map[string]interface{})
+				for _, k := range []string{"auto_delete", "boot"} {
+					if _, ok := d[k]; !ok {
+						d[k] = false
+					}
+				}
+				for _, k := range []string{"device_name", "disk_name", "interface", "mode", "source", "type"} {
+					if _, ok := d[k]; !ok {
+						d[k] = ""
+					}
+				}
+			}
+
+			// flattened disks always set auto_delete, boot, device_name, interface, mode, source, and type
+			for _, d := range tc.ApiDisks {
+				for _, k := range []string{"auto_delete", "boot"} {
+					if _, ok := d[k]; !ok {
+						d[k] = false
+					}
+				}
+
+				for _, k := range []string{"device_name", "interface", "mode", "source"} {
+					if _, ok := d[k]; !ok {
+						d[k] = ""
+					}
+				}
+				if _, ok := d["type"]; !ok {
+					d["type"] = "PERSISTENT"
+				}
+			}
+
+			result := reorderDisks(tc.ConfigDisks, tc.ApiDisks)
+			if !reflect.DeepEqual(tc.ExpectedResult, result) {
+				t.Errorf("reordering did not match\nExpected: %+v\nActual: %+v", tc.ExpectedResult, result)
+			}
+		})
+	}
+}
+
 func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate computeBeta.InstanceTemplate
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -32,6 +179,7 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 					testAccCheckComputeInstanceTemplateTag(&instanceTemplate, "foo"),
 					testAccCheckComputeInstanceTemplateMetadata(&instanceTemplate, "foo", "bar"),
 					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplate, "my_label", "foobar"),
+					testAccCheckComputeInstanceTemplateLacksShieldedVmConfig(&instanceTemplate),
 				),
 			},
 			{
@@ -173,6 +321,7 @@ func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 		},
 	})
 }
+
 func TestAccComputeInstanceTemplate_networkIPAddress(t *testing.T) {
 	t.Parallel()
 
@@ -218,6 +367,22 @@ func TestAccComputeInstanceTemplate_disks(t *testing.T) {
 				ResourceName:      "google_compute_instance_template.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_disksInvalid(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeInstanceTemplate_disksInvalid(),
+				ExpectError: regexp.MustCompile("Cannot use `source`.*"),
 			},
 		},
 	})
@@ -345,6 +510,7 @@ func TestAccComputeInstanceTemplate_metadata_startup_script(t *testing.T) {
 		},
 	})
 }
+
 func TestAccComputeInstanceTemplate_primaryAliasIpRange(t *testing.T) {
 	t.Parallel()
 
@@ -498,6 +664,78 @@ func TestAccComputeInstanceTemplate_EncryptKMS(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_soleTenantNodeAffinities(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_soleTenantInstanceTemplate(),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_shieldedVmConfig1(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate computeBeta.InstanceTemplate
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_shieldedVmConfig(true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateHasShieldedVmConfig(&instanceTemplate, true, true, true),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_shieldedVmConfig2(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate computeBeta.InstanceTemplate
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_shieldedVmConfig(true, true, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists("google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateHasShieldedVmConfig(&instanceTemplate, true, true, false),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceTemplateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -516,8 +754,19 @@ func testAccCheckComputeInstanceTemplateDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckComputeInstanceTemplateExists(n string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
-	return testAccCheckComputeInstanceTemplateExistsInProject(n, getTestProjectFromEnv(), instanceTemplate)
+func testAccCheckComputeInstanceTemplateExists(n string, instanceTemplate interface{}) resource.TestCheckFunc {
+	if instanceTemplate == nil {
+		panic("Attempted to check existence of Instance template that was nil.")
+	}
+
+	switch instanceTemplate.(type) {
+	case *compute.InstanceTemplate:
+		return testAccCheckComputeInstanceTemplateExistsInProject(n, getTestProjectFromEnv(), instanceTemplate.(*compute.InstanceTemplate))
+	case *computeBeta.InstanceTemplate:
+		return testAccCheckComputeBetaInstanceTemplateExistsInProject(n, getTestProjectFromEnv(), instanceTemplate.(*computeBeta.InstanceTemplate))
+	default:
+		panic("Attempted to check existence of an Instance template of unknown type.")
+	}
 }
 
 func testAccCheckComputeInstanceTemplateExistsInProject(n, p string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
@@ -549,8 +798,37 @@ func testAccCheckComputeInstanceTemplateExistsInProject(n, p string, instanceTem
 	}
 }
 
+func testAccCheckComputeBetaInstanceTemplateExistsInProject(n, p string, instanceTemplate *computeBeta.InstanceTemplate) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.clientComputeBeta.InstanceTemplates.Get(
+			p, rs.Primary.ID).Do()
+		if err != nil {
+			return err
+		}
+
+		if found.Name != rs.Primary.ID {
+			return fmt.Errorf("Instance template not found")
+		}
+
+		*instanceTemplate = *found
+
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceTemplateMetadata(
-	instanceTemplate *compute.InstanceTemplate,
+	instanceTemplate *computeBeta.InstanceTemplate,
 	k string, v string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.Metadata == nil {
@@ -611,7 +889,7 @@ func testAccCheckComputeInstanceTemplateSubnetwork(instanceTemplate *compute.Ins
 	}
 }
 
-func testAccCheckComputeInstanceTemplateTag(instanceTemplate *compute.InstanceTemplate, n string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateTag(instanceTemplate *computeBeta.InstanceTemplate, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.Tags == nil {
 			return fmt.Errorf("no tags")
@@ -696,7 +974,7 @@ func testAccCheckComputeInstanceTemplateNetworkIPAddress(n, ipAddress string, in
 	}
 }
 
-func testAccCheckComputeInstanceTemplateContainsLabel(instanceTemplate *compute.InstanceTemplate, key string, value string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateContainsLabel(instanceTemplate *computeBeta.InstanceTemplate, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		v, ok := instanceTemplate.Properties.Labels[key]
 		if !ok {
@@ -755,6 +1033,34 @@ func testAccCheckComputeInstanceTemplateHasMinCpuPlatform(instanceTemplate *comp
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.MinCpuPlatform != minCpuPlatform {
 			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instanceTemplate.Properties.MinCpuPlatform)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTemplateHasShieldedVmConfig(instanceTemplate *computeBeta.InstanceTemplate, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) resource.TestCheckFunc {
+
+	return func(s *terraform.State) error {
+		if instanceTemplate.Properties.ShieldedVmConfig.EnableSecureBoot != enableSecureBoot {
+			return fmt.Errorf("Wrong shieldedVmConfig enableSecureBoot: expected %t, got, %t", enableSecureBoot, instanceTemplate.Properties.ShieldedVmConfig.EnableSecureBoot)
+		}
+
+		if instanceTemplate.Properties.ShieldedVmConfig.EnableVtpm != enableVtpm {
+			return fmt.Errorf("Wrong shieldedVmConfig enableVtpm: expected %t, got, %t", enableVtpm, instanceTemplate.Properties.ShieldedVmConfig.EnableVtpm)
+		}
+
+		if instanceTemplate.Properties.ShieldedVmConfig.EnableIntegrityMonitoring != enableIntegrityMonitoring {
+			return fmt.Errorf("Wrong shieldedVmConfig enableIntegrityMonitoring: expected %t, got, %t", enableIntegrityMonitoring, instanceTemplate.Properties.ShieldedVmConfig.EnableIntegrityMonitoring)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTemplateLacksShieldedVmConfig(instanceTemplate *computeBeta.InstanceTemplate) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instanceTemplate.Properties.ShieldedVmConfig != nil {
+			return fmt.Errorf("Expected no shielded vm config")
 		}
 
 		return nil
@@ -1033,6 +1339,49 @@ resource "google_compute_instance_template" "foobar" {
 
 	disk {
 		source = "${google_compute_disk.foobar.name}"
+		auto_delete = false
+		boot = false
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	metadata = {
+		foo = "bar"
+	}
+}`, acctest.RandString(10), acctest.RandString(10))
+}
+
+func testAccComputeInstanceTemplate_disksInvalid() string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "instancet-test-%s"
+	image = "${data.google_compute_image.my_image.self_link}"
+	size = 10
+	type = "pd-ssd"
+	zone = "us-central1-a"
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		auto_delete = true
+		disk_size_gb = 100
+		boot = true
+	}
+
+	disk {
+		source = "${google_compute_disk.foobar.name}"
+		disk_size_gb = 50
 		auto_delete = false
 		boot = false
 	}
@@ -1448,4 +1797,71 @@ resource "google_compute_instance_template" "foobar" {
         my_label = "foobar"
     }
 }`, acctest.RandString(10), kmsLink)
+}
+
+func testAccComputeInstanceTemplate_soleTenantInstanceTemplate() string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		auto_delete = true
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	scheduling {
+		preemptible = false
+		automatic_restart = true
+		node_affinities {
+      		key = "tfacc"
+      		operator = "IN"
+      		values = ["testinstancetemplate"]
+        }
+	}
+
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+}`, acctest.RandString(10))
+}
+
+func testAccComputeInstanceTemplate_shieldedVmConfig(enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "centos-7"
+	project = "gce-uefi-images"
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name = "instancet-test-%s"
+	machine_type = "n1-standard-1"
+	can_ip_forward = false
+
+	disk {
+		source_image = "${data.google_compute_image.my_image.self_link}"
+		auto_delete = true
+		boot = true
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	shielded_instance_config {
+		enable_secure_boot          = %t
+		enable_vtpm                 = %t
+		enable_integrity_monitoring = %t
+	}
+}`, acctest.RandString(10), enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
 }

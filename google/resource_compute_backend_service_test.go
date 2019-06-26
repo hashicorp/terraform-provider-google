@@ -327,24 +327,6 @@ func TestAccComputeBackendService_withSecurityPolicy(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeBackendServiceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_backend_service" {
-			continue
-		}
-
-		_, err := config.clientCompute.BackendServices.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("Backend service %s still exists", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
 func testAccCheckComputeBackendServiceExists(n string, svc *compute.BackendService) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -398,7 +380,7 @@ func testAccCheckComputeBackendServiceExistsWithIAP(n string, svc *compute.Backe
 		}
 
 		if found.Iap == nil || found.Iap.Enabled == false {
-			return fmt.Errorf("IAP not found or not enabled.")
+			return fmt.Errorf("IAP not found or not enabled. Saw %v", found.Iap)
 		}
 
 		*svc = *found
@@ -619,6 +601,80 @@ func TestAccComputeBackendService_withMaxConnectionsPerInstance(t *testing.T) {
 	if svc.Backends[0].MaxConnectionsPerInstance != 20 {
 		t.Errorf("Expected MaxConnectionsPerInstance == 20, got %d", svc.Backends[0].MaxConnectionsPerInstance)
 	}
+}
+
+func TestAccComputeBackendService_withMaxRatePerEndpoint(t *testing.T) {
+	t.Parallel()
+
+	randSuffix := acctest.RandString(10)
+	service := fmt.Sprintf("tf-test-%s", randSuffix)
+	instance := fmt.Sprintf("tf-test-%s", randSuffix)
+	neg := fmt.Sprintf("tf-test-%s", randSuffix)
+	network := fmt.Sprintf("tf-test-%s", randSuffix)
+	check := fmt.Sprintf("tf-test-%s", randSuffix)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_withMaxRatePerEndpoint(
+					service, instance, neg, network, check, 0.2),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withMaxRatePerEndpoint(
+					service, instance, neg, network, check, 0.4),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeBackendService_withMaxConnectionsPerEndpoint(t *testing.T) {
+	t.Parallel()
+
+	randSuffix := acctest.RandString(10)
+	service := fmt.Sprintf("tf-test-%s", randSuffix)
+	instance := fmt.Sprintf("tf-test-%s", randSuffix)
+	neg := fmt.Sprintf("tf-test-%s", randSuffix)
+	network := fmt.Sprintf("tf-test-%s", randSuffix)
+	check := fmt.Sprintf("tf-test-%s", randSuffix)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_withMaxConnectionsPerEndpoint(
+					service, instance, neg, network, check, 5),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withMaxConnectionsPerEndpoint(
+					service, instance, neg, network, check, 10),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
 func testAccComputeBackendService_basic(serviceName, checkName string) string {
@@ -1013,4 +1069,160 @@ resource "google_compute_health_check" "default" {
   }
 }
 `, serviceName, maxConnectionsPerInstance, igName, itName, checkName)
+}
+
+func testAccComputeBackendService_withMaxConnectionsPerEndpoint(
+	service, instance, neg, network, check string, maxConnections int64) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "lipsum" {
+  name        = "%s"
+  description = "Hello World 1234"
+  port_name   = "http"
+  protocol    = "TCP"
+
+  backend {
+    group = "${google_compute_network_endpoint_group.lb-neg.self_link}"
+    balancing_mode = "CONNECTION"
+    max_connections_per_endpoint = %v
+  }
+
+  health_checks = ["${google_compute_health_check.default.self_link}"]
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "endpoint-instance" {
+  name         =  "%s"
+  machine_type = "n1-standard-1"
+
+  boot_disk {
+    initialize_params{
+      image = "${data.google_compute_image.my_image.self_link}"
+    }
+  }
+
+  network_interface {
+    subnetwork = "${google_compute_subnetwork.default.self_link}"
+    access_config { }
+  }
+}
+
+resource "google_compute_network_endpoint_group" "lb-neg" {
+  name         = "%s"
+  network      = "${google_compute_network.default.self_link}"
+  subnetwork   = "${google_compute_subnetwork.default.self_link}"
+  default_port = "90"
+  zone         = "us-central1-a"
+}
+
+resource "google_compute_network_endpoint" "lb-endpoint" {
+  network_endpoint_group = "${google_compute_network_endpoint_group.lb-neg.name}"
+
+  instance    = "${google_compute_instance.endpoint-instance.name}"
+  port        = "${google_compute_network_endpoint_group.lb-neg.default_port}"
+  ip_address  = "${google_compute_instance.endpoint-instance.network_interface.0.network_ip}"
+}
+
+resource "google_compute_network" "default" {
+  name = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%s"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = "${google_compute_network.default.self_link}"
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "%s"
+  tcp_health_check {
+      port = "110"
+  }
+}
+`, service, maxConnections, instance, neg, network, network, check)
+}
+
+func testAccComputeBackendService_withMaxRatePerEndpoint(
+	service, instance, neg, network, check string, maxRate float64) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "lipsum" {
+  name        = "%s"
+  description = "Hello World 1234"
+  port_name   = "https"
+  protocol    = "HTTPS"
+
+  backend {
+    group = "${google_compute_network_endpoint_group.lb-neg.self_link}"
+    balancing_mode = "RATE"
+    max_rate_per_endpoint = %v
+  }
+
+  health_checks = ["${google_compute_health_check.default.self_link}"]
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "endpoint-instance" {
+  name         =  "%s"
+  machine_type = "n1-standard-1"
+
+  boot_disk {
+    initialize_params{
+      image = "${data.google_compute_image.my_image.self_link}"
+    }
+  }
+
+  network_interface {
+    subnetwork = "${google_compute_subnetwork.default.self_link}"
+    access_config { }
+  }
+}
+
+resource "google_compute_network_endpoint_group" "lb-neg" {
+  name         = "%s"
+  network      = "${google_compute_network.default.self_link}"
+  subnetwork   = "${google_compute_subnetwork.default.self_link}"
+  default_port = "90"
+  zone         = "us-central1-a"
+}
+
+resource "google_compute_network_endpoint" "lb-endpoint" {
+  network_endpoint_group = "${google_compute_network_endpoint_group.lb-neg.name}"
+
+  instance    = "${google_compute_instance.endpoint-instance.name}"
+  port        = "${google_compute_network_endpoint_group.lb-neg.default_port}"
+  ip_address  = "${google_compute_instance.endpoint-instance.network_interface.0.network_ip}"
+}
+
+resource "google_compute_network" "default" {
+  name = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%s"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = "${google_compute_network.default.self_link}"
+}
+
+resource "google_compute_health_check" "default" {
+  name = "%s"
+  check_interval_sec = 3
+  healthy_threshold = 3
+  timeout_sec = 2
+  unhealthy_threshold = 3
+  https_health_check {
+    port = "443"
+  }
+}
+`, service, maxRate, instance, neg, network, network, check)
 }

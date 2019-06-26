@@ -45,6 +45,9 @@
       <li<%= sidebar_current("docs-google-datasource-cloudfunctions-function") %>>
         <a href="/docs/providers/google/d/datasource_cloudfunctions_function.html">google_cloudfunctions_function</a>
       </li>
+      <li<%= sidebar_current("docs-google-datasource-composer-image-versions") %>>
+        <a href="/docs/providers/google/d/datasource_google_composer_image_versions.html">google_composer_image_versions</a>
+      </li>
       <li<%= sidebar_current("docs-google-datasource-compute-address") %>>
         <a href="/docs/providers/google/d/datasource_compute_address.html">google_compute_address</a>
       </li>
@@ -78,11 +81,20 @@
       <li<%= sidebar_current("docs-google-datasource-compute-region-instance-group") %>>
       <a href="/docs/providers/google/d/datasource_compute_region_instance_group.html">google_compute_region_instance_group</a>
       </li>
+      <li<%= sidebar_current("docs-google-datasource-project-organization-policy") %>>
+        <a href="/docs/providers/google/d/datasource_google_project_organization_policy.html">google_project_organization_policy</a>
+      </li>
       <li<%= sidebar_current("docs-google-datasource-project-services") %>>
         <a href="/docs/providers/google/d/google_project_services.html">google_project_services</a>
       </li>
+      <li<%= sidebar_current("docs-google-datasource-compute-node-types") %>>
+      <a href="/docs/providers/google/d/google_compute_node_types.html">google_compute_node_types</a>
+      </li>
       <li<%= sidebar_current("docs-google-datasource-compute-regions") %>>
       <a href="/docs/providers/google/d/google_compute_regions.html">google_compute_regions</a>
+      </li>
+      <li<%= sidebar_current("docs-google-datasource-compute-ssl-certificate") %>>
+        <a href="/docs/providers/google/d/datasource_compute_ssl_certificate.html">google_compute_ssl_certificate</a>
       </li>
       <li<%= sidebar_current("docs-google-datasource-compute-ssl-policy") %>>
         <a href="/docs/providers/google/d/datasource_compute_ssl_policy.html">google_compute_ssl_policy</a>
@@ -114,6 +126,9 @@
       <li<%= sidebar_current("docs-google-datasource-folder") %>>
       <a href="/docs/providers/google/d/google_folder.html">google_folder</a>
       </li>
+      <li<%= sidebar_current("docs-google-datasource-folder-organization-policy") %>>
+      <a href="/docs/providers/google/d/datasource_google_folder_organization_policy.html">datasource_google_folder_organization_policy</a>
+      </li>
       <li<%= sidebar_current("docs-google-datasource-iam-policy") %>>
         <a href="/docs/providers/google/d/google_iam_policy.html">google_iam_policy</a>
       </li>
@@ -138,8 +153,14 @@
       <li<%= sidebar_current("docs-google-datasource-project") %>>
       <a href="/docs/providers/google/d/google_project.html">google_project</a>
       </li>
+      <li<%= sidebar_current("docs-google-datasource-projects") %>>
+      <a href="/docs/providers/google/d/google_projects.html">google_projects</a>
+      </li>
       <li<%= sidebar_current("docs-google-datasource-service-account") %>>
       <a href="/docs/providers/google/d/datasource_google_service_account.html">google_service_account</a>
+      </li>
+      <li<%= sidebar_current("docs-google-datasource-service-account-access-token") %>>
+      <a href="/docs/providers/google/d/datasource_google_service_account_access_token.html">google_service_account_access_token</a>
       </li>
       <li<%= sidebar_current("docs-google-datasource-service-account-key") %>>
         <a href="/docs/providers/google/d/datasource_google_service_account_key.html">google_service_account_key</a>
@@ -158,6 +179,7 @@
       </li>
     </ul>
     </li>
+
 
     <li<%= sidebar_current("docs-google-app-engine") %>>
     <a href="#">Google App Engine Resources</a>
@@ -311,6 +333,7 @@
     </li>
 
 
+
     <li<%= sidebar_current("docs-google-compute") %>>
     <a href="#">Google Compute Engine Resources</a>
     <ul class="nav nav-visible">
@@ -330,8 +353,16 @@
       <a href="/docs/providers/google/r/compute_backend_bucket.html">google_compute_backend_bucket</a>
       </li>
 
+      <li<%= sidebar_current("docs-google-compute-backend-bucket-signed-url-key") %>>
+      <a href="/docs/providers/google/r/compute_backend_bucket_signed_url_key.html">google_compute_backend_bucket_signed_url_key</a>
+      </li>
+
       <li<%= sidebar_current("docs-google-compute-backend-service") %>>
       <a href="/docs/providers/google/r/compute_backend_service.html">google_compute_backend_service</a>
+      </li>
+
+      <li<%= sidebar_current("docs-google-compute-backend-service-signed-url-key") %>>
+      <a href="/docs/providers/google/r/compute_backend_service_signed_url_key.html">google_compute_backend_service_signed_url_key</a>
       </li>
 
       <li<%= sidebar_current("docs-google-compute-disk") %>>
@@ -374,6 +405,18 @@
       <a href="/docs/providers/google/r/compute_instance.html">google_compute_instance</a>
       </li>
 
+      <li<%= sidebar_current("docs-google-compute-instance-iam") %>>
+      <a href="/docs/providers/google/r/compute_instance_iam.html">google_compute_instance_iam_binding</a>
+      </li>
+
+      <li<%= sidebar_current("docs-google-compute-instance-iam") %>>
+      <a href="/docs/providers/google/r/compute_instance_iam.html">google_compute_instance_iam_member</a>
+      </li>
+
+      <li<%= sidebar_current("docs-google-compute-instance-iam") %>>
+      <a href="/docs/providers/google/r/compute_instance_iam.html">google_compute_instance_iam_policy</a>
+      </li>
+
       <li<%= sidebar_current("docs-google-compute-instance-from-template") %>>
       <a href="/docs/providers/google/r/compute_instance_from_template.html">google_compute_instance_from_template</a>
       </li>
@@ -394,12 +437,24 @@
       <a href="/docs/providers/google/r/compute_interconnect_attachment.html">google_compute_interconnect_attachment</a>
       </li>
 
+      <li<%= sidebar_current("docs-google-compute-node-group") %>>
+      <a href="/docs/providers/google/r/compute_node_group.html">google_compute_node_group</a>
+      </li>
+
+      <li<%= sidebar_current("docs-google-compute-node-template") %>>
+      <a href="/docs/providers/google/r/compute_node_template.html">google_compute_node_template</a>
+      </li>
+
       <li<%= sidebar_current("docs-google-compute-network-x") %>>
       <a href="/docs/providers/google/r/compute_network.html">google_compute_network</a>
       </li>
 
       <li<%= sidebar_current("docs-google-compute-network-peering") %>>
       <a href="/docs/providers/google/r/compute_network_peering.html">google_compute_network_peering</a>
+      </li>
+
+      <li<%= sidebar_current("docs-google-compute-project-default-network-tier") %>>
+      <a href="/docs/providers/google/r/compute_project_default_network_tier.html">google_compute_project_default_network_tier</a>
       </li>
 
       <li<%= sidebar_current("docs-google-compute-project-metadata") %>>
@@ -459,8 +514,9 @@
       </li>
 
       <li<%= sidebar_current("docs-google-compute-snapshot") %>>
-			<a href="/docs/providers/google/r/compute_snapshot.html">google_compute_snapshot</a>
-			</li>
+      <a href="/docs/providers/google/r/compute_snapshot.html">google_compute_snapshot</a>
+      </li>
+
 
       <li<%= sidebar_current("docs-google-compute-ssl-certificate") %>>
       <a href="/docs/providers/google/r/compute_ssl_certificate.html">google_compute_ssl_certificate</a>
@@ -549,10 +605,33 @@
           <li<%= sidebar_current("docs-google-dataproc-cluster") %>>
           <a href="/docs/providers/google/r/dataproc_cluster.html">google_dataproc_cluster</a>
           </li>
-        </ul>
-        <ul class="nav nav-visible">
+
+          <li<%= sidebar_current("docs-google-dataproc-cluster-iam") %>>
+          <a href="/docs/providers/google/r/dataproc_cluster_iam.html">google_dataproc_cluster_iam_binding</a>
+          </li>
+
+          <li<%= sidebar_current("docs-google-dataproc-cluster-iam") %>>
+          <a href="/docs/providers/google/r/dataproc_cluster_iam.html">google_dataproc_cluster_iam_member</a>
+          </li>
+
+          <li<%= sidebar_current("docs-google-dataproc-cluster-iam") %>>
+          <a href="/docs/providers/google/r/dataproc_cluster_iam.html">google_dataproc_cluster_iam_policy</a>
+          </li>
+
           <li<%= sidebar_current("docs-google-dataproc-job") %>>
-          <a href="/docs/providers/google/r/dataproc_job.html">google_dataproc_job</a>
+          <a href="/docs/providers/google/r/dataproc_job_iam.html">google_dataproc_job</a>
+          </li>
+
+          <li<%= sidebar_current("docs-google-dataproc-job-iam") %>>
+          <a href="/docs/providers/google/r/dataproc_job_iam.html">google_dataproc_job_iam_binding</a>
+          </li>
+
+          <li<%= sidebar_current("docs-google-dataproc-job-iam") %>>
+          <a href="/docs/providers/google/r/dataproc_job_iam.html">google_dataproc_job_iam_member</a>
+          </li>
+
+          <li<%= sidebar_current("docs-google-dataproc-job-iam") %>>
+          <a href="/docs/providers/google/r/dataproc_job_iam.html">google_dataproc_job_iam_policy</a>
           </li>
         </ul>
     </li>
@@ -579,6 +658,25 @@
     </ul>
     </li>
 
+    <li<%= sidebar_current("docs-google-filestore") %>>
+    <a href="#">Google Filestore Resources</a>
+    <ul class="nav nav-visible">
+      <li<%= sidebar_current("docs-google-filestore-instance") %>>
+          <a href="/docs/providers/google/r/filestore_instance.html">google_filestore_instance</a>
+      </li>
+    </ul>
+    </li>
+
+    <li<%= sidebar_current("docs-google-firestore") %>>
+    <a href="#">Google Firestore Resources</a>
+    <ul class="nav nav-visible">
+      <li<%= sidebar_current("docs-google-firestore-index") %>>
+          <a href="/docs/providers/google/r/firestore_index.html">google_firestore_index</a>
+      </li>
+    </ul>
+    </li>
+
+    
     <li<%= sidebar_current("docs-google-pubsub") %>>
     <a href="#">Google PubSub Resources</a>
     <ul class="nav nav-visible">
@@ -728,6 +826,10 @@
       <a href="/docs/providers/google/r/logging_organization_sink.html">google_logging_organization_sink</a>
       </li>
 
+      <li<%= sidebar_current("docs-google-logging-metric") %>>
+      <a href="/docs/providers/google/r/logging_metric.html">google_logging_metric</a>
+      </li>
+
       <li<%= sidebar_current("docs-google-logging-project-exclusion") %>>
       <a href="/docs/providers/google/r/logging_project_exclusion.html">google_logging_project_exclusion</a>
       </li>
@@ -815,7 +917,7 @@
     <a href="#">Google Key Management Service Resources</a>
     <ul class="nav nav-visible">
       <li<%= sidebar_current("docs-google-kms-crypto-key-x") %>>
-        <a href="/docs/providers/google/r/google_kms_crypto_key.html">google_kms_crypto_key</a>
+        <a href="/docs/providers/google/r/kms_crypto_key.html">google_kms_crypto_key</a>
       </li>
       <li<%= sidebar_current("docs-google-kms-crypto-key-iam-binding") %>>
         <a href="/docs/providers/google/r/google_kms_crypto_key_iam_binding.html">google_kms_crypto_key_iam_binding</a>
@@ -824,7 +926,7 @@
         <a href="/docs/providers/google/r/google_kms_crypto_key_iam_member.html">google_kms_crypto_key_iam_member</a>
       </li>
       <li<%= sidebar_current("docs-google-kms-key-ring-x") %>>
-        <a href="/docs/providers/google/r/google_kms_key_ring.html">google_kms_key_ring</a>
+        <a href="/docs/providers/google/r/kms_key_ring.html">google_kms_key_ring</a>
       </li>
       <li<%= sidebar_current("docs-google-kms-key-ring-iam") %>>
         <a href="/docs/providers/google/r/google_kms_key_ring_iam.html">google_kms_key_ring_iam_binding</a>

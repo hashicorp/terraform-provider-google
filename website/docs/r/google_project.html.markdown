@@ -93,11 +93,10 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the project.
 
-* `auto_create_network` - (Optional) Create the 'default' network automatically.  Default true.
-    Note: this might be more accurately described as "Delete Default Network", since the network
-    is created automatically then deleted before project creation returns, but we choose this
-    name to match the GCP Console UI. Setting this field to false will enable the Compute Engine
-    API which is required to delete the network.
+* `auto_create_network` - (Optional) Create the 'default' network automatically.  Default `true`.
+    If set to `false`, the default network will be deleted.  Note that, for quota purposes, you
+    will still need to have 1 network slot available to create the project succesfully, even if
+    you set `auto_create_network` to `false`, since the network will exist momentarily.
 
 ## Attributes Reference
 

@@ -88,6 +88,7 @@ The following arguments are supported:
   A default rule at priority Int32.MaxValue matches all IPv4 and
   IPv6 traffic when no previous rule matches. Only the action of
   this rule can be modified by the user.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

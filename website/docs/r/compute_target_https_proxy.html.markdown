@@ -28,7 +28,7 @@ global forwarding rule to route incoming HTTPS requests to a URL map.
 
 To get more information about TargetHttpsProxy, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/latest/targetHttpsProxies)
+* [API documentation](https://cloud.google.com/compute/docs/reference/v1/targetHttpsProxies)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/compute/docs/load-balancing/http/target-proxies)
 
@@ -140,6 +140,7 @@ The following arguments are supported:
   A reference to the SslPolicy resource that will be associated with
   the TargetHttpsProxy resource. If not set, the TargetHttpsProxy
   resource will not have any SSL policy configured.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

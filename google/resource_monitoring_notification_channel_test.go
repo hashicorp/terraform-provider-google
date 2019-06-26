@@ -37,7 +37,7 @@ func TestAccMonitoringNotificationChannel_update(t *testing.T) {
 		CheckDestroy: testAccCheckMonitoringNotificationChannelDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringNotificationChannel_update("email", `email_address = "fake_email@blahblah.com"`),
+				Config: testAccMonitoringNotificationChannel_update("email", `email_address = "fake_email@blahblah.com"`, "true"),
 			},
 			{
 				ResourceName:      "google_monitoring_notification_channel.update",
@@ -45,7 +45,7 @@ func TestAccMonitoringNotificationChannel_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccMonitoringNotificationChannel_update("sms", `number = "+15555379009"`),
+				Config: testAccMonitoringNotificationChannel_update("sms", `number = "+15555379009"`, "false"),
 			},
 			{
 				ResourceName:      "google_monitoring_notification_channel.update",
@@ -56,7 +56,7 @@ func TestAccMonitoringNotificationChannel_update(t *testing.T) {
 	})
 }
 
-func testAccMonitoringNotificationChannel_update(channel, labels string) string {
+func testAccMonitoringNotificationChannel_update(channel, labels, enabled string) string {
 	return fmt.Sprintf(`
 resource "google_monitoring_notification_channel" "update" {
   display_name = "IntTest Notification Channel"
@@ -64,7 +64,8 @@ resource "google_monitoring_notification_channel" "update" {
   labels = {
     %s
   }
+  enabled = "%s"
 }
-`, channel, labels,
+`, channel, labels, enabled,
 	)
 }

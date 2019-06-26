@@ -99,6 +99,7 @@ The following arguments are supported:
   If true, the members of this group are considered to be a
   cluster. The system can perform additional analysis on
   groups that are clusters.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

@@ -6,6 +6,7 @@ import (
 	"log"
 	"reflect"
 	"sort"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -217,6 +218,9 @@ func derefBindings(b []*cloudresourcemanager.Binding) []cloudresourcemanager.Bin
 
 	for i, v := range b {
 		db[i] = *v
+		for j, m := range db[i].Members {
+			db[i].Members[j] = strings.ToLower(m)
+		}
 		sort.Strings(db[i].Members)
 	}
 	return db

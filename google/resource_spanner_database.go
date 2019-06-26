@@ -34,8 +34,8 @@ func resourceSpannerDatabase() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -101,7 +101,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://spanner.googleapis.com/v1/projects/{{project}}/instances/{{instance}}/databases")
+	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases")
 	if err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://spanner.googleapis.com/v1/projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -166,7 +166,7 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://spanner.googleapis.com/v1/projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -213,15 +213,15 @@ func flattenSpannerDatabaseInstance(v interface{}, d *schema.ResourceData) inter
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func expandSpannerDatabaseName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandSpannerDatabaseName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerDatabaseDdl(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandSpannerDatabaseDdl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerDatabaseInstance(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandSpannerDatabaseInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("instances", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for instance: %s", err)

@@ -14,6 +14,10 @@ func resourceGoogleFolderOrganizationPolicy() *schema.Resource {
 		Update: resourceGoogleFolderOrganizationPolicyUpdate,
 		Delete: resourceGoogleFolderOrganizationPolicyDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: resourceFolderOrgPolicyImporter,
+		},
+
 		Schema: mergeSchemas(
 			schemaOrganizationPolicy,
 			map[string]*schema.Schema{
@@ -27,12 +31,35 @@ func resourceGoogleFolderOrganizationPolicy() *schema.Resource {
 	}
 }
 
+func resourceFolderOrgPolicyImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+
+	if err := parseImportId([]string{
+		"folders/(?P<folder>[^/]+):constraints/(?P<constraint>[^/]+)",
+		"(?P<folder>[^/]+):(?P<constraint>[^/]+)"},
+		d, config); err != nil {
+		return nil, err
+	}
+
+	if d.Get("folder") == "" || d.Get("constraint") == "" {
+		return nil, fmt.Errorf("unable to parse folder or constraint. Check import formats")
+	}
+
+	d.Set("folder", "folders/"+d.Get("folder").(string))
+
+	return []*schema.ResourceData{d}, nil
+}
+
 func resourceGoogleFolderOrganizationPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+	d.SetId(fmt.Sprintf("%s:%s", d.Get("folder"), d.Get("constraint")))
+
+	if isOrganizationPolicyUnset(d) {
+		return resourceGoogleFolderOrganizationPolicyDelete(d, meta)
+	}
+
 	if err := setFolderOrganizationPolicy(d, meta); err != nil {
 		return err
 	}
-
-	d.SetId(fmt.Sprintf("%s:%s", d.Get("folder"), d.Get("constraint")))
 
 	return resourceGoogleFolderOrganizationPolicyRead(d, meta)
 }
@@ -61,6 +88,10 @@ func resourceGoogleFolderOrganizationPolicyRead(d *schema.ResourceData, meta int
 }
 
 func resourceGoogleFolderOrganizationPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+	if isOrganizationPolicyUnset(d) {
+		return resourceGoogleFolderOrganizationPolicyDelete(d, meta)
+	}
+
 	if err := setFolderOrganizationPolicy(d, meta); err != nil {
 		return err
 	}

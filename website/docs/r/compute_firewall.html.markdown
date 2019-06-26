@@ -38,7 +38,7 @@ you need.
 
 To get more information about Firewall, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/latest/firewalls)
+* [API documentation](https://cloud.google.com/compute/docs/reference/v1/firewalls)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/vpc/docs/firewalls)
 
@@ -192,6 +192,7 @@ The following arguments are supported:
   network that may make network connections as specified in allowed[].
   If no targetTags are specified, the firewall rule applies to all
   instances on the specified network.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

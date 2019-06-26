@@ -17,7 +17,7 @@ We maintain 2 different versions of the Google Terraform provider; the [`google`
 
 We are using code generation tool called [Magic Modules](https://github.com/googleCloudPlatform/magic-modules/) that uses a shared code base to generate both providers. Some Terraform resources are fully generated, whereas some resources are hand written and located in [the third_party/terraform/ folder in magic modules](https://github.com/GoogleCloudPlatform/magic-modules/tree/master/third_party/terraform/resources). Generated resources will have a prominent header at the top of the file identifying them. Hand written resources have a .go or .go.erb extension but will eventually be migrated into the code generation tool with the goal of having all resources fully generated.
 
-For more details on Magic Modules please visit [the readme](https://github.com/GoogleCloudPlatform/magic-modules). For feature requests or bugs regarding those resources, please continue to file issues in the [terraform-provider-google issue tracker]](https://github.com/terraform-providers/terraform-provider-google/issues). PRs changing those resources will not be accepted.
+For more details on Magic Modules please visit [the readme](https://github.com/GoogleCloudPlatform/magic-modules). For feature requests or bugs regarding those resources, please continue to file issues in the [terraform-provider-google issue tracker](https://github.com/terraform-providers/terraform-provider-google/issues). PRs changing those resources will not be accepted.
 
 ## Beta vs GA providers
 
@@ -25,9 +25,31 @@ Fields that are only available in beta versions of the Google Cloud Platform API
 
 ## Vendoring Libraries
 
-When adding support for just-released GCP features, you'll often need to vendor a new version of the Google API client. The Google provider uses Go Modules; use `GO111MODULES=on go get {{dependency}}`, and the new dependencies will be included in your PR.
+When adding support for just-released GCP features, you'll often need to vendor a new version of the Google API client.
+The Google provider uses Go Modules; use the commands listed below and the new dependencies will be included in your PR.
 
-If you're developing against Magic Modules, vendoring changes is done automatically by the Magician at PR time; you may need to `go get` locally, but those changes don't need to be included in your PR.
+```bash
+GO111MODULE=on go get {{dependency}}
+GO111MODULE=on go mod tidy
+GO111MODULE=on go mod vendor
+```
+
+If you're developing against Magic Modules, vendoring changes needs to be done against each of the providers Magic Modules builds. At time of writing, that's this provider (`google`) and [`google-beta`](https://github.com/terraform-providers/terraform-provider-google-beta).
+
+### Adding a new package
+
+While `go get` / `go.mod` specify dependencies at the repo level, `go mod vendor` works at the package level. It will only vendor packages that are currently being used in the codebase. Google's API client libs use a separate package per GCP product, making adding new products a little awkward.
+
+In order to create a separate vendoring PR including a new library:
+
+1. Stage your changes in the provider repo
+    * If using Magic Modules, generate into the provider repo and temporarily commit your changes there in a feature branch
+    * If developing directly in the repo, commit all your staged changes to your feature branch
+1. Run the normal vendoring commands above and commit the changes to a new commit
+1. Create a vendoring branch (off `master`) to stage your vendoring PR from
+1. Cherry-pick the vendoring commit from your feature branch into the vendoring branch
+1. Make the vendoring PR
+1. Revert the vendoring changes in your feature branch
 
 ## Tests
 
@@ -95,3 +117,11 @@ time you run `make build`, you can symlink the built binary into the directory:
 ln -s $GOPATH/bin/terraform-provider-google ~/.terraform.d/plugins/terraform-provider-google
 ln -s $GOPATH/bin/terraform-provider-google-beta ~/.terraform.d/plugins/terraform-provider-google-beta
 ```
+
+# Maintainer-specific information
+
+## Reviewing / Merging Code
+
+When reviewing/merging code, roughly follow the guidelines set in the
+[Maintainer's Etiquette](https://github.com/hashicorp/terraform/blob/master/docs/maintainer-etiquette.md)
+guide. One caveat is that they're fairly old and apply primarily to HashiCorp employees, but the general guidance about merging / changelogs is still relevant.

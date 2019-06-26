@@ -35,8 +35,8 @@ func resourceComputeVpnGateway() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -110,7 +110,7 @@ func resourceComputeVpnGatewayCreate(d *schema.ResourceData, meta interface{}) e
 		obj["region"] = regionProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/targetVpnGateways")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetVpnGateways")
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func resourceComputeVpnGatewayCreate(d *schema.ResourceData, meta interface{}) e
 func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -199,7 +199,7 @@ func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) err
 func resourceComputeVpnGatewayDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -275,15 +275,15 @@ func flattenComputeVpnGatewayRegion(v interface{}, d *schema.ResourceData) inter
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func expandComputeVpnGatewayDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeVpnGatewayDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeVpnGatewayName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeVpnGatewayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeVpnGatewayNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeVpnGatewayNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
@@ -291,7 +291,7 @@ func expandComputeVpnGatewayNetwork(v interface{}, d *schema.ResourceData, confi
 	return f.RelativeLink(), nil
 }
 
-func expandComputeVpnGatewayRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeVpnGatewayRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)

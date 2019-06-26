@@ -14,6 +14,7 @@ import (
 	"hash"
 
 	uuid "github.com/hashicorp/go-uuid"
+	uuidv5 "github.com/satori/go.uuid"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 	"github.com/zclconf/go-cty/cty/gocty"
@@ -32,6 +33,39 @@ var UUIDFunc = function.New(&function.Spec{
 	},
 })
 
+var UUIDV5Func = function.New(&function.Spec{
+	Params: []function.Parameter{
+		{
+			Name: "namespace",
+			Type: cty.String,
+		},
+		{
+			Name: "name",
+			Type: cty.String,
+		},
+	},
+	Type: function.StaticReturnType(cty.String),
+	Impl: func(args []cty.Value, retType cty.Type) (ret cty.Value, err error) {
+		var namespace uuidv5.UUID
+		switch {
+		case args[0].AsString() == "dns":
+			namespace = uuidv5.NamespaceDNS
+		case args[0].AsString() == "url":
+			namespace = uuidv5.NamespaceURL
+		case args[0].AsString() == "oid":
+			namespace = uuidv5.NamespaceOID
+		case args[0].AsString() == "x500":
+			namespace = uuidv5.NamespaceX500
+		default:
+			if namespace, err = uuidv5.FromString(args[0].AsString()); err != nil {
+				return cty.UnknownVal(cty.String), fmt.Errorf("uuidv5() doesn't support namespace %s (%v)", args[0].AsString(), err)
+			}
+		}
+		val := args[1].AsString()
+		return cty.StringVal(uuidv5.NewV5(namespace, val).String()), nil
+	},
+})
+
 // Base64Sha256Func constructs a function that computes the SHA256 hash of a given string
 // and encodes it with Base64.
 var Base64Sha256Func = makeStringHashFunction(sha256.New, base64.StdEncoding.EncodeToString)
@@ -39,7 +73,7 @@ var Base64Sha256Func = makeStringHashFunction(sha256.New, base64.StdEncoding.Enc
 // MakeFileBase64Sha256Func constructs a function that is like Base64Sha256Func but reads the
 // contents of a file rather than hashing a given literal string.
 func MakeFileBase64Sha256Func(baseDir string) function.Function {
-	return makeFileHashFunction(baseDir, sha512.New, base64.StdEncoding.EncodeToString)
+	return makeFileHashFunction(baseDir, sha256.New, base64.StdEncoding.EncodeToString)
 }
 
 // Base64Sha512Func constructs a function that computes the SHA256 hash of a given string
@@ -226,6 +260,12 @@ func makeFileHashFunction(baseDir string, hf func() hash.Hash, enc func([]byte) 
 // table in the "lang" package.
 func UUID() (cty.Value, error) {
 	return UUIDFunc.Call(nil)
+}
+
+// UUIDV5 generates and returns a Type-5 UUID in the standard hexadecimal string
+// format.
+func UUIDV5(namespace cty.Value, name cty.Value) (cty.Value, error) {
+	return UUIDV5Func.Call([]cty.Value{namespace, name})
 }
 
 // Base64Sha256 computes the SHA256 hash of a given string and encodes it with

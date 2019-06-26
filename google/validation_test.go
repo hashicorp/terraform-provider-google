@@ -317,3 +317,31 @@ func TestValidateProjectName(t *testing.T) {
 		t.Errorf("Failed to validate project ID's: %v", es)
 	}
 }
+
+func TestValidateIAMCustomRoleIDRegex(t *testing.T) {
+	x := []StringValidationTestCase{
+		// No errors
+		{TestName: "basic", Value: "foobar"},
+		{TestName: "with numbers", Value: "foobar123"},
+		{TestName: "with capipals", Value: "FooBar"},
+		{TestName: "short", Value: "foo"},
+		{TestName: "long", Value: strings.Repeat("f", 64)},
+		{TestName: "has a dot", Value: "foo.bar"},
+		{TestName: "has an underscore", Value: "foo_bar"},
+		{TestName: "all of the above", Value: "foo.BarBaz_123"},
+
+		// With errors
+		{TestName: "empty", Value: "", ExpectError: true},
+		{TestName: "has an slash", Value: "foo/bar", ExpectError: true},
+		{TestName: "has a hyphen", Value: "foo-bar", ExpectError: true},
+		{TestName: "has a dollar", Value: "foo$", ExpectError: true},
+		{TestName: "has a space", Value: "foo bar", ExpectError: true},
+		{TestName: "too short", Value: "fo", ExpectError: true},
+		{TestName: "too long", Value: strings.Repeat("f", 65), ExpectError: true},
+	}
+
+	es := testStringValidationCases(x, validateIAMCustomRoleID)
+	if len(es) > 0 {
+		t.Errorf("Failed to validate IAMCustomRole IDs: %v", es)
+	}
+}

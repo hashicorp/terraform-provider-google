@@ -460,7 +460,6 @@ func (d *InstanceDiff) Apply(attrs map[string]string, schema *configschema.Block
 
 func (d *InstanceDiff) applyBlockDiff(path []string, attrs map[string]string, schema *configschema.Block) (map[string]string, error) {
 	result := map[string]string{}
-
 	name := ""
 	if len(path) > 0 {
 		name = path[len(path)-1]
@@ -597,7 +596,8 @@ func (d *InstanceDiff) applyBlockDiff(path []string, attrs map[string]string, sc
 			}
 		}
 
-		if countDiff, ok := d.Attributes[strings.Join(append(path, n, "#"), ".")]; ok {
+		countAddr := strings.Join(append(path, n, "#"), ".")
+		if countDiff, ok := d.Attributes[countAddr]; ok {
 			if countDiff.NewComputed {
 				result[localBlockPrefix+"#"] = hcl2shim.UnknownVariableValue
 			} else {
@@ -633,6 +633,8 @@ func (d *InstanceDiff) applyBlockDiff(path []string, attrs map[string]string, sc
 					}
 				}
 			}
+		} else if origCount, ok := attrs[countAddr]; ok && keepBlock {
+			result[localBlockPrefix+"#"] = origCount
 		} else {
 			result[localBlockPrefix+"#"] = countFlatmapContainerValues(localBlockPrefix+"#", result)
 		}
@@ -644,8 +646,10 @@ func (d *InstanceDiff) applyBlockDiff(path []string, attrs map[string]string, sc
 func (d *InstanceDiff) applyAttrDiff(path []string, attrs map[string]string, attrSchema *configschema.Attribute) (map[string]string, error) {
 	ty := attrSchema.Type
 	switch {
-	case ty.IsListType(), ty.IsTupleType(), ty.IsMapType(), ty.IsSetType():
+	case ty.IsListType(), ty.IsTupleType(), ty.IsMapType():
 		return d.applyCollectionDiff(path, attrs, attrSchema)
+	case ty.IsSetType():
+		return d.applySetDiff(path, attrs, attrSchema)
 	default:
 		return d.applySingleAttrDiff(path, attrs, attrSchema)
 	}
@@ -697,14 +701,6 @@ func (d *InstanceDiff) applySingleAttrDiff(path []string, attrs map[string]strin
 		return result, nil
 	}
 
-	if diff.Old == diff.New && diff.New == "" {
-		// this can only be a valid empty string
-		if attrSchema.Type == cty.String {
-			result[attr] = ""
-		}
-		return result, nil
-	}
-
 	// check for missmatched diff values
 	if exists &&
 		old != diff.Old &&
@@ -713,13 +709,21 @@ func (d *InstanceDiff) applySingleAttrDiff(path []string, attrs map[string]strin
 		return result, fmt.Errorf("diff apply conflict for %s: diff expects %q, but prior value has %q", attr, diff.Old, old)
 	}
 
-	if attrSchema.Computed && diff.NewComputed {
-		result[attr] = config.UnknownVariableValue
+	if diff.NewRemoved {
+		// don't set anything in the new value
+		return map[string]string{}, nil
+	}
+
+	if diff.Old == diff.New && diff.New == "" {
+		// this can only be a valid empty string
+		if attrSchema.Type == cty.String {
+			result[attr] = ""
+		}
 		return result, nil
 	}
 
-	if diff.NewRemoved {
-		// don't set anything in the new value
+	if attrSchema.Computed && diff.NewComputed {
+		result[attr] = config.UnknownVariableValue
 		return result, nil
 	}
 
@@ -861,12 +865,54 @@ func (d *InstanceDiff) applyCollectionDiff(path []string, attrs map[string]strin
 		}
 	}
 
-	// Fill in the count value if it was missing for some reason:
-	if result[countKey] == "" {
+	// Fill in the count value if it wasn't present in the diff for some reason,
+	// or if there is no count at all.
+	_, countDiff := d.Attributes[countKey]
+	if result[countKey] == "" || (!countDiff && len(keys) != len(result)) {
 		result[countKey] = countFlatmapContainerValues(countKey, result)
 	}
 
 	return result, nil
+}
+
+func (d *InstanceDiff) applySetDiff(path []string, attrs map[string]string, attrSchema *configschema.Attribute) (map[string]string, error) {
+	// We only need this special behavior for sets of object.
+	if !attrSchema.Type.ElementType().IsObjectType() {
+		// The normal collection apply behavior will work okay for this one, then.
+		return d.applyCollectionDiff(path, attrs, attrSchema)
+	}
+
+	// When we're dealing with a set of an object type we actually want to
+	// use our normal _block type_ apply behaviors, so we'll construct ourselves
+	// a synthetic schema that treats the object type as a block type and
+	// then delegate to our block apply method.
+	synthSchema := &configschema.Block{
+		Attributes: make(map[string]*configschema.Attribute),
+	}
+
+	for name, ty := range attrSchema.Type.ElementType().AttributeTypes() {
+		// We can safely make everything into an attribute here because in the
+		// event that there are nested set attributes we'll end up back in
+		// here again recursively and can then deal with the next level of
+		// expansion.
+		synthSchema.Attributes[name] = &configschema.Attribute{
+			Type:     ty,
+			Optional: true,
+		}
+	}
+
+	parentPath := path[:len(path)-1]
+	childName := path[len(path)-1]
+	containerSchema := &configschema.Block{
+		BlockTypes: map[string]*configschema.NestedBlock{
+			childName: {
+				Nesting: configschema.NestingSet,
+				Block:   *synthSchema,
+			},
+		},
+	}
+
+	return d.applyBlockDiff(parentPath, attrs, containerSchema)
 }
 
 // countFlatmapContainerValues returns the number of values in the flatmapped container

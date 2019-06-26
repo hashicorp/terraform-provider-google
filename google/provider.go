@@ -69,11 +69,55 @@ func Provider() terraform.ResourceProvider {
 					"CLOUDSDK_COMPUTE_ZONE",
 				}, nil),
 			},
+
 			"scopes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+
+			// Generated Products
+			AccessContextManagerCustomEndpointEntryKey: AccessContextManagerCustomEndpointEntry,
+			AppEngineCustomEndpointEntryKey:            AppEngineCustomEndpointEntry,
+			ComputeCustomEndpointEntryKey:              ComputeCustomEndpointEntry,
+			CloudBuildCustomEndpointEntryKey:           CloudBuildCustomEndpointEntry,
+			CloudSchedulerCustomEndpointEntryKey:       CloudSchedulerCustomEndpointEntry,
+			DnsCustomEndpointEntryKey:                  DnsCustomEndpointEntry,
+			FilestoreCustomEndpointEntryKey:            FilestoreCustomEndpointEntry,
+			FirestoreCustomEndpointEntryKey:            FirestoreCustomEndpointEntry,
+			KmsCustomEndpointEntryKey:                  KmsCustomEndpointEntry,
+			MonitoringCustomEndpointEntryKey:           MonitoringCustomEndpointEntry,
+			PubsubCustomEndpointEntryKey:               PubsubCustomEndpointEntry,
+			RedisCustomEndpointEntryKey:                RedisCustomEndpointEntry,
+			ResourceManagerCustomEndpointEntryKey:      ResourceManagerCustomEndpointEntry,
+			SourceRepoCustomEndpointEntryKey:           SourceRepoCustomEndpointEntry,
+			SpannerCustomEndpointEntryKey:              SpannerCustomEndpointEntry,
+			SqlCustomEndpointEntryKey:                  SqlCustomEndpointEntry,
+			StorageCustomEndpointEntryKey:              StorageCustomEndpointEntry,
+			TpuCustomEndpointEntryKey:                  TpuCustomEndpointEntry,
+
+			// Handwritten Products / Versioned / Atypical Entries
+			CloudBillingCustomEndpointEntryKey:           CloudBillingCustomEndpointEntry,
+			ComposerCustomEndpointEntryKey:               ComposerCustomEndpointEntry,
+			ComputeBetaCustomEndpointEntryKey:            ComputeBetaCustomEndpointEntry,
+			ContainerCustomEndpointEntryKey:              ContainerCustomEndpointEntry,
+			ContainerBetaCustomEndpointEntryKey:          ContainerBetaCustomEndpointEntry,
+			DataprocCustomEndpointEntryKey:               DataprocCustomEndpointEntry,
+			DataprocBetaCustomEndpointEntryKey:           DataprocBetaCustomEndpointEntry,
+			DataflowCustomEndpointEntryKey:               DataflowCustomEndpointEntry,
+			DnsBetaCustomEndpointEntryKey:                DnsBetaCustomEndpointEntry,
+			IamCredentialsCustomEndpointEntryKey:         IamCredentialsCustomEndpointEntry,
+			LoggingCustomEndpointEntryKey:                LoggingCustomEndpointEntry,
+			ResourceManagerV2Beta1CustomEndpointEntryKey: ResourceManagerV2Beta1CustomEndpointEntry,
+			RuntimeconfigCustomEndpointEntryKey:          RuntimeconfigCustomEndpointEntry,
+			IAMCustomEndpointEntryKey:                    IAMCustomEndpointEntry,
+			ServiceManagementCustomEndpointEntryKey:      ServiceManagementCustomEndpointEntry,
+			ServiceNetworkingCustomEndpointEntryKey:      ServiceNetworkingCustomEndpointEntry,
+			ServiceUsageCustomEndpointEntryKey:           ServiceUsageCustomEndpointEntry,
+			BigQueryCustomEndpointEntryKey:               BigQueryCustomEndpointEntry,
+			CloudFunctionsCustomEndpointEntryKey:         CloudFunctionsCustomEndpointEntry,
+			CloudIoTCustomEndpointEntryKey:               CloudIoTCustomEndpointEntry,
+			StorageTransferCustomEndpointEntryKey:        StorageTransferCustomEndpointEntry,
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -83,6 +127,7 @@ func Provider() terraform.ResourceProvider {
 			"google_client_config":                            dataSourceGoogleClientConfig(),
 			"google_client_openid_userinfo":                   dataSourceGoogleClientOpenIDUserinfo(),
 			"google_cloudfunctions_function":                  dataSourceGoogleCloudFunctionsFunction(),
+			"google_composer_image_versions":                  dataSourceGoogleComposerImageVersions(),
 			"google_compute_address":                          dataSourceGoogleComputeAddress(),
 			"google_compute_backend_service":                  dataSourceGoogleComputeBackendService(),
 			"google_compute_default_service_account":          dataSourceGoogleComputeDefaultServiceAccount(),
@@ -93,12 +138,14 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_instance_group":                   dataSourceGoogleComputeInstanceGroup(),
 			"google_compute_lb_ip_ranges":                     dataSourceGoogleComputeLbIpRanges(),
 			"google_compute_network":                          dataSourceGoogleComputeNetwork(),
+			"google_compute_node_types":                       dataSourceGoogleComputeNodeTypes(),
 			"google_compute_regions":                          dataSourceGoogleComputeRegions(),
 			"google_compute_region_instance_group":            dataSourceGoogleComputeRegionInstanceGroup(),
 			"google_compute_subnetwork":                       dataSourceGoogleComputeSubnetwork(),
 			"google_compute_zones":                            dataSourceGoogleComputeZones(),
 			"google_compute_vpn_gateway":                      dataSourceGoogleComputeVpnGateway(),
 			"google_compute_ssl_policy":                       dataSourceGoogleComputeSslPolicy(),
+			"google_compute_ssl_certificate":                  dataSourceGoogleComputeSslCertificate(),
 			"google_container_cluster":                        dataSourceGoogleContainerCluster(),
 			"google_container_engine_versions":                dataSourceGoogleContainerEngineVersions(),
 			"google_container_registry_repository":            dataSourceGoogleContainerRepo(),
@@ -109,16 +156,21 @@ func Provider() terraform.ResourceProvider {
 			"google_kms_key_ring":                             dataSourceGoogleKmsKeyRing(),
 			"google_kms_crypto_key":                           dataSourceGoogleKmsCryptoKey(),
 			"google_folder":                                   dataSourceGoogleFolder(),
+			"google_folder_organization_policy":               dataSourceGoogleFolderOrganizationPolicy(),
 			"google_netblock_ip_ranges":                       dataSourceGoogleNetblockIpRanges(),
 			"google_organization":                             dataSourceGoogleOrganization(),
 			"google_project":                                  dataSourceGoogleProject(),
+			"google_projects":                                 dataSourceGoogleProjects(),
+			"google_project_organization_policy":              dataSourceGoogleProjectOrganizationPolicy(),
 			"google_project_services":                         dataSourceGoogleProjectServices(),
 			"google_service_account":                          dataSourceGoogleServiceAccount(),
+			"google_service_account_access_token":             dataSourceGoogleServiceAccountAccessToken(),
 			"google_service_account_key":                      dataSourceGoogleServiceAccountKey(),
 			"google_storage_bucket_object":                    dataSourceGoogleStorageBucketObject(),
 			"google_storage_object_signed_url":                dataSourceGoogleSignedUrl(),
 			"google_storage_project_service_account":          dataSourceGoogleStorageProjectServiceAccount(),
 			"google_storage_transfer_project_service_account": dataSourceGoogleStorageTransferProjectServiceAccount(),
+			"google_tpu_tensorflow_versions":                  dataSourceTpuTensorflowVersions(),
 		},
 
 		ResourcesMap: ResourceMap(),
@@ -134,16 +186,23 @@ func ResourceMap() map[string]*schema.Resource {
 
 func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 	return mergeResourceMaps(
+		GeneratedAccessContextManagerResourcesMap,
 		GeneratedAppEngineResourcesMap,
 		GeneratedComputeResourcesMap,
 		GeneratedCloudBuildResourcesMap,
+		GeneratedCloudSchedulerResourcesMap,
 		GeneratedDnsResourcesMap,
+		GeneratedFilestoreResourcesMap,
+		GeneratedFirestoreResourcesMap,
+		GeneratedKmsResourcesMap,
 		GeneratedPubsubResourcesMap,
 		GeneratedRedisResourcesMap,
 		GeneratedResourceManagerResourcesMap,
 		GeneratedSourceRepoResourcesMap,
 		GeneratedSpannerResourcesMap,
+		GeneratedSqlResourcesMap,
 		GeneratedStorageResourcesMap,
+		GeneratedTpuResourcesMap,
 		GeneratedMonitoringResourcesMap,
 		map[string]*schema.Resource{
 			"google_app_engine_application":                resourceAppEngineApplication(),
@@ -158,18 +217,18 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloudiot_registry":                     resourceCloudIoTRegistry(),
 			"google_composer_environment":                  resourceComposerEnvironment(),
 			"google_compute_attached_disk":                 resourceComputeAttachedDisk(),
-			"google_compute_backend_service":               resourceComputeBackendService(),
-			"google_compute_global_forwarding_rule":        resourceComputeGlobalForwardingRule(),
 			"google_compute_instance":                      resourceComputeInstance(),
 			"google_compute_instance_from_template":        resourceComputeInstanceFromTemplate(),
 			"google_compute_instance_group":                resourceComputeInstanceGroup(),
 			"google_compute_instance_group_manager":        resourceComputeInstanceGroupManager(),
+			"google_compute_instance_iam_binding":          ResourceIamBindingWithImport(IamComputeInstanceSchema, NewComputeInstanceIamUpdater, ComputeInstanceIdParseFunc),
+			"google_compute_instance_iam_member":           ResourceIamMemberWithImport(IamComputeInstanceSchema, NewComputeInstanceIamUpdater, ComputeInstanceIdParseFunc),
+			"google_compute_instance_iam_policy":           ResourceIamPolicyWithImport(IamComputeInstanceSchema, NewComputeInstanceIamUpdater, ComputeInstanceIdParseFunc),
 			"google_compute_instance_template":             resourceComputeInstanceTemplate(),
-			"google_compute_network":                       resourceComputeNetwork(),
 			"google_compute_network_peering":               resourceComputeNetworkPeering(),
+			"google_compute_project_default_network_tier":  resourceComputeProjectDefaultNetworkTier(),
 			"google_compute_project_metadata":              resourceComputeProjectMetadata(),
 			"google_compute_project_metadata_item":         resourceComputeProjectMetadataItem(),
-			"google_compute_region_backend_service":        resourceComputeRegionBackendService(),
 			"google_compute_region_instance_group_manager": resourceComputeRegionInstanceGroupManager(),
 			"google_compute_router_interface":              resourceComputeRouterInterface(),
 			"google_compute_router_nat":                    resourceComputeRouterNat(),
@@ -177,12 +236,21 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_security_policy":               resourceComputeSecurityPolicy(),
 			"google_compute_shared_vpc_host_project":       resourceComputeSharedVpcHostProject(),
 			"google_compute_shared_vpc_service_project":    resourceComputeSharedVpcServiceProject(),
+			"google_compute_subnetwork_iam_binding":        ResourceIamBindingWithImport(IamComputeSubnetworkSchema, NewComputeSubnetworkIamUpdater, ComputeSubnetworkIdParseFunc),
+			"google_compute_subnetwork_iam_member":         ResourceIamMemberWithImport(IamComputeSubnetworkSchema, NewComputeSubnetworkIamUpdater, ComputeSubnetworkIdParseFunc),
+			"google_compute_subnetwork_iam_policy":         ResourceIamPolicyWithImport(IamComputeSubnetworkSchema, NewComputeSubnetworkIamUpdater, ComputeSubnetworkIdParseFunc),
 			"google_compute_target_pool":                   resourceComputeTargetPool(),
 			"google_container_cluster":                     resourceContainerCluster(),
 			"google_container_node_pool":                   resourceContainerNodePool(),
 			"google_dataflow_job":                          resourceDataflowJob(),
 			"google_dataproc_cluster":                      resourceDataprocCluster(),
+			"google_dataproc_cluster_iam_binding":          ResourceIamBindingWithImport(IamDataprocClusterSchema, NewDataprocClusterUpdater, DataprocClusterIdParseFunc),
+			"google_dataproc_cluster_iam_member":           ResourceIamMemberWithImport(IamDataprocClusterSchema, NewDataprocClusterUpdater, DataprocClusterIdParseFunc),
+			"google_dataproc_cluster_iam_policy":           ResourceIamPolicyWithImport(IamDataprocClusterSchema, NewDataprocClusterUpdater, DataprocClusterIdParseFunc),
 			"google_dataproc_job":                          resourceDataprocJob(),
+			"google_dataproc_job_iam_binding":              ResourceIamBindingWithImport(IamDataprocJobSchema, NewDataprocJobUpdater, DataprocJobIdParseFunc),
+			"google_dataproc_job_iam_member":               ResourceIamMemberWithImport(IamDataprocJobSchema, NewDataprocJobUpdater, DataprocJobIdParseFunc),
+			"google_dataproc_job_iam_policy":               ResourceIamPolicyWithImport(IamDataprocJobSchema, NewDataprocJobUpdater, DataprocJobIdParseFunc),
 			"google_dns_record_set":                        resourceDnsRecordSet(),
 			"google_endpoints_service":                     resourceEndpointsService(),
 			"google_folder":                                resourceGoogleFolder(),
@@ -192,26 +260,25 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_folder_organization_policy":            resourceGoogleFolderOrganizationPolicy(),
 			"google_logging_billing_account_sink":          resourceLoggingBillingAccountSink(),
 			"google_logging_billing_account_exclusion":     ResourceLoggingExclusion(BillingAccountLoggingExclusionSchema, NewBillingAccountLoggingExclusionUpdater, billingAccountLoggingExclusionIdParseFunc),
+			"google_logging_metric":                        resourceLoggingMetric(),
 			"google_logging_organization_sink":             resourceLoggingOrganizationSink(),
 			"google_logging_organization_exclusion":        ResourceLoggingExclusion(OrganizationLoggingExclusionSchema, NewOrganizationLoggingExclusionUpdater, organizationLoggingExclusionIdParseFunc),
 			"google_logging_folder_sink":                   resourceLoggingFolderSink(),
 			"google_logging_folder_exclusion":              ResourceLoggingExclusion(FolderLoggingExclusionSchema, NewFolderLoggingExclusionUpdater, folderLoggingExclusionIdParseFunc),
 			"google_logging_project_sink":                  resourceLoggingProjectSink(),
 			"google_logging_project_exclusion":             ResourceLoggingExclusion(ProjectLoggingExclusionSchema, NewProjectLoggingExclusionUpdater, projectLoggingExclusionIdParseFunc),
-			"google_kms_key_ring":                          resourceKmsKeyRing(),
 			"google_kms_key_ring_iam_binding":              ResourceIamBindingWithImport(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
 			"google_kms_key_ring_iam_member":               ResourceIamMemberWithImport(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
 			"google_kms_key_ring_iam_policy":               ResourceIamPolicyWithImport(IamKmsKeyRingSchema, NewKmsKeyRingIamUpdater, KeyRingIdParseFunc),
-			"google_kms_crypto_key":                        resourceKmsCryptoKey(),
 			"google_kms_crypto_key_iam_binding":            ResourceIamBindingWithImport(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
 			"google_kms_crypto_key_iam_member":             ResourceIamMemberWithImport(IamKmsCryptoKeySchema, NewKmsCryptoKeyIamUpdater, CryptoIdParseFunc),
+			"google_service_networking_connection":         resourceServiceNetworkingConnection(),
 			"google_spanner_instance_iam_binding":          ResourceIamBindingWithImport(IamSpannerInstanceSchema, NewSpannerInstanceIamUpdater, SpannerInstanceIdParseFunc),
 			"google_spanner_instance_iam_member":           ResourceIamMemberWithImport(IamSpannerInstanceSchema, NewSpannerInstanceIamUpdater, SpannerInstanceIdParseFunc),
 			"google_spanner_instance_iam_policy":           ResourceIamPolicyWithImport(IamSpannerInstanceSchema, NewSpannerInstanceIamUpdater, SpannerInstanceIdParseFunc),
 			"google_spanner_database_iam_binding":          ResourceIamBindingWithImport(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater, SpannerDatabaseIdParseFunc),
 			"google_spanner_database_iam_member":           ResourceIamMemberWithImport(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater, SpannerDatabaseIdParseFunc),
 			"google_spanner_database_iam_policy":           ResourceIamPolicyWithImport(IamSpannerDatabaseSchema, NewSpannerDatabaseIamUpdater, SpannerDatabaseIdParseFunc),
-			"google_sql_database":                          resourceSqlDatabase(),
 			"google_sql_database_instance":                 resourceSqlDatabaseInstance(),
 			"google_sql_ssl_cert":                          resourceSqlSslCert(),
 			"google_sql_user":                              resourceSqlUser(),
@@ -248,9 +315,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			// Legacy roles such as roles/storage.legacyBucketReader are automatically added
 			// when creating a bucket. For this reason, it is better not to add the authoritative
 			// google_storage_bucket_iam_policy resource.
-			"google_storage_bucket_iam_binding": ResourceIamBinding(IamStorageBucketSchema, NewStorageBucketIamUpdater),
-			"google_storage_bucket_iam_member":  ResourceIamMember(IamStorageBucketSchema, NewStorageBucketIamUpdater),
-			"google_storage_bucket_iam_policy":  ResourceIamPolicy(IamStorageBucketSchema, NewStorageBucketIamUpdater),
+			"google_storage_bucket_iam_binding": ResourceIamBindingWithImport(IamStorageBucketSchema, NewStorageBucketIamUpdater, StorageBucketIdParseFunc),
+			"google_storage_bucket_iam_member":  ResourceIamMemberWithImport(IamStorageBucketSchema, NewStorageBucketIamUpdater, StorageBucketIdParseFunc),
+			"google_storage_bucket_iam_policy":  ResourceIamPolicyWithImport(IamStorageBucketSchema, NewStorageBucketIamUpdater, StorageBucketIdParseFunc),
 			"google_storage_bucket_object":      resourceStorageBucketObject(),
 			"google_storage_object_acl":         resourceStorageObjectAcl(),
 			"google_storage_default_object_acl": resourceStorageDefaultObjectAcl(),
@@ -282,11 +349,100 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.Scopes[i] = scope.(string)
 	}
 
-	if err := config.loadAndValidate(); err != nil {
+	config.AccessContextManagerBasePath = d.Get(AccessContextManagerCustomEndpointEntryKey).(string)
+	config.CloudSchedulerBasePath = d.Get(CloudSchedulerCustomEndpointEntryKey).(string)
+	config.FirestoreBasePath = d.Get(FirestoreCustomEndpointEntryKey).(string)
+
+	config.AppEngineBasePath = d.Get(AppEngineCustomEndpointEntryKey).(string)
+	config.ComputeBasePath = d.Get(ComputeCustomEndpointEntryKey).(string)
+	config.CloudBuildBasePath = d.Get(CloudBuildCustomEndpointEntryKey).(string)
+	config.DnsBasePath = d.Get(DnsCustomEndpointEntryKey).(string)
+	config.FilestoreBasePath = d.Get(FilestoreCustomEndpointEntryKey).(string)
+	config.KmsBasePath = d.Get(KmsCustomEndpointEntryKey).(string)
+	config.MonitoringBasePath = d.Get(MonitoringCustomEndpointEntryKey).(string)
+	config.PubsubBasePath = d.Get(PubsubCustomEndpointEntryKey).(string)
+	config.RedisBasePath = d.Get(RedisCustomEndpointEntryKey).(string)
+	config.ResourceManagerBasePath = d.Get(ResourceManagerCustomEndpointEntryKey).(string)
+	config.SourceRepoBasePath = d.Get(SourceRepoCustomEndpointEntryKey).(string)
+	config.SpannerBasePath = d.Get(SpannerCustomEndpointEntryKey).(string)
+	config.SqlBasePath = d.Get(SqlCustomEndpointEntryKey).(string)
+	config.StorageBasePath = d.Get(StorageCustomEndpointEntryKey).(string)
+	config.TpuBasePath = d.Get(TpuCustomEndpointEntryKey).(string)
+
+	config.CloudBillingBasePath = d.Get(CloudBillingCustomEndpointEntryKey).(string)
+	config.ComposerBasePath = d.Get(ComposerCustomEndpointEntryKey).(string)
+	config.ComputeBetaBasePath = d.Get(ComputeBetaCustomEndpointEntryKey).(string)
+	config.ContainerBasePath = d.Get(ContainerCustomEndpointEntryKey).(string)
+	config.ContainerBetaBasePath = d.Get(ContainerBetaCustomEndpointEntryKey).(string)
+	config.DataprocBasePath = d.Get(DataprocCustomEndpointEntryKey).(string)
+	config.DataprocBetaBasePath = d.Get(DataprocBetaCustomEndpointEntryKey).(string)
+	config.DataflowBasePath = d.Get(DataflowCustomEndpointEntryKey).(string)
+	config.DnsBetaBasePath = d.Get(DnsBetaCustomEndpointEntryKey).(string)
+	config.IamCredentialsBasePath = d.Get(IamCredentialsCustomEndpointEntryKey).(string)
+	config.LoggingBasePath = d.Get(LoggingCustomEndpointEntryKey).(string)
+	config.ResourceManagerV2Beta1BasePath = d.Get(ResourceManagerV2Beta1CustomEndpointEntryKey).(string)
+	config.RuntimeconfigBasePath = d.Get(RuntimeconfigCustomEndpointEntryKey).(string)
+	config.IAMBasePath = d.Get(IAMCustomEndpointEntryKey).(string)
+	config.ServiceManagementBasePath = d.Get(ServiceManagementCustomEndpointEntryKey).(string)
+	config.ServiceNetworkingBasePath = d.Get(ServiceNetworkingCustomEndpointEntryKey).(string)
+	config.ServiceUsageBasePath = d.Get(ServiceUsageCustomEndpointEntryKey).(string)
+	config.BigQueryBasePath = d.Get(BigQueryCustomEndpointEntryKey).(string)
+	config.CloudFunctionsBasePath = d.Get(CloudFunctionsCustomEndpointEntryKey).(string)
+	config.CloudIoTBasePath = d.Get(CloudIoTCustomEndpointEntryKey).(string)
+	config.StorageTransferBasePath = d.Get(StorageTransferCustomEndpointEntryKey).(string)
+
+	if err := config.LoadAndValidate(); err != nil {
 		return nil, err
 	}
 
 	return &config, nil
+}
+
+// For a consumer of config.go that isn't a full fledged provider and doesn't
+// have its own endpoint mechanism such as sweepers, init {{service}}BasePath
+// values to a default. After using this, you should call config.LoadAndValidate.
+func ConfigureBasePaths(c *Config) {
+	// Generated Products
+	c.AccessContextManagerBasePath = AccessContextManagerDefaultBasePath
+	c.AppEngineBasePath = AppEngineDefaultBasePath
+	c.ComputeBasePath = ComputeDefaultBasePath
+	c.CloudBuildBasePath = CloudBuildDefaultBasePath
+	c.CloudSchedulerBasePath = CloudSchedulerDefaultBasePath
+	c.DnsBasePath = DnsDefaultBasePath
+	c.FilestoreBasePath = FilestoreDefaultBasePath
+	c.FirestoreBasePath = FirestoreDefaultBasePath
+	c.KmsBasePath = KmsDefaultBasePath
+	c.MonitoringBasePath = MonitoringDefaultBasePath
+	c.PubsubBasePath = PubsubDefaultBasePath
+	c.RedisBasePath = RedisDefaultBasePath
+	c.ResourceManagerBasePath = ResourceManagerDefaultBasePath
+	c.SourceRepoBasePath = SourceRepoDefaultBasePath
+	c.SpannerBasePath = SpannerDefaultBasePath
+	c.SqlBasePath = SqlDefaultBasePath
+	c.StorageBasePath = StorageDefaultBasePath
+	c.TpuBasePath = TpuDefaultBasePath
+
+	// Handwritten Products / Versioned / Atypical Entries
+	c.CloudBillingBasePath = CloudBillingDefaultBasePath
+	c.ComposerBasePath = ComposerDefaultBasePath
+	c.ComputeBetaBasePath = ComputeBetaDefaultBasePath
+	c.ContainerBasePath = ContainerDefaultBasePath
+	c.ContainerBetaBasePath = ContainerBetaDefaultBasePath
+	c.DataprocBasePath = DataprocDefaultBasePath
+	c.DataflowBasePath = DataflowDefaultBasePath
+	c.DnsBetaBasePath = DnsBetaDefaultBasePath
+	c.IamCredentialsBasePath = IamCredentialsDefaultBasePath
+	c.LoggingBasePath = LoggingDefaultBasePath
+	c.ResourceManagerV2Beta1BasePath = ResourceManagerV2Beta1DefaultBasePath
+	c.RuntimeconfigBasePath = RuntimeconfigDefaultBasePath
+	c.IAMBasePath = IAMDefaultBasePath
+	c.ServiceManagementBasePath = ServiceManagementDefaultBasePath
+	c.ServiceNetworkingBasePath = ServiceNetworkingDefaultBasePath
+	c.ServiceUsageBasePath = ServiceUsageDefaultBasePath
+	c.BigQueryBasePath = BigQueryDefaultBasePath
+	c.CloudFunctionsBasePath = CloudFunctionsDefaultBasePath
+	c.CloudIoTBasePath = CloudIoTDefaultBasePath
+	c.StorageTransferBasePath = StorageTransferDefaultBasePath
 }
 
 func validateCredentials(v interface{}, k string) (warnings []string, errors []error) {

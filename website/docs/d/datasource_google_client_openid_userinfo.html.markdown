@@ -37,7 +37,7 @@ provider "google" {
 data "google_client_openid_userinfo" "me" {}
 
 output "my-email" {
-  value = "${data.google_client_openid_useremail.me.email}"
+  value = "${data.google_client_openid_userinfo.me.email}"
 }
 ```
 
@@ -84,7 +84,7 @@ resource "kubernetes_cluster_role_binding" "user" {
 
   subject {
     kind = "User"
-    name = "${data.google_client_openid_useremail.provider_identity.email}"
+    name = "${data.google_client_openid_userinfo.provider_identity.email}"
   }
 }
 ```

@@ -72,6 +72,7 @@ func resourceStorageBucketObject() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"source"},
+				Sensitive:     true,
 			},
 
 			"crc32c": {

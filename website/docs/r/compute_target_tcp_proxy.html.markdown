@@ -30,7 +30,7 @@ service.
 
 To get more information about TargetTcpProxy, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/latest/targetTcpProxies)
+* [API documentation](https://cloud.google.com/compute/docs/reference/v1/targetTcpProxies)
 * How-to Guides
     * [Setting Up TCP proxy for Google Cloud Load Balancing](https://cloud.google.com/compute/docs/load-balancing/tcp-ssl/tcp-proxy)
 
@@ -98,6 +98,7 @@ The following arguments are supported:
   (Optional)
   Specifies the type of proxy header to append before sending data to
   the backend, either NONE or PROXY_V1. The default is NONE.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

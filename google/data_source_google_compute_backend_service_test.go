@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccDataSourceComputeBackendService_basic(t *testing.T) {
@@ -22,45 +21,10 @@ func TestAccDataSourceComputeBackendService_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeBackendService_basic(serviceName, checkName),
-				Check:  testAccDataSourceComputeBackendServiceCheck("data.google_compute_backend_service.baz", "google_compute_backend_service.foobar"),
+				Check:  checkDataSourceStateMatchesResourceState("data.google_compute_backend_service.baz", "google_compute_backend_service.foobar"),
 			},
 		},
 	})
-}
-
-func testAccDataSourceComputeBackendServiceCheck(dsName, rsName string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[rsName]
-		if !ok {
-			return fmt.Errorf("can't find resource called %s in state", rsName)
-		}
-
-		ds, ok := s.RootModule().Resources[dsName]
-		if !ok {
-			return fmt.Errorf("can't find data source called %s in state", dsName)
-		}
-
-		dsAttr := ds.Primary.Attributes
-		rsAttr := rs.Primary.Attributes
-
-		attrsToTest := []string{
-			"id",
-			"name",
-			"description",
-			"self_link",
-			"fingerprint",
-			"port_name",
-			"protocol",
-		}
-
-		for _, attrToTest := range attrsToTest {
-			if dsAttr[attrToTest] != rsAttr[attrToTest] {
-				return fmt.Errorf("%s is %s; want %s", attrToTest, dsAttr[attrToTest], rsAttr[attrToTest])
-			}
-		}
-
-		return nil
-	}
 }
 
 func testAccDataSourceComputeBackendService_basic(serviceName, checkName string) string {

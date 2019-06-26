@@ -103,11 +103,13 @@ The following arguments are supported:
 
 * `vlan_tag8021q` -
   (Optional)
-  The IEEE 802.1Q VLAN tag for this attachment, in the range 2-4094.
+  The IEEE 802.1Q VLAN tag for this attachment, in the range 2-4094. When
+  using PARTNER type this will be managed upstream.
 
 * `region` -
   (Optional)
   Region where the regional interconnect attachment resides.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

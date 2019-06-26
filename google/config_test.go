@@ -15,13 +15,15 @@ const testFakeCredentialsPath = "./test-fixtures/fake_account.json"
 const testOauthScope = "https://www.googleapis.com/auth/compute"
 
 func TestConfigLoadAndValidate_accountFilePath(t *testing.T) {
-	config := Config{
+	config := &Config{
 		Credentials: testFakeCredentialsPath,
 		Project:     "my-gce-project",
 		Region:      "us-central1",
 	}
 
-	err := config.loadAndValidate()
+	ConfigureBasePaths(config)
+
+	err := config.LoadAndValidate()
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -32,26 +34,30 @@ func TestConfigLoadAndValidate_accountFileJSON(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
-	config := Config{
+	config := &Config{
 		Credentials: string(contents),
 		Project:     "my-gce-project",
 		Region:      "us-central1",
 	}
 
-	err = config.loadAndValidate()
+	ConfigureBasePaths(config)
+
+	err = config.LoadAndValidate()
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
 }
 
 func TestConfigLoadAndValidate_accountFileJSONInvalid(t *testing.T) {
-	config := Config{
+	config := &Config{
 		Credentials: "{this is not json}",
 		Project:     "my-gce-project",
 		Region:      "us-central1",
 	}
 
-	if config.loadAndValidate() == nil {
+	ConfigureBasePaths(config)
+
+	if config.LoadAndValidate() == nil {
 		t.Fatalf("expected error, but got nil")
 	}
 }
@@ -65,13 +71,15 @@ func TestAccConfigLoadValidate_credentials(t *testing.T) {
 	creds := getTestCredsFromEnv()
 	proj := getTestProjectFromEnv()
 
-	config := Config{
+	config := &Config{
 		Credentials: creds,
 		Project:     proj,
 		Region:      "us-central1",
 	}
 
-	err := config.loadAndValidate()
+	ConfigureBasePaths(config)
+
+	err := config.LoadAndValidate()
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -101,13 +109,15 @@ func TestAccConfigLoadValidate_accessToken(t *testing.T) {
 		t.Fatalf("Unable to generate test access token: %s", err)
 	}
 
-	config := Config{
+	config := &Config{
 		AccessToken: token.AccessToken,
 		Project:     proj,
 		Region:      "us-central1",
 	}
 
-	err = config.loadAndValidate()
+	ConfigureBasePaths(config)
+
+	err = config.LoadAndValidate()
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -119,13 +129,16 @@ func TestAccConfigLoadValidate_accessToken(t *testing.T) {
 }
 
 func TestConfigLoadAndValidate_customScopes(t *testing.T) {
-	config := Config{
+	config := &Config{
 		Credentials: testFakeCredentialsPath,
 		Project:     "my-gce-project",
 		Region:      "us-central1",
 		Scopes:      []string{"https://www.googleapis.com/auth/compute"},
 	}
-	err := config.loadAndValidate()
+
+	ConfigureBasePaths(config)
+
+	err := config.LoadAndValidate()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

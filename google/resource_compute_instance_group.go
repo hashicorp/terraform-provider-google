@@ -3,8 +3,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"reflect"
-	"sort"
 	"strings"
 
 	"google.golang.org/api/compute/v1"
@@ -96,103 +94,7 @@ func resourceComputeInstanceGroup() *schema.Resource {
 				Computed: true,
 			},
 		},
-
-		CustomizeDiff: customDiffInstanceGroupInstancesField,
 	}
-}
-
-func customDiffInstanceGroupInstancesField(diff *schema.ResourceDiff, meta interface{}) error {
-	// This deals with an interesting problem that deserves some attention.
-	// When an instance is destroyed and recreated, its membership in
-	// instance groups disappears.  However, its recreated `self_link` will
-	// be the same as the `self_link` from before the destroy/recreate.
-	// Therefore, if some instances which are set in the `instances` field
-	// are destroyed and recreated, although in *reality* there is a diff
-	// between the GCP state and the desired state, Terraform cannot *see*
-	// the diff without running a full Read cycle.  There's no Read implicit
-	// in the `Apply` stage, so we need to trick Terraform into calling
-	// Update when things like this happen.
-
-	// This function will be called in 3 different states.
-	// 1) it will be called on a new resource which hasn't been created yet.
-	//		We shouldn't do anything interesting in that case.
-	// 2) it will be called on an updated resource during "plan" time - that is,
-	//		before anything has actually been done.  In that case, we need to show
-	//		a diff on the resource if there's a chance that any of the instances
-	//		will be destroyed and recreated.  Fortunately, in this case, the
-	//		upstream logic will show that there is a diff.  This will be a
-	//		"Computed" diff - as if we had called diff.SetComputed("instances"),
-	//		and that's a good response.
-	// 3) it will be called on an updated resource at "apply" time - that is,
-	//		right when we're about to do something with this resource.  That
-	//		is designed to check whether there really is a diff on the Computed
-	//		field "instances".  Here, we have to get tricky.  We need to show
-	//		a diff, and it can't be a Computed diff (`apply` skips `Update` if
-	//		the only diffs are Computed).  It also can't be a ForceNew diff,
-	//		because Terraform crashes if there's a ForceNew diff at apply time
-	//		after not seeing one at plan time.  We're in a pickle - the Terraform
-	//		state matches our desired state, but is *wrong*.  We add a fake item
-	//		to the "instances" set, so that Terraform sees a diff between the
-	//		state and the desired state.
-
-	oldI, newI := diff.GetChange("instances")
-	oldInstanceSet := oldI.(*schema.Set)
-	newInstanceSet := newI.(*schema.Set)
-	oldInstances := convertStringArr(oldInstanceSet.List())
-	newInstances := convertStringArr(newInstanceSet.List())
-
-	log.Printf("[DEBUG] InstanceGroup CustomizeDiff old: %#v, new: %#v", oldInstances, newInstances)
-	var memberUrls []string
-	config := meta.(*Config)
-	// We can't use getProject() or getZone(), because we only have a schema.ResourceDiff,
-	// not a schema.ResourceData.  We'll have to emulate them like this.
-	project := diff.Get("project").(string)
-	if project == "" {
-		project = config.Project
-	}
-	zone := diff.Get("zone").(string)
-	if zone == "" {
-		project = config.Zone
-	}
-
-	// We need to see what instances are present in the instance group.  There are a few
-	// possible results.
-	// 1) The instance group doesn't exist.  We don't change the diff in this case -
-	//		if the instance is being created, that's the right thing to do.
-	// 2) The instance group exists, and the GCP state matches the terraform state.  In this
-	//		case, we should do nothing.
-	// 3) The instance group exists, and the GCP state does not match the terraform state.
-	//		In this case, we add the string "FORCE_UPDATE" to the list of instances, to convince
-	//		Terraform to execute an update even though there's no diff between the terraform
-	//		state and the desired state.
-	members, err := config.clientCompute.InstanceGroups.ListInstances(
-		project, zone, diff.Get("name").(string), &compute.InstanceGroupsListInstancesRequest{
-			InstanceState: "ALL",
-		}).Do()
-	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-			// This is where we'll end up at either plan time or apply time on first creation.
-			return nil
-		} else {
-			// Any other errors return them
-			return fmt.Errorf("Error reading InstanceGroup Members: %s", err)
-		}
-	}
-	for _, member := range members.Items {
-		memberUrls = append(memberUrls, member.Instance)
-	}
-	sort.Strings(memberUrls)
-	sort.Strings(oldInstances)
-	sort.Strings(newInstances)
-	log.Printf("[DEBUG] InstanceGroup members: %#v.  OldInstances: %#v", memberUrls, oldInstances)
-	if !reflect.DeepEqual(memberUrls, oldInstances) && reflect.DeepEqual(newInstances, oldInstances) {
-		// This is where we'll end up at apply-time only if an instance is
-		// somehow removed from the set of instances between refresh and update.
-		newInstancesList := append(newInstances, "FORCE_UPDATE")
-		diff.SetNew("instances", newInstancesList)
-	}
-	// This is where we'll end up if the GCP state matches the Terraform state.
-	return nil
 }
 
 func getInstanceReferences(instanceUrls []string) (refs []*compute.InstanceReference) {
@@ -345,10 +247,6 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	err := resourceComputeInstanceGroupRead(d, meta)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -366,11 +264,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 
 	if d.HasChange("instances") {
 		// to-do check for no instances
-		_, to_ := d.GetChange("instances")
-		// We need to get the current state from d directly because
-		// it is likely to have been changed by the Read() above.
-		from_ := d.Get("instances")
-		to_.(*schema.Set).Remove("FORCE_UPDATE")
+		from_, to_ := d.GetChange("instances")
 
 		from := convertStringArr(from_.(*schema.Set).List())
 		to := convertStringArr(to_.(*schema.Set).List())
@@ -431,10 +325,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	if d.HasChange("named_port") {
-		// Important to fetch via GetChange, because the above Read() will
-		// have reset the value retrieved via Get() to its current value.
-		_, namedPorts_ := d.GetChange("named_port")
-		namedPorts := getNamedPorts(namedPorts_.([]interface{}))
+		namedPorts := getNamedPorts(d.Get("named_port").([]interface{}))
 
 		namedPortsReq := &compute.InstanceGroupsSetNamedPortsRequest{
 			NamedPorts: namedPorts,
@@ -488,12 +379,17 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 
 func resourceComputeInstanceGroupImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("Invalid compute instance group specifier. Expecting {zone}/{name}")
+	if len(parts) == 2 {
+		d.Set("zone", parts[0])
+		d.Set("name", parts[1])
+	} else if len(parts) == 3 {
+		d.Set("project", parts[0])
+		d.Set("zone", parts[1])
+		d.Set("name", parts[2])
+		d.SetId(parts[1] + "/" + parts[2])
+	} else {
+		return nil, fmt.Errorf("Invalid compute instance group specifier. Expecting {zone}/{name} or {project}/{zone}/{name}")
 	}
-
-	d.Set("zone", parts[0])
-	d.Set("name", parts[1])
 
 	return []*schema.ResourceData{d}, nil
 }

@@ -30,7 +30,7 @@ service.
 
 To get more information about TargetSslProxy, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/latest/targetSslProxies)
+* [API documentation](https://cloud.google.com/compute/docs/reference/v1/targetSslProxies)
 * How-to Guides
     * [Setting Up SSL proxy for Google Cloud Load Balancing](https://cloud.google.com/compute/docs/load-balancing/tcp-ssl/)
 
@@ -114,6 +114,7 @@ The following arguments are supported:
   A reference to the SslPolicy resource that will be associated with
   the TargetSslProxy resource. If not set, the TargetSslProxy
   resource will not have any SSL policy configured.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

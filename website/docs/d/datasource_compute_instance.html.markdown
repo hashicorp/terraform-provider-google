@@ -43,7 +43,7 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-* `boot_disk` - The boot disk for the instance. Sructure is documented below.
+* `boot_disk` - The boot disk for the instance. Structure is documented below.
 
 * `machine_type` - The machine type to create.
 
@@ -84,6 +84,8 @@ The following arguments are supported:
 * `label_fingerprint` - The unique fingerprint of the labels.
 
 * `cpu_platform` - The CPU platform used by this instance.
+
+* `shielded_instance_config` - The shielded vm config being used by the instance. Structure is documented below.
 
 * `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
 
@@ -192,3 +194,11 @@ The `guest_accelerator` block supports:
 * `count` - The number of the guest accelerator cards exposed to this instance.
 
 [network-tier]: https://cloud.google.com/network-tiers/docs/overview
+
+The `shielded_instance_config` block supports:
+
+* `enable_secure_boot` -- Whether secure boot is enabled for the instance.
+
+* `enable_vtpm` -- Whether the instance uses vTPM.
+
+* `enable_integrity_monitoring` -- Whether integrity monitoring is enabled for the instance.

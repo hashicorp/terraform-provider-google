@@ -48,5 +48,7 @@ exported:
     the primary. The first rotation will take place after the specified period. The rotation period has the format
     of a decimal number with up to 9 fractional digits, followed by the letter s (seconds).
 
+* `purpose` - Defines the cryptographic capabilities of the key.
+
 * `self_link` - The self link of the created CryptoKey. Its format is `projects/{projectId}/locations/{location}/keyRings/{keyRingName}/cryptoKeys/{cryptoKeyName}`.
 

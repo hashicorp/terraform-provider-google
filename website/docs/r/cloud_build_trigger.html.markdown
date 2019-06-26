@@ -77,7 +77,7 @@ The following arguments are supported:
 
 * `filename` -
   (Optional)
-  Path, from the source root, to a file whose contents is used for the template.
+  Path, from the source root, to a file whose contents is used for the template. Either a filename or build template must be provided.
 
 * `ignored_files` -
   (Optional)
@@ -110,7 +110,8 @@ The following arguments are supported:
 
 * `build` -
   (Optional)
-  Contents of the build template.  Structure is documented below.
+  Contents of the build template. Either a filename or build template must be provided.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -135,15 +136,15 @@ The `trigger_template` block supports:
 
 * `branch_name` -
   (Optional)
-  Name of the branch to build.
+  Name of the branch to build. Exactly one a of branch name, tag, or commit SHA must be provided.
 
 * `tag_name` -
   (Optional)
-  Name of the tag to build.
+  Name of the tag to build. Exactly one of a branch name, tag, or commit SHA must be provided.
 
 * `commit_sha` -
   (Optional)
-  Explicit commit SHA to build.
+  Explicit commit SHA to build. Exactly one of a branch name, tag, or commit SHA must be provided.
 
 The `build` block supports:
 
@@ -187,6 +188,87 @@ The `step` block supports:
   are used as arguments to that entrypoint. If the image does not define an
   entrypoint, the first element in args is used as the entrypoint, and the
   remainder will be used as arguments.
+
+* `env` -
+  (Optional)
+  A list of environment variable definitions to be used when
+  running a step.
+  The elements are of the form "KEY=VALUE" for the environment variable
+  "KEY" being given the value "VALUE".
+
+* `id` -
+  (Optional)
+  Unique identifier for this build step, used in `wait_for` to
+  reference this build step as a dependency.
+
+* `entrypoint` -
+  (Optional)
+  Entrypoint to be used instead of the build step image's
+  default entrypoint.
+  If unset, the image's default entrypoint is used
+
+* `dir` -
+  (Optional)
+  Working directory to use when running this step's container.
+  If this value is a relative path, it is relative to the build's working
+  directory. If this value is absolute, it may be outside the build's working
+  directory, in which case the contents of the path may not be persisted
+  across build step executions, unless a `volume` for that path is specified.
+  If the build specifies a `RepoSource` with `dir` and a step with a
+  `dir`,
+  which specifies an absolute path, the `RepoSource` `dir` is ignored
+  for the step's execution.
+
+* `secret_env` -
+  (Optional)
+  A list of environment variables which are encrypted using
+  a Cloud Key
+  Management Service crypto key. These values must be specified in
+  the build's `Secret`.
+
+* `timeout` -
+  (Optional)
+  Time limit for executing this build step. If not defined,
+  the step has no
+  time limit and will be allowed to continue to run until either it
+  completes or the build itself times out.
+
+* `timing` -
+  (Optional)
+  Output only. Stores timing information for executing this
+  build step.
+
+* `volumes` -
+  (Optional)
+  List of volumes to mount into the build step.
+  Each volume is created as an empty volume prior to execution of the
+  build step. Upon completion of the build, volumes and their contents
+  are discarded.
+  Using a named volume in only one step is not valid as it is
+  indicative of a build request with an incorrect configuration.  Structure is documented below.
+
+* `wait_for` -
+  (Optional)
+  The ID(s) of the step(s) that this build step depends on.
+  This build step will not start until all the build steps in `wait_for`
+  have completed successfully. If `wait_for` is empty, this build step
+  will start when all previous build steps in the `Build.Steps` list
+  have completed successfully.
+
+
+The `volumes` block supports:
+
+* `name` -
+  (Optional)
+  Name of the volume to mount.
+  Volume names must be unique per build step and must be valid names for
+  Docker volumes. Each named volume must be used by at least two build steps.
+
+* `path` -
+  (Optional)
+  Path at which to mount the volume.
+  Paths must be absolute and cannot conflict with other volume paths on
+  the same build step or with certain reserved volume paths.
 
 ## Attributes Reference
 

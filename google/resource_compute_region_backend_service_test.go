@@ -120,33 +120,6 @@ func TestAccComputeRegionBackendService_withBackendAndUpdate(t *testing.T) {
 	}
 }
 
-func TestAccComputeRegionBackendService_withConnectionDraining(t *testing.T) {
-	t.Parallel()
-
-	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	var svc compute.BackendService
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeRegionBackendService_withConnectionDraining(serviceName, checkName, 10),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeRegionBackendServiceExists(
-						"google_compute_region_backend_service.foobar", &svc),
-				),
-			},
-		},
-	})
-
-	if svc.ConnectionDraining.DrainingTimeoutSec != 10 {
-		t.Errorf("Expected ConnectionDraining.DrainingTimeoutSec == 10, got %d", svc.ConnectionDraining.DrainingTimeoutSec)
-	}
-}
-
 func TestAccComputeRegionBackendService_withConnectionDrainingAndUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -179,52 +152,6 @@ func TestAccComputeRegionBackendService_withConnectionDrainingAndUpdate(t *testi
 	if svc.ConnectionDraining.DrainingTimeoutSec != 0 {
 		t.Errorf("Expected ConnectionDraining.DrainingTimeoutSec == 0, got %d", svc.ConnectionDraining.DrainingTimeoutSec)
 	}
-}
-
-func TestAccComputeRegionBackendService_withSessionAffinity(t *testing.T) {
-	t.Parallel()
-
-	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	var svc compute.BackendService
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeRegionBackendService_withSessionAffinity(
-					serviceName, checkName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeRegionBackendServiceExists(
-						"google_compute_region_backend_service.foobar", &svc),
-				),
-			},
-		},
-	})
-
-	if svc.SessionAffinity != "CLIENT_IP" {
-		t.Errorf("Expected Protocol to be CLIENT_IP, got %q", svc.SessionAffinity)
-	}
-}
-
-func testAccCheckComputeRegionBackendServiceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_region_backend_service" {
-			continue
-		}
-
-		_, err := config.clientCompute.RegionBackendServices.Get(
-			config.Project, config.Region, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("Backend service still exists")
-		}
-	}
-
-	return nil
 }
 
 func testAccCheckComputeRegionBackendServiceExists(n string, svc *compute.BackendService) resource.TestCheckFunc {
@@ -359,28 +286,6 @@ resource "google_compute_health_check" "default" {
   }
 }
 `, serviceName, timeout, igName, itName, checkName)
-}
-
-func testAccComputeRegionBackendService_withSessionAffinity(serviceName, checkName string) string {
-	return fmt.Sprintf(`
-resource "google_compute_region_backend_service" "foobar" {
-  name                  = "%s"
-  health_checks         = ["${google_compute_health_check.zero.self_link}"]
-  region                = "us-central1"
-  session_affinity      = "CLIENT_IP"
-
-}
-
-resource "google_compute_health_check" "zero" {
-  name               = "%s"
-  check_interval_sec = 1
-  timeout_sec        = 1
-
-  tcp_health_check {
-    port = "80"
-  }
-}
-`, serviceName, checkName)
 }
 
 func testAccComputeRegionBackendService_withConnectionDraining(serviceName, checkName string, drainingTimeout int64) string {

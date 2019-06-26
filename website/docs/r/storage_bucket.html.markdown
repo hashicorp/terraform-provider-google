@@ -18,7 +18,9 @@ For more information see
 and
 [API](https://cloud.google.com/storage/docs/json_api/v1/buckets).
 
-**Note**: When importing a bucket or using only the default provider project for bucket creation, you will need to enable the Compute API and will otherwise get an error with a link to the API enablement page. If you would prefer not to enable the Compute API, make sure to explicitly set `project` on the bucket resource.
+**Note**: If the project id is not set on the resource or in the provider block it will be dynamically
+determined which will require enabling the compute api.
+
 
 ## Example Usage
 
@@ -71,6 +73,8 @@ The following arguments are supported:
 
 * `requester_pays` - (Optional, Default: false) Enables [Requester Pays](https://cloud.google.com/storage/docs/requester-pays) on a storage bucket.
 
+* `bucket_policy_only` - (Optional, Default: false) Enables [Bucket Policy Only](https://cloud.google.com/storage/docs/bucket-policy-only) access to a bucket.
+
 The `lifecycle_rule` block supports:
 
 * `action` - (Required) The Lifecycle Rule's action configuration. A single block of this type is supported. Structure is documented below.
@@ -89,7 +93,9 @@ The `condition` block supports the following elements, and requires at least one
 
 * `created_before` - (Optional) Creation date of an object in RFC 3339 (e.g. `2017-06-13`) to satisfy this condition.
 
-* `is_live` - (Optional) Defaults to `false` to match archived objects. If `true`, this condition matches live objects. Unversioned buckets have only live objects.
+* `with_state` - (Optional) Match to live and/or archived objects. Unversioned buckets have only live objects. Supported values include: `"LIVE"`, `"ARCHIVED"`, `"ANY"`. Unset or empty strings will be treated as `ARCHIVED` to maintain backwards compatibility with `is_live`.
+
+* `is_live` - (Optional, Deprecated) Defaults to `false` to match archived objects. If `true`, this condition matches live objects. Unversioned buckets have only live objects.
 
 * `matches_storage_class` - (Optional) [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects to satisfy this condition. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `STANDARD`, `DURABLE_REDUCED_AVAILABILITY`.
 
@@ -141,9 +147,15 @@ exported:
 
 ## Import
 
-Storage buckets can be imported using the `name`, e.g.
+Storage buckets can be imported using the `name` or  `project/name`. If the project is not
+passed to the import command it will be inferred from the provider block or environment variables.
+If it cannot be inferred it will be queried from the Compute API (this will fail if the API is
+not enabled).
+
+e.g.
 
 ```
 $ terraform import google_storage_bucket.image-store image-store-bucket
+$ terraform import google_storage_bucket.image-store tf-test-project/image-store-bucket
 ```
 

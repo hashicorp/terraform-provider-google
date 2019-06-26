@@ -21,8 +21,12 @@ a restricted host and strong password.
 ### SQL First Generation
 
 ```hcl
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
+}
+
 resource "google_sql_database_instance" "master" {
-  name = "master-instance"
+  name = "master-instance-${random_id.db_name_suffix.hex}"
   database_version = "MYSQL_5_6"
   # First-generation instance regions are not the conventional
   # Google Compute Engine regions. See argument reference below.
@@ -91,8 +95,12 @@ data "null_data_source" "auth_netw_postgres_allowed_2" {
   }
 }
 
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
+}
+
 resource "google_sql_database_instance" "postgres" {
-  name = "postgres-instance"
+  name = "postgres-instance-${random_id.db_name_suffix.hex}"
   database_version = "POSTGRES_9_6"
 
   settings {
@@ -109,38 +117,59 @@ resource "google_sql_database_instance" "postgres" {
 ```
 
 ### Private IP Instance
-
+~> **NOTE**: For private IP instance setup, note that the `google_sql_database_instance` does not actually interpolate values from `google_service_networking_connection`. You must explicitly add a `depends_on`reference as shown below.
 
 ```hcl
 resource "google_compute_network" "private_network" {
-	name       = "private-network"
+  provider = "google-beta"
+
+  name       = "private-network"
 }
 
 resource "google_compute_global_address" "private_ip_address" {
-	name          = "private-ip-address"
-	purpose       = "VPC_PEERING"
-	address_type = "INTERNAL"
-	prefix_length = 16
-	network       = "${google_compute_network.private_network.self_link}"
+  provider = "google-beta"
+
+  name          = "private-ip-address"
+  purpose       = "VPC_PEERING"
+  address_type = "INTERNAL"
+  prefix_length = 16
+  network       = "${google_compute_network.private_network.self_link}"
 }
 
 resource "google_service_networking_connection" "private_vpc_connection" {
-	network       = "${google_compute_network.private_network.self_link}"
-	service       = "servicenetworking.googleapis.com"
-	reserved_peering_ranges = ["${google_compute_global_address.private_ip_address.name}"]
+  provider = "google-beta"
+
+  network       = "${google_compute_network.private_network.self_link}"
+  service       = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = ["${google_compute_global_address.private_ip_address.name}"]
+}
+
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
 }
 
 resource "google_sql_database_instance" "instance" {
-	depends_on = ["google_service_networking_connection.private_vpc_connection"]
-	name = "private-instance"
-	region = "us-central1"
-	settings {
-		tier = "db-f1-micro"
-		ip_configuration {
-			ipv4_enabled = "false"
-			private_network = "${google_compute_network.private_network.self_link}"
-		}
-	}
+  provider = "google-beta"
+
+  name = "private-instance-${random_id.db_name_suffix.hex}"
+  region = "us-central1"
+
+  depends_on = [
+    "google_service_networking_connection.private_vpc_connection"
+  ]
+
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      ipv4_enabled = "false"
+      private_network = "${google_compute_network.private_network.self_link}"
+    }
+  }
+}
+
+provider "google-beta"{
+  region = "us-central1"
+  zone   = "us-central1-a"
 }
 ```
 
@@ -161,7 +190,7 @@ The following arguments are supported:
 
 - - -
 
-* `database_version` - (Optional, Default: `MYSQL_5_6`) The MySQL version to
+* `database_version` - (Optional, Default: `MYSQL_5_6`) The MySQL or PostgreSQL version to
     use. Can be `MYSQL_5_6`, `MYSQL_5_7` or `POSTGRES_9_6` for second-generation
     instances, or `MYSQL_5_5` or `MYSQL_5_6` for first-generation instances.
     See [Second Generation Capabilities](https://cloud.google.com/sql/docs/1st-2nd-gen-differences)
@@ -226,7 +255,8 @@ The optional `settings.database_flags` sublist supports:
 The optional `settings.backup_configuration` subblock supports:
 
 * `binary_log_enabled` - (Optional) True if binary logging is enabled. If
-    `logging` is false, this must be as well. Cannot be used with Postgres.
+    `settings.backup_configuration.enabled` is false, this must be as well. 
+    Cannot be used with Postgres.
 
 * `enabled` - (Optional) True if backup configuration is enabled.
 
@@ -369,9 +399,9 @@ performing filtering in a Terraform config.
 `google_sql_database_instance` provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 10 minutes.
-- `update` - Default is 10 minutes.
-- `delete` - Default is 10 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

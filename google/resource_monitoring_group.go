@@ -35,9 +35,9 @@ func resourceMonitoringGroup() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -108,7 +108,7 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/projects/{{project}}/groups")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}projects/{{project}}/groups")
 	if err != nil {
 		return err
 	}
@@ -142,7 +142,7 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -215,7 +215,7 @@ func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) err
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -240,7 +240,7 @@ func resourceMonitoringGroupDelete(d *schema.ResourceData, meta interface{}) err
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -260,7 +260,7 @@ func resourceMonitoringGroupImport(d *schema.ResourceData, meta interface{}) ([]
 
 	config := meta.(*Config)
 
-	// current import_formats can't import id's with forward slashes in them.
+	// current import_formats can't import fields with forward slashes in their value
 	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
@@ -288,18 +288,18 @@ func flattenMonitoringGroupFilter(v interface{}, d *schema.ResourceData) interfa
 	return v
 }
 
-func expandMonitoringGroupParentName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGroupParentName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringGroupIsCluster(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGroupIsCluster(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringGroupDisplayName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGroupDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringGroupFilter(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGroupFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

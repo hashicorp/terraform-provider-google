@@ -33,7 +33,7 @@ a virtual machine instance.
 
 To get more information about BackendBucket, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/latest/backendBuckets)
+* [API documentation](https://cloud.google.com/compute/docs/reference/v1/backendBuckets)
 * How-to Guides
     * [Using a Cloud Storage bucket as a load balancer backend](https://cloud.google.com/compute/docs/load-balancing/http/backend-bucket)
 
@@ -82,6 +82,10 @@ The following arguments are supported:
 - - -
 
 
+* `cdn_policy` -
+  (Optional)
+  Cloud CDN configuration for this Backend Bucket.  Structure is documented below.
+
 * `description` -
   (Optional)
   An optional textual description of the resource; provided by the
@@ -90,9 +94,23 @@ The following arguments are supported:
 * `enable_cdn` -
   (Optional)
   If true, enable Cloud CDN for this BackendBucket.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `cdn_policy` block supports:
+
+* `signed_url_cache_max_age_sec` -
+  (Optional)
+  Maximum number of seconds the response to a signed URL request will
+  be considered fresh. Defaults to 1hr (3600s). After this time period,
+  the response will be revalidated before being served.
+  When serving responses to signed URL requests,
+  Cloud CDN will internally behave as though
+  all responses from this backend had a "Cache-Control: public,
+  max-age=[TTL]" header, regardless of any existing Cache-Control
+  header. The actual headers served in responses will not be altered.
 
 ## Attributes Reference
 

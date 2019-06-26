@@ -55,6 +55,7 @@ resource "google_compute_region_disk" "regiondisk" {
   snapshot = "${google_compute_snapshot.snapdisk.self_link}"
   type = "pd-ssd"
   region = "us-central1"
+  physical_block_size_bytes = 4096
 
   replica_zones = ["us-central1-a", "us-central1-f"]
 }
@@ -86,7 +87,7 @@ func testAccCheckComputeRegionDiskDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/disks/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}")
 		if err != nil {
 			return err
 		}

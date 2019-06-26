@@ -36,8 +36,8 @@ func resourceSourceRepoRepository() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -75,7 +75,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 		obj["name"] = nameProp
 	}
 
-	url, err := replaceVars(d, config, "https://sourcerepo.googleapis.com/v1/projects/{{project}}/repos")
+	url, err := replaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos")
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://sourcerepo.googleapis.com/v1/projects/{{project}}/repos/{{name}}")
+	url, err := replaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://sourcerepo.googleapis.com/v1/projects/{{project}}/repos/{{name}}")
+	url, err := replaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -191,6 +191,6 @@ func flattenSourceRepoRepositorySize(v interface{}, d *schema.ResourceData) inte
 	return v
 }
 
-func expandSourceRepoRepositoryName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandSourceRepoRepositoryName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return replaceVars(d, config, "projects/{{project}}/repos/{{name}}")
 }

@@ -37,9 +37,9 @@ func resourceStorageObjectAccessControl() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -128,7 +128,7 @@ func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta inter
 		obj["role"] = roleProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/storage/v1/b/{{bucket}}/o/{{object}}/acl")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl")
 	if err != nil {
 		return err
 	}
@@ -154,7 +154,7 @@ func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta inter
 func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/storage/v1/b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -224,7 +224,7 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 		obj["role"] = roleProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/storage/v1/b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -242,7 +242,7 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 func resourceStorageObjectAccessControlDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/storage/v1/b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -338,18 +338,18 @@ func flattenStorageObjectAccessControlRole(v interface{}, d *schema.ResourceData
 	return v
 }
 
-func expandStorageObjectAccessControlBucket(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandStorageObjectAccessControlBucket(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageObjectAccessControlEntity(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandStorageObjectAccessControlEntity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageObjectAccessControlObject(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandStorageObjectAccessControlObject(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageObjectAccessControlRole(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandStorageObjectAccessControlRole(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

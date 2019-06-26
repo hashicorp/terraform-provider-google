@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccDataSourceGoogleCloudFunctionsFunction_basic(t *testing.T) {
@@ -31,54 +30,12 @@ func TestAccDataSourceGoogleCloudFunctionsFunction_basic(t *testing.T) {
 				Config: testAccDataSourceGoogleCloudFunctionsFunctionConfig(functionName,
 					bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceGoogleCloudFunctionsFunctionCheck(funcDataNameHttp,
+					checkDataSourceStateMatchesResourceState(funcDataNameHttp,
 						"google_cloudfunctions_function.function_http"),
 				),
 			},
 		},
 	})
-}
-
-func testAccDataSourceGoogleCloudFunctionsFunctionCheck(dataSourceName string, resourceName string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		ds, ok := s.RootModule().Resources[dataSourceName]
-		if !ok {
-			return fmt.Errorf("root module has no resource called %s", dataSourceName)
-		}
-
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("can't find %s in state", resourceName)
-		}
-
-		dsAttr := ds.Primary.Attributes
-		rsAttr := rs.Primary.Attributes
-
-		cloudFuncAttrToCheck := []string{
-			"name",
-			"region",
-			"description",
-			"available_memory_mb",
-			"timeout",
-			"storage_bucket",
-			"storage_object",
-			"entry_point",
-			"trigger_http",
-		}
-
-		for _, attr := range cloudFuncAttrToCheck {
-			if dsAttr[attr] != rsAttr[attr] {
-				return fmt.Errorf(
-					"%s is %s; want %s",
-					attr,
-					dsAttr[attr],
-					rsAttr[attr],
-				)
-			}
-		}
-
-		return nil
-	}
 }
 
 func testAccDataSourceGoogleCloudFunctionsFunctionConfig(functionName, bucketName, zipFilePath string) string {

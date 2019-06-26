@@ -36,7 +36,7 @@ healthy again and can receive new connections.
 
 To get more information about HealthCheck, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/latest/healthChecks)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/healthChecks)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/load-balancing/docs/health-checks)
 
@@ -121,6 +121,7 @@ The following arguments are supported:
 * `ssl_health_check` -
   (Optional)
   A nested object resource  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

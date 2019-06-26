@@ -24,7 +24,7 @@ and
 resource "google_logging_project_sink" "my-sink" {
     name = "my-pubsub-instance-sink"
 
-    # Can export to pubsub, cloud storage, or bigtable
+    # Can export to pubsub, cloud storage, or bigquery
     destination = "pubsub.googleapis.com/projects/my-project/topics/instance-activity"
 
     # Log all WARN or higher severity messages relating to instances

@@ -190,8 +190,6 @@ The following arguments are supported:
 
 * `machine_type` - (Required) The machine type to create.
 
-    **Note:** If you want to update this value (resize the VM) after initial creation, you must set [`allow_stopping_for_update`](#allow_stopping_for_update) to `true`.
-
     To create a machine with a [custom type][custom-vm-types] (such as extended memory), format the value like `custom-VCPUS-MEM_IN_MB` like `custom-6-20480` for 6 vCPU and 20GB of RAM.
 
 - - -
@@ -246,6 +244,9 @@ The following arguments are supported:
 * `min_cpu_platform` - (Optional) Specifies a minimum CPU platform. Applicable values are the friendly names of CPU platforms, such as
 `Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
 
+* `shielded_instance_config` - (Optional) Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is documented below.
+	**Note**: [`shielded_instance_config`](#shielded_instance_config) can only be used with boot images with shielded vm support. See the complete list [here](https://cloud.google.com/compute/docs/images#shielded-images).
+
 The `disk` block supports:
 
 * `auto_delete` - (Optional) Whether or not the disk should be auto-deleted.
@@ -275,7 +276,7 @@ The `disk` block supports:
     read-write mode.
 
 * `source` - (Required if source_image not set) The name (**not self_link**)
-    of the disk (such as those managed by `google_compute_disk`) to attach. 
+    of the disk (such as those managed by `google_compute_disk`) to attach.
 
 * `disk_type` - (Optional) The GCE disk type. Can be either `"pd-ssd"`,
     `"local-ssd"`, or `"pd-standard"`.
@@ -357,6 +358,11 @@ The `service_account` block supports:
     short names are supported. To allow full access to all Cloud APIs, use the
     `cloud-platform` scope. See a complete list of scopes [here](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes).
 
+    The [service accounts documentation](https://cloud.google.com/compute/docs/access/service-accounts#accesscopesiam)
+    explains that access scopes are the legacy method of specifying permissions for your instance.
+    If you are following best practices and using IAM roles to grant permissions to service accounts,
+    then you can define this field as an empty list.
+
 The `scheduling` block supports:
 
 * `automatic_restart` - (Optional) Specifies whether the instance should be
@@ -370,11 +376,34 @@ The `scheduling` block supports:
     false. Read more on this
     [here](https://cloud.google.com/compute/docs/instances/preemptible).
 
+* `node_affinities` - (Optional) Specifies node affinities or anti-affinities
+   to determine which sole-tenant nodes your instances and managed instance
+   groups will use as host systems. Read more on sole-tenant node creation
+   [here](https://cloud.google.com/compute/docs/nodes/create-nodes).
+   Structure documented below.
+
 The `guest_accelerator` block supports:
 
 * `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
 
 * `count` (Required) - The number of the guest accelerator cards exposed to this instance.
+
+The `node_affinities` block supports:
+
+* `key` (Required) - The key for the node affinity label.
+
+* `operator` (Required) - The operator. Can be `IN` for node-affinities
+    or `NOT` for anti-affinities.
+
+* `value` (Required) - The values for the node affinity label.
+
+The `shielded_instance_config` block supports:
+
+* `enable_secure_boot` (Optional) -- Verify the digital signature of all boot components, and halt the boot process if signature verification fails. Defaults to false.
+
+* `enable_vtpm` (Optional) -- Use a virtualized trusted platform module, which is a specialized computer chip you can use to encrypt objects like keys and certificates. Defaults to true.
+
+* `enable_integrity_monitoring` (Optional) -- Compare the most recent boot measurements to the integrity policy baseline and return a pair of pass/fail results depending on whether they match or not. Defaults to true.
 
 ## Attributes Reference
 

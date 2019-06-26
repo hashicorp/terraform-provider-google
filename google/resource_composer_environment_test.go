@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -228,14 +228,17 @@ func testAccComposerEnvironmentDestroy(s *terraform.State) error {
 func testAccComposerEnvironment_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
-  name           = "%s"
-  region         = "us-central1"
+	name           = "%s"
+	region         = "us-central1"
 }
 `, name)
 }
 
 func testAccComposerEnvironment_update(name string) string {
 	return fmt.Sprintf(`
+data "google_composer_image_versions" "all" {
+}
+
 resource "google_composer_environment" "test" {
 	name = "%s"
 	region = "us-central1"
@@ -244,6 +247,7 @@ resource "google_composer_environment" "test" {
 		node_count = 4
 
 		software_config {
+
 			airflow_config_overrides = {
 			  core-load_example = "True"
 			}
@@ -335,7 +339,7 @@ func testSweepComposerResources(region string) error {
 		return fmt.Errorf("error getting shared config for region: %s", err)
 	}
 
-	err = config.loadAndValidate()
+	err = config.LoadAndValidate()
 	if err != nil {
 		log.Fatalf("error loading: %s", err)
 	}

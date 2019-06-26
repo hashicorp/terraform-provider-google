@@ -86,7 +86,12 @@ resource "google_compute_router_nat" "advanced-nat" {
   nat_ips                            = ["${google_compute_address.address.*.self_link}"]
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
   subnetwork {
-    name = "${google_compute_subnetwork.subnetwork.self_link}"
+    name                    = "${google_compute_subnetwork.default.self_link}"
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
+  log_config {
+    filter = "TRANSLATIONS_ONLY"
+    enable = true
   }
 }
 ```
@@ -157,10 +162,22 @@ The `subnetwork` block supports:
     that are allowed to use NAT. This can be populated only if
     `LIST_OF_SECONDARY_IP_RANGES` is one of the values in `source_ip_ranges_to_nat`.
 
+The `log_config` block supports:
+
+* `filter` - (Required) Specifies the desired filtering of logs on this NAT.
+    Valid values include: `ALL`, `ERRORS_ONLY`, `TRANSLATIONS_ONLY`
+
+* `enable` - (Required) Whether to export logs.
+
 ## Import
 
-Router NATs can be imported using the `region`, `router`, and `name`, e.g.
+Router NATs can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_compute_router_nat.my-nat us-central1/router-1/nat-1
+$ terraform import google_compute_router_nat.default {{project}}/{{region}}/{{router}}/{{name}}
+$ terraform import google_compute_router_nat.default {{region}}/{{router}}/{{name}}
+$ terraform import google_compute_router_nat.default {{router}}/{{name}}
 ```
+
+-> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
+as an argument so that Terraform uses the correct provider to import your resource.

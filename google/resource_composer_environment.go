@@ -317,7 +317,6 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 		}
 
 		if d.HasChange("config.0.software_config.0.airflow_config_overrides") {
-
 			patchObj := &composer.Environment{
 				Config: &composer.EnvironmentConfig{
 					SoftwareConfig: &composer.SoftwareConfig{

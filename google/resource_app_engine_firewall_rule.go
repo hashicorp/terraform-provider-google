@@ -38,9 +38,9 @@ func resourceAppEngineFirewallRule() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -100,7 +100,7 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 		obj["priority"] = priorityProp
 	}
 
-	url, err := replaceVars(d, config, "https://appengine.googleapis.com/v1/apps/{{project}}/firewall/ingressRules")
+	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules")
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 func resourceAppEngineFirewallRuleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://appengine.googleapis.com/v1/apps/{{project}}/firewall/ingressRules/{{priority}}")
+	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return err
 	}
@@ -189,7 +189,7 @@ func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{
 		obj["priority"] = priorityProp
 	}
 
-	url, err := replaceVars(d, config, "https://appengine.googleapis.com/v1/apps/{{project}}/firewall/ingressRules/{{priority}}")
+	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return err
 	}
@@ -230,7 +230,7 @@ func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{
 func resourceAppEngineFirewallRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://appengine.googleapis.com/v1/apps/{{project}}/firewall/ingressRules/{{priority}}")
+	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return err
 	}
@@ -284,18 +284,18 @@ func flattenAppEngineFirewallRulePriority(v interface{}, d *schema.ResourceData)
 	return v
 }
 
-func expandAppEngineFirewallRuleDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFirewallRuleDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineFirewallRuleSourceRange(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFirewallRuleSourceRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineFirewallRuleAction(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFirewallRuleAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineFirewallRulePriority(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFirewallRulePriority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

@@ -37,10 +37,21 @@ func computeInstanceFromTemplateSchema() map[string]*schema.Schema {
 		s[field].Optional = true
 	}
 
+	// schema.SchemaConfigModeAttr allows these fields to be removed in Terraform 0.12.
+	// Passing field_name = [] in this mode differentiates between an intentionally empty
+	// block vs an ignored computed block.
+	nic := s["network_interface"].Elem.(*schema.Resource)
+	nic.Schema["alias_ip_range"].ConfigMode = schema.SchemaConfigModeAttr
+	nic.Schema["access_config"].ConfigMode = schema.SchemaConfigModeAttr
+
+	for _, field := range []string{"attached_disk", "guest_accelerator", "service_account", "scratch_disk"} {
+		s[field].ConfigMode = schema.SchemaConfigModeAttr
+	}
+
 	// Remove deprecated/removed fields that are never d.Set. We can't
 	// programatically remove all of them, because some of them still have d.Set
 	// calls.
-	for _, field := range []string{"create_timeout", "disk", "network"} {
+	for _, field := range []string{"disk", "network"} {
 		delete(s, field)
 	}
 
@@ -170,10 +181,12 @@ func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *Config, it 
 		// boot disk was not overridden, so use the one from the instance template
 		for _, disk := range it.Properties.Disks {
 			if disk.Boot {
-				if dt := disk.InitializeParams.DiskType; dt != "" {
-					// Instances need a URL for the disk type, but instance templates
-					// only have the name (since they're global).
-					disk.InitializeParams.DiskType = fmt.Sprintf("zones/%s/diskTypes/%s", zone.Name, dt)
+				if disk.InitializeParams != nil {
+					if dt := disk.InitializeParams.DiskType; dt != "" {
+						// Instances need a URL for the disk type, but instance templates
+						// only have the name (since they're global).
+						disk.InitializeParams.DiskType = fmt.Sprintf("zones/%s/diskTypes/%s", zone.Name, dt)
+					}
 				}
 				disks = append(disks, disk)
 				break
@@ -191,6 +204,13 @@ func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *Config, it 
 		// scratch disks were not overridden, so use the ones from the instance template
 		for _, disk := range it.Properties.Disks {
 			if disk.Type == "SCRATCH" {
+				if disk.InitializeParams != nil {
+					if dt := disk.InitializeParams.DiskType; dt != "" {
+						// Instances need a URL for the disk type, but instance templates
+						// only have the name (since they're global).
+						disk.InitializeParams.DiskType = fmt.Sprintf("zones/%s/diskTypes/%s", zone.Name, dt)
+					}
+				}
 				disks = append(disks, disk)
 			}
 		}
@@ -215,6 +235,13 @@ func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *Config, it 
 					// Instances need a URL for the disk source, but instance templates
 					// only have the name (since they're global).
 					disk.Source = fmt.Sprintf("zones/%s/disks/%s", zone.Name, s)
+				}
+				if disk.InitializeParams != nil {
+					if dt := disk.InitializeParams.DiskType; dt != "" {
+						// Instances need a URL for the disk type, but instance templates
+						// only have the name (since they're global).
+						disk.InitializeParams.DiskType = fmt.Sprintf("zones/%s/diskTypes/%s", zone.Name, dt)
+					}
 				}
 				disks = append(disks, disk)
 			}

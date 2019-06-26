@@ -62,6 +62,74 @@ resource "google_compute_target_pool" "default" {
 `, context)
 }
 
+func TestAccComputeForwardingRule_forwardingRuleInternallbExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeForwardingRule_forwardingRuleInternallbExample(context),
+			},
+			{
+				ResourceName:      "google_compute_forwarding_rule.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeForwardingRule_forwardingRuleInternallbExample(context map[string]interface{}) string {
+	return Nprintf(`
+// Forwarding rule for Internal Load Balancing
+resource "google_compute_forwarding_rule" "default" {
+  name                  = "website-forwarding-rule-%{random_suffix}"
+  region                = "us-central1"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = "${google_compute_region_backend_service.backend.self_link}"
+  all_ports             = true
+  network               = "${google_compute_network.default.name}"
+  subnetwork            = "${google_compute_subnetwork.default.name}"
+}
+
+resource "google_compute_region_backend_service" "backend" {
+  name                  = "website-backend-%{random_suffix}"
+  region                = "us-central1"
+  health_checks         = ["${google_compute_health_check.hc.self_link}"]
+}
+
+resource "google_compute_health_check" "hc" {
+  name               = "check-website-backend-%{random_suffix}"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_network" "default" {
+  name = "website-net-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "website-net-%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = "${google_compute_network.default.self_link}"
+}
+`, context)
+}
+
 func testAccCheckComputeForwardingRuleDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_compute_forwarding_rule" {
@@ -73,7 +141,7 @@ func testAccCheckComputeForwardingRuleDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 		if err != nil {
 			return err
 		}

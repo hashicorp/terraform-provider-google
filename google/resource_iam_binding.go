@@ -20,7 +20,11 @@ var iamBindingSchema = map[string]*schema.Schema{
 		Type:     schema.TypeSet,
 		Required: true,
 		Elem: &schema.Schema{
-			Type: schema.TypeString,
+			Type:             schema.TypeString,
+			DiffSuppressFunc: caseDiffSuppress,
+		},
+		Set: func(v interface{}) int {
+			return schema.HashString(strings.ToLower(v.(string)))
 		},
 	},
 	"etag": {
@@ -77,7 +81,7 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 		}
 
 		eBinding := getResourceIamBinding(d)
-		p, err := updater.GetResourceIamPolicy()
+		p, err := iamPolicyReadWithRetry(updater)
 		if err != nil {
 			if isGoogleApiErrorWithCode(err, 404) {
 				log.Printf("[DEBUG]: Binding for role %q not found for non-existent resource %s, removing from state file.", updater.DescribeResource(), eBinding.Role)
@@ -98,13 +102,14 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 			break
 		}
 		if binding == nil {
-			log.Printf("[DEBUG]: Binding for role %q not found in policy for %s, removing from state file.", eBinding.Role, updater.DescribeResource())
-			d.SetId("")
+			log.Printf("[DEBUG]: Binding for role %q not found in policy for %s, assuming it has no members.", eBinding.Role, updater.DescribeResource())
+			d.Set("role", eBinding.Role)
 			return nil
+		} else {
+			d.Set("role", binding.Role)
+			d.Set("members", binding.Members)
 		}
 		d.Set("etag", p.Etag)
-		d.Set("members", binding.Members)
-		d.Set("role", binding.Role)
 		return nil
 	}
 }

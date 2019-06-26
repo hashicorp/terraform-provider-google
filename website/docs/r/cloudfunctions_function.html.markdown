@@ -29,6 +29,8 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "function" {
   name                  = "function-test"
   description           = "My function"
+  runtime               = "nodejs10"
+
   available_memory_mb   = 128
   source_archive_bucket = "${google_storage_bucket.bucket.name}"
   source_archive_object = "${google_storage_bucket_object.archive.name}"
@@ -51,6 +53,11 @@ The following arguments are supported:
 
 * `name` - (Required) A user-defined name of the function. Function names must be unique globally.
 
+* `runtime` - (Optional) The runtime in which the function is going to run. One
+of `"nodejs6"`, `"nodejs8"`, `"nodejs10"`, `"python37"`, `"go111"`. If empty,
+defaults to `"nodejs6"`. It's recommended that you override the default, as
+`"nodejs6"` is deprecated.
+
 - - -
 
 * `description` - (Optional) Description of the function.
@@ -67,8 +74,6 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the function.
 
-* `runtime` - (Optional) The runtime in which the function is going to run. If empty, defaults to `"nodejs6"`.
-
 * `service_account_email` - (Optional) If provided, the self-provided service account to run the function with.
 
 * `environment_variables` - (Optional) A set of key/value environment variable pairs to assign to the function.
@@ -79,6 +84,8 @@ The following arguments are supported:
 
 * `source_repository` - (Optional) Represents parameters related to source repository where a function is hosted.
   Cannot be set alongside `source_archive_bucket` or `source_archive_object`. Structure is documented below.
+
+* `max_instances` - (Optional) The limit on the maximum number of function instances that may coexist at a given time.
 
 The `event_trigger` block supports:
 
@@ -96,7 +103,7 @@ The `failure_policy` block supports:
 
 * `retry` - (Required) Whether the function should be retried on failure. Defaults to `false`.
 
-The `source_reposoitory` block supports:
+The `source_repository` block supports:
 
 * `url` - (Required) The URL pointing to the hosted repository where the function is defined. There are supported Cloud Source Repository URLs in the following formats:
 
@@ -111,7 +118,7 @@ exported:
 
 * `https_trigger_url` - URL which triggers function execution. Returned only if `trigger_http` is used.
 
-* `source_reposoitory.0.deployed_url` - The URL pointing to the hosted repository where the function was defined at the time of deployment.
+* `source_repository.0.deployed_url` - The URL pointing to the hosted repository where the function was defined at the time of deployment.
 
 * `project` - Project of the function. If it is not provided, the provider project is used.
 

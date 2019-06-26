@@ -437,38 +437,6 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 	})
 }
 
-func TestAccComputeDisk_computeDiskUserRegex(t *testing.T) {
-
-	shouldPass := []string{
-
-		"https://www.googleapis.com/compute/v1/projects/project-id/zones/us-central1/instances/123",
-		"https://www.googleapis.com/compute/v1/projects/123123/zones/us-central1/instances/123",
-		"https://www.googleapis.com/compute/v1/projects/hashicorptest.net:project-123/zones/us-central1/instances/123",
-		"https://www.googleapis.com/compute/v1/projects/123/zones/456/instances/789",
-	}
-
-	shouldFail := []string{
-		"https://www.googleapis.com/compute/v1/projects/project#/zones/us-central1/instances/123",
-		"https://www.googleapis.com/compute/v1/projects/project/zones/us-central#/instances/123",
-		"https://www.googleapis.com/compute/v1/projects/project/zones/us-central1/instances/?",
-		"https://www.googleapis.com/compute/v1/projects/foo.com:bar:baz/zones/us-central1/instances/?",
-		"https://www.googleapis.com/compute/v1/projects/foo.com:/zones/us-central1/instances/?",
-	}
-
-	for _, element := range shouldPass {
-		if !computeDiskUserRegex.MatchString(element) {
-			t.Error("computeDiskUserRegex should match on '" + element + "' but doesn't")
-		}
-	}
-
-	for _, element := range shouldFail {
-		if computeDiskUserRegex.MatchString(element) {
-			t.Error("computeDiskUserRegex shouldn't match on '" + element + "' but does")
-		}
-	}
-
-}
-
 func testAccCheckComputeDiskExists(n, p string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]

@@ -35,9 +35,9 @@ func resourceMonitoringNotificationChannel() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -123,7 +123,7 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 	enabledProp, err := expandMonitoringNotificationChannelEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enabled"); !isEmptyValue(reflect.ValueOf(enabledProp)) && (ok || !reflect.DeepEqual(v, enabledProp)) {
+	} else if v, ok := d.GetOkExists("enabled"); ok || !reflect.DeepEqual(v, enabledProp) {
 		obj["enabled"] = enabledProp
 	}
 
@@ -134,7 +134,7 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/projects/{{project}}/notificationChannels")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}projects/{{project}}/notificationChannels")
 	if err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -251,7 +251,7 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 	enabledProp, err := expandMonitoringNotificationChannelEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enabled"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enabledProp)) {
+	} else if v, ok := d.GetOkExists("enabled"); ok || !reflect.DeepEqual(v, enabledProp) {
 		obj["enabled"] = enabledProp
 	}
 
@@ -262,7 +262,7 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -287,7 +287,7 @@ func resourceMonitoringNotificationChannelDelete(d *schema.ResourceData, meta in
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -307,7 +307,7 @@ func resourceMonitoringNotificationChannelImport(d *schema.ResourceData, meta in
 
 	config := meta.(*Config)
 
-	// current import_formats can't import id's with forward slashes in them.
+	// current import_formats can't import fields with forward slashes in their value
 	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
@@ -392,7 +392,7 @@ func flattenMonitoringNotificationChannelEnabled(v interface{}, d *schema.Resour
 	return v
 }
 
-func expandMonitoringNotificationChannelLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandMonitoringNotificationChannelLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -403,11 +403,11 @@ func expandMonitoringNotificationChannelLabels(v interface{}, d *schema.Resource
 	return m, nil
 }
 
-func expandMonitoringNotificationChannelType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringNotificationChannelType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringNotificationChannelUserLabels(v interface{}, d *schema.ResourceData, config *Config) (map[string]string, error) {
+func expandMonitoringNotificationChannelUserLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -418,14 +418,14 @@ func expandMonitoringNotificationChannelUserLabels(v interface{}, d *schema.Reso
 	return m, nil
 }
 
-func expandMonitoringNotificationChannelDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringNotificationChannelDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringNotificationChannelDisplayName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringNotificationChannelDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringNotificationChannelEnabled(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringNotificationChannelEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

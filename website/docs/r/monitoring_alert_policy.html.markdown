@@ -34,11 +34,6 @@ To get more information about AlertPolicy, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/monitoring/alerts/)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=monitoring_alert_policy_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Monitoring Alert Policy Basic
 
 
@@ -57,6 +52,10 @@ resource "google_monitoring_alert_policy" "alert_policy" {
         per_series_aligner = "ALIGN_RATE"
       }
     }
+  }
+
+  user_labels = {
+    foo = "bar"
   }
 }
 ```
@@ -584,9 +583,13 @@ The `aggregations` block supports:
   entries in this field is
   `projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID]`
 
-* `labels` -
+* `user_labels` -
   (Optional)
-  User-supplied key/value data to be used for organizing AlertPolicy objects.
+  This field is intended to be used for organizing and identifying the AlertPolicy
+  objects.The field can contain up to 64 entries. Each key and value is limited
+  to 63 Unicode characters or 128 bytes, whichever is smaller. Labels and values
+  can contain only lowercase letters, numerals, underscores, and dashes. Keys
+  must begin with a letter.
 
 * `documentation` -
   (Optional)
@@ -594,6 +597,7 @@ The `aggregations` block supports:
   notifications, and incidents. To avoid confusion, don't use the same
   display name for multiple policies in the same project. The name is
   limited to 512 Unicode characters.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

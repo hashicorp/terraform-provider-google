@@ -60,9 +60,9 @@ func resourceComputeFirewall() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		SchemaVersion: 1,
@@ -138,6 +138,7 @@ func resourceComputeFirewall() *schema.Resource {
 			"source_service_accounts": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				MaxItems: 10,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -156,6 +157,7 @@ func resourceComputeFirewall() *schema.Resource {
 			"target_service_accounts": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				MaxItems: 10,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -280,7 +282,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	priorityProp, err := expandComputeFirewallPriority(d.Get("priority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("priority"); !isEmptyValue(reflect.ValueOf(priorityProp)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
+	} else if v, ok := d.GetOkExists("priority"); ok || !reflect.DeepEqual(v, priorityProp) {
 		obj["priority"] = priorityProp
 	}
 	sourceRangesProp, err := expandComputeFirewallSourceRanges(d.Get("source_ranges"), d, config)
@@ -314,7 +316,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 		obj["targetTags"] = targetTagsProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/firewalls")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls")
 	if err != nil {
 		return err
 	}
@@ -360,7 +362,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/firewalls/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -473,7 +475,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 	priorityProp, err := expandComputeFirewallPriority(d.Get("priority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("priority"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
+	} else if v, ok := d.GetOkExists("priority"); ok || !reflect.DeepEqual(v, priorityProp) {
 		obj["priority"] = priorityProp
 	}
 	sourceRangesProp, err := expandComputeFirewallSourceRanges(d.Get("source_ranges"), d, config)
@@ -507,7 +509,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["targetTags"] = targetTagsProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/firewalls/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -543,7 +545,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/firewalls/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -726,7 +728,7 @@ func flattenComputeFirewallTargetTags(v interface{}, d *schema.ResourceData) int
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func expandComputeFirewallAllow(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallAllow(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -756,15 +758,15 @@ func expandComputeFirewallAllow(v interface{}, d *schema.ResourceData, config *C
 	return req, nil
 }
 
-func expandComputeFirewallAllowProtocol(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallAllowProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallAllowPorts(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallAllowPorts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallDeny(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDeny(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -794,36 +796,36 @@ func expandComputeFirewallDeny(v interface{}, d *schema.ResourceData, config *Co
 	return req, nil
 }
 
-func expandComputeFirewallDenyProtocol(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDenyProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallDenyPorts(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDenyPorts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallDestinationRanges(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDestinationRanges(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeFirewallDirection(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDirection(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallDisabled(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
@@ -831,31 +833,31 @@ func expandComputeFirewallNetwork(v interface{}, d *schema.ResourceData, config 
 	return f.RelativeLink(), nil
 }
 
-func expandComputeFirewallPriority(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallPriority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallSourceRanges(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallSourceRanges(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeFirewallSourceServiceAccounts(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallSourceServiceAccounts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeFirewallSourceTags(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallSourceTags(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeFirewallTargetServiceAccounts(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallTargetServiceAccounts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeFirewallTargetTags(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallTargetTags(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }

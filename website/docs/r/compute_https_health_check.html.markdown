@@ -34,7 +34,7 @@ which still require the legacy version.
 
 To get more information about HttpsHealthCheck, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/latest/httpsHealthChecks)
+* [API documentation](https://cloud.google.com/compute/docs/reference/v1/httpsHealthChecks)
 * How-to Guides
     * [Adding Health Checks](https://cloud.google.com/compute/docs/load-balancing/health-checks#legacy_health_checks)
 
@@ -116,6 +116,7 @@ The following arguments are supported:
   (Optional)
   A so-far healthy instance will be marked unhealthy after this many
   consecutive failures. The default value is 2.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

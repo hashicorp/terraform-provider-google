@@ -88,9 +88,6 @@ The following arguments are supported:
     packets with non-matching source or destination IPs.
     This defaults to false.
 
-* `create_timeout` - (Optional) Configurable timeout in minutes for creating instances. Default is 4 minutes.
-    Changing this forces a new resource to be created.
-
 * `description` - (Optional) A brief description of this resource.
 
 * `deletion_protection` - (Optional) Enable deletion protection on this instance. Defaults to false.
@@ -134,6 +131,9 @@ The following arguments are supported:
 
 * `tags` - (Optional) A list of tags to attach to the instance.
 
+* `shielded_instance_config` - (Optional) Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is documented below.
+	**Note**: [`shielded_instance_config`](#shielded_instance_config) can only be used with boot images with shielded vm support. See the complete list [here](https://cloud.google.com/compute/docs/images#shielded-images).
+
 ---
 
 The `boot_disk` block supports:
@@ -147,14 +147,20 @@ The `boot_disk` block supports:
 * `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
     encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
-    to encrypt this disk.
+    to encrypt this disk. Only one of `kms_key_self_link` and `disk_encryption_key_raw`
+    may be set.
+
+* `kms_key_self_link` - (Optional) The self_link of the encryption key that is
+    stored in Google Cloud KMS to encrypt this disk. Only one of `kms_key_self_link`
+    and `disk_encryption_key_raw` may be set.
 
 * `initialize_params` - (Optional) Parameters for a new disk that will be created
     alongside the new instance. Either `initialize_params` or `source` must be set.
     Structure is documented below.
 
 * `source` - (Optional) The name or self_link of the existing disk (such as those managed by
-    `google_compute_disk`) to attach.
+    `google_compute_disk`) or disk image. To create an instance from a snapshot, first create a
+    `google_compute_disk` from a snapshot and reference it here.
 
 The `initialize_params` block supports:
 
@@ -193,7 +199,11 @@ The `attached_disk` block supports:
 * `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
     encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
-    to encrypt this disk.
+    to encrypt this disk. Only one of `kms_key_self_link` and `disk_encryption_key_raw` may be set.
+
+* `kms_key_self_link` - (Optional) The self_link of the encryption key that is
+    stored in Google Cloud KMS to encrypt this disk. Only one of `kms_key_self_link`
+    and `disk_encryption_key_raw` may be set.
 
 The `network_interface` block supports:
 
@@ -214,11 +224,10 @@ The `network_interface` block supports:
 
 * `access_config` - (Optional) Access configurations, i.e. IPs via which this
     instance can be accessed via the Internet. Omit to ensure that the instance
-    is not accessible from the Internet (this means that ssh provisioners will
-    not work unless you are running Terraform can send traffic to the instance's
-    network (e.g. via tunnel or because it is running on another cloud instance
-    on that network). This block can be repeated multiple times. Structure
-    documented below.
+    is not accessible from the Internet. If omitted, ssh provisioners will not
+    work unless Terraform can send traffic to the instance's network (e.g. via
+    tunnel or because it is running on another cloud instance on that network).
+    This block can be repeated multiple times. Structure documented below.
 
 * `alias_ip_range` - (Optional) An
     array of alias IP ranges for this network interface. Can only be specified for network
@@ -262,20 +271,46 @@ The `service_account` block supports:
 
 The `scheduling` block supports:
 
-* `preemptible` - (Optional) Is the instance preemptible.
+* `preemptible` - (Optional) Specifies if the instance is preemptible.
+    If this field is set to true, then `automatic_restart` must be
+    set to false.  Defaults to false.
 
 * `on_host_maintenance` - (Optional) Describes maintenance behavior for the
     instance. Can be MIGRATE or TERMINATE, for more info, read
-    [here](https://cloud.google.com/compute/docs/instances/setting-instance-scheduling-options)
+    [here](https://cloud.google.com/compute/docs/instances/setting-instance-scheduling-options).
 
 * `automatic_restart` - (Optional) Specifies if the instance should be
     restarted if it was terminated by Compute Engine (not a user).
+    Defaults to true.
+
+* `node_affinities` - (Optional) Specifies node affinities or anti-affinities
+   to determine which sole-tenant nodes your instances and managed instance
+   groups will use as host systems. Read more on sole-tenant node creation
+   [here](https://cloud.google.com/compute/docs/nodes/create-nodes).
+   Structure documented below.
 
 The `guest_accelerator` block supports:
 
 * `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
 
 * `count` (Required) - The number of the guest accelerator cards exposed to this instance.
+
+The `node_affinities` block supports:
+
+* `key` (Required) - The key for the node affinity label.
+
+* `operator` (Required) - The operator. Can be `IN` for node-affinities
+    or `NOT` for anti-affinities.
+
+* `value` (Required) - The values for the node affinity label.
+
+The `shielded_instance_config` block supports:
+
+* `enable_secure_boot` (Optional) -- Verify the digital signature of all boot components, and halt the boot process if signature verification fails. Defaults to false.
+
+* `enable_vtpm` (Optional) -- Use a virtualized trusted platform module, which is a specialized computer chip you can use to encrypt objects like keys and certificates. Defaults to true.
+
+* `enable_integrity_monitoring` (Optional) -- Compare the most recent boot measurements to the integrity policy baseline and return a pair of pass/fail results depending on whether they match or not. Defaults to true.
 
 ## Attributes Reference
 
@@ -309,6 +344,15 @@ exported:
 * `disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     encoded SHA-256 hash of the [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption) that protects this resource.
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

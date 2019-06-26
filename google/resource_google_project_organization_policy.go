@@ -14,6 +14,10 @@ func resourceGoogleProjectOrganizationPolicy() *schema.Resource {
 		Update: resourceGoogleProjectOrganizationPolicyUpdate,
 		Delete: resourceGoogleProjectOrganizationPolicyDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: resourceProjectOrgPolicyImporter,
+		},
+
 		Schema: mergeSchemas(
 			schemaOrganizationPolicy,
 			map[string]*schema.Schema{
@@ -27,12 +31,34 @@ func resourceGoogleProjectOrganizationPolicy() *schema.Resource {
 	}
 }
 
+func resourceProjectOrgPolicyImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+):constraints/(?P<constraint>[^/]+)",
+		"(?P<project>[^/]+):constraints/(?P<constraint>[^/]+)",
+		"(?P<project>[^/]+):(?P<constraint>[^/]+)"},
+		d, config); err != nil {
+		return nil, err
+	}
+
+	if d.Get("project") == "" || d.Get("constraint") == "" {
+		return nil, fmt.Errorf("unable to parse project or constraint. Check import formats")
+	}
+
+	return []*schema.ResourceData{d}, nil
+}
+
 func resourceGoogleProjectOrganizationPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+	d.SetId(fmt.Sprintf("%s:%s", d.Get("project"), d.Get("constraint")))
+
+	if isOrganizationPolicyUnset(d) {
+		return resourceGoogleProjectOrganizationPolicyDelete(d, meta)
+	}
+
 	if err := setProjectOrganizationPolicy(d, meta); err != nil {
 		return err
 	}
-
-	d.SetId(fmt.Sprintf("%s:%s", d.Get("project"), d.Get("constraint")))
 
 	return resourceGoogleProjectOrganizationPolicyRead(d, meta)
 }
@@ -61,6 +87,10 @@ func resourceGoogleProjectOrganizationPolicyRead(d *schema.ResourceData, meta in
 }
 
 func resourceGoogleProjectOrganizationPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+	if isOrganizationPolicyUnset(d) {
+		return resourceGoogleProjectOrganizationPolicyDelete(d, meta)
+	}
+
 	if err := setProjectOrganizationPolicy(d, meta); err != nil {
 		return err
 	}

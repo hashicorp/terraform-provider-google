@@ -16,8 +16,8 @@ and [the API reference](https://cloud.google.com/container-engine/reference/rest
 
 ```hcl
 resource "google_container_cluster" "primary" {
-  name   = "my-gke-cluster"
-  region = "us-central1"
+  name     = "my-gke-cluster"
+  location = "us-central1"
   
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
@@ -28,7 +28,7 @@ resource "google_container_cluster" "primary" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "my-node-pool"
-  region     = "us-central1"
+  location   = "us-central1"
   cluster    = "${google_container_cluster.primary.name}"
   node_count = 1
 
@@ -37,8 +37,6 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
     machine_type = "n1-standard-1"
 
     oauth_scopes = [
-      "https://www.googleapis.com/auth/compute",
-      "https://www.googleapis.com/auth/devstorage.read_only",
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
@@ -51,10 +49,10 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 ```hcl
 resource "google_container_node_pool" "np" {
   name       = "my-node-pool"
-  zone       = "us-central1-a"
+  location   = "us-central1-a"
   cluster    = "${google_container_cluster.primary.name}"
   node_count = 3
-  
+
   timeouts {
     create = "30m"
     update = "20m"
@@ -63,26 +61,31 @@ resource "google_container_node_pool" "np" {
 
 resource "google_container_cluster" "primary" {
   name               = "marcellus-wallace"
-  zone               = "us-central1-a"
+  location           = "us-central1-a"
   initial_node_count = 3
 
-  additional_zones = [
+  node_locations = [
     "us-central1-c",
   ]
 
-  # Setting an empty username and password explicitly disables basic auth
   master_auth {
     username = ""
     password = ""
+
+    client_certificate_config {
+      issue_client_certificate = false
+    }
   }
 
   node_config {
     oauth_scopes = [
-      "https://www.googleapis.com/auth/compute",
-      "https://www.googleapis.com/auth/devstorage.read_only",
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
+
+    metadata = {
+      disable-legacy-endpoints = "true"
+    }
 
     guest_accelerator {
       type  = "nvidia-tesla-k80"
@@ -99,11 +102,17 @@ resource "google_container_cluster" "primary" {
 
 - - -
 
-* `zone` - (Optional) The zone in which the cluster resides.
+* `location` - (Optional) The location (region or zone) in which the cluster
+resides.
 
-* `region` - (Optional) The region in which the cluster resides (for regional clusters).
+* `zone` - (Optional, Deprecated) The zone in which the cluster resides. `zone`
+has been deprecated in favor of `location`.
 
--> Note: You must be provide `region` for regional clusters and `zone` for zonal clusters
+* `region` - (Optional, Deprecated) The region in which the cluster resides (for
+regional clusters). `zone` has been deprecated in favor of `location`.
+
+-> Note: You must specify a `location` for either cluster type or the
+type-specific `region` for regional clusters / `zone` for zonal clusters.
 
 - - -
 
@@ -119,6 +128,8 @@ resource "google_container_cluster" "primary" {
 * `max_pods_per_node` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The maximum number of pods per node in this node pool.
     Note that this does not work on node pools which are "route-based" - that is, node
     pools belonging to clusters that do not have IP Aliasing enabled.
+    See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr)
+    for more information.
 
 * `name` - (Optional) The name of the node pool. If left blank, Terraform will
     auto-generate a unique name.
@@ -134,11 +145,14 @@ resource "google_container_cluster" "primary" {
 
 * `version` - (Optional) The Kubernetes version for the nodes in this pool. Note that if this field
     and `auto_upgrade` are both specified, they will fight each other for what the node version should
-    be, so setting both is highly discouraged.
+    be, so setting both is highly discouraged. While a fuzzy version can be specified, it's
+    recommended that you specify explicit versions as Terraform will see spurious diffs
+    when fuzzy versions are used. See the `google_container_engine_versions` data source's
+    `version_prefix` field to approximate fuzzy versions in a Terraform-compatible way.
 
 The `autoscaling` block supports:
 
-* `min_node_count` - (Required) Minimum number of nodes in the NodePool. Must be >=1 and
+* `min_node_count` - (Required) Minimum number of nodes in the NodePool. Must be >=0 and
     <= `max_node_count`.
 
 * `max_node_count` - (Required) Maximum number of nodes in the NodePool. Must be >= min_node_count.

@@ -35,6 +35,94 @@ To get more information about Autoscaler, see:
     * [Autoscaling Groups of Instances](https://cloud.google.com/compute/docs/autoscaler/)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=autoscaler_single_instance&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Autoscaler Single Instance
+
+
+```hcl
+resource "google_compute_autoscaler" "default" {
+  provider = "google-beta"
+
+  name   = "my-autoscaler"
+  zone   = "us-central1-f"
+  target = "${google_compute_instance_group_manager.default.self_link}"
+
+  autoscaling_policy {
+    max_replicas    = 5
+    min_replicas    = 1
+    cooldown_period = 60
+
+    metric {
+      name                       = "pubsub.googleapis.com/subscription/num_undelivered_messages"
+      filter                     = "resource.type = pubsub_subscription AND resource.label.subscription_id = our-subscription"
+      single_instance_assignment = 65535
+    }
+  }
+}
+
+resource "google_compute_instance_template" "default" {
+  provider = "google-beta"
+
+  name           = "my-instance-template"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+
+  tags = ["foo", "bar"]
+
+  disk {
+    source_image = "${data.google_compute_image.debian_9.self_link}"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+
+resource "google_compute_target_pool" "default" {
+  provider = "google-beta"
+
+  name = "my-target-pool"
+}
+
+resource "google_compute_instance_group_manager" "default" {
+  provider = "google-beta"
+
+  name = "my-igm"
+  zone = "us-central1-f"
+
+  version {
+    instance_template  = "${google_compute_instance_template.default.self_link}"
+    name               = "primary"
+  }
+
+  target_pools       = ["${google_compute_target_pool.default.self_link}"]
+  base_instance_name = "autoscaler-sample"
+}
+
+data "google_compute_image" "debian_9" {
+  provider = "google-beta"
+
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+provider "google-beta"{
+  region = "us-central1"
+  zone   = "us-central1-a"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=autoscaler_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -92,6 +180,7 @@ resource "google_compute_instance_group_manager" "foobar" {
   zone = "us-central1-f"
 
   instance_template  = "${google_compute_instance_template.foobar.self_link}"
+
   target_pools       = ["${google_compute_target_pool.foobar.self_link}"]
   base_instance_name = "foobar"
 }
@@ -198,7 +287,7 @@ The `metric` block supports:
   The metric must have a value type of INT64 or DOUBLE.
 
 * `target` -
-  (Required)
+  (Optional)
   The target value of the metric that autoscaler should
   maintain. This must be a positive value. A utilization
   metric scales number of virtual machines handling requests
@@ -209,7 +298,7 @@ The `metric` block supports:
   of the instances.
 
 * `type` -
-  (Required)
+  (Optional)
   Defines how target utilization value is expressed for a
   Stackdriver Monitoring metric. Either GAUGE, DELTA_PER_SECOND,
   or DELTA_PER_MINUTE.
@@ -232,6 +321,7 @@ The `load_balancing_utilization` block supports:
 * `zone` -
   (Optional)
   URL of the zone where the instance group resides.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -261,8 +351,8 @@ Autoscaler can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_compute_autoscaler.default projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}
-$ terraform import google_compute_autoscaler.default {{zone}}/{{name}}
 $ terraform import google_compute_autoscaler.default {{project}}/{{zone}}/{{name}}
+$ terraform import google_compute_autoscaler.default {{zone}}/{{name}}
 $ terraform import google_compute_autoscaler.default {{name}}
 ```
 

@@ -53,7 +53,7 @@ resource "google_compute_subnetwork_iam_binding" "subnet" {
 }
 ```
 
-## google\compute\_subnetwork\_iam\_member
+## google\_compute\_subnetwork\_iam\_member
 
 ```hcl
 resource "google_compute_subnetwork_iam_member" "subnet" {

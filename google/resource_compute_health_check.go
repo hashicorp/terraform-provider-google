@@ -38,9 +38,9 @@ func resourceComputeHealthCheck() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -291,7 +291,7 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/healthChecks")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks")
 	if err != nil {
 		return err
 	}
@@ -337,7 +337,7 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/healthChecks/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -468,7 +468,7 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/healthChecks/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -504,7 +504,7 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 func resourceComputeHealthCheckDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/healthChecks/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -786,31 +786,31 @@ func flattenComputeHealthCheckSslHealthCheckProxyHeader(v interface{}, d *schema
 	return v
 }
 
-func expandComputeHealthCheckCheckIntervalSec(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckCheckIntervalSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckHealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckHealthyThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckUnhealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckUnhealthyThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckHttpHealthCheck(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckHttpHealthCheck(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -857,27 +857,27 @@ func expandComputeHealthCheckHttpHealthCheck(v interface{}, d *schema.ResourceDa
 	return transformed, nil
 }
 
-func expandComputeHealthCheckHttpHealthCheckHost(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckHttpHealthCheckHost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckHttpHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckHttpHealthCheckRequestPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckHttpHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckHttpHealthCheckResponse(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckHttpHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckHttpHealthCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckHttpHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckHttpHealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckHttpsHealthCheck(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckHttpsHealthCheck(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -924,27 +924,27 @@ func expandComputeHealthCheckHttpsHealthCheck(v interface{}, d *schema.ResourceD
 	return transformed, nil
 }
 
-func expandComputeHealthCheckHttpsHealthCheckHost(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckHttpsHealthCheckHost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckHttpsHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckHttpsHealthCheckRequestPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckHttpsHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckHttpsHealthCheckResponse(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckHttpsHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckHttpsHealthCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckHttpsHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckHttpsHealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckTcpHealthCheck(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckTcpHealthCheck(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -984,23 +984,23 @@ func expandComputeHealthCheckTcpHealthCheck(v interface{}, d *schema.ResourceDat
 	return transformed, nil
 }
 
-func expandComputeHealthCheckTcpHealthCheckRequest(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckTcpHealthCheckRequest(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckTcpHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckTcpHealthCheckResponse(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckTcpHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckTcpHealthCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckTcpHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckTcpHealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckSslHealthCheck(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckSslHealthCheck(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1040,19 +1040,19 @@ func expandComputeHealthCheckSslHealthCheck(v interface{}, d *schema.ResourceDat
 	return transformed, nil
 }
 
-func expandComputeHealthCheckSslHealthCheckRequest(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckSslHealthCheckRequest(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckSslHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckSslHealthCheckResponse(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckSslHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckSslHealthCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHealthCheckSslHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeHealthCheckSslHealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

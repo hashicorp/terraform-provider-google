@@ -51,7 +51,7 @@ func TestAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExa
 func testAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_object_access_control" "public_rule" {
-  object = "${google_storage_bucket_object.object.name}"
+  object = "${google_storage_bucket_object.object.output_name}"
   bucket = "${google_storage_bucket.bucket.name}"
   role   = "READER"
   entity = "allUsers"
@@ -80,7 +80,7 @@ func testAccCheckStorageObjectAccessControlDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/storage/v1/b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+		url, err := replaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
 		if err != nil {
 			return err
 		}

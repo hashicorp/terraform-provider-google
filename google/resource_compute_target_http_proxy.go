@@ -37,9 +37,9 @@ func resourceComputeTargetHttpProxy() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -103,7 +103,7 @@ func resourceComputeTargetHttpProxyCreate(d *schema.ResourceData, meta interface
 		obj["urlMap"] = urlMapProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpProxies")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies")
 	if err != nil {
 		return err
 	}
@@ -149,7 +149,7 @@ func resourceComputeTargetHttpProxyCreate(d *schema.ResourceData, meta interface
 func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpProxies/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -203,7 +203,7 @@ func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface
 			obj["urlMap"] = urlMapProp
 		}
 
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/targetHttpProxies/{{name}}/setUrlMap")
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/targetHttpProxies/{{name}}/setUrlMap")
 		if err != nil {
 			return err
 		}
@@ -241,7 +241,7 @@ func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface
 func resourceComputeTargetHttpProxyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/targetHttpProxies/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -320,15 +320,15 @@ func flattenComputeTargetHttpProxyUrlMap(v interface{}, d *schema.ResourceData) 
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func expandComputeTargetHttpProxyDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetHttpProxyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetHttpProxyName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetHttpProxyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetHttpProxyUrlMap(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetHttpProxyUrlMap(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("urlMaps", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for url_map: %s", err)

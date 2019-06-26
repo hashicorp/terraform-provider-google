@@ -36,8 +36,8 @@ func resourceComputeRoute() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -189,7 +189,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 		obj["nextHopVpnTunnel"] = nextHopVpnTunnelProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/routes")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes")
 	if err != nil {
 		return err
 	}
@@ -235,7 +235,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/routes/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -301,7 +301,7 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/global/routes/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -413,19 +413,19 @@ func flattenComputeRouteNextHopNetwork(v interface{}, d *schema.ResourceData) in
 	return v
 }
 
-func expandComputeRouteDestRange(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouteDestRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouteDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouteDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouteName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouteName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouteNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouteNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
@@ -433,15 +433,15 @@ func expandComputeRouteNetwork(v interface{}, d *schema.ResourceData, config *Co
 	return f.RelativeLink(), nil
 }
 
-func expandComputeRoutePriority(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRoutePriority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouteTags(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouteTags(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v.(*schema.Set).List(), nil
 }
 
-func expandComputeRouteNextHopGateway(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouteNextHopGateway(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	if v == "default-internet-gateway" {
 		project, err := getProject(d, config)
 		if err != nil {
@@ -453,7 +453,7 @@ func expandComputeRouteNextHopGateway(v interface{}, d *schema.ResourceData, con
 	}
 }
 
-func expandComputeRouteNextHopInstance(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouteNextHopInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	if v == "" {
 		return v, nil
 	}
@@ -468,11 +468,11 @@ func expandComputeRouteNextHopInstance(v interface{}, d *schema.ResourceData, co
 	return nextInstance.SelfLink, nil
 }
 
-func expandComputeRouteNextHopIp(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouteNextHopIp(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouteNextHopVpnTunnel(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeRouteNextHopVpnTunnel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseRegionalFieldValue("vpnTunnels", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for next_hop_vpn_tunnel: %s", err)

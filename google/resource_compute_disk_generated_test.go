@@ -58,6 +58,7 @@ resource "google_compute_disk" "default" {
   labels = {
     environment = "dev"
   }
+  physical_block_size_bytes = 4096
 }
 `, context)
 }
@@ -73,7 +74,7 @@ func testAccCheckComputeDiskDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(rs, "https://www.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/disks/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}")
 		if err != nil {
 			return err
 		}

@@ -38,9 +38,9 @@ func resourceComputeForwardingRule() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -63,6 +63,11 @@ func resourceComputeForwardingRule() *schema.Resource {
 				ValidateFunc:     validation.StringInSlice([]string{"TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", ""}, false),
 				DiffSuppressFunc: caseDiffSuppress,
 			},
+			"all_ports": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
 			"backend_service": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -77,6 +82,7 @@ func resourceComputeForwardingRule() *schema.Resource {
 			"ip_version": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Deprecated:   "ipVersion is not used for regional forwarding rules. Please remove this field if you are using it.",
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
 			},
@@ -124,6 +130,12 @@ func resourceComputeForwardingRule() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
+			"service_label": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateGCPName,
+			},
 			"subnetwork": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -137,6 +149,10 @@ func resourceComputeForwardingRule() *schema.Resource {
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
 			},
 			"creation_timestamp": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"service_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -230,11 +246,23 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("target"); !isEmptyValue(reflect.ValueOf(targetProp)) && (ok || !reflect.DeepEqual(v, targetProp)) {
 		obj["target"] = targetProp
 	}
+	allPortsProp, err := expandComputeForwardingRuleAllPorts(d.Get("all_ports"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("all_ports"); !isEmptyValue(reflect.ValueOf(allPortsProp)) && (ok || !reflect.DeepEqual(v, allPortsProp)) {
+		obj["allPorts"] = allPortsProp
+	}
 	networkTierProp, err := expandComputeForwardingRuleNetworkTier(d.Get("network_tier"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("network_tier"); !isEmptyValue(reflect.ValueOf(networkTierProp)) && (ok || !reflect.DeepEqual(v, networkTierProp)) {
 		obj["networkTier"] = networkTierProp
+	}
+	serviceLabelProp, err := expandComputeForwardingRuleServiceLabel(d.Get("service_label"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_label"); !isEmptyValue(reflect.ValueOf(serviceLabelProp)) && (ok || !reflect.DeepEqual(v, serviceLabelProp)) {
+		obj["serviceLabel"] = serviceLabelProp
 	}
 	regionProp, err := expandComputeForwardingRuleRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -243,7 +271,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		obj["region"] = regionProp
 	}
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/forwardingRules")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules")
 	if err != nil {
 		return err
 	}
@@ -289,7 +317,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -346,7 +374,16 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("target", flattenComputeForwardingRuleTarget(res["target"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
+	if err := d.Set("all_ports", flattenComputeForwardingRuleAllPorts(res["allPorts"], d)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
 	if err := d.Set("network_tier", flattenComputeForwardingRuleNetworkTier(res["networkTier"], d)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err := d.Set("service_label", flattenComputeForwardingRuleServiceLabel(res["serviceLabel"], d)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err := d.Set("service_name", flattenComputeForwardingRuleServiceName(res["serviceName"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("region", flattenComputeForwardingRuleRegion(res["region"], d)); err != nil {
@@ -373,7 +410,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 			obj["target"] = targetProp
 		}
 
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setTarget")
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setTarget")
 		if err != nil {
 			return err
 		}
@@ -411,7 +448,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -528,7 +565,19 @@ func flattenComputeForwardingRuleTarget(v interface{}, d *schema.ResourceData) i
 	return ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeForwardingRuleAllPorts(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
 func flattenComputeForwardingRuleNetworkTier(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeForwardingRuleServiceLabel(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeForwardingRuleServiceName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -539,19 +588,19 @@ func flattenComputeForwardingRuleRegion(v interface{}, d *schema.ResourceData) i
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func expandComputeForwardingRuleDescription(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleIPAddress(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleIPAddress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleIPProtocol(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleIPProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleBackendService(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	// This method returns a full self link from a partial self link.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -564,7 +613,7 @@ func expandComputeForwardingRuleBackendService(v interface{}, d *schema.Resource
 		return "https://www.googleapis.com/compute/v1/" + v.(string), nil
 	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
 		// For regional or zonal resources which include their region or zone, just put the project in front.
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/")
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
 		if err != nil {
 			return nil, err
 		}
@@ -573,26 +622,26 @@ func expandComputeForwardingRuleBackendService(v interface{}, d *schema.Resource
 	// Anything else is assumed to be a regional resource, with a partial link that begins with the resource name.
 	// This isn't very likely - it's a last-ditch effort to extract something useful here.  We can do a better job
 	// as soon as MultiResourceRefs are working since we'll know the types that this field is supposed to point to.
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/")
 	if err != nil {
 		return nil, err
 	}
 	return url + v.(string), nil
 }
 
-func expandComputeForwardingRuleIpVersion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleIpVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleLoadBalancingScheme(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleLoadBalancingScheme(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleNetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
@@ -600,15 +649,15 @@ func expandComputeForwardingRuleNetwork(v interface{}, d *schema.ResourceData, c
 	return f.RelativeLink(), nil
 }
 
-func expandComputeForwardingRulePortRange(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRulePortRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRulePorts(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRulePorts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v.(*schema.Set).List(), nil
 }
 
-func expandComputeForwardingRuleSubnetwork(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleSubnetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for subnetwork: %s", err)
@@ -616,7 +665,7 @@ func expandComputeForwardingRuleSubnetwork(v interface{}, d *schema.ResourceData
 	return f.RelativeLink(), nil
 }
 
-func expandComputeForwardingRuleTarget(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleTarget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	// This method returns a full self link from a partial self link.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -629,7 +678,7 @@ func expandComputeForwardingRuleTarget(v interface{}, d *schema.ResourceData, co
 		return "https://www.googleapis.com/compute/v1/" + v.(string), nil
 	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
 		// For regional or zonal resources which include their region or zone, just put the project in front.
-		url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/")
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
 		if err != nil {
 			return nil, err
 		}
@@ -638,18 +687,26 @@ func expandComputeForwardingRuleTarget(v interface{}, d *schema.ResourceData, co
 	// Anything else is assumed to be a regional resource, with a partial link that begins with the resource name.
 	// This isn't very likely - it's a last-ditch effort to extract something useful here.  We can do a better job
 	// as soon as MultiResourceRefs are working since we'll know the types that this field is supposed to point to.
-	url, err := replaceVars(d, config, "https://www.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/")
 	if err != nil {
 		return nil, err
 	}
 	return url + v.(string), nil
 }
 
-func expandComputeForwardingRuleNetworkTier(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleAllPorts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleRegion(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandComputeForwardingRuleNetworkTier(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeForwardingRuleServiceLabel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeForwardingRuleRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)

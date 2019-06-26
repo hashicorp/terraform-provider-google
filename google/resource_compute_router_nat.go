@@ -5,8 +5,6 @@ import (
 	"log"
 	"time"
 
-	"strings"
-
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	computeBeta "google.golang.org/api/compute/v0.beta"
@@ -43,6 +41,24 @@ var (
 	}
 )
 
+var (
+	routerNatLogConfig = &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enable": {
+				Type:     schema.TypeBool,
+				ForceNew: true,
+				Required: true,
+			},
+			"filter": {
+				Type:         schema.TypeString,
+				ForceNew:     true,
+				Required:     true,
+				ValidateFunc: validation.StringInSlice([]string{"ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"}, false),
+			},
+		},
+	}
+)
+
 func resourceComputeRouterNat() *schema.Resource {
 	return &schema.Resource{
 		// TODO(https://github.com/GoogleCloudPlatform/magic-modules/issues/963): Implement Update
@@ -50,7 +66,7 @@ func resourceComputeRouterNat() *schema.Resource {
 		Read:   resourceComputeRouterNatRead,
 		Delete: resourceComputeRouterNatDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceComputeRouterNatImportState,
+			State: resourceComputeRouterNatImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -118,6 +134,13 @@ func resourceComputeRouterNat() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
+			},
+			"log_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem:     routerNatLogConfig,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -189,6 +212,10 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 		nat.Subnetworks = expandSubnetworks(v.(*schema.Set).List())
 	}
 
+	if v, ok := d.GetOk("log_config"); ok {
+		nat.LogConfig = expandLogConfig(v)
+	}
+
 	log.Printf("[INFO] Adding nat %s", natName)
 	nats = append(nats, nat)
 	patchRouter := &computeBeta.Router{
@@ -200,7 +227,7 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
-	d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, natName))
+	d.SetId(fmt.Sprintf("%s/%s/%s/%s", project, region, routerName, natName))
 	err = computeBetaOperationWaitTime(config.clientCompute, op, project, "Patching router", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if err != nil {
 		d.SetId("")
@@ -256,6 +283,10 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 			d.Set("project", project)
 
 			if err := d.Set("subnetwork", flattenRouterNatSubnetworkToNatBeta(nat.Subnetworks)); err != nil {
+				return fmt.Errorf("Error reading router nat: %s", err)
+			}
+
+			if err := d.Set("log_config", flattenRouterNatLogConfig(nat.LogConfig)); err != nil {
 				return fmt.Errorf("Error reading router nat: %s", err)
 			}
 
@@ -340,17 +371,44 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceComputeRouterNatImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid router nat specifier. Expecting {region}/{router}/{nat}")
+func resourceComputeRouterNatImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	if err := parseImportId([]string{"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)", "(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)", "(?P<router>[^/]+)/(?P<name>[^/]+)"}, d, config); err != nil {
+		return nil, err
 	}
 
-	d.Set("region", parts[0])
-	d.Set("router", parts[1])
-	d.Set("name", parts[2])
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func flattenRouterNatLogConfig(logConfig *computeBeta.RouterNatLogConfig) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, 1)
+	if logConfig != nil {
+		cfg := map[string]interface{}{}
+		cfg["filter"] = logConfig.Filter
+		cfg["enable"] = logConfig.Enable
+		result = append(result, cfg)
+	}
+	return result
+}
+
+func expandLogConfig(logConfigs interface{}) *computeBeta.RouterNatLogConfig {
+	configs := logConfigs.([]interface{})
+	if len(configs) == 0 || configs[0] == nil {
+		return nil
+	}
+	cfg := configs[0].(map[string]interface{})
+	result := computeBeta.RouterNatLogConfig{
+		Filter: cfg["filter"].(string),
+		Enable: cfg["enable"].(bool),
+	}
+	return &result
 }
 
 func expandSubnetworks(subnetworks []interface{}) []*computeBeta.RouterNatSubnetworkToNat {

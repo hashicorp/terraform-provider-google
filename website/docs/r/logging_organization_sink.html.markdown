@@ -22,7 +22,7 @@ resource "google_logging_organization_sink" "my-sink" {
     name        = "my-sink"
     org_id      = "123456789"
 
-    # Can export to pubsub, cloud storage, or bigtable
+    # Can export to pubsub, cloud storage, or bigquery
     destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 
     # Log all WARN or higher severity messages relating to instances
@@ -33,12 +33,10 @@ resource "google_storage_bucket" "log-bucket" {
     name = "organization-logging-bucket"
 }
 
-resource "google_project_iam_binding" "log-writer" {
+resource "google_project_iam_member" "log-writer" {
     role    = "roles/storage.objectCreator"
 
-    members = [
-        "${google_logging_organization_sink.my-sink.writer_identity}",
-    ]
+    member = "${google_logging_organization_sink.my-sink.writer_identity}"
 }
 ```
 

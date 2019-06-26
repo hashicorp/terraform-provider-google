@@ -12,6 +12,7 @@ var IamProjectSchema = map[string]*schema.Schema{
 	"project": {
 		Type:     schema.TypeString,
 		Optional: true,
+		Computed: true,
 		ForceNew: true,
 	},
 }

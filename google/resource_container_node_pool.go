@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -33,16 +34,14 @@ func resourceContainerNodePool() *schema.Resource {
 			State: resourceContainerNodePoolStateImporter,
 		},
 
+		CustomizeDiff: customdiff.All(
+			resourceNodeConfigEmptyGuestAccelerator,
+		),
+
 		Schema: mergeSchemas(
 			schemaNodePool,
 			map[string]*schema.Schema{
 				"project": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Computed: true,
-					ForceNew: true,
-				},
-				"zone": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
@@ -53,9 +52,24 @@ func resourceContainerNodePool() *schema.Resource {
 					Required: true,
 					ForceNew: true,
 				},
+				"zone": {
+					Type:       schema.TypeString,
+					Optional:   true,
+					Computed:   true,
+					Deprecated: "use location instead",
+					ForceNew:   true,
+				},
 				"region": {
+					Type:       schema.TypeString,
+					Optional:   true,
+					Computed:   true,
+					Deprecated: "use location instead",
+					ForceNew:   true,
+				},
+				"location": {
 					Type:     schema.TypeString,
 					Optional: true,
+					Computed: true,
 					ForceNew: true,
 				},
 			}),
@@ -307,6 +321,7 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 		d.Set("region", nodePoolInfo.location)
 	}
 
+	d.Set("location", nodePoolInfo.location)
 	d.Set("project", nodePoolInfo.project)
 
 	return nil
@@ -412,6 +427,7 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 			d.Set("region", location)
 		}
 
+		d.Set("location", location)
 		d.Set("cluster", parts[1])
 		d.Set("name", parts[2])
 	case 4:
@@ -424,13 +440,14 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 			d.Set("region", location)
 		}
 
+		d.Set("location", location)
 		d.Set("cluster", parts[2])
 		d.Set("name", parts[3])
 
 		// override the inputted ID with the <location>/<cluster>/<name> format
 		d.SetId(strings.Join(parts[1:], "/"))
 	default:
-		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {zone}/{cluster}/{name} or {project}/{zone}/{cluster}/{name}")
+		return nil, fmt.Errorf("Invalid container cluster specifier. Expecting {location}/{cluster}/{name} or {project}/{location}/{cluster}/{name}")
 	}
 
 	return []*schema.ResourceData{d}, nil

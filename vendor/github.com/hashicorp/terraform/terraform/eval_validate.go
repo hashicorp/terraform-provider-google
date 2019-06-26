@@ -109,13 +109,13 @@ func (n *EvalValidateProvider) Eval(ctx EvalContext) (interface{}, error) {
 }
 
 // EvalValidateProvisioner is an EvalNode implementation that validates
-// the configuration of a provisioner belonging to a resource.
+// the configuration of a provisioner belonging to a resource. The provisioner
+// config is expected to contain the merged connection configurations.
 type EvalValidateProvisioner struct {
 	ResourceAddr     addrs.Resource
 	Provisioner      *provisioners.Interface
 	Schema           **configschema.Block
 	Config           *configs.Provisioner
-	ConnConfig       *configs.Connection
 	ResourceHasCount bool
 }
 
@@ -149,10 +149,9 @@ func (n *EvalValidateProvisioner) Eval(ctx EvalContext) (interface{}, error) {
 	}
 
 	{
-		// Now validate the connection config, which might either be from
-		// the provisioner block itself or inherited from the resource's
-		// shared connection info.
-		connDiags := n.validateConnConfig(ctx, n.ConnConfig, n.ResourceAddr)
+		// Now validate the connection config, which contains the merged bodies
+		// of the resource and provisioner connection blocks.
+		connDiags := n.validateConnConfig(ctx, config.Connection, n.ResourceAddr)
 		diags = diags.Append(connDiags)
 	}
 
@@ -374,7 +373,7 @@ func (n *EvalValidateResource) Eval(ctx EvalContext) (interface{}, error) {
 	for _, traversal := range n.Config.DependsOn {
 		ref, refDiags := addrs.ParseRef(traversal)
 		diags = diags.Append(refDiags)
-		if len(ref.Remaining) != 0 {
+		if !refDiags.HasErrors() && len(ref.Remaining) != 0 {
 			diags = diags.Append(&hcl.Diagnostic{
 				Severity: hcl.DiagError,
 				Summary:  "Invalid depends_on reference",

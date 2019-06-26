@@ -12,6 +12,9 @@ import (
 func TestAccComputeRouterNat_basic(t *testing.T) {
 	t.Parallel()
 
+	project := getTestProjectFromEnv()
+	region := getTestRegionFromEnv()
+
 	testId := acctest.RandString(10)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -22,7 +25,26 @@ func TestAccComputeRouterNat_basic(t *testing.T) {
 				Config: testAccComputeRouterNatBasic(testId),
 			},
 			{
+				ResourceName: "google_compute_router_nat.foobar",
+				// implicitly: ImportStateId:     fmt.Sprintf("%s/%s/router-nat-test-%s/router-nat-test-%s", project, region, testId, testId),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				ResourceName:      "google_compute_router_nat.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/router-nat-test-%s/router-nat-test-%s", project, region, testId, testId),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportStateId:     fmt.Sprintf("%s/router-nat-test-%s/router-nat-test-%s", region, testId, testId),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportStateId:     fmt.Sprintf("router-nat-test-%s/router-nat-test-%s", testId, testId),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -157,6 +179,10 @@ func testAccComputeRouterNatBasic(testId string) string {
 			region                             = "${google_compute_router.foobar.region}"
 			nat_ip_allocate_option             = "AUTO_ONLY"
 			source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+			log_config {
+			  enable = true
+			  filter = "ERRORS_ONLY"
+			}
 		}
 	`, testId, testId, testId, testId)
 }

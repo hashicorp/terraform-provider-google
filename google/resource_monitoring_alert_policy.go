@@ -19,6 +19,7 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -37,9 +38,9 @@ func resourceMonitoringAlertPolicy() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(240 * time.Second),
-			Update: schema.DefaultTimeout(240 * time.Second),
-			Delete: schema.DefaultTimeout(240 * time.Second),
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -259,19 +260,17 @@ func resourceMonitoringAlertPolicy() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
-			"labels": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
 			"notification_channels": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"user_labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"creation_record": {
 				Type:     schema.TypeList,
@@ -293,6 +292,14 @@ func resourceMonitoringAlertPolicy() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"labels": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Deprecated: "labels is removed as it was never used. See user_labels for the correct field",
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -338,11 +345,11 @@ func resourceMonitoringAlertPolicyCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("notification_channels"); !isEmptyValue(reflect.ValueOf(notificationChannelsProp)) && (ok || !reflect.DeepEqual(v, notificationChannelsProp)) {
 		obj["notificationChannels"] = notificationChannelsProp
 	}
-	labelsProp, err := expandMonitoringAlertPolicyLabels(d.Get("labels"), d, config)
+	userLabelsProp, err := expandMonitoringAlertPolicyUserLabels(d.Get("user_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("user_labels"); !isEmptyValue(reflect.ValueOf(userLabelsProp)) && (ok || !reflect.DeepEqual(v, userLabelsProp)) {
+		obj["userLabels"] = userLabelsProp
 	}
 	documentationProp, err := expandMonitoringAlertPolicyDocumentation(d.Get("documentation"), d, config)
 	if err != nil {
@@ -358,7 +365,7 @@ func resourceMonitoringAlertPolicyCreate(d *schema.ResourceData, meta interface{
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/projects/{{project}}/alertPolicies")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}projects/{{project}}/alertPolicies")
 	if err != nil {
 		return err
 	}
@@ -392,7 +399,7 @@ func resourceMonitoringAlertPolicyCreate(d *schema.ResourceData, meta interface{
 func resourceMonitoringAlertPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -431,7 +438,7 @@ func resourceMonitoringAlertPolicyRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("notification_channels", flattenMonitoringAlertPolicyNotificationChannels(res["notificationChannels"], d)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
-	if err := d.Set("labels", flattenMonitoringAlertPolicyLabels(res["labels"], d)); err != nil {
+	if err := d.Set("user_labels", flattenMonitoringAlertPolicyUserLabels(res["userLabels"], d)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
 	if err := d.Set("documentation", flattenMonitoringAlertPolicyDocumentation(res["documentation"], d)); err != nil {
@@ -475,11 +482,11 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("notification_channels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, notificationChannelsProp)) {
 		obj["notificationChannels"] = notificationChannelsProp
 	}
-	labelsProp, err := expandMonitoringAlertPolicyLabels(d.Get("labels"), d, config)
+	userLabelsProp, err := expandMonitoringAlertPolicyUserLabels(d.Get("user_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
+	} else if v, ok := d.GetOkExists("user_labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, userLabelsProp)) {
+		obj["userLabels"] = userLabelsProp
 	}
 	documentationProp, err := expandMonitoringAlertPolicyDocumentation(d.Get("documentation"), d, config)
 	if err != nil {
@@ -495,12 +502,47 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Updating AlertPolicy %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("display_name") {
+		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("combiner") {
+		updateMask = append(updateMask, "combiner")
+	}
+
+	if d.HasChange("enabled") {
+		updateMask = append(updateMask, "enabled")
+	}
+
+	if d.HasChange("conditions") {
+		updateMask = append(updateMask, "conditions")
+	}
+
+	if d.HasChange("notification_channels") {
+		updateMask = append(updateMask, "notificationChannels")
+	}
+
+	if d.HasChange("user_labels") {
+		updateMask = append(updateMask, "userLabels")
+	}
+
+	if d.HasChange("documentation") {
+		updateMask = append(updateMask, "documentation")
+	}
+	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// won't set it
+	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 	_, err = sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -520,7 +562,7 @@ func resourceMonitoringAlertPolicyDelete(d *schema.ResourceData, meta interface{
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "https://monitoring.googleapis.com/v3/{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -540,7 +582,7 @@ func resourceMonitoringAlertPolicyImport(d *schema.ResourceData, meta interface{
 
 	config := meta.(*Config)
 
-	// current import_formats can't import id's with forward slashes in them.
+	// current import_formats can't import fields with forward slashes in their value
 	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
@@ -863,7 +905,7 @@ func flattenMonitoringAlertPolicyNotificationChannels(v interface{}, d *schema.R
 	return v
 }
 
-func flattenMonitoringAlertPolicyLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyUserLabels(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -890,19 +932,19 @@ func flattenMonitoringAlertPolicyDocumentationMimeType(v interface{}, d *schema.
 	return v
 }
 
-func expandMonitoringAlertPolicyDisplayName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyCombiner(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyCombiner(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyEnabled(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditions(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -945,7 +987,7 @@ func expandMonitoringAlertPolicyConditions(v interface{}, d *schema.ResourceData
 	return req, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionAbsent(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionAbsent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -985,7 +1027,7 @@ func expandMonitoringAlertPolicyConditionsConditionAbsent(v interface{}, d *sche
 	return transformed, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionAbsentAggregations(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionAbsentAggregations(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1028,23 +1070,23 @@ func expandMonitoringAlertPolicyConditionsConditionAbsentAggregations(v interfac
 	return req, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionAbsentAggregationsPerSeriesAligner(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionAbsentAggregationsPerSeriesAligner(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionAbsentAggregationsGroupByFields(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionAbsentAggregationsGroupByFields(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionAbsentAggregationsAlignmentPeriod(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionAbsentAggregationsAlignmentPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionAbsentAggregationsCrossSeriesReducer(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionAbsentAggregationsCrossSeriesReducer(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionAbsentTrigger(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionAbsentTrigger(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1070,27 +1112,27 @@ func expandMonitoringAlertPolicyConditionsConditionAbsentTrigger(v interface{}, 
 	return transformed, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionAbsentTriggerPercent(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionAbsentTriggerPercent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionAbsentTriggerCount(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionAbsentTriggerCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionAbsentDuration(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionAbsentDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionAbsentFilter(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionAbsentFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThreshold(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1158,15 +1200,15 @@ func expandMonitoringAlertPolicyConditionsConditionThreshold(v interface{}, d *s
 	return transformed, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdThresholdValue(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdThresholdValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorFilter(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregations(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregations(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1209,31 +1251,31 @@ func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregati
 	return req, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsPerSeriesAligner(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsPerSeriesAligner(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsGroupByFields(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsGroupByFields(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsAlignmentPeriod(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsAlignmentPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsCrossSeriesReducer(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsCrossSeriesReducer(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdDuration(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdComparison(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdComparison(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdTrigger(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdTrigger(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1259,15 +1301,15 @@ func expandMonitoringAlertPolicyConditionsConditionThresholdTrigger(v interface{
 	return transformed, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdTriggerPercent(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdTriggerPercent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdTriggerCount(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdTriggerCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdAggregations(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdAggregations(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1310,39 +1352,46 @@ func expandMonitoringAlertPolicyConditionsConditionThresholdAggregations(v inter
 	return req, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdAggregationsPerSeriesAligner(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdAggregationsPerSeriesAligner(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdAggregationsGroupByFields(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdAggregationsGroupByFields(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdAggregationsAlignmentPeriod(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdAggregationsAlignmentPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdAggregationsCrossSeriesReducer(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdAggregationsCrossSeriesReducer(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsConditionThresholdFilter(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsConditionThresholdFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyConditionsDisplayName(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyConditionsDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyNotificationChannels(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyNotificationChannels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyLabels(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
-	return v, nil
+func expandMonitoringAlertPolicyUserLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
-func expandMonitoringAlertPolicyDocumentation(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyDocumentation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1368,10 +1417,10 @@ func expandMonitoringAlertPolicyDocumentation(v interface{}, d *schema.ResourceD
 	return transformed, nil
 }
 
-func expandMonitoringAlertPolicyDocumentationContent(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyDocumentationContent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringAlertPolicyDocumentationMimeType(v interface{}, d *schema.ResourceData, config *Config) (interface{}, error) {
+func expandMonitoringAlertPolicyDocumentationMimeType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

@@ -44,7 +44,7 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The Folder ID.
-* `name` - The resource name of the Folder in the form `folders/{organization_id}`.
+* `name` - The resource name of the Folder in the form `folders/{folder_id}`.
 * `parent` - The resource name of the parent Folder or Organization.
 * `display_name` - The folder's display name.
 * `create_time` - Timestamp when the Organization was created. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
