@@ -203,6 +203,16 @@ var BigtableAdminCustomEndpointEntry = &schema.Schema{
 		"GOOGLE_BIGTABLE_CUSTOM_ENDPOINT",
 	}, BigtableAdminDefaultBasePath),
 }
+var CloudTasksDefaultBasePath = "https://cloudtasks.googleapis.com/v2/"
+var CloudTasksCustomEndpointEntryKey = "cloud_tasks_custom_endpoint"
+var CloudTasksCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_CLOUD_TASKS_CUSTOM_ENDPOINT",
+	}, CloudTasksDefaultBasePath),
+}
 
 func validateCustomEndpoint(v interface{}, k string) (ws []string, errors []error) {
 	re := `.*/[^/]+/$`

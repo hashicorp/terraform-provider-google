@@ -363,6 +363,7 @@ func Provider() terraform.ResourceProvider {
 			CloudIoTCustomEndpointEntryKey:               CloudIoTCustomEndpointEntry,
 			StorageTransferCustomEndpointEntryKey:        StorageTransferCustomEndpointEntry,
 			BigtableAdminCustomEndpointEntryKey:          BigtableAdminCustomEndpointEntry,
+			CloudTasksCustomEndpointEntryKey:             CloudTasksCustomEndpointEntry,
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -680,6 +681,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_storage_default_object_acl": resourceStorageDefaultObjectAcl(),
 			"google_storage_notification":       resourceStorageNotification(),
 			"google_storage_transfer_job":       resourceStorageTransferJob(),
+			"google_task_queue":                 resourceTaskQueue(),
 		},
 	)
 }
@@ -766,6 +768,7 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	config.CloudIoTBasePath = d.Get(CloudIoTCustomEndpointEntryKey).(string)
 	config.StorageTransferBasePath = d.Get(StorageTransferCustomEndpointEntryKey).(string)
 	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
+	config.CloudTasksBasePath = d.Get(CloudTasksCustomEndpointEntryKey).(string)
 
 	if err := config.LoadAndValidate(); err != nil {
 		return nil, err
