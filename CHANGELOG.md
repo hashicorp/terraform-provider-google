@@ -8,6 +8,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * compute: Added fields for managing network endpoint group backends in `google_compute_backend_service`, including `max_connections_per_endpoint` and `max_rate_per_endpoint` ([#3863](https://github.com/terraform-providers/terraform-provider-google/issues/3863))
+* container: Add support for resource usage metering in `google_container_cluster` [GH-3816]
 * folder: `google_folder` improve error message on delete [GH-3902]
 * iam: sort bindings in `google_*_iam_policy` resources to get simpler diffs [GH-3855]
 * kms: `google_kms_crypto_key` now supports labels. [GH-3910]
