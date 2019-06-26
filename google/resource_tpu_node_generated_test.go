@@ -91,11 +91,6 @@ func TestAccTpuNode_tpuNodeFullExample(t *testing.T) {
 
 func testAccTpuNode_tpuNodeFullExample(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_compute_network" "tpu_network" {
-	name               = "test-tpu-network-%{random_suffix}"
-	auto_create_subnetworks = false
-}
-
 data "google_tpu_tensorflow_versions" "available" { }
 
 resource "google_tpu_node" "tpu" {
@@ -108,7 +103,7 @@ resource "google_tpu_node" "tpu" {
 	tensorflow_version = "${data.google_tpu_tensorflow_versions.available.versions[0]}"
 
 	description = "Terraform Google Provider test TPU"
-	network = "${google_compute_network.tpu_network.name}"
+	network = "default"
 
 	labels = {
 		foo = "bar"
