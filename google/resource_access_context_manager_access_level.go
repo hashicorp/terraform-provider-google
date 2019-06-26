@@ -37,9 +37,9 @@ func resourceAccessContextManagerAccessLevel() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(360 * time.Second),
-			Update: schema.DefaultTimeout(360 * time.Second),
-			Delete: schema.DefaultTimeout(360 * time.Second),
+			Create: schema.DefaultTimeout(6 * time.Minute),
+			Update: schema.DefaultTimeout(6 * time.Minute),
+			Delete: schema.DefaultTimeout(6 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{

@@ -70,9 +70,9 @@ func resourceTpuNode() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(900 * time.Second),
-			Update: schema.DefaultTimeout(900 * time.Second),
-			Delete: schema.DefaultTimeout(900 * time.Second),
+			Create: schema.DefaultTimeout(15 * time.Minute),
+			Update: schema.DefaultTimeout(15 * time.Minute),
+			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
