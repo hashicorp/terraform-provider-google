@@ -159,3 +159,8 @@ $ terraform import google_storage_bucket.image-store image-store-bucket
 $ terraform import google_storage_bucket.image-store tf-test-project/image-store-bucket
 ```
 
+~> **Note:** Terraform will import this resource with `force_destroy` set to
+`false` in state. If you've set it to `true` in config, run `terraform apply` to
+update the value set in state. If you delete this resource before updating the
+value, objects in the bucket will not be destroyed.
+
