@@ -106,6 +106,43 @@ func TestAccContainerCluster_basic(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_misc(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_misc(clusterName),
+				// Explicitly check removing the default node pool since we won't
+				// catch it by just importing.
+				Check: resource.TestCheckResourceAttr(
+					"google_container_cluster.primary", "node_pool.#", "0"),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+			},
+			{
+				Config: testAccContainerCluster_misc_update(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withAddons(t *testing.T) {
 	t.Parallel()
 
@@ -404,38 +441,6 @@ func TestAccContainerCluster_regionalWithNodePool(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withAdditionalZones(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_withAdditionalZones(clusterName),
-			},
-			{
-				ResourceName:        "google_container_cluster.with_additional_zones",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-			},
-			{
-				Config: testAccContainerCluster_updateAdditionalZones(clusterName),
-			},
-			{
-				ResourceName:        "google_container_cluster.with_additional_zones",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-			},
-		},
-	})
-}
-
 func TestAccContainerCluster_regionalWithAdditionalZones(t *testing.T) {
 	t.Parallel()
 
@@ -468,32 +473,6 @@ func TestAccContainerCluster_regionalWithAdditionalZones(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withKubernetesAlpha(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_withKubernetesAlpha(clusterName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.with_kubernetes_alpha", "enable_kubernetes_alpha", "true"),
-				),
-			},
-			{
-				ResourceName:        "google_container_cluster.with_kubernetes_alpha",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-			},
-		},
-	})
-}
-
 func TestAccContainerCluster_withPrivateClusterConfig(t *testing.T) {
 	t.Parallel()
 
@@ -509,72 +488,6 @@ func TestAccContainerCluster_withPrivateClusterConfig(t *testing.T) {
 			},
 			{
 				ResourceName:        "google_container_cluster.with_private_cluster",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-			},
-		},
-	})
-}
-func TestAccContainerCluster_withLegacyAbac(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_withLegacyAbac(clusterName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.with_legacy_abac", "enable_legacy_abac", "true"),
-				),
-			},
-			{
-				ResourceName:        "google_container_cluster.with_legacy_abac",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-			},
-			{
-				Config: testAccContainerCluster_updateLegacyAbac(clusterName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.with_legacy_abac", "enable_legacy_abac", "false"),
-				),
-			},
-			{
-				ResourceName:        "google_container_cluster.with_legacy_abac",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-			},
-		},
-	})
-}
-
-/*
-	Since GKE disables legacy ABAC by default in Kubernetes version 1.8+, and the default Kubernetes
-	version for GKE is also 1.8+, this test will ensure that legacy ABAC is disabled by default to be
-	more consistent with default settings in the Cloud Console
-*/
-func TestAccContainerCluster_withDefaultLegacyAbac(t *testing.T) {
-	t.Parallel()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_defaultLegacyAbac(acctest.RandString(10)),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.default_legacy_abac", "enable_legacy_abac", "false"),
-				),
-			},
-			{
-				ResourceName:        "google_container_cluster.default_legacy_abac",
 				ImportStateIdPrefix: "us-central1-a/",
 				ImportState:         true,
 				ImportStateVerify:   true,
@@ -1049,30 +962,6 @@ func TestAccContainerCluster_withNodePoolNodeConfig(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withDefaultNodePoolRemoved(t *testing.T) {
-	t.Parallel()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_withDefaultNodePoolRemoved(),
-				Check: resource.TestCheckResourceAttr(
-					"google_container_cluster.with_default_node_pool_removed", "node_pool.#", "0"),
-			},
-			{
-				ResourceName:            "google_container_cluster.with_default_node_pool_removed",
-				ImportStateIdPrefix:     "us-central1-a/",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
-			},
-		},
-	})
-}
-
 func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 	t.Parallel()
 	clusterName := acctest.RandString(10)
@@ -1225,55 +1114,6 @@ func TestAccContainerCluster_withIPAllocationPolicy_explicitEmpty(t *testing.T) 
 			},
 			{
 				ResourceName:        "google_container_cluster.with_ip_allocation_policy",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-			},
-		},
-	})
-}
-
-func TestAccContainerCluster_withResourceLabels(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_withResourceLabels(clusterName),
-			},
-			{
-				ResourceName:        "google_container_cluster.with_resource_labels",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-			},
-		},
-	})
-}
-
-func TestAccContainerCluster_withResourceLabelsUpdate(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_withoutResourceLabels(clusterName),
-			},
-			{
-				Config: testAccContainerCluster_withResourceLabels(clusterName),
-			},
-			{
-				ResourceName:        "google_container_cluster.with_resource_labels",
 				ImportStateIdPrefix: "us-central1-a/",
 				ImportState:         true,
 				ImportStateVerify:   true,
@@ -1451,10 +1291,57 @@ func testAccContainerCluster_basic(name string) string {
 resource "google_container_cluster" "primary" {
 	name               = "%s"
 	location           = "us-central1-a"
-	initial_node_count = 3
+	initial_node_count = 1
+}`, name)
+}
 
-	network    = "default"
-	subnetwork = "default"
+func testAccContainerCluster_misc(name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+	name               = "%s"
+	zone               = "us-central1-a"
+	initial_node_count = 1
+
+	remove_default_node_pool = true
+
+	# This uses zone/additional_zones over location/node_locations to ensure we can update from old -> new
+	additional_zones = [
+		"us-central1-b",
+		"us-central1-c"
+	]
+
+	enable_kubernetes_alpha = true
+	enable_legacy_abac      = true
+
+	resource_labels = {
+		created-by = "terraform"
+	}
+
+}`, name)
+}
+
+func testAccContainerCluster_misc_update(name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+	name               = "%s"
+	location           = "us-central1-a"
+	initial_node_count = 1
+
+	remove_default_node_pool = true  # Not worth updating
+
+	node_locations = [
+		"us-central1-f",
+		"us-central1-c",
+	]
+
+	enable_kubernetes_alpha = true  # Not updatable
+	enable_legacy_abac      = false
+
+	resource_labels = {
+		created-by = "terraform-update"
+		new-label  = "update"
+	}
+
 }`, name)
 }
 
@@ -1658,35 +1545,6 @@ resource "google_container_cluster" "regional" {
 }`, cluster, nodePool)
 }
 
-// This uses zone/additional_zones over location/node_locations to ensure we can update from old -> new
-func testAccContainerCluster_withAdditionalZones(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_additional_zones" {
-	name = "%s"
-	zone = "us-central1-a"
-	initial_node_count = 1
-
-	additional_zones = [
-		"us-central1-b",
-		"us-central1-c"
-	]
-}`, clusterName)
-}
-
-func testAccContainerCluster_updateAdditionalZones(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_additional_zones" {
-	name               = "%s"
-	location           = "us-central1-a"
-	initial_node_count = 1
-
-	node_locations = [
-		"us-central1-f",
-		"us-central1-c",
-	]
-}`, clusterName)
-}
-
 // This uses region/additional_zones over location/node_locations to ensure we can update from old -> new
 func testAccContainerCluster_regionalAdditionalZones(clusterName string) string {
 	return fmt.Sprintf(`
@@ -1713,48 +1571,6 @@ resource "google_container_cluster" "with_additional_zones" {
 		"us-central1-f",
 		"us-central1-b",
 	]
-}`, clusterName)
-}
-
-func testAccContainerCluster_withKubernetesAlpha(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_kubernetes_alpha" {
-	name = "cluster-test-%s"
-	zone = "us-central1-a"
-	initial_node_count = 1
-
-	enable_kubernetes_alpha = true
-}`, clusterName)
-}
-
-func testAccContainerCluster_defaultLegacyAbac(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "default_legacy_abac" {
-	name = "cluster-test-%s"
-	zone = "us-central1-a"
-	initial_node_count = 1
-}`, clusterName)
-}
-
-func testAccContainerCluster_withLegacyAbac(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_legacy_abac" {
-	name = "cluster-test-%s"
-	zone = "us-central1-a"
-	initial_node_count = 1
-
-	enable_legacy_abac = true
-}`, clusterName)
-}
-
-func testAccContainerCluster_updateLegacyAbac(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_legacy_abac" {
-	name = "cluster-test-%s"
-	zone = "us-central1-a"
-	initial_node_count = 1
-
-	enable_legacy_abac = false
 }`, clusterName)
 }
 
@@ -2204,18 +2020,6 @@ resource "google_container_cluster" "with_node_pool_node_config" {
 `, testId, testId)
 }
 
-func testAccContainerCluster_withDefaultNodePoolRemoved() string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_default_node_pool_removed" {
-	name			   = "cluster-test-%s"
-	zone			   = "us-central1-a"
-	initial_node_count = 1
-
-	remove_default_node_pool = true
-}
-`, acctest.RandString(10))
-}
-
 func testAccContainerCluster_withMaintenanceWindow(clusterName string, startTime string) string {
 	maintenancePolicy := ""
 	if len(startTime) > 0 {
@@ -2400,30 +2204,6 @@ resource "google_container_cluster" "with_private_cluster" {
 		services_secondary_range_name = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.1.range_name}"
 	}
 }`, clusterName, clusterName)
-}
-
-func testAccContainerCluster_withoutResourceLabels(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_resource_labels" {
-	name = "%s"
-	zone = "us-central1-a"
-	initial_node_count = 1
-}
-`, clusterName)
-}
-
-func testAccContainerCluster_withResourceLabels(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_resource_labels" {
-	name = "%s"
-	zone = "us-central1-a"
-	initial_node_count = 1
-
-	resource_labels = {
-		created-by = "terraform"
-	}
-}
-`, clusterName)
 }
 
 func testAccContainerCluster_withInitialCIDR(clusterName string) string {
