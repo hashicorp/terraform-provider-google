@@ -187,6 +187,7 @@ func resourceContainerCluster() *schema.Resource {
 									"disabled": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  true,
 									},
 								},
 							},
