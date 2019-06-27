@@ -40,6 +40,11 @@ The following arguments are supported:
 * `services` - (Required) The list of services that are enabled. Supports
     update.
 
+* `disable_on_destroy` - (Optional) Whether or not to disable APIs on project
+    when destroyed. Defaults to true. **Note**: When `disable_on_destroy` is
+    true and the project is changed, Terraform will force disable API services
+    managed by Terraform for the previous project.
+
 ## Import
 
 Project services can be imported using the `project_id`, e.g.

@@ -309,6 +309,15 @@ func golangSetFromStringSlice(strings []string) map[string]struct{} {
 	return set
 }
 
+func stringSliceFromGolangSet(sset map[string]struct{}) []string {
+	ls := make([]string, 0, len(sset))
+	for s := range sset {
+		ls = append(ls, s)
+	}
+
+	return ls
+}
+
 func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 	merged := make(map[string]*schema.Schema)
 

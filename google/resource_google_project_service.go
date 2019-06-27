@@ -2,11 +2,9 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform/helper/schema"
 	"log"
 	"strings"
-
-	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceGoogleProjectService() *schema.Resource {
@@ -17,7 +15,7 @@ func resourceGoogleProjectService() *schema.Resource {
 		Update: resourceGoogleProjectServiceUpdate,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceGoogleProjectServiceImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -47,6 +45,16 @@ func resourceGoogleProjectService() *schema.Resource {
 	}
 }
 
+func resourceGoogleProjectServiceImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("Invalid google_project_service id format for import, expecting `{project}/{service}`, found %s", d.Id())
+	}
+	d.Set("project", parts[0])
+	d.Set("service", parts[1])
+	return []*schema.ResourceData{d}, nil
+}
+
 func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -56,48 +64,43 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	srv := d.Get("service").(string)
-
-	if err = enableService(srv, project, config); err != nil {
-		return errwrap.Wrapf("Error enabling service: {{err}}", err)
+	err = enableServiceUsageProjectServices([]string{srv}, project, config)
+	if err != nil {
+		return err
 	}
 
-	d.SetId(projectServiceId{project, srv}.terraformId())
+	id, err := replaceVars(d, config, "{{project}}/{{service}}")
+	if err != nil {
+		return fmt.Errorf("unable to construct ID: %s", err)
+	}
+	d.SetId(id)
 	return resourceGoogleProjectServiceRead(d, meta)
 }
 
 func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	id, err := parseProjectServiceId(d.Id())
+	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	project, err := config.clientResourceManager.Projects.Get(id.project).Do()
+	enabledServices, err := readEnabledServiceUsageProjectServices(project, config)
 	if err != nil {
-		return handleNotFoundError(err, d, id.project)
-	}
-	if project.LifecycleState == "DELETE_REQUESTED" {
-		log.Printf("[WARN] Removing %s from state, its project is deleted", id.terraformId())
-		d.SetId("")
-		return nil
+		return handleNotFoundError(err, d, fmt.Sprintf("Project Service %s", d.Id()))
 	}
 
-	services, err := getApiServices(id.project, config, map[string]struct{}{})
-	if err != nil {
-		return err
-	}
-
-	d.Set("project", id.project)
-
-	for _, s := range services {
-		if s == id.service {
+	srv := d.Get("service")
+	for _, s := range enabledServices {
+		if s == srv {
+			d.Set("project", project)
 			d.Set("service", s)
 			return nil
 		}
 	}
 
-	// The service is not enabled server-side, so remove it from state
+	// The service is was not found in enabled services - remove it from state
+	log.Printf("[DEBUG] service %s not in enabled services for project %s, removing from state", srv, project)
 	d.SetId("")
 	return nil
 }
@@ -106,28 +109,20 @@ func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}
 	config := meta.(*Config)
 
 	if disable := d.Get("disable_on_destroy"); !(disable.(bool)) {
-		log.Printf("Not disabling service '%s', because disable_on_destroy is false.", d.Id())
+		log.Printf("[WARN] Project service %q disable_on_destroy is false, skip disabling service", d.Id())
 		d.SetId("")
 		return nil
 	}
 
-	id, err := parseProjectServiceId(d.Id())
+	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	project, err := config.clientResourceManager.Projects.Get(id.project).Do()
-	if err != nil {
-		return handleNotFoundError(err, d, id.project)
-	}
-	if project.LifecycleState == "DELETE_REQUESTED" {
-		log.Printf("[WARN] Removing %s from state, its project is deleted", id.terraformId())
-		d.SetId("")
-		return nil
-	}
-
-	if err = disableService(id.service, id.project, config, d.Get("disable_dependent_services").(bool)); err != nil {
-		return fmt.Errorf("Error disabling service: %s", err)
+	service := d.Get("service").(string)
+	disableDependencies := d.Get("disable_dependent_services").(bool)
+	if err = disableServiceUsageProjectService(service, project, config, disableDependencies); err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Project Service %s", d.Id()))
 	}
 
 	d.SetId("")
@@ -135,28 +130,7 @@ func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceGoogleProjectServiceUpdate(d *schema.ResourceData, meta interface{}) error {
-	// The only thing that can be updated without a ForceNew is whether to disable the service on resource delete.
-	// This doesn't require any calls to any APIs since it's all internal state.
-	// This update is a no-op.
+	// This update method is no-op because the only updatable fields
+	// are state/config-only, i.e. they aren't sent in requests to the API.
 	return nil
-}
-
-// Parts that make up the id of a `google_project_service` resource.
-// Project is included in order to allow multiple projects to enable the same service within the same Terraform state
-type projectServiceId struct {
-	project string
-	service string
-}
-
-func (id projectServiceId) terraformId() string {
-	return fmt.Sprintf("%s/%s", id.project, id.service)
-}
-
-func parseProjectServiceId(id string) (*projectServiceId, error) {
-	parts := strings.Split(id, "/")
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("Invalid google_project_service id format, expecting `{project}/{service}`, found %s", id)
-	}
-
-	return &projectServiceId{parts[0], parts[1]}, nil
 }
