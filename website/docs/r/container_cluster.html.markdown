@@ -202,7 +202,7 @@ for more details. Structure is documented below.
 
 * `logging_service` - (Optional) The logging service that the cluster should
     write logs to. Available options include `logging.googleapis.com`,
-    `logging.googleapis.com/kubernetes` (beta), and `none`. Defaults to `logging.googleapis.com`
+    `logging.googleapis.com/kubernetes`, and `none`. Defaults to `logging.googleapis.com`
 
 * `maintenance_policy` - (Optional) The maintenance policy to use for the cluster. Structure is
     documented below.
@@ -238,7 +238,7 @@ to the datasource. A `region` can have a different set of supported versions tha
     Automatically send metrics from pods in the cluster to the Google Cloud Monitoring API.
     VM metrics will be collected by Google Compute Engine regardless of this setting
     Available options include
-    `monitoring.googleapis.com`, `monitoring.googleapis.com/kubernetes` (beta) and `none`.
+    `monitoring.googleapis.com`, `monitoring.googleapis.com/kubernetes`, and `none`.
     Defaults to `monitoring.googleapis.com`
 
 * `network` - (Optional) The name or self_link of the Google Compute Engine

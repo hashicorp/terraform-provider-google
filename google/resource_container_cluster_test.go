@@ -655,82 +655,6 @@ func TestAccContainerCluster_backend(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withLogging(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_withLogging(clusterName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.with_logging", "logging_service", "logging.googleapis.com"),
-				),
-			},
-			{
-				ResourceName:        "google_container_cluster.with_logging",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-			},
-			{
-				Config: testAccContainerCluster_updateLogging(clusterName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.with_logging", "logging_service", "none"),
-				),
-			},
-			{
-				ResourceName:        "google_container_cluster.with_logging",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-			},
-		},
-	})
-}
-
-func TestAccContainerCluster_withMonitoring(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_withMonitoring(clusterName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.with_monitoring", "monitoring_service", "monitoring.googleapis.com"),
-				),
-			},
-			{
-				ResourceName:        "google_container_cluster.with_monitoring",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-			},
-			{
-				Config: testAccContainerCluster_updateMonitoring(clusterName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.with_monitoring", "monitoring_service", "none"),
-				),
-			},
-			{
-				ResourceName:        "google_container_cluster.with_monitoring",
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-			},
-		},
-	})
-}
-
 func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
 	t.Parallel()
 
@@ -1313,6 +1237,9 @@ resource "google_container_cluster" "primary" {
 	enable_kubernetes_alpha = true
 	enable_legacy_abac      = true
 
+	logging_service    = "logging.googleapis.com/kubernetes"
+	monitoring_service = "monitoring.googleapis.com/kubernetes"
+
 	resource_labels = {
 		created-by = "terraform"
 	}
@@ -1336,6 +1263,9 @@ resource "google_container_cluster" "primary" {
 
 	enable_kubernetes_alpha = true  # Not updatable
 	enable_legacy_abac      = false
+
+	logging_service    = "none"
+	monitoring_service = "none"
 
 	resource_labels = {
 		created-by = "terraform-update"
@@ -1769,50 +1699,6 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
-}
-
-func testAccContainerCluster_withLogging(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_logging" {
-	name			   = "cluster-test-%s"
-	zone			   = "us-central1-a"
-	initial_node_count = 1
-
-	logging_service = "logging.googleapis.com"
-}`, clusterName)
-}
-
-func testAccContainerCluster_updateLogging(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_logging" {
-	name			   = "cluster-test-%s"
-	zone			   = "us-central1-a"
-	initial_node_count = 1
-
-	logging_service = "none"
-}`, clusterName)
-}
-
-func testAccContainerCluster_withMonitoring(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_monitoring" {
-	name			   = "cluster-test-%s"
-	zone			   = "us-central1-a"
-	initial_node_count = 1
-
-	monitoring_service = "monitoring.googleapis.com"
-}`, clusterName)
-}
-
-func testAccContainerCluster_updateMonitoring(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_monitoring" {
-	name			   = "cluster-test-%s"
-	zone			   = "us-central1-a"
-	initial_node_count = 1
-
-	monitoring_service = "none"
-}`, clusterName)
 }
 
 func testAccContainerCluster_withNodePoolBasic(cluster, nodePool string) string {
