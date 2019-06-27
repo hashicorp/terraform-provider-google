@@ -118,6 +118,7 @@ func Provider() terraform.ResourceProvider {
 			CloudFunctionsCustomEndpointEntryKey:         CloudFunctionsCustomEndpointEntry,
 			CloudIoTCustomEndpointEntryKey:               CloudIoTCustomEndpointEntry,
 			StorageTransferCustomEndpointEntryKey:        StorageTransferCustomEndpointEntry,
+			BigtableAdminCustomEndpointEntryKey:          BigtableAdminCustomEndpointEntry,
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -209,6 +210,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_bigquery_dataset":                      resourceBigQueryDataset(),
 			"google_bigquery_table":                        resourceBigQueryTable(),
 			"google_bigtable_instance":                     resourceBigtableInstance(),
+			"google_bigtable_instance_iam_binding":         ResourceIamBindingWithImport(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
+			"google_bigtable_instance_iam_member":          ResourceIamMemberWithImport(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
+			"google_bigtable_instance_iam_policy":          ResourceIamPolicyWithImport(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
 			"google_bigtable_table":                        resourceBigtableTable(),
 			"google_billing_account_iam_binding":           ResourceIamBindingWithImport(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
 			"google_billing_account_iam_member":            ResourceIamMemberWithImport(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
@@ -390,6 +394,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config.CloudFunctionsBasePath = d.Get(CloudFunctionsCustomEndpointEntryKey).(string)
 	config.CloudIoTBasePath = d.Get(CloudIoTCustomEndpointEntryKey).(string)
 	config.StorageTransferBasePath = d.Get(StorageTransferCustomEndpointEntryKey).(string)
+	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
 
 	if err := config.LoadAndValidate(); err != nil {
 		return nil, err
@@ -443,6 +448,7 @@ func ConfigureBasePaths(c *Config) {
 	c.CloudFunctionsBasePath = CloudFunctionsDefaultBasePath
 	c.CloudIoTBasePath = CloudIoTDefaultBasePath
 	c.StorageTransferBasePath = StorageTransferDefaultBasePath
+	c.BigtableAdminBasePath = BigtableAdminDefaultBasePath
 }
 
 func validateCredentials(v interface{}, k string) (warnings []string, errors []error) {
