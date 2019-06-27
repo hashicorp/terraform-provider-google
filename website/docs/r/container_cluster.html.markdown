@@ -326,7 +326,7 @@ The `addons_config` block supports:
 * `kubernetes_dashboard` - (Optional) The status of the Kubernetes Dashboard
     add-on, which controls whether the Kubernetes Dashboard is enabled for this cluster.
     It is disabled by default; set `disabled = false` to enable.
-    
+
 * `network_policy_config` - (Optional) Whether we should enable the network policy addon
     for the master.  This must be enabled in order to enable network policy for the nodes.
     To enable this, you must also define a [`network_policy`](#network_policy) block,
