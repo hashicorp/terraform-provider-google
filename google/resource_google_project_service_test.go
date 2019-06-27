@@ -135,20 +135,20 @@ func testAccCheckProjectService(services []string, pid string, expectEnabled boo
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
-		apiServices, err := getApiServices(pid, config, map[string]struct{}{})
+		currentlyEnabled, err := listCurrentlyEnabledServices(pid, config)
 		if err != nil {
 			return fmt.Errorf("Error listing services for project %q: %v", pid, err)
 		}
 
 		for _, expected := range services {
 			exists := false
-			for _, actual := range apiServices {
+			for actual := range currentlyEnabled {
 				if expected == actual {
 					exists = true
 				}
 			}
 			if expectEnabled && !exists {
-				return fmt.Errorf("Expected service %s is not enabled server-side (found %v)", expected, apiServices)
+				return fmt.Errorf("Expected service %s is not enabled server-side", expected)
 			}
 			if !expectEnabled && exists {
 				return fmt.Errorf("Expected disabled service %s is enabled server-side", expected)

@@ -19,7 +19,7 @@ func (w *ServiceUsageOperationWaiter) QueryOp() (interface{}, error) {
 	var op *serviceusage.Operation
 	err := retryTimeDuration(func() (opErr error) {
 		op, opErr = w.Service.Operations.Get(w.Op.Name).Do()
-		return opErr
+		return handleServiceUsageRetryableError(opErr)
 	}, DefaultRequestTimeout)
 	return op, err
 }
