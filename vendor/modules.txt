@@ -337,6 +337,7 @@ golang.org/x/text/unicode/bidi
 # google.golang.org/api v0.6.0
 google.golang.org/api/appengine/v1
 google.golang.org/api/bigquery/v2
+google.golang.org/api/bigtableadmin/v2
 google.golang.org/api/cloudbilling/v1
 google.golang.org/api/cloudbuild/v1
 google.golang.org/api/cloudfunctions/v1
