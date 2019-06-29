@@ -47,6 +47,25 @@ resource "google_pubsub_topic" "example" {
   }
 }
 ```
+## Example Usage - Pubsub Topic Cmek
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name         = "example-topic"
+  kms_key_name = "${google_kms_crypto_key.crypto_key.self_link}"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  name     = "example-key"
+  key_ring = "${google_kms_key_ring.key_ring.self_link}"
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  name     = "example-keyring"
+  location = "global"
+}
+```
 
 ## Argument Reference
 
@@ -60,6 +79,14 @@ The following arguments are supported:
 
 - - -
 
+
+* `kms_key_name` -
+  (Optional)
+  The resource name of the Cloud KMS CryptoKey to be used to protect access
+  to messsages published on this topic. Your project's PubSub service account
+  (`service-{{PROJECT_NUMBER}}@gcp-sa-pubsub.iam.gserviceaccount.com`) must have
+  `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+  The expected format is `projects/*/locations/*/keyRings/*/cryptoKeys/*`
 
 * `labels` -
   (Optional)

@@ -48,6 +48,11 @@ func resourcePubsubTopic() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
+			"kms_key_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -72,6 +77,12 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
+	}
+	kmsKeyNameProp, err := expandPubsubTopicKmsKeyName(d.Get("kms_key_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key_name"); !isEmptyValue(reflect.ValueOf(kmsKeyNameProp)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
+		obj["kmsKeyName"] = kmsKeyNameProp
 	}
 	labelsProp, err := expandPubsubTopicLabels(d.Get("labels"), d, config)
 	if err != nil {
@@ -130,6 +141,9 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if err := d.Set("name", flattenPubsubTopicName(res["name"], d)); err != nil {
+		return fmt.Errorf("Error reading Topic: %s", err)
+	}
+	if err := d.Set("kms_key_name", flattenPubsubTopicKmsKeyName(res["kmsKeyName"], d)); err != nil {
 		return fmt.Errorf("Error reading Topic: %s", err)
 	}
 	if err := d.Set("labels", flattenPubsubTopicLabels(res["labels"], d)); err != nil {
@@ -223,12 +237,20 @@ func flattenPubsubTopicName(v interface{}, d *schema.ResourceData) interface{} {
 	return NameFromSelfLinkStateFunc(v)
 }
 
+func flattenPubsubTopicKmsKeyName(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
 func flattenPubsubTopicLabels(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
 func expandPubsubTopicName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return GetResourceNameFromSelfLink(v.(string)), nil
+}
+
+func expandPubsubTopicKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandPubsubTopicLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
