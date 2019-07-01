@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -20,10 +19,6 @@ var (
 	roleEntityEditors = "OWNER:project-editors-" + os.Getenv("GOOGLE_PROJECT_NUMBER")
 	roleEntityViewers = "READER:project-viewers-" + os.Getenv("GOOGLE_PROJECT_NUMBER")
 )
-
-func testBucketName() string {
-	return fmt.Sprintf("%s-%d", "tf-test-acl-bucket", acctest.RandInt())
-}
 
 func TestAccStorageBucketAcl_basic(t *testing.T) {
 	t.Parallel()
