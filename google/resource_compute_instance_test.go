@@ -2118,7 +2118,7 @@ resource "google_compute_instance" "foobar" {
 	network_interface {
 		network = "default"
 		access_config {
-			public_ptr_domain_name = "test-record.%s.hashicorptest.com."
+			public_ptr_domain_name = "%s.gcp.tfacc.hashicorptest.com."
 		}
 	}
 
