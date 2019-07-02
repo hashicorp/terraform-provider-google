@@ -233,6 +233,16 @@ exported:
 * `self_link` - The URL of the created resource.
 
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 5 minutes.
+- `update` - Default is 5 minutes.
+- `delete` - Default is 15 minutes.
+
+
 ## Import
 
 Instance group managers can be imported using the `name`, e.g.
