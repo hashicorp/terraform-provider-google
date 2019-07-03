@@ -526,8 +526,8 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Finished creating BackendService %q: %#v", d.Id(), res)
 
 	// security_policy isn't set by Create / Update
-	if v, ok := d.GetOk("security_policy"); ok {
-		pol, err := ParseSecurityPolicyFieldValue(v.(string), d, config)
+	if o, n := d.GetChange("security_policy"); o.(string) != n.(string) {
+		pol, err := ParseSecurityPolicyFieldValue(n.(string), d, config)
 		if err != nil {
 			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
 		}
@@ -775,8 +775,8 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	// security_policy isn't set by Create / Update
-	if v, ok := d.GetOk("security_policy"); ok {
-		pol, err := ParseSecurityPolicyFieldValue(v.(string), d, config)
+	if o, n := d.GetChange("security_policy"); o.(string) != n.(string) {
+		pol, err := ParseSecurityPolicyFieldValue(n.(string), d, config)
 		if err != nil {
 			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
 		}
