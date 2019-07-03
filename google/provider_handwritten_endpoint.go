@@ -227,6 +227,17 @@ var StorageTransferCustomEndpointEntry = &schema.Schema{
 	}, StorageTransferDefaultBasePath),
 }
 
+var BigtableAdminDefaultBasePath = "https://bigtableadmin.googleapis.com/v2/"
+var BigtableAdminCustomEndpointEntryKey = "bigtable_custom_endpoint"
+var BigtableAdminCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_BIGTABLE_CUSTOM_ENDPOINT",
+	}, BigtableAdminDefaultBasePath),
+}
+
 func validateCustomEndpoint(v interface{}, k string) (ws []string, errors []error) {
 	re := `.*/[^/]+/$`
 	return validateRegexp(re)(v, k)
