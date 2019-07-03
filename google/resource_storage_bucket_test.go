@@ -14,10 +14,14 @@ import (
 	"google.golang.org/api/storage/v1"
 )
 
+func testBucketName() string {
+	return fmt.Sprintf("%s-%d", "tf-test-bucket", acctest.RandInt())
+}
+
 func TestAccStorageBucket_basic(t *testing.T) {
 	t.Parallel()
 
-	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
+	bucketName := testBucketName()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -75,7 +79,7 @@ func TestAccStorageBucket_requesterPays(t *testing.T) {
 func TestAccStorageBucket_lowercaseLocation(t *testing.T) {
 	t.Parallel()
 
-	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
+	bucketName := testBucketName()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -97,7 +101,7 @@ func TestAccStorageBucket_lowercaseLocation(t *testing.T) {
 func TestAccStorageBucket_customAttributes(t *testing.T) {
 	t.Parallel()
 
-	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
+	bucketName := testBucketName()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
