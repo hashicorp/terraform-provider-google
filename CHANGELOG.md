@@ -1,4 +1,8 @@
-## 2.10.1 (Unreleased)
+## 2.11.0 (Unreleased)
+
+ENHANCEMENTS:
+* bigquery: Added support for `external_data_configuration` to `google_bigquery_table`. [GH-3602]
+
 ## 2.10.0 (July 02, 2019)
 
 DEPRECATIONS:
