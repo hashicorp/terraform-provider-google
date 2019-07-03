@@ -58,10 +58,20 @@ func resourceStorageObjectAcl() *schema.Resource {
 // makes configs with or without that line indistinguishable.
 func resourceStorageObjectAclDiff(diff *schema.ResourceDiff, meta interface{}) error {
 	config := meta.(*Config)
-	bucket := diff.Get("bucket").(string)
-	object := diff.Get("object").(string)
+	bucket, ok := diff.GetOk("bucket")
+	if !ok {
+		// During `plan` when this is interpolated from a resource that hasn't been created yet
+		// required fields may not be present yet
+		return nil
+	}
+	object, ok := diff.GetOk("object")
+	if !ok {
+		// During `plan` when this is interpolated from a resource that hasn't been created yet
+		// required fields may not be present yet
+		return nil
+	}
 
-	sObject, err := config.clientStorage.Objects.Get(bucket, object).Projection("full").Do()
+	sObject, err := config.clientStorage.Objects.Get(bucket.(string), object.(string)).Projection("full").Do()
 	if err != nil {
 		// Failing here is OK! Generally, it means we are at Create although it could mean the resource is gone.
 		// Create won't show the object owner being given
