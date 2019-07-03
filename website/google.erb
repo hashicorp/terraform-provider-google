@@ -127,7 +127,7 @@
       <a href="/docs/providers/google/d/google_folder.html">google_folder</a>
       </li>
       <li<%= sidebar_current("docs-google-datasource-folder-organization-policy") %>>
-      <a href="/docs/providers/google/d/datasource_google_folder_organization_policy.html">datasource_google_folder_organization_policy</a>
+      <a href="/docs/providers/google/d/datasource_google_folder_organization_policy.html">google_folder_organization_policy</a>
       </li>
       <li<%= sidebar_current("docs-google-datasource-iam-policy") %>>
         <a href="/docs/providers/google/d/google_iam_policy.html">google_iam_policy</a>
@@ -242,6 +242,15 @@
     </ul>
     </li>
 
+    <li<%= sidebar_current("docs-google-cloudiot") %>>
+      <a href="#">Google Cloud IoT Core</a>
+      <ul class="nav nav-visible">
+        <li<%= sidebar_current("docs-google-cloudiot-registry-x") %>>
+          <a href="/docs/providers/google/r/cloudiot_registry.html">google_cloudiot_registry</a>
+        </li>
+      </ul>
+    </li>
+
     <li<%= sidebar_current("docs-google-(project|service)") %>>
     <a href="#">Google Cloud Platform Resources</a>
     <ul class="nav nav-visible">
@@ -333,6 +342,15 @@
     </li>
 
 
+
+    <li<%= sidebar_current("docs-google-tpu") %>>
+      <a href="#">Google Cloud TPU</a>
+      <ul class="nav nav-visible">
+        <li<%= sidebar_current("docs-google-tpu-node") %>>
+          <a href="/docs/providers/google/r/tpu_node.html">google_tpu_node</a>
+        </li>
+      </ul>
+    </li>
 
     <li<%= sidebar_current("docs-google-compute") %>>
     <a href="#">Google Compute Engine Resources</a>
@@ -437,20 +455,20 @@
       <a href="/docs/providers/google/r/compute_interconnect_attachment.html">google_compute_interconnect_attachment</a>
       </li>
 
-      <li<%= sidebar_current("docs-google-compute-node-group") %>>
-      <a href="/docs/providers/google/r/compute_node_group.html">google_compute_node_group</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-node-template") %>>
-      <a href="/docs/providers/google/r/compute_node_template.html">google_compute_node_template</a>
-      </li>
-
       <li<%= sidebar_current("docs-google-compute-network-x") %>>
       <a href="/docs/providers/google/r/compute_network.html">google_compute_network</a>
       </li>
 
       <li<%= sidebar_current("docs-google-compute-network-peering") %>>
       <a href="/docs/providers/google/r/compute_network_peering.html">google_compute_network_peering</a>
+      </li>
+
+      <li<%= sidebar_current("docs-google-compute-node-group") %>>
+      <a href="/docs/providers/google/r/compute_node_group.html">google_compute_node_group</a>
+      </li>
+
+      <li<%= sidebar_current("docs-google-compute-node-template") %>>
+      <a href="/docs/providers/google/r/compute_node_template.html">google_compute_node_template</a>
       </li>
 
       <li<%= sidebar_current("docs-google-compute-project-default-network-tier") %>>
@@ -548,6 +566,10 @@
 
       <li<%= sidebar_current("docs-google-compute-target-https-proxy") %>>
       <a href="/docs/providers/google/r/compute_target_https_proxy.html">google_compute_target_https_proxy</a>
+      </li>
+
+      <li<%= sidebar_current("docs-google-compute-target-instance") %>>
+      <a href="/docs/providers/google/r/compute_target_instance.html">google_compute_target_instance</a>
       </li>
 
       <li<%= sidebar_current("docs-google-compute-target-ssl-proxy") %>>
@@ -676,7 +698,35 @@
     </ul>
     </li>
 
-    
+
+    <li<%= sidebar_current("docs-google-kms") %>>
+    <a href="#">Google Key Management Service Resources</a>
+    <ul class="nav nav-visible">
+      <li<%= sidebar_current("docs-google-kms-crypto-key-x") %>>
+        <a href="/docs/providers/google/r/kms_crypto_key.html">google_kms_crypto_key</a>
+      </li>
+      <li<%= sidebar_current("docs-google-kms-crypto-key-iam-binding") %>>
+        <a href="/docs/providers/google/r/google_kms_crypto_key_iam_binding.html">google_kms_crypto_key_iam_binding</a>
+      </li>
+      <li<%= sidebar_current("docs-google-kms-crypto-key-iam-member") %>>
+        <a href="/docs/providers/google/r/google_kms_crypto_key_iam_member.html">google_kms_crypto_key_iam_member</a>
+      </li>
+      <li<%= sidebar_current("docs-google-kms-key-ring-x") %>>
+        <a href="/docs/providers/google/r/kms_key_ring.html">google_kms_key_ring</a>
+      </li>
+      <li<%= sidebar_current("docs-google-kms-key-ring-iam") %>>
+        <a href="/docs/providers/google/r/google_kms_key_ring_iam.html">google_kms_key_ring_iam_binding</a>
+      </li>
+      <li<%= sidebar_current("docs-google-kms-key-ring-iam") %>>
+        <a href="/docs/providers/google/r/google_kms_key_ring_iam.html">google_kms_key_ring_iam_member</a>
+      </li>
+      <li<%= sidebar_current("docs-google-kms-key-ring-iam") %>>
+        <a href="/docs/providers/google/r/google_kms_key_ring_iam.html">google_kms_key_ring_iam_policy</a>
+      </li>
+    </ul>
+    </li>
+
+
     <li<%= sidebar_current("docs-google-pubsub") %>>
     <a href="#">Google PubSub Resources</a>
     <ul class="nav nav-visible">
@@ -911,42 +961,6 @@
       <a href="/docs/providers/google/r/storage_transfer_job.html">google_storage_transfer_job</a>
       </li>
     </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-kms") %>>
-    <a href="#">Google Key Management Service Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-kms-crypto-key-x") %>>
-        <a href="/docs/providers/google/r/kms_crypto_key.html">google_kms_crypto_key</a>
-      </li>
-      <li<%= sidebar_current("docs-google-kms-crypto-key-iam-binding") %>>
-        <a href="/docs/providers/google/r/google_kms_crypto_key_iam_binding.html">google_kms_crypto_key_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-kms-crypto-key-iam-member") %>>
-        <a href="/docs/providers/google/r/google_kms_crypto_key_iam_member.html">google_kms_crypto_key_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-kms-key-ring-x") %>>
-        <a href="/docs/providers/google/r/kms_key_ring.html">google_kms_key_ring</a>
-      </li>
-      <li<%= sidebar_current("docs-google-kms-key-ring-iam") %>>
-        <a href="/docs/providers/google/r/google_kms_key_ring_iam.html">google_kms_key_ring_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-kms-key-ring-iam") %>>
-        <a href="/docs/providers/google/r/google_kms_key_ring_iam.html">google_kms_key_ring_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-kms-key-ring-iam") %>>
-        <a href="/docs/providers/google/r/google_kms_key_ring_iam.html">google_kms_key_ring_iam_policy</a>
-      </li>
-    </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-cloudiot") %>>
-      <a href="#">Google Cloud IoT Core</a>
-      <ul class="nav nav-visible">
-        <li<%= sidebar_current("docs-google-cloudiot-registry-x") %>>
-          <a href="/docs/providers/google/r/cloudiot_registry.html">google_cloudiot_registry</a>
-        </li>
-      </ul>
     </li>
 
   </ul>
