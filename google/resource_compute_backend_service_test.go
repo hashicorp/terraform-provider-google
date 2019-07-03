@@ -316,12 +316,25 @@ func TestAccComputeBackendService_withSecurityPolicy(t *testing.T) {
 		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeBackendService_withSecurityPolicy(serviceName, checkName, polName),
+				Config: testAccComputeBackendService_withSecurityPolicy(serviceName, checkName, polName, "${google_compute_security_policy.policy.self_link}"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeBackendServiceExists(
 						"google_compute_backend_service.foobar", &svc),
 					resource.TestMatchResourceAttr("google_compute_backend_service.foobar", "security_policy", regexp.MustCompile(polName)),
 				),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withSecurityPolicy(serviceName, checkName, polName, ""),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -941,12 +954,12 @@ resource "google_compute_http_health_check" "zero" {
 `, serviceName, checkName)
 }
 
-func testAccComputeBackendService_withSecurityPolicy(serviceName, checkName, polName string) string {
+func testAccComputeBackendService_withSecurityPolicy(serviceName, checkName, polName, polLink string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
   name          = "%s"
   health_checks = ["${google_compute_http_health_check.zero.self_link}"]
-  security_policy = "${google_compute_security_policy.policy.self_link}"
+  security_policy = "%s"
 }
 
 resource "google_compute_http_health_check" "zero" {
@@ -960,7 +973,7 @@ resource "google_compute_security_policy" "policy" {
 	name        = "%s"
 	description = "basic security policy"
 }
-`, serviceName, checkName, polName)
+`, serviceName, polLink, checkName, polName)
 }
 
 func testAccComputeBackendService_withMaxConnections(
