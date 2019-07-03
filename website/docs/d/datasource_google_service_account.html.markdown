@@ -45,7 +45,7 @@ The following arguments are supported:
 
 * `account_id` - (Required) The Service account id.  (This is the part of the service account's email field that comes before the @ symbol.)
 
-* `project` - (Optional) The ID of the project that the service account will be created in.
+* `project` - (Optional) The ID of the project that the service account is present in.
     Defaults to the provider project configuration.
 
 ## Attributes Reference
