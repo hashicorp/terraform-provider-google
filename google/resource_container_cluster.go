@@ -57,6 +57,7 @@ func resourceContainerCluster() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			resourceContainerClusterIpAllocationCustomizeDiff,
+			resourceContainerClusterNodeVersionCustomizeDiff,
 			resourceNodeConfigEmptyGuestAccelerator,
 		),
 
@@ -693,6 +694,22 @@ func resourceNodeConfigEmptyGuestAccelerator(diff *schema.ResourceDiff, meta int
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func resourceContainerClusterNodeVersionCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	// separate func to allow unit testing
+	return resourceContainerClusterNodeVersionCustomizeDiffFunc(diff)
+}
+
+func resourceContainerClusterNodeVersionCustomizeDiffFunc(diff TerraformResourceDiff) error {
+	_, newValueNode := diff.GetChange("node_version")
+	_, newValueMaster := diff.GetChange("min_master_version")
+
+	if newValueNode != "" && newValueNode != newValueMaster {
+		return fmt.Errorf("%s %s %s %s %s", "Resource argument node_version (current value:", newValueNode, ") must either be unset or set to the same value as min_master_version (current value:", newValueMaster, ") on create.")
 	}
 
 	return nil
