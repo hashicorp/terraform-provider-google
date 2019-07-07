@@ -709,7 +709,7 @@ func resourceContainerClusterNodeVersionCustomizeDiffFunc(diff TerraformResource
 	_, newValueMaster := diff.GetChange("min_master_version")
 
 	if newValueNode != "" && newValueNode != newValueMaster {
-		return fmt.Errorf("%s %s %s %s %s", "Resource argument node_version (current value:", newValueNode, ") must either be unset or set to the same value as min_master_version (current value:", newValueMaster, ") on create.")
+		return fmt.Errorf("%s %s %s %s %s", "Resource argumentnode_version (value:", newValueNode, ") must either be unset or set to the same value as min_master_version (value:", newValueMaster, ") on create.")
 	}
 
 	return nil
