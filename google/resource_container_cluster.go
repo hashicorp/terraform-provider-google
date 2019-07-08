@@ -912,7 +912,14 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	return resourceContainerClusterRead(d, meta)
+	if err := resourceContainerClusterRead(d, meta); err != nil {
+		return err
+	}
+
+	if err := waitForContainerClusterReady(config, project, location, clusterName, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return err
+	}
+	return nil
 }
 
 func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) error {
@@ -928,20 +935,14 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	cluster := &containerBeta.Cluster{}
-	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-		name := containerClusterFullName(project, location, d.Get("name").(string))
-		cluster, err = config.clientContainerBeta.Projects.Locations.Clusters.Get(name).Do()
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		if cluster.Status != "RUNNING" {
-			return resource.RetryableError(fmt.Errorf("Cluster %q has status %q with message %q", d.Get("name"), cluster.Status, cluster.StatusMessage))
-		}
-		return nil
-	})
+	clusterName := d.Get("name").(string)
+	name := containerClusterFullName(project, location, clusterName)
+	cluster, err := config.clientContainerBeta.Projects.Locations.Clusters.Get(name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Container Cluster %q", d.Get("name").(string)))
+	}
+	if cluster.Status == "ERROR" || cluster.Status == "DEGRADED" {
+		return fmt.Errorf("Cluster %q has status %q with message %q", d.Get("name"), cluster.Status, cluster.StatusMessage)
 	}
 
 	d.Set("name", cluster.Name)
@@ -1037,6 +1038,10 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
+
+	if err := waitForContainerClusterReady(config, project, location, clusterName, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return err
+	}
 
 	d.Partial(true)
 
@@ -1526,6 +1531,10 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
+	if err := waitForContainerClusterReady(config, project, location, clusterName, d.Timeout(schema.TimeoutDelete)); err != nil {
+		return err
+	}
+
 	log.Printf("[DEBUG] Deleting GKE cluster %s", d.Get("name").(string))
 	mutexKV.Lock(containerClusterMutexKey(project, location, clusterName))
 	defer mutexKV.Unlock(containerClusterMutexKey(project, location, clusterName))
@@ -1602,6 +1611,24 @@ func cleanFailedContainerCluster(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[INFO] GKE cluster %s has been deleted", d.Id())
 	d.SetId("")
 	return nil
+}
+
+func waitForContainerClusterReady(config *Config, project, location, clusterName string, timeout time.Duration) error {
+	return resource.Retry(timeout, func() *resource.RetryError {
+		name := containerClusterFullName(project, location, clusterName)
+		cluster, err := config.clientContainerBeta.Projects.Locations.Clusters.Get(name).Do()
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		if cluster.Status == "PROVISIONING" || cluster.Status == "RECONCILING" || cluster.Status == "STOPPING" {
+			return resource.RetryableError(fmt.Errorf("Cluster %q has status %q with message %q", clusterName, cluster.Status, cluster.StatusMessage))
+		} else if cluster.Status == "RUNNING" {
+			log.Printf("Cluster %q has status 'RUNNING'.", clusterName)
+			return nil
+		} else {
+			return resource.NonRetryableError(fmt.Errorf("Cluster %q has terminal state %q with message %q.", clusterName, cluster.Status, cluster.StatusMessage))
+		}
+	})
 }
 
 // container engine's API currently mistakenly returns the instance group manager's
@@ -2013,6 +2040,9 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 
 	d.Set("name", clusterName)
 	d.SetId(clusterName)
+	if err := waitForContainerClusterReady(config, project, location, clusterName, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return nil, err
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
