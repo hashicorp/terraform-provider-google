@@ -108,6 +108,12 @@ func resourceBigQueryTable() *schema.Resource {
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									// Quote: [Required] The value that is used to quote data
+									// sections in a CSV file.
+									"quote": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
 									// AllowJaggedRows: [Optional] Indicates if BigQuery should
 									// accept rows that are missing trailing optional columns.
 									"allow_jagged_rows": {
@@ -136,13 +142,6 @@ func resourceBigQueryTable() *schema.Resource {
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  ",",
-									},
-									// Quote: [Optional] The value that is used to quote data
-									// sections in a CSV file.
-									"quote": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
 									},
 									// SkipLeadingRows: [Optional] The number of rows at the top
 									// of a CSV file that BigQuery will skip when reading the data.

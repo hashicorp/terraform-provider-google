@@ -154,6 +154,14 @@ The `external_data_configuration` block supports:
 
 The `cvs_options` block supports:
 
+* `quote` (Required) - The value that is used to quote data sections in a
+    CSV file. If your data does not contain quoted sections, set the
+    property value to an empty string. If your data contains quoted newline
+    characters, you must also set the `allow_quoted_newlines` property to true.
+    The API-side default is `"`, specified in Terraform escaped as `\"`. Due to
+    limitations with Terraform default values, this value is required to be
+    explicitly set. 
+
 * `allow_jagged_rows` (Optional) - Indicates if BigQuery should accept rows
     that are missing trailing optional columns.
 
@@ -165,12 +173,6 @@ The `cvs_options` block supports:
     values are UTF-8 or ISO-8859-1.
 
 * `field_delimiter` (Optional) - The separator for fields in a CSV file.
-
-* `quote` (Optional) - The value that is used to quote data sections in a
-    CSV file. If your data does not contain quoted sections, set the
-    property value to an empty string. If your data contains quoted newline
-    characters, you must also set the `allow_quoted_newlines` property to true.
-    Default value is ".
 
 * `skip_leading_rows` (Optional) - The number of rows at the top of a CSV
     file that BigQuery will skip when reading the data.
