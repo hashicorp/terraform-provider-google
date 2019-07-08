@@ -1,5 +1,8 @@
 ## 2.11.0 (Unreleased)
 
+FEATURES:
+* **New Resources**: `google_bigtable_instance_iam_binding`, `google_bigtable_instance_iam_member`, and `google_bigtable_instance_iam_policy` are now available. [GH-3939]
+
 ENHANCEMENTS:
 * bigquery: Added support for `external_data_configuration` to `google_bigquery_table`. [GH-3602]
 
