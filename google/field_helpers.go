@@ -14,6 +14,8 @@ const (
 	regionalLinkTemplate           = "projects/%s/regions/%s/%s/%s"
 	regionalLinkBasePattern        = "projects/(.+)/regions/(.+)/%s/(.+)"
 	regionalPartialLinkBasePattern = "regions/(.+)/%s/(.+)"
+	projectLinkTemplate            = "projects/%s/%s/%s"
+	projectBasePattern             = "projects/(.+)/%s/(.+)"
 	organizationLinkTemplate       = "organizations/%s/%s/%s"
 	organizationBasePattern        = "organizations/(.+)/%s/(.+)"
 )
@@ -354,4 +356,52 @@ func getRegionFromSchema(regionSchemaField, zoneSchemaField string, d TerraformR
 	}
 
 	return "", fmt.Errorf("Cannot determine region: set in this resource, or set provider-level 'region' or 'zone'.")
+}
+
+type ProjectFieldValue struct {
+	Project string
+	Name    string
+
+	resourceType string
+}
+
+func (f ProjectFieldValue) RelativeLink() string {
+	if len(f.Name) == 0 {
+		return ""
+	}
+
+	return fmt.Sprintf(projectLinkTemplate, f.Project, f.resourceType, f.Name)
+}
+
+// Parses a project field with the following formats:
+// - projects/{my_projects}/{resource_type}/{resource_name}
+func parseProjectFieldValue(resourceType, fieldValue, projectSchemaField string, d TerraformResourceData, config *Config, isEmptyValid bool) (*ProjectFieldValue, error) {
+	if len(fieldValue) == 0 {
+		if isEmptyValid {
+			return &ProjectFieldValue{resourceType: resourceType}, nil
+		}
+		return nil, fmt.Errorf("The project field for resource %s cannot be empty", resourceType)
+	}
+
+	r := regexp.MustCompile(fmt.Sprintf(projectBasePattern, resourceType))
+	if parts := r.FindStringSubmatch(fieldValue); parts != nil {
+		return &ProjectFieldValue{
+			Project: parts[1],
+			Name:    parts[2],
+
+			resourceType: resourceType,
+		}, nil
+	}
+
+	project, err := getProjectFromSchema(projectSchemaField, d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ProjectFieldValue{
+		Project: project,
+		Name:    GetResourceNameFromSelfLink(fieldValue),
+
+		resourceType: resourceType,
+	}, nil
 }

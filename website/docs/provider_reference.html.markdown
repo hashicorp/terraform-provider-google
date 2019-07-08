@@ -218,6 +218,7 @@ be used for configuration are below:
 * `access_context_manager_custom_endpoint` (`GOOGLE_ACCESS_CONTEXT_MANAGER_CUSTOM_ENDPOINT`) - `https://accesscontextmanager.googleapis.com/v1/`
 * `app_engine_custom_endpoint` (`GOOGLE_APP_ENGINE_CUSTOM_ENDPOINT`) - `https://appengine.googleapis.com/v1/`
 * `bigquery_custom_endpoint` (`GOOGLE_BIGQUERY_CUSTOM_ENDPOINT`) - `https://www.googleapis.com/bigquery/v2/`
+* `bigtable_custom_endpoint` (`GOOGLE_BIGTABLE_CUSTOM_ENDPOINT`) - `https://bigtableadmin.googleapis.com/v2/`
 * `cloud_billing_custom_endpoint` (`GOOGLE_CLOUD_BILLING_CUSTOM_ENDPOINT`) - `https://cloudbilling.googleapis.com/v1/`
 * `cloud_build_custom_endpoint` (`GOOGLE_CLOUD_BUILD_CUSTOM_ENDPOINT`) - `https://cloudbuild.googleapis.com/v1/`
 * `cloud_functions_custom_endpoint` (`GOOGLE_CLOUD_FUNCTIONS_CUSTOM_ENDPOINT`) - `https://cloudfunctions.googleapis.com/v1/`

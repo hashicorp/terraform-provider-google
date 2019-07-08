@@ -17,6 +17,7 @@ import (
 	googleoauth "golang.org/x/oauth2/google"
 	appengine "google.golang.org/api/appengine/v1"
 	"google.golang.org/api/bigquery/v2"
+	"google.golang.org/api/bigtableadmin/v2"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudbuild/v1"
 	"google.golang.org/api/cloudfunctions/v1"
@@ -173,6 +174,13 @@ type Config struct {
 	clientStorageTransfer   *storagetransfer.Service
 
 	bigtableClientFactory *BigtableClientFactory
+	BigtableAdminBasePath string
+	// Unlike other clients, the Bigtable Admin client doesn't use a single
+	// service. Instead, there are several distinct services created off
+	// the base service object. To imitate most other handwritten clients,
+	// we expose those directly instead of providing the `Service` object
+	// as a factory.
+	clientBigtableProjectsInstances *bigtableadmin.ProjectsInstancesService
 }
 
 var defaultClientScopes = []string{
@@ -426,6 +434,17 @@ func (c *Config) LoadAndValidate() error {
 		UserAgent:   userAgent,
 		TokenSource: tokenSource,
 	}
+
+	bigtableAdminBasePath := removeBasePathVersion(c.BigtableAdminBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
+
+	clientBigtable, err := bigtableadmin.NewService(context, option.WithHTTPClient(client))
+	if err != nil {
+		return err
+	}
+	clientBigtable.UserAgent = userAgent
+	clientBigtable.BasePath = bigtableAdminBasePath
+	c.clientBigtableProjectsInstances = bigtableadmin.NewProjectsInstancesService(clientBigtable)
 
 	sourceRepoClientBasePath := removeBasePathVersion(c.SourceRepoBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Source Repo client for path %s", sourceRepoClientBasePath)
