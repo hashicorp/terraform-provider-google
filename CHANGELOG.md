@@ -5,6 +5,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * bigquery: Added support for `external_data_configuration` to `google_bigquery_table`. [GH-3602]
+* firestore: `google_firestore_index` `query_scope` can have `COLLECTION_GROUP` specified. [GH-3972]
 
 ## 2.10.0 (July 02, 2019)
 
