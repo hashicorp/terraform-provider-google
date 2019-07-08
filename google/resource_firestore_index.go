@@ -83,7 +83,7 @@ func resourceFirestoreIndex() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"COLLECTION", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"COLLECTION", "COLLECTION_GROUP", ""}, false),
 				Default:      "COLLECTION",
 			},
 			"name": {
