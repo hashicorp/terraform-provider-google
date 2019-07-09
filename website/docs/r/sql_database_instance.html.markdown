@@ -255,7 +255,7 @@ The optional `settings.database_flags` sublist supports:
 The optional `settings.backup_configuration` subblock supports:
 
 * `binary_log_enabled` - (Optional) True if binary logging is enabled. If
-    `settings.backup_configuration.enabled` is false, this must be as well. 
+    `settings.backup_configuration.enabled` is false, this must be as well.
     Cannot be used with Postgres.
 
 * `enabled` - (Optional) True if backup configuration is enabled.
@@ -270,9 +270,11 @@ a public IPV4 address. Either `ipv4_enabled` must be enabled or a
 `private_network` must be configured.
 
 * `private_network` - (Optional) The VPC network from which the Cloud SQL
-instance is accessible for private IP. Specifying a network enables private IP.
+instance is accessible for private IP. For example, /projects/myProject/global/networks/default.
+Specifying a network enables private IP.
 Either `ipv4_enabled` must be enabled or a `private_network` must be configured.
- 
+This setting can be updated, but it cannot be removed after it is set.
+
 * `require_ssl` - (Optional) True if mysqld should default to `REQUIRE X509`
     for users connecting over IP.
 
@@ -362,11 +364,11 @@ instance. This property is applicable only to Second Generation instances.
 * `ip_address.0.type` - The type of this IP address.
 
   * A `PRIMARY` address is an address that can accept incoming connections.
-  
+
   * An `OUTGOING` address is the source address of connections originating from the instance, if supported.
-  
+
   * A `PRIVATE` address is an address for an instance which has been configured to use private networking see: [Private IP](https://cloud.google.com/sql/docs/mysql/private-ip).
-  
+
 * `first_ip_address` - The first IPv4 address of any type assigned. This is to
 support accessing the [first address in the list in a terraform output](https://github.com/terraform-providers/terraform-provider-google/issues/912)
 when the resource is configured with a `count`.
