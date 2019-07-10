@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -89,4 +90,23 @@ func (u *PubsubSubscriptionIamUpdater) GetMutexKey() string {
 
 func (u *PubsubSubscriptionIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("pubsub subscription %q", u.subscription)
+}
+
+// v1 and v2beta policy are identical
+func resourceManagerToPubsubPolicy(in *cloudresourcemanager.Policy) (*pubsub.Policy, error) {
+	out := &pubsub.Policy{}
+	err := Convert(in, out)
+	if err != nil {
+		return nil, errwrap.Wrapf("Cannot convert a v1 policy to a pubsub policy: {{err}}", err)
+	}
+	return out, nil
+}
+
+func pubsubToResourceManagerPolicy(in *pubsub.Policy) (*cloudresourcemanager.Policy, error) {
+	out := &cloudresourcemanager.Policy{}
+	err := Convert(in, out)
+	if err != nil {
+		return nil, errwrap.Wrapf("Cannot convert a pubsub policy to a v1 policy: {{err}}", err)
+	}
+	return out, nil
 }

@@ -97,3 +97,76 @@ func setDefaultValues(idRegex string, d TerraformResourceData, config *Config) e
 	}
 	return nil
 }
+
+// Parse an import id extracting field values using the given list of regexes.
+// They are applied in order. The first in the list is tried first.
+// This does not mutate any of the parameters, returning a map of matches
+//
+// e.g:
+// - projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<name>[^/]+) (applied first)
+// - (?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+),
+// - (?P<name>[^/]+) (applied last)
+func getImportIdQualifiers(idRegexes []string, d TerraformResourceData, config *Config, id string) (map[string]string, error) {
+	for _, idFormat := range idRegexes {
+		re, err := regexp.Compile(idFormat)
+
+		if err != nil {
+			log.Printf("[DEBUG] Could not compile %s.", idFormat)
+			return nil, fmt.Errorf("Import is not supported. Invalid regex formats.")
+		}
+
+		if fieldValues := re.FindStringSubmatch(id); fieldValues != nil {
+			var result map[string]string
+			result = make(map[string]string)
+			log.Printf("[DEBUG] matching ID %s to regex %s.", id, idFormat)
+			// Starting at index 1, the first match is the full string.
+			for i := 1; i < len(fieldValues); i++ {
+				fieldName := re.SubexpNames()[i]
+				fieldValue := fieldValues[i]
+				result[fieldName] = fieldValue
+			}
+
+			// The first id format is applied first and contains all the fields.
+			defaults, err := getDefaultValues(idRegexes[0], d, config)
+			if err != nil {
+				return nil, err
+			}
+
+			for k, v := range defaults {
+				result[k] = v
+			}
+
+			return result, nil
+		}
+	}
+	return nil, fmt.Errorf("Resource id %q doesn't match any of the accepted formats: %v", id, idRegexes)
+}
+
+// Returns a set of default values that are contained in a regular expression
+// This does not mutate any parameters, instead returning a map of defaults
+func getDefaultValues(idRegex string, d TerraformResourceData, config *Config) (map[string]string, error) {
+	var result map[string]string
+	result = make(map[string]string)
+	if _, ok := d.GetOk("project"); !ok && strings.Contains(idRegex, "?P<project>") {
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+		result["project"] = project
+	}
+	if _, ok := d.GetOk("region"); !ok && strings.Contains(idRegex, "?P<region>") {
+		region, err := getRegion(d, config)
+		if err != nil {
+			return nil, err
+		}
+		result["region"] = region
+	}
+	if _, ok := d.GetOk("zone"); !ok && strings.Contains(idRegex, "?P<zone>") {
+		zone, err := getZone(d, config)
+		if err != nil {
+			return nil, err
+		}
+		result["zone"] = zone
+	}
+	return result, nil
+}
