@@ -30,5 +30,8 @@ var SourceRepoCustomEndpointEntry = &schema.Schema{
 }
 
 var GeneratedSourceRepoResourcesMap = map[string]*schema.Resource{
-	"google_sourcerepo_repository": resourceSourceRepoRepository(),
+	"google_sourcerepo_repository":             resourceSourceRepoRepository(),
+	"google_sourcerepo_repository_iam_binding": ResourceIamBindingWithImport(SourceRepoRepositoryIamSchema, SourceRepoRepositoryIamUpdaterProducer, SourceRepoRepositoryIdParseFunc),
+	"google_sourcerepo_repository_iam_member":  ResourceIamMemberWithImport(SourceRepoRepositoryIamSchema, SourceRepoRepositoryIamUpdaterProducer, SourceRepoRepositoryIdParseFunc),
+	"google_sourcerepo_repository_iam_policy":  ResourceIamPolicyWithImport(SourceRepoRepositoryIamSchema, SourceRepoRepositoryIamUpdaterProducer, SourceRepoRepositoryIdParseFunc),
 }
