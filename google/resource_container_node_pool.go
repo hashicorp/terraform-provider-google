@@ -537,12 +537,16 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 		"version":             np.Version,
 	}
 
-	if np.Autoscaling != nil && np.Autoscaling.Enabled {
-		nodePool["autoscaling"] = []map[string]interface{}{
-			{
-				"min_node_count": np.Autoscaling.MinNodeCount,
-				"max_node_count": np.Autoscaling.MaxNodeCount,
-			},
+	if np.Autoscaling != nil {
+		if np.Autoscaling.Enabled {
+			nodePool["autoscaling"] = []map[string]interface{}{
+				{
+					"min_node_count": np.Autoscaling.MinNodeCount,
+					"max_node_count": np.Autoscaling.MaxNodeCount,
+				},
+			}
+		} else {
+			nodePool["autoscaling"] = []map[string]interface{}{}
 		}
 	}
 
