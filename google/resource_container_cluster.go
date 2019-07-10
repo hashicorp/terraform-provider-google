@@ -1944,7 +1944,7 @@ func flattenIPAllocationPolicy(c *containerBeta.Cluster, d *schema.ResourceData,
 }
 
 func flattenMaintenancePolicy(mp *containerBeta.MaintenancePolicy) []map[string]interface{} {
-	if mp == nil {
+	if mp == nil || mp.Window == nil || mp.Window.DailyMaintenanceWindow == nil {
 		return nil
 	}
 	return []map[string]interface{}{
