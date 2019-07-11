@@ -881,17 +881,18 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		// Try a GET on the cluster so we can see the state in debug logs. This will help classify error states.
 		_, getErr := config.clientContainerBeta.Projects.Locations.Clusters.Get(containerClusterFullName(project, location, clusterName)).Do()
 		if getErr != nil {
-			// Make errcheck happy
 			log.Printf("[WARN] Cluster %s was created in an error state and not found", clusterName)
+			d.SetId("")
 		}
 
 		if deleteErr := cleanFailedContainerCluster(d, meta); deleteErr != nil {
 			log.Printf("[WARN] Unable to clean up cluster from failed creation: %s", deleteErr)
+			// Leave ID set as the cluster likely still exists and should not be removed from state yet.
 		} else {
 			log.Printf("[WARN] Verified failed creation of cluster %s was cleaned up", d.Id())
+			d.SetId("")
 		}
 		// The resource didn't actually create
-		d.SetId("")
 		return waitErr
 	}
 
