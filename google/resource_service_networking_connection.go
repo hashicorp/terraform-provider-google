@@ -7,7 +7,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
+	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/servicenetworking/v1"
 )
 
@@ -22,7 +24,7 @@ func resourceServiceNetworkingConnection() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"network": {
+			"network": &schema.Schema{
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
@@ -34,15 +36,19 @@ func resourceServiceNetworkingConnection() *schema.Resource {
 			// CLI's approach, calling the field "service" and accepting the same format as the CLI with the "."
 			// delimiter.
 			// See: https://cloud.google.com/vpc/docs/configure-private-services-access#creating-connection
-			"service": {
+			"service": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"reserved_peering_ranges": {
+			"reserved_peering_ranges": &schema.Schema{
 				Type:     schema.TypeList,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"peering": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -54,7 +60,7 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 	network := d.Get("network").(string)
 	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
 	if err != nil {
-		return fmt.Errorf("Failed to find Service Networking Connection, err: %s", err)
+		return errwrap.Wrapf("Failed to find Service Networking Connection, err: {{err}}", err)
 	}
 
 	connection := &servicenetworking.Connection{
@@ -86,18 +92,17 @@ func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interf
 
 	connectionId, err := parseConnectionId(d.Id())
 	if err != nil {
-		return fmt.Errorf("Failed to find Service Networking Connection, err: %s", err)
+		return errwrap.Wrapf("Unable to parse Service Networking Connection id, err: {{err}}", err)
 	}
 
 	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, connectionId.Network)
 	if err != nil {
-		return fmt.Errorf("Failed to find Service Networking Connection, err: %s", err)
+		return errwrap.Wrapf("Failed to find Service Networking Connection, err: {{err}}", err)
 	}
 
 	parentService := formatParentService(connectionId.Service)
-	listCall := config.clientServiceNetworking.Services.Connections.List(parentService)
-	listCall.Network(serviceNetworkingNetworkName)
-	response, err := listCall.Do()
+	response, err := config.clientServiceNetworking.Services.Connections.List(parentService).
+		Network(serviceNetworkingNetworkName).Do()
 	if err != nil {
 		return err
 	}
@@ -111,11 +116,14 @@ func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interf
 	}
 
 	if connection == nil {
-		return fmt.Errorf("Failed to find Service Networking Connection, network: %s service: %s", connectionId.Network, connectionId.Service)
+		d.SetId("")
+		log.Printf("[WARNING] Failed to find Service Networking Connection, network: %s service: %s", connectionId.Network, connectionId.Service)
+		return nil
 	}
 
 	d.Set("network", connectionId.Network)
 	d.Set("service", connectionId.Service)
+	d.Set("peering", connection.Peering)
 	d.Set("reserved_peering_ranges", connection.ReservedPeeringRanges)
 	return nil
 }
@@ -125,7 +133,7 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 
 	connectionId, err := parseConnectionId(d.Id())
 	if err != nil {
-		return fmt.Errorf("Failed to find Service Networking Connection, err: %s", err)
+		return errwrap.Wrapf("Unable to parse Service Networking Connection id, err: {{err}}", err)
 	}
 
 	parentService := formatParentService(connectionId.Service)
@@ -134,7 +142,7 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 		network := d.Get("network").(string)
 		serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
 		if err != nil {
-			return fmt.Errorf("Failed to find Service Networking Connection, err: %s", err)
+			return errwrap.Wrapf("Failed to find Service Networking Connection, err: {{err}}", err)
 		}
 
 		connection := &servicenetworking.Connection{
@@ -155,18 +163,44 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 	return resourceServiceNetworkingConnectionRead(d, meta)
 }
 
-// NOTE(craigatgoogle): This resource doesn't have a defined Delete method, however an un-documented
-// behavior is for the Connection to be deleted when its associated network is deleted. This is
-// helpeful for acctest cleanup.
 func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta interface{}) error {
-	connectionId, err := parseConnectionId(d.Id())
+	config := meta.(*Config)
+
+	network := d.Get("network").(string)
+	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[WARNING] Service Networking Connection resources cannot be deleted from GCP. This Connection (network: %s, service: %s) will be removed from Terraform state, but will still be present on the server.", connectionId.Network, connectionId.Service)
+	obj := make(map[string]interface{})
+	peering := d.Get("peering").(string)
+	obj["name"] = peering
+	url := fmt.Sprintf("%s%s/removePeering", config.ComputeBasePath, serviceNetworkingNetworkName)
+
+	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("ServiceNetworkingConnection %q", d.Id()))
+	}
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	op := &compute.Operation{}
+	err = Convert(res, op)
+	if err != nil {
+		return err
+	}
+
+	err = computeOperationWaitTime(
+		config.clientCompute, op, project, "Updating Network",
+		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+	if err != nil {
+		return err
+	}
 
 	d.SetId("")
+	log.Printf("[INFO] Service network connection removed.")
 
 	return nil
 }
@@ -202,14 +236,14 @@ func parseConnectionId(id string) (*connectionId, error) {
 
 	network, err := url.QueryUnescape(res[0])
 	if err != nil {
-		return nil, fmt.Errorf("Failed to parse service networking connection id, invalid network, err: %s", err)
+		return nil, errwrap.Wrapf("Failed to parse service networking connection id, invalid network, err: {{err}}", err)
 	} else if len(network) == 0 {
 		return nil, fmt.Errorf("Failed to parse service networking connection id, empty network")
 	}
 
 	service, err := url.QueryUnescape(res[1])
 	if err != nil {
-		return nil, fmt.Errorf("Failed to parse service networking connection id, invalid service, err: %s", err)
+		return nil, errwrap.Wrapf("Failed to parse service networking connection id, invalid service, err: {{err}}", err)
 	} else if len(service) == 0 {
 		return nil, fmt.Errorf("Failed to parse service networking connection id, empty service")
 	}
@@ -226,7 +260,7 @@ func parseConnectionId(id string) (*connectionId, error) {
 func retrieveServiceNetworkingNetworkName(d *schema.ResourceData, config *Config, network string) (string, error) {
 	networkFieldValue, err := ParseNetworkFieldValue(network, d, config)
 	if err != nil {
-		return "", fmt.Errorf("Failed to retrieve network field value, err: %s", err)
+		return "", errwrap.Wrapf("Failed to retrieve network field value, err: {{err}}", err)
 	}
 
 	pid := networkFieldValue.Project
