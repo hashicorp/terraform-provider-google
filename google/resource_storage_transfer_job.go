@@ -493,10 +493,8 @@ func expandDates(dates []interface{}) *storagetransfer.Date {
 		return nil
 	}
 
-	dateElem := dates[0].([]interface{})
+	dateMap := dates[0].(map[string]interface{})
 	date := &storagetransfer.Date{}
-
-	dateMap := extractFirstMapConfig(dateElem)
 	if v, ok := dateMap["day"]; ok {
 		date.Day = int64(v.(int))
 	}
@@ -509,6 +507,7 @@ func expandDates(dates []interface{}) *storagetransfer.Date {
 		date.Year = int64(v.(int))
 	}
 
+	log.Printf("[DEBUG] not nil date: %#v", dates)
 	return date
 }
 
@@ -527,10 +526,8 @@ func expandTimeOfDays(times []interface{}) *storagetransfer.TimeOfDay {
 		return nil
 	}
 
-	timeElem := times[0].([]interface{})
+	timeMap := times[0].(map[string]interface{})
 	time := &storagetransfer.TimeOfDay{}
-
-	timeMap := extractFirstMapConfig(timeElem)
 	if v, ok := timeMap["hours"]; ok {
 		time.Hours = int64(v.(int))
 	}
@@ -568,9 +565,9 @@ func expandTransferSchedules(transferSchedules []interface{}) *storagetransfer.S
 
 	schedule := transferSchedules[0].(map[string]interface{})
 	return &storagetransfer.Schedule{
-		ScheduleStartDate: expandDates([]interface{}{schedule["schedule_start_date"]}),
-		ScheduleEndDate:   expandDates([]interface{}{schedule["schedule_end_date"]}),
-		StartTimeOfDay:    expandTimeOfDays([]interface{}{schedule["start_time_of_day"]}),
+		ScheduleStartDate: expandDates(schedule["schedule_start_date"].([]interface{})),
+		ScheduleEndDate:   expandDates(schedule["schedule_end_date"].([]interface{})),
+		StartTimeOfDay:    expandTimeOfDays(schedule["start_time_of_day"].([]interface{})),
 	}
 }
 
