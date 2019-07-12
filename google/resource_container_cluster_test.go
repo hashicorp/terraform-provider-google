@@ -12,6 +12,37 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
+// TODO : Need help to implement the unit test.
+func TestContainerClusterNodeVersionCustomizeDiffFunc(t *testing.T) {
+	cases := map[string]struct {
+		BeforePolicy      []interface{}
+		AfterPolicy       []interface{}
+		ExpectDiffCleared bool
+	}{
+		"empty to false value": {
+			BeforePolicy: []interface{}{},
+			AfterPolicy:  []interface{}{},
+			//ExpectDiffCleared: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		d := &ResourceDiffMock{
+			Before: map[string]interface{}{
+				"node_version":       tc.BeforePolicy,
+				"min_master_version": tc.BeforePolicy,
+			},
+			After: map[string]interface{}{
+				"node_version":       tc.AfterPolicy,
+				"min_master_version": tc.AfterPolicy,
+			},
+		}
+		if err := resourceContainerClusterNodeVersionCustomizeDiffFunc(d); err != nil {
+			t.Errorf("%s failed, error calculating diff: %s", tn, err)
+		}
+	}
+}
+
 func TestContainerClusterIpAllocationCustomizeDiff(t *testing.T) {
 	t.Parallel()
 

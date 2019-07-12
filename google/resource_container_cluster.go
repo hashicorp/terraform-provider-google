@@ -704,12 +704,21 @@ func resourceContainerClusterNodeVersionCustomizeDiff(diff *schema.ResourceDiff,
 	return resourceContainerClusterNodeVersionCustomizeDiffFunc(diff)
 }
 
+// resourceContainerClusterNodeVersionCustomizeDiffFunc is checking that argument node_version have
+// same value as min_master_version if setted on creation.
 func resourceContainerClusterNodeVersionCustomizeDiffFunc(diff TerraformResourceDiff) error {
+
+	// By pass the diff if we are not on create.
+	oldValueNames, _ := diff.GetChange("name")
+	if oldValueNames != "" {
+		return nil
+	}
+
 	_, newValueNode := diff.GetChange("node_version")
 	_, newValueMaster := diff.GetChange("min_master_version")
 
 	if newValueNode != "" && newValueNode != newValueMaster {
-		return fmt.Errorf("%s %s %s %s %s", "Resource argument node_version (value:", newValueNode, ") must either be unset or set to the same value as min_master_version (value:", newValueMaster, ") on create.")
+		return fmt.Errorf("Resource argument node_version (value: %s) must either be unset or set to the same value as min_master_version (value: %s) on create.", newValueNode, newValueMaster)
 	}
 
 	return nil
