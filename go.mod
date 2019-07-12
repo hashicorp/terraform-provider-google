@@ -12,10 +12,9 @@ require (
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/hashicorp/go-version v1.1.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/hashicorp/terraform v0.12.2
+	github.com/hashicorp/terraform v0.12.4
 	github.com/hashicorp/vault v1.0.1 // indirect
 	github.com/keybase/go-crypto v0.0.0-20181127160227-255a5089e85a // indirect
-	github.com/kr/pty v1.1.3 // indirect
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/stoewer/go-strcase v1.0.2
