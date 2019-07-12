@@ -142,7 +142,7 @@ func testAccOrganizationIamBinding_basic(account, role, org string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Organization Iam Testing Account"
 }
 
 resource "google_organization_iam_custom_role" "test-role" {
@@ -164,7 +164,7 @@ func testAccOrganizationIamBinding_update(account, role, org string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Organization Iam Testing Account"
 }
 
 resource "google_organization_iam_custom_role" "test-role" {
@@ -176,7 +176,7 @@ resource "google_organization_iam_custom_role" "test-role" {
 
 resource "google_service_account" "test-account-2" {
   account_id   = "%s-2"
-  display_name = "Iam Testing Account"
+  display_name = "Organization Iam Testing Account"
 }
 
 resource "google_organization_iam_binding" "foo" {
@@ -194,7 +194,7 @@ func testAccOrganizationIamMember_basic(account, org string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Organization Iam Testing Account"
 }
 
 resource "google_organization_iam_member" "foo" {

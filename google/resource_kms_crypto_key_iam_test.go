@@ -194,7 +194,7 @@ resource "google_project_services" "test_project" {
 resource "google_service_account" "test_account" {
   project      = "${google_project_services.test_project.project}"
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Kms Crypto Key Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
@@ -238,13 +238,13 @@ resource "google_project_services" "test_project" {
 resource "google_service_account" "test_account" {
   project      = "${google_project_services.test_project.project}"
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Kms Crypto Key Iam Testing Account"
 }
 
 resource "google_service_account" "test_account_2" {
   project      = "${google_project_services.test_project.project}"
   account_id   = "%s-2"
-  display_name = "Iam Testing Account"
+  display_name = "Kms Crypto Key Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
@@ -291,7 +291,7 @@ resource "google_project_services" "test_project" {
 resource "google_service_account" "test_account" {
   project      = "${google_project_services.test_project.project}"
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Kms Crypto Key Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {

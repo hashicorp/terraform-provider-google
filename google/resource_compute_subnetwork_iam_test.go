@@ -119,7 +119,7 @@ func testAccComputeSubnetworkIamBinding_basic(account, region, subnetworkName, r
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Subnetwork Iam Testing Account"
 }
 
 resource "google_compute_network" "network" {
@@ -148,12 +148,12 @@ func testAccComputeSubnetworkIamBinding_update(account, region, subnetworkName, 
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Subnetwork Iam Testing Account"
 }
 
 resource "google_service_account" "test_account_2" {
   account_id   = "%s-2"
-  display_name = "Iam Testing Account"
+  display_name = "Subnetwork Iam Testing Account"
 }
 
 resource "google_compute_network" "network" {
@@ -185,7 +185,7 @@ func testAccComputeSubnetworkIamMember_basic(account, region, subnetworkName, ro
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Subnetwork Iam Testing Account"
 }
 
 resource "google_compute_network" "network" {
@@ -214,7 +214,7 @@ func testAccComputeSubnetworkIamPolicy_basic(account, region, subnetworkName, ro
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Subnetwork Iam Testing Account"
 }
 
 resource "google_compute_network" "network" {

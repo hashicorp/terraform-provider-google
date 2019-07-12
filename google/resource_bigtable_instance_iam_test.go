@@ -120,12 +120,12 @@ func testAccBigtableInstanceIamBinding_basic(instance, account, role string) str
 
 resource "google_service_account" "test-account1" {
   account_id   = "%s-1"
-  display_name = "Dataproc IAM Testing Account"
+  display_name = "Bigtable Instance IAM Testing Account"
 }
 
 resource "google_service_account" "test-account2" {
   account_id   = "%s-2"
-  display_name = "Iam Testing Account"
+  display_name = "Bigtable instance Iam Testing Account"
 }
 
 resource "google_bigtable_instance_iam_binding" "binding" {
@@ -142,12 +142,12 @@ func testAccBigtableInstanceIamBinding_update(instance, account, role string) st
 	return fmt.Sprintf(testBigtableInstanceIam+`
 resource "google_service_account" "test-account1" {
   account_id   = "%s-1"
-  display_name = "Dataproc IAM Testing Account"
+  display_name = "Bigtable Instance IAM Testing Account"
 }
 
 resource "google_service_account" "test-account2" {
   account_id   = "%s-2"
-  display_name = "Iam Testing Account"
+  display_name = "Bigtable Instance IAM Testing Account"
 }
 
 resource "google_bigtable_instance_iam_binding" "binding" {
@@ -165,7 +165,7 @@ func testAccBigtableInstanceIamMember(instance, account, role string) string {
 	return fmt.Sprintf(testBigtableInstanceIam+`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
-  display_name = "Dataproc IAM Testing Account"
+  display_name = "Bigtable Instance IAM Testing Account"
 }
 
 resource "google_bigtable_instance_iam_member" "member" {
@@ -180,7 +180,7 @@ func testAccBigtableInstanceIamPolicy(instance, account, role string) string {
 	return fmt.Sprintf(testBigtableInstanceIam+`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
-  display_name = "Dataproc IAM Testing Account"
+  display_name = "Bigtable Instance IAM Testing Account"
 }
 
 data "google_iam_policy" "policy" {

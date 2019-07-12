@@ -128,7 +128,7 @@ func testAccBillingAccountIamBinding_basic(account, billingAccountId, role strin
 	return fmt.Sprintf(`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Billing Account Iam Testing Account"
 }
 
 resource "google_billing_account_iam_binding" "foo" {
@@ -143,12 +143,12 @@ func testAccBillingAccountIamBinding_update(account, billingAccountId, role stri
 	return fmt.Sprintf(`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Billing Account Iam Testing Account"
 }
 
 resource "google_service_account" "test-account-2" {
   account_id   = "%s-2"
-  display_name = "Iam Testing Account"
+  display_name = "Billing Account Iam Testing Account"
 }
 
 resource "google_billing_account_iam_binding" "foo" {
@@ -166,7 +166,7 @@ func testAccBillingAccountIamMember_basic(account, billingAccountId, role string
 	return fmt.Sprintf(`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Billing Account Iam Testing Account"
 }
 
 resource "google_billing_account_iam_member" "foo" {
