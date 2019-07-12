@@ -290,7 +290,6 @@ func resourceContainerCluster() *schema.Resource {
 			"initial_node_count": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"logging_service": {
