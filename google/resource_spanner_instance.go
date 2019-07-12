@@ -292,19 +292,6 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		return handleNotFoundError(err, d, "Instance")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	err = spannerOperationWaitTime(
-		config, res, project, "Deleting Instance",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
-
-	if err != nil {
-		return err
-	}
-
 	log.Printf("[DEBUG] Finished deleting Instance %q: %#v", d.Id(), res)
 	return nil
 }

@@ -119,6 +119,20 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	waitErr := spannerOperationWaitTime(
+		config, res, project, "Creating Database",
+		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+
+	if waitErr != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Database: %s", waitErr)
+	}
+
 	log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
 
 	return resourceSpannerDatabaseRead(d, meta)
