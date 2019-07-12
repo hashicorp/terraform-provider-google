@@ -111,7 +111,7 @@ func testAccSpannerInstanceIamBinding_basic(account, instance, roleId string) st
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
-  display_name = "Spanner Iam Testing Account"
+  display_name = "Spanner Instance Iam Testing Account"
 }
 
 resource "google_spanner_instance" "instance" {
@@ -134,12 +134,12 @@ func testAccSpannerInstanceIamBinding_update(account, instance, roleId string) s
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
-  display_name = "Spanner Iam Testing Account"
+  display_name = "Spanner Instance Iam Testing Account"
 }
 
 resource "google_service_account" "test_account_2" {
   account_id   = "%s-2"
-  display_name = "Spanner Iam Testing Account"
+  display_name = "Spanner Instance Iam Testing Account"
 }
 
 resource "google_spanner_instance" "instance" {
@@ -165,7 +165,7 @@ func testAccSpannerInstanceIamMember_basic(account, instance, roleId string) str
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
-  display_name = "Spanner Iam Testing Account"
+  display_name = "Spanner Instance Iam Testing Account"
 }
 
 resource "google_spanner_instance" "instance" {
@@ -188,7 +188,7 @@ func testAccSpannerInstanceIamPolicy_basic(account, instance, roleId string) str
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
-  display_name = "Spanner Iam Testing Account"
+  display_name = "Spanner Instance Iam Testing Account"
 }
 
 resource "google_spanner_instance" "instance" {

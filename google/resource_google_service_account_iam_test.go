@@ -122,7 +122,7 @@ func testAccServiceAccountIamBinding_basic(account string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Service Account Iam Testing Account"
 }
 
 resource "google_service_account_iam_binding" "foo" {
@@ -137,7 +137,7 @@ func testAccServiceAccountIamMember_basic(account string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Service Account Iam Testing Account"
 }
 
 resource "google_service_account_iam_member" "foo" {
@@ -152,7 +152,7 @@ func testAccServiceAccountIamPolicy_basic(account string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
-  display_name = "Iam Testing Account"
+  display_name = "Service Account Iam Testing Account"
 }
 
 data "google_iam_policy" "foo" {

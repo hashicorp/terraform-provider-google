@@ -121,12 +121,12 @@ func testAccDataprocClusterIamBinding_basic(cluster, account, role string) strin
 
 resource "google_service_account" "test-account1" {
   account_id   = "%s-1"
-  display_name = "Dataproc IAM Testing Account"
+  display_name = "Dataproc Cluster IAM Testing Account"
 }
 
 resource "google_service_account" "test-account2" {
   account_id   = "%s-2"
-  display_name = "Iam Testing Account"
+  display_name = "Dataproc Cluster Iam Testing Account"
 }
 
 resource "google_dataproc_cluster_iam_binding" "binding" {
@@ -144,12 +144,12 @@ func testAccDataprocClusterIamBinding_update(cluster, account, role string) stri
 	return fmt.Sprintf(testDataprocIamSingleNodeCluster+`
 resource "google_service_account" "test-account1" {
   account_id   = "%s-1"
-  display_name = "Dataproc IAM Testing Account"
+  display_name = "Dataproc Cluster IAM Testing Account"
 }
 
 resource "google_service_account" "test-account2" {
   account_id   = "%s-2"
-  display_name = "Iam Testing Account"
+  display_name = "Dataproc Cluster Iam Testing Account"
 }
 
 resource "google_dataproc_cluster_iam_binding" "binding" {
@@ -168,7 +168,7 @@ func testAccDataprocClusterIamMember(cluster, account, role string) string {
 	return fmt.Sprintf(testDataprocIamSingleNodeCluster+`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
-  display_name = "Dataproc IAM Testing Account"
+  display_name = "Dataproc Cluster IAM Testing Account"
 }
 
 resource "google_dataproc_cluster_iam_member" "member" {
@@ -183,7 +183,7 @@ func testAccDataprocClusterIamPolicy(cluster, account, role string) string {
 	return fmt.Sprintf(testDataprocIamSingleNodeCluster+`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
-  display_name = "Dataproc IAM Testing Account"
+  display_name = "Dataproc Cluster IAM Testing Account"
 }
 
 data "google_iam_policy" "policy" {

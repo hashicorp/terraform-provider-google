@@ -143,12 +143,12 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_service_account" "test-account-1" {
 	account_id   = "%s-1"
-	display_name = "Iam Testing Account"
+	display_name = "Storage Bucket Iam Testing Account"
 }
 
 resource "google_service_account" "test-account-2" {
 	account_id   = "%s-2"
-	display_name = "Iam Testing Account"
+	display_name = "Storage Bucket Iam Testing Account"
 }
 
 
@@ -187,7 +187,7 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_service_account" "test-account-1" {
 	account_id   = "%s-1"
-	display_name = "Iam Testing Account"
+	display_name = "Storage Bucket Iam Testing Account"
 }
 
 
@@ -224,7 +224,7 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_service_account" "test-account-1" {
 	account_id   = "%s-1"
-	display_name = "Iam Testing Account"
+	display_name = "Storage Bucket Iam Testing Account"
 }
 
 resource "google_storage_bucket_iam_binding" "foo" {
@@ -245,12 +245,12 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_service_account" "test-account-1" {
 	account_id   = "%s-1"
-	display_name = "Iam Testing Account"
+	display_name = "Storage Bucket Iam Testing Account"
 }
 
 resource "google_service_account" "test-account-2" {
 	account_id   = "%s-2"
-	display_name = "Iam Testing Account"
+	display_name = "Storage Bucket Iam Testing Account"
 }
 
 resource "google_storage_bucket_iam_binding" "foo" {
@@ -272,7 +272,7 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_service_account" "test-account-1" {
 	account_id   = "%s-1"
-	display_name = "Iam Testing Account"
+	display_name = "Storage Bucket Iam Testing Account"
 }
 
 resource "google_storage_bucket_iam_member" "foo" {
