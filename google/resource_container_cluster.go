@@ -705,12 +705,12 @@ func resourceContainerClusterNodeVersionCustomizeDiff(diff *schema.ResourceDiff,
 }
 
 // resourceContainerClusterNodeVersionCustomizeDiffFunc is checking that argument node_version have
-// same value as min_master_version if setted on creation.
+// same value as min_master_version if setted on create.
 func resourceContainerClusterNodeVersionCustomizeDiffFunc(diff TerraformResourceDiff) error {
 
 	// By pass the diff if we are not on create.
-	oldValueNames, _ := diff.GetChange("name")
-	if oldValueNames != "" {
+	oldValueName, _ := diff.GetChange("name")
+	if oldValueName != "" {
 		return nil
 	}
 

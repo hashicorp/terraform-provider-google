@@ -12,32 +12,75 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-// TODO : Need help to implement the unit test.
-func TestContainerClusterNodeVersionCustomizeDiffFunc(t *testing.T) {
+// TestContainerClusterNodeVersionCustomizeDiffFuncNilReturn is doing unit test for cases where
+// the return have to be "nil".
+func TestContainerClusterNodeVersionCustomizeDiffFuncNilReturn(t *testing.T) {
+
 	cases := map[string]struct {
-		BeforePolicy      []interface{}
-		AfterPolicy       []interface{}
-		ExpectDiffCleared bool
+		nameBeforePolicy            string
+		nodeVersionAfterPolicy      string
+		minMasterVersionAfterPolicy string
 	}{
-		"empty to false value": {
-			BeforePolicy: []interface{}{},
-			AfterPolicy:  []interface{}{},
-			//ExpectDiffCleared: true,
+		"same version on create": {
+			nameBeforePolicy:            "",
+			nodeVersionAfterPolicy:      "version1",
+			minMasterVersionAfterPolicy: "version1",
+		},
+		"same version not on create": {
+			nameBeforePolicy:            "randomName",
+			nodeVersionAfterPolicy:      "version1",
+			minMasterVersionAfterPolicy: "version1",
+		},
+		"different version not on create": {
+			nameBeforePolicy:            "randomName",
+			nodeVersionAfterPolicy:      "version1",
+			minMasterVersionAfterPolicy: "otherVersion",
 		},
 	}
 
 	for tn, tc := range cases {
 		d := &ResourceDiffMock{
 			Before: map[string]interface{}{
-				"node_version":       tc.BeforePolicy,
-				"min_master_version": tc.BeforePolicy,
+				"name": tc.nameBeforePolicy,
 			},
 			After: map[string]interface{}{
-				"node_version":       tc.AfterPolicy,
-				"min_master_version": tc.AfterPolicy,
+				"node_version":       tc.nodeVersionAfterPolicy,
+				"min_master_version": tc.minMasterVersionAfterPolicy,
 			},
 		}
 		if err := resourceContainerClusterNodeVersionCustomizeDiffFunc(d); err != nil {
+			t.Errorf("%s failed, error calculating diff: %s", tn, err)
+		}
+	}
+}
+
+// TestContainerClusterNodeVersionCustomizeDiffFuncErrorReturn is doing unit test for cases where
+// the return an error.
+func TestContainerClusterNodeVersionCustomizeDiffFuncErrorReturn(t *testing.T) {
+
+	cases := map[string]struct {
+		nameBeforePolicy            string
+		nodeVersionAfterPolicy      string
+		minMasterVersionAfterPolicy string
+	}{
+		"different version on create": {
+			nameBeforePolicy:            "",
+			nodeVersionAfterPolicy:      "version1",
+			minMasterVersionAfterPolicy: "otherVersion",
+		},
+	}
+
+	for tn, tc := range cases {
+		d := &ResourceDiffMock{
+			Before: map[string]interface{}{
+				"name": tc.nameBeforePolicy,
+			},
+			After: map[string]interface{}{
+				"node_version":       tc.nodeVersionAfterPolicy,
+				"min_master_version": tc.minMasterVersionAfterPolicy,
+			},
+		}
+		if err := resourceContainerClusterNodeVersionCustomizeDiffFunc(d); err == nil {
 			t.Errorf("%s failed, error calculating diff: %s", tn, err)
 		}
 	}
