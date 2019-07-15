@@ -47,13 +47,13 @@ func dataSourceGoogleIamPolicy() *schema.Resource {
 							Set:      schema.HashString,
 						},
 						"condition": {
-							Type:    schema.TypeSet,
-							Optiona: true,
+							Type:     schema.TypeMap,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"title": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"description": {
 										Type:     schema.TypeString,
@@ -124,13 +124,15 @@ func dataSourceGoogleIamPolicyRead(d *schema.ResourceData, meta interface{}) err
 	for i, v := range bset.List() {
 		binding := v.(map[string]interface{})
 		members := convertStringSet(binding["members"].(*schema.Set))
+		condition := expandPolicyCondition(binding["condition"].(map[string]interface{}))
 
 		// Sort members to get simpler diffs as it's what the API does
 		sort.Strings(members)
 
 		policy.Bindings[i] = &cloudresourcemanager.Binding{
-			Role:    binding["role"].(string),
-			Members: members,
+			Role:      binding["role"].(string),
+			Members:   members,
+			Condition: condition,
 		}
 	}
 
@@ -154,6 +156,22 @@ func dataSourceGoogleIamPolicyRead(d *schema.ResourceData, meta interface{}) err
 	d.SetId(strconv.Itoa(hashcode.String(pstring)))
 
 	return nil
+}
+
+func expandPolicyCondition(c map[string]interface{}) *cloudresourcemanager.Expr {
+	condition := &cloudresourcemanager.Expr{
+		Expression: c["expression"].(string),
+	}
+
+	if title, ok := c["title"].(string); ok {
+		condition.Title = title
+	}
+
+	if description, ok := c["description"].(string); ok {
+		condition.Description = description
+	}
+
+	return condition
 }
 
 func expandAuditConfig(set *schema.Set) []*cloudresourcemanager.AuditConfig {
