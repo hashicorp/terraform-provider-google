@@ -117,8 +117,6 @@ func testAccBigtableInstanceExists(n string, numNodes int) resource.TestCheckFun
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		fmt.Println(s)
-
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}

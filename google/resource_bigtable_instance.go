@@ -178,7 +178,6 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("project", project)
 
 	clusters := d.Get("cluster").([]interface{})
-
 	clusterState := []map[string]interface{}{}
 	for _, cl := range clusters {
 		cluster := cl.(map[string]interface{})
@@ -194,7 +193,6 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	err = d.Set("cluster", clusterState)
-
 	if err != nil {
 		return fmt.Errorf("Error setting clusters in state: %s", err.Error())
 	}
