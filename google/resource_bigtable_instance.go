@@ -15,6 +15,7 @@ func resourceBigtableInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigtableInstanceCreate,
 		Read:   resourceBigtableInstanceRead,
+		Update: resourceBigtableInstanceUpdate,
 		Delete: resourceBigtableInstanceDestroy,
 
 		Schema: map[string]*schema.Schema{
@@ -25,10 +26,8 @@ func resourceBigtableInstance() *schema.Resource {
 			},
 
 			"cluster": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
-				MaxItems: 4,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cluster_id": {
@@ -44,7 +43,6 @@ func resourceBigtableInstance() *schema.Resource {
 						"num_nodes": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							ForceNew:     true,
 							ValidateFunc: validation.IntAtLeast(3),
 						},
 						"storage_type": {
@@ -57,11 +55,9 @@ func resourceBigtableInstance() *schema.Resource {
 					},
 				},
 			},
-
 			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 
@@ -137,7 +133,7 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		conf.InstanceType = bigtable.PRODUCTION
 	}
 
-	conf.Clusters = expandBigtableClusters(d.Get("cluster").(*schema.Set).List(), conf.InstanceID)
+	conf.Clusters = expandBigtableClusters(d.Get("cluster").([]interface{}), conf.InstanceID)
 
 	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
 	if err != nil {
@@ -181,7 +177,8 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("project", project)
 
-	clusters := d.Get("cluster").(*schema.Set).List()
+	clusters := d.Get("cluster").([]interface{})
+
 	clusterState := []map[string]interface{}{}
 	for _, cl := range clusters {
 		cluster := cl.(map[string]interface{})
@@ -197,6 +194,7 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	err = d.Set("cluster", clusterState)
+
 	if err != nil {
 		return fmt.Errorf("Error setting clusters in state: %s", err.Error())
 	}
@@ -205,6 +203,51 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("display_name", instance.DisplayName)
 
 	return nil
+}
+
+func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	ctx := context.Background()
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
+	if err != nil {
+		return fmt.Errorf("Error starting instance admin client. %s", err)
+	}
+	defer c.Close()
+
+	if d.Get("instance_type").(string) == "DEVELOPMENT" {
+		return resourceBigtableInstanceRead(d, meta)
+	}
+
+	clusters, err := c.Clusters(ctx, d.Get("name").(string))
+	if err != nil {
+		return fmt.Errorf("Error retrieving clusters for instance %s", err.Error())
+	}
+
+	clusterMap := make(map[string]*bigtable.ClusterInfo, len(clusters))
+	for _, cluster := range clusters {
+		clusterMap[cluster.Name] = cluster
+	}
+
+	for _, cluster := range d.Get("cluster").([]interface{}) {
+		config := cluster.(map[string]interface{})
+		cluster_id := config["cluster_id"].(string)
+		if cluster, ok := clusterMap[cluster_id]; ok {
+			if cluster.ServeNodes != config["num_nodes"].(int) {
+				err = c.UpdateCluster(ctx, d.Get("name").(string), cluster.Name, int32(config["num_nodes"].(int)))
+				if err != nil {
+					return fmt.Errorf("Error updating cluster %s for instance %s", cluster.Name, d.Get("name").(string))
+				}
+			}
+		}
+	}
+
+	return resourceBigtableInstanceRead(d, meta)
 }
 
 func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) error {
