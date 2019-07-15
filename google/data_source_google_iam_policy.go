@@ -20,6 +20,11 @@ import (
 //     members = [
 //       "user:evanbrown@google.com",
 //     ]
+//     condition = {
+//			 "title": "expires_end_of_2018",
+//			 "description": "Expires at midnight on 2018-12-31",
+//		   "expression": "request.time < timestamp(\"2019-01-01T00:00:00Z\")"
+//		 }
 //   }
 // }
 func dataSourceGoogleIamPolicy() *schema.Resource {
@@ -40,6 +45,26 @@ func dataSourceGoogleIamPolicy() *schema.Resource {
 							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
+						},
+						"condition": {
+							Type:    schema.TypeSet,
+							Optiona: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"title": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"description": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"expression": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
 						},
 					},
 				},
