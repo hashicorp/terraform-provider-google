@@ -257,7 +257,9 @@ func resourceStorageDefaultObjectAccessControlDelete(d *schema.ResourceData, met
 
 func resourceStorageDefaultObjectAccessControlImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{"(?P<bucket>[^/]+)/(?P<entity>[^/]+)"}, d, config); err != nil {
+	if err := parseImportId([]string{
+		"(?P<bucket>[^/]+)/(?P<entity>[^/]+)",
+	}, d, config); err != nil {
 		return nil, err
 	}
 

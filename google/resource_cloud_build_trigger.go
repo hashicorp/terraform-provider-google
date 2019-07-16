@@ -464,7 +464,11 @@ func resourceCloudBuildTriggerDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceCloudBuildTriggerImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/triggers/(?P<trigger_id>[^/]+)", "(?P<project>[^/]+)/(?P<trigger_id>[^/]+)", "(?P<trigger_id>[^/]+)"}, d, config); err != nil {
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/triggers/(?P<trigger_id>[^/]+)",
+		"(?P<project>[^/]+)/(?P<trigger_id>[^/]+)",
+		"(?P<trigger_id>[^/]+)",
+	}, d, config); err != nil {
 		return nil, err
 	}
 
