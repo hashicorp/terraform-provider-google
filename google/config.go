@@ -55,12 +55,13 @@ import (
 // Config is the configuration structure used to instantiate the Google
 // provider.
 type Config struct {
-	Credentials string
-	AccessToken string
-	Project     string
-	Region      string
-	Zone        string
-	Scopes      []string
+	Credentials    string
+	AccessToken    string
+	Project        string
+	Region         string
+	Zone           string
+	Scopes         []string
+	BatchingConfig *batchingConfig
 
 	client    *http.Client
 	userAgent string
@@ -152,8 +153,9 @@ type Config struct {
 	ServiceManagementBasePath string
 	clientServiceMan          *servicemanagement.APIService
 
-	ServiceUsageBasePath string
-	clientServiceUsage   *serviceusage.Service
+	ServiceUsageBasePath       string
+	clientServiceUsage         *serviceusage.Service
+	requestBatcherServiceUsage *RequestBatcher
 
 	BigQueryBasePath string
 	clientBigQuery   *bigquery.Service
@@ -393,6 +395,7 @@ func (c *Config) LoadAndValidate() error {
 	}
 	c.clientServiceUsage.UserAgent = userAgent
 	c.clientServiceUsage.BasePath = serviceUsageClientBasePath
+	c.requestBatcherServiceUsage = NewRequestBatcher("Service Usage", context, c.BatchingConfig)
 
 	cloudBillingClientBasePath := removeBasePathVersion(c.CloudBillingBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Billing client for path %s", cloudBillingClientBasePath)
@@ -537,6 +540,36 @@ func (c *Config) LoadAndValidate() error {
 	c.clientStorageTransfer.BasePath = storageTransferClientBasePath
 
 	return nil
+}
+
+func expandProviderBatchingConfig(v interface{}) (*batchingConfig, error) {
+	config := &batchingConfig{
+		sendAfter:      time.Second * defaultBatchSendIntervalSec,
+		enableBatching: true,
+	}
+
+	if v == nil {
+		return config, nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 || ls[0] == nil {
+		return config, nil
+	}
+
+	cfgV := ls[0].(map[string]interface{})
+	if sendAfterV, ok := cfgV["send_after"]; ok {
+		sendAfter, err := time.ParseDuration(sendAfterV.(string))
+		if err != nil {
+			return nil, fmt.Errorf("unable to parse duration from 'send_after' value %q", sendAfterV)
+		}
+		config.sendAfter = sendAfter
+	}
+
+	if enable, ok := cfgV["enable_batching"]; ok {
+		config.enableBatching = enable.(bool)
+	}
+
+	return config, nil
 }
 
 func (c *Config) getTokenSource(clientScopes []string) (oauth2.TokenSource, error) {

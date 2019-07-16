@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -135,7 +136,7 @@ func testAccCheckProjectService(services []string, pid string, expectEnabled boo
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
-		currentlyEnabled, err := listCurrentlyEnabledServices(pid, config)
+		currentlyEnabled, err := listCurrentlyEnabledServices(pid, config, time.Minute*10)
 		if err != nil {
 			return fmt.Errorf("Error listing services for project %q: %v", pid, err)
 		}
@@ -176,6 +177,7 @@ resource "google_project_service" "test2" {
   project = "${google_project.acceptance.project_id}"
   service = "%s"
 }
+
 `, pid, name, org, services[0], services[1])
 }
 
