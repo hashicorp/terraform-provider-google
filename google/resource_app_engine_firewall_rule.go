@@ -248,7 +248,10 @@ func resourceAppEngineFirewallRuleDelete(d *schema.ResourceData, meta interface{
 
 func resourceAppEngineFirewallRuleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{"(?P<project>[^/]+)/(?P<priority>[^/]+)", "(?P<priority>[^/]+)"}, d, config); err != nil {
+	if err := parseImportId([]string{
+		"(?P<project>[^/]+)/(?P<priority>[^/]+)",
+		"(?P<priority>[^/]+)",
+	}, d, config); err != nil {
 		return nil, err
 	}
 

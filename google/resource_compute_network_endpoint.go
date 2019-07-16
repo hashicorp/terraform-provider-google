@@ -276,7 +276,12 @@ func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface
 
 func resourceComputeNetworkEndpointImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/networkEndpointGroups/(?P<network_endpoint_group>[^/]+)/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]+)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)/(?P<name>[^/]+)", "(?P<network_endpoint_group>[^/]+)/(?P<name>[^/]+)"}, d, config); err != nil {
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/networkEndpointGroups/(?P<network_endpoint_group>[^/]+)/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]+)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)",
+		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)/(?P<name>[^/]+)",
+		"(?P<network_endpoint_group>[^/]+)/(?P<name>[^/]+)",
+	}, d, config); err != nil {
 		return nil, err
 	}
 

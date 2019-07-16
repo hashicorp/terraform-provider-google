@@ -198,7 +198,12 @@ func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceSpannerDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)", "instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)", "(?P<instance>[^/]+)/(?P<name>[^/]+)"}, d, config); err != nil {
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
+		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
+		"(?P<instance>[^/]+)/(?P<name>[^/]+)",
+	}, d, config); err != nil {
 		return nil, err
 	}
 
