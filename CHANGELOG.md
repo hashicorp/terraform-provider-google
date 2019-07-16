@@ -1,11 +1,29 @@
 ## 2.11.0 (Unreleased)
 
+NOTES:
+* container: We have changed the way container clusters handle cluster state, and they should now wait until the cluster is ready when creating, updating, or refreshing cluster state. This is meant to decrease the frequency of errors where Terraform is operating on a cluster that isn't ready to be operated on. If this change causes a problem, please open an issue with as much information as you can provide, especially [debug logs](https://www.terraform.io/docs/internals/debugging.html). See [GH-3989] for more info.
+
 FEATURES:
 * **New Resources**: `google_bigtable_instance_iam_binding`, `google_bigtable_instance_iam_member`, and `google_bigtable_instance_iam_policy` are now available. [GH-3939]
+* **New Resources**: Add support for source repo repository IAM resources `google_sourcerepo_repository_iam_*` [GH-3961]
 
 ENHANCEMENTS:
 * bigquery: Added support for `external_data_configuration` to `google_bigquery_table`. [GH-3602]
+* compute: Avoid getting project if no diff found for `google_compute_instance_template` [GH-4000]
 * firestore: `google_firestore_index` `query_scope` can have `COLLECTION_GROUP` specified. [GH-3972]
+
+BUG FIXES:
+* compute: Allow security policy to be removed from `google_backend_service` [GH-3969]
+* compute: Mark instance KMS self link field `kms_key_self_link` as computed [GH-3802]
+* container: Fix panic for nil nested objects when reading cluster maintenance window [GH-4002]
+* container: `google_container_cluster` keep clusters in state if they are created in an error state and don't get correctly cleaned up. [GH-3995]
+* container: `google_container_cluster` will now wait to act until the cluster can be operated on, respecting timeouts. [GH-3989]
+* container: `google_container_node_pool` Correctly set nodepool autoscaling in state when disabled in the API [GH-3997]
+* monitoring: Fix diff in `google_monitoring_uptime_check_config` on a deprecated field. [GH-4019]
+* servicenetworking: `google_service_networking_connection` correctly delete the connection when the resource is destroyed. [GH-4003]
+* spanner: Wait for spanner databases to create before returning. Don't wait for databases to delete before returning anymore. [GH-3975]
+* storage: Fixed an issue where `google_storage_transfer_job` `schedule_end_date` caused requests to fail if unset. [GH-4005]
+* storage: `google_storage_object_acl` Prevent panic when using interpolated object names. [GH-3970]
 
 ## 2.10.0 (July 02, 2019)
 
