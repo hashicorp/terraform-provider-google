@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"sort"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -43,7 +44,7 @@ func TestAccProjectServices_basic(t *testing.T) {
 			{
 				PreConfig: func() {
 					config := testAccProvider.Meta().(*Config)
-					if err := enableServiceUsageProjectServices([]string{oobService}, pid, config); err != nil {
+					if err := enableServiceUsageProjectServices([]string{oobService}, pid, config, time.Minute*20); err != nil {
 						t.Fatalf("Error enabling %q: %v", oobService, err)
 					}
 				},
@@ -88,7 +89,7 @@ func TestAccProjectServices_authoritative(t *testing.T) {
 			{
 				PreConfig: func() {
 					config := testAccProvider.Meta().(*Config)
-					if err := enableServiceUsageProjectServices([]string{oobService}, pid, config); err != nil {
+					if err := enableServiceUsageProjectServices([]string{oobService}, pid, config, time.Minute*20); err != nil {
 						t.Fatalf("Error enabling %q: %v", oobService, err)
 					}
 				},
@@ -129,7 +130,7 @@ func TestAccProjectServices_authoritative2(t *testing.T) {
 				PreConfig: func() {
 					config := testAccProvider.Meta().(*Config)
 					for _, s := range oobServices {
-						if err := enableServiceUsageProjectServices([]string{s}, pid, config); err != nil {
+						if err := enableServiceUsageProjectServices([]string{s}, pid, config, time.Minute*20); err != nil {
 							t.Fatalf("Error enabling %q: %v", s, err)
 						}
 					}
@@ -301,7 +302,7 @@ func testProjectServicesMatch(services []string, pid string) resource.TestCheckF
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
-		currentlyEnabled, err := listCurrentlyEnabledServices(pid, config)
+		currentlyEnabled, err := listCurrentlyEnabledServices(pid, config, time.Minute*10)
 		if err != nil {
 			return fmt.Errorf("Error listing services for project %q: %v", pid, err)
 		}

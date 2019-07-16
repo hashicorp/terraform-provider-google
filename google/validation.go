@@ -218,6 +218,29 @@ func validateDuration() schema.SchemaValidateFunc {
 	}
 }
 
+func validateNonNegativeDuration() schema.SchemaValidateFunc {
+	return func(i interface{}, k string) (s []string, es []error) {
+		v, ok := i.(string)
+		if !ok {
+			es = append(es, fmt.Errorf("expected type of %s to be string", k))
+			return
+		}
+
+		dur, err := time.ParseDuration(v)
+		if err != nil {
+			es = append(es, fmt.Errorf("expected %s to be a duration, but parsing gave an error: %s", k, err.Error()))
+			return
+		}
+
+		if dur < 0 {
+			es = append(es, fmt.Errorf("duration %v must be a non-negative duration", dur))
+			return
+		}
+
+		return
+	}
+}
+
 // StringNotInSlice returns a SchemaValidateFunc which tests if the provided value
 // is of type string and that it matches none of the element in the invalid slice.
 // if ignorecase is true, case is ignored.

@@ -76,6 +76,27 @@ func Provider() terraform.ResourceProvider {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
+			"batching": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"send_after": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "10s",
+							ValidateFunc: validateNonNegativeDuration(),
+						},
+						"enable_batching": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
+					},
+				},
+			},
+
 			// Generated Products
 			AccessContextManagerCustomEndpointEntryKey: AccessContextManagerCustomEndpointEntry,
 			AppEngineCustomEndpointEntryKey:            AppEngineCustomEndpointEntry,
@@ -349,6 +370,12 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	for i, scope := range scopes {
 		config.Scopes[i] = scope.(string)
 	}
+
+	batchCfg, err := expandProviderBatchingConfig(d.Get("batching"))
+	if err != nil {
+		return nil, err
+	}
+	config.BatchingConfig = batchCfg
 
 	config.AccessContextManagerBasePath = d.Get(AccessContextManagerCustomEndpointEntryKey).(string)
 	config.CloudSchedulerBasePath = d.Get(CloudSchedulerCustomEndpointEntryKey).(string)
