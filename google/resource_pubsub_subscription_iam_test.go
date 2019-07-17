@@ -174,12 +174,12 @@ resource "google_pubsub_subscription" "subscription" {
 
 resource "google_service_account" "test-account-1" {
   account_id   = "%s-1"
-  display_name = ""Pubsub Subscription Iam Testing Account"
+  display_name = "Pubsub Subscription Iam Testing Account"
 }
 
 resource "google_service_account" "test-account-2" {
   account_id   = "%s-2"
-  display_name = ""Pubsub Subscription Iam Testing Account"
+  display_name = "Pubsub Subscription Iam Testing Account"
 }
 
 resource "google_pubsub_subscription_iam_binding" "foo" {
@@ -207,7 +207,7 @@ resource "google_pubsub_subscription" "subscription" {
 
 resource "google_service_account" "test-account" {
   account_id   = "%s"
-  display_name = ""Pubsub Subscription Iam Testing Account"
+  display_name = "Pubsub Subscription Iam Testing Account"
 }
 
 resource "google_pubsub_subscription_iam_member" "foo" {
@@ -232,7 +232,7 @@ resource "google_pubsub_subscription" "subscription" {
 
 resource "google_service_account" "test-account" {
   account_id   = "%s"
-  display_name = ""Pubsub Subscription Iam Testing Account"
+  display_name = "Pubsub Subscription Iam Testing Account"
 }
 
 data "google_iam_policy" "foo" {
