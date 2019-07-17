@@ -585,6 +585,7 @@ func resourceComputeRegionDiskImport(d *schema.ResourceData, meta interface{}) (
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/disks/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
+		"(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err

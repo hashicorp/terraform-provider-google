@@ -177,6 +177,7 @@ RegionBackendService can be imported using any of these accepted formats:
 ```
 $ terraform import google_compute_region_backend_service.default projects/{{project}}/regions/{{region}}/backendServices/{{name}}
 $ terraform import google_compute_region_backend_service.default {{project}}/{{region}}/{{name}}
+$ terraform import google_compute_region_backend_service.default {{region}}/{{name}}
 $ terraform import google_compute_region_backend_service.default {{name}}
 ```
 

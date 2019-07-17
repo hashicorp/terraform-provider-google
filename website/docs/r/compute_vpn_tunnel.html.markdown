@@ -289,6 +289,7 @@ VpnTunnel can be imported using any of these accepted formats:
 ```
 $ terraform import google_compute_vpn_tunnel.default projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}
 $ terraform import google_compute_vpn_tunnel.default {{project}}/{{region}}/{{name}}
+$ terraform import google_compute_vpn_tunnel.default {{region}}/{{name}}
 $ terraform import google_compute_vpn_tunnel.default {{name}}
 ```
 

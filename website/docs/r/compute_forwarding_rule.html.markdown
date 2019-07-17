@@ -295,6 +295,7 @@ ForwardingRule can be imported using any of these accepted formats:
 ```
 $ terraform import google_compute_forwarding_rule.default projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}
 $ terraform import google_compute_forwarding_rule.default {{project}}/{{region}}/{{name}}
+$ terraform import google_compute_forwarding_rule.default {{region}}/{{name}}
 $ terraform import google_compute_forwarding_rule.default {{name}}
 ```
 

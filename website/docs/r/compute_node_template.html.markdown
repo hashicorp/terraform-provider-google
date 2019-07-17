@@ -168,6 +168,7 @@ NodeTemplate can be imported using any of these accepted formats:
 ```
 $ terraform import google_compute_node_template.default projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}
 $ terraform import google_compute_node_template.default {{project}}/{{region}}/{{name}}
+$ terraform import google_compute_node_template.default {{region}}/{{name}}
 $ terraform import google_compute_node_template.default {{name}}
 ```
 

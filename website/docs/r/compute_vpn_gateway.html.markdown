@@ -158,6 +158,7 @@ VpnGateway can be imported using any of these accepted formats:
 ```
 $ terraform import google_compute_vpn_gateway.default projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}
 $ terraform import google_compute_vpn_gateway.default {{project}}/{{region}}/{{name}}
+$ terraform import google_compute_vpn_gateway.default {{region}}/{{name}}
 $ terraform import google_compute_vpn_gateway.default {{name}}
 ```
 

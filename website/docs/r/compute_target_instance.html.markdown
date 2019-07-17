@@ -142,6 +142,7 @@ TargetInstance can be imported using any of these accepted formats:
 ```
 $ terraform import google_compute_target_instance.default projects/{{project}}/zones/{{zone}}/targetInstances/{{name}}
 $ terraform import google_compute_target_instance.default {{project}}/{{zone}}/{{name}}
+$ terraform import google_compute_target_instance.default {{zone}}/{{name}}
 $ terraform import google_compute_target_instance.default {{name}}
 ```
 

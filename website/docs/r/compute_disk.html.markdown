@@ -284,6 +284,7 @@ Disk can be imported using any of these accepted formats:
 ```
 $ terraform import google_compute_disk.default projects/{{project}}/zones/{{zone}}/disks/{{name}}
 $ terraform import google_compute_disk.default {{project}}/{{zone}}/{{name}}
+$ terraform import google_compute_disk.default {{zone}}/{{name}}
 $ terraform import google_compute_disk.default {{name}}
 ```
 

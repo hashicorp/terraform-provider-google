@@ -389,6 +389,7 @@ func resourceCloudSchedulerJobImport(d *schema.ResourceData, meta interface{}) (
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/jobs/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
+		"(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err

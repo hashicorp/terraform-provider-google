@@ -189,6 +189,7 @@ Node can be imported using any of these accepted formats:
 ```
 $ terraform import google_tpu_node.default projects/{{project}}/locations/{{zone}}/nodes/{{name}}
 $ terraform import google_tpu_node.default {{project}}/{{zone}}/{{name}}
+$ terraform import google_tpu_node.default {{zone}}/{{name}}
 $ terraform import google_tpu_node.default {{name}}
 ```
 

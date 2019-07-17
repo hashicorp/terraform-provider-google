@@ -147,6 +147,7 @@ NetworkEndpointGroup can be imported using any of these accepted formats:
 ```
 $ terraform import google_compute_network_endpoint_group.default projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}
 $ terraform import google_compute_network_endpoint_group.default {{project}}/{{zone}}/{{name}}
+$ terraform import google_compute_network_endpoint_group.default {{zone}}/{{name}}
 $ terraform import google_compute_network_endpoint_group.default {{name}}
 ```
 

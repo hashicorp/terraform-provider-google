@@ -298,6 +298,7 @@ func resourceComputeAddressImport(d *schema.ResourceData, meta interface{}) ([]*
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/addresses/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
+		"(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err

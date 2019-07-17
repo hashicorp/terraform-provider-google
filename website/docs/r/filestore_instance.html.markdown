@@ -160,6 +160,7 @@ Instance can be imported using any of these accepted formats:
 ```
 $ terraform import google_filestore_instance.default projects/{{project}}/locations/{{zone}}/instances/{{name}}
 $ terraform import google_filestore_instance.default {{project}}/{{zone}}/{{name}}
+$ terraform import google_filestore_instance.default {{zone}}/{{name}}
 $ terraform import google_filestore_instance.default {{name}}
 ```
 

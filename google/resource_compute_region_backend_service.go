@@ -475,6 +475,7 @@ func resourceComputeRegionBackendServiceImport(d *schema.ResourceData, meta inte
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/backendServices/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
+		"(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
