@@ -94,6 +94,38 @@ func TestAccComposerEnvironment_update(t *testing.T) {
 	})
 }
 
+// Checks environment creation with minimum required information.
+func TestAccComposerEnvironment_private(t *testing.T) {
+	t.Parallel()
+
+	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
+
+	var env composer.Environment
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccComposerEnvironmentDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComposerEnvironment_private(envName),
+				Check:  testAccCheckComposerEnvironmentExists("google_composer_environment.test", &env),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/environments/%s", getTestProjectFromEnv(), "us-central1", envName),
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 // Checks behavior of node config, including dependencies on Compute resources.
 func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 	t.Parallel()
@@ -230,6 +262,28 @@ func testAccComposerEnvironment_basic(name string) string {
 resource "google_composer_environment" "test" {
 	name           = "%s"
 	region         = "us-central1"
+}
+`, name)
+}
+
+func testAccComposerEnvironment_private(name string) string {
+	return fmt.Sprintf(`
+resource "google_composer_environment" "test" {
+	name           = "%s"
+	region         = "us-central1"
+
+	config {
+		node_config {
+			zone = "us-central1-a"
+			ip_allocation_policy {
+				use_ip_aliases = true
+				cluster_ipv4_cidr_block = "10.0.0.0/16"
+			}
+		}
+		private_environment_config {
+			enable_private_endpoint = true
+		}
+	}
 }
 `, name)
 }
