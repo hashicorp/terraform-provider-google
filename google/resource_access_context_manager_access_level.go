@@ -365,6 +365,9 @@ func resourceAccessContextManagerAccessLevelImport(d *schema.ResourceData, meta 
 		return nil, err
 	}
 	stringParts := strings.Split(d.Get("name").(string), "/")
+	if len(stringParts) < 2 {
+		return nil, fmt.Errorf("Error parsing parent name. Should be in form accessPolicies/{{policy_id}}/accessLevels/{{short_name}}")
+	}
 	d.Set("parent", fmt.Sprintf("%s/%s", stringParts[0], stringParts[1]))
 	return []*schema.ResourceData{d}, nil
 }
