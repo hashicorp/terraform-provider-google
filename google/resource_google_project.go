@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -448,6 +449,17 @@ func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceProjectImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	pid := d.Id()
+	// Prevent importing via project number, this will cause issues later
+	matched, err := regexp.MatchString("^\\d+$", pid)
+	if err != nil {
+		return nil, fmt.Errorf("Error matching project %q: %s", pid, err)
+	}
+
+	if matched {
+		return nil, fmt.Errorf("Error importing project %q, please use project_id", pid)
+	}
+
 	// Explicitly set to default as a workaround for `ImportStateVerify` tests, and so that users
 	// don't see a diff immediately after import.
 	d.Set("auto_create_network", true)
