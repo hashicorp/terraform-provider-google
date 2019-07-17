@@ -836,6 +836,28 @@ func TestAccStorageBucket_labels(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_website(t *testing.T) {
+	t.Parallel()
+
+	bucketSuffix := acctest.RandomWithPrefix("tf-website-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucket_website(bucketSuffix),
+			},
+			{
+				ResourceName:      "google_storage_bucket.website",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckStorageBucketExists(n string, bucketName string, bucket *storage.Bucket) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -1338,5 +1360,20 @@ resource "google_storage_bucket" "bucket" {
 		a-new-label = "a-new-label-value"
 	}
 }
+`, bucketName)
+}
+
+func testAccStorageBucket_website(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "website" {
+	name     = "%s.gcp.tfacc.hashicorptest.com"
+	location = "US"
+	storage_class = "MULTI_REGIONAL"
+
+	website {
+	  main_page_suffix = "index.html"
+	  not_found_page   = "404.html"
+	}
+  }
 `, bucketName)
 }

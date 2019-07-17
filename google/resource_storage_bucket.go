@@ -196,6 +196,7 @@ func resourceStorageBucket() *schema.Resource {
 			"website": {
 				Type:     schema.TypeList,
 				Optional: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"main_page_suffix": {
@@ -305,23 +306,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if v, ok := d.GetOk("website"); ok {
-		websites := v.([]interface{})
-
-		if len(websites) > 1 {
-			return fmt.Errorf("At most one website block is allowed")
-		}
-
-		sb.Website = &storage.BucketWebsite{}
-
-		website := websites[0].(map[string]interface{})
-
-		if v, ok := website["not_found_page"]; ok {
-			sb.Website.NotFoundPage = v.(string)
-		}
-
-		if v, ok := website["main_page_suffix"]; ok {
-			sb.Website.MainPageSuffix = v.(string)
-		}
+		sb.Website = expandBucketWebsite(v.([]interface{}))
 	}
 
 	if v, ok := d.GetOk("cors"); ok {
@@ -388,35 +373,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.HasChange("website") {
-		if v, ok := d.GetOk("website"); ok {
-			websites := v.([]interface{})
-
-			if len(websites) > 1 {
-				return fmt.Errorf("At most one website block is allowed")
-			}
-
-			sb.Website = &storage.BucketWebsite{}
-
-			// Setting fields to "" to be explicit that the PATCH call will
-			// delete this field.
-			if len(websites) == 0 || websites[0] == nil {
-				sb.Website.NotFoundPage = ""
-				sb.Website.MainPageSuffix = ""
-			} else {
-				website := websites[0].(map[string]interface{})
-				if v, ok := website["not_found_page"]; ok {
-					sb.Website.NotFoundPage = v.(string)
-				} else {
-					sb.Website.NotFoundPage = ""
-				}
-
-				if v, ok := website["main_page_suffix"]; ok {
-					sb.Website.MainPageSuffix = v.(string)
-				} else {
-					sb.Website.MainPageSuffix = ""
-				}
-			}
-		}
+		sb.Website = expandBucketWebsite(d.Get("website"))
 	}
 
 	if v, ok := d.GetOk("cors"); ok {
@@ -524,6 +481,8 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
 	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
 	d.Set("labels", res.Labels)
+	d.Set("website", flattenBucketWebsite(res.Website))
+
 	if res.IamConfiguration != nil && res.IamConfiguration.BucketPolicyOnly != nil {
 		d.Set("bucket_policy_only", res.IamConfiguration.BucketPolicyOnly.Enabled)
 	} else {
@@ -796,6 +755,43 @@ func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleC
 		}
 	}
 	return ruleCondition
+}
+
+func flattenBucketWebsite(website *storage.BucketWebsite) []map[string]interface{} {
+	if website == nil {
+		return nil
+	}
+	websites := make([]map[string]interface{}, 0, 1)
+	websites = append(websites, map[string]interface{}{
+		"main_page_suffix": website.MainPageSuffix,
+		"not_found_page":   website.NotFoundPage,
+	})
+
+	return websites
+}
+
+func expandBucketWebsite(v interface{}) *storage.BucketWebsite {
+	if v == nil {
+		return nil
+	}
+	vs := v.([]interface{})
+
+	if len(vs) < 1 || vs[0] == nil {
+		return nil
+	}
+
+	website := vs[0].(map[string]interface{})
+	w := &storage.BucketWebsite{}
+
+	if v := website["not_found_page"]; v != "" {
+		w.NotFoundPage = v.(string)
+	}
+
+	if v := website["main_page_suffix"]; v != "" {
+		w.MainPageSuffix = v.(string)
+	}
+
+	return w
 }
 
 func expandIamConfiguration(d *schema.ResourceData) *storage.BucketIamConfiguration {
