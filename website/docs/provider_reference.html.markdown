@@ -230,6 +230,7 @@ be used for configuration are below:
 * `app_engine_custom_endpoint` (`GOOGLE_APP_ENGINE_CUSTOM_ENDPOINT`) - `https://appengine.googleapis.com/v1/`
 * `bigquery_custom_endpoint` (`GOOGLE_BIGQUERY_CUSTOM_ENDPOINT`) - `https://www.googleapis.com/bigquery/v2/`
 * `bigtable_custom_endpoint` (`GOOGLE_BIGTABLE_CUSTOM_ENDPOINT`) - `https://bigtableadmin.googleapis.com/v2/`
+* `binary_authorization_custom_endpoint` (`GOOGLE_BINARY_AUTHORIZATION_CUSTOM_ENDPOINT`) - `https://binaryauthorization.googleapis.com/v1/`
 * `cloud_billing_custom_endpoint` (`GOOGLE_CLOUD_BILLING_CUSTOM_ENDPOINT`) - `https://cloudbilling.googleapis.com/v1/`
 * `cloud_build_custom_endpoint` (`GOOGLE_CLOUD_BUILD_CUSTOM_ENDPOINT`) - `https://cloudbuild.googleapis.com/v1/`
 * `cloud_functions_custom_endpoint` (`GOOGLE_CLOUD_FUNCTIONS_CUSTOM_ENDPOINT`) - `https://cloudfunctions.googleapis.com/v1/`
@@ -269,7 +270,6 @@ be used for configuration are below:
 
 The following keys are available exclusively in the `google-beta` provider:
 
-* `binary_authorization_custom_endpoint` (`GOOGLE_BINARY_AUTHORIZATION_CUSTOM_ENDPOINT`) - `https://binaryauthorization.googleapis.com/v1beta1/`
 * `container_analysis_custom_endpoint` (`GOOGLE_CONTAINER_ANALYSIS_CUSTOM_ENDPOINT`) - `https://containeranalysis.googleapis.com/v1beta1/`
 * `iap_custom_endpoint` (`GOOGLE_IAP_CUSTOM_ENDPOINT`) - `https://iap.googleapis.com/v1beta1/`
 * `monitoring_custom_endpoint` (`GOOGLE_MONITORING_CUSTOM_ENDPOINT`) - `https://monitoring.googleapis.com/v3/`
