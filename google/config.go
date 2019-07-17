@@ -69,6 +69,7 @@ type Config struct {
 	tokenSource oauth2.TokenSource
 
 	AccessContextManagerBasePath string
+	BinaryAuthorizationBasePath  string
 	CloudSchedulerBasePath       string
 	FirestoreBasePath            string
 	MonitoringBasePath           string
