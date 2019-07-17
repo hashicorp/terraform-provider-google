@@ -58,6 +58,7 @@ func resourceContainerCluster() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			resourceContainerClusterIpAllocationCustomizeDiff,
 			resourceNodeConfigEmptyGuestAccelerator,
+			containerClusterPrivateClusterConfigCustomDiff,
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -2095,4 +2096,23 @@ func containerClusterPrivateClusterConfigSuppress(k, old, new string, d *schema.
 		return suppressEndpoint && suppressNodes
 	}
 	return false
+}
+
+func containerClusterPrivateClusterConfigCustomDiff(d *schema.ResourceDiff, meta interface{}) error {
+	pcc, ok := d.GetOk("private_cluster_config")
+	if !ok {
+		return nil
+	}
+	pccList := pcc.([]interface{})
+	if len(pccList) == 0 {
+		return nil
+	}
+	config := pccList[0].(map[string]interface{})
+	if config["enable_private_nodes"].(bool) == true {
+		block := config["master_ipv4_cidr_block"]
+		if block == nil || block == "" {
+			return fmt.Errorf("master_ipv4_cidr_block must be set if enable_private_nodes == true")
+		}
+	}
+	return nil
 }
