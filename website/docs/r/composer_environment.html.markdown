@@ -164,6 +164,11 @@ The `config` block supports:
   (Optional)
   The configuration settings for software inside the environment.  Structure is documented below.
 
+* `private_environment_config` -
+  (Optional)
+  The configuration used for the Private IP Cloud Composer environment. Structure is documented below.
+
+
 The `node_config` block supports:
 
 * `zone` -
@@ -222,6 +227,12 @@ The `node_config` block supports:
   firewalls. Each tag within the list must comply with RFC1035.
   Cannot be updated.
 
+* `ip_allocation_policy` -
+  (Optional)
+  Configuration for controlling how IPs are allocated in the GKE cluster.
+  Structure is documented below.
+  Cannot be updated.
+
 The `software_config` block supports:
 
 * `airflow_config_overrides` -
@@ -277,6 +288,58 @@ The `software_config` block supports:
 * `python_version` (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) -
   The major version of Python used to run the Apache Airflow scheduler, worker, and webserver processes.
   Can be set to '2' or '3'. If not specified, the default is '2'. Cannot be updated.
+
+The `private_environment_config` block supports:
+
+* `enable_private_endpoint` -
+  If true, access to the public endpoint of the GKE cluster is denied.
+
+* `master_ipv4_cidr_block` -
+  (Optional)
+  The IP range in CIDR notation to use for the hosted master network. This range is used
+  for assigning internal IP addresses to the cluster master or set of masters and to the
+  internal load balancer virtual IP. This range must not overlap with any other ranges
+  in use within the cluster's network.
+  If left blank, the default value of '172.16.0.0/28' is used.
+
+The `ip_allocation_policy` block supports:
+
+* `use_ip_aliases` -
+  (Optional)
+  Whether or not to enable Alias IPs in the GKE cluster. If true, a VPC-native cluster is created.
+  Defaults to true if the `ip_allocation_block` is present in config.
+
+* `cluster_secondary_range_name` -
+  (Optional)
+  The name of the cluster's secondary range used to allocate IP addresses to pods.
+  Specify either `cluster_secondary_range_name` or `cluster_ipv4_cidr_block` but not both.
+  This field is applicable only when `use_ip_aliases` is true.
+
+* `services_secondary_range_name` -
+  (Optional)
+  The name of the services' secondary range used to allocate IP addresses to the cluster.
+  Specify either `services_secondary_range_name` or `services_ipv4_cidr_block` but not both.
+  This field is applicable only when `use_ip_aliases` is true.
+
+* `cluster_ipv4_cidr_block` -
+  (Optional)
+  The IP address range used to allocate IP addresses to pods in the cluster.
+  Set to blank to have GKE choose a range with the default size.
+  Set to /netmask (e.g. /14) to have GKE choose a range with a specific netmask.
+  Set to a CIDR notation (e.g. 10.96.0.0/14) from the RFC-1918 private networks
+  (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to pick a specific range to use.
+  Specify either `cluster_secondary_range_name` or `cluster_ipv4_cidr_block` but not both.
+
+* `services_ipv4_cidr_block` -
+  (Optional)
+  The IP address range used to allocate IP addresses in this cluster.
+  Set to blank to have GKE choose a range with the default size.
+  Set to /netmask (e.g. /14) to have GKE choose a range with a specific netmask.
+  Set to a CIDR notation (e.g. 10.96.0.0/14) from the RFC-1918 private networks
+  (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to pick a specific range to use.
+  Specify either `services_secondary_range_name` or `services_ipv4_cidr_block` but not both.
+
+
 
 ## Attributes Reference
 
