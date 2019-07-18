@@ -31,6 +31,9 @@ func TestAccComputeHealthCheck_tcp(t *testing.T) {
 					testAccCheckComputeHealthCheckThresholds(
 						3, 3, &healthCheck),
 					testAccCheckComputeHealthCheckTcpPort(80, &healthCheck),
+					testAccCheckComputeHealthCheckPortSpec(
+						"TCP", "", &healthCheck,
+					),
 				),
 			},
 			{
@@ -108,6 +111,31 @@ func TestAccComputeHealthCheck_ssl(t *testing.T) {
 	})
 }
 
+func TestAccComputeHealthCheck_ssl_port_spec(t *testing.T) {
+	t.Parallel()
+
+	var healthCheck compute.HealthCheck
+
+	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_ssl_fixed_port(hckName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeHealthCheckExists(
+						"google_compute_health_check.foobar", &healthCheck),
+					testAccCheckComputeHealthCheckPortSpec(
+						"SSL", "USE_FIXED_PORT", &healthCheck),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeHealthCheck_http(t *testing.T) {
 	t.Parallel()
 
@@ -138,6 +166,36 @@ func TestAccComputeHealthCheck_http(t *testing.T) {
 	})
 }
 
+func TestAccComputeHealthCheck_http_port_spec(t *testing.T) {
+	t.Parallel()
+
+	var healthCheck compute.HealthCheck
+
+	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeHealthCheck_http_port_spec(hckName),
+				ExpectError: regexp.MustCompile("Error in http_health_check: Must specify port_name when using USE_NAMED_PORT as port_specification."),
+			},
+			{
+				Config: testAccComputeHealthCheck_http_named_port(hckName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeHealthCheckExists(
+						"google_compute_health_check.foobar", &healthCheck),
+					testAccCheckComputeHealthCheckPortSpec(
+						"HTTP", "USE_NAMED_PORT", &healthCheck,
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeHealthCheck_https(t *testing.T) {
 	t.Parallel()
 
@@ -157,6 +215,37 @@ func TestAccComputeHealthCheck_https(t *testing.T) {
 						"google_compute_health_check.foobar", &healthCheck),
 					testAccCheckComputeHealthCheckThresholds(
 						3, 3, &healthCheck),
+				),
+			},
+			{
+				ResourceName:      "google_compute_health_check.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeHealthCheck_https_serving_port(t *testing.T) {
+	t.Parallel()
+
+	var healthCheck compute.HealthCheck
+
+	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_https_serving_port(hckName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeHealthCheckExists(
+						"google_compute_health_check.foobar", &healthCheck),
+					testAccCheckComputeHealthCheckPortSpec(
+						"HTTPS", "USE_SERVING_PORT", &healthCheck,
+					),
 				),
 			},
 			{
@@ -267,6 +356,29 @@ func testAccCheckComputeHealthCheckTcpPort(port int64, healthCheck *compute.Heal
 	}
 }
 
+func testAccCheckComputeHealthCheckPortSpec(blockType, portSpec string, healthCheck *compute.HealthCheck) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		var actualPortSpec string
+
+		switch blockType {
+		case "SSL":
+			actualPortSpec = healthCheck.SslHealthCheck.PortSpecification
+		case "HTTP":
+			actualPortSpec = healthCheck.HttpHealthCheck.PortSpecification
+		case "HTTPS":
+			actualPortSpec = healthCheck.HttpsHealthCheck.PortSpecification
+		case "TCP":
+			actualPortSpec = healthCheck.TcpHealthCheck.PortSpecification
+		}
+
+		if actualPortSpec != portSpec {
+			return fmt.Errorf("Port Specification doesn't match: expected %v, got %v", portSpec, actualPortSpec)
+		}
+
+		return nil
+	}
+}
+
 func testAccComputeHealthCheck_tcp(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
@@ -314,6 +426,23 @@ resource "google_compute_health_check" "foobar" {
 `, hckName)
 }
 
+func testAccComputeHealthCheck_ssl_fixed_port(hckName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_health_check" "foobar" {
+	check_interval_sec = 3
+	description = "Resource created for Terraform acceptance testing"
+	healthy_threshold = 3
+	name = "health-test-%s"
+	timeout_sec = 2
+	unhealthy_threshold = 3
+	ssl_health_check {
+		port = "443"
+		port_specification = "USE_FIXED_PORT"
+	}
+}
+`, hckName)
+}
+
 func testAccComputeHealthCheck_http(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
@@ -330,6 +459,39 @@ resource "google_compute_health_check" "foobar" {
 `, hckName)
 }
 
+func testAccComputeHealthCheck_http_port_spec(hckName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_health_check" "foobar" {
+	check_interval_sec = 3
+	description = "Resource created for Terraform acceptance testing"
+	healthy_threshold = 3
+	name = "health-test-%s"
+	timeout_sec = 2
+	unhealthy_threshold = 3
+	http_health_check {
+		port_specification = "USE_NAMED_PORT"
+	}
+}
+`, hckName)
+}
+
+func testAccComputeHealthCheck_http_named_port(hckName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_health_check" "foobar" {
+	check_interval_sec = 3
+	description = "Resource created for Terraform acceptance testing"
+	healthy_threshold = 3
+	name = "health-test-%s"
+	timeout_sec = 2
+	unhealthy_threshold = 3
+	http_health_check {
+		port_name = "http"
+		port_specification = "USE_NAMED_PORT"
+	}
+}
+`, hckName)
+}
+
 func testAccComputeHealthCheck_https(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
@@ -341,6 +503,22 @@ resource "google_compute_health_check" "foobar" {
 	unhealthy_threshold = 3
 	https_health_check {
 		port = "443"
+	}
+}
+`, hckName)
+}
+
+func testAccComputeHealthCheck_https_serving_port(hckName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_health_check" "foobar" {
+	check_interval_sec = 3
+	description = "Resource created for Terraform acceptance testing"
+	healthy_threshold = 3
+	name = "health-test-%s"
+	timeout_sec = 2
+	unhealthy_threshold = 3
+	https_health_check {
+		port_specification = "USE_SERVING_PORT"
 	}
 }
 `, hckName)
