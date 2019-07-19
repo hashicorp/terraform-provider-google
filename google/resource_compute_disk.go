@@ -1232,26 +1232,16 @@ func resourceComputeDiskEncoder(d *schema.ResourceData, meta interface{}, obj ma
 	if err != nil {
 		return nil, err
 	}
-	// Get the zone
-	z, err := getZone(d, config)
-	if err != nil {
-		return nil, err
-	}
-	zone, err := config.clientCompute.Zones.Get(project, z).Do()
-	if err != nil {
-		return nil, err
-	}
-
 	if v, ok := d.GetOk("type"); ok {
 		log.Printf("[DEBUG] Loading disk type: %s", v.(string))
-		diskType, err := readDiskType(config, zone, project, v.(string))
+		diskType, err := readDiskType(config, d, v.(string))
 		if err != nil {
 			return nil, fmt.Errorf(
 				"Error loading disk type '%s': %s",
 				v.(string), err)
 		}
 
-		obj["type"] = diskType.SelfLink
+		obj["type"] = diskType.RelativeLink()
 	}
 
 	if v, ok := d.GetOk("image"); ok {

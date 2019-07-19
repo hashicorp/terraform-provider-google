@@ -876,26 +876,16 @@ func resourceComputeRegionDiskEncoder(d *schema.ResourceData, meta interface{}, 
 	if err != nil {
 		return nil, err
 	}
-	// Get the region
-	r, err := getRegion(d, config)
-	if err != nil {
-		return nil, err
-	}
-	region, err := config.clientCompute.Regions.Get(project, r).Do()
-	if err != nil {
-		return nil, err
-	}
-
 	if v, ok := d.GetOk("type"); ok {
 		log.Printf("[DEBUG] Loading disk type: %s", v.(string))
-		diskType, err := readRegionDiskType(config, region, project, v.(string))
+		diskType, err := readRegionDiskType(config, d, v.(string))
 		if err != nil {
 			return nil, fmt.Errorf(
 				"Error loading disk type '%s': %s",
 				v.(string), err)
 		}
 
-		obj["type"] = diskType.SelfLink
+		obj["type"] = diskType.RelativeLink()
 	}
 
 	if v, ok := d.GetOk("image"); ok {

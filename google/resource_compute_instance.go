@@ -1636,11 +1636,11 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.type"); ok {
 			diskTypeName := v.(string)
-			diskType, err := readDiskType(config, zone, project, diskTypeName)
+			diskType, err := readDiskType(config, d, diskTypeName)
 			if err != nil {
 				return nil, fmt.Errorf("Error loading disk type '%s': %s", diskTypeName, err)
 			}
-			disk.InitializeParams.DiskType = diskType.SelfLink
+			disk.InitializeParams.DiskType = diskType.RelativeLink()
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.image"); ok {
@@ -1702,7 +1702,7 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, con
 }
 
 func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zone, project string) ([]*computeBeta.AttachedDisk, error) {
-	diskType, err := readDiskType(config, zone, project, "local-ssd")
+	diskType, err := readDiskType(config, d, "local-ssd")
 	if err != nil {
 		return nil, fmt.Errorf("Error loading disk type 'local-ssd': %s", err)
 	}
@@ -1715,7 +1715,7 @@ func expandScratchDisks(d *schema.ResourceData, config *Config, zone *compute.Zo
 			Type:       "SCRATCH",
 			Interface:  d.Get(fmt.Sprintf("scratch_disk.%d.interface", i)).(string),
 			InitializeParams: &computeBeta.AttachedDiskInitializeParams{
-				DiskType: diskType.SelfLink,
+				DiskType: diskType.RelativeLink(),
 			},
 		})
 	}
