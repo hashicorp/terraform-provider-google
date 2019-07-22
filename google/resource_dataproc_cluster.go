@@ -284,6 +284,16 @@ func resourceDataprocCluster() *schema.Resource {
 									// values (including overrides) for all properties, whilst override_properties
 									// is only for properties the user specifically wants to override. If nothing
 									// is overridden, this will be empty.
+
+									"optional_components": {
+										Type:     schema.TypeSet,
+										Optional: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+											ValidateFunc: validation.StringInSlice([]string{"COMPONENT_UNSPECIFIED", "ANACONDA", "DRUID", "HIVE_WEBHCAT",
+												"JUPYTER", "KERBEROS", "PRESTO", "ZEPPELIN", "ZOOKEEPER"}, false),
+										},
+									},
 								},
 							},
 						},
@@ -601,6 +611,14 @@ func expandSoftwareConfig(cfg map[string]interface{}) *dataproc.SoftwareConfig {
 	if v, ok := cfg["image_version"]; ok {
 		conf.ImageVersion = v.(string)
 	}
+	if components, ok := cfg["optional_components"]; ok {
+		compSet := components.(*schema.Set)
+		components := make([]string, compSet.Len())
+		for i, component := range compSet.List() {
+			components[i] = component.(string)
+		}
+		conf.OptionalComponents = components
+	}
 	return conf
 }
 
@@ -836,6 +854,7 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 func flattenSoftwareConfig(d *schema.ResourceData, sc *dataproc.SoftwareConfig) []map[string]interface{} {
 	data := map[string]interface{}{
 		"image_version":       sc.ImageVersion,
+		"optional_components": sc.OptionalComponents,
 		"properties":          sc.Properties,
 		"override_properties": d.Get("cluster_config.0.software_config.0.override_properties").(map[string]interface{}),
 	}

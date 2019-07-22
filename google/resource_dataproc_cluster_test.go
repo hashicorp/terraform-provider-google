@@ -428,6 +428,27 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withOptionalComponents(t *testing.T) {
+	t.Parallel()
+
+	rnd := acctest.RandString(10)
+	var cluster dataproc.Cluster
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withOptionalComponents(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists("google_dataproc_cluster.with_opt_components", &cluster),
+					testAccCheckDataprocClusterHasOptionalComponents(&cluster, "ANACONDA", "ZOOKEEPER"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withLabels(t *testing.T) {
 	t.Parallel()
 
@@ -580,7 +601,17 @@ func testAccCheckDataprocStagingBucketExists(bucketName string) resource.TestChe
 		}
 		return nil
 	}
+}
 
+func testAccCheckDataprocClusterHasOptionalComponents(cluster *dataproc.Cluster, components ...string) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+
+		if !reflect.DeepEqual(components, cluster.Config.SoftwareConfig.OptionalComponents) {
+			return fmt.Errorf("Cluster does not contain expected optional components : %v : instead %v",
+				components, cluster.Config.SoftwareConfig.OptionalComponents)
+		}
+		return nil
+	}
 }
 
 func testAccCheckDataprocClusterInitActionSucceeded(bucket, object string) resource.TestCheckFunc {
@@ -1034,6 +1065,20 @@ resource "google_dataproc_cluster" "with_image_version" {
 	cluster_config {
 		software_config {
 			image_version = "1.3.7-deb9"
+		}
+	}
+}`, rnd)
+}
+
+func testAccDataprocCluster_withOptionalComponents(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_opt_components" {
+	name   = "dproc-cluster-test-%s"
+	region = "us-central1"
+
+	cluster_config {
+		software_config {
+			optional_components = ["ANACONDA", "ZOOKEEPER"]
 		}
 	}
 }`, rnd)
