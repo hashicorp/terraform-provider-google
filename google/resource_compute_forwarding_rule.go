@@ -50,10 +50,11 @@ func resourceComputeForwardingRule() *schema.Resource {
 				ForceNew: true,
 			},
 			"ip_address": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateIpAddress,
 			},
 			"ip_protocol": {
 				Type:             schema.TypeString,

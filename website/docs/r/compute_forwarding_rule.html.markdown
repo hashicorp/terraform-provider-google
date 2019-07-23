@@ -142,16 +142,11 @@ The following arguments are supported:
   forwarding rule. By default, if this field is empty, an ephemeral
   internal IP address will be automatically allocated from the IP range
   of the subnet or network configured for this forwarding rule.
-  An address can be specified either by a literal IP address or a URL
-  reference to an existing Address resource. The following examples are
-  all valid:
-  * 100.1.2.3
-  * https://www.googleapis.com/compute/v1/projects/project/regions/
-       region/addresses/address
-  * projects/project/regions/region/addresses/address
-  * regions/region/addresses/address
-  * global/addresses/address
-  * address
+  An address must be specified by a literal IP address. ~> **NOTE**: While
+  the API allows you to specify various resource paths for an address resource
+  instead, Terraform requires this to specifically be an IP address to
+  avoid needing to fetching the IP address from resource paths on refresh
+  or unnecessary diffs.
 
 * `ip_protocol` -
   (Optional)

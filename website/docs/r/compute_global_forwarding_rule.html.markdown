@@ -233,24 +233,24 @@ The following arguments are supported:
   (Optional)
   The IP address that this forwarding rule is serving on behalf of.
   Addresses are restricted based on the forwarding rule's load balancing
-  scheme (external or internal) and scope (global or regional).
-  The address must be a global IP for external global forwarding rules.
-  If this field is empty, an ephemeral IPv4 address from the same scope
-  (global) is closen. Global forwarding rules supports either IPv4 or IPv6.
-  When the load balancing scheme is INTERNAL_SELF_MANAGED, this must be
-  a URL reference to an existing Address resource (internal regional
-  static IP address), with a purpose of GCE_END_POINT and addressType
-  of INTERNAL.
-  An address can be specified either by a literal IP address or a URL
-  reference to an existing Address resource. The following examples are
-  all valid:
-  * 100.1.2.3
-  * https://www.googleapis.com/compute/v1/projects/project/regions/
-       region/addresses/address
-  * projects/project/regions/region/addresses/address
-  * regions/region/addresses/address
-  * global/addresses/address
-  * address
+  scheme (EXTERNAL or INTERNAL) and scope (global or regional).
+  When the load balancing scheme is EXTERNAL, for global forwarding
+  rules, the address must be a global IP, and for regional forwarding
+  rules, the address must live in the same region as the forwarding
+  rule. If this field is empty, an ephemeral IPv4 address from the same
+  scope (global or regional) will be assigned. A regional forwarding
+  rule supports IPv4 only. A global forwarding rule supports either IPv4
+  or IPv6.
+  When the load balancing scheme is INTERNAL, this can only be an RFC
+  1918 IP address belonging to the network/subnet configured for the
+  forwarding rule. By default, if this field is empty, an ephemeral
+  internal IP address will be automatically allocated from the IP range
+  of the subnet or network configured for this forwarding rule.
+  An address must be specified by a literal IP address. ~> **NOTE**: While
+  the API allows you to specify various resource paths for an address resource
+  instead, Terraform requires this to specifically be an IP address to
+  avoid needing to fetching the IP address from resource paths on refresh
+  or unnecessary diffs.
 
 * `ip_protocol` -
   (Optional)
