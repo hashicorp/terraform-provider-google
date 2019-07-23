@@ -199,6 +199,7 @@ Instance can be imported using any of these accepted formats:
 ```
 $ terraform import google_redis_instance.default projects/{{project}}/locations/{{region}}/instances/{{name}}
 $ terraform import google_redis_instance.default {{project}}/{{region}}/{{name}}
+$ terraform import google_redis_instance.default {{region}}/{{name}}
 $ terraform import google_redis_instance.default {{name}}
 ```
 

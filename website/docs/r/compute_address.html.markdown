@@ -208,6 +208,7 @@ Address can be imported using any of these accepted formats:
 ```
 $ terraform import google_compute_address.default projects/{{project}}/regions/{{region}}/addresses/{{name}}
 $ terraform import google_compute_address.default {{project}}/{{region}}/{{name}}
+$ terraform import google_compute_address.default {{region}}/{{name}}
 $ terraform import google_compute_address.default {{name}}
 ```
 

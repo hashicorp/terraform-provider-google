@@ -174,6 +174,7 @@ InterconnectAttachment can be imported using any of these accepted formats:
 ```
 $ terraform import google_compute_interconnect_attachment.default projects/{{project}}/regions/{{region}}/interconnectAttachments/{{name}}
 $ terraform import google_compute_interconnect_attachment.default {{project}}/{{region}}/{{name}}
+$ terraform import google_compute_interconnect_attachment.default {{region}}/{{name}}
 $ terraform import google_compute_interconnect_attachment.default {{name}}
 ```
 

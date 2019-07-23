@@ -244,6 +244,7 @@ RegionDisk can be imported using any of these accepted formats:
 ```
 $ terraform import google_compute_region_disk.default projects/{{project}}/regions/{{region}}/disks/{{name}}
 $ terraform import google_compute_region_disk.default {{project}}/{{region}}/{{name}}
+$ terraform import google_compute_region_disk.default {{region}}/{{name}}
 $ terraform import google_compute_region_disk.default {{name}}
 ```
 

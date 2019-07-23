@@ -277,10 +277,10 @@ func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface
 func resourceComputeNetworkEndpointImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/networkEndpointGroups/(?P<network_endpoint_group>[^/]+)/(?P<name>[^/]+)",
+		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/networkEndpointGroups/(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]+)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]+)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)",
-		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)/(?P<name>[^/]+)",
-		"(?P<network_endpoint_group>[^/]+)/(?P<name>[^/]+)",
+		"(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]+)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)",
+		"(?P<network_endpoint_group>[^/]+)/(?P<instance>[^/]+)/(?P<ip_address>[^/]+)/(?P<port>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -356,11 +356,11 @@ func flattenNestedComputeNetworkEndpoint(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return nil, err
 	}
-	expectedPort, err := expandComputeNetworkEndpointPort(d.Get("port"), d, meta.(*Config))
+	expectedIpAddress, err := expandComputeNetworkEndpointIpAddress(d.Get("ip_address"), d, meta.(*Config))
 	if err != nil {
 		return nil, err
 	}
-	expectedIpAddress, err := expandComputeNetworkEndpointIpAddress(d.Get("ip_address"), d, meta.(*Config))
+	expectedPort, err := expandComputeNetworkEndpointPort(d.Get("port"), d, meta.(*Config))
 	if err != nil {
 		return nil, err
 	}
@@ -384,14 +384,14 @@ func flattenNestedComputeNetworkEndpoint(d *schema.ResourceData, meta interface{
 			log.Printf("[DEBUG] Skipping item with instance= %#v, looking for %#v)", itemInstance, expectedInstance)
 			continue
 		}
-		itemPort := flattenComputeNetworkEndpointPort(item["port"], d)
-		if !reflect.DeepEqual(itemPort, expectedPort) {
-			log.Printf("[DEBUG] Skipping item with port= %#v, looking for %#v)", itemPort, expectedPort)
-			continue
-		}
 		itemIpAddress := flattenComputeNetworkEndpointIpAddress(item["ipAddress"], d)
 		if !reflect.DeepEqual(itemIpAddress, expectedIpAddress) {
 			log.Printf("[DEBUG] Skipping item with ipAddress= %#v, looking for %#v)", itemIpAddress, expectedIpAddress)
+			continue
+		}
+		itemPort := flattenComputeNetworkEndpointPort(item["port"], d)
+		if !reflect.DeepEqual(itemPort, expectedPort) {
+			log.Printf("[DEBUG] Skipping item with port= %#v, looking for %#v)", itemPort, expectedPort)
 			continue
 		}
 		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
