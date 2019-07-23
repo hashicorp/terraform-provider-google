@@ -54,7 +54,7 @@ func testAccTpuNode_tpuNodeBasicExample(context map[string]interface{}) string {
 data "google_tpu_tensorflow_versions" "available" { }
 
 resource "google_tpu_node" "tpu" {
-	name           = "test-tpu-%{random_suffix}"
+	name           = "test-tpu%{random_suffix}"
 	zone           = "us-central1-b"
 
 	accelerator_type   = "v3-8"
@@ -94,7 +94,7 @@ func testAccTpuNode_tpuNodeFullExample(context map[string]interface{}) string {
 data "google_tpu_tensorflow_versions" "available" { }
 
 resource "google_tpu_node" "tpu" {
-	name               = "test-tpu-%{random_suffix}"
+	name               = "test-tpu%{random_suffix}"
 	zone               = "us-central1-b"
 
 	accelerator_type   = "v3-8"

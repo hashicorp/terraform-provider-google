@@ -51,7 +51,7 @@ func TestAccPubsubTopic_pubsubTopicBasicExample(t *testing.T) {
 func testAccPubsubTopic_pubsubTopicBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "example-topic-%{random_suffix}"
+  name = "example-topic%{random_suffix}"
 
   labels = {
     foo = "bar"

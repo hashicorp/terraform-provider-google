@@ -51,7 +51,7 @@ func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 func testAccComputeAddress_addressBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_address" "ip_address" {
-  name = "my-address-%{random_suffix}"
+  name = "my-address%{random_suffix}"
 }
 `, context)
 }
@@ -83,18 +83,18 @@ func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 func testAccComputeAddress_addressWithSubnetworkExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network" "default" {
-  name = "my-network-%{random_suffix}"
+  name = "my-network%{random_suffix}"
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "my-subnet-%{random_suffix}"
+  name          = "my-subnet%{random_suffix}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = "${google_compute_network.default.self_link}"
 }
 
 resource "google_compute_address" "internal_with_subnet_and_address" {
-  name         = "my-internal-address-%{random_suffix}"
+  name         = "my-internal-address%{random_suffix}"
   subnetwork   = "${google_compute_subnetwork.default.self_link}"
   address_type = "INTERNAL"
   address      = "10.0.42.42"
@@ -130,7 +130,7 @@ func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 func testAccComputeAddress_instanceWithIpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_address" "static" {
-  name = "ipv4-address-%{random_suffix}"
+  name = "ipv4-address%{random_suffix}"
 }
 
 data "google_compute_image" "debian_image" {
@@ -139,7 +139,7 @@ data "google_compute_image" "debian_image" {
 }
 
 resource "google_compute_instance" "instance_with_ip" {
-	name         = "vm-instance-%{random_suffix}"
+	name         = "vm-instance%{random_suffix}"
 	machine_type = "f1-micro"
 	zone         = "us-central1-a"
 

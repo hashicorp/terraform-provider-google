@@ -51,7 +51,7 @@ func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
 func testAccComputeUrlMap_urlMapBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_url_map" "urlmap" {
-  name        = "urlmap-%{random_suffix}"
+  name        = "urlmap%{random_suffix}"
   description = "a description"
 
   default_service = "${google_compute_backend_service.home.self_link}"
@@ -89,7 +89,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "login" {
-  name        = "login-%{random_suffix}"
+  name        = "login%{random_suffix}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -98,7 +98,7 @@ resource "google_compute_backend_service" "login" {
 }
 
 resource "google_compute_backend_service" "home" {
-  name        = "home-%{random_suffix}"
+  name        = "home%{random_suffix}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -107,20 +107,20 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "health-check-%{random_suffix}"
+  name               = "health-check%{random_suffix}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_backend_bucket" "static" {
-  name        = "static-asset-backend-bucket-%{random_suffix}"
+  name        = "static-asset-backend-bucket%{random_suffix}"
   bucket_name = "${google_storage_bucket.static.name}"
   enable_cdn  = true
 }
 
 resource "google_storage_bucket" "static" {
-  name     = "static-asset-bucket-%{random_suffix}"
+  name     = "static-asset-bucket%{random_suffix}"
   location = "US"
 }
 `, context)

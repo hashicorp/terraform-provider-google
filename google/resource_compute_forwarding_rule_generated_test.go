@@ -51,13 +51,13 @@ func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
 func testAccComputeForwardingRule_forwardingRuleBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_forwarding_rule" "default" {
-  name       = "website-forwarding-rule-%{random_suffix}"
+  name       = "website-forwarding-rule%{random_suffix}"
   target     = "${google_compute_target_pool.default.self_link}"
   port_range = "80"
 }
 
 resource "google_compute_target_pool" "default" {
-  name = "website-target-pool-%{random_suffix}"
+  name = "website-target-pool%{random_suffix}"
 }
 `, context)
 }
@@ -90,7 +90,7 @@ func testAccComputeForwardingRule_forwardingRuleInternallbExample(context map[st
 	return Nprintf(`
 // Forwarding rule for Internal Load Balancing
 resource "google_compute_forwarding_rule" "default" {
-  name                  = "website-forwarding-rule-%{random_suffix}"
+  name                  = "website-forwarding-rule%{random_suffix}"
   region                = "us-central1"
 
   load_balancing_scheme = "INTERNAL"
@@ -101,13 +101,13 @@ resource "google_compute_forwarding_rule" "default" {
 }
 
 resource "google_compute_region_backend_service" "backend" {
-  name                  = "website-backend-%{random_suffix}"
+  name                  = "website-backend%{random_suffix}"
   region                = "us-central1"
   health_checks         = ["${google_compute_health_check.hc.self_link}"]
 }
 
 resource "google_compute_health_check" "hc" {
-  name               = "check-website-backend-%{random_suffix}"
+  name               = "check-website-backend%{random_suffix}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -117,12 +117,12 @@ resource "google_compute_health_check" "hc" {
 }
 
 resource "google_compute_network" "default" {
-  name = "website-net-%{random_suffix}"
+  name = "website-net%{random_suffix}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "website-net-%{random_suffix}"
+  name          = "website-net%{random_suffix}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = "${google_compute_network.default.self_link}"

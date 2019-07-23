@@ -51,7 +51,7 @@ func TestAccComputeRoute_routeBasicExample(t *testing.T) {
 func testAccComputeRoute_routeBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_route" "default" {
-  name        = "network-route-%{random_suffix}"
+  name        = "network-route%{random_suffix}"
   dest_range  = "15.0.0.0/24"
   network     = "${google_compute_network.default.name}"
   next_hop_ip = "10.132.1.5"
@@ -59,7 +59,7 @@ resource "google_compute_route" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name = "compute-network-%{random_suffix}"
+  name = "compute-network%{random_suffix}"
 }
 `, context)
 }

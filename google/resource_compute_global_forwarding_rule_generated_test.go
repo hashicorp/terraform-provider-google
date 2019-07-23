@@ -51,19 +51,19 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleHttpExample(t *testi
 func testAccComputeGlobalForwardingRule_globalForwardingRuleHttpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_global_forwarding_rule" "default" {
-  name       = "global-rule-%{random_suffix}"
+  name       = "global-rule%{random_suffix}"
   target     = "${google_compute_target_http_proxy.default.self_link}"
   port_range = "80"
 }
 
 resource "google_compute_target_http_proxy" "default" {
-  name        = "target-proxy-%{random_suffix}"
+  name        = "target-proxy%{random_suffix}"
   description = "a description"
   url_map     = "${google_compute_url_map.default.self_link}"
 }
 
 resource "google_compute_url_map" "default" {
-  name            = "url-map-target-proxy-%{random_suffix}"
+  name            = "url-map-target-proxy%{random_suffix}"
   description     = "a description"
   default_service = "${google_compute_backend_service.default.self_link}"
 
@@ -84,7 +84,7 @@ resource "google_compute_url_map" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  name        = "backend-%{random_suffix}"
+  name        = "backend%{random_suffix}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
@@ -93,7 +93,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "check-backend-%{random_suffix}"
+  name               = "check-backend%{random_suffix}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1

@@ -51,7 +51,7 @@ func TestAccComputeGlobalAddress_globalAddressBasicExample(t *testing.T) {
 func testAccComputeGlobalAddress_globalAddressBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_global_address" "default" {
-  name = "global-appserver-ip-%{random_suffix}"
+  name = "global-appserver-ip%{random_suffix}"
 }
 `, context)
 }

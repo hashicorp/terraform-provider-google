@@ -52,11 +52,11 @@ func TestAccCloudSchedulerJob_schedulerJobPubsubExample(t *testing.T) {
 func testAccCloudSchedulerJob_schedulerJobPubsubExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_pubsub_topic" "topic" {
-  name = "job-topic-%{random_suffix}"
+  name = "job-topic%{random_suffix}"
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job-%{random_suffix}"
+  name     = "test-job%{random_suffix}"
   description = "test job"
   schedule = "*/2 * * * *"
 
@@ -96,7 +96,7 @@ func TestAccCloudSchedulerJob_schedulerJobHttpExample(t *testing.T) {
 func testAccCloudSchedulerJob_schedulerJobHttpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job-%{random_suffix}"
+  name     = "test-job%{random_suffix}"
   description = "test http job"
   schedule = "*/8 * * * *"
   time_zone = "America/New_York"
@@ -137,7 +137,7 @@ func TestAccCloudSchedulerJob_schedulerJobAppEngineExample(t *testing.T) {
 func testAccCloudSchedulerJob_schedulerJobAppEngineExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job-%{random_suffix}"
+  name     = "test-job%{random_suffix}"
   schedule = "*/4 * * * *"
   description = "test app engine job"
   time_zone = "Europe/London"
