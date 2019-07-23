@@ -142,16 +142,14 @@ The following arguments are supported:
   forwarding rule. By default, if this field is empty, an ephemeral
   internal IP address will be automatically allocated from the IP range
   of the subnet or network configured for this forwarding rule.
-  An address can be specified either by a literal IP address or a URL
-  reference to an existing Address resource. The following examples are
-  all valid:
-  * 100.1.2.3
-  * https://www.googleapis.com/compute/v1/projects/project/regions/
-       region/addresses/address
-  * projects/project/regions/region/addresses/address
-  * regions/region/addresses/address
-  * global/addresses/address
-  * address
+  ~> **NOTE** The address should be specified as a literal IP address,
+  e.g. `100.1.2.3` to avoid a permanent diff, as the server returns the
+  IP address regardless of the input value.
+  The server accepts a literal IP address or a URL reference to an existing
+  Address resource. The following examples are all valid but only the first
+  will prevent a permadiff. If you are using `google_compute_address` or
+  similar, interpolate using `.address` instead of `.self_link` or similar
+  to prevent a diff on re-apply.
 
 * `ip_protocol` -
   (Optional)

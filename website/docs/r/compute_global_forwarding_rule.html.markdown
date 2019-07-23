@@ -233,24 +233,27 @@ The following arguments are supported:
   (Optional)
   The IP address that this forwarding rule is serving on behalf of.
   Addresses are restricted based on the forwarding rule's load balancing
-  scheme (external or internal) and scope (global or regional).
-  The address must be a global IP for external global forwarding rules.
-  If this field is empty, an ephemeral IPv4 address from the same scope
-  (global) is closen. Global forwarding rules supports either IPv4 or IPv6.
-  When the load balancing scheme is INTERNAL_SELF_MANAGED, this must be
-  a URL reference to an existing Address resource (internal regional
-  static IP address), with a purpose of GCE_END_POINT and addressType
-  of INTERNAL.
-  An address can be specified either by a literal IP address or a URL
-  reference to an existing Address resource. The following examples are
-  all valid:
-  * 100.1.2.3
-  * https://www.googleapis.com/compute/v1/projects/project/regions/
-       region/addresses/address
-  * projects/project/regions/region/addresses/address
-  * regions/region/addresses/address
-  * global/addresses/address
-  * address
+  scheme (EXTERNAL or INTERNAL) and scope (global or regional).
+  When the load balancing scheme is EXTERNAL, for global forwarding
+  rules, the address must be a global IP, and for regional forwarding
+  rules, the address must live in the same region as the forwarding
+  rule. If this field is empty, an ephemeral IPv4 address from the same
+  scope (global or regional) will be assigned. A regional forwarding
+  rule supports IPv4 only. A global forwarding rule supports either IPv4
+  or IPv6.
+  When the load balancing scheme is INTERNAL, this can only be an RFC
+  1918 IP address belonging to the network/subnet configured for the
+  forwarding rule. By default, if this field is empty, an ephemeral
+  internal IP address will be automatically allocated from the IP range
+  of the subnet or network configured for this forwarding rule.
+  ~> **NOTE** The address should be specified as a literal IP address,
+  e.g. `100.1.2.3` to avoid a permanent diff, as the server returns the
+  IP address regardless of the input value.
+  The server accepts a literal IP address or a URL reference to an existing
+  Address resource. The following examples are all valid but only the first
+  will prevent a permadiff. If you are using `google_compute_address` or
+  similar, interpolate using `.address` instead of `.self_link` or similar
+  to prevent a diff on re-apply.
 
 * `ip_protocol` -
   (Optional)
