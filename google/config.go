@@ -69,24 +69,35 @@ type Config struct {
 	tokenSource oauth2.TokenSource
 
 	AccessContextManagerBasePath string
+	AppEngineBasePath            string
 	BinaryAuthorizationBasePath  string
+	CloudBuildBasePath           string
 	CloudSchedulerBasePath       string
+	ComputeBasePath              string
+	DnsBasePath                  string
+	FilestoreBasePath            string
 	FirestoreBasePath            string
+	KmsBasePath                  string
+	LoggingBasePath              string
 	MonitoringBasePath           string
+	PubsubBasePath               string
 	RedisBasePath                string
+	ResourceManagerBasePath      string
+	SourceRepoBasePath           string
+	SpannerBasePath              string
+	SqlBasePath                  string
+	StorageBasePath              string
 	TpuBasePath                  string
 
 	CloudBillingBasePath string
 	clientBilling        *cloudbilling.APIService
 
-	CloudBuildBasePath string
-	clientBuild        *cloudbuild.Service
+	clientBuild *cloudbuild.Service
 
 	ComposerBasePath string
 	clientComposer   *composer.Service
 
-	ComputeBasePath string
-	clientCompute   *compute.Service
+	clientCompute *compute.Service
 
 	ComputeBetaBasePath string
 	clientComputeBeta   *computeBeta.Service
@@ -106,29 +117,23 @@ type Config struct {
 	DataflowBasePath string
 	clientDataflow   *dataflow.Service
 
-	DnsBasePath string
-	clientDns   *dns.Service
+	clientDns *dns.Service
 
 	DnsBetaBasePath string
 	clientDnsBeta   *dnsBeta.Service
 
-	FilestoreBasePath string
-	clientFilestore   *file.Service
+	clientFilestore *file.Service
 
 	IamCredentialsBasePath string
 	clientIamCredentials   *iamcredentials.Service
 
-	KmsBasePath string
-	clientKms   *cloudkms.Service
+	clientKms *cloudkms.Service
 
-	LoggingBasePath string
-	clientLogging   *cloudlogging.Service
+	clientLogging *cloudlogging.Service
 
-	PubsubBasePath string
-	clientPubsub   *pubsub.Service
+	clientPubsub *pubsub.Service
 
-	ResourceManagerBasePath string
-	clientResourceManager   *cloudresourcemanager.Service
+	clientResourceManager *cloudresourcemanager.Service
 
 	ResourceManagerV2Beta1BasePath string
 	clientResourceManagerV2Beta1   *resourceManagerV2Beta1.Service
@@ -136,16 +141,12 @@ type Config struct {
 	RuntimeconfigBasePath string
 	clientRuntimeconfig   *runtimeconfig.Service
 
-	SpannerBasePath string
-	clientSpanner   *spanner.Service
+	clientSpanner *spanner.Service
 
-	SourceRepoBasePath string
-	clientSourceRepo   *sourcerepo.Service
+	clientSourceRepo *sourcerepo.Service
 
-	StorageBasePath string
-	clientStorage   *storage.Service
+	clientStorage *storage.Service
 
-	SqlBasePath    string
 	clientSqlAdmin *sqladmin.Service
 
 	IAMBasePath string
@@ -167,8 +168,7 @@ type Config struct {
 	CloudIoTBasePath string
 	clientCloudIoT   *cloudiot.Service
 
-	AppEngineBasePath string
-	clientAppEngine   *appengine.APIService
+	clientAppEngine *appengine.APIService
 
 	ServiceNetworkingBasePath string
 	clientServiceNetworking   *servicenetworking.APIService
