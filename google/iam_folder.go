@@ -46,7 +46,8 @@ func (u *FolderIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Pol
 	}
 
 	_, err = u.Config.clientResourceManagerV2Beta1.Folders.SetIamPolicy(u.folderId, &resourceManagerV2Beta1.SetIamPolicyRequest{
-		Policy: v2BetaPolicy,
+		Policy:     v2BetaPolicy,
+		UpdateMask: "bindings,etag,auditConfigs",
 	}).Do()
 
 	if err != nil {
