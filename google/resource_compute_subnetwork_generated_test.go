@@ -51,7 +51,7 @@ func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
 func testAccComputeSubnetwork_subnetworkBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
-  name          = "test-subnetwork-%{random_suffix}"
+  name          = "test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
   network       = "${google_compute_network.custom-test.self_link}"
@@ -62,7 +62,7 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
 }
 
 resource "google_compute_network" "custom-test" {
-  name                    = "test-network-%{random_suffix}"
+  name                    = "test-network%{random_suffix}"
   auto_create_subnetworks = false
 }
 `, context)

@@ -52,7 +52,7 @@ func TestAccComputeImage_imageBasicExample(t *testing.T) {
 func testAccComputeImage_imageBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_image" "example" {
-  name = "example-image-%{random_suffix}"
+  name = "example-image%{random_suffix}"
 
   raw_disk {
     source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"

@@ -52,7 +52,7 @@ func TestAccComputeVpnTunnel_vpnTunnelBasicExample(t *testing.T) {
 func testAccComputeVpnTunnel_vpnTunnelBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_vpn_tunnel" "tunnel1" {
-  name          = "tunnel1-%{random_suffix}"
+  name          = "tunnel1%{random_suffix}"
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 
@@ -66,27 +66,27 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 }
 
 resource "google_compute_vpn_gateway" "target_gateway" {
-  name    = "vpn1-%{random_suffix}"
+  name    = "vpn1%{random_suffix}"
   network = "${google_compute_network.network1.self_link}"
 }
 
 resource "google_compute_network" "network1" {
-  name       = "network1-%{random_suffix}"
+  name       = "network1%{random_suffix}"
 }
 
 resource "google_compute_address" "vpn_static_ip" {
-  name   = "vpn-static-ip-%{random_suffix}"
+  name   = "vpn-static-ip%{random_suffix}"
 }
 
 resource "google_compute_forwarding_rule" "fr_esp" {
-  name        = "fr-esp-%{random_suffix}"
+  name        = "fr-esp%{random_suffix}"
   ip_protocol = "ESP"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
   target      = "${google_compute_vpn_gateway.target_gateway.self_link}"
 }
 
 resource "google_compute_forwarding_rule" "fr_udp500" {
-  name        = "fr-udp500-%{random_suffix}"
+  name        = "fr-udp500%{random_suffix}"
   ip_protocol = "UDP"
   port_range  = "500"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
@@ -94,7 +94,7 @@ resource "google_compute_forwarding_rule" "fr_udp500" {
 }
 
 resource "google_compute_forwarding_rule" "fr_udp4500" {
-  name        = "fr-udp4500-%{random_suffix}"
+  name        = "fr-udp4500%{random_suffix}"
   ip_protocol = "UDP"
   port_range  = "4500"
   ip_address  = "${google_compute_address.vpn_static_ip.address}"
@@ -102,7 +102,7 @@ resource "google_compute_forwarding_rule" "fr_udp4500" {
 }
 
 resource "google_compute_route" "route1" {
-  name       = "route1-%{random_suffix}"
+  name       = "route1%{random_suffix}"
   network    = "${google_compute_network.network1.name}"
   dest_range = "15.0.0.0/24"
   priority   = 1000

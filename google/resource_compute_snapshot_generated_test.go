@@ -52,7 +52,7 @@ func TestAccComputeSnapshot_snapshotBasicExample(t *testing.T) {
 func testAccComputeSnapshot_snapshotBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
-	name = "my-snapshot-%{random_suffix}"
+	name = "my-snapshot%{random_suffix}"
 	source_disk = "${google_compute_disk.persistent.name}"
 	zone = "us-central1-a"
 	labels = {
@@ -66,7 +66,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-	name = "debian-disk-%{random_suffix}"
+	name = "debian-disk%{random_suffix}"
 	image = "${data.google_compute_image.debian.self_link}"
 	size = 10
 	type = "pd-ssd"

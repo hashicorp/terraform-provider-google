@@ -52,7 +52,7 @@ func TestAccFilestoreInstance_filestoreInstanceBasicExample(t *testing.T) {
 func testAccFilestoreInstance_filestoreInstanceBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_filestore_instance" "instance" {
-  name = "test-instance-%{random_suffix}"
+  name = "test-instance%{random_suffix}"
   zone = "us-central1-b"
   tier = "PREMIUM"
 

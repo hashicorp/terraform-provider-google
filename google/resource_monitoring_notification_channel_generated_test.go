@@ -51,7 +51,7 @@ func TestAccMonitoringNotificationChannel_notificationChannelBasicExample(t *tes
 func testAccMonitoringNotificationChannel_notificationChannelBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_monitoring_notification_channel" "basic" {
-  display_name = "Test Notification Channel-%{random_suffix}"
+  display_name = "Test Notification Channel%{random_suffix}"
   type = "email"
   labels = {
     email_address = "fake_email@blahblah.com"

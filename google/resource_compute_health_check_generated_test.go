@@ -51,7 +51,7 @@ func TestAccComputeHealthCheck_healthCheckBasicExample(t *testing.T) {
 func testAccComputeHealthCheck_healthCheckBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_health_check" "internal-health-check" {
- name = "internal-service-health-check-%{random_suffix}"
+ name = "internal-service-health-check%{random_suffix}"
 
  timeout_sec        = 1
  check_interval_sec = 1

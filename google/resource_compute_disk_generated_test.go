@@ -51,7 +51,7 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 func testAccComputeDisk_diskBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_disk" "default" {
-  name  = "test-disk-%{random_suffix}"
+  name  = "test-disk%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
   image = "debian-8-jessie-v20170523"

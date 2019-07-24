@@ -51,7 +51,7 @@ func TestAccComputeHttpHealthCheck_httpHealthCheckBasicExample(t *testing.T) {
 func testAccComputeHttpHealthCheck_httpHealthCheckBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_http_health_check" "default" {
-  name         = "authentication-health-check-%{random_suffix}"
+  name         = "authentication-health-check%{random_suffix}"
   request_path = "/health_check"
 
   timeout_sec        = 1
