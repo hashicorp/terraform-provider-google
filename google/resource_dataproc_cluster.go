@@ -15,6 +15,8 @@ import (
 	dataproc "google.golang.org/api/dataproc/v1beta2"
 )
 
+var resolveDataprocImageVersion = regexp.MustCompile(`(?P<Major>[^\s.-]+)\.(?P<Minor>[^\s.-]+)(?:\.(?P<Subminor>[^\s.-]+))?(?:\-(?P<Distr>[^\s.-]+))?`)
+
 func resourceDataprocCluster() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataprocClusterCreate,
@@ -258,10 +260,11 @@ func resourceDataprocCluster() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"image_version": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Type:             schema.TypeString,
+										Optional:         true,
+										Computed:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: dataprocImageVersionDiffSuppress,
 									},
 
 									"override_properties": {
@@ -1004,4 +1007,52 @@ func configOptions(d *schema.ResourceData, option string) (map[string]interface{
 		}
 	}
 	return nil, false
+}
+
+func dataprocImageVersionDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	oldV, err := parseDataprocImageVersion(old)
+	if err != nil {
+		return false
+	}
+	newV, err := parseDataprocImageVersion(new)
+	if err != nil {
+		return false
+	}
+
+	if newV.major != oldV.major {
+		return false
+	}
+	if newV.minor != oldV.minor {
+		return false
+	}
+	// Only compare subminor version if set in config version.
+	if newV.subminor != "" && newV.subminor != oldV.subminor {
+		return false
+	}
+	// Only compare os if it is set in config version.
+	if newV.osName != "" && newV.osName != oldV.osName {
+		return false
+	}
+	return true
+}
+
+type dataprocImageVersion struct {
+	major    string
+	minor    string
+	subminor string
+	osName   string
+}
+
+func parseDataprocImageVersion(version string) (*dataprocImageVersion, error) {
+	matches := resolveDataprocImageVersion.FindStringSubmatch(version)
+	if len(matches) != 5 {
+		return nil, fmt.Errorf("invalid image version %q", version)
+	}
+
+	return &dataprocImageVersion{
+		major:    matches[1],
+		minor:    matches[2],
+		subminor: matches[3],
+		osName:   matches[4],
+	}, nil
 }
