@@ -573,8 +573,8 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
 	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
 	d.Set("labels", res.Labels)
-	d.Set("retention_policy", flattenBucketRetentionPolicy(res.RetentionPolicy))
 	d.Set("website", flattenBucketWebsite(res.Website))
+	d.Set("retention_policy", flattenBucketRetentionPolicy(res.RetentionPolicy))
 
 	if res.IamConfiguration != nil && res.IamConfiguration.BucketPolicyOnly != nil {
 		d.Set("bucket_policy_only", res.IamConfiguration.BucketPolicyOnly.Enabled)

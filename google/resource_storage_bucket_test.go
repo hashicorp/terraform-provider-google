@@ -1462,6 +1462,21 @@ resource "google_storage_bucket" "bucket" {
 `, bucketName)
 }
 
+func testAccStorageBucket_website(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "website" {
+	name     = "%s.gcp.tfacc.hashicorptest.com"
+	location = "US"
+	storage_class = "MULTI_REGIONAL"
+
+	website {
+	  main_page_suffix = "index.html"
+	  not_found_page   = "404.html"
+	}
+  }
+`, bucketName)
+}
+
 func testAccStorageBucket_retentionPolicy(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
@@ -1484,20 +1499,5 @@ resource "google_storage_bucket" "bucket" {
       retention_period = 10
     }
 }
-`, bucketName)
-}
-
-func testAccStorageBucket_website(bucketName string) string {
-	return fmt.Sprintf(`
-resource "google_storage_bucket" "website" {
-	name     = "%s.gcp.tfacc.hashicorptest.com"
-	location = "US"
-	storage_class = "MULTI_REGIONAL"
-
-	website {
-	  main_page_suffix = "index.html"
-	  not_found_page   = "404.html"
-	}
-  }
 `, bucketName)
 }
