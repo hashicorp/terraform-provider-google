@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gammazero/workerpool"
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -29,6 +30,8 @@ func resourceStorageBucket() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceStorageBucketStateImporter,
 		},
+		CustomizeDiff: customdiff.All(
+			customdiff.ForceNewIfChange("retention_policy.0.is_locked", isPolicyLocked)),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -211,6 +214,26 @@ func resourceStorageBucket() *schema.Resource {
 				},
 			},
 
+			"retention_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"is_locked": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"retention_period": {
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validation.IntBetween(1, 3155760000),
+						},
+					},
+				},
+			},
+
 			"cors": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -271,6 +294,20 @@ func resourceStorageBucket() *schema.Resource {
 	}
 }
 
+// Is the old bucket retention policy locked?
+func isPolicyLocked(old, new, _ interface{}) bool {
+	if old == nil || new == nil {
+		return false
+	}
+
+	// if the old policy is locked, but the new policy is not
+	if old.(bool) && !new.(bool) {
+		return true
+	}
+
+	return false
+}
+
 func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -309,6 +346,18 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		sb.Website = expandBucketWebsite(v.([]interface{}))
 	}
 
+	if v, ok := d.GetOk("retention_policy"); ok {
+		retention_policies := v.([]interface{})
+
+		sb.RetentionPolicy = &storage.BucketRetentionPolicy{}
+
+		retentionPolicy := retention_policies[0].(map[string]interface{})
+
+		if v, ok := retentionPolicy["retention_period"]; ok {
+			sb.RetentionPolicy.RetentionPeriod = int64(v.(int))
+		}
+	}
+
 	if v, ok := d.GetOk("cors"); ok {
 		sb.Cors = expandCors(v.([]interface{}))
 	}
@@ -340,8 +389,25 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Created bucket %v at location %v\n\n", res.Name, res.SelfLink)
-
 	d.SetId(res.Id)
+
+	if v, ok := d.GetOk("retention_policy"); ok {
+		retention_policies := v.([]interface{})
+
+		sb.RetentionPolicy = &storage.BucketRetentionPolicy{}
+
+		retentionPolicy := retention_policies[0].(map[string]interface{})
+
+		if locked, ok := retentionPolicy["is_locked"]; ok && locked.(bool) {
+			err = lockRetentionPolicy(config.clientStorage.Buckets, bucket, res.Metageneration)
+			if err != nil {
+				return err
+			}
+
+			log.Printf("[DEBUG] Locked bucket %v at location %v\n\n", res.Name, res.SelfLink)
+		}
+	}
+
 	return resourceStorageBucketRead(d, meta)
 }
 
@@ -374,6 +440,14 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("website") {
 		sb.Website = expandBucketWebsite(d.Get("website"))
+	}
+
+	if d.HasChange("retention_policy") {
+		if v, ok := d.GetOk("retention_policy"); ok {
+			sb.RetentionPolicy = expandBucketRetentionPolicy(v.([]interface{}))
+		} else {
+			sb.NullFields = append(sb.NullFields, "RetentionPolicy")
+		}
 	}
 
 	if v, ok := d.GetOk("cors"); ok {
@@ -428,10 +502,28 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	log.Printf("[DEBUG] Patched bucket %v at location %v\n\n", res.Name, res.SelfLink)
-
 	// Assign the bucket ID as the resource ID
 	d.Set("self_link", res.SelfLink)
+
+	if d.HasChange("retention_policy") {
+		if v, ok := d.GetOk("retention_policy"); ok {
+			retention_policies := v.([]interface{})
+
+			sb.RetentionPolicy = &storage.BucketRetentionPolicy{}
+
+			retentionPolicy := retention_policies[0].(map[string]interface{})
+
+			if locked, ok := retentionPolicy["is_locked"]; ok && locked.(bool) {
+				err = lockRetentionPolicy(config.clientStorage.Buckets, d.Get("name").(string), res.Metageneration)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	log.Printf("[DEBUG] Patched bucket %v at location %v\n\n", res.Name, res.SelfLink)
+
 	d.SetId(res.Id)
 
 	return nil
@@ -481,6 +573,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
 	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
 	d.Set("labels", res.Labels)
+	d.Set("retention_policy", flattenBucketRetentionPolicy(res.RetentionPolicy))
 	d.Set("website", flattenBucketWebsite(res.Website))
 
 	if res.IamConfiguration != nil && res.IamConfiguration.BucketPolicyOnly != nil {
@@ -513,6 +606,20 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		}
 
 		if len(res.Items) != 0 {
+			if d.Get("retention_policy.0.is_locked").(bool) {
+				for _, item := range res.Items {
+					expiration, err := time.Parse(time.RFC3339, item.RetentionExpirationTime)
+					if err != nil {
+						return err
+					}
+					if expiration.After(time.Now()) {
+						deleteErr := errors.New("Bucket '" + d.Get("name").(string) + "' contains objects that have not met the retention period yet and cannot be deleted.")
+						log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
+						return deleteErr
+					}
+				}
+			}
+
 			if d.Get("force_destroy").(bool) {
 				// GCS requires that a bucket be empty (have no objects or object
 				// versions) before it can be deleted.
@@ -684,6 +791,34 @@ func flattenBucketLogging(bucketLogging *storage.BucketLogging) []map[string]int
 
 	loggings = append(loggings, logging)
 	return loggings
+}
+
+func expandBucketRetentionPolicy(configured interface{}) *storage.BucketRetentionPolicy {
+	retentionPolicies := configured.([]interface{})
+	retentionPolicy := retentionPolicies[0].(map[string]interface{})
+
+	bucketRetentionPolicy := &storage.BucketRetentionPolicy{
+		IsLocked:        retentionPolicy["is_locked"].(bool),
+		RetentionPeriod: int64(retentionPolicy["retention_period"].(int)),
+	}
+
+	return bucketRetentionPolicy
+}
+
+func flattenBucketRetentionPolicy(bucketRetentionPolicy *storage.BucketRetentionPolicy) []map[string]interface{} {
+	bucketRetentionPolicies := make([]map[string]interface{}, 0, 1)
+
+	if bucketRetentionPolicy == nil {
+		return bucketRetentionPolicies
+	}
+
+	retentionPolicy := map[string]interface{}{
+		"is_locked":        bucketRetentionPolicy.IsLocked,
+		"retention_period": bucketRetentionPolicy.RetentionPeriod,
+	}
+
+	bucketRetentionPolicies = append(bucketRetentionPolicies, retentionPolicy)
+	return bucketRetentionPolicies
 }
 
 func expandBucketVersioning(configured interface{}) *storage.BucketVersioning {
@@ -1027,4 +1162,13 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 	}
 
 	return hashcode.String(buf.String())
+}
+
+func lockRetentionPolicy(bucketsService *storage.BucketsService, bucketName string, metageneration int64) error {
+	lockPolicyCall := bucketsService.LockRetentionPolicy(bucketName, metageneration)
+	if _, err := lockPolicyCall.Do(); err != nil {
+		return err
+	}
+
+	return nil
 }
