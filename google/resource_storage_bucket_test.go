@@ -1501,3 +1501,28 @@ resource "google_storage_bucket" "website" {
   }
 `, bucketName)
 }
+
+func testAccStorageBucket_retentionPolicy(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+    name = "%s"
+
+    retention_policy {
+      retention_period = 10
+    }
+}
+`, bucketName)
+}
+
+func testAccStorageBucket_lockedRetentionPolicy(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+    name = "%s"
+
+    retention_policy {
+      is_locked = true
+      retention_period = 10
+    }
+}
+`, bucketName)
+}
