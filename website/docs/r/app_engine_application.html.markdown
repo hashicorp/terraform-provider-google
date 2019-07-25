@@ -34,6 +34,10 @@ resource "google_app_engine_application" "app" {
 
 The following arguments are supported:
 
+* `project` - (Required) The project ID to create the application under.
+   ~>**NOTE**: GCP only accepts project ID, not project number. If you are using number,
+   you may get a "Permission denied" error.
+
 * `location_id` - (Required) The [location](https://cloud.google.com/appengine/docs/locations)
    to serve the app from.
 
