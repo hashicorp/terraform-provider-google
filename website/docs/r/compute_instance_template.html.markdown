@@ -152,9 +152,7 @@ resource "google_compute_instance_template" "instance_template" {
 
   // boot disk
   disk {
-    initialize_params {
-      image = "${data.google_compute_image.my_image.self_link}"
-    }
+    source_image = "${google_compute_image.my_image.self_link}"
   }
 }
 ```
@@ -171,9 +169,7 @@ resource "google_compute_instance_template" "instance_template" {
 
   // boot disk
   disk {
-    initialize_params {
-      image = "debian-cloud/debian-9"
-    }
+    source_image = "debian-cloud/debian-9"
   }
 }
 ```
