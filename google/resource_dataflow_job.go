@@ -71,6 +71,12 @@ func resourceDataflowJob() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"on_delete": {
 				Type:         schema.TypeString,
 				ValidateFunc: validation.StringInSlice([]string{"cancel", "drain"}, false),
@@ -139,15 +145,17 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	params := expandStringMap(d, "parameters")
+	labels := expandStringMap(d, "labels")
 
 	env := dataflow.RuntimeEnvironment{
-		MaxWorkers:          int64(d.Get("max_workers").(int)),
-		Network:             d.Get("network").(string),
-		ServiceAccountEmail: d.Get("service_account_email").(string),
-		Subnetwork:          d.Get("subnetwork").(string),
-		TempLocation:        d.Get("temp_gcs_location").(string),
-		MachineType:         d.Get("machine_type").(string),
-		Zone:                zone,
+		MaxWorkers:           int64(d.Get("max_workers").(int)),
+		Network:              d.Get("network").(string),
+		ServiceAccountEmail:  d.Get("service_account_email").(string),
+		Subnetwork:           d.Get("subnetwork").(string),
+		TempLocation:         d.Get("temp_gcs_location").(string),
+		MachineType:          d.Get("machine_type").(string),
+		AdditionalUserLabels: labels,
+		Zone:                 zone,
 	}
 
 	request := dataflow.CreateJobFromTemplateRequest{
@@ -189,6 +197,7 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("state", job.CurrentState)
 	d.Set("name", job.Name)
 	d.Set("project", project)
+	d.Set("labels", job.Labels)
 
 	if _, ok := dataflowTerminalStatesMap[job.CurrentState]; ok {
 		log.Printf("[DEBUG] Removing resource '%s' because it is in state %s.\n", job.Name, job.CurrentState)
