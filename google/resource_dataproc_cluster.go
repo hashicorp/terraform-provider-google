@@ -717,6 +717,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	region := d.Get("region").(string)
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
+	gracefulDecommissionTimeout := d.Get("gracefulDecommisionTimeout").(string)
 
 	cluster := &dataproc.Cluster{
 		ClusterName: clusterName,
@@ -758,7 +759,8 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	if len(updMask) > 0 {
 		patch := config.clientDataprocBeta.Projects.Regions.Clusters.Patch(
 			project, region, clusterName, cluster)
-		op, err := patch.UpdateMask(strings.Join(updMask, ",")).Do()
+		op, err := patch.UpdateMask(strings.Join(updMask, ",")).GracefulDecommissionTimeout(gracefulDecommissionTimeout).Do()
+
 		if err != nil {
 			return err
 		}
