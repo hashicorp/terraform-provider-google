@@ -115,13 +115,6 @@ func resourceComputeInstance() *schema.Resource {
 										ForceNew:         true,
 										DiffSuppressFunc: diskImageDiffSuppress,
 									},
-
-									"labels": {
-										Type:     schema.TypeMap,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
-									},
 								},
 							},
 						},
@@ -1659,10 +1652,6 @@ func expandBootDisk(d *schema.ResourceData, config *Config, zone *compute.Zone, 
 
 			disk.InitializeParams.SourceImage = imageUrl
 		}
-
-		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.labels"); ok {
-			disk.InitializeParams.Labels = expandStringMap(d, "boot_disk.0.initialize_params.0.labels")
-		}
 	}
 
 	return disk, nil
@@ -1693,9 +1682,8 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, con
 			"type": GetResourceNameFromSelfLink(diskDetails.Type),
 			// If the config specifies a family name that doesn't match the image name, then
 			// the diff won't be properly suppressed. See DiffSuppressFunc for this field.
-			"image":  diskDetails.SourceImage,
-			"size":   diskDetails.SizeGb,
-			"labels": diskDetails.Labels,
+			"image": diskDetails.SourceImage,
+			"size":  diskDetails.SizeGb,
 		}}
 	}
 

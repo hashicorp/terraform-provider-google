@@ -1335,9 +1335,6 @@ resource "google_compute_instance_template" "foobar" {
 		auto_delete = true
 		disk_size_gb = 100
 		boot = true
-		labels = {
-			foo = "bar"
-		}
 	}
 
 	disk {
