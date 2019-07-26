@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"runtime"
 	"strconv"
 	"strings"
@@ -228,7 +229,7 @@ func resourceStorageBucket() *schema.Resource {
 						"retention_period": {
 							Type:         schema.TypeInt,
 							Required:     true,
-							ValidateFunc: validation.IntBetween(1, 3155760000),
+							ValidateFunc: validation.IntBetween(1, math.MaxInt32),
 						},
 					},
 				},
