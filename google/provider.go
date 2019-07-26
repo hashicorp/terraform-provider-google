@@ -178,6 +178,7 @@ func Provider() terraform.ResourceProvider {
 			"google_kms_secret":                               dataSourceGoogleKmsSecret(),
 			"google_kms_key_ring":                             dataSourceGoogleKmsKeyRing(),
 			"google_kms_crypto_key":                           dataSourceGoogleKmsCryptoKey(),
+			"google_kms_crypto_key_version":                   dataSourceGoogleKmsCryptoKeyVersion(),
 			"google_folder":                                   dataSourceGoogleFolder(),
 			"google_folder_organization_policy":               dataSourceGoogleFolderOrganizationPolicy(),
 			"google_netblock_ip_ranges":                       dataSourceGoogleNetblockIpRanges(),

@@ -69,6 +69,56 @@ resource "google_container_analysis_note" "note" {
   }
 }
 ```
+## Example Usage - Binary Authorization Attestor Kms
+
+
+```hcl
+resource "google_binary_authorization_attestor" "attestor" {
+  name = "test-attestor"
+  attestation_authority_note {
+    note_reference = "${google_container_analysis_note.note.name}"
+    public_keys {
+      id = "${data.google_kms_crypto_key_version.version.id}"
+      pkix_public_key {
+        public_key_pem     = "${data.google_kms_crypto_key_version.version.public_key[0].pem}"
+        signature_algorithm = "${data.google_kms_crypto_key_version.version.public_key[0].algorithm}"
+      }
+    }
+  }
+}
+
+data "google_kms_crypto_key_version" "version" {
+  crypto_key = "${google_kms_crypto_key.crypto-key.self_link}"
+}
+
+resource "google_container_analysis_note" "note" {
+  name = "test-attestor-note"
+  attestation_authority {
+    hint {
+      human_readable_name = "Attestor Note"
+    }
+  }
+}
+
+resource "google_kms_crypto_key" "crypto-key" {
+  name     = "test-attestor-key"
+  key_ring = "${google_kms_key_ring.keyring.self_link}"
+  purpose  = "ASYMMETRIC_SIGN"
+
+  version_template {
+    algorithm = "RSA_SIGN_PKCS1_4096_SHA512"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "google_kms_key_ring" "keyring" {
+  name     = "test-attestor-key-ring"
+  location = "global"
+}
+```
 
 ## Argument Reference
 
@@ -125,16 +175,49 @@ The `public_keys` block supports:
   A descriptive comment. This field may be updated.
 
 * `id` -
-  This field will be overwritten with key ID information, for
-  example, an identifier extracted from a PGP public key. This
-  field may not be updated.
+  (Optional)
+  The ID of this public key. Signatures verified by BinAuthz
+  must include the ID of the public key that can be used to
+  verify them, and that ID must match the contents of this
+  field exactly. Additional restrictions on this field can
+  be imposed based on which public key type is encapsulated.
+  See the documentation on publicKey cases below for details.
 
 * `ascii_armored_pgp_public_key` -
-  (Required)
+  (Optional)
   ASCII-armored representation of a PGP public key, as the
   entire output by the command
   `gpg --export --armor foo@example.com` (either LF or CRLF
-  line endings).
+  line endings). When using this field, id should be left
+  blank. The BinAuthz API handlers will calculate the ID
+  and fill it in automatically. BinAuthz computes this ID
+  as the OpenPGP RFC4880 V4 fingerprint, represented as
+  upper-case hex. If id is provided by the caller, it will
+  be overwritten by the API-calculated ID.
+
+* `pkix_public_key` -
+  (Optional)
+  A raw PKIX SubjectPublicKeyInfo format public key.
+  NOTE: id may be explicitly provided by the caller when using this
+  type of public key, but it MUST be a valid RFC3986 URI. If id is left
+  blank, a default one will be computed based on the digest of the DER
+  encoding of the public key.  Structure is documented below.
+
+
+The `pkix_public_key` block supports:
+
+* `public_key_pem` -
+  (Optional)
+  A PEM-encoded public key, as described in
+  `https://tools.ietf.org/html/rfc7468#section-13`
+
+* `signature_algorithm` -
+  (Optional)
+  The signature algorithm used to verify a message against
+  a signature using this key. These signature algorithm must
+  match the structure and any object identifiers encoded in
+  publicKeyPem (i.e. this algorithm must match that of the
+  public key).
 
 - - -
 

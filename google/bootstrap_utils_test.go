@@ -11,22 +11,35 @@ import (
 )
 
 var SharedKeyRing = "tftest-shared-keyring-1"
-var SharedCyptoKey = "tftest-shared-key-1"
+var SharedCryptoKey = map[string]string{
+	"ENCRYPT_DECRYPT":    "tftest-shared-key-1",
+	"ASYMMETRIC_SIGN":    "tftest-shared-sign-key-1",
+	"ASYMMETRIC_DECRYPT": "tftest-shared-decrypt-key-1",
+}
 
 type bootstrappedKMS struct {
 	*cloudkms.KeyRing
 	*cloudkms.CryptoKey
 }
 
-// BootstrapKMSKey returns a KMS key in the "global" location.
-// See BootstrapKMSKeyInLocation.
 func BootstrapKMSKey(t *testing.T) bootstrappedKMS {
 	return BootstrapKMSKeyInLocation(t, "global")
 }
 
+func BootstrapKMSKeyInLocation(t *testing.T, locationID string) bootstrappedKMS {
+	return BootstrapKMSKeyWithPurposeInLocation(t, "ENCRYPT_DECRYPT", locationID)
+}
+
+// BootstrapKMSKeyWithPurpose returns a KMS key in the "global" location.
+// See BootstrapKMSKeyWithPurposeInLocation.
+func BootstrapKMSKeyWithPurpose(t *testing.T, purpose string) bootstrappedKMS {
+	return BootstrapKMSKeyWithPurposeInLocation(t, purpose, "global")
+}
+
 /**
-* BootstrapKMSKeyWithLocation will return a KMS key in a particular location
-* that can be used in tests that are testing KMS integration with other resources.
+* BootstrapKMSKeyWithPurposeInLocation will return a KMS key in a
+* particular location with the given purpose that can be used
+* in tests that are testing KMS integration with other resources.
 *
 * This will either return an existing key or create one if it hasn't been created
 * in the project yet. The motivation is because keyrings don't get deleted and we
@@ -34,7 +47,7 @@ func BootstrapKMSKey(t *testing.T) bootstrappedKMS {
 * to incur the overhead of creating a new project for each test that needs to use
 * a KMS key.
 **/
-func BootstrapKMSKeyInLocation(t *testing.T, locationID string) bootstrappedKMS {
+func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID string) bootstrappedKMS {
 	if v := os.Getenv("TF_ACC"); v == "" {
 		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
 
@@ -49,7 +62,7 @@ func BootstrapKMSKeyInLocation(t *testing.T, locationID string) bootstrappedKMS 
 	keyRingParent := fmt.Sprintf("projects/%s/locations/%s", projectID, locationID)
 	keyRingName := fmt.Sprintf("%s/keyRings/%s", keyRingParent, SharedKeyRing)
 	keyParent := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", projectID, locationID, SharedKeyRing)
-	keyName := fmt.Sprintf("%s/cryptoKeys/%s", keyParent, SharedCyptoKey)
+	keyName := fmt.Sprintf("%s/cryptoKeys/%s", keyParent, SharedCryptoKey[purpose])
 
 	config := &Config{
 		Credentials: getTestCredsFromEnv(),
@@ -87,12 +100,22 @@ func BootstrapKMSKeyInLocation(t *testing.T, locationID string) bootstrappedKMS 
 	cryptoKey, err := kmsClient.Projects.Locations.KeyRings.CryptoKeys.Get(keyName).Do()
 	if err != nil {
 		if isGoogleApiErrorWithCode(err, 404) {
+			algos := map[string]string{
+				"ENCRYPT_DECRYPT":    "GOOGLE_SYMMETRIC_ENCRYPTION",
+				"ASYMMETRIC_SIGN":    "RSA_SIGN_PKCS1_4096_SHA512",
+				"ASYMMETRIC_DECRYPT": "RSA_DECRYPT_OAEP_4096_SHA512",
+			}
+			template := cloudkms.CryptoKeyVersionTemplate{
+				Algorithm: algos[purpose],
+			}
+
 			newKey := cloudkms.CryptoKey{
-				Purpose: "ENCRYPT_DECRYPT",
+				Purpose:         purpose,
+				VersionTemplate: &template,
 			}
 
 			cryptoKey, err = kmsClient.Projects.Locations.KeyRings.CryptoKeys.Create(keyParent, &newKey).
-				CryptoKeyId(SharedCyptoKey).Do()
+				CryptoKeyId(SharedCryptoKey[purpose]).Do()
 			if err != nil {
 				t.Errorf("Unable to bootstrap KMS key. Cannot create new CryptoKey: %s", err)
 			}

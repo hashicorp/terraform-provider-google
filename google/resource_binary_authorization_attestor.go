@@ -61,7 +61,7 @@ func resourceBinaryAuthorizationAttestor() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"ascii_armored_pgp_public_key": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"comment": {
 										Type:     schema.TypeString,
@@ -69,7 +69,24 @@ func resourceBinaryAuthorizationAttestor() *schema.Resource {
 									},
 									"id": {
 										Type:     schema.TypeString,
-										Computed: true,
+										Optional: true,
+									},
+									"pkix_public_key": {
+										Type:     schema.TypeList,
+										Optional: true,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"public_key_pem": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"signature_algorithm": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -320,6 +337,7 @@ func flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeys(v inte
 			"comment":                      flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysComment(original["comment"], d),
 			"id":                           flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysId(original["id"], d),
 			"ascii_armored_pgp_public_key": flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysAsciiArmoredPgpPublicKey(original["asciiArmoredPgpPublicKey"], d),
+			"pkix_public_key":              flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysPkixPublicKey(original["pkixPublicKey"], d),
 		})
 	}
 	return transformed
@@ -333,6 +351,29 @@ func flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysId(v in
 }
 
 func flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysAsciiArmoredPgpPublicKey(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysPkixPublicKey(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["public_key_pem"] =
+		flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysPkixPublicKeyPublicKeyPem(original["publicKeyPem"], d)
+	transformed["signature_algorithm"] =
+		flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysPkixPublicKeySignatureAlgorithm(original["signatureAlgorithm"], d)
+	return []interface{}{transformed}
+}
+func flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysPkixPublicKeyPublicKeyPem(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysPkixPublicKeySignatureAlgorithm(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -426,6 +467,13 @@ func expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeys(v inter
 			transformed["asciiArmoredPgpPublicKey"] = transformedAsciiArmoredPgpPublicKey
 		}
 
+		transformedPkixPublicKey, err := expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysPkixPublicKey(original["pkix_public_key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPkixPublicKey); val.IsValid() && !isEmptyValue(val) {
+			transformed["pkixPublicKey"] = transformedPkixPublicKey
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -440,6 +488,40 @@ func expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysId(v int
 }
 
 func expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysAsciiArmoredPgpPublicKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysPkixPublicKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPublicKeyPem, err := expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysPkixPublicKeyPublicKeyPem(original["public_key_pem"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPublicKeyPem); val.IsValid() && !isEmptyValue(val) {
+		transformed["publicKeyPem"] = transformedPublicKeyPem
+	}
+
+	transformedSignatureAlgorithm, err := expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysPkixPublicKeySignatureAlgorithm(original["signature_algorithm"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSignatureAlgorithm); val.IsValid() && !isEmptyValue(val) {
+		transformed["signatureAlgorithm"] = transformedSignatureAlgorithm
+	}
+
+	return transformed, nil
+}
+
+func expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysPkixPublicKeyPublicKeyPem(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysPkixPublicKeySignatureAlgorithm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
