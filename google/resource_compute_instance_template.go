@@ -99,6 +99,15 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Computed: true,
 						},
 
+						"labels": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							ForceNew: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+
 						"source_image": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -599,6 +608,8 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 				}
 				disk.InitializeParams.SourceImage = imageUrl
 			}
+
+			disk.InitializeParams.Labels = expandStringMap(d, prefix+".labels")
 		}
 
 		if v, ok := d.GetOk(prefix + ".interface"); ok {
@@ -784,6 +795,7 @@ func flattenDisk(disk *computeBeta.AttachedDisk, defaultProject string) (map[str
 		diskMap["disk_type"] = disk.InitializeParams.DiskType
 		diskMap["disk_name"] = disk.InitializeParams.DiskName
 		diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
+		diskMap["labels"] = disk.InitializeParams.Labels
 	}
 
 	if disk.DiskEncryptionKey != nil {
