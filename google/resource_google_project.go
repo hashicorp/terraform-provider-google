@@ -51,7 +51,7 @@ func resourceGoogleProject() *schema.Resource {
 			"delete_service_accounts": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  false,
 			},
 			"name": {
 				Type:         schema.TypeString,
@@ -272,7 +272,7 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if !d.Get("delete_service_accounts").(bool) {
+	if d.Get("delete_service_accounts").(bool) {
 		if err = deleteServiceAccounts(project.ProjectId, config); err != nil {
 			return fmt.Errorf("Error deleting default service accounts in project %s: %s", project.ProjectId, err)
 		}
