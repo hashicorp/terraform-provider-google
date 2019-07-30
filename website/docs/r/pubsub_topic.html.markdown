@@ -66,6 +66,26 @@ resource "google_kms_key_ring" "key_ring" {
   location = "global"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_topic_geo_restricted&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Topic Geo Restricted
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+
+  message_storage_policy {
+    allowed_persistence_regions = [
+      "europe-west3",
+    ]
+  }
+
+}
+```
 
 ## Argument Reference
 
@@ -92,9 +112,26 @@ The following arguments are supported:
   (Optional)
   A set of key/value label pairs to assign to this Topic.
 
+* `message_storage_policy` -
+  (Optional)
+  Policy constraining the set of Google Cloud Platform regions where
+  messages published to the topic may be stored. If not present, then no
+  constraints are in effect.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `message_storage_policy` block supports:
+
+* `allowed_persistence_regions` -
+  (Required)
+  A list of IDs of GCP regions where messages that are published to
+  the topic may be persisted in storage. Messages published by
+  publishers running in non-allowed GCP regions (or running outside
+  of GCP altogether) will be routed for storage in one of the
+  allowed regions. An empty list means that no regions are allowed,
+  and is not a valid configuration.
 
 
 ## Timeouts

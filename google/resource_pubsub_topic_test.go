@@ -28,7 +28,7 @@ func TestAccPubsubTopic_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccPubsubTopic_update(topic, "wibble", "wobble"),
+				Config: testAccPubsubTopic_updateWithRegion(topic, "wibble", "wobble", "us-central1"),
 			},
 			{
 				ResourceName:      "google_pubsub_topic.foo",
@@ -72,6 +72,23 @@ resource "google_pubsub_topic" "foo" {
 	}
 }
 `, topic, key, value)
+}
+
+func testAccPubsubTopic_updateWithRegion(topic, key, value, region string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "foo" {
+	name = "%s"
+	labels = {
+		%s = "%s"
+	}
+
+	message_storage_policy {
+		allowed_persistence_regions = [
+		  "%s",
+		]
+	}
+}
+`, topic, key, value, region)
 }
 
 func testAccPubsubTopic_cmek(pid, topicName, kmsKey string) string {
