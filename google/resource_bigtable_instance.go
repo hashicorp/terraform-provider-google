@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 
@@ -18,6 +19,10 @@ func resourceBigtableInstance() *schema.Resource {
 		Update: resourceBigtableInstanceUpdate,
 		Delete: resourceBigtableInstanceDestroy,
 
+		CustomizeDiff: customdiff.All(
+			resourceBigtableInstanceClusterReorderTypeList,
+		),
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -27,7 +32,8 @@ func resourceBigtableInstance() *schema.Resource {
 
 			"cluster": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cluster_id": {
@@ -305,4 +311,78 @@ func expandBigtableClusters(clusters []interface{}, instanceID string) []bigtabl
 		})
 	}
 	return results
+}
+
+func resourceBigtableInstanceClusterReorderTypeList(diff *schema.ResourceDiff, meta interface{}) error {
+	keys := diff.GetChangedKeysPrefix("cluster")
+	if len(keys) == 0 {
+		return nil
+	}
+
+	oldCount, newCount := diff.GetChange("cluster.#")
+	var count int
+	if oldCount.(int) < newCount.(int) {
+		count = newCount.(int)
+	} else {
+		count = oldCount.(int)
+	}
+
+	// simulate Required:true and MinItems:1
+	if count < 1 {
+		return nil
+	}
+
+	var old_ids []string
+	var new_ids []string
+	for i := 0; i < count; i++ {
+		old, new := diff.GetChange(fmt.Sprintf("cluster.%d.cluster_id", i))
+		if old != nil {
+			old_ids = append(old_ids, old.(string))
+		}
+		if new != nil {
+			new_ids = append(new_ids, new.(string))
+		}
+	}
+
+	d := difference(old_ids, new_ids)
+
+	// clusters have been reordered
+	if len(new_ids) == len(old_ids) && len(d) == 0 {
+
+		clusterMap := make(map[string]interface{}, len(new_ids))
+		for i := 0; i < count; i++ {
+			_, id := diff.GetChange(fmt.Sprintf("cluster.%d.cluster_id", i))
+			_, c := diff.GetChange(fmt.Sprintf("cluster.%d", i))
+			clusterMap[id.(string)] = c
+		}
+
+		// build a slice of the new clusters ordered by the old cluster order
+		var old_cluster_order []interface{}
+		for _, id := range old_ids {
+			if c, ok := clusterMap[id]; ok {
+				old_cluster_order = append(old_cluster_order, c)
+			}
+		}
+
+		err := diff.SetNew("cluster", old_cluster_order)
+		if err != nil {
+			return fmt.Errorf("Error setting cluster diff: %s", err)
+		}
+	}
+
+	return nil
+}
+
+func difference(a, b []string) []string {
+	var c []string
+	m := make(map[string]bool)
+	for _, o := range a {
+		m[o] = true
+	}
+	for _, n := range b {
+		if _, ok := m[n]; !ok {
+			c = append(c, n)
+		}
+	}
+	return c
 }

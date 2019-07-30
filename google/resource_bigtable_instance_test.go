@@ -54,10 +54,17 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ExpectError: regexp.MustCompile("config is invalid: Too many cluster blocks: No more than 4 \"cluster\" blocks are allowed"),
 			},
 			{
-				Config: testAccBigtableInstance_cluster(instanceName),
+				Config: testAccBigtableInstance_cluster(instanceName, 3),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigtableInstanceExists(
 						"google_bigtable_instance.instance", 3),
+				),
+			},
+			{
+				Config: testAccBigtableInstance_cluster_reordered(instanceName, 5),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigtableInstanceExists(
+						"google_bigtable_instance.instance", 5),
 				),
 			},
 		},
@@ -166,36 +173,36 @@ resource "google_bigtable_instance" "instance" {
 `, instanceName, instanceName, numNodes)
 }
 
-func testAccBigtableInstance_cluster(instanceName string) string {
+func testAccBigtableInstance_cluster(instanceName string, numNodes int) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
 	name = "%s"
 	cluster {
 		cluster_id   = "%s-a"
 		zone         = "us-central1-a"
-		num_nodes    = 3
+		num_nodes    = %d
 		storage_type = "HDD"
 	}
 	cluster {
 		cluster_id   = "%s-b"
 		zone         = "us-central1-b"
-		num_nodes    = 3
+		num_nodes    = %d
 		storage_type = "HDD"
 	}
 	cluster {
 		cluster_id   = "%s-c"
 		zone         = "us-central1-c"
-		num_nodes    = 3
+		num_nodes    = %d
 		storage_type = "HDD"
 	}
 	cluster {
 		cluster_id   = "%s-d"
 		zone         = "us-central1-f"
-		num_nodes    = 3
+		num_nodes    = %d
 		storage_type = "HDD"
 	}
 }
-`, instanceName, instanceName, instanceName, instanceName, instanceName)
+`, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
 }
 
 func testAccBigtableInstance_clusterMax(instanceName string) string {
@@ -217,23 +224,43 @@ resource "google_bigtable_instance" "instance" {
 	cluster {
 		cluster_id   = "%s-c"
 		zone         = "us-central1-c"
-		num_nodes    = 3
+		num_nodes    = %d
+		storage_type = "HDD"
+	}
+}
+`, instanceName, instanceName, instanceName, instanceName, instanceName, instanceName)
+}
+
+func testAccBigtableInstance_cluster_reordered(instanceName string, numNodes int) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+	name = "%s"
+	cluster {
+		num_nodes    = %d
+		cluster_id   = "%s-b"
+		zone         = "us-central1-c"
 		storage_type = "HDD"
 	}
 	cluster {
 		cluster_id   = "%s-d"
 		zone         = "us-central1-f"
-		num_nodes    = 3
+		num_nodes    = %d
+		storage_type = "HDD"
+	}
+	cluster {
+		zone         = "us-central1-b"
+		cluster_id   = "%s-a"
+		num_nodes    = %d
 		storage_type = "HDD"
 	}
 	cluster {
 		cluster_id   = "%s-e"
 		zone         = "us-east1-a"
-		num_nodes    = 3
+		num_nodes    = %d
 		storage_type = "HDD"
 	}
 }
-`, instanceName, instanceName, instanceName, instanceName, instanceName, instanceName)
+`, instanceName, numNodes, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName)
 }
 
 func testAccBigtableInstance_development(instanceName string) string {
