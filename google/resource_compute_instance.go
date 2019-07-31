@@ -954,6 +954,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("project", project)
 	d.Set("zone", GetResourceNameFromSelfLink(instance.Zone))
 	d.Set("name", instance.Name)
+	d.Set("description", instance.Description)
 	d.Set("hostname", instance.Hostname)
 	d.SetId(instance.Name)
 
