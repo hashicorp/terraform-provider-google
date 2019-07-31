@@ -63,8 +63,9 @@ type Config struct {
 	Scopes         []string
 	BatchingConfig *batchingConfig
 
-	client    *http.Client
-	userAgent string
+	client           *http.Client
+	terraformVersion string
+	userAgent        string
 
 	tokenSource oauth2.TokenSource
 
@@ -211,10 +212,12 @@ func (c *Config) LoadAndValidate() error {
 	// timeout for the maximum amount of time a logical request can take.
 	client.Timeout, _ = time.ParseDuration("30s")
 
-	terraformVersion := httpclient.UserAgentString()
-	providerVersion := fmt.Sprintf("terraform-provider-google/%s", version.ProviderVersion)
-	terraformWebsite := "(+https://www.terraform.io)"
-	userAgent := fmt.Sprintf("%s %s %s", terraformVersion, terraformWebsite, providerVersion)
+	ua := httpclient.UserAgent(c.terraformVersion)
+	ua = ua.Append(&httpclient.UserAgentProduct{
+		Name:    "terraform-provider-google",
+		Version: version.ProviderVersion,
+	})
+	userAgent := ua.String()
 
 	c.client = client
 	c.userAgent = userAgent

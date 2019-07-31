@@ -17,7 +17,7 @@ var mutexKV = mutexkv.NewMutexKV()
 
 // Provider returns a terraform.ResourceProvider.
 func Provider() terraform.ResourceProvider {
-	return &schema.Provider{
+	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"credentials": {
 				Type:     schema.TypeString,
@@ -198,9 +198,19 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: ResourceMap(),
-
-		ConfigureFunc: providerConfigure,
 	}
+
+	provider.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
+		terraformVersion := provider.TerraformVersion
+		if terraformVersion == "" {
+			// Terraform 0.12 introduced this field to the protocol
+			// We can therefore assume that if it's missing it's 0.10 or 0.11
+			terraformVersion = "0.11+compatible"
+		}
+		return providerConfigure(d, terraformVersion)
+	}
+
+	return provider
 }
 
 func ResourceMap() map[string]*schema.Resource {
@@ -352,11 +362,12 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 	)
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
+func providerConfigure(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
 	config := Config{
-		Project: d.Get("project").(string),
-		Region:  d.Get("region").(string),
-		Zone:    d.Get("zone").(string),
+		Project:          d.Get("project").(string),
+		Region:           d.Get("region").(string),
+		Zone:             d.Get("zone").(string),
+		terraformVersion: terraformVersion,
 	}
 
 	// Add credential source
