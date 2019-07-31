@@ -19,7 +19,7 @@ github.com/apparentlymart/go-cidr/cidr
 github.com/apparentlymart/go-textseg/textseg
 # github.com/armon/go-radix v1.0.0
 github.com/armon/go-radix
-# github.com/aws/aws-sdk-go v1.20.4
+# github.com/aws/aws-sdk-go v1.20.19
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/credentials
 github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds
@@ -122,14 +122,14 @@ github.com/hashicorp/hcl/hcl/scanner
 github.com/hashicorp/hcl/hcl/strconv
 github.com/hashicorp/hcl/json/scanner
 github.com/hashicorp/hcl/json/token
-# github.com/hashicorp/hcl2 v0.0.0-20190702185634-5b39d9ff3a9a
+# github.com/hashicorp/hcl2 v0.0.0-20190725010614-0c3fe388e450
 github.com/hashicorp/hcl2/hcl
 github.com/hashicorp/hcl2/hcl/hclsyntax
 github.com/hashicorp/hcl2/hcldec
 github.com/hashicorp/hcl2/hcled
 github.com/hashicorp/hcl2/hclparse
-github.com/hashicorp/hcl2/gohcl
 github.com/hashicorp/hcl2/ext/typeexpr
+github.com/hashicorp/hcl2/gohcl
 github.com/hashicorp/hcl2/ext/dynblock
 github.com/hashicorp/hcl2/hcl/json
 github.com/hashicorp/hcl2/hclwrite
@@ -140,7 +140,7 @@ github.com/hashicorp/hil/parser
 github.com/hashicorp/hil/scanner
 # github.com/hashicorp/logutils v1.0.0
 github.com/hashicorp/logutils
-# github.com/hashicorp/terraform v0.12.4
+# github.com/hashicorp/terraform v0.12.6-0.20190731153428-29e24795f1b2
 github.com/hashicorp/terraform/plugin
 github.com/hashicorp/terraform/helper/customdiff
 github.com/hashicorp/terraform/helper/encryption
@@ -164,7 +164,6 @@ github.com/hashicorp/terraform/provisioners
 github.com/hashicorp/terraform/version
 github.com/hashicorp/terraform/addrs
 github.com/hashicorp/terraform/command/format
-github.com/hashicorp/terraform/config
 github.com/hashicorp/terraform/config/hcl2shim
 github.com/hashicorp/terraform/configs
 github.com/hashicorp/terraform/configs/configload
@@ -173,6 +172,7 @@ github.com/hashicorp/terraform/internal/initwd
 github.com/hashicorp/terraform/plans
 github.com/hashicorp/terraform/states
 github.com/hashicorp/terraform/tfdiags
+github.com/hashicorp/terraform/config
 github.com/hashicorp/terraform/config/module
 github.com/hashicorp/terraform/dag
 github.com/hashicorp/terraform/flatmap
@@ -186,9 +186,9 @@ github.com/hashicorp/terraform/registry
 github.com/hashicorp/terraform/registry/regsrc
 github.com/hashicorp/terraform/registry/response
 github.com/hashicorp/terraform/svchost/disco
-github.com/hashicorp/terraform/helper/hilmapstructure
 github.com/hashicorp/terraform/internal/modsdir
 github.com/hashicorp/terraform/internal/earlyconfig
+github.com/hashicorp/terraform/helper/hilmapstructure
 github.com/hashicorp/terraform/lang/blocktoattr
 github.com/hashicorp/terraform/lang/funcs
 github.com/hashicorp/terraform/svchost
@@ -295,7 +295,7 @@ go.opencensus.io/resource
 go.opencensus.io/stats/internal
 go.opencensus.io/internal/tagencoding
 go.opencensus.io/metric/metricproducer
-# golang.org/x/crypto v0.0.0-20190426145343-a29dc8fdc734
+# golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 golang.org/x/crypto/openpgp
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/ssh
