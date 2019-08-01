@@ -1,32 +1,31 @@
-## 2.11.1 (Unreleased)
-## 2.11.0 (July 16, 2019)
-
-NOTES:
-* container: We have changed the way container clusters handle cluster state, and they should now wait until the cluster is ready when creating, updating, or refreshing cluster state. This is meant to decrease the frequency of errors where Terraform is operating on a cluster that isn't ready to be operated on. If this change causes a problem, please open an issue with as much information as you can provide, especially [debug logs](https://www.terraform.io/docs/internals/debugging.html). See [[#3989](https://github.com/terraform-providers/terraform-provider-google/issues/3989)] for more info.
+## 2.12.1 (Unreleased)
+## 2.12.0 (August 01, 2019)
 
 FEATURES:
-* **New Resources**: `google_bigtable_instance_iam_binding`, `google_bigtable_instance_iam_member`, and `google_bigtable_instance_iam_policy` are now available. ([#3939](https://github.com/terraform-providers/terraform-provider-google/issues/3939))
-* **New Resources**: Add support for source repo repository IAM resources `google_sourcerepo_repository_iam_*` ([#3961](https://github.com/terraform-providers/terraform-provider-google/issues/3961))
+* **New Data Source**: google_kms_crypto_key_version - Provides access to KMS key version data with Google Cloud KMS. ([#4078](https://github.com/terraform-providers/terraform-provider-google/issues/4078))
+* **New Resource**: `google_cloud_run_service` - Set up a cloud run service ([#3714](https://github.com/terraform-providers/terraform-provider-google/issues/3714))
+* **New Resource**: `google_cloud_run_domain_mapping` - Allows custom domains to map to a cloud run service ([#3714](https://github.com/terraform-providers/terraform-provider-google/issues/3714))
+* `google_binary_authorization_attestor` and `google_binary_authorization_policy` are available in the GA provider ([#3960](https://github.com/terraform-providers/terraform-provider-google/issues/3960))
 
 ENHANCEMENTS:
-* bigquery: Added support for `external_data_configuration` to `google_bigquery_table`. ([#3602](https://github.com/terraform-providers/terraform-provider-google/issues/3602))
-* compute: Avoid getting project if no diff found for `google_compute_instance_template` ([#4000](https://github.com/terraform-providers/terraform-provider-google/issues/4000))
-* firestore: `google_firestore_index` `query_scope` can have `COLLECTION_GROUP` specified. ([#3972](https://github.com/terraform-providers/terraform-provider-google/issues/3972))
+* binary_authorization: Adds support for Cloud KMS PKIX keys to `binary_authorization_attestor`. ([#4078](https://github.com/terraform-providers/terraform-provider-google/issues/4078))
+* composer: Add private IP config for `google_composer_environment` ([#3952](https://github.com/terraform-providers/terraform-provider-google/issues/3952))
+* compute: add support for port_specification to resource `google_compute_health_check` ([#4001](https://github.com/terraform-providers/terraform-provider-google/issues/4001))
+* compute: Fixed import formats for `google_compute_network_endpoint` and add location-only import formats ([#4037](https://github.com/terraform-providers/terraform-provider-google/issues/4037))
+* compute: Support labelling for compute_instance boot_disks and compute_instance_template disks. ([#4117](https://github.com/terraform-providers/terraform-provider-google/issues/4117))
+* container: validate that master_ipv4_cidr_block is set if enable_private_nodes is true ([#4038](https://github.com/terraform-providers/terraform-provider-google/issues/4038))
+* dataflow: added support for user-defined `labels` on resource `google_dataflow_job` ([#4095](https://github.com/terraform-providers/terraform-provider-google/issues/4095))
+* dataproc: add support for `optional_components` to resource `resource_dataproc_cluster` ([#4073](https://github.com/terraform-providers/terraform-provider-google/issues/4073))
+* project: add checks to import to prevent importing by project number instead of id ([#4051](https://github.com/terraform-providers/terraform-provider-google/issues/4051))
+* storage: add support for `retention_policy` to resource `google_storage_bucket` ([#4044](https://github.com/terraform-providers/terraform-provider-google/issues/4044))
 
 BUG FIXES:
-* compute: Allow security policy to be removed from `google_backend_service` ([#3969](https://github.com/terraform-providers/terraform-provider-google/issues/3969))
-* compute: Mark instance KMS self link field `kms_key_self_link` as computed ([#3802](https://github.com/terraform-providers/terraform-provider-google/issues/3802))
-* container: Fix panic for nil nested objects when reading cluster maintenance window ([#4002](https://github.com/terraform-providers/terraform-provider-google/issues/4002))
-* container: `google_container_cluster` keep clusters in state if they are created in an error state and don't get correctly cleaned up. ([#3995](https://github.com/terraform-providers/terraform-provider-google/issues/3995))
-* container: `google_container_cluster` will now wait to act until the cluster can be operated on, respecting timeouts. ([#3989](https://github.com/terraform-providers/terraform-provider-google/issues/3989))
-* container: `google_container_node_pool` Correctly set nodepool autoscaling in state when disabled in the API ([#3997](https://github.com/terraform-providers/terraform-provider-google/issues/3997))
-* monitoring: Fix diff in `google_monitoring_uptime_check_config` on a deprecated field. ([#4019](https://github.com/terraform-providers/terraform-provider-google/issues/4019))
-* servicenetworking: `google_service_networking_connection` correctly delete the connection when the resource is destroyed. ([#4003](https://github.com/terraform-providers/terraform-provider-google/issues/4003))
-* spanner: Wait for spanner databases to create before returning. Don't wait for databases to delete before returning anymore. ([#3975](https://github.com/terraform-providers/terraform-provider-google/issues/3975))
-* storage: Fixed an issue where `google_storage_transfer_job` `schedule_end_date` caused requests to fail if unset. ([#4005](https://github.com/terraform-providers/terraform-provider-google/issues/4005))
-* storage: `google_storage_object_acl` Prevent panic when using interpolated object names. ([#3970](https://github.com/terraform-providers/terraform-provider-google/issues/3970))
+* access_context_manager: import format checking ([#4047](https://github.com/terraform-providers/terraform-provider-google/issues/4047))
+dataproc: Suppress diff for `google_dataproc_cluster` `software_config.0.image_version` to prevent permadiff when server uses more specific versions of config value ([#4088](https://github.com/terraform-providers/terraform-provider-google/issues/4088))
+* organization: Add auditConfigs to update masks for setting org and folder IAM policy (`google_organization_iam_policy`, `google_folder_iam_policy`) ([#4084](https://github.com/terraform-providers/terraform-provider-google/issues/4084))
+* storage: `google_storage_bucket` Set website metadata during read ([#3977](https://github.com/terraform-providers/terraform-provider-google/issues/3977))
 
-## 2.10.0 (July 02, 2019)
+## 2.11.0 (July 16, 2019)
 
 DEPRECATIONS:
 * monitoring: Deprecated non-existent fields `is_internal` and `internal_checkers` from `google_monitoring_uptime_check_config`. ([#3919](https://github.com/terraform-providers/terraform-provider-google/issues/3919))
