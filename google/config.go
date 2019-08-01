@@ -540,6 +540,7 @@ func (c *Config) LoadAndValidate() error {
 	c.clientStorageTransfer.UserAgent = userAgent
 	c.clientStorageTransfer.BasePath = storageTransferClientBasePath
 
+	c.Region = GetRegionFromRegionSelfLink(c.Region)
 	return nil
 }
 
