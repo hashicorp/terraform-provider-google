@@ -1,4 +1,29 @@
-## 2.11.1 (Unreleased)
+## 2.12.0 (Unreleased)
+
+FEATURES:
+* **New Data Source**: google_kms_crypto_key_version - Provides access to KMS key version data with Google Cloud KMS. [GH-4078]
+* **New Resource**: `google_cloud_run_service` - Set up a cloud run service [GH-3714]
+* **New Resource**: `google_cloud_run_domain_mapping` - Allows custom domains to map to a cloud run service [GH-3714]
+* `google_binary_authorization_attestor` and `google_binary_authorization_policy` are available in the GA provider [GH-3960]
+
+ENHANCEMENTS:
+* binary_authorization: Adds support for Cloud KMS PKIX keys to `binary_authorization_attestor`. [GH-4078]
+* composer: Add private IP config for `google_composer_environment` [GH-3952]
+* compute: add support for port_specification to resource `google_compute_health_check` [GH-4001]
+* compute: Fixed import formats for `google_compute_network_endpoint` and add location-only import formats [GH-4037]
+* compute: Support labelling for compute_instance boot_disks and compute_instance_template disks. [GH-4117]
+* container: validate that master_ipv4_cidr_block is set if enable_private_nodes is true [GH-4038]
+* dataflow: added support for user-defined `labels` on resource `google_dataflow_job` [GH-4095]
+* dataproc: add support for `optional_components` to resource `resource_dataproc_cluster` [GH-4073]
+* project: add checks to import to prevent importing by project number instead of id [GH-4051]
+* storage: add support for `retention_policy` to resource `google_storage_bucket` [GH-4044]
+
+BUG FIXES:
+* access_context_manager: import format checking [GH-4047]
+dataproc: Suppress diff for `google_dataproc_cluster` `software_config.0.image_version` to prevent permadiff when server uses more specific versions of config value [GH-4088]
+* organization: Add auditConfigs to update masks for setting org and folder IAM policy (`google_organization_iam_policy`, `google_folder_iam_policy`) [GH-4084]
+* storage: `google_storage_bucket` Set website metadata during read [GH-3977]
+
 ## 2.11.0 (July 16, 2019)
 
 NOTES:
