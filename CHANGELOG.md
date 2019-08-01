@@ -1,28 +1,28 @@
-## 2.12.0 (Unreleased)
+## 2.12.0 (August 01, 2019)
 
 FEATURES:
-* **New Data Source**: google_kms_crypto_key_version - Provides access to KMS key version data with Google Cloud KMS. [GH-4078]
-* **New Resource**: `google_cloud_run_service` - Set up a cloud run service [GH-3714]
-* **New Resource**: `google_cloud_run_domain_mapping` - Allows custom domains to map to a cloud run service [GH-3714]
-* `google_binary_authorization_attestor` and `google_binary_authorization_policy` are available in the GA provider [GH-3960]
+* **New Data Source**: google_kms_crypto_key_version - Provides access to KMS key version data with Google Cloud KMS. ([#4078](https://github.com/terraform-providers/terraform-provider-google/issues/4078))
+* **New Resource**: `google_cloud_run_service` - Set up a cloud run service ([#3714](https://github.com/terraform-providers/terraform-provider-google/issues/3714))
+* **New Resource**: `google_cloud_run_domain_mapping` - Allows custom domains to map to a cloud run service ([#3714](https://github.com/terraform-providers/terraform-provider-google/issues/3714))
+* `google_binary_authorization_attestor` and `google_binary_authorization_policy` are available in the GA provider ([#3960](https://github.com/terraform-providers/terraform-provider-google/issues/3960))
 
 ENHANCEMENTS:
-* binary_authorization: Adds support for Cloud KMS PKIX keys to `binary_authorization_attestor`. [GH-4078]
-* composer: Add private IP config for `google_composer_environment` [GH-3952]
-* compute: add support for port_specification to resource `google_compute_health_check` [GH-4001]
-* compute: Fixed import formats for `google_compute_network_endpoint` and add location-only import formats [GH-4037]
-* compute: Support labelling for compute_instance boot_disks and compute_instance_template disks. [GH-4117]
-* container: validate that master_ipv4_cidr_block is set if enable_private_nodes is true [GH-4038]
-* dataflow: added support for user-defined `labels` on resource `google_dataflow_job` [GH-4095]
-* dataproc: add support for `optional_components` to resource `resource_dataproc_cluster` [GH-4073]
-* project: add checks to import to prevent importing by project number instead of id [GH-4051]
-* storage: add support for `retention_policy` to resource `google_storage_bucket` [GH-4044]
+* binary_authorization: Adds support for Cloud KMS PKIX keys to `binary_authorization_attestor`. ([#4078](https://github.com/terraform-providers/terraform-provider-google/issues/4078))
+* composer: Add private IP config for `google_composer_environment` ([#3952](https://github.com/terraform-providers/terraform-provider-google/issues/3952))
+* compute: add support for port_specification to resource `google_compute_health_check` ([#4001](https://github.com/terraform-providers/terraform-provider-google/issues/4001))
+* compute: Fixed import formats for `google_compute_network_endpoint` and add location-only import formats ([#4037](https://github.com/terraform-providers/terraform-provider-google/issues/4037))
+* compute: Support labelling for compute_instance boot_disks and compute_instance_template disks. ([#4117](https://github.com/terraform-providers/terraform-provider-google/issues/4117))
+* container: validate that master_ipv4_cidr_block is set if enable_private_nodes is true ([#4038](https://github.com/terraform-providers/terraform-provider-google/issues/4038))
+* dataflow: added support for user-defined `labels` on resource `google_dataflow_job` ([#4095](https://github.com/terraform-providers/terraform-provider-google/issues/4095))
+* dataproc: add support for `optional_components` to resource `resource_dataproc_cluster` ([#4073](https://github.com/terraform-providers/terraform-provider-google/issues/4073))
+* project: add checks to import to prevent importing by project number instead of id ([#4051](https://github.com/terraform-providers/terraform-provider-google/issues/4051))
+* storage: add support for `retention_policy` to resource `google_storage_bucket` ([#4044](https://github.com/terraform-providers/terraform-provider-google/issues/4044))
 
 BUG FIXES:
-* access_context_manager: import format checking [GH-4047]
-dataproc: Suppress diff for `google_dataproc_cluster` `software_config.0.image_version` to prevent permadiff when server uses more specific versions of config value [GH-4088]
-* organization: Add auditConfigs to update masks for setting org and folder IAM policy (`google_organization_iam_policy`, `google_folder_iam_policy`) [GH-4084]
-* storage: `google_storage_bucket` Set website metadata during read [GH-3977]
+* access_context_manager: import format checking ([#4047](https://github.com/terraform-providers/terraform-provider-google/issues/4047))
+dataproc: Suppress diff for `google_dataproc_cluster` `software_config.0.image_version` to prevent permadiff when server uses more specific versions of config value ([#4088](https://github.com/terraform-providers/terraform-provider-google/issues/4088))
+* organization: Add auditConfigs to update masks for setting org and folder IAM policy (`google_organization_iam_policy`, `google_folder_iam_policy`) ([#4084](https://github.com/terraform-providers/terraform-provider-google/issues/4084))
+* storage: `google_storage_bucket` Set website metadata during read ([#3977](https://github.com/terraform-providers/terraform-provider-google/issues/3977))
 
 ## 2.11.0 (July 16, 2019)
 
@@ -258,8 +258,8 @@ FEATURES:
 * **New Resource**: `google_access_context_manager_access_policy` is now available at GA. ([#3358](https://github.com/terraform-providers/terraform-provider-google/issues/3358))
 * **New Resource**: `google_access_context_manager_access_level` is now available at GA. ([#3358](https://github.com/terraform-providers/terraform-provider-google/issues/3358))
 * **New Resource**: `google_access_context_manager_service_perimeter` is now available at GA. ([#3358](https://github.com/terraform-providers/terraform-provider-google/issues/3358))
-* **New Resource**: `google_compute_backend_bucket_signed_url_key` is now available. [GH-3229]
-* **New Resource**: `google_compute_backend_service_signed_url_key` is now available. [GH-3359]
+* **New Resource**: `google_compute_backend_bucket_signed_url_key` is now available. ([#3229](https://github.com/terraform-providers/terraform-provider-google/issues/3229))
+* **New Resource**: `google_compute_backend_service_signed_url_key` is now available. ([#3359](https://github.com/terraform-providers/terraform-provider-google/issues/3359))
 * **New Datasource**: `google_service_account_access_token` is now available. ([#3357](https://github.com/terraform-providers/terraform-provider-google/issues/3357))
 
 ENHANCEMENTS:
@@ -791,7 +791,7 @@ FEATURES:
 IMPROVEMENTS:
 * all: Read `GOOGLE_CLOUD_PROJECT` environment variable also ([#1271](https://github.com/terraform-providers/terraform-provider-google/issues/1271))
 * bigquery: Add time partitioning field to `google_bigquery_table` resource ([#1240](https://github.com/terraform-providers/terraform-provider-google/issues/1240))
-* config: Add OAuth access token to `google_client_config` data source [[#1277](https://github.com/terraform-providers/terraform-provider-google/issues/1277)]
+* config: Add OAuth access token to `google_client_config` data source ([#1277](https://github.com/terraform-providers/terraform-provider-google/issues/1277))
 * compute: Add `wait_for_instances` field to `google_compute_instance_group_manager` and self_link option to the `google_compute_instance_group` data source ([#1222](https://github.com/terraform-providers/terraform-provider-google/issues/1222))
 * compute: add support for security policies in backend services ([#1243](https://github.com/terraform-providers/terraform-provider-google/issues/1243))
 * compute: regional instance group managers now support rolling updates ([#1260](https://github.com/terraform-providers/terraform-provider-google/issues/1260))
@@ -996,7 +996,7 @@ IMPROVEMENTS:
 * compute: Add partial import support for `google_compute_url_map` ([#678](https://github.com/terraform-providers/terraform-provider-google/issues/678))
 * compute: Add import support for `google_compute_backend_bucket` ([#736](https://github.com/terraform-providers/terraform-provider-google/issues/736))
 * compute: Add configurable timeouts for disks ([#717](https://github.com/terraform-providers/terraform-provider-google/issues/717))
-* compute: Use v1 API now that all beta features are in GA for `google_compute_firewall` [[#768](https://github.com/terraform-providers/terraform-provider-google/issues/768)]
+* compute: Use v1 API now that all beta features are in GA for `google_compute_firewall` ([#768](https://github.com/terraform-providers/terraform-provider-google/issues/768))
 * compute: Add Alias IP and Guest Accelerator support to Instance Templates ([#639](https://github.com/terraform-providers/terraform-provider-google/issues/639))
 * container: Relax diff on `daily_maintenance_window.start_time` for `google_container_cluster` ([#726](https://github.com/terraform-providers/terraform-provider-google/issues/726))
 * container: Allow node pools with size 0 ([#752](https://github.com/terraform-providers/terraform-provider-google/issues/752))
@@ -1239,7 +1239,7 @@ BUG FIXES:
 * compute: `compute_firewall` will no longer display a perpetual diff if `source_ranges` isn't set ([#147](https://github.com/terraform-providers/terraform-provider-google/issues/147))
 * compute: Fix read method + test/document import for `google_compute_health_check` ([#155](https://github.com/terraform-providers/terraform-provider-google/issues/155))
 * compute: Read named ports changes properly in `google_compute_instance_group` ([#188](https://github.com/terraform-providers/terraform-provider-google/issues/188))
-* compute: `google_compute_image` `description` property can now be set [[#199](https://github.com/terraform-providers/terraform-provider-google/issues/199)]
+* compute: `google_compute_image` `description` property can now be set ([#199](https://github.com/terraform-providers/terraform-provider-google/issues/199))
 * compute: `google_compute_target_https_proxy` will no longer display a diff if ssl certificates are referenced using only the path ([#210](https://github.com/terraform-providers/terraform-provider-google/issues/210))
 
 ## 0.1.1 (June 21, 2017)
