@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -16,6 +17,13 @@ func resourceGoogleProjectOrganizationPolicy() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: resourceProjectOrgPolicyImporter,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Read:   schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: mergeSchemas(
@@ -67,10 +75,13 @@ func resourceGoogleProjectOrganizationPolicyRead(d *schema.ResourceData, meta in
 	config := meta.(*Config)
 	project := prefixedProject(d.Get("project").(string))
 
-	policy, err := config.clientResourceManager.Projects.GetOrgPolicy(project, &cloudresourcemanager.GetOrgPolicyRequest{
-		Constraint: canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
-	}).Do()
-
+	var policy *cloudresourcemanager.OrgPolicy
+	err := retryTimeDuration(func() (readErr error) {
+		policy, readErr = config.clientResourceManager.Projects.GetOrgPolicy(project, &cloudresourcemanager.GetOrgPolicyRequest{
+			Constraint: canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
+		}).Do()
+		return readErr
+	}, d.Timeout(schema.TimeoutRead))
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Organization policy for %s", project))
 	}
@@ -102,15 +113,12 @@ func resourceGoogleProjectOrganizationPolicyDelete(d *schema.ResourceData, meta 
 	config := meta.(*Config)
 	project := prefixedProject(d.Get("project").(string))
 
-	_, err := config.clientResourceManager.Projects.ClearOrgPolicy(project, &cloudresourcemanager.ClearOrgPolicyRequest{
-		Constraint: canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
-	}).Do()
-
-	if err != nil {
+	return retryTimeDuration(func() error {
+		_, err := config.clientResourceManager.Projects.ClearOrgPolicy(project, &cloudresourcemanager.ClearOrgPolicyRequest{
+			Constraint: canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
+		}).Do()
 		return err
-	}
-
-	return nil
+	}, d.Timeout(schema.TimeoutDelete))
 }
 
 func setProjectOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
@@ -127,16 +135,17 @@ func setProjectOrganizationPolicy(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	_, err = config.clientResourceManager.Projects.SetOrgPolicy(project, &cloudresourcemanager.SetOrgPolicyRequest{
-		Policy: &cloudresourcemanager.OrgPolicy{
-			Constraint:     canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
-			BooleanPolicy:  expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{})),
-			ListPolicy:     listPolicy,
-			RestoreDefault: restore_default,
-			Version:        int64(d.Get("version").(int)),
-			Etag:           d.Get("etag").(string),
-		},
-	}).Do()
-
-	return err
+	return retryTimeDuration(func() error {
+		_, err := config.clientResourceManager.Projects.SetOrgPolicy(project, &cloudresourcemanager.SetOrgPolicyRequest{
+			Policy: &cloudresourcemanager.OrgPolicy{
+				Constraint:     canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
+				BooleanPolicy:  expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{})),
+				ListPolicy:     listPolicy,
+				RestoreDefault: restore_default,
+				Version:        int64(d.Get("version").(int)),
+				Etag:           d.Get("etag").(string),
+			},
+		}).Do()
+		return err
+	}, d.Timeout(schema.TimeoutCreate))
 }
