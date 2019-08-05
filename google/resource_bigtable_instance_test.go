@@ -3,6 +3,7 @@ package google
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -48,6 +49,10 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckBigtableInstanceDestroy,
 		Steps: []resource.TestStep{
+			{
+				Config:      testAccBigtableInstance_clusterMax(instanceName),
+				ExpectError: regexp.MustCompile("config is invalid: Too many cluster blocks: No more than 4 \"cluster\" blocks are allowed"),
+			},
 			{
 				Config: testAccBigtableInstance_cluster(instanceName),
 				Check: resource.ComposeTestCheckFunc(
@@ -152,18 +157,68 @@ resource "google_bigtable_instance" "instance" {
 	name = "%s"
 	cluster {
 		cluster_id   = "%s-a"
-		zone         = "us-central1-b"
+		zone         = "us-central1-a"
 		num_nodes    = 3
 		storage_type = "HDD"
 	}
 	cluster {
 		cluster_id   = "%s-b"
+		zone         = "us-central1-b"
+		num_nodes    = 3
+		storage_type = "HDD"
+	}
+	cluster {
+		cluster_id   = "%s-c"
 		zone         = "us-central1-c"
 		num_nodes    = 3
 		storage_type = "HDD"
 	}
+	cluster {
+		cluster_id   = "%s-d"
+		zone         = "us-central1-f"
+		num_nodes    = 3
+		storage_type = "HDD"
+	}
 }
-`, instanceName, instanceName, instanceName)
+`, instanceName, instanceName, instanceName, instanceName, instanceName)
+}
+
+func testAccBigtableInstance_clusterMax(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+	name = "%s"
+	cluster {
+		cluster_id   = "%s-a"
+		zone         = "us-central1-a"
+		num_nodes    = 3
+		storage_type = "HDD"
+	}
+	cluster {
+		cluster_id   = "%s-b"
+		zone         = "us-central1-b"
+		num_nodes    = 3
+		storage_type = "HDD"
+	}
+	cluster {
+		cluster_id   = "%s-c"
+		zone         = "us-central1-c"
+		num_nodes    = 3
+		storage_type = "HDD"
+	}
+	cluster {
+		cluster_id   = "%s-d"
+		zone         = "us-central1-f"
+		num_nodes    = 3
+		storage_type = "HDD"
+	}
+	cluster {
+		cluster_id   = "%s-e"
+		zone         = "us-east1-a"
+		num_nodes    = 3
+		storage_type = "HDD"
+	}
+}
+`, instanceName, instanceName, instanceName, instanceName, instanceName, instanceName)
 }
 
 func testAccBigtableInstance_development(instanceName string) string {
