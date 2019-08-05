@@ -25,15 +25,15 @@ resource "google_compute_network" "default" {
 
 resource "google_compute_subnetwork" "default" {
   name          = "my-subnet"
-  network       = "${google_compute_network.default.self_link}"
+  network       = google_compute_network.default.self_link
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
 
 resource "google_compute_router" "router" {
   name    = "router"
-  region  = "${google_compute_subnetwork.default.region}"
-  network = "${google_compute_network.default.self_link}"
+  region  = google_compute_subnetwork.default.region
+  network = google_compute_network.default.self_link
   bgp {
     asn = 64514
   }
@@ -41,7 +41,7 @@ resource "google_compute_router" "router" {
 
 resource "google_compute_router_nat" "simple-nat" {
   name                               = "nat-1"
-  router                             = "${google_compute_router.router.name}"
+  router                             = google_compute_router.router.name
   region                             = "us-central1"
   nat_ip_allocate_option             = "AUTO_ONLY"
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
@@ -58,15 +58,15 @@ resource "google_compute_network" "default" {
 
 resource "google_compute_subnetwork" "default" {
   name          = "my-subnet"
-  network       = "${google_compute_network.default.self_link}"
+  network       = google_compute_network.default.self_link
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
 
 resource "google_compute_router" "router" {
   name    = "router"
-  region  = "${google_compute_subnetwork.default.region}"
-  network = "${google_compute_network.default.self_link}"
+  region  = google_compute_subnetwork.default.region
+  network = google_compute_network.default.self_link
   bgp {
     asn = 64514
   }
@@ -80,13 +80,13 @@ resource "google_compute_address" "address" {
 
 resource "google_compute_router_nat" "advanced-nat" {
   name                               = "nat-1"
-  router                             = "${google_compute_router.router.name}"
+  router                             = google_compute_router.router.name
   region                             = "us-central1"
   nat_ip_allocate_option             = "MANUAL_ONLY"
-  nat_ips                            = ["${google_compute_address.address[*].self_link}"]
+  nat_ips                            = google_compute_address.address[*].self_link
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
   subnetwork {
-    name                    = "${google_compute_subnetwork.default.self_link}"
+    name                    = google_compute_subnetwork.default.self_link
     source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
   }
   log_config {
