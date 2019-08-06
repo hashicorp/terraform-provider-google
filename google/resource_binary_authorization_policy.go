@@ -158,6 +158,12 @@ func resourceBinaryAuthorizationPolicy() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"global_policy_evaluation_mode": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"ENABLE", "DISABLE", ""}, false),
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -177,6 +183,12 @@ func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	globalPolicyEvaluationModeProp, err := expandBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(d.Get("global_policy_evaluation_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("global_policy_evaluation_mode"); !isEmptyValue(reflect.ValueOf(globalPolicyEvaluationModeProp)) && (ok || !reflect.DeepEqual(v, globalPolicyEvaluationModeProp)) {
+		obj["globalPolicyEvaluationMode"] = globalPolicyEvaluationModeProp
 	}
 	admissionWhitelistPatternsProp, err := expandBinaryAuthorizationPolicyAdmissionWhitelistPatterns(d.Get("admission_whitelist_patterns"), d, config)
 	if err != nil {
@@ -244,6 +256,9 @@ func resourceBinaryAuthorizationPolicyRead(d *schema.ResourceData, meta interfac
 	if err := d.Set("description", flattenBinaryAuthorizationPolicyDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading Policy: %s", err)
 	}
+	if err := d.Set("global_policy_evaluation_mode", flattenBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(res["globalPolicyEvaluationMode"], d)); err != nil {
+		return fmt.Errorf("Error reading Policy: %s", err)
+	}
 	if err := d.Set("admission_whitelist_patterns", flattenBinaryAuthorizationPolicyAdmissionWhitelistPatterns(res["admissionWhitelistPatterns"], d)); err != nil {
 		return fmt.Errorf("Error reading Policy: %s", err)
 	}
@@ -266,6 +281,12 @@ func resourceBinaryAuthorizationPolicyUpdate(d *schema.ResourceData, meta interf
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	globalPolicyEvaluationModeProp, err := expandBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(d.Get("global_policy_evaluation_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("global_policy_evaluation_mode"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, globalPolicyEvaluationModeProp)) {
+		obj["globalPolicyEvaluationMode"] = globalPolicyEvaluationModeProp
 	}
 	admissionWhitelistPatternsProp, err := expandBinaryAuthorizationPolicyAdmissionWhitelistPatterns(d.Get("admission_whitelist_patterns"), d, config)
 	if err != nil {
@@ -341,6 +362,10 @@ func resourceBinaryAuthorizationPolicyImport(d *schema.ResourceData, meta interf
 }
 
 func flattenBinaryAuthorizationPolicyDescription(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -431,6 +456,10 @@ func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(v inter
 }
 
 func expandBinaryAuthorizationPolicyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

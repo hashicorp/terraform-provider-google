@@ -68,6 +68,38 @@ resource "google_binary_authorization_attestor" "attestor" {
   }
 }
 ```
+## Example Usage - Binary Authorization Policy Global Evaluation
+
+
+```hcl
+resource "google_binary_authorization_policy" "policy" {
+
+  default_admission_rule {
+    evaluation_mode = "REQUIRE_ATTESTATION"
+    enforcement_mode = "ENFORCED_BLOCK_AND_AUDIT_LOG"
+    require_attestations_by = ["${google_binary_authorization_attestor.attestor.name}"]
+  }
+
+  global_policy_evaluation_mode = "ENABLE"
+
+}
+
+resource "google_container_analysis_note" "note" {
+  name = "test-attestor-note"
+  attestation_authority {
+    hint {
+      human_readable_name = "My attestor"
+    }
+  }
+}
+
+resource "google_binary_authorization_attestor" "attestor" {
+  name = "test-attestor"
+  attestation_authority_note {
+    note_reference = "${google_container_analysis_note.note.name}"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -107,6 +139,12 @@ The `default_admission_rule` block supports:
 * `description` -
   (Optional)
   A descriptive comment.
+
+* `global_policy_evaluation_mode` -
+  (Optional)
+  Controls the evaluation of a Google-maintained global admission policy
+  for common system-level images. Images not covered by the global
+  policy will be subject to the project admission policy.
 
 * `admission_whitelist_patterns` -
   (Optional)
