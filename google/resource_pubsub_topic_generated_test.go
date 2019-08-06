@@ -60,6 +60,45 @@ resource "google_pubsub_topic" "example" {
 `, context)
 }
 
+func TestAccPubsubTopic_pubsubTopicGeoRestrictedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPubsubTopicDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubTopic_pubsubTopicGeoRestrictedExample(context),
+			},
+			{
+				ResourceName:      "google_pubsub_topic.example",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccPubsubTopic_pubsubTopicGeoRestrictedExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_pubsub_topic" "example" {
+  name = "example-topic%{random_suffix}"
+
+  message_storage_policy {
+    allowed_persistence_regions = [
+      "europe-west3",
+    ]
+  }
+
+}
+`, context)
+}
+
 func testAccCheckPubsubTopicDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_pubsub_topic" {
