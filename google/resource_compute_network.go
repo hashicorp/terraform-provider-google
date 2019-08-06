@@ -225,6 +225,13 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing ComputeNetwork because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err

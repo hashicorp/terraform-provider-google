@@ -354,6 +354,13 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing MonitoringUptimeCheckConfig because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
