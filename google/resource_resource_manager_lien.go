@@ -168,6 +168,13 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing ResourceManagerLien because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	if err := d.Set("name", flattenResourceManagerLienName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
