@@ -80,6 +80,10 @@ func ParseSecurityPolicyFieldValue(securityPolicy string, d TerraformResourceDat
 	return parseGlobalFieldValue("securityPolicies", securityPolicy, "project", d, config, true)
 }
 
+func ParseNetworkEndpointGroupFieldValue(networkEndpointGroup string, d TerraformResourceData, config *Config) (*ZonalFieldValue, error) {
+	return parseZonalFieldValue("networkEndpointGroups", networkEndpointGroup, "project", "zone", d, config, false)
+}
+
 // ------------------------------------------------------------
 // Base helpers used to create helpers for specific fields.
 // ------------------------------------------------------------
