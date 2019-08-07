@@ -316,9 +316,9 @@ func expandBigtableClusters(clusters []interface{}, instanceID string) []bigtabl
 func resourceBigtableInstanceClusterReorderTypeList(diff *schema.ResourceDiff, meta interface{}) error {
 	old_count, new_count := diff.GetChange("cluster.#")
 
-	// simulate Required:true and MinItems:1 for "cluster"
-	if new_count.(int) < 1 {
-		return fmt.Errorf("Error applying diff. Resource definition should contain one or more cluster blocks, got %d blocks", new_count.(int))
+	// simulate Required:true, MinItems:1, MaxItems:4 for "cluster"
+	if new_count.(int) < 1 || new_count.(int) > 4 {
+		return fmt.Errorf("Error applying diff. Resource definition should contain at least one cluster block but no more than four, got %d blocks", new_count.(int))
 	}
 
 	if old_count.(int) != new_count.(int) {
