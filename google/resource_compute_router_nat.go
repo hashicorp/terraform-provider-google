@@ -12,58 +12,11 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-var (
-	routerNatSubnetworkConfig = &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-
-			// this field is optional with a default in the API, but we
-			// don't have the ability to support complex defaults inside
-			// nested fields
-			"source_ip_ranges_to_nat": {
-				Type:     schema.TypeSet,
-				Required: true,
-				MinItems: 1,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"secondary_ip_range_names": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-		},
-	}
-)
-
-var (
-	routerNatLogConfig = &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"enable": {
-				Type:     schema.TypeBool,
-				ForceNew: true,
-				Required: true,
-			},
-			"filter": {
-				Type:         schema.TypeString,
-				ForceNew:     true,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"}, false),
-			},
-		},
-	}
-)
-
 func resourceComputeRouterNat() *schema.Resource {
 	return &schema.Resource{
-		// TODO(https://github.com/GoogleCloudPlatform/magic-modules/issues/963): Implement Update
 		Create: resourceComputeRouterNatCreate,
 		Read:   resourceComputeRouterNatRead,
+		Update: resourceComputeRouterNatUpdate,
 		Delete: resourceComputeRouterNatDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceComputeRouterNatImport,
@@ -89,58 +42,82 @@ func resourceComputeRouterNat() *schema.Resource {
 			"nat_ip_allocate_option": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"MANUAL_ONLY", "AUTO_ONLY"}, false),
 			},
 			"nat_ips": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"source_subnetwork_ip_ranges_to_nat": {
 				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
+				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"ALL_SUBNETWORKS_ALL_IP_RANGES", "ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES", "LIST_OF_SUBNETWORKS"}, false),
 			},
 			"subnetwork": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: true,
-				Elem:     routerNatSubnetworkConfig,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+
+						// this field is optional with a default in the API, but we
+						// don't have the ability to support complex defaults inside
+						// nested fields
+						"source_ip_ranges_to_nat": {
+							Type:     schema.TypeSet,
+							Required: true,
+							MinItems: 1,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"secondary_ip_range_names": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
 			},
 			"min_ports_per_vm": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
 			},
 			"udp_idle_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
 			},
 			"icmp_idle_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
 			},
 			"tcp_established_idle_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
 			},
 			"tcp_transitory_idle_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
 			},
 			"log_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				MaxItems: 1,
-				Elem:     routerNatLogConfig,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+						"filter": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"}, false),
+						},
+					},
+				},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -159,7 +136,6 @@ func resourceComputeRouterNat() *schema.Resource {
 }
 
 func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) error {
-
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -238,7 +214,6 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) error {
-
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)
@@ -268,9 +243,8 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	for _, nat := range router.Nats {
-
 		if nat.Name == natName {
-			d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, natName))
+			d.SetId(fmt.Sprintf("%s/%s/%s/%s", project, region, routerName, natName))
 			d.Set("nat_ip_allocate_option", nat.NatIpAllocateOption)
 			d.Set("nat_ips", schema.NewSet(schema.HashString, convertStringArrToInterface(convertSelfLinksToV1(nat.NatIps))))
 			d.Set("source_subnetwork_ip_ranges_to_nat", nat.SourceSubnetworkIpRangesToNat)
@@ -299,8 +273,104 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
 
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
+	}
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	routerName := d.Get("router").(string)
+	natName := d.Get("name").(string)
+
+	routerLock := getRouterLockName(region, routerName)
+	mutexKV.Lock(routerLock)
+	defer mutexKV.Unlock(routerLock)
+
+	// Get router
+	router, err := config.clientComputeBeta.Routers.Get(project, region, routerName).Do()
+	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+			return fmt.Errorf("router %s not found", routerName)
+		}
+
+		return fmt.Errorf("Error reading parent router %s: %s", routerName, err)
+	}
+
+	var nat *computeBeta.RouterNat
+	nats := router.Nats
+	for _, nat = range nats {
+		if nat.Name == natName {
+			break
+		}
+	}
+	if nat == nil || nat.Name != natName {
+		return fmt.Errorf("nat %s for router %s does not exist, cannot update", natName, routerName)
+	}
+
+	nat.ForceSendFields = []string{
+		"natIps",
+		"logConfig",
+		"subnetworks",
+		"minPortsPerVm",
+		"udpIdleTimeoutSec",
+		"icmpIdleTimeoutSec",
+		"tcpEstablishedIdleTimeoutSec",
+		"tcpTransitoryIdleTimeoutSec",
+	}
+
+	nat.MinPortsPerVm = int64(d.Get("min_ports_per_vm").(int))
+	nat.UdpIdleTimeoutSec = int64(d.Get("udp_idle_timeout_sec").(int))
+	nat.IcmpIdleTimeoutSec = int64(d.Get("icmp_idle_timeout_sec").(int))
+	nat.TcpEstablishedIdleTimeoutSec = int64(d.Get("tcp_established_idle_timeout_sec").(int))
+	nat.TcpTransitoryIdleTimeoutSec = int64(d.Get("tcp_transitory_idle_timeout_sec").(int))
+	nat.NatIpAllocateOption = d.Get("nat_ip_allocate_option").(string)
+	nat.SourceSubnetworkIpRangesToNat = d.Get("source_subnetwork_ip_ranges_to_nat").(string)
+
+	if v, ok := d.GetOk("nat_ips"); ok {
+		nat.NatIps = convertStringArr(v.(*schema.Set).List())
+	} else {
+		nat.NatIps = []string{}
+	}
+
+	if v, ok := d.GetOk("subnetwork"); ok {
+		nat.Subnetworks = expandSubnetworks(v.(*schema.Set).List())
+	} else {
+		nat.Subnetworks = []*computeBeta.RouterNatSubnetworkToNat{}
+	}
+
+	if v, ok := d.GetOk("log_config"); ok {
+		nat.LogConfig = expandLogConfig(v)
+	}
+
+	log.Printf("[INFO] Updating nat %s: +%v", natName, nat)
+	obj := &computeBeta.Router{
+		Nats: nats,
+	}
+
+	log.Printf("[DEBUG] Updating router %s/%s with nats: %+v", region, routerName, nats)
+	op, err := config.clientComputeBeta.Routers.Patch(project, region, router.Name, obj).Do()
+	if err != nil {
+		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
+	}
+
+	d.SetId(fmt.Sprintf("%s/%s/%s/%s", project, region, routerName, natName))
+	err = computeBetaOperationWaitTime(config.clientCompute, op, project, "Patching router", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	if err != nil {
+		d.SetId("")
+		return fmt.Errorf("Error while waiting to patch router %s/%s: %s", region, routerName, err)
+	}
+
+	return resourceComputeRouterNatRead(d, meta)
+}
+
+func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	region, err := getRegion(d, config)

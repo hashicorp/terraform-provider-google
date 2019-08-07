@@ -112,36 +112,9 @@ The following arguments are supported:
 
 * `source_subnetwork_ip_ranges_to_nat` - (Required) How NAT should be configured
     per Subnetwork. Valid values include: `ALL_SUBNETWORKS_ALL_IP_RANGES`,
-    `ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES`, `LIST_OF_SUBNETWORKS`. Changing
-    this forces a new NAT to be created.
+    `ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES`, `LIST_OF_SUBNETWORKS`.
 
 - - -
-
-* `nat_ips` - (Optional) List of `self_link`s of external IPs. Only valid if
-    `nat_ip_allocate_option` is set to `MANUAL_ONLY`. Changing this forces a
-    new NAT to be created.
-
-* `subnetwork` - (Optional) One or more subnetwork NAT configurations. Only used
-    if `source_subnetwork_ip_ranges_to_nat` is set to `LIST_OF_SUBNETWORKS`. See
-    the section below for details on configuration.
-
-* `min_ports_per_vm` - (Optional) Minimum number of ports allocated to a VM
-    from this NAT config. If not set, a default number of ports is allocated to a VM.
-    Changing this forces a new NAT to be created.
-
-* `udp_idle_timeout_sec` - (Optional) Timeout (in seconds) for UDP connections.
-    Defaults to 30s if not set. Changing this forces a new NAT to be created.
-
-* `icmp_idle_timeout_sec` - (Optional) Timeout (in seconds) for ICMP connections.
-    Defaults to 30s if not set. Changing this forces a new NAT to be created.
-
-* `tcp_established_idle_timeout_sec` - (Optional) Timeout (in seconds) for TCP
-    established connections. Defaults to 1200s if not set. Changing this forces
-    a new NAT to be created.
-
-* `tcp_transitory_idle_timeout_sec` - (Optional) Timeout (in seconds) for TCP
-    transitory connections. Defaults to 30s if not set. Changing this forces a
-    new NAT to be created.
 
 * `project` - (Optional) The ID of the project in which this NAT's router belongs. If it
     is not provided, the provider project is used. Changing this forces a new NAT to be created.
@@ -149,6 +122,28 @@ The following arguments are supported:
 * `region` - (Optional) The region this NAT's router sits in. If not specified,
     the project region will be used. Changing this forces a new NAT to be
     created.
+
+* `nat_ips` - (Optional) List of `self_link`s of external IPs. Only valid if
+    `nat_ip_allocate_option` is set to `MANUAL_ONLY`.
+
+* `subnetwork` - (Optional) One or more subnetwork NAT configurations. Only used
+    if `source_subnetwork_ip_ranges_to_nat` is set to `LIST_OF_SUBNETWORKS`. See
+    the section below for details on configuration.
+
+* `min_ports_per_vm` - (Optional) Minimum number of ports allocated to a VM
+    from this NAT config. If not set, a default number of ports is allocated to a VM.
+
+* `udp_idle_timeout_sec` - (Optional) Timeout (in seconds) for UDP connections.
+    Defaults to 30s if not set.
+
+* `icmp_idle_timeout_sec` - (Optional) Timeout (in seconds) for ICMP connections.
+    Defaults to 30s if not set.
+
+* `tcp_established_idle_timeout_sec` - (Optional) Timeout (in seconds) for TCP
+    established connections. Defaults to 1200s if not set.
+
+* `tcp_transitory_idle_timeout_sec` - (Optional) Timeout (in seconds) for TCP
+    transitory connections. Defaults to 30s if not set.
 
 The `subnetwork` block supports:
 
