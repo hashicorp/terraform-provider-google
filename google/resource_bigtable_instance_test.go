@@ -22,6 +22,10 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 		CheckDestroy: testAccCheckBigtableInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
+				Config:      testAccBigtableInstance_invalid(instanceName),
+				ExpectError: regexp.MustCompile("config is invalid: Too few cluster blocks: Should have at least 1 \"cluster\" block"),
+			},
+			{
 				Config: testAccBigtableInstance(instanceName, 3),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigtableInstanceExists(
@@ -173,6 +177,14 @@ resource "google_bigtable_instance" "instance" {
 `, instanceName, instanceName, numNodes)
 }
 
+func testAccBigtableInstance_invalid(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+	name = "%s"
+}
+`, instanceName)
+}
+
 func testAccBigtableInstance_cluster(instanceName string, numNodes int) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
@@ -202,7 +214,7 @@ resource "google_bigtable_instance" "instance" {
 		storage_type = "HDD"
 	}
 }
-`, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
+`, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
 }
 
 func testAccBigtableInstance_clusterMax(instanceName string) string {
@@ -224,7 +236,19 @@ resource "google_bigtable_instance" "instance" {
 	cluster {
 		cluster_id   = "%s-c"
 		zone         = "us-central1-c"
-		num_nodes    = %d
+		num_nodes    = 3
+		storage_type = "HDD"
+	}
+	cluster {
+		cluster_id   = "%s-d"
+		zone         = "us-central1-f"
+		num_nodes    = 3
+		storage_type = "HDD"
+	}
+	cluster {
+		cluster_id   = "%s-e"
+		zone         = "us-east1-a"
+		num_nodes    = 3
 		storage_type = "HDD"
 	}
 }
@@ -236,9 +260,9 @@ func testAccBigtableInstance_cluster_reordered(instanceName string, numNodes int
 resource "google_bigtable_instance" "instance" {
 	name = "%s"
 	cluster {
-		num_nodes    = %d
-		cluster_id   = "%s-b"
+		cluster_id   = "%s-c"
 		zone         = "us-central1-c"
+		num_nodes    = %d
 		storage_type = "HDD"
 	}
 	cluster {
@@ -248,19 +272,19 @@ resource "google_bigtable_instance" "instance" {
 		storage_type = "HDD"
 	}
 	cluster {
-		zone         = "us-central1-b"
 		cluster_id   = "%s-a"
+		zone         = "us-central1-a"
 		num_nodes    = %d
 		storage_type = "HDD"
 	}
 	cluster {
-		cluster_id   = "%s-e"
-		zone         = "us-east1-a"
+		cluster_id   = "%s-b"
+		zone         = "us-central1-b"
 		num_nodes    = %d
 		storage_type = "HDD"
 	}
 }
-`, instanceName, numNodes, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName)
+`, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
 }
 
 func testAccBigtableInstance_development(instanceName string) string {

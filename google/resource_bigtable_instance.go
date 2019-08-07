@@ -317,8 +317,11 @@ func resourceBigtableInstanceClusterReorderTypeList(diff *schema.ResourceDiff, m
 	old_count, new_count := diff.GetChange("cluster.#")
 
 	// simulate Required:true, MinItems:1, MaxItems:4 for "cluster"
-	if new_count.(int) < 1 || new_count.(int) > 4 {
-		return fmt.Errorf("Error applying diff. Resource definition should contain at least one cluster block but no more than four, got %d blocks", new_count.(int))
+	if new_count.(int) < 1 {
+		return fmt.Errorf("config is invalid: Too few cluster blocks: Should have at least 1 \"cluster\" block")
+	}
+	if new_count.(int) > 4 {
+		return fmt.Errorf("config is invalid: Too many cluster blocks: No more than 4 \"cluster\" blocks are allowed")
 	}
 
 	if old_count.(int) != new_count.(int) {
