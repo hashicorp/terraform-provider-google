@@ -133,9 +133,9 @@ The following arguments are supported:
 * `redis_version` -
   (Optional)
   The version of Redis software. If not provided, latest supported
-  version will be used. Updating the version will perform an
-  upgrade/downgrade to the new version. Currently, the supported values
-  are REDIS_3_2 for Redis 3.2.
+  version will be used. Currently, the supported values are:
+  - REDIS_4_0 for Redis 4.0 compatibility
+  - REDIS_3_2 for Redis 3.2 compatibility
 
 * `reserved_ip_range` -
   (Optional)
