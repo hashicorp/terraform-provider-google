@@ -157,6 +157,102 @@ resource "google_cloud_scheduler_job" "job" {
 `, context)
 }
 
+func TestAccCloudSchedulerJob_schedulerJobOauthExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":  getTestProjectFromEnv(),
+		"region":        getTestRegionFromEnv(),
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudSchedulerJobDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSchedulerJob_schedulerJobOauthExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_scheduler_job.job",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccCloudSchedulerJob_schedulerJobOauthExample(context map[string]interface{}) string {
+	return Nprintf(`
+data "google_compute_default_service_account" "default" { }
+
+resource "google_cloud_scheduler_job" "job" {
+  name     = "test-job%{random_suffix}"
+  description = "test http job"
+  schedule = "*/8 * * * *"
+  time_zone = "America/New_York"
+
+  http_target {
+    http_method = "GET"
+    uri = "https://cloudscheduler.googleapis.com/v1/projects/%{project_name}/locations/%{region}/jobs"
+
+    oauth_token {
+      service_account_email = "${data.google_compute_default_service_account.default.email}"
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCloudSchedulerJob_schedulerJobOidcExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudSchedulerJobDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSchedulerJob_schedulerJobOidcExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_scheduler_job.job",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccCloudSchedulerJob_schedulerJobOidcExample(context map[string]interface{}) string {
+	return Nprintf(`
+data "google_compute_default_service_account" "default" { }
+
+resource "google_cloud_scheduler_job" "job" {
+  name     = "test-job%{random_suffix}"
+  description = "test http job"
+  schedule = "*/8 * * * *"
+  time_zone = "America/New_York"
+
+  http_target {
+    http_method = "GET"
+    uri = "https://example.com/ping"
+
+    oidc_token {
+      service_account_email = "${data.google_compute_default_service_account.default.email}"
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckCloudSchedulerJobDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_cloud_scheduler_job" {
