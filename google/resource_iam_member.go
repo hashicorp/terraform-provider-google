@@ -57,22 +57,16 @@ func iamMemberImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 	}
 }
 
-func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
+func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIamMemberCreate(newUpdaterFunc),
 		Read:   resourceIamMemberRead(newUpdaterFunc),
 		Delete: resourceIamMemberDelete(newUpdaterFunc),
-
 		Schema: mergeSchemas(IamMemberBaseSchema, parentSpecificSchema),
+		Importer: &schema.ResourceImporter{
+			State: iamMemberImport(resourceIdParser),
+		},
 	}
-}
-
-func ResourceIamMemberWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
-	r := ResourceIamMember(parentSpecificSchema, newUpdaterFunc)
-	r.Importer = &schema.ResourceImporter{
-		State: iamMemberImport(resourceIdParser),
-	}
-	return r
 }
 
 func getResourceIamMember(d *schema.ResourceData) *cloudresourcemanager.Binding {

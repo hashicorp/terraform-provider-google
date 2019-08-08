@@ -31,8 +31,8 @@ var PubsubCustomEndpointEntry = &schema.Schema{
 
 var GeneratedPubsubResourcesMap = map[string]*schema.Resource{
 	"google_pubsub_topic":             resourcePubsubTopic(),
-	"google_pubsub_topic_iam_binding": ResourceIamBindingWithImport(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
-	"google_pubsub_topic_iam_member":  ResourceIamMemberWithImport(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
-	"google_pubsub_topic_iam_policy":  ResourceIamPolicyWithImport(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
+	"google_pubsub_topic_iam_binding": ResourceIamBinding(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
+	"google_pubsub_topic_iam_member":  ResourceIamMember(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
+	"google_pubsub_topic_iam_policy":  ResourceIamPolicy(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
 	"google_pubsub_subscription":      resourcePubsubSubscription(),
 }

@@ -37,7 +37,7 @@ func iamPolicyImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 	}
 }
 
-func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
+func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
 	return &schema.Resource{
 		Create: ResourceIamPolicyCreate(newUpdaterFunc),
 		Read:   ResourceIamPolicyRead(newUpdaterFunc),
@@ -45,15 +45,10 @@ func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdate
 		Delete: ResourceIamPolicyDelete(newUpdaterFunc),
 
 		Schema: mergeSchemas(IamPolicyBaseSchema, parentSpecificSchema),
+		Importer: &schema.ResourceImporter{
+			State: iamPolicyImport(resourceIdParser),
+		},
 	}
-}
-
-func ResourceIamPolicyWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
-	r := ResourceIamPolicy(parentSpecificSchema, newUpdaterFunc)
-	r.Importer = &schema.ResourceImporter{
-		State: iamPolicyImport(resourceIdParser),
-	}
-	return r
 }
 
 func ResourceIamPolicyCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {

@@ -38,22 +38,17 @@ var iamAuditConfigSchema = map[string]*schema.Schema{
 	},
 }
 
-func ResourceIamAuditConfig(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
+func ResourceIamAuditConfig(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIamAuditConfigCreate(newUpdaterFunc),
 		Read:   resourceIamAuditConfigRead(newUpdaterFunc),
 		Update: resourceIamAuditConfigUpdate(newUpdaterFunc),
 		Delete: resourceIamAuditConfigDelete(newUpdaterFunc),
 		Schema: mergeSchemas(iamAuditConfigSchema, parentSpecificSchema),
+		Importer: &schema.ResourceImporter{
+			State: iamAuditConfigImport(resourceIdParser),
+		},
 	}
-}
-
-func ResourceIamAuditConfigWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
-	r := ResourceIamAuditConfig(parentSpecificSchema, newUpdaterFunc)
-	r.Importer = &schema.ResourceImporter{
-		State: iamAuditConfigImport(resourceIdParser),
-	}
-	return r
 }
 
 func resourceIamAuditConfigCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
