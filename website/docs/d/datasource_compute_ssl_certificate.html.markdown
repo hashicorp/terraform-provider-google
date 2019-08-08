@@ -15,7 +15,6 @@ Get info about a Google Compute SSL Certificate from its name.
 ```tf
 data "google_compute_ssl_certificate" "my_cert" {
   name       = "my-cert"
-  location   = "us-east1-a"
 }
 
 output "certificate" {
