@@ -40,7 +40,7 @@ func TestAccPubsubTopicIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s roles/editor", getTestProjectFromEnv(), fmt.Sprintf("example-topic-%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s roles/editor", getTestProjectFromEnv(), fmt.Sprintf("example-topic%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -50,7 +50,7 @@ func TestAccPubsubTopicIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s roles/editor", getTestProjectFromEnv(), fmt.Sprintf("example-topic-%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s roles/editor", getTestProjectFromEnv(), fmt.Sprintf("example-topic%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -77,7 +77,7 @@ func TestAccPubsubTopicIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s roles/editor user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("example-topic-%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s roles/editor user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("example-topic%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -103,7 +103,7 @@ func TestAccPubsubTopicIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s", getTestProjectFromEnv(), fmt.Sprintf("example-topic-%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s", getTestProjectFromEnv(), fmt.Sprintf("example-topic%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
