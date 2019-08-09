@@ -77,6 +77,7 @@ type Config struct {
 	DnsBasePath                  string
 	FilestoreBasePath            string
 	FirestoreBasePath            string
+	IapBasePath                  string
 	KmsBasePath                  string
 	LoggingBasePath              string
 	MonitoringBasePath           string

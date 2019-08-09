@@ -64,6 +64,10 @@ func resourceAppEngineApplication() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"app_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"url_dispatch_rule": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -171,6 +175,7 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("default_hostname", app.DefaultHostname)
 	d.Set("location_id", app.LocationId)
 	d.Set("name", app.Name)
+	d.Set("app_id", app.Id)
 	d.Set("serving_status", app.ServingStatus)
 	d.Set("gcr_domain", app.GcrDomain)
 	d.Set("project", pid)
