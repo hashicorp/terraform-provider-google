@@ -579,6 +579,8 @@ resource "google_cloudfunctions_function" "function" {
 func testAccCloudFunctionsFunction_bucket(functionName string, bucketName string,
 	zipFilePath string) string {
 	return fmt.Sprintf(`
+data "google_client_config" "current" {}
+
 resource "google_storage_bucket" "bucket" {
   name = "%s"
 }
@@ -599,7 +601,7 @@ resource "google_cloudfunctions_function" "function" {
   entry_point           = "helloGCS"
   event_trigger {
     event_type = "google.storage.object.finalize"
-    resource   = "${google_storage_bucket.bucket.name}"
+    resource   = "projects/${data.google_client_config.current.project}/buckets/${google_storage_bucket.bucket.name}"
     failure_policy {
       retry = true
     }

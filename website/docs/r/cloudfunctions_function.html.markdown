@@ -95,7 +95,8 @@ Cloud Storage, Cloud Pub/Sub and Cloud Firestore triggers are supported at this 
 Legacy triggers are supported, such as `"providers/cloud.storage/eventTypes/object.change"`, 
 `"providers/cloud.pubsub/eventTypes/topic.publish"` and `"providers/cloud.firestore/eventTypes/document.create"`.
 
-* `resource` - (Required) Required. The name of the resource from which to observe events, for example, `"myBucket"`   
+* `resource` - (Required) Required. The name or partial URI of the resource from
+which to observe events. For example, `"myBucket"` or `"projects/my-project/topics/my-topic"`
 
 * `failure_policy` - (Optional) Specifies policy for failed executions. Structure is documented below.
 
