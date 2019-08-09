@@ -73,7 +73,7 @@ same configuration.
 ### Quick Reference
 
 * `credentials` - (Optional) Either the path to or the contents of a
-[service account key file] in JSON format. You can
+[service account key file] in JSON format. If you're using the file contents, be sure you replace the line breaks with an empty string. You can
 [manage key files using the Cloud Console].
 
 * `project` - (Optional) The default project to manage resources in. If another
@@ -137,6 +137,8 @@ by precedence.
     the path of your service account key file in the
     `GOOGLE_APPLICATION_CREDENTIALS` environment variable, or configure
     authentication through one of the following;
+
+* If you're running Terraform Cloud or Terraform Enterprise, replace the line breaks in the [service account key file] with an empty string, create a `GOOGLE_CREDENTIALS` environment variable in the Workspace then copy/paste the JSON from the key file into the environment variable. Ensure to mark the variable as `sensitive`. 
 
 * If you're running Terraform from a GCE instance, default credentials
 are automatically available. See
