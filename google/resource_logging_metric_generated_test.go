@@ -75,6 +75,86 @@ resource "google_logging_metric" "logging_metric" {
 `, context)
 }
 
+func TestAccLoggingMetric_loggingMetricCounterBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingMetricDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingMetric_loggingMetricCounterBasicExample(context),
+			},
+			{
+				ResourceName:      "google_logging_metric.logging_metric",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccLoggingMetric_loggingMetricCounterBasicExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_logging_metric" "logging_metric" {
+  name = "my-(custom)/metric%{random_suffix}"
+  filter = "resource.type=gae_app AND severity>=ERROR"
+  metric_descriptor {
+    metric_kind = "DELTA"
+    value_type = "INT64"
+  }
+}
+`, context)
+}
+
+func TestAccLoggingMetric_loggingMetricCounterLabelsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingMetricDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingMetric_loggingMetricCounterLabelsExample(context),
+			},
+			{
+				ResourceName:      "google_logging_metric.logging_metric",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccLoggingMetric_loggingMetricCounterLabelsExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_logging_metric" "logging_metric" {
+  name = "my-(custom)/metric%{random_suffix}"
+  filter = "resource.type=gae_app AND severity>=ERROR"
+  metric_descriptor {
+    metric_kind = "DELTA"
+    value_type = "INT64"
+    labels {
+        key = "mass"
+        value_type = "STRING"
+        description = "amount of matter"
+    }
+  }
+  label_extractors = { "mass": "EXTRACT(jsonPayload.request)" }
+}
+`, context)
+}
+
 func testAccCheckLoggingMetricDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_logging_metric" {
