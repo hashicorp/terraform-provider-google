@@ -109,12 +109,7 @@ func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 		eMember := getResourceIamMember(d)
 		p, err := iamPolicyReadWithRetry(updater)
 		if err != nil {
-			if isGoogleApiErrorWithCode(err, 404) {
-				log.Printf("[DEBUG]: Binding of member %q with role %q does not exist for non-existent resource %s, removing from state.", eMember.Members[0], eMember.Role, updater.DescribeResource())
-				d.SetId("")
-				return nil
-			}
-			return err
+			return handleNotFoundError(err, d, fmt.Sprintf("Resource %q with IAM Member: Role %q Member %q", updater.DescribeResource(), eMember.Role, eMember.Members[0]))
 		}
 		log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
 
@@ -159,49 +154,12 @@ func resourceIamMemberDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.De
 
 		member := getResourceIamMember(d)
 		err = iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
-			bindingToRemove := -1
-			for pos, b := range p.Bindings {
-				if b.Role != member.Role {
-					continue
-				}
-				bindingToRemove = pos
-				break
-			}
-			if bindingToRemove < 0 {
-				log.Printf("[DEBUG]: Binding for role %q does not exist in policy of project %q, so member %q can't be on it.", member.Role, updater.GetResourceId(), member.Members[0])
-				return nil
-			}
-			binding := p.Bindings[bindingToRemove]
-			memberToRemove := -1
-			for pos, m := range binding.Members {
-				if strings.ToLower(m) != strings.ToLower(member.Members[0]) {
-					continue
-				}
-				memberToRemove = pos
-				break
-			}
-			if memberToRemove < 0 {
-				log.Printf("[DEBUG]: Member %q for binding for role %q does not exist in policy of project %q.", member.Members[0], member.Role, updater.GetResourceId())
-				return nil
-			}
-			binding.Members = append(binding.Members[:memberToRemove], binding.Members[memberToRemove+1:]...)
-			if len(binding.Members) == 0 {
-				// If there is no member left for the role, remove the binding altogether
-				p.Bindings = append(p.Bindings[:bindingToRemove], p.Bindings[bindingToRemove+1:]...)
-			} else {
-				p.Bindings[bindingToRemove] = binding
-			}
-
+			p.Bindings = subtractFromBindings(p.Bindings, member)
 			return nil
 		})
 		if err != nil {
-			if isGoogleApiErrorWithCode(err, 404) {
-				log.Printf("[DEBUG]: Member %q for binding for role %q does not exist for non-existent resource %q.", member.Members[0], member.Role, updater.GetResourceId())
-				return nil
-			}
-			return err
+			return handleNotFoundError(err, d, fmt.Sprintf("Resource %s for IAM Member (role %q, %q)", updater.GetResourceId(), member.Members[0], member.Role))
 		}
-
 		return resourceIamMemberRead(newUpdaterFunc)(d, meta)
 	}
 }

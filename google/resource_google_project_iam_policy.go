@@ -3,14 +3,10 @@ package google
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"reflect"
-	"sort"
-	"strings"
-
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
+	"log"
 )
 
 func resourceGoogleProjectIamPolicy() *schema.Resource {
@@ -186,121 +182,6 @@ func getProjectIamPolicy(project string, config *Config) (*cloudresourcemanager.
 		return nil, fmt.Errorf("Error retrieving IAM policy for project %q: %s", project, err)
 	}
 	return p, nil
-}
-
-func jsonPolicyDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	var oldPolicy, newPolicy cloudresourcemanager.Policy
-	if err := json.Unmarshal([]byte(old), &oldPolicy); err != nil {
-		log.Printf("[ERROR] Could not unmarshal old policy %s: %v", old, err)
-		return false
-	}
-	if err := json.Unmarshal([]byte(new), &newPolicy); err != nil {
-		log.Printf("[ERROR] Could not unmarshal new policy %s: %v", new, err)
-		return false
-	}
-	if newPolicy.Etag != oldPolicy.Etag {
-		return false
-	}
-	if newPolicy.Version != oldPolicy.Version {
-		return false
-	}
-	if !compareBindings(oldPolicy.Bindings, newPolicy.Bindings) {
-		return false
-	}
-	if !compareAuditConfigs(oldPolicy.AuditConfigs, newPolicy.AuditConfigs) {
-		return false
-	}
-	return true
-}
-
-func derefBindings(b []*cloudresourcemanager.Binding) []cloudresourcemanager.Binding {
-	db := make([]cloudresourcemanager.Binding, len(b))
-
-	for i, v := range b {
-		db[i] = *v
-		for j, m := range db[i].Members {
-			db[i].Members[j] = strings.ToLower(m)
-		}
-		sort.Strings(db[i].Members)
-	}
-	return db
-}
-
-func compareBindings(a, b []*cloudresourcemanager.Binding) bool {
-	a = mergeBindings(a)
-	b = mergeBindings(b)
-	sort.Sort(sortableBindings(a))
-	sort.Sort(sortableBindings(b))
-	return reflect.DeepEqual(derefBindings(a), derefBindings(b))
-}
-
-func compareAuditConfigs(a, b []*cloudresourcemanager.AuditConfig) bool {
-	a = mergeAuditConfigs(a)
-	b = mergeAuditConfigs(b)
-	sort.Sort(sortableAuditConfigs(a))
-	sort.Sort(sortableAuditConfigs(b))
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if len(v.AuditLogConfigs) != len(b[i].AuditLogConfigs) {
-			return false
-		}
-		sort.Sort(sortableAuditLogConfigs(v.AuditLogConfigs))
-		sort.Sort(sortableAuditLogConfigs(b[i].AuditLogConfigs))
-		for x, logConfig := range v.AuditLogConfigs {
-			if b[i].AuditLogConfigs[x].LogType != logConfig.LogType {
-				return false
-			}
-			sort.Strings(logConfig.ExemptedMembers)
-			sort.Strings(b[i].AuditLogConfigs[x].ExemptedMembers)
-			if len(logConfig.ExemptedMembers) != len(b[i].AuditLogConfigs[x].ExemptedMembers) {
-				return false
-			}
-			for pos, exemptedMember := range logConfig.ExemptedMembers {
-				if b[i].AuditLogConfigs[x].ExemptedMembers[pos] != exemptedMember {
-					return false
-				}
-			}
-		}
-	}
-	return true
-}
-
-type sortableBindings []*cloudresourcemanager.Binding
-
-func (b sortableBindings) Len() int {
-	return len(b)
-}
-func (b sortableBindings) Swap(i, j int) {
-	b[i], b[j] = b[j], b[i]
-}
-func (b sortableBindings) Less(i, j int) bool {
-	return b[i].Role < b[j].Role
-}
-
-type sortableAuditConfigs []*cloudresourcemanager.AuditConfig
-
-func (b sortableAuditConfigs) Len() int {
-	return len(b)
-}
-func (b sortableAuditConfigs) Swap(i, j int) {
-	b[i], b[j] = b[j], b[i]
-}
-func (b sortableAuditConfigs) Less(i, j int) bool {
-	return b[i].Service < b[j].Service
-}
-
-type sortableAuditLogConfigs []*cloudresourcemanager.AuditLogConfig
-
-func (b sortableAuditLogConfigs) Len() int {
-	return len(b)
-}
-func (b sortableAuditLogConfigs) Swap(i, j int) {
-	b[i], b[j] = b[j], b[i]
-}
-func (b sortableAuditLogConfigs) Less(i, j int) bool {
-	return b[i].LogType < b[j].LogType
 }
 
 func getProjectIamPolicyMutexKey(pid string) string {
