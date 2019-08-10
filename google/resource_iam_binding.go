@@ -54,15 +54,16 @@ func resourceIamBindingCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc) fu
 			return err
 		}
 
-		p := getResourceIamBinding(d)
+		binding := getResourceIamBinding(d)
 		err = iamPolicyReadModifyWrite(updater, func(ep *cloudresourcemanager.Policy) error {
-			ep.Bindings = overwriteBinding(ep.Bindings, p)
+			cleaned := removeAllBindingsWithRole(ep.Bindings, binding.Role)
+			ep.Bindings = append(cleaned, binding)
 			return nil
 		})
 		if err != nil {
 			return err
 		}
-		d.SetId(updater.GetResourceId() + "/" + p.Role)
+		d.SetId(updater.GetResourceId() + "/" + binding.Role)
 		return resourceIamBindingRead(newUpdaterFunc)(d, meta)
 	}
 }
@@ -78,13 +79,7 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 		eBinding := getResourceIamBinding(d)
 		p, err := iamPolicyReadWithRetry(updater)
 		if err != nil {
-			if isGoogleApiErrorWithCode(err, 404) {
-				log.Printf("[DEBUG]: Binding for role %q not found for non-existent resource %s, removing from state file.", updater.DescribeResource(), eBinding.Role)
-				d.SetId("")
-				return nil
-			}
-
-			return err
+			return handleNotFoundError(err, d, fmt.Sprintf("Resource %q with IAM Binding (Role %q)", updater.DescribeResource(), eBinding.Role))
 		}
 		log.Printf("[DEBUG]: Retrieved policy for %s: %+v", updater.DescribeResource(), p)
 
@@ -157,28 +152,11 @@ func resourceIamBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.D
 
 		binding := getResourceIamBinding(d)
 		err = iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
-			toRemove := -1
-			for pos, b := range p.Bindings {
-				if b.Role != binding.Role {
-					continue
-				}
-				toRemove = pos
-				break
-			}
-			if toRemove < 0 {
-				log.Printf("[DEBUG]: Policy bindings for %s did not include a binding for role %q", updater.DescribeResource(), binding.Role)
-				return nil
-			}
-
-			p.Bindings = append(p.Bindings[:toRemove], p.Bindings[toRemove+1:]...)
+			p.Bindings = removeAllBindingsWithRole(p.Bindings, binding.Role)
 			return nil
 		})
 		if err != nil {
-			if isGoogleApiErrorWithCode(err, 404) {
-				log.Printf("[DEBUG]: Resource %s is missing or deleted, marking policy binding as deleted", updater.DescribeResource())
-				return nil
-			}
-			return err
+			return handleNotFoundError(err, d, fmt.Sprintf("Resource %q for IAM binding with role %q", updater.DescribeResource(), binding.Role))
 		}
 
 		return resourceIamBindingRead(newUpdaterFunc)(d, meta)

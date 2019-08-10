@@ -1,8 +1,11 @@
+// Utils for modifying IAM policies for resources across GCP
 package google
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"reflect"
 	"time"
 
 	"github.com/hashicorp/errwrap"
@@ -12,42 +15,43 @@ import (
 
 const maxBackoffSeconds = 30
 
-// The ResourceIamUpdater interface is implemented for each GCP resource supporting IAM policy.
-//
-// Implementations should keep track of the resource identifier.
-type ResourceIamUpdater interface {
-	// Fetch the existing IAM policy attached to a resource.
-	GetResourceIamPolicy() (*cloudresourcemanager.Policy, error)
+// These types are implemented per GCP resource type and specify how to do per-resource IAM operations.
+// They are used in the generic Terraform IAM resource definitions
+// (e.g. _member/_binding/_policy/_audit_config)
+type (
+	// The ResourceIamUpdater interface is implemented for each GCP resource supporting IAM policy.
+	// Implementations should be created per resource and should keep track of the resource identifier.
+	ResourceIamUpdater interface {
+		// Fetch the existing IAM policy attached to a resource.
+		GetResourceIamPolicy() (*cloudresourcemanager.Policy, error)
 
-	// Replaces the existing IAM Policy attached to a resource.
-	SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error
+		// Replaces the existing IAM Policy attached to a resource.
+		SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error
 
-	// A mutex guards against concurrent to call to the SetResourceIamPolicy method.
-	// The mutex key should be made of the resource type and resource id.
-	// For example: `iam-project-{id}`.
-	GetMutexKey() string
+		// A mutex guards against concurrent to call to the SetResourceIamPolicy method.
+		// The mutex key should be made of the resource type and resource id.
+		// For example: `iam-project-{id}`.
+		GetMutexKey() string
 
-	// Returns the unique resource identifier.
-	GetResourceId() string
+		// Returns the unique resource identifier.
+		GetResourceId() string
 
-	// Textual description of this resource to be used in error message.
-	// The description should include the unique resource identifier.
-	DescribeResource() string
-}
+		// Textual description of this resource to be used in error message.
+		// The description should include the unique resource identifier.
+		DescribeResource() string
+	}
 
-type newResourceIamUpdaterFunc func(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error)
-type iamPolicyModifyFunc func(p *cloudresourcemanager.Policy) error
+	// Factory for generating ResourceIamUpdater for given ResourceData resource
+	newResourceIamUpdaterFunc func(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error)
 
-// This method parses identifiers specific to the resource (d.GetId()) into the ResourceData
-// object, so that it can be given to the resource's Read method.  Externally, this is wrapped
-// into schema.StateFunc functions - one each for a _member, a _binding, and a _policy.  Any
-// GCP resource supporting IAM policy might support one, two, or all of these.  Any GCP resource
-// for which an implementation of this interface exists could support any of the three.
+	// Describes how to modify a policy for a given Terraform IAM (_policy/_member/_binding/_audit_config) resource
+	iamPolicyModifyFunc func(p *cloudresourcemanager.Policy) error
 
-type resourceIdParserFunc func(d *schema.ResourceData, config *Config) error
+	// Parser for Terraform resource identifier (d.Id) for resource whose IAM policy is being changed
+	resourceIdParserFunc func(d *schema.ResourceData, config *Config) error
+)
 
-// Wrapper around updater.GetResourceIamPolicy() to handle retry/backoff
-// for just reading policies from IAM
+// Locking wrapper around read-only operation with retries.
 func iamPolicyReadWithRetry(updater ResourceIamUpdater) (*cloudresourcemanager.Policy, error) {
 	mutexKey := updater.GetMutexKey()
 	mutexKV.Lock(mutexKey)
@@ -66,6 +70,7 @@ func iamPolicyReadWithRetry(updater ResourceIamUpdater) (*cloudresourcemanager.P
 	return policy, nil
 }
 
+// Locking wrapper around read-modify-write cycle for IAM policy.
 func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModifyFunc) error {
 	mutexKey := updater.GetMutexKey()
 	mutexKV.Lock(mutexKey)
@@ -146,111 +151,182 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 	return nil
 }
 
-// Takes a single binding and will either overwrite the same role in a list or append it to the end
-func overwriteBinding(bindings []*cloudresourcemanager.Binding, overwrite *cloudresourcemanager.Binding) []*cloudresourcemanager.Binding {
-	var found bool
-
-	for i, b := range bindings {
-		if b.Role == overwrite.Role {
-			bindings[i] = overwrite
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		bindings = append(bindings, overwrite)
-	}
-
-	return bindings
-}
-
-// Merge multiple Bindings such that Bindings with the same Role result in
-// a single Binding with combined Members
+// Flattens AuditConfigs so each role has a single Binding with combined members
 func mergeBindings(bindings []*cloudresourcemanager.Binding) []*cloudresourcemanager.Binding {
-	bm := rolesToMembersMap(bindings)
-	rb := make([]*cloudresourcemanager.Binding, 0)
+	bm := createIamBindingsMap(bindings)
+	return listFromIamBindingMap(bm)
+}
 
-	for role, members := range bm {
-		var b cloudresourcemanager.Binding
-		b.Role = role
-		b.Members = make([]string, 0)
-		for m := range members {
-			b.Members = append(b.Members, m)
+// Flattens Bindings so each role has a single Binding with combined members
+func removeAllBindingsWithRole(b []*cloudresourcemanager.Binding, role string) []*cloudresourcemanager.Binding {
+	bMap := createIamBindingsMap(b)
+	delete(bMap, role)
+	return listFromIamBindingMap(bMap)
+}
+
+// Removes given role/bound-member pairs from the given Bindings (i.e subtraction).
+func subtractFromBindings(bindings []*cloudresourcemanager.Binding, toRemove ...*cloudresourcemanager.Binding) []*cloudresourcemanager.Binding {
+	currMap := createIamBindingsMap(bindings)
+	toRemoveMap := createIamBindingsMap(toRemove)
+
+	for role, removeSet := range toRemoveMap {
+		members, ok := currMap[role]
+		if !ok {
+			continue
 		}
-		if len(b.Members) > 0 {
-			rb = append(rb, &b)
+		// Remove all removed members
+		for m := range removeSet {
+			delete(members, m)
+		}
+		// Remove role from bindings
+		if len(members) == 0 {
+			delete(currMap, role)
 		}
 	}
 
-	return rb
+	return listFromIamBindingMap(currMap)
 }
 
-// Map a role to a map of members, allowing easy merging of multiple bindings.
-func rolesToMembersMap(bindings []*cloudresourcemanager.Binding) map[string]map[string]bool {
-	bm := make(map[string]map[string]bool)
+// Construct map of role to set of members from list of bindings.
+func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[string]map[string]struct{} {
+	bm := make(map[string]map[string]struct{})
 	// Get each binding
 	for _, b := range bindings {
 		// Initialize members map
 		if _, ok := bm[b.Role]; !ok {
-			bm[b.Role] = make(map[string]bool)
+			bm[b.Role] = make(map[string]struct{})
 		}
 		// Get each member (user/principal) for the binding
 		for _, m := range b.Members {
 			// Add the member
-			bm[b.Role][m] = true
+			bm[b.Role][m] = struct{}{}
 		}
 	}
 	return bm
 }
 
-// Merge multiple Audit Configs such that configs with the same service result in
-// a single exemption list with combined members
+// Return list of Bindings for a map of role to member sets
+func listFromIamBindingMap(bm map[string]map[string]struct{}) []*cloudresourcemanager.Binding {
+	rb := make([]*cloudresourcemanager.Binding, 0, len(bm))
+	for role, members := range bm {
+		if len(members) == 0 {
+			continue
+		}
+		rb = append(rb, &cloudresourcemanager.Binding{
+			Role:    role,
+			Members: stringSliceFromGolangSet(members),
+		})
+	}
+	return rb
+}
+
+// Flatten AuditConfigs so each service has a single exemption list of log type to members
 func mergeAuditConfigs(auditConfigs []*cloudresourcemanager.AuditConfig) []*cloudresourcemanager.AuditConfig {
-	am := auditConfigToServiceMap(auditConfigs)
-	var ac []*cloudresourcemanager.AuditConfig
-	for service, auditLogConfigs := range am {
-		var a cloudresourcemanager.AuditConfig
-		a.Service = service
-		a.AuditLogConfigs = make([]*cloudresourcemanager.AuditLogConfig, 0, len(auditLogConfigs))
-		for k, v := range auditLogConfigs {
-			var alc cloudresourcemanager.AuditLogConfig
-			alc.LogType = k
-			for member := range v {
-				alc.ExemptedMembers = append(alc.ExemptedMembers, member)
+	am := createIamAuditConfigsMap(auditConfigs)
+	return listFromIamAuditConfigMap(am)
+}
+
+// Flattens AuditConfigs so each role has a single Binding with combined members\
+func removeAllAuditConfigsWithService(ac []*cloudresourcemanager.AuditConfig, service string) []*cloudresourcemanager.AuditConfig {
+	acMap := createIamAuditConfigsMap(ac)
+	delete(acMap, service)
+	return listFromIamAuditConfigMap(acMap)
+}
+
+// Build a AuditConfig service to audit log config map
+func createIamAuditConfigsMap(auditConfigs []*cloudresourcemanager.AuditConfig) map[string]map[string]map[string]struct{} {
+	acMap := make(map[string]map[string]map[string]struct{})
+
+	for _, ac := range auditConfigs {
+		if _, ok := acMap[ac.Service]; !ok {
+			acMap[ac.Service] = make(map[string]map[string]struct{})
+		}
+		alcMap := acMap[ac.Service]
+		for _, alc := range ac.AuditLogConfigs {
+			if _, ok := alcMap[alc.LogType]; !ok {
+				alcMap[alc.LogType] = make(map[string]struct{})
 			}
-			a.AuditLogConfigs = append(a.AuditLogConfigs, &alc)
+			memberMap := alcMap[alc.LogType]
+			// Add members to map for log type.
+			for _, m := range alc.ExemptedMembers {
+				memberMap[m] = struct{}{}
+			}
 		}
-		if len(a.AuditLogConfigs) > 0 {
-			ac = append(ac, &a)
+	}
+
+	return acMap
+}
+
+// Construct list of AuditConfigs from audit config maps.
+func listFromIamAuditConfigMap(acMap map[string]map[string]map[string]struct{}) []*cloudresourcemanager.AuditConfig {
+	ac := make([]*cloudresourcemanager.AuditConfig, 0, len(acMap))
+
+	for service, logConfigMap := range acMap {
+		if len(logConfigMap) == 0 {
+			continue
 		}
+
+		logConfigs := make([]*cloudresourcemanager.AuditLogConfig, 0, len(logConfigMap))
+		for logType, memberSet := range logConfigMap {
+			alc := &cloudresourcemanager.AuditLogConfig{
+				LogType:         logType,
+				ForceSendFields: []string{"exemptedMembers"},
+			}
+			if len(memberSet) > 0 {
+				alc.ExemptedMembers = stringSliceFromGolangSet(memberSet)
+			}
+			logConfigs = append(logConfigs, alc)
+		}
+
+		ac = append(ac, &cloudresourcemanager.AuditConfig{
+			Service:         service,
+			AuditLogConfigs: logConfigs,
+		})
 	}
 	return ac
 }
 
-// Build a service map with the log_type and bindings below it
-func auditConfigToServiceMap(auditConfig []*cloudresourcemanager.AuditConfig) map[string]map[string]map[string]bool {
-	ac := make(map[string]map[string]map[string]bool)
-	// Get each config
-	for _, c := range auditConfig {
-		// Initialize service map
-		if _, ok := ac[c.Service]; !ok {
-			ac[c.Service] = map[string]map[string]bool{}
-		}
-		// loop through audit log configs
-		for _, lc := range c.AuditLogConfigs {
-			// Initialize service map
-			if _, ok := ac[c.Service][lc.LogType]; !ok {
-				ac[c.Service][lc.LogType] = map[string]bool{}
-			}
-			// Get each member (user/principal) for the binding
-			for _, m := range lc.ExemptedMembers {
-				// Add the member
-				if _, ok := ac[c.Service][lc.LogType][m]; !ok {
-					ac[c.Service][lc.LogType][m] = true
-				}
-			}
-		}
+func jsonPolicyDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	var oldPolicy, newPolicy cloudresourcemanager.Policy
+	if err := json.Unmarshal([]byte(old), &oldPolicy); err != nil {
+		log.Printf("[ERROR] Could not unmarshal old policy %s: %v", old, err)
+		return false
 	}
-	return ac
+	if err := json.Unmarshal([]byte(new), &newPolicy); err != nil {
+		log.Printf("[ERROR] Could not unmarshal new policy %s: %v", new, err)
+		return false
+	}
+	return compareIamPolicies(&newPolicy, &oldPolicy)
+}
+
+func compareIamPolicies(a, b *cloudresourcemanager.Policy) bool {
+	if a.Etag != b.Etag {
+		log.Printf("[DEBUG] policies etag differ: %q vs %q", a.Etag, b.Etag)
+		return false
+	}
+	if a.Version != b.Version {
+		log.Printf("[DEBUG] policies version differ: %q vs %q", a.Version, b.Version)
+		return false
+	}
+	if !compareBindings(a.Bindings, b.Bindings) {
+		log.Printf("[DEBUG] policies bindings differ: %#v vs %#v", a.Bindings, b.Bindings)
+		return false
+	}
+	if !compareAuditConfigs(a.AuditConfigs, b.AuditConfigs) {
+		log.Printf("[DEBUG] policies audit configs differ: %#v vs %#v", a.AuditConfigs, b.AuditConfigs)
+		return false
+	}
+	return true
+}
+
+func compareBindings(a, b []*cloudresourcemanager.Binding) bool {
+	aMap := createIamBindingsMap(a)
+	bMap := createIamBindingsMap(b)
+	return reflect.DeepEqual(aMap, bMap)
+}
+
+func compareAuditConfigs(a, b []*cloudresourcemanager.AuditConfig) bool {
+	aMap := createIamAuditConfigsMap(a)
+	bMap := createIamAuditConfigsMap(b)
+	return reflect.DeepEqual(aMap, bMap)
 }
