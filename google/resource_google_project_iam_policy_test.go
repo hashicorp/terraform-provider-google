@@ -3,8 +3,6 @@ package google
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
-	"sort"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -158,149 +156,14 @@ func testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid string)
 
 		// The bindings in both policies should be identical
 		if !compareBindings(projectPolicy.Bindings, policyPolicy.Bindings) {
-			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", derefBindings(projectPolicy.Bindings), derefBindings(policyPolicy.Bindings))
+			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", debugPrintBindings(projectPolicy.Bindings), debugPrintBindings(policyPolicy.Bindings))
 		}
 
 		// The audit configs in both policies should be identical
 		if !compareAuditConfigs(projectPolicy.AuditConfigs, policyPolicy.AuditConfigs) {
-			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", projectPolicy.AuditConfigs, policyPolicy.AuditConfigs)
+			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", debugPrintAuditConfigs(projectPolicy.AuditConfigs), debugPrintAuditConfigs(policyPolicy.AuditConfigs))
 		}
 		return nil
-	}
-}
-
-func TestIamOverwriteBinding(t *testing.T) {
-	table := []struct {
-		input    []*cloudresourcemanager.Binding
-		override cloudresourcemanager.Binding
-		expect   []cloudresourcemanager.Binding
-	}{
-		{
-			input: []*cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-1", "member-2"},
-				},
-			},
-			override: cloudresourcemanager.Binding{
-				Role:    "role-1",
-				Members: []string{"new-member"},
-			},
-			expect: []cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"new-member"},
-				},
-			},
-		},
-		{
-			input: []*cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-1", "member-2"},
-				},
-			},
-			override: cloudresourcemanager.Binding{
-				Role:    "role-2",
-				Members: []string{"member-3"},
-			},
-			expect: []cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-1", "member-2"},
-				},
-				{
-					Role:    "role-2",
-					Members: []string{"member-3"},
-				},
-			},
-		},
-	}
-
-	for _, test := range table {
-		got := overwriteBinding(test.input, &test.override)
-		if !reflect.DeepEqual(derefBindings(got), test.expect) {
-			t.Errorf("OverwriteIamBinding failed.\nGot %+v\nWant %+v", derefBindings(got), test.expect)
-		}
-	}
-}
-
-func TestIamMergeBindings(t *testing.T) {
-	table := []struct {
-		input  []*cloudresourcemanager.Binding
-		expect []cloudresourcemanager.Binding
-	}{
-		{
-			input: []*cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-1", "member-2"},
-				},
-				{
-					Role:    "role-1",
-					Members: []string{"member-3"},
-				},
-			},
-			expect: []cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-1", "member-2", "member-3"},
-				},
-			},
-		},
-		{
-			input: []*cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-3", "member-4"},
-				},
-				{
-					Role:    "role-1",
-					Members: []string{"member-2", "member-1"},
-				},
-				{
-					Role:    "role-2",
-					Members: []string{"member-1"},
-				},
-				{
-					Role:    "role-1",
-					Members: []string{"member-5"},
-				},
-				{
-					Role:    "role-3",
-					Members: []string{"member-1"},
-				},
-				{
-					Role:    "role-2",
-					Members: []string{"member-2"},
-				},
-				{Role: "empty-role", Members: []string{}},
-			},
-			expect: []cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-1", "member-2", "member-3", "member-4", "member-5"},
-				},
-				{
-					Role:    "role-2",
-					Members: []string{"member-1", "member-2"},
-				},
-				{
-					Role:    "role-3",
-					Members: []string{"member-1"},
-				},
-			},
-		},
-	}
-	for _, test := range table {
-		got := mergeBindings(test.input)
-		sort.Sort(sortableBindings(got))
-		for i := range got {
-			sort.Strings(got[i].Members)
-		}
-		if !reflect.DeepEqual(derefBindings(got), test.expect) {
-			t.Errorf("\ngot %+v\nexpected %+v", derefBindings(got), test.expect)
-		}
 	}
 }
 

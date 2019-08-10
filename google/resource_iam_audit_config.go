@@ -83,13 +83,7 @@ func resourceIamAuditConfigRead(newUpdaterFunc newResourceIamUpdaterFunc) schema
 		eAuditConfig := getResourceIamAuditConfig(d)
 		p, err := iamPolicyReadWithRetry(updater)
 		if err != nil {
-			if isGoogleApiErrorWithCode(err, 404) {
-				log.Printf("[DEBUG]: AuditConfig for service %q not found for non-existent resource %s, removing from state file.", eAuditConfig.Service, updater.DescribeResource())
-				d.SetId("")
-				return nil
-			}
-
-			return err
+			return handleNotFoundError(err, d, fmt.Sprintf("AuditConfig for %s on %q", eAuditConfig.Service, updater.DescribeResource()))
 		}
 		log.Printf("[DEBUG]: Retrieved policy for %s: %+v", updater.DescribeResource(), p)
 
@@ -106,6 +100,7 @@ func resourceIamAuditConfigRead(newUpdaterFunc newResourceIamUpdaterFunc) schema
 			d.SetId("")
 			return nil
 		}
+
 		d.Set("etag", p.Etag)
 		err = d.Set("audit_log_config", flattenAuditLogConfigs(ac.AuditLogConfigs))
 		if err != nil {
@@ -154,18 +149,8 @@ func resourceIamAuditConfigUpdate(newUpdaterFunc newResourceIamUpdaterFunc) sche
 
 		ac := getResourceIamAuditConfig(d)
 		err = iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
-			var found bool
-			for pos, b := range p.AuditConfigs {
-				if b.Service != ac.Service {
-					continue
-				}
-				found = true
-				p.AuditConfigs[pos] = ac
-				break
-			}
-			if !found {
-				p.AuditConfigs = append(p.AuditConfigs, ac)
-			}
+			cleaned := removeAllAuditConfigsWithService(p.AuditConfigs, ac.Service)
+			p.AuditConfigs = append(cleaned, ac)
 			return nil
 		})
 		if err != nil {
@@ -186,28 +171,11 @@ func resourceIamAuditConfigDelete(newUpdaterFunc newResourceIamUpdaterFunc) sche
 
 		ac := getResourceIamAuditConfig(d)
 		err = iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
-			toRemove := -1
-			for pos, b := range p.AuditConfigs {
-				if b.Service != ac.Service {
-					continue
-				}
-				toRemove = pos
-				break
-			}
-			if toRemove < 0 {
-				log.Printf("[DEBUG]: Policy audit configs for %s did not include an audit config for service %q", updater.DescribeResource(), ac.Service)
-				return nil
-			}
-
-			p.AuditConfigs = append(p.AuditConfigs[:toRemove], p.AuditConfigs[toRemove+1:]...)
+			p.AuditConfigs = removeAllAuditConfigsWithService(p.AuditConfigs, ac.Service)
 			return nil
 		})
 		if err != nil {
-			if isGoogleApiErrorWithCode(err, 404) {
-				log.Printf("[DEBUG]: Resource %s is missing or deleted, marking policy audit config as deleted", updater.DescribeResource())
-				return nil
-			}
-			return err
+			return handleNotFoundError(err, d, fmt.Sprintf("Resource %s with IAM audit config %q", updater.DescribeResource(), d.Id()))
 		}
 
 		return resourceIamAuditConfigRead(newUpdaterFunc)(d, meta)
@@ -231,11 +199,13 @@ func getResourceIamAuditConfig(d *schema.ResourceData) *cloudresourcemanager.Aud
 }
 
 func flattenAuditLogConfigs(configs []*cloudresourcemanager.AuditLogConfig) *schema.Set {
-	res := schema.NewSet(schema.HashResource(iamAuditConfigSchema["audit_log_config"].Elem.(*schema.Resource)), []interface{}{})
+	auditLogConfigSchema := iamAuditConfigSchema["audit_log_config"].Elem.(*schema.Resource)
+	exemptedMemberSchema := auditLogConfigSchema.Schema["exempted_members"].Elem.(*schema.Schema)
+	res := schema.NewSet(schema.HashResource(auditLogConfigSchema), []interface{}{})
 	for _, conf := range configs {
 		res.Add(map[string]interface{}{
 			"log_type":         conf.LogType,
-			"exempted_members": schema.NewSet(schema.HashSchema(iamAuditConfigSchema["audit_log_config"].Elem.(*schema.Resource).Schema["exempted_members"].Elem.(*schema.Schema)), convertStringArrToInterface(conf.ExemptedMembers)),
+			"exempted_members": schema.NewSet(schema.HashSchema(exemptedMemberSchema), convertStringArrToInterface(conf.ExemptedMembers)),
 		})
 	}
 	return res
