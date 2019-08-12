@@ -1,0 +1,137 @@
+package google
+
+import (
+	"fmt"
+	"strings"
+	"testing"
+
+	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
+)
+
+// The service account TF uses needs the permission granted in the configs
+// but it will get deleted by parallel tests, so they need to be ran serially.
+func TestAccBigqueryDataTransferConfig(t *testing.T) {
+	testCases := map[string]func(t *testing.T){
+		"basic":  testAccBigqueryDataTransferConfig_scheduledQuery_basic,
+		"update": testAccBigqueryDataTransferConfig_scheduledQuery_update,
+	}
+
+	for name, tc := range testCases {
+		// shadow the tc variable into scope so that when
+		// the loop continues, if t.Run hasn't executed tc(t)
+		// yet, we don't have a race condition
+		// see https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			tc(t)
+		})
+	}
+}
+
+func testAccBigqueryDataTransferConfig_scheduledQuery_basic(t *testing.T) {
+	random_suffix := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "third", "y"),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.query_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
+	random_suffix := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "first", "y"),
+			},
+			{
+				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "second", "z"),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.query_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccCheckBigqueryDataTransferConfigDestroy(s *terraform.State) error {
+	for name, rs := range s.RootModule().Resources {
+		if rs.Type != "google_bigquery_data_transfer_config" {
+			continue
+		}
+		if strings.HasPrefix(name, "data.") {
+			continue
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		url, err := replaceVarsForTest(config, rs, "{{BigqueryDataTransferBasePath}}{{name}}")
+		if err != nil {
+			return err
+		}
+
+		_, err = sendRequest(config, "GET", url, nil)
+		if err == nil {
+			return fmt.Errorf("BigqueryDataTransferConfig still exists at %s", url)
+		}
+	}
+
+	return nil
+}
+
+func testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, schedule, letter string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_project_iam_member" "permissions" {
+  role = "roles/iam.serviceAccountShortTermTokenMinter"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
+}
+
+
+resource "google_bigquery_dataset" "my_dataset" {
+  depends_on = [google_project_iam_member.permissions]
+
+  dataset_id = "my_dataset%s"
+  friendly_name = "foo"
+  description = "bar"
+  location = "asia-northeast1"
+}
+
+resource "google_bigquery_data_transfer_config" "query_config" {
+  depends_on = [google_project_iam_member.permissions]
+
+  display_name = "my-query-%s"
+  location = "asia-northeast1"
+  data_source_id = "scheduled_query"
+  schedule = "%s sunday of quarter 00:00"
+  destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
+  params = {
+    destination_table_name_template = "my-table"
+    write_disposition = "WRITE_APPEND"
+    query = "SELECT name FROM tabl WHERE x = '%s'"
+  }
+}
+`, random_suffix, random_suffix, schedule, letter)
+}
