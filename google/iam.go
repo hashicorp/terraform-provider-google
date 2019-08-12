@@ -229,10 +229,7 @@ func mergeAuditConfigs(auditConfigs []*cloudresourcemanager.AuditConfig) []*clou
 // Flattens AuditConfigs so each role has a single Binding with combined members\
 func removeAllAuditConfigsWithService(ac []*cloudresourcemanager.AuditConfig, service string) []*cloudresourcemanager.AuditConfig {
 	acMap := createIamAuditConfigsMap(ac)
-	if _, ok := acMap[service]; ok {
-		delete(acMap, service)
-	}
-
+	delete(acMap, service)
 	return listFromIamAuditConfigMap(acMap)
 }
 
