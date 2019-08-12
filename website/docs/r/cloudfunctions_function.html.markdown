@@ -78,6 +78,8 @@ defaults to `"nodejs6"`. It's recommended that you override the default, as
 
 * `environment_variables` - (Optional) A set of key/value environment variable pairs to assign to the function.
 
+* `vpc_connector` - (Optional) The VPC Network Connector that this cloud function can connect to. It can be either the fully-qualified URI, or the short name of the network connector resource. The format of this field is `projects/*/locations/*/connectors/*`.
+
 * `source_archive_bucket` - (Optional) The GCS bucket containing the zip archive which contains the function.
 
 * `source_archive_object` - (Optional) The source archive object (file) in archive bucket.
