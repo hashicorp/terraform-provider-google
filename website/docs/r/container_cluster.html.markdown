@@ -306,6 +306,7 @@ to the datasource. A `region` can have a different set of supported versions tha
 * `workload_identity_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
     Workload Identity allows Kubernetes service accounts to act as a user-managed
     [Google IAM Service Account](https://cloud.google.com/iam/docs/service-accounts#user-managed_service_accounts).
+    Structure is documented below.
 
 * `enable_intranode_visibility` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
     Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.
@@ -566,6 +567,15 @@ The `guest_accelerator` block supports:
 * `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
 
 * `count` (Required) - The number of the guest accelerator cards exposed to this instance.
+
+The `workload_identity_config` block supports:
+
+* `identity_namespace` (Required) - Currently, the only supported identity namespace is the project's default.
+```
+workload_identity_config {
+  identity_namespace = "${data.google_project.project.project_id}.svc.id.goog"
+}
+```
 
 The `pod_security_policy_config` block supports:
 
