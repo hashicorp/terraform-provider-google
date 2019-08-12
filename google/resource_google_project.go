@@ -274,7 +274,11 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 		}
 
 		if err = forceDeleteComputeNetwork(project.ProjectId, "default", config); err != nil {
-			return fmt.Errorf("Error deleting default network in project %s: %s", project.ProjectId, err)
+			if isGoogleApiErrorWithCode(err, 404) {
+				log.Printf("[DEBUG] Default network not found for project %q, no need to delete it", project.ProjectId)
+			} else {
+				return fmt.Errorf("Error deleting default network in project %s: %s", project.ProjectId, err)
+			}
 		}
 	}
 	return nil
