@@ -109,6 +109,60 @@ resource "google_cloud_scheduler_job" "job" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=scheduler_job_oauth&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Scheduler Job Oauth
+
+
+```hcl
+data "google_compute_default_service_account" "default" { }
+
+resource "google_cloud_scheduler_job" "job" {
+  name     = "test-job"
+  description = "test http job"
+  schedule = "*/8 * * * *"
+  time_zone = "America/New_York"
+
+  http_target {
+    http_method = "GET"
+    uri = "https://cloudscheduler.googleapis.com/v1/projects/my-project-name/locations/us-west1/jobs"
+
+    oauth_token {
+      service_account_email = "${data.google_compute_default_service_account.default.email}"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=scheduler_job_oidc&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Scheduler Job Oidc
+
+
+```hcl
+data "google_compute_default_service_account" "default" { }
+
+resource "google_cloud_scheduler_job" "job" {
+  name     = "test-job"
+  description = "test http job"
+  schedule = "*/8 * * * *"
+  time_zone = "America/New_York"
+
+  http_target {
+    http_method = "GET"
+    uri = "https://example.com/ping"
+
+    oidc_token {
+      service_account_email = "${data.google_compute_default_service_account.default.email}"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -286,6 +340,41 @@ The `http_target` block supports:
   (Optional)
   This map contains the header field names and values. 
   Repeated headers are not supported, but a header value can contain commas.
+
+* `oauth_token` -
+  (Optional)
+  Contains information needed for generating an OAuth token.
+  This type of authorization should be used when sending requests to a GCP endpoint.  Structure is documented below.
+
+* `oidc_token` -
+  (Optional)
+  Contains information needed for generating an OpenID Connect token.
+  This type of authorization should be used when sending requests to third party endpoints or Cloud Run.  Structure is documented below.
+
+
+The `oauth_token` block supports:
+
+* `service_account_email` -
+  (Optional)
+  Service account email to be used for generating OAuth token.
+  The service account must be within the same project as the job.
+
+* `scope` -
+  (Optional)
+  OAuth scope to be used for generating OAuth access token. If not specified,
+  "https://www.googleapis.com/auth/cloud-platform" will be used.
+
+The `oidc_token` block supports:
+
+* `service_account_email` -
+  (Optional)
+  Service account email to be used for generating OAuth token.
+  The service account must be within the same project as the job.
+
+* `audience` -
+  (Optional)
+  Audience to be used when generating OIDC token. If not specified,
+  the URI specified in target will be used.
 
 
 ## Timeouts
