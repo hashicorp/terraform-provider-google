@@ -26,6 +26,54 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+// Both oidc and oauth headers cannot be set
+func validateAuthHeaders(diff *schema.ResourceDiff, v interface{}) error {
+	httpBlock := diff.Get("http_target.0").(map[string]interface{})
+
+	if httpBlock != nil {
+		oauth := httpBlock["oauth_token"]
+		oidc := httpBlock["oidc_token"]
+
+		if oauth != nil && oidc != nil {
+			if len(oidc.([]interface{})) > 0 && len(oauth.([]interface{})) > 0 {
+				return fmt.Errorf("Error in http_target: only one of oauth_token or oidc_token can be specified, but not both.")
+			}
+		}
+	}
+
+	return nil
+}
+
+func authHeaderDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	b := strings.Split(k, ".")
+	if b[0] == "http_target" && len(b) > 4 {
+		block := b[2]
+		attr := b[4]
+
+		// If generating an oauth_token and scope is not provided in the configuration,
+		// the default "https://www.googleapis.com/auth/cloud-platform" scope will be used.
+		// Although not in the configuration, this is returned and will be stored in state.
+		if block == "oauth_token" && attr == "scope" {
+			if old == canonicalizeServiceScope("cloud-platform") && new == "" {
+				return true
+			}
+		}
+
+		// If generating an oidc_token and audience is not provided in the configuration,
+		// the URI specified in target will be used. Although not in the configuration,
+		// this is returned and will be stored in state.
+		if block == "oidc_token" && attr == "audience" {
+			uri := d.Get(strings.Join(b[0:2], ".") + ".uri")
+			if old == uri && new == "" {
+				return true
+			}
+		}
+
+	}
+
+	return false
+}
+
 func resourceCloudSchedulerJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudSchedulerJobCreate,
@@ -40,6 +88,8 @@ func resourceCloudSchedulerJob() *schema.Resource {
 			Create: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
+
+		CustomizeDiff: validateAuthHeaders,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -144,6 +194,48 @@ func resourceCloudSchedulerJob() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
+						},
+						"oauth_token": {
+							Type:             schema.TypeList,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: authHeaderDiffSuppress,
+							MaxItems:         1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"scope": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+									},
+									"service_account_email": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+									},
+								},
+							},
+						},
+						"oidc_token": {
+							Type:             schema.TypeList,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: authHeaderDiffSuppress,
+							MaxItems:         1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"audience": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+									},
+									"service_account_email": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -610,6 +702,10 @@ func flattenCloudSchedulerJobHttpTarget(v interface{}, d *schema.ResourceData) i
 		flattenCloudSchedulerJobHttpTargetBody(original["body"], d)
 	transformed["headers"] =
 		flattenCloudSchedulerJobHttpTargetHeaders(original["headers"], d)
+	transformed["oauth_token"] =
+		flattenCloudSchedulerJobHttpTargetOauthToken(original["oauthToken"], d)
+	transformed["oidc_token"] =
+		flattenCloudSchedulerJobHttpTargetOidcToken(original["oidcToken"], d)
 	return []interface{}{transformed}
 }
 func flattenCloudSchedulerJobHttpTargetUri(v interface{}, d *schema.ResourceData) interface{} {
@@ -647,6 +743,52 @@ func flattenCloudSchedulerJobHttpTargetHeaders(v interface{}, d *schema.Resource
 		}
 	}
 	return headers
+}
+
+func flattenCloudSchedulerJobHttpTargetOauthToken(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service_account_email"] =
+		flattenCloudSchedulerJobHttpTargetOauthTokenServiceAccountEmail(original["serviceAccountEmail"], d)
+	transformed["scope"] =
+		flattenCloudSchedulerJobHttpTargetOauthTokenScope(original["scope"], d)
+	return []interface{}{transformed}
+}
+func flattenCloudSchedulerJobHttpTargetOauthTokenServiceAccountEmail(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudSchedulerJobHttpTargetOauthTokenScope(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudSchedulerJobHttpTargetOidcToken(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service_account_email"] =
+		flattenCloudSchedulerJobHttpTargetOidcTokenServiceAccountEmail(original["serviceAccountEmail"], d)
+	transformed["audience"] =
+		flattenCloudSchedulerJobHttpTargetOidcTokenAudience(original["audience"], d)
+	return []interface{}{transformed}
+}
+func flattenCloudSchedulerJobHttpTargetOidcTokenServiceAccountEmail(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudSchedulerJobHttpTargetOidcTokenAudience(v interface{}, d *schema.ResourceData) interface{} {
+	return v
 }
 
 func expandCloudSchedulerJobName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -954,6 +1096,20 @@ func expandCloudSchedulerJobHttpTarget(v interface{}, d TerraformResourceData, c
 		transformed["headers"] = transformedHeaders
 	}
 
+	transformedOauthToken, err := expandCloudSchedulerJobHttpTargetOauthToken(original["oauth_token"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOauthToken); val.IsValid() && !isEmptyValue(val) {
+		transformed["oauthToken"] = transformedOauthToken
+	}
+
+	transformedOidcToken, err := expandCloudSchedulerJobHttpTargetOidcToken(original["oidc_token"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOidcToken); val.IsValid() && !isEmptyValue(val) {
+		transformed["oidcToken"] = transformedOidcToken
+	}
+
 	return transformed, nil
 }
 
@@ -978,4 +1134,72 @@ func expandCloudSchedulerJobHttpTargetHeaders(v interface{}, d TerraformResource
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandCloudSchedulerJobHttpTargetOauthToken(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedServiceAccountEmail, err := expandCloudSchedulerJobHttpTargetOauthTokenServiceAccountEmail(original["service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !isEmptyValue(val) {
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
+	}
+
+	transformedScope, err := expandCloudSchedulerJobHttpTargetOauthTokenScope(original["scope"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScope); val.IsValid() && !isEmptyValue(val) {
+		transformed["scope"] = transformedScope
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSchedulerJobHttpTargetOauthTokenServiceAccountEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSchedulerJobHttpTargetOauthTokenScope(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSchedulerJobHttpTargetOidcToken(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedServiceAccountEmail, err := expandCloudSchedulerJobHttpTargetOidcTokenServiceAccountEmail(original["service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !isEmptyValue(val) {
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
+	}
+
+	transformedAudience, err := expandCloudSchedulerJobHttpTargetOidcTokenAudience(original["audience"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAudience); val.IsValid() && !isEmptyValue(val) {
+		transformed["audience"] = transformedAudience
+	}
+
+	return transformed, nil
+}
+
+func expandCloudSchedulerJobHttpTargetOidcTokenServiceAccountEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSchedulerJobHttpTargetOidcTokenAudience(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
