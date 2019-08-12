@@ -38,14 +38,14 @@ func resourceComputeRouterInterface() *schema.Resource {
 				ConflictsWith:    []string{"interconnect_attachment"},
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: linkDiffSuppress,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"interconnect_attachment": {
 				Type:             schema.TypeString,
 				ConflictsWith:    []string{"vpn_tunnel"},
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: linkDiffSuppress,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"ip_range": {
 				Type:     schema.TypeString,

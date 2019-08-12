@@ -156,13 +156,6 @@ func isConflictError(err error) bool {
 	return false
 }
 
-func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	if GetResourceNameFromSelfLink(old) == new {
-		return true
-	}
-	return false
-}
-
 func optionalPrefixSuppress(prefix string) schema.SchemaDiffSuppressFunc {
 	return func(k, old, new string, d *schema.ResourceData) bool {
 		return prefix+old == new || prefix+new == old
