@@ -99,7 +99,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * app_engine: Update allowed `app_engine_application` locations. ([#3674](https://github.com/terraform-providers/terraform-provider-google/pull/3674))
-* composer: Make `google_composer_environment` image version updateable. ([#3681](https://github.com/terraform-providers/terraform-provider-google/pull/3681))
+* composer: Make `google_composer_environment` image version updatable. ([#3681](https://github.com/terraform-providers/terraform-provider-google/pull/3681))
 * compute: `google_compute_router_interface` now supports specifying an `interconnect_attachment`. ([#3715](https://github.com/terraform-providers/terraform-provider-google/pull/3715))
 * compute: `google_compute_router_nat` now supports specifying a `log_config` block ([#3684](https://github.com/terraform-providers/terraform-provider-google/pull/3684))
 * compute: `google_compute_router_nat` now supports more import formats. ([#3744](https://github.com/terraform-providers/terraform-provider-google/pull/3744))
@@ -1062,7 +1062,7 @@ IMPROVEMENTS:
 * container: Merge the schemas and logic for the node pool resource and the node pool field in the cluster to aid in maintainability ([#489](https://github.com/terraform-providers/terraform-provider-google/issues/489))
 * container: Add master_version to container cluster ([#538](https://github.com/terraform-providers/terraform-provider-google/issues/538))
 * sql: Add new retry wrapper fn, retry sql database instance operations that commonly 503 ([#417](https://github.com/terraform-providers/terraform-provider-google/issues/417))
-* pubsub: `push_config` field for a `google_pubsub_subscription` is not updateable ([#512](https://github.com/terraform-providers/terraform-provider-google/issues/512))
+* pubsub: `push_config` field for a `google_pubsub_subscription` is not updatable ([#512](https://github.com/terraform-providers/terraform-provider-google/issues/512))
 
 BUG FIXES:
 * compute: Fix bug in `google_compute_instance` preventing the `assigned_nat_ip` field from ever getting assigned ([#536](https://github.com/terraform-providers/terraform-provider-google/issues/536))
