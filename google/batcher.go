@@ -14,7 +14,7 @@ const defaultBatchSendIntervalSec = 10
 // existing batches.
 // In general, a batcher should be created per service that requires batching
 // in order to prevent blocking batching for one service due to another,
-// and to minimize the possiblity of overlap in batchKey formats
+// and to minimize the possibility of overlap in batchKey formats
 // (see SendRequestWithTimeout)
 type RequestBatcher struct {
 	sync.Mutex
