@@ -323,7 +323,7 @@ func TestValidateIAMCustomRoleIDRegex(t *testing.T) {
 		// No errors
 		{TestName: "basic", Value: "foobar"},
 		{TestName: "with numbers", Value: "foobar123"},
-		{TestName: "with capipals", Value: "FooBar"},
+		{TestName: "with capitals", Value: "FooBar"},
 		{TestName: "short", Value: "foo"},
 		{TestName: "long", Value: strings.Repeat("f", 64)},
 		{TestName: "has a dot", Value: "foo.bar"},
