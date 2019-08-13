@@ -300,11 +300,13 @@ func resourceBigQueryTable() *schema.Resource {
 				},
 			},
 
-			// Clustering: [Optional] Specifies which columns to cluster this table by.
+			// Clustering: [Optional] Specifies which columns to cluster this table by. Up to four
+			// top-level columns are allowed, and should be specified in descending priority order.
 			"clustering": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				MaxItems: 4,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
