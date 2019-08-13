@@ -18,7 +18,7 @@ Three different resources help you manage IAM policies on bigtable instances. Ea
 
 ~> **Note:** `google_bigtable_instance_iam_binding` resources **can be** used in conjunction with `google_bigtable_instance_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_bigtable\_subscription\_iam\_policy
+## google\_bigtable\_instance\_iam\_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -37,7 +37,7 @@ resource "google_bigtable_instance_iam_policy" "editor" {
 }
 ```
 
-## google\_bigtable\_subscription\_iam\_binding
+## google\_bigtable\_instance\_iam\_binding
 
 ```hcl
 resource "google_bigtable_instance_iam_binding" "editor" {
@@ -49,7 +49,7 @@ resource "google_bigtable_instance_iam_binding" "editor" {
 }
 ```
 
-## google\_bigtable\_subscription\_iam\_member
+## google\_bigtable\_instance\_iam\_member
 
 ```hcl
 resource "google_bigtable_instance_iam_member" "editor" {
