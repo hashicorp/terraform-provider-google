@@ -105,7 +105,7 @@ resource.TestStep{
 If you are building Terraform from source with a Google provider built from source, Terraform will automatically use the
 local `terraform-provider-google` and `terraform-provider-google-beta` plugins in `$GOPATH/bin`.
 
-In order to use a release copy of Terrafom with a local provider, you can use the [provider discovery directory](https://www.terraform.io/docs/extend/how-terraform-works.html#discovery)
+In order to use a release copy of Terraform with a local provider, you can use the [provider discovery directory](https://www.terraform.io/docs/extend/how-terraform-works.html#discovery)
 at `~/.terraform.d/plugins`. When a copy of the Google provider is present in the discovery directory, `terraform init` will
 use that copy instead of downloading a release version. If you've already used a release version of a provider in a given directory by running `terraform init`, Terraform will not use the locally built copy; remove the release version from the `./.terraform/` to start using your locally build copy.
 
