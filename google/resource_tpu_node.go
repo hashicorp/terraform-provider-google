@@ -225,7 +225,11 @@ func resourceTpuNodeCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Creating new Node: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Node: %s", err)
 	}
@@ -237,10 +241,6 @@ func resourceTpuNodeCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	waitErr := tpuOperationWaitTime(
 		config, res, project, "Creating Node",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
@@ -264,15 +264,15 @@ func resourceTpuNodeRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("TpuNode %q", d.Id()))
-	}
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	res, err := sendRequest(config, "GET", project, url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("TpuNode %q", d.Id()))
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
@@ -314,6 +314,11 @@ func resourceTpuNodeRead(d *schema.ResourceData, meta interface{}) error {
 func resourceTpuNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	d.Partial(true)
 
 	if d.HasChange("tensorflow_version") {
@@ -329,14 +334,9 @@ func resourceTpuNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Node %q: %s", d.Id(), err)
-		}
-
-		project, err := getProject(d, config)
-		if err != nil {
-			return err
 		}
 
 		err = tpuOperationWaitTime(
@@ -358,6 +358,11 @@ func resourceTpuNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 func resourceTpuNodeDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{TpuBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 	if err != nil {
 		return err
@@ -365,14 +370,10 @@ func resourceTpuNodeDelete(d *schema.ResourceData, meta interface{}) error {
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Node %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Node")
-	}
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
 	}
 
 	err = tpuOperationWaitTime(

@@ -18,7 +18,8 @@ import (
 )
 
 type SpannerOperationWaiter struct {
-	Config *Config
+	Config  *Config
+	Project string
 	CommonOperationWaiter
 }
 
@@ -28,7 +29,7 @@ func (w *SpannerOperationWaiter) QueryOp() (interface{}, error) {
 	}
 	// Returns the proper get.
 	url := fmt.Sprintf("https://spanner.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
-	return sendRequest(w.Config, "GET", url, nil)
+	return sendRequest(w.Config, "GET", w.Project, url, nil)
 }
 
 func spannerOperationWaitTime(config *Config, op map[string]interface{}, project, activity string, timeoutMinutes int) error {
@@ -37,7 +38,8 @@ func spannerOperationWaitTime(config *Config, op map[string]interface{}, project
 		return nil
 	}
 	w := &SpannerOperationWaiter{
-		Config: config,
+		Config:  config,
+		Project: project,
 	}
 	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
 		return err

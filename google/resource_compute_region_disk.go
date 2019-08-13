@@ -274,7 +274,11 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Creating new RegionDisk: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating RegionDisk: %s", err)
 	}
@@ -286,10 +290,6 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -319,7 +319,11 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRegionDisk %q", d.Id()))
 	}
@@ -336,10 +340,6 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 		return nil
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading RegionDisk: %s", err)
 	}
@@ -405,6 +405,11 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	d.Partial(true)
 
 	if d.HasChange("label_fingerprint") || d.HasChange("labels") {
@@ -426,15 +431,11 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
 		}
 
-		project, err := getProject(d, config)
-		if err != nil {
-			return err
-		}
 		op := &compute.Operation{}
 		err = Convert(res, op)
 		if err != nil {
@@ -465,15 +466,11 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
 		}
 
-		project, err := getProject(d, config)
-		if err != nil {
-			return err
-		}
 		op := &compute.Operation{}
 		err = Convert(res, op)
 		if err != nil {
@@ -499,13 +496,18 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	var obj map[string]interface{}
-	readRes, err := sendRequest(config, "GET", url, nil)
+	readRes, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeDisk %q", d.Id()))
 	}
@@ -560,15 +562,12 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 	log.Printf("[DEBUG] Deleting RegionDisk %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "RegionDisk")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {

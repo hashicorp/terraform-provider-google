@@ -79,7 +79,7 @@ func testAccCheckStorageDefaultObjectAccessControlDestroy(s *terraform.State) er
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("StorageDefaultObjectAccessControl still exists at %s", url)
 		}

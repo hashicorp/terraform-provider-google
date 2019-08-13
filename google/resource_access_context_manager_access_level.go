@@ -204,7 +204,7 @@ func resourceAccessContextManagerAccessLevelCreate(d *schema.ResourceData, meta 
 	}
 
 	log.Printf("[DEBUG] Creating new AccessLevel: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating AccessLevel: %s", err)
 	}
@@ -239,7 +239,7 @@ func resourceAccessContextManagerAccessLevelRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
+	res, err := sendRequest(config, "GET", "", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerAccessLevel %q", d.Id()))
 	}
@@ -313,7 +313,7 @@ func resourceAccessContextManagerAccessLevelUpdate(d *schema.ResourceData, meta 
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating AccessLevel %q: %s", d.Id(), err)
@@ -340,7 +340,8 @@ func resourceAccessContextManagerAccessLevelDelete(d *schema.ResourceData, meta 
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting AccessLevel %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "AccessLevel")
 	}

@@ -122,7 +122,11 @@ func resourceComputeTargetTcpProxyCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating new TargetTcpProxy: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating TargetTcpProxy: %s", err)
 	}
@@ -134,10 +138,6 @@ func resourceComputeTargetTcpProxyCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -167,15 +167,15 @@ func resourceComputeTargetTcpProxyRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetTcpProxy %q", d.Id()))
-	}
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	res, err := sendRequest(config, "GET", project, url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetTcpProxy %q", d.Id()))
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
 	}
@@ -208,6 +208,11 @@ func resourceComputeTargetTcpProxyRead(d *schema.ResourceData, meta interface{})
 func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	d.Partial(true)
 
 	if d.HasChange("proxy_header") {
@@ -223,15 +228,11 @@ func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating TargetTcpProxy %q: %s", d.Id(), err)
 		}
 
-		project, err := getProject(d, config)
-		if err != nil {
-			return err
-		}
 		op := &compute.Operation{}
 		err = Convert(res, op)
 		if err != nil {
@@ -261,15 +262,11 @@ func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating TargetTcpProxy %q: %s", d.Id(), err)
 		}
 
-		project, err := getProject(d, config)
-		if err != nil {
-			return err
-		}
 		op := &compute.Operation{}
 		err = Convert(res, op)
 		if err != nil {
@@ -295,6 +292,11 @@ func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{
 func resourceComputeTargetTcpProxyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}")
 	if err != nil {
 		return err
@@ -302,15 +304,12 @@ func resourceComputeTargetTcpProxyDelete(d *schema.ResourceData, meta interface{
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting TargetTcpProxy %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "TargetTcpProxy")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {

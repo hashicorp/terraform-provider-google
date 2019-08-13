@@ -155,7 +155,11 @@ func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Creating new NetworkEndpointGroup: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating NetworkEndpointGroup: %s", err)
 	}
@@ -167,10 +171,6 @@ func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -200,15 +200,15 @@ func resourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNetworkEndpointGroup %q", d.Id()))
-	}
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	res, err := sendRequest(config, "GET", project, url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNetworkEndpointGroup %q", d.Id()))
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
@@ -247,6 +247,11 @@ func resourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interf
 func resourceComputeNetworkEndpointGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return err
@@ -254,15 +259,12 @@ func resourceComputeNetworkEndpointGroupDelete(d *schema.ResourceData, meta inte
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting NetworkEndpointGroup %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "NetworkEndpointGroup")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {

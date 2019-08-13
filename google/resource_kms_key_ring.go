@@ -91,7 +91,11 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Creating new KeyRing: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating KeyRing: %s", err)
 	}
@@ -116,7 +120,11 @@ func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("KmsKeyRing %q", d.Id()))
 	}
@@ -133,10 +141,6 @@ func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading KeyRing: %s", err)
 	}

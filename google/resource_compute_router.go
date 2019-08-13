@@ -175,7 +175,11 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Creating new Router: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Router: %s", err)
 	}
@@ -187,10 +191,6 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -220,15 +220,15 @@ func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRouter %q", d.Id()))
-	}
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	res, err := sendRequest(config, "GET", project, url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRouter %q", d.Id()))
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
@@ -261,6 +261,11 @@ func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeRouterDescription(d.Get("description"), d, config)
 	if err != nil {
@@ -288,16 +293,12 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Updating Router %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Router %q: %s", d.Id(), err)
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -318,6 +319,11 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 func resourceComputeRouterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	lockName, err := replaceVars(d, config, "router/{{region}}/{{name}}")
 	if err != nil {
 		return err
@@ -332,15 +338,12 @@ func resourceComputeRouterDelete(d *schema.ResourceData, meta interface{}) error
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Router %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Router")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {

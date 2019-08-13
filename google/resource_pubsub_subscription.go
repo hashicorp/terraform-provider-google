@@ -198,7 +198,11 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	log.Printf("[DEBUG] Creating new Subscription: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "PUT", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Subscription: %s", err)
 	}
@@ -223,7 +227,11 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("PubsubSubscription %q", d.Id()))
 	}
@@ -240,10 +248,6 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 		return nil
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
@@ -278,6 +282,11 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 
 func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandPubsubSubscriptionLabels(d.Get("labels"), d, config)
@@ -359,7 +368,7 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
+	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Subscription %q: %s", d.Id(), err)
@@ -371,6 +380,11 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
@@ -378,7 +392,8 @@ func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) 
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Subscription %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Subscription")
 	}

@@ -96,7 +96,12 @@ func SourceRepoRepositoryIdParseFunc(d *schema.ResourceData, config *Config) err
 func (u *SourceRepoRepositoryIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	url := u.qualifyRepositoryUrl("getIamPolicy")
 
-	policy, err := sendRequest(u.Config, "GET", url, nil)
+	project, err := getProject(u.d, u.Config)
+	if err != nil {
+		return nil, err
+	}
+
+	policy, err := sendRequest(u.Config, "GET", project, url, nil)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -121,7 +126,12 @@ func (u *SourceRepoRepositoryIamUpdater) SetResourceIamPolicy(policy *cloudresou
 
 	url := u.qualifyRepositoryUrl("setIamPolicy")
 
-	_, err = sendRequestWithTimeout(u.Config, "POST", url, obj, u.d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(u.d, u.Config)
+	if err != nil {
+		return err
+	}
+
+	_, err = sendRequestWithTimeout(u.Config, "POST", project, url, obj, u.d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

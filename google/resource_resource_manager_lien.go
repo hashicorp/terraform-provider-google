@@ -111,7 +111,7 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Creating new Lien: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Lien: %s", err)
 	}
@@ -146,7 +146,7 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
+	res, err := sendRequest(config, "GET", "", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ResourceManagerLien %q", d.Id()))
 	}
@@ -215,7 +215,8 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	log.Printf("[DEBUG] Deleting Lien %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Lien")
 	}

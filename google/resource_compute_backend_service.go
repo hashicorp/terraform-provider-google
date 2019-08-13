@@ -491,7 +491,11 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating new BackendService: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating BackendService: %s", err)
 	}
@@ -503,10 +507,6 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -555,7 +555,11 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeBackendService %q", d.Id()))
 	}
@@ -572,10 +576,6 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return nil
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
@@ -647,6 +647,11 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 
 func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	affinityCookieTtlSecProp, err := expandComputeBackendServiceAffinityCookieTtlSec(d.Get("affinity_cookie_ttl_sec"), d, config)
@@ -757,16 +762,12 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Updating BackendService %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating BackendService %q: %s", d.Id(), err)
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -805,6 +806,11 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
 	if err != nil {
 		return err
@@ -812,15 +818,12 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting BackendService %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "BackendService")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {

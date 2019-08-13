@@ -134,7 +134,7 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 	}
 
 	log.Printf("[DEBUG] Creating new DefaultObjectAccessControl: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating DefaultObjectAccessControl: %s", err)
 	}
@@ -159,7 +159,7 @@ func resourceStorageDefaultObjectAccessControlRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
+	res, err := sendRequest(config, "GET", "", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("StorageDefaultObjectAccessControl %q", d.Id()))
 	}
@@ -227,7 +227,7 @@ func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, met
 	}
 
 	log.Printf("[DEBUG] Updating DefaultObjectAccessControl %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PUT", url, obj, d.Timeout(schema.TimeoutUpdate))
+	_, err = sendRequestWithTimeout(config, "PUT", "", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating DefaultObjectAccessControl %q: %s", d.Id(), err)
@@ -246,7 +246,8 @@ func resourceStorageDefaultObjectAccessControlDelete(d *schema.ResourceData, met
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting DefaultObjectAccessControl %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "DefaultObjectAccessControl")
 	}

@@ -227,7 +227,7 @@ func testAccComputeNetworkEndpointsListEndpointPorts(negId string) (map[string]s
 	config := testAccProvider.Meta().(*Config)
 
 	url := fmt.Sprintf("https://www.googleapis.com/compute/beta/%s/listNetworkEndpoints", negId)
-	res, err := sendRequest(config, "POST", url, nil)
+	res, err := sendRequest(config, "POST", "", url, nil)
 	if err != nil {
 		return nil, err
 	}

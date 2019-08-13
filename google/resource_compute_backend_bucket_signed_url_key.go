@@ -100,7 +100,11 @@ func resourceComputeBackendBucketSignedUrlKeyCreate(d *schema.ResourceData, meta
 	}
 
 	log.Printf("[DEBUG] Creating new BackendBucketSignedUrlKey: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating BackendBucketSignedUrlKey: %s", err)
 	}
@@ -112,10 +116,6 @@ func resourceComputeBackendBucketSignedUrlKeyCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -145,7 +145,11 @@ func resourceComputeBackendBucketSignedUrlKeyRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeBackendBucketSignedUrlKey %q", d.Id()))
 	}
@@ -162,10 +166,6 @@ func resourceComputeBackendBucketSignedUrlKeyRead(d *schema.ResourceData, meta i
 		return nil
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading BackendBucketSignedUrlKey: %s", err)
 	}
@@ -179,6 +179,11 @@ func resourceComputeBackendBucketSignedUrlKeyRead(d *schema.ResourceData, meta i
 
 func resourceComputeBackendBucketSignedUrlKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	lockName, err := replaceVars(d, config, "signedUrlKey/{{project}}/backendBuckets/{{backend_bucket}}/")
 	if err != nil {
@@ -194,15 +199,12 @@ func resourceComputeBackendBucketSignedUrlKeyDelete(d *schema.ResourceData, meta
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting BackendBucketSignedUrlKey %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "BackendBucketSignedUrlKey")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {

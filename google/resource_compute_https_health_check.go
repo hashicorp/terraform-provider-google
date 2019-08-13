@@ -169,7 +169,11 @@ func resourceComputeHttpsHealthCheckCreate(d *schema.ResourceData, meta interfac
 	}
 
 	log.Printf("[DEBUG] Creating new HttpsHealthCheck: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating HttpsHealthCheck: %s", err)
 	}
@@ -181,10 +185,6 @@ func resourceComputeHttpsHealthCheckCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -214,15 +214,15 @@ func resourceComputeHttpsHealthCheckRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeHttpsHealthCheck %q", d.Id()))
-	}
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	res, err := sendRequest(config, "GET", project, url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("ComputeHttpsHealthCheck %q", d.Id()))
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
 	}
@@ -266,6 +266,11 @@ func resourceComputeHttpsHealthCheckRead(d *schema.ResourceData, meta interface{
 
 func resourceComputeHttpsHealthCheckUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	checkIntervalSecProp, err := expandComputeHttpsHealthCheckCheckIntervalSec(d.Get("check_interval_sec"), d, config)
@@ -329,16 +334,12 @@ func resourceComputeHttpsHealthCheckUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	log.Printf("[DEBUG] Updating HttpsHealthCheck %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating HttpsHealthCheck %q: %s", d.Id(), err)
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -359,6 +360,11 @@ func resourceComputeHttpsHealthCheckUpdate(d *schema.ResourceData, meta interfac
 func resourceComputeHttpsHealthCheckDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/httpsHealthChecks/{{name}}")
 	if err != nil {
 		return err
@@ -366,15 +372,12 @@ func resourceComputeHttpsHealthCheckDelete(d *schema.ResourceData, meta interfac
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting HttpsHealthCheck %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "HttpsHealthCheck")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {

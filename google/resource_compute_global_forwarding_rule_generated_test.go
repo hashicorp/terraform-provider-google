@@ -117,7 +117,7 @@ func testAccCheckComputeGlobalForwardingRuleDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("ComputeGlobalForwardingRule still exists at %s", url)
 		}
