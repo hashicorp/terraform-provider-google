@@ -55,7 +55,7 @@ The following arguments are supported:
 * `origin` -
   (Required)
   A stable, user-visible/meaningful string identifying the origin
-  of the Lien, intended to be inspected programmatically. Maximum length of
+  of the Lien, intended to be inspected programatically. Maximum length of
   200 characters.
 
 * `parent` -
