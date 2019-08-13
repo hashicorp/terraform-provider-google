@@ -190,7 +190,7 @@ BUG FIXES:
 BUG FIXES:
 * compute: `google_compute_backend_service` handles empty/nil `iap` block created by previous providers properly. ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3459))
 * compute: `google_compute_backend_service` allows multiple instance types in `backends.group` again. ([#3463](https://github.com/terraform-providers/terraform-provider-google/issues/3463))
-* dns: `google_dns_managed_zone` does not permadiff when visiblity is set to default and returned as empty from API ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3461))
+* dns: `google_dns_managed_zone` does not permadiff when visibility is set to default and returned as empty from API ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3461))
 * google_projects: Datasource `google_projects` now handles paginated results from listing projects ([#3464](https://github.com/terraform-providers/terraform-provider-google/pull/3464))
 * google_project_iam: `google_project_iam_policy/member/binding` now attempts to retry for read-only operations as well as retrying read-write operations ([#3455](https://github.com/terraform-providers/terraform-provider-google/pull/3455))
 * kms: `google_kms_crypto_key.rotation_period` now can be an empty string to allow for unset behavior in modules ([#3468](https://github.com/terraform-providers/terraform-provider-google/pull/3468))
@@ -219,7 +219,7 @@ This 2.4.1 release is a bugfix release for 2.4.0. It backports the fixes applied
 BUG FIXES:
 * compute: `google_compute_backend_service` handles empty/nil `iap` block created by previous providers properly. ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3459))
 * compute: `google_compute_backend_service` allows multiple instance types in `backends.group` again. ([#3463](https://github.com/terraform-providers/terraform-provider-google/issues/3463))
-* dns: `google_dns_managed_zone` does not permadiff when visiblity is set to default and returned as empty from API ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3461))
+* dns: `google_dns_managed_zone` does not permadiff when visibility is set to default and returned as empty from API ([#3459](https://github.com/terraform-providers/terraform-provider-google/issues/3461))
 
 ## 2.4.0 (April 15, 2019)
 
