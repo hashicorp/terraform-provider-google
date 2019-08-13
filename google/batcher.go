@@ -163,7 +163,7 @@ func (b *RequestBatcher) SendRequestWithTimeout(batchKey string, request *BatchR
 	return nil, fmt.Errorf("Request %s timed out after %v", batchKey, timeout)
 }
 
-// registerBatchRequest safetly sees if an existing batch has been started
+// registerBatchRequest safely sees if an existing batch has been started
 // with the given batchKey. If a batch exists, this will combine the new
 // request into this existing batch. Else, this method manages starting a new
 // batch and adding it to the RequestBatcher's started batches.
@@ -210,7 +210,7 @@ func (b *RequestBatcher) registerBatchRequest(batchKey string, newRequest *Batch
 	return respCh, nil
 }
 
-// popBatch safetly gets and removes a batch with given batchkey from the
+// popBatch safely gets and removes a batch with given batchkey from the
 // RequestBatcher's started batches.
 func (b *RequestBatcher) popBatch(batchKey string) *startedBatch {
 	b.Lock()
