@@ -29,7 +29,7 @@ resource "google_organization_policy" "serial_port_policy" {
 ```
 
 
-To set a policy with a [list contraint](https://cloud.google.com/resource-manager/docs/organization-policy/quickstart-list-constraints):
+To set a policy with a [list constraint](https://cloud.google.com/resource-manager/docs/organization-policy/quickstart-list-constraints):
 
 ```hcl
 resource "google_organization_policy" "services_policy" {
@@ -131,7 +131,7 @@ exported:
 
 ## Import
 
-Organization Policies can be imported using the `org_id` and the `contraint`, e.g.
+Organization Policies can be imported using the `org_id` and the `constraint`, e.g.
 
 ```
 $ terraform import google_organization_policy.services_policy 123456789:constraints/serviceuser.services

@@ -29,7 +29,7 @@ resource "google_folder_organization_policy" "serial_port_policy" {
 ```
 
 
-To set a policy with a [list contraint](https://cloud.google.com/resource-manager/docs/organization-policy/quickstart-list-constraints):
+To set a policy with a [list constraint](https://cloud.google.com/resource-manager/docs/organization-policy/quickstart-list-constraints):
 
 ```hcl
 resource "google_folder_organization_policy" "services_policy" {
