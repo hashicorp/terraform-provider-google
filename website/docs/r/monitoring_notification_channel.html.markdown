@@ -30,7 +30,7 @@ like authentication tokens or contact info are only partially populated on retri
 Notification Channels are designed to be flexible and are made up of a supported `type`
 and labels to configure that channel. Each `type` has specific labels that need to be
 present for that channel to be correctly configured. The labels that are required to be
-present for one channel `type` are often different than those requried for another.
+present for one channel `type` are often different than those required for another.
 Due to these loose constraints it's often best to set up a channel through the UI
 and import to Terraform when setting up a brand new channel type to determine which
 labels are required.
