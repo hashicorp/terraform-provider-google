@@ -38,7 +38,7 @@ func sendRequest(config *Config, method, rawurl string, body map[string]interfac
 	return sendRequestWithTimeout(config, method, rawurl, body, DefaultRequestTimeout)
 }
 
-func sendRequestWithTimeout(config *Config, method, rawurl string, body map[string]interface{}, timeout time.Duration) (map[string]interface{}, error) {
+func sendRequestWithTimeout(config *Config, method, rawurl string, body map[string]interface{}, timeout time.Duration, errorRetryPredicates ...func(e error) (bool, string)) (map[string]interface{}, error) {
 	reqHeaders := make(http.Header)
 	reqHeaders.Set("User-Agent", config.userAgent)
 	reqHeaders.Set("Content-Type", "application/json")
@@ -81,6 +81,7 @@ func sendRequestWithTimeout(config *Config, method, rawurl string, body map[stri
 			return nil
 		},
 		timeout,
+		errorRetryPredicates...,
 	)
 	if err != nil {
 		return nil, err
