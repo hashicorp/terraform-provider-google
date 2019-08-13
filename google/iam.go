@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/errwrap"
@@ -199,7 +200,7 @@ func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[string]m
 		// Get each member (user/principal) for the binding
 		for _, m := range b.Members {
 			// Add the member
-			bm[b.Role][m] = struct{}{}
+			bm[b.Role][strings.ToLower(m)] = struct{}{}
 		}
 	}
 	return bm
