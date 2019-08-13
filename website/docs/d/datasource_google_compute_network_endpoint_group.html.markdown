@@ -32,12 +32,12 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project to list versions in.
     If it is not provided, the provider project is used.
 
-* `name` - (Optional) The Network Endoint Group name.
+* `name` - (Optional) The Network Endpoint Group name.
     Provide either this or a `self_link`.
 
-* `zone` - (Optional) The Network Endoint Group availability zone.
+* `zone` - (Optional) The Network Endpoint Group availability zone.
 
-* `self_link` - (Optional) The Network Endoint Group self\_link.
+* `self_link` - (Optional) The Network Endpoint Group self\_link.
 
 ## Attributes Reference
 
