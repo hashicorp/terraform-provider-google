@@ -124,7 +124,7 @@ The `condition_absent` block supports:
   (such as when aggregating multiple streams
   on each resource to a single stream for each
   resource or when aggregating streams across
-  all members of a group of resrouces).
+  all members of a group of resources).
   Multiple aggregations are applied in the
   order specified.  Structure is documented below.
 
@@ -354,7 +354,7 @@ The `condition_threshold` block supports:
   (such as when aggregating multiple streams
   on each resource to a single stream for each
   resource or when aggregating streams across
-  all members of a group of resrouces).
+  all members of a group of resources).
   Multiple aggregations are applied in the
   order specified.This field is similar to the
   one in the MetricService.ListTimeSeries
