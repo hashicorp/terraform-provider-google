@@ -126,7 +126,7 @@ The `external_data_configuration` block supports:
 * `compression` (Optional) - The compression type of the data source.
     Valid values are "NONE" or "GZIP".
 
-* `cvs_options` (Optional) - Additional properties to set if
+* `csv_options` (Optional) - Additional properties to set if
     `source_format` is set to "CSV". Structure is documented below.
 
 * `google_sheets_options` (Optional) - Additional options if
@@ -144,7 +144,7 @@ The `external_data_configuration` block supports:
     BigQuery can ignore when reading data.
 
 * `source_format` (Required) - The data format. Supported values are:
-    "CVS", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO",
+    "CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO",
     and "DATSTORE_BACKUP". To use "GOOGLE_SHEETS"
     the `scopes` must include
     "https://www.googleapis.com/auth/drive.readonly".
@@ -152,7 +152,7 @@ The `external_data_configuration` block supports:
 * `source_uris` - (Required) A list of the fully-qualified URIs that point to
     your data in Google Cloud.
 
-The `cvs_options` block supports:
+The `csv_options` block supports:
 
 * `quote` (Required) - The value that is used to quote data sections in a
     CSV file. If your data does not contain quoted sections, set the
