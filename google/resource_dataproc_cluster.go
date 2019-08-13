@@ -542,7 +542,7 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 	}
 
 	if cfg, ok := configOptions(d, "cluster_config.0.preemptible_worker_config"); ok {
-		log.Println("[INFO] got preemtible worker config")
+		log.Println("[INFO] got preemptible worker config")
 		conf.SecondaryWorkerConfig = expandPreemptibleInstanceGroupConfig(cfg)
 		if conf.SecondaryWorkerConfig.NumInstances > 0 {
 			conf.SecondaryWorkerConfig.IsPreemptible = true
