@@ -97,6 +97,11 @@ authenticate HTTP requests to GCP APIs. This is an alternative to `credentials`,
 and ignores the `scopes` field. If both are specified, `access_token` will be
 used over the `credentials` field.
 
+* `user_project_override` - (Optional) Defaults to false. If true, uses the
+resource project for preconditions, quota, and billing, instead of the project
+the credentials belong to. Not all resources support this- see the
+documentation for each resource to learn whether it does.
+
 * `{{service}}_custom_endpoint` - (Optional) The endpoint for a service's APIs,
 such as `compute_custom_endpoint`. Defaults to the production GCP endpoint for
 the service. This can be used to configure the Google provider to communicate
@@ -324,3 +329,20 @@ Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
 
 * `disable_batching` - (Optional) Defaults to false. If true, disables global
 batching and each request is sent normally.
+
+---
+
+* `user_project_override` - (Optional) Defaults to false. If true, uses the
+resource project for preconditions, quota, and billing, instead of the project
+the credentials belong to. Not all resources support this- see the
+documentation for each resource to learn whether it does.
+
+When set to false, the project the credentials belong to will be billed for the
+request, and quota / API enablement checks will be done against that project.
+For service account credentials, this is the project the service account was
+created in. For credentials that come from the gcloud tool, this is a project
+owned by Google. In order to properly use credentials that come from gcloud
+with Terraform, it is recommended to set this property to true.
+
+When set to true, the caller must have `serviceusage.services.use` permission
+on the resource project.

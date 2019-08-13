@@ -96,7 +96,12 @@ func PubsubTopicIdParseFunc(d *schema.ResourceData, config *Config) error {
 func (u *PubsubTopicIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	url := u.qualifyTopicUrl("getIamPolicy")
 
-	policy, err := sendRequest(u.Config, "GET", url, nil)
+	project, err := getProject(u.d, u.Config)
+	if err != nil {
+		return nil, err
+	}
+
+	policy, err := sendRequest(u.Config, "GET", project, url, nil)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -121,7 +126,12 @@ func (u *PubsubTopicIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 
 	url := u.qualifyTopicUrl("setIamPolicy")
 
-	_, err = sendRequestWithTimeout(u.Config, "POST", url, obj, u.d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(u.d, u.Config)
+	if err != nil {
+		return err
+	}
+
+	_, err = sendRequestWithTimeout(u.Config, "POST", project, url, obj, u.d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -184,6 +185,47 @@ func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 	})
 }
 
+func TestAccProviderUserProjectOverride(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	billing := getTestBillingAccountFromEnv(t)
+	pid := "terraform-" + acctest.RandString(10)
+	sa := "terraform-" + acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		// No TestDestroy since that's not really the point of this test
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProviderUserProjectOverride(pid, pname, org, billing, sa),
+				Check: func(s *terraform.State) error {
+					// The token creator IAM API call returns success long before the policy is
+					// actually usable. Wait a solid 2 minutes to ensure we can use it.
+					time.Sleep(2 * time.Minute)
+					return nil
+				},
+			},
+			{
+				Config:      testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, false),
+				ExpectError: regexp.MustCompile("Binary Authorization API has not been used"),
+			},
+			{
+				Config: testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, true),
+			},
+			{
+				ResourceName:      "google_binary_authorization_policy.project-2-policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccProviderUserProjectOverride_step3(pid, pname, org, billing, sa, true),
+			},
+		},
+	})
+}
+
 func testAccProviderBasePath_setBasePath(endpoint, name string) string {
 	return fmt.Sprintf(`
 provider "google" {
@@ -193,6 +235,115 @@ provider "google" {
 resource "google_compute_address" "default" {
 	name = "address-test-%s"
 }`, endpoint, name)
+}
+
+// Set up two projects. Project 1 has a service account that is used to create a
+// binauthz policy in project 2. The binauthz API is only enabled in project 2,
+// which causes the create to fail unless user_project_override is set to true.
+func testAccProviderUserProjectOverride(pid, name, org, billing, sa string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  scopes = [
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/userinfo.email",
+  ]
+}
+
+resource "google_project" "project-1" {
+	project_id      = "%s"
+	name            = "%s"
+	org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_service_account" "project-1" {
+	project    = google_project.project-1.project_id
+    account_id = "%s"
+}
+
+resource "google_project" "project-2" {
+	project_id      = "%s-2"
+	name            = "%s-2"
+	org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_service" "project-2-binauthz" {
+	project = google_project.project-2.project_id
+	service = "binaryauthorization.googleapis.com"
+}
+
+// Permission needed for user_project_override
+resource "google_project_iam_member" "project-2-serviceusage" {
+	project = google_project.project-2.project_id
+	role    = "roles/serviceusage.serviceUsageConsumer"
+	member  = "serviceAccount:${google_service_account.project-1.email}"
+}
+
+resource "google_project_iam_member" "project-2-binauthz" {
+	project = google_project.project-2.project_id
+	role    = "roles/binaryauthorization.policyEditor"
+	member  = "serviceAccount:${google_service_account.project-1.email}"
+}
+
+data "google_client_openid_userinfo" "me" {}
+
+// Enable the test runner to get an access token on behalf of
+// the project 1 service account
+resource "google_service_account_iam_member" "token-creator-iam" {
+	service_account_id = google_service_account.project-1.name
+	role               = "roles/iam.serviceAccountTokenCreator"
+	member             = "serviceAccount:${data.google_client_openid_userinfo.me.email}"
+}
+`, pid, name, org, billing, sa, pid, name, org, billing)
+}
+
+func testAccProviderUserProjectOverride_step2(pid, name, org, billing, sa string, override bool) string {
+	return fmt.Sprintf(`
+// See step 3 below, which is really step 2 minus the binauthz policy.
+// Step 3 exists because provider configurations can't be removed while objects
+// created by that provider still exist in state. Step 3 will remove the
+// binauthz policy so the whole config can be deleted.
+%s
+
+resource "google_binary_authorization_policy" "project-2-policy" {
+	provider = google.project-1-token
+	project  = google_project.project-2.project_id
+
+	admission_whitelist_patterns {
+		name_pattern= "gcr.io/google_containers/*"
+	}
+
+	default_admission_rule {
+		evaluation_mode = "ALWAYS_DENY"
+		enforcement_mode = "ENFORCED_BLOCK_AND_AUDIT_LOG"
+	}
+}
+`, testAccProviderUserProjectOverride_step3(pid, name, org, billing, sa, override))
+}
+
+func testAccProviderUserProjectOverride_step3(pid, name, org, billing, sa string, override bool) string {
+	return fmt.Sprintf(`
+%s
+
+data "google_service_account_access_token" "project-1-token" {
+	// This data source would have a depends_on t
+	// google_service_account_iam_binding.token-creator-iam, but depends_on
+	// in data sources makes them always have a diff in apply:
+	// https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
+	// Instead, rely on the other test step completing before this one.
+
+	target_service_account = google_service_account.project-1.email
+	scopes = ["userinfo-email", "https://www.googleapis.com/auth/cloud-platform"]
+	lifetime = "300s"
+}
+
+provider "google" {
+	alias  = "project-1-token"
+	access_token = data.google_service_account_access_token.project-1-token.access_token
+	user_project_override = %v
+}
+`, testAccProviderUserProjectOverride(pid, name, org, billing, sa), override)
 }
 
 // getTestRegion has the same logic as the provider's getRegion, to be used in tests.

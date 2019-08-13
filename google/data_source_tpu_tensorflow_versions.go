@@ -50,7 +50,7 @@ func dataSourceTpuTensorFlowVersionsRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	versionsRaw, err := paginatedListRequest(url, config, flattenTpuTensorflowVersions)
+	versionsRaw, err := paginatedListRequest(project, url, config, flattenTpuTensorflowVersions)
 	if err != nil {
 		return fmt.Errorf("Error listing TPU Tensorflow versions: %s", err)
 	}

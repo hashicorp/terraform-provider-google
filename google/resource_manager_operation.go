@@ -28,7 +28,7 @@ func (w *ResourceManagerOperationWaiter) QueryOp() (interface{}, error) {
 	}
 	// Returns the proper get.
 	url := fmt.Sprintf("https://cloudresourcemanager.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
-	return sendRequest(w.Config, "GET", url, nil)
+	return sendRequest(w.Config, "GET", "", url, nil)
 }
 
 func resourceManagerOperationWaitTime(config *Config, op map[string]interface{}, activity string, timeoutMinutes int) error {

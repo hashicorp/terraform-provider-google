@@ -65,7 +65,12 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 	}
 
 	log.Printf("[DEBUG] Getting attributes for CryptoKeyVersion: %#v", url)
-	res, err := sendRequest(config, "GET", url, nil)
+
+	cryptoKeyId, err := parseKmsCryptoKeyId(d.Get("crypto_key").(string), config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequest(config, "GET", cryptoKeyId.KeyRingId.Project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("KmsCryptoKeyVersion %q", d.Id()))
 	}
@@ -89,7 +94,7 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 	}
 
 	log.Printf("[DEBUG] Getting purpose of CryptoKey: %#v", url)
-	res, err = sendRequest(config, "GET", url, nil)
+	res, err = sendRequest(config, "GET", cryptoKeyId.KeyRingId.Project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("KmsCryptoKey %q", d.Id()))
 	}
@@ -100,7 +105,7 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 			return err
 		}
 		log.Printf("[DEBUG] Getting public key of CryptoKeyVersion: %#v", url)
-		res, _ = sendRequest(config, "GET", url, nil)
+		res, _ = sendRequest(config, "GET", cryptoKeyId.KeyRingId.Project, url, nil)
 
 		if err := d.Set("public_key", flattenKmsCryptoKeyVersionPublicKey(res, d)); err != nil {
 			return fmt.Errorf("Error reading CryptoKeyVersion public key: %s", err)

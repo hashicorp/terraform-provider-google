@@ -61,7 +61,7 @@ func dataSourceGoogleComposerImageVersionsRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	versions, err := paginatedListRequest(url, config, flattenGoogleComposerImageVersions)
+	versions, err := paginatedListRequest(project, url, config, flattenGoogleComposerImageVersions)
 	if err != nil {
 		return fmt.Errorf("Error listing Composer image versions: %s", err)
 	}

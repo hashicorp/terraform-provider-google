@@ -177,15 +177,16 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 	obj["name"] = peering
 	url := fmt.Sprintf("%s%s/removePeering", config.ComputeBasePath, serviceNetworkingNetworkName)
 
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ServiceNetworkingConnection %q", d.Id()))
-	}
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("ServiceNetworkingConnection %q", d.Id()))
+	}
+
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {

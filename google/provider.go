@@ -97,6 +97,11 @@ func Provider() terraform.ResourceProvider {
 				},
 			},
 
+			"user_project_override": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
 			// Generated Products
 			AccessContextManagerCustomEndpointEntryKey: AccessContextManagerCustomEndpointEntry,
 			AppEngineCustomEndpointEntryKey:            AppEngineCustomEndpointEntry,
@@ -357,9 +362,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := Config{
-		Project: d.Get("project").(string),
-		Region:  d.Get("region").(string),
-		Zone:    d.Get("zone").(string),
+		Project:             d.Get("project").(string),
+		Region:              d.Get("region").(string),
+		Zone:                d.Get("zone").(string),
+		UserProjectOverride: d.Get("user_project_override").(bool),
 	}
 
 	// Add credential source

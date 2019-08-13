@@ -469,8 +469,8 @@ func serviceAccountFQN(serviceAccount string, d TerraformResourceData, config *C
 	return fmt.Sprintf("projects/-/serviceAccounts/%s@%s.iam.gserviceaccount.com", serviceAccount, project), nil
 }
 
-func paginatedListRequest(baseUrl string, config *Config, flattener func(map[string]interface{}) []interface{}) ([]interface{}, error) {
-	res, err := sendRequest(config, "GET", baseUrl, nil)
+func paginatedListRequest(project, baseUrl string, config *Config, flattener func(map[string]interface{}) []interface{}) ([]interface{}, error) {
+	res, err := sendRequest(config, "GET", project, baseUrl, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -482,7 +482,7 @@ func paginatedListRequest(baseUrl string, config *Config, flattener func(map[str
 			break
 		}
 		url := fmt.Sprintf("%s?pageToken=%s", baseUrl, pageToken.(string))
-		res, err = sendRequest(config, "GET", url, nil)
+		res, err = sendRequest(config, "GET", project, url, nil)
 		if err != nil {
 			return nil, err
 		}

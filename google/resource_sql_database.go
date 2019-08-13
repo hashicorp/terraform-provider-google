@@ -118,7 +118,11 @@ func resourceSqlDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Creating new Database: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Database: %s", err)
 	}
@@ -130,10 +134,6 @@ func resourceSqlDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &sqladmin.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -163,15 +163,15 @@ func resourceSqlDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("SqlDatabase %q", d.Id()))
-	}
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	res, err := sendRequest(config, "GET", project, url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("SqlDatabase %q", d.Id()))
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
@@ -197,6 +197,11 @@ func resourceSqlDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSqlDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	charsetProp, err := expandSqlDatabaseCharset(d.Get("charset"), d, config)
@@ -237,16 +242,12 @@ func resourceSqlDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Updating Database %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Database %q: %s", d.Id(), err)
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &sqladmin.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -267,6 +268,11 @@ func resourceSqlDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 func resourceSqlDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	lockName, err := replaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
 	if err != nil {
 		return err
@@ -281,15 +287,12 @@ func resourceSqlDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Database %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Database")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &sqladmin.Operation{}
 	err = Convert(res, op)
 	if err != nil {
