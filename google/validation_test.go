@@ -284,7 +284,7 @@ func TestValidateProjectID(t *testing.T) {
 		// With errors
 		{TestName: "empty", Value: "", ExpectError: true},
 		{TestName: "has an slash", Value: "foo/bar", ExpectError: true},
-		{TestName: "has an upercase letter", Value: "foo-Bar", ExpectError: true},
+		{TestName: "has an uppercase letter", Value: "foo-Bar", ExpectError: true},
 		{TestName: "has a final hyphen", Value: "foo-bar-", ExpectError: true},
 	}
 
