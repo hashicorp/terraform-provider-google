@@ -23,7 +23,7 @@ description: |-
 
 Represents a NodeTemplate resource. Node templates specify properties
 for creating sole-tenant nodes, such as node type, vCPU and memory
-requirments, node affinity labels, and region.
+requirements, node affinity labels, and region.
 
 
 To get more information about NodeTemplate, see:
