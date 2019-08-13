@@ -416,7 +416,7 @@ BUG FIXES:
 * compute: attached_disk now supports region disks ([#2441](https://github.com/terraform-providers/terraform-provider-google/issues/2441))
 * compute: extract vpn tunnel region/project from vpn gateway ([#2640](https://github.com/terraform-providers/terraform-provider-google/issues/2640))
 * compute: send instance scheduling block with automaticrestart true if there is none in cfg ([#2638](https://github.com/terraform-providers/terraform-provider-google/issues/2638))
-* compute: fix disk behaivor in compute_instance_from_template ([#2695](https://github.com/terraform-providers/terraform-provider-google/issues/2695))
+* compute: fix disk behaviour in compute_instance_from_template ([#2695](https://github.com/terraform-providers/terraform-provider-google/issues/2695))
 * compute: add diffsuppress for region_autoscaler.target so it can be used with both versions of the provider ([#2770](https://github.com/terraform-providers/terraform-provider-google/issues/2770))
 * compute: fix ID for inferring project for old compute_project_metadata states ([#2844](https://github.com/terraform-providers/terraform-provider-google/issues/2844))
 * compute: `google_compute_backend_service` will send the correct `iap` block values during updates ([#2978](https://github.com/terraform-providers/terraform-provider-google/issues/2978))
