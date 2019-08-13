@@ -153,8 +153,12 @@ deprecated in favour of `node_locations`.
 * `addons_config` - (Optional) The configuration for addons supported by GKE.
     Structure is documented below.
 
-* `cluster_ipv4_cidr` - (Optional) The IP address range of the kubernetes pods in
-    this cluster. Default is an automatically assigned CIDR.
+* `cluster_ipv4_cidr` - (Optional) The IP address range of the Kubernetes pods
+in this cluster in CIDR notation (e.g. 10.96.0.0/14). Leave blank to have one
+automatically chosen or specify a /14 block in 10.0.0.0/8. This field will only
+work if your cluster is not VPC-native- when an `ip_allocation_policy` block is
+not defined, or `ip_allocation_policy.use_ip_aliases` is set to false. If your
+cluster is VPC-native, use `ip_allocation_policy.cluster_ipv4_cidr_block`. 
 
 * `cluster_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
 Per-cluster configuration of Node Auto-Provisioning with Cluster Autoscaler to
@@ -424,10 +428,12 @@ API is `false`; afterwards, it's `true`.
     subnetwork.
 
 * `cluster_ipv4_cidr_block` - (Optional) The IP address range for the cluster pod IPs.
-    Set to blank to have a range chosen with the default size. Set to /netmask (e.g. /14)
-    to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14)
-    from the RFC-1918 private networks (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to
-    pick a specific range to use.
+Set to blank to have a range chosen with the default size. Set to /netmask (e.g. /14)
+to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14)
+from the RFC-1918 private networks (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to
+pick a specific range to use. This field will only work if your cluster is
+VPC-native- when `ip_allocation_policy.use_ip_aliases` is undefined or set to
+true. If your cluster is not VPC-native, use `cluster_ipv4_cidr`. 
 
 * `node_ipv4_cidr_block` - (Optional) The IP address range of the node IPs in this cluster.
     This should be set only if `create_subnetwork` is true.
