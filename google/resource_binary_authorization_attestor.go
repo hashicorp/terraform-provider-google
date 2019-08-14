@@ -69,6 +69,7 @@ func resourceBinaryAuthorizationAttestor() *schema.Resource {
 									},
 									"id": {
 										Type:     schema.TypeString,
+										Computed: true,
 										Optional: true,
 									},
 									"pkix_public_key": {
