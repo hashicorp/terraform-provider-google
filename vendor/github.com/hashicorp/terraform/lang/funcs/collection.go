@@ -246,7 +246,7 @@ var CompactFunc = function.New(&function.Spec{
 
 		for it := listVal.ElementIterator(); it.Next(); {
 			_, v := it.Element()
-			if v.AsString() == "" {
+			if v.IsNull() || v.AsString() == "" {
 				continue
 			}
 			outputList = append(outputList, v)
@@ -390,6 +390,10 @@ var ChunklistFunc = function.New(&function.Spec{
 		listVal := args[0]
 		if !listVal.IsKnown() {
 			return cty.UnknownVal(retType), nil
+		}
+
+		if listVal.LengthInt() == 0 {
+			return cty.ListValEmpty(listVal.Type()), nil
 		}
 
 		var size int
