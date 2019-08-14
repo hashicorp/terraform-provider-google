@@ -199,8 +199,18 @@ func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[string]m
 		}
 		// Get each member (user/principal) for the binding
 		for _, m := range b.Members {
+			// members are in <type>:<value> format
+			// <type> is case sensitive
+			// <value> isn't
+			// so let's lowercase the value and leave the type alone
+			pieces := strings.SplitN(m, ":", 2)
+			if len(pieces) > 1 {
+				pieces[1] = strings.ToLower(pieces[1])
+			}
+			m = strings.Join(pieces, ":")
+
 			// Add the member
-			bm[b.Role][strings.ToLower(m)] = struct{}{}
+			bm[b.Role][m] = struct{}{}
 		}
 	}
 	return bm
