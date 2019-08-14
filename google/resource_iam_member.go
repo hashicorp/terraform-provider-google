@@ -58,10 +58,14 @@ func iamMemberImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 }
 
 func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
+	return ResourceIamMemberWithBatching(parentSpecificSchema, newUpdaterFunc, resourceIdParser, IamBatchingDisabled)
+}
+
+func ResourceIamMemberWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool) *schema.Resource {
 	return &schema.Resource{
-		Create: resourceIamMemberCreate(newUpdaterFunc),
+		Create: resourceIamMemberCreate(newUpdaterFunc, enableBatching),
 		Read:   resourceIamMemberRead(newUpdaterFunc),
-		Delete: resourceIamMemberDelete(newUpdaterFunc),
+		Delete: resourceIamMemberDelete(newUpdaterFunc, enableBatching),
 		Schema: mergeSchemas(IamMemberBaseSchema, parentSpecificSchema),
 		Importer: &schema.ResourceImporter{
 			State: iamMemberImport(resourceIdParser),
@@ -76,7 +80,7 @@ func getResourceIamMember(d *schema.ResourceData) *cloudresourcemanager.Binding 
 	}
 }
 
-func resourceIamMemberCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
+func resourceIamMemberCreate(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) schema.CreateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
@@ -84,16 +88,22 @@ func resourceIamMemberCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.Cr
 			return err
 		}
 
-		p := getResourceIamMember(d)
-		err = iamPolicyReadModifyWrite(updater, func(ep *cloudresourcemanager.Policy) error {
+		memberBind := getResourceIamMember(d)
+		modifyF := func(ep *cloudresourcemanager.Policy) error {
 			// Merge the bindings together
-			ep.Bindings = mergeBindings(append(ep.Bindings, p))
+			ep.Bindings = mergeBindings(append(ep.Bindings, memberBind))
 			return nil
-		})
+		}
+		if enableBatching {
+			err = BatchRequestModifyIamPolicy(updater, modifyF, config,
+				fmt.Sprintf("Create IAM Members %s %+v for %q", memberBind.Role, memberBind.Members[0], updater.DescribeResource()))
+		} else {
+			err = iamPolicyReadModifyWrite(updater, modifyF)
+		}
 		if err != nil {
 			return err
 		}
-		d.SetId(updater.GetResourceId() + "/" + p.Role + "/" + strings.ToLower(p.Members[0]))
+		d.SetId(updater.GetResourceId() + "/" + memberBind.Role + "/" + strings.ToLower(memberBind.Members[0]))
 		return resourceIamMemberRead(newUpdaterFunc)(d, meta)
 	}
 }
@@ -144,7 +154,7 @@ func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 	}
 }
 
-func resourceIamMemberDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteFunc {
+func resourceIamMemberDelete(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
@@ -152,13 +162,20 @@ func resourceIamMemberDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.De
 			return err
 		}
 
-		member := getResourceIamMember(d)
-		err = iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
-			p.Bindings = subtractFromBindings(p.Bindings, member)
+		memberBind := getResourceIamMember(d)
+		modifyF := func(ep *cloudresourcemanager.Policy) error {
+			// Merge the bindings together
+			ep.Bindings = subtractFromBindings(ep.Bindings, memberBind)
 			return nil
-		})
+		}
+		if enableBatching {
+			err = BatchRequestModifyIamPolicy(updater, modifyF, config,
+				fmt.Sprintf("Delete IAM Members %s %s for %q", memberBind.Role, memberBind.Members[0], updater.DescribeResource()))
+		} else {
+			err = iamPolicyReadModifyWrite(updater, modifyF)
+		}
 		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Resource %s for IAM Member (role %q, %q)", updater.GetResourceId(), member.Members[0], member.Role))
+			return handleNotFoundError(err, d, fmt.Sprintf("Resource %s for IAM Member (role %q, %q)", updater.GetResourceId(), memberBind.Members[0], memberBind.Role))
 		}
 		return resourceIamMemberRead(newUpdaterFunc)(d, meta)
 	}

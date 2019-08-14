@@ -142,7 +142,7 @@ func setServiceUsageProjectEnabledServices(services []string, project string, d 
 		}
 	}
 
-	if err := globalBatchEnableServices(toEnable, project, d, config); err != nil {
+	if err := BatchRequestEnableServices(toEnable, project, d, config); err != nil {
 		return fmt.Errorf("unable to enable Project Services %s (%+v): %s", project, services, err)
 	}
 
@@ -223,7 +223,7 @@ func listCurrentlyEnabledServices(project string, config *Config, timeout time.D
 	return apiServices, nil
 }
 
-// Enables services. WARNING: Use globalBatchEnableServices for better batching if possible.
+// Enables services. WARNING: Use BatchRequestEnableServices for better batching if possible.
 func enableServiceUsageProjectServices(services []string, project string, config *Config, timeout time.Duration) error {
 	// ServiceUsage does not allow more than 20 services to be enabled per
 	// batchEnable API call. See

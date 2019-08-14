@@ -34,11 +34,16 @@ var iamBindingSchema = map[string]*schema.Schema{
 }
 
 func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
+	return ResourceIamBindingWithBatching(parentSpecificSchema, newUpdaterFunc, resourceIdParser, IamBatchingDisabled)
+}
+
+// Resource that batches requests to the same IAM policy across multiple IAM fine-grained resources
+func ResourceIamBindingWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool) *schema.Resource {
 	return &schema.Resource{
-		Create: resourceIamBindingCreateUpdate(newUpdaterFunc),
+		Create: resourceIamBindingCreateUpdate(newUpdaterFunc, enableBatching),
 		Read:   resourceIamBindingRead(newUpdaterFunc),
-		Update: resourceIamBindingCreateUpdate(newUpdaterFunc),
-		Delete: resourceIamBindingDelete(newUpdaterFunc),
+		Update: resourceIamBindingCreateUpdate(newUpdaterFunc, enableBatching),
+		Delete: resourceIamBindingDelete(newUpdaterFunc, enableBatching),
 		Schema: mergeSchemas(iamBindingSchema, parentSpecificSchema),
 		Importer: &schema.ResourceImporter{
 			State: iamBindingImport(resourceIdParser),
@@ -46,7 +51,7 @@ func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdat
 	}
 }
 
-func resourceIamBindingCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc) func(*schema.ResourceData, interface{}) error {
+func resourceIamBindingCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) func(*schema.ResourceData, interface{}) error {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
@@ -55,11 +60,18 @@ func resourceIamBindingCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc) fu
 		}
 
 		binding := getResourceIamBinding(d)
-		err = iamPolicyReadModifyWrite(updater, func(ep *cloudresourcemanager.Policy) error {
+		modifyF := func(ep *cloudresourcemanager.Policy) error {
 			cleaned := removeAllBindingsWithRole(ep.Bindings, binding.Role)
 			ep.Bindings = append(cleaned, binding)
 			return nil
-		})
+		}
+
+		if enableBatching {
+			err = BatchRequestModifyIamPolicy(updater, modifyF, config, fmt.Sprintf(
+				"Set IAM Binding for role %q on %q", binding.Role, updater.DescribeResource()))
+		} else {
+			err = iamPolicyReadModifyWrite(updater, modifyF)
+		}
 		if err != nil {
 			return err
 		}
@@ -142,7 +154,7 @@ func iamBindingImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 	}
 }
 
-func resourceIamBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteFunc {
+func resourceIamBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
@@ -151,10 +163,17 @@ func resourceIamBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.D
 		}
 
 		binding := getResourceIamBinding(d)
-		err = iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
+		modifyF := func(p *cloudresourcemanager.Policy) error {
 			p.Bindings = removeAllBindingsWithRole(p.Bindings, binding.Role)
 			return nil
-		})
+		}
+
+		if enableBatching {
+			err = BatchRequestModifyIamPolicy(updater, modifyF, config, fmt.Sprintf(
+				"Delete IAM Binding for role %q on %q", binding.Role, updater.DescribeResource()))
+		} else {
+			err = iamPolicyReadModifyWrite(updater, modifyF)
+		}
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("Resource %q for IAM binding with role %q", updater.DescribeResource(), binding.Role))
 		}

@@ -76,7 +76,7 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	srv := d.Get("service").(string)
-	err = globalBatchEnableServices([]string{srv}, project, d, config)
+	err = BatchRequestEnableServices([]string{srv}, project, d, config)
 	if err != nil {
 		return err
 	}

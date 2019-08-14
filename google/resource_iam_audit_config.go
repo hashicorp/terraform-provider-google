@@ -39,11 +39,15 @@ var iamAuditConfigSchema = map[string]*schema.Schema{
 }
 
 func ResourceIamAuditConfig(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
+	return ResourceIamAuditConfigWithBatching(parentSpecificSchema, newUpdaterFunc, resourceIdParser, IamBatchingDisabled)
+}
+
+func ResourceIamAuditConfigWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool) *schema.Resource {
 	return &schema.Resource{
-		Create: resourceIamAuditConfigCreate(newUpdaterFunc),
+		Create: resourceIamAuditConfigCreate(newUpdaterFunc, enableBatching),
 		Read:   resourceIamAuditConfigRead(newUpdaterFunc),
-		Update: resourceIamAuditConfigUpdate(newUpdaterFunc),
-		Delete: resourceIamAuditConfigDelete(newUpdaterFunc),
+		Update: resourceIamAuditConfigUpdate(newUpdaterFunc, enableBatching),
+		Delete: resourceIamAuditConfigDelete(newUpdaterFunc, enableBatching),
 		Schema: mergeSchemas(iamAuditConfigSchema, parentSpecificSchema),
 		Importer: &schema.ResourceImporter{
 			State: iamAuditConfigImport(resourceIdParser),
@@ -51,7 +55,7 @@ func ResourceIamAuditConfig(parentSpecificSchema map[string]*schema.Schema, newU
 	}
 }
 
-func resourceIamAuditConfigCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
+func resourceIamAuditConfigCreate(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) schema.CreateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
@@ -59,15 +63,22 @@ func resourceIamAuditConfigCreate(newUpdaterFunc newResourceIamUpdaterFunc) sche
 			return err
 		}
 
-		p := getResourceIamAuditConfig(d)
-		err = iamPolicyReadModifyWrite(updater, func(ep *cloudresourcemanager.Policy) error {
-			ep.AuditConfigs = mergeAuditConfigs(append(ep.AuditConfigs, p))
+		ac := getResourceIamAuditConfig(d)
+		modifyF := func(ep *cloudresourcemanager.Policy) error {
+			ep.AuditConfigs = mergeAuditConfigs(append(ep.AuditConfigs, ac))
 			return nil
-		})
+		}
+
+		if enableBatching {
+			err = BatchRequestModifyIamPolicy(updater, modifyF, config, fmt.Sprintf(
+				"Add audit config for service %s on resource %q", ac.Service, updater.DescribeResource()))
+		} else {
+			err = iamPolicyReadModifyWrite(updater, modifyF)
+		}
 		if err != nil {
 			return err
 		}
-		d.SetId(updater.GetResourceId() + "/audit_config/" + p.Service)
+		d.SetId(updater.GetResourceId() + "/audit_config/" + ac.Service)
 		return resourceIamAuditConfigRead(newUpdaterFunc)(d, meta)
 	}
 }
@@ -139,7 +150,7 @@ func iamAuditConfigImport(resourceIdParser resourceIdParserFunc) schema.StateFun
 	}
 }
 
-func resourceIamAuditConfigUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.UpdateFunc {
+func resourceIamAuditConfigUpdate(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) schema.UpdateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
@@ -148,11 +159,17 @@ func resourceIamAuditConfigUpdate(newUpdaterFunc newResourceIamUpdaterFunc) sche
 		}
 
 		ac := getResourceIamAuditConfig(d)
-		err = iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
-			cleaned := removeAllAuditConfigsWithService(p.AuditConfigs, ac.Service)
-			p.AuditConfigs = append(cleaned, ac)
+		modifyF := func(ep *cloudresourcemanager.Policy) error {
+			cleaned := removeAllAuditConfigsWithService(ep.AuditConfigs, ac.Service)
+			ep.AuditConfigs = append(cleaned, ac)
 			return nil
-		})
+		}
+		if enableBatching {
+			err = BatchRequestModifyIamPolicy(updater, modifyF, config, fmt.Sprintf(
+				"Overwrite audit config for service %s on resource %q", ac.Service, updater.DescribeResource()))
+		} else {
+			err = iamPolicyReadModifyWrite(updater, modifyF)
+		}
 		if err != nil {
 			return err
 		}
@@ -161,7 +178,7 @@ func resourceIamAuditConfigUpdate(newUpdaterFunc newResourceIamUpdaterFunc) sche
 	}
 }
 
-func resourceIamAuditConfigDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteFunc {
+func resourceIamAuditConfigDelete(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
@@ -170,10 +187,16 @@ func resourceIamAuditConfigDelete(newUpdaterFunc newResourceIamUpdaterFunc) sche
 		}
 
 		ac := getResourceIamAuditConfig(d)
-		err = iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
-			p.AuditConfigs = removeAllAuditConfigsWithService(p.AuditConfigs, ac.Service)
+		modifyF := func(ep *cloudresourcemanager.Policy) error {
+			ep.AuditConfigs = removeAllAuditConfigsWithService(ep.AuditConfigs, ac.Service)
 			return nil
-		})
+		}
+		if enableBatching {
+			err = BatchRequestModifyIamPolicy(updater, modifyF, config, fmt.Sprintf(
+				"Delete audit config for service %s on resource %q", ac.Service, updater.DescribeResource()))
+		} else {
+			err = iamPolicyReadModifyWrite(updater, modifyF)
+		}
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("Resource %s with IAM audit config %q", updater.DescribeResource(), d.Id()))
 		}
