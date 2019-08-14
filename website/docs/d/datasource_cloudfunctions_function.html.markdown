@@ -51,6 +51,7 @@ exported:
 * `event_trigger` - A source that fires events in response to a condition in another service. Structure is documented below.
 * `https_trigger_url` - If function is triggered by HTTP, trigger URL is set here.
 * `labels` - A map of labels applied to this function.
+* `service_account_email` - The service account email to be assumed by the cloud function.
 
 The `event_trigger` block contains:
 
