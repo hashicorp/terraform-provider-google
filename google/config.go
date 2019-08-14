@@ -85,6 +85,7 @@ type Config struct {
 	PubsubBasePath               string
 	RedisBasePath                string
 	ResourceManagerBasePath      string
+	SecurityCenterBasePath       string
 	SourceRepoBasePath           string
 	SpannerBasePath              string
 	SqlBasePath                  string
