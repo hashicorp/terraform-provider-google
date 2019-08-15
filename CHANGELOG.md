@@ -7,8 +7,8 @@ FEATURES:
 
 ENHANCEMENTS:
 * bigquery: Added support for `google_bigquery_data_transfer_config` (which include scheduled queries). [GH-4102]
-* binary_authorization: Added `globalPolicyEvaluationMode` to `google_binary_authorization_policy`. [GH-4124]
 * bigtable: `google_bigtable_instance` max number of `cluster` blocks is now 4 [GH-4156]
+* binary_authorization: Added `globalPolicyEvaluationMode` to `google_binary_authorization_policy`. [GH-4124]
 * cloudfunctions: Allow partial URIs in google_cloudfunctions_function event_trigger.resource [GH-4201]
 * compute: Enable update for `google_compute_router_nat`
 * netblock: Extended `google_netblock_ip_ranges` to supportmultiple useful IP address ranges that have a special meaning on GCP. [GH-4121]
