@@ -1,4 +1,28 @@
-## 2.12.1 (Unreleased)
+## 2.13.0 (Unreleased)
+
+FEATURES:
+* **New Resource**: added the `google_vpc_access_connector` resource and the `vpc_connector` option on the `google_cloudfunctions_function` resource. [GH-4189]
+* **New Resource**: Add `google_scc_source` resource for managing Cloud Security Command Center sources in Terraform [GH-4236]
+* **New Data Source**: `google_compute_network_endpoint_group` [GH-4173]
+
+ENHANCEMENTS:
+* bigquery: Added support for `google_bigquery_data_transfer_config` (which include scheduled queries). [GH-4102]
+* binary_authorization: Added `globalPolicyEvaluationMode` to `google_binary_authorization_policy`. [GH-4124]
+* bigtable: `google_bigtable_instance` max number of `cluster` blocks is now 4 [GH-4156]
+* cloudfunctions: Allow partial URIs in google_cloudfunctions_function event_trigger.resource [GH-4201]
+* compute: Enable update for `google_compute_router_nat`
+* netblock: Extended `google_netblock_ip_ranges` to supportmultiple useful IP address ranges that have a special meaning on GCP. [GH-4121]
+* project: Wrapped API requests with retries for `google_project`, `google_folder`, and `google_*_organization_policy` [GH-4098]
+* project: IAM and service requests are now batched [GH-4207]
+* provider: allow provider's region to be specified as a self_link [GH-4219]
+* provider: Adds new provider-level field `user_project_override`, which allows billing, quota checks, and service enablement checks to occur against the project a resource is in instead of the project the credentials are from. [GH-4202]
+* pubsub: Pub/Sub topic geo restriction support. [GH-4131]
+
+BUG FIXES:
+* binary_authorization: don't diff when attestation authority note public keys don't have an ID in the config [GH-4246]
+* compute: google_compute_instance's description field is now set in state [GH-4136]
+* project: ignore errors when deleting a default network that doesn't exist [GH-4137]
+
 ## 2.12.0 (August 01, 2019)
 
 FEATURES:
