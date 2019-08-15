@@ -119,7 +119,7 @@ func migrateStateV0toV1(is *terraform.InstanceState) (*terraform.InstanceState, 
 func migrateStateV1toV2(is *terraform.InstanceState) (*terraform.InstanceState, error) {
 	log.Printf("[DEBUG] Attributes before migration: %#v", is.Attributes)
 
-	// Maps service account index to list of scopes for that sccount
+	// Maps service account index to list of scopes for that account
 	newScopesMap := make(map[string][]string)
 
 	for k, v := range is.Attributes {

@@ -136,7 +136,7 @@ func testAccCheckBigQueryExtData(expectedQuoteChar string) resource.TestCheckFun
 			}
 
 			if res.Type != "EXTERNAL" {
-				return fmt.Errorf("Table \"%s.%s\" is of type \"%s\", expecterd EXTERNAL.", dataset, table, res.Type)
+				return fmt.Errorf("Table \"%s.%s\" is of type \"%s\", expected EXTERNAL.", dataset, table, res.Type)
 			}
 			edc := res.ExternalDataConfiguration
 			cvsOpts := edc.CsvOptions

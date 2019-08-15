@@ -14,7 +14,7 @@ Three different resources help you manage IAM policies on dataproc jobs. Each of
 * `google_dataproc_job_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the job are preserved.
 * `google_dataproc_job_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the job are preserved.
 
-~> **Note:** `google_dataproc_job_iam_policy` **cannot** be used in conjunction with `google_dataproc_job_iam_binding` and `google_dataproc_job_iam_member` or they will fight over what your policy should be. In addition, be careful not to accidentaly unset ownership of the job as `google_dataproc_job_iam_policy` replaces the entire policy.
+~> **Note:** `google_dataproc_job_iam_policy` **cannot** be used in conjunction with `google_dataproc_job_iam_binding` and `google_dataproc_job_iam_member` or they will fight over what your policy should be. In addition, be careful not to accidentally unset ownership of the job as `google_dataproc_job_iam_policy` replaces the entire policy.
 
 ~> **Note:** `google_dataproc_job_iam_binding` resources **can be** used in conjunction with `google_dataproc_job_iam_member` resources **only if** they do not grant privilege to the same role.
 

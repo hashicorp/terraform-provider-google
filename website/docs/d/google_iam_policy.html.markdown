@@ -71,7 +71,7 @@ each accept the following arguments:
   See the [IAM Roles](https://cloud.google.com/compute/docs/access/iam) documentation for a complete list of roles.
   Note that custom roles must be of the format `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
-* `members` (Required) - An array of identites that will be granted the privilege in the `role`. For more details on format and restrictions see https://cloud.google.com/billing/reference/rest/v1/Policy#Binding
+* `members` (Required) - An array of identities that will be granted the privilege in the `role`. For more details on format and restrictions see https://cloud.google.com/billing/reference/rest/v1/Policy#Binding
   Each entry can have one of the following values:
   * **allUsers**: A special identifier that represents anyone who is on the internet; with or without a Google account. It **can't** be used with the `google_project` resource.
   * **allAuthenticatedUsers**: A special identifier that represents anyone who is authenticated with a Google account or a service account. It **can't** be used with the `google_project` resource.

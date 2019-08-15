@@ -245,7 +245,7 @@ In addition to the arguments listed above, the following computed attributes are
   Last attach timestamp in RFC3339 text format.
 
 * `last_detach_timestamp` -
-  Last dettach timestamp in RFC3339 text format.
+  Last detach timestamp in RFC3339 text format.
 
 * `users` -
   Links to the users of the disk (attached instances) in form:

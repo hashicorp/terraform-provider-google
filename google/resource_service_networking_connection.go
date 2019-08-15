@@ -32,7 +32,7 @@ func resourceServiceNetworkingConnection() *schema.Resource {
 			},
 			// NOTE(craigatgoogle): This field is weird, it's required to make the Insert/List calls as a parameter
 			// named "parent", however it's also defined in the response as an output field called "peering", which
-			// uses "-" as a delimeter instead of ".". To alleviate user confusion I've opted to model the gcloud
+			// uses "-" as a delimiter instead of ".". To alleviate user confusion I've opted to model the gcloud
 			// CLI's approach, calling the field "service" and accepting the same format as the CLI with the "."
 			// delimiter.
 			// See: https://cloud.google.com/vpc/docs/configure-private-services-access#creating-connection

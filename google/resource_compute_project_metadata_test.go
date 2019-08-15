@@ -15,7 +15,7 @@ func TestAccComputeProjectMetadata_basic(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	projectID := "terrafom-test-" + acctest.RandString(10)
+	projectID := "terraform-test-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -40,7 +40,7 @@ func TestAccComputeProjectMetadata_modify_1(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	projectID := "terrafom-test-" + acctest.RandString(10)
+	projectID := "terraform-test-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

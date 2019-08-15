@@ -117,7 +117,7 @@ The following arguments are supported:
   Bridge does not contain access levels or services: those are governed
   entirely by the regular perimeter that resource is in.
   Perimeter Bridges are typically useful when building more complex
-  toplogies with many independent perimeters that need to share some data
+  topologies with many independent perimeters that need to share some data
   with a common perimeter, but should not be able to share data among
   themselves.
 

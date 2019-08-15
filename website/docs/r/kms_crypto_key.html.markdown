@@ -101,7 +101,7 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Labels with user-defined metadata to apply to this reosure.
+  Labels with user-defined metadata to apply to this resource.
 
 * `purpose` -
   (Optional)
