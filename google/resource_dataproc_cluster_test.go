@@ -1317,6 +1317,8 @@ resource "google_project_iam_member" "kms-project-binding" {
 }
 
 resource "google_dataproc_cluster" "kms" {
+	depends_on = [google_project_iam_member.kms-project-binding]
+
 	name   = "dproc-cluster-test-%s"
 	region = "us-central1"
 

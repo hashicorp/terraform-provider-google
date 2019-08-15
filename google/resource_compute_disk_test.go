@@ -664,6 +664,8 @@ resource "google_project_iam_member" "kms-project-binding" {
 }
 
 resource "google_compute_disk" "foobar" {
+  depends_on = [google_project_iam_member.kms-project-binding]
+
   name    = "%s"
   image   = "${data.google_compute_image.my_image.self_link}"
   size    = 10

@@ -2277,6 +2277,8 @@ resource "google_project_iam_member" "kms-project-binding" {
 }
 
 resource "google_compute_disk" "foobar" {
+	depends_on = [google_project_iam_member.kms-project-binding]
+
 	name = "%s"
 	size = 10
 	type = "pd-ssd"
@@ -2288,6 +2290,8 @@ resource "google_compute_disk" "foobar" {
 }
 
 resource "google_compute_disk" "foobar2" {
+	depends_on = [google_project_iam_member.kms-project-binding]
+
 	name = "%s"
 	size = 10
 	type = "pd-ssd"
@@ -2299,6 +2303,8 @@ resource "google_compute_disk" "foobar2" {
 }
 
 resource "google_compute_disk" "foobar3" {
+	depends_on = [google_project_iam_member.kms-project-binding]
+
 	name = "%s"
 	size = 10
 	type = "pd-ssd"
@@ -2317,6 +2323,8 @@ resource "google_compute_disk" "foobar4" {
 }
 
 resource "google_compute_instance" "foobar" {
+	depends_on = [google_project_iam_member.kms-project-binding]
+
 	name         = "%s"
 	machine_type = "n1-standard-1"
 	zone         = "us-central1-a"
