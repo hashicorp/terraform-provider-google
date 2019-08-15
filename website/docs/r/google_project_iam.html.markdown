@@ -97,7 +97,7 @@ The following arguments are supported:
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
 
-* `role` - (Required except for google\_project\_iam\_audit\) The role that should be applied. Only one
+* `role` - (Required except for google\_project\_iam\_audit\_config) The role that should be applied. Only one
     `google_project_iam_binding` can be used per role. Note that custom roles must be of the format
     `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
