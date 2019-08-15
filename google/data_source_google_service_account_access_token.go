@@ -48,7 +48,7 @@ func dataSourceGoogleServiceAccountAccessToken() *schema.Resource {
 			"lifetime": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateDuration(), // duration <=3600s; TODO: support validteDuration(min,max)
+				ValidateFunc: validateDuration(), // duration <=3600s; TODO: support validateDuration(min,max)
 				Default:      "3600s",
 			},
 		},

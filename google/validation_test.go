@@ -284,7 +284,7 @@ func TestValidateProjectID(t *testing.T) {
 		// With errors
 		{TestName: "empty", Value: "", ExpectError: true},
 		{TestName: "has an slash", Value: "foo/bar", ExpectError: true},
-		{TestName: "has an upercase letter", Value: "foo-Bar", ExpectError: true},
+		{TestName: "has an uppercase letter", Value: "foo-Bar", ExpectError: true},
 		{TestName: "has a final hyphen", Value: "foo-bar-", ExpectError: true},
 	}
 
@@ -323,7 +323,7 @@ func TestValidateIAMCustomRoleIDRegex(t *testing.T) {
 		// No errors
 		{TestName: "basic", Value: "foobar"},
 		{TestName: "with numbers", Value: "foobar123"},
-		{TestName: "with capipals", Value: "FooBar"},
+		{TestName: "with capitals", Value: "FooBar"},
 		{TestName: "short", Value: "foo"},
 		{TestName: "long", Value: strings.Repeat("f", 64)},
 		{TestName: "has a dot", Value: "foo.bar"},

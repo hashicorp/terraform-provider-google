@@ -510,7 +510,7 @@ func expandPubsubSubscriptionName(v interface{}, d TerraformResourceData, config
 		// however we need it to be stored as the short form since it's used for the replaceVars in the URL.
 		// The unintuitive behavior is that if the user provides the long form, we use the project from there, not the one
 		// specified on the resource or provider.
-		// TODO(drebes): consider depracating the long form behavior for 3.0
+		// TODO(drebes): consider deprecating the long form behavior for 3.0
 		d.Set("project", match[1])
 		d.Set("name", match[2])
 		return subscription, nil

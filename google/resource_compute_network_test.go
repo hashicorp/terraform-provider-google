@@ -111,7 +111,7 @@ func TestAccComputeNetwork_routingModeAndUpdate(t *testing.T) {
 						"google_compute_network.acc_network_routing_mode", &network, "GLOBAL"),
 				),
 			},
-			// Test updating the routing field (only updateable field).
+			// Test updating the routing field (only updatable field).
 			{
 				Config: testAccComputeNetwork_routing_mode(networkName, "REGIONAL"),
 				Check: resource.ComposeTestCheckFunc(

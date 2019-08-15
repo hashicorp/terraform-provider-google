@@ -313,7 +313,7 @@ as their versioned counterpart but that won't necessarily always be the case.
   below for requests which use batching) Batching is really only needed for
   resources where several requests are made at the same time to an underlying
   GCP resource protected by a fairly low default quota, or with very slow
-  operations with slower eventual propagatation. If you're not completely sure
+  operations with slower eventual propagation. If you're not completely sure
   what you are doing, avoid setting custom batching configuration.
 
 **So far, batching is implemented for**:

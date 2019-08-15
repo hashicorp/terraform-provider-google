@@ -694,7 +694,7 @@ func TestIamMergeAuditConfigs(t *testing.T) {
 	for _, tc := range testCases {
 		got := mergeAuditConfigs(tc.input)
 		if !compareAuditConfigs(got, tc.expect) {
-			t.Errorf("Unexpected value for mergeAuditConfigss(%s).\nActual: %s\nExpected: %s\n",
+			t.Errorf("Unexpected value for mergeAuditConfigs(%s).\nActual: %s\nExpected: %s\n",
 				debugPrintAuditConfigs(tc.input), debugPrintAuditConfigs(got), debugPrintAuditConfigs(tc.expect))
 		}
 	}
@@ -989,7 +989,7 @@ func TestIamCreateIamAuditConfigsMap(t *testing.T) {
 	for _, tc := range testCases {
 		got := createIamAuditConfigsMap(tc.input)
 		if !reflect.DeepEqual(got, tc.expect) {
-			t.Errorf("Unexpected value for subtractFromAuditConfigss(%s).\nActual: %#v\nExpected: %#v\n",
+			t.Errorf("Unexpected value for createIamAuditConfigsMap(%s).\nActual: %#v\nExpected: %#v\n",
 				debugPrintAuditConfigs(tc.input), got, tc.expect)
 		}
 	}

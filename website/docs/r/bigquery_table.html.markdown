@@ -60,7 +60,7 @@ EOF
 
 resource "google_bigquery_table" "sheet" {
   dataset_id = "${google_bigquery_dataset.default.dataset_id}"
-  table_id   = "scheet"
+  table_id   = "sheet"
 
   external_data_configuration {
     autodetect    = true
@@ -181,10 +181,10 @@ The `google_sheets_options` block supports:
 
 * `range` (Optional, Beta) - Range of a sheet to query from. Only used when
     non-empty.
-    Typical formatcal format: "sheet_name!top_left_cell_id:bottom_right_cell_id"
+    Typical format: "sheet_name!top_left_cell_id:bottom_right_cell_id"
     For example: "sheet1!A1:B20"
 
-* `skip_leading_rows` (Optional) - The number of rows at the top of the scheet
+* `skip_leading_rows` (Optional) - The number of rows at the top of the sheet
     that BigQuery will skip when reading the data.
 
 The `time_partitioning` block supports:

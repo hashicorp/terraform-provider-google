@@ -30,13 +30,13 @@ like authentication tokens or contact info are only partially populated on retri
 Notification Channels are designed to be flexible and are made up of a supported `type`
 and labels to configure that channel. Each `type` has specific labels that need to be
 present for that channel to be correctly configured. The labels that are required to be
-present for one channel `type` are often different than those requried for another.
+present for one channel `type` are often different than those required for another.
 Due to these loose constraints it's often best to set up a channel through the UI
 and import to Terraform when setting up a brand new channel type to determine which
 labels are required.
 
 A list of supported channels per project the `list` endpoint can be
-accessed programatically or through the api explorer at  https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.notificationChannelDescriptors/list .
+accessed programmatically or through the api explorer at  https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.notificationChannelDescriptors/list .
 This provides the channel type and all of the required labels that must be passed.
 
 
@@ -103,7 +103,7 @@ The following arguments are supported:
 
 * `description` -
   (Optional)
-  An optional human-readable description of this notification channel. This description may provide additional details, beyond the display name, for the channel. This may not exceeed 1024 Unicode characters.
+  An optional human-readable description of this notification channel. This description may provide additional details, beyond the display name, for the channel. This may not exceed 1024 Unicode characters.
 
 * `enabled` -
   (Optional)

@@ -53,7 +53,7 @@ In addition to the arguments listed above, the following attributes are exported
 
 * `self_link` - The URI of the Backend Service.
 
-* `session_affinity` - The Backend Service session stickyness configuration.
+* `session_affinity` - The Backend Service session stickiness configuration.
 
 * `timeout_sec` - The number of seconds to wait for a backend to respond to a request before considering the request failed.
 

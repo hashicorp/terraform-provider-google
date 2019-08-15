@@ -388,7 +388,7 @@ func getTestZoneFromEnv() string {
 }
 
 // Firestore can't be enabled at the same time as Datastore, so we need a new
-// project to manage it until we can enable Firestore programatically.
+// project to manage it until we can enable Firestore programmatically.
 func getTestFirestoreProjectFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, firestoreProjectEnvVars...)
 	return multiEnvSearch(firestoreProjectEnvVars)

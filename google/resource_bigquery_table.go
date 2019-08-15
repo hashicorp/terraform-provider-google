@@ -168,7 +168,7 @@ func resourceBigQueryTable() *schema.Resource {
 										Optional: true,
 									},
 									// SkipLeadingRows: [Optional] The number of rows at the top
-									// of the scheet that BigQuery will skip when reading the data.
+									// of the sheet that BigQuery will skip when reading the data.
 									"skip_leading_rows": {
 										Type:     schema.TypeInt,
 										Optional: true,

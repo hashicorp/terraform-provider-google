@@ -33,7 +33,7 @@ func parseImportId(idRegexes []string, d TerraformResourceData, config *Config) 
 				log.Printf("[DEBUG] importing %s = %s", fieldName, fieldValue)
 				// Because we do not know at this point whether 'fieldName'
 				// corresponds to a TypeString or a TypeInteger in the resource
-				// schema, we need to determine the type in an unintutitive way.
+				// schema, we need to determine the type in an unintuitive way.
 				// We call d.Get, because examining the empty value is the easiest
 				// way to get that out.  Normally, we would be able to just
 				// use a try/catch pattern - try as a string, and if that doesn't

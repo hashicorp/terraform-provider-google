@@ -65,7 +65,7 @@ func TestAccProjectServices_basic(t *testing.T) {
 }
 
 // Test that services are authoritative when a project has existing
-// sevices not represented in config
+// services not represented in config
 func TestAccProjectServices_authoritative(t *testing.T) {
 	t.Parallel()
 
@@ -103,7 +103,7 @@ func TestAccProjectServices_authoritative(t *testing.T) {
 }
 
 // Test that services are authoritative when a project has existing
-// sevices, some which are represented in the config and others
+// services, some which are represented in the config and others
 // that are not
 func TestAccProjectServices_authoritative2(t *testing.T) {
 	t.Parallel()

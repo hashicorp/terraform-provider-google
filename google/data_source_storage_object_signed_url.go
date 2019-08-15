@@ -283,7 +283,7 @@ func (u *UrlData) SigningString() []byte {
 		buf.WriteString(fmt.Sprintf("%s:%s\n", k, u.HttpHeaders[k]))
 	}
 
-	// Storate Object path (includes bucketname)
+	// Storage Object path (includes bucketname)
 	buf.WriteString(u.Path)
 
 	return buf.Bytes()
