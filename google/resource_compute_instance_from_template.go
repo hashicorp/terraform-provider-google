@@ -106,7 +106,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error loading zone '%s': %s", z, err)
 	}
 
-	instance, err := expandComputeInstance(project, zone, d, config)
+	instance, err := expandComputeInstance(project, d, config)
 	if err != nil {
 		return err
 	}
@@ -172,7 +172,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *Config, it *computeBeta.InstanceTemplate, zone *compute.Zone, project string) ([]*computeBeta.AttachedDisk, error) {
 	disks := []*computeBeta.AttachedDisk{}
 	if _, hasBootDisk := d.GetOk("boot_disk"); hasBootDisk {
-		bootDisk, err := expandBootDisk(d, config, zone, project)
+		bootDisk, err := expandBootDisk(d, config, project)
 		if err != nil {
 			return nil, err
 		}
@@ -195,7 +195,7 @@ func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *Config, it 
 	}
 
 	if _, hasScratchDisk := d.GetOk("scratch_disk"); hasScratchDisk {
-		scratchDisks, err := expandScratchDisks(d, config, zone, project)
+		scratchDisks, err := expandScratchDisks(d, config, project)
 		if err != nil {
 			return nil, err
 		}
