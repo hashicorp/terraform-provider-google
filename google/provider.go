@@ -103,28 +103,182 @@ func Provider() terraform.ResourceProvider {
 			},
 
 			// Generated Products
-			AccessContextManagerCustomEndpointEntryKey: AccessContextManagerCustomEndpointEntry,
-			AppEngineCustomEndpointEntryKey:            AppEngineCustomEndpointEntry,
-			BigqueryDataTransferCustomEndpointEntryKey: BigqueryDataTransferCustomEndpointEntry,
-			BinaryAuthorizationCustomEndpointEntryKey:  BinaryAuthorizationCustomEndpointEntry,
-			CloudBuildCustomEndpointEntryKey:           CloudBuildCustomEndpointEntry,
-			CloudSchedulerCustomEndpointEntryKey:       CloudSchedulerCustomEndpointEntry,
-			ComputeCustomEndpointEntryKey:              ComputeCustomEndpointEntry,
-			DnsCustomEndpointEntryKey:                  DnsCustomEndpointEntry,
-			FilestoreCustomEndpointEntryKey:            FilestoreCustomEndpointEntry,
-			FirestoreCustomEndpointEntryKey:            FirestoreCustomEndpointEntry,
-			KmsCustomEndpointEntryKey:                  KmsCustomEndpointEntry,
-			LoggingCustomEndpointEntryKey:              LoggingCustomEndpointEntry,
-			MonitoringCustomEndpointEntryKey:           MonitoringCustomEndpointEntry,
-			PubsubCustomEndpointEntryKey:               PubsubCustomEndpointEntry,
-			RedisCustomEndpointEntryKey:                RedisCustomEndpointEntry,
-			ResourceManagerCustomEndpointEntryKey:      ResourceManagerCustomEndpointEntry,
-			SecurityCenterCustomEndpointEntryKey:       SecurityCenterCustomEndpointEntry,
-			SourceRepoCustomEndpointEntryKey:           SourceRepoCustomEndpointEntry,
-			SpannerCustomEndpointEntryKey:              SpannerCustomEndpointEntry,
-			SqlCustomEndpointEntryKey:                  SqlCustomEndpointEntry,
-			StorageCustomEndpointEntryKey:              StorageCustomEndpointEntry,
-			TpuCustomEndpointEntryKey:                  TpuCustomEndpointEntry,
+			"access_context_manager_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_ACCESS_CONTEXT_MANAGER_CUSTOM_ENDPOINT",
+				}, AccessContextManagerDefaultBasePath),
+			},
+			"app_engine_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_APP_ENGINE_CUSTOM_ENDPOINT",
+				}, AppEngineDefaultBasePath),
+			},
+			"bigquery_data_transfer_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_BIGQUERY_DATA_TRANSFER_CUSTOM_ENDPOINT",
+				}, BigqueryDataTransferDefaultBasePath),
+			},
+			"binary_authorization_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_BINARY_AUTHORIZATION_CUSTOM_ENDPOINT",
+				}, BinaryAuthorizationDefaultBasePath),
+			},
+			"cloud_build_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_CLOUD_BUILD_CUSTOM_ENDPOINT",
+				}, CloudBuildDefaultBasePath),
+			},
+			"cloud_scheduler_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_CLOUD_SCHEDULER_CUSTOM_ENDPOINT",
+				}, CloudSchedulerDefaultBasePath),
+			},
+			"compute_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_COMPUTE_CUSTOM_ENDPOINT",
+				}, ComputeDefaultBasePath),
+			},
+			"dns_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_DNS_CUSTOM_ENDPOINT",
+				}, DnsDefaultBasePath),
+			},
+			"filestore_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_FILESTORE_CUSTOM_ENDPOINT",
+				}, FilestoreDefaultBasePath),
+			},
+			"firestore_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_FIRESTORE_CUSTOM_ENDPOINT",
+				}, FirestoreDefaultBasePath),
+			},
+			"kms_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_KMS_CUSTOM_ENDPOINT",
+				}, KmsDefaultBasePath),
+			},
+			"logging_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_LOGGING_CUSTOM_ENDPOINT",
+				}, LoggingDefaultBasePath),
+			},
+			"monitoring_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_MONITORING_CUSTOM_ENDPOINT",
+				}, MonitoringDefaultBasePath),
+			},
+			"pubsub_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_PUBSUB_CUSTOM_ENDPOINT",
+				}, PubsubDefaultBasePath),
+			},
+			"redis_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_REDIS_CUSTOM_ENDPOINT",
+				}, RedisDefaultBasePath),
+			},
+			"resource_manager_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
+				}, ResourceManagerDefaultBasePath),
+			},
+			"security_center_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_SECURITY_CENTER_CUSTOM_ENDPOINT",
+				}, SecurityCenterDefaultBasePath),
+			},
+			"source_repo_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_SOURCE_REPO_CUSTOM_ENDPOINT",
+				}, SourceRepoDefaultBasePath),
+			},
+			"spanner_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_SPANNER_CUSTOM_ENDPOINT",
+				}, SpannerDefaultBasePath),
+			},
+			"sql_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_SQL_CUSTOM_ENDPOINT",
+				}, SqlDefaultBasePath),
+			},
+			"storage_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_STORAGE_CUSTOM_ENDPOINT",
+				}, StorageDefaultBasePath),
+			},
+			"tpu_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_TPU_CUSTOM_ENDPOINT",
+				}, TpuDefaultBasePath),
+			},
 
 			// Handwritten Products / Versioned / Atypical Entries
 			CloudBillingCustomEndpointEntryKey:           CloudBillingCustomEndpointEntry,
@@ -211,6 +365,9 @@ func Provider() terraform.ResourceProvider {
 	}
 }
 
+// Generated resources: 69
+// Generated IAM resources: 6
+// Total generated resources: 75
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -218,28 +375,83 @@ func ResourceMap() map[string]*schema.Resource {
 
 func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 	return mergeResourceMaps(
-		GeneratedAccessContextManagerResourcesMap,
-		GeneratedAppEngineResourcesMap,
-		GeneratedBigqueryDataTransferResourcesMap,
-		GeneratedBinaryAuthorizationResourcesMap,
-		GeneratedCloudBuildResourcesMap,
-		GeneratedCloudSchedulerResourcesMap,
-		GeneratedComputeResourcesMap,
-		GeneratedDnsResourcesMap,
-		GeneratedFilestoreResourcesMap,
-		GeneratedFirestoreResourcesMap,
-		GeneratedKmsResourcesMap,
-		GeneratedLoggingResourcesMap,
-		GeneratedMonitoringResourcesMap,
-		GeneratedPubsubResourcesMap,
-		GeneratedRedisResourcesMap,
-		GeneratedResourceManagerResourcesMap,
-		GeneratedSecurityCenterResourcesMap,
-		GeneratedSourceRepoResourcesMap,
-		GeneratedSpannerResourcesMap,
-		GeneratedSqlResourcesMap,
-		GeneratedStorageResourcesMap,
-		GeneratedTpuResourcesMap,
+		map[string]*schema.Resource{
+			"google_access_context_manager_access_policy":     resourceAccessContextManagerAccessPolicy(),
+			"google_access_context_manager_access_level":      resourceAccessContextManagerAccessLevel(),
+			"google_access_context_manager_service_perimeter": resourceAccessContextManagerServicePerimeter(),
+			"google_app_engine_firewall_rule":                 resourceAppEngineFirewallRule(),
+			"google_bigquery_data_transfer_config":            resourceBigqueryDataTransferConfig(),
+			"google_binary_authorization_attestor":            resourceBinaryAuthorizationAttestor(),
+			"google_binary_authorization_policy":              resourceBinaryAuthorizationPolicy(),
+			"google_cloudbuild_trigger":                       resourceCloudBuildTrigger(),
+			"google_cloud_scheduler_job":                      resourceCloudSchedulerJob(),
+			"google_compute_address":                          resourceComputeAddress(),
+			"google_compute_autoscaler":                       resourceComputeAutoscaler(),
+			"google_compute_backend_bucket":                   resourceComputeBackendBucket(),
+			"google_compute_backend_bucket_signed_url_key":    resourceComputeBackendBucketSignedUrlKey(),
+			"google_compute_backend_service":                  resourceComputeBackendService(),
+			"google_compute_region_backend_service":           resourceComputeRegionBackendService(),
+			"google_compute_backend_service_signed_url_key":   resourceComputeBackendServiceSignedUrlKey(),
+			"google_compute_disk":                             resourceComputeDisk(),
+			"google_compute_firewall":                         resourceComputeFirewall(),
+			"google_compute_forwarding_rule":                  resourceComputeForwardingRule(),
+			"google_compute_global_address":                   resourceComputeGlobalAddress(),
+			"google_compute_global_forwarding_rule":           resourceComputeGlobalForwardingRule(),
+			"google_compute_http_health_check":                resourceComputeHttpHealthCheck(),
+			"google_compute_https_health_check":               resourceComputeHttpsHealthCheck(),
+			"google_compute_health_check":                     resourceComputeHealthCheck(),
+			"google_compute_image":                            resourceComputeImage(),
+			"google_compute_interconnect_attachment":          resourceComputeInterconnectAttachment(),
+			"google_compute_network":                          resourceComputeNetwork(),
+			"google_compute_network_endpoint":                 resourceComputeNetworkEndpoint(),
+			"google_compute_network_endpoint_group":           resourceComputeNetworkEndpointGroup(),
+			"google_compute_node_group":                       resourceComputeNodeGroup(),
+			"google_compute_node_template":                    resourceComputeNodeTemplate(),
+			"google_compute_region_autoscaler":                resourceComputeRegionAutoscaler(),
+			"google_compute_region_disk":                      resourceComputeRegionDisk(),
+			"google_compute_route":                            resourceComputeRoute(),
+			"google_compute_router":                           resourceComputeRouter(),
+			"google_compute_snapshot":                         resourceComputeSnapshot(),
+			"google_compute_ssl_certificate":                  resourceComputeSslCertificate(),
+			"google_compute_ssl_policy":                       resourceComputeSslPolicy(),
+			"google_compute_subnetwork":                       resourceComputeSubnetwork(),
+			"google_compute_target_http_proxy":                resourceComputeTargetHttpProxy(),
+			"google_compute_target_https_proxy":               resourceComputeTargetHttpsProxy(),
+			"google_compute_target_instance":                  resourceComputeTargetInstance(),
+			"google_compute_target_ssl_proxy":                 resourceComputeTargetSslProxy(),
+			"google_compute_target_tcp_proxy":                 resourceComputeTargetTcpProxy(),
+			"google_compute_vpn_gateway":                      resourceComputeVpnGateway(),
+			"google_compute_url_map":                          resourceComputeUrlMap(),
+			"google_compute_vpn_tunnel":                       resourceComputeVpnTunnel(),
+			"google_dns_managed_zone":                         resourceDnsManagedZone(),
+			"google_filestore_instance":                       resourceFilestoreInstance(),
+			"google_firestore_index":                          resourceFirestoreIndex(),
+			"google_kms_key_ring":                             resourceKmsKeyRing(),
+			"google_kms_crypto_key":                           resourceKmsCryptoKey(),
+			"google_logging_metric":                           resourceLoggingMetric(),
+			"google_monitoring_alert_policy":                  resourceMonitoringAlertPolicy(),
+			"google_monitoring_group":                         resourceMonitoringGroup(),
+			"google_monitoring_notification_channel":          resourceMonitoringNotificationChannel(),
+			"google_monitoring_uptime_check_config":           resourceMonitoringUptimeCheckConfig(),
+			"google_pubsub_topic":                             resourcePubsubTopic(),
+			"google_pubsub_topic_iam_binding":                 ResourceIamBinding(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
+			"google_pubsub_topic_iam_member":                  ResourceIamMember(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
+			"google_pubsub_topic_iam_policy":                  ResourceIamPolicy(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
+			"google_pubsub_subscription":                      resourcePubsubSubscription(),
+			"google_redis_instance":                           resourceRedisInstance(),
+			"google_resource_manager_lien":                    resourceResourceManagerLien(),
+			"google_scc_source":                               resourceSecurityCenterSource(),
+			"google_sourcerepo_repository":                    resourceSourceRepoRepository(),
+			"google_sourcerepo_repository_iam_binding":        ResourceIamBinding(SourceRepoRepositoryIamSchema, SourceRepoRepositoryIamUpdaterProducer, SourceRepoRepositoryIdParseFunc),
+			"google_sourcerepo_repository_iam_member":         ResourceIamMember(SourceRepoRepositoryIamSchema, SourceRepoRepositoryIamUpdaterProducer, SourceRepoRepositoryIdParseFunc),
+			"google_sourcerepo_repository_iam_policy":         ResourceIamPolicy(SourceRepoRepositoryIamSchema, SourceRepoRepositoryIamUpdaterProducer, SourceRepoRepositoryIdParseFunc),
+			"google_spanner_instance":                         resourceSpannerInstance(),
+			"google_spanner_database":                         resourceSpannerDatabase(),
+			"google_sql_database":                             resourceSqlDatabase(),
+			"google_storage_object_access_control":            resourceStorageObjectAccessControl(),
+			"google_storage_default_object_access_control":    resourceStorageDefaultObjectAccessControl(),
+			"google_tpu_node":                                 resourceTpuNode(),
+		},
 		map[string]*schema.Resource{
 			"google_app_engine_application":                resourceAppEngineApplication(),
 			"google_bigquery_dataset":                      resourceBigQueryDataset(),
@@ -392,28 +604,28 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config.BatchingConfig = batchCfg
 
 	// Generated products
-	config.AccessContextManagerBasePath = d.Get(AccessContextManagerCustomEndpointEntryKey).(string)
-	config.AppEngineBasePath = d.Get(AppEngineCustomEndpointEntryKey).(string)
-	config.BigqueryDataTransferBasePath = d.Get(BigqueryDataTransferCustomEndpointEntryKey).(string)
-	config.BinaryAuthorizationBasePath = d.Get(BinaryAuthorizationCustomEndpointEntryKey).(string)
-	config.CloudBuildBasePath = d.Get(CloudBuildCustomEndpointEntryKey).(string)
-	config.CloudSchedulerBasePath = d.Get(CloudSchedulerCustomEndpointEntryKey).(string)
-	config.ComputeBasePath = d.Get(ComputeCustomEndpointEntryKey).(string)
-	config.DnsBasePath = d.Get(DnsCustomEndpointEntryKey).(string)
-	config.FilestoreBasePath = d.Get(FilestoreCustomEndpointEntryKey).(string)
-	config.FirestoreBasePath = d.Get(FirestoreCustomEndpointEntryKey).(string)
-	config.KmsBasePath = d.Get(KmsCustomEndpointEntryKey).(string)
-	config.LoggingBasePath = d.Get(LoggingCustomEndpointEntryKey).(string)
-	config.MonitoringBasePath = d.Get(MonitoringCustomEndpointEntryKey).(string)
-	config.PubsubBasePath = d.Get(PubsubCustomEndpointEntryKey).(string)
-	config.RedisBasePath = d.Get(RedisCustomEndpointEntryKey).(string)
-	config.ResourceManagerBasePath = d.Get(ResourceManagerCustomEndpointEntryKey).(string)
-	config.SecurityCenterBasePath = d.Get(SecurityCenterCustomEndpointEntryKey).(string)
-	config.SourceRepoBasePath = d.Get(SourceRepoCustomEndpointEntryKey).(string)
-	config.SpannerBasePath = d.Get(SpannerCustomEndpointEntryKey).(string)
-	config.SqlBasePath = d.Get(SqlCustomEndpointEntryKey).(string)
-	config.StorageBasePath = d.Get(StorageCustomEndpointEntryKey).(string)
-	config.TpuBasePath = d.Get(TpuCustomEndpointEntryKey).(string)
+	config.AccessContextManagerBasePath = d.Get("access_context_manager_custom_endpoint").(string)
+	config.AppEngineBasePath = d.Get("app_engine_custom_endpoint").(string)
+	config.BigqueryDataTransferBasePath = d.Get("bigquery_data_transfer_custom_endpoint").(string)
+	config.BinaryAuthorizationBasePath = d.Get("binary_authorization_custom_endpoint").(string)
+	config.CloudBuildBasePath = d.Get("cloud_build_custom_endpoint").(string)
+	config.CloudSchedulerBasePath = d.Get("cloud_scheduler_custom_endpoint").(string)
+	config.ComputeBasePath = d.Get("compute_custom_endpoint").(string)
+	config.DnsBasePath = d.Get("dns_custom_endpoint").(string)
+	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
+	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
+	config.KmsBasePath = d.Get("kms_custom_endpoint").(string)
+	config.LoggingBasePath = d.Get("logging_custom_endpoint").(string)
+	config.MonitoringBasePath = d.Get("monitoring_custom_endpoint").(string)
+	config.PubsubBasePath = d.Get("pubsub_custom_endpoint").(string)
+	config.RedisBasePath = d.Get("redis_custom_endpoint").(string)
+	config.ResourceManagerBasePath = d.Get("resource_manager_custom_endpoint").(string)
+	config.SecurityCenterBasePath = d.Get("security_center_custom_endpoint").(string)
+	config.SourceRepoBasePath = d.Get("source_repo_custom_endpoint").(string)
+	config.SpannerBasePath = d.Get("spanner_custom_endpoint").(string)
+	config.SqlBasePath = d.Get("sql_custom_endpoint").(string)
+	config.StorageBasePath = d.Get("storage_custom_endpoint").(string)
+	config.TpuBasePath = d.Get("tpu_custom_endpoint").(string)
 
 	// Handwritten Products / Versioned / Atypical Entries
 
