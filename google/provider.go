@@ -127,6 +127,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_BIGQUERY_DATA_TRANSFER_CUSTOM_ENDPOINT",
 				}, BigqueryDataTransferDefaultBasePath),
 			},
+			"bigtable_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_BIGTABLE_CUSTOM_ENDPOINT",
+				}, BigtableDefaultBasePath),
+			},
 			"binary_authorization_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -365,9 +373,9 @@ func Provider() terraform.ResourceProvider {
 	}
 }
 
-// Generated resources: 69
+// Generated resources: 70
 // Generated IAM resources: 6
-// Total generated resources: 75
+// Total generated resources: 76
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -381,6 +389,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_access_context_manager_service_perimeter": resourceAccessContextManagerServicePerimeter(),
 			"google_app_engine_firewall_rule":                 resourceAppEngineFirewallRule(),
 			"google_bigquery_data_transfer_config":            resourceBigqueryDataTransferConfig(),
+			"google_bigtable_app_profile":                     resourceBigtableAppProfile(),
 			"google_binary_authorization_attestor":            resourceBinaryAuthorizationAttestor(),
 			"google_binary_authorization_policy":              resourceBinaryAuthorizationPolicy(),
 			"google_cloudbuild_trigger":                       resourceCloudBuildTrigger(),
@@ -607,6 +616,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config.AccessContextManagerBasePath = d.Get("access_context_manager_custom_endpoint").(string)
 	config.AppEngineBasePath = d.Get("app_engine_custom_endpoint").(string)
 	config.BigqueryDataTransferBasePath = d.Get("bigquery_data_transfer_custom_endpoint").(string)
+	config.BigtableBasePath = d.Get("bigtable_custom_endpoint").(string)
 	config.BinaryAuthorizationBasePath = d.Get("binary_authorization_custom_endpoint").(string)
 	config.CloudBuildBasePath = d.Get("cloud_build_custom_endpoint").(string)
 	config.CloudSchedulerBasePath = d.Get("cloud_scheduler_custom_endpoint").(string)
@@ -666,6 +676,7 @@ func ConfigureBasePaths(c *Config) {
 	c.AccessContextManagerBasePath = AccessContextManagerDefaultBasePath
 	c.AppEngineBasePath = AppEngineDefaultBasePath
 	c.BigqueryDataTransferBasePath = BigqueryDataTransferDefaultBasePath
+	c.BigtableBasePath = BigtableDefaultBasePath
 	c.BinaryAuthorizationBasePath = BinaryAuthorizationDefaultBasePath
 	c.CloudBuildBasePath = CloudBuildDefaultBasePath
 	c.CloudSchedulerBasePath = CloudSchedulerDefaultBasePath
