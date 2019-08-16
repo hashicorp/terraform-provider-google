@@ -3,12 +3,13 @@ package google
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/serviceusage/v1"
-	"log"
-	"time"
 )
 
 const maxServiceUsageBatchSize = 20
@@ -164,9 +165,13 @@ func setServiceUsageProjectEnabledServices(services []string, project string, d 
 func disableServiceUsageProjectService(service, project string, d *schema.ResourceData, config *Config, disableDependentServices bool) error {
 	err := retryTimeDuration(func() error {
 		name := fmt.Sprintf("projects/%s/services/%s", project, service)
-		sop, err := config.clientServiceUsage.Services.Disable(name, &serviceusage.DisableServiceRequest{
+		req := config.clientServiceUsage.Services.Disable(name, &serviceusage.DisableServiceRequest{
 			DisableDependentServices: disableDependentServices,
-		}).Do()
+		})
+		if config.UserProjectOverride {
+			req.Header().Set("X-Goog-User-Project", project)
+		}
+		sop, err := req.Do()
 		if err != nil {
 			return err
 		}
@@ -186,7 +191,11 @@ func disableServiceUsageProjectService(service, project string, d *schema.Resour
 // Retrieve a project's services from the API
 func listCurrentlyEnabledServices(project string, config *Config, timeout time.Duration) (map[string]struct{}, error) {
 	// Verify project for services still exists
-	p, err := config.clientResourceManager.Projects.Get(project).Do()
+	req := config.clientResourceManager.Projects.Get(project)
+	if config.UserProjectOverride {
+		req.Header().Set("X-Goog-User-Project", project)
+	}
+	p, err := req.Do()
 	if err != nil {
 		return nil, err
 	}
@@ -202,20 +211,23 @@ func listCurrentlyEnabledServices(project string, config *Config, timeout time.D
 	apiServices := make(map[string]struct{})
 	err = retryTimeDuration(func() error {
 		ctx := context.Background()
-		return config.clientServiceUsage.Services.
+		req := config.clientServiceUsage.Services.
 			List(fmt.Sprintf("projects/%s", project)).
 			Fields("services/name,nextPageToken").
-			Filter("state:ENABLED").
-			Pages(ctx, func(r *serviceusage.ListServicesResponse) error {
-				for _, v := range r.Services {
-					// services are returned as "projects/PROJECT/services/NAME"
-					name := GetResourceNameFromSelfLink(v.Name)
-					if _, ok := ignoredProjectServicesSet[name]; !ok {
-						apiServices[name] = struct{}{}
-					}
+			Filter("state:ENABLED")
+		if config.UserProjectOverride {
+			req.Header().Set("X-Goog-User-Project", project)
+		}
+		return req.Pages(ctx, func(r *serviceusage.ListServicesResponse) error {
+			for _, v := range r.Services {
+				// services are returned as "projects/PROJECT/services/NAME"
+				name := GetResourceNameFromSelfLink(v.Name)
+				if _, ok := ignoredProjectServicesSet[name]; !ok {
+					apiServices[name] = struct{}{}
 				}
-				return nil
-			})
+			}
+			return nil
+		})
 	}, timeout)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Failed to list enabled services for project %s: {{err}}", project), err)
@@ -299,12 +311,20 @@ func doEnableServicesRequest(services []string, project string, config *Config, 
 			// using service endpoint.
 			name := fmt.Sprintf("projects/%s/services/%s", project, services[0])
 			req := &serviceusage.EnableServiceRequest{}
-			op, rerr = config.clientServiceUsage.Services.Enable(name, req).Do()
+			r := config.clientServiceUsage.Services.Enable(name, req)
+			if config.UserProjectOverride {
+				r.Header().Set("X-Goog-User-Project", project)
+			}
+			op, rerr = r.Do()
 		} else {
 			// Batch enable for multiple services.
 			name := fmt.Sprintf("projects/%s", project)
 			req := &serviceusage.BatchEnableServicesRequest{ServiceIds: services}
-			op, rerr = config.clientServiceUsage.Services.BatchEnable(name, req).Do()
+			r := config.clientServiceUsage.Services.BatchEnable(name, req)
+			if config.UserProjectOverride {
+				r.Header().Set("X-Goog-User-Project", project)
+			}
+			op, rerr = r.Do()
 		}
 		return handleServiceUsageRetryableError(rerr)
 	}, timeout)

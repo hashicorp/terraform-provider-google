@@ -2,13 +2,14 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/serviceusage/v1"
-	"log"
-	"strings"
-	"time"
 )
 
 func resourceGoogleProjectService() *schema.Resource {
@@ -163,7 +164,11 @@ func isServiceEnabled(project, serviceName string, config *Config) (bool, error)
 	var srv *serviceusage.GoogleApiServiceusageV1Service
 	err = retryTime(func() error {
 		var currErr error
-		srv, currErr = config.clientServiceUsage.Services.Get(resourceName).Do()
+		req := config.clientServiceUsage.Services.Get(resourceName)
+		if config.UserProjectOverride && project != "" {
+			req.Header().Set("X-Goog-User-Project", project)
+		}
+		srv, currErr = req.Do()
 		return currErr
 	}, 10)
 	if err != nil {
