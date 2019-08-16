@@ -207,6 +207,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_LOGGING_CUSTOM_ENDPOINT",
 				}, LoggingDefaultBasePath),
 			},
+			"ml_engine_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_ML_ENGINE_CUSTOM_ENDPOINT",
+				}, MLEngineDefaultBasePath),
+			},
 			"monitoring_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -438,6 +446,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_kms_key_ring":                             resourceKmsKeyRing(),
 			"google_kms_crypto_key":                           resourceKmsCryptoKey(),
 			"google_logging_metric":                           resourceLoggingMetric(),
+			"google_ml_engine_model":                          resourceMLEngineModel(),
 			"google_monitoring_alert_policy":                  resourceMonitoringAlertPolicy(),
 			"google_monitoring_group":                         resourceMonitoringGroup(),
 			"google_monitoring_notification_channel":          resourceMonitoringNotificationChannel(),
@@ -626,6 +635,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
 	config.KmsBasePath = d.Get("kms_custom_endpoint").(string)
 	config.LoggingBasePath = d.Get("logging_custom_endpoint").(string)
+	config.MLEngineBasePath = d.Get("ml_engine_custom_endpoint").(string)
 	config.MonitoringBasePath = d.Get("monitoring_custom_endpoint").(string)
 	config.PubsubBasePath = d.Get("pubsub_custom_endpoint").(string)
 	config.RedisBasePath = d.Get("redis_custom_endpoint").(string)
@@ -686,6 +696,7 @@ func ConfigureBasePaths(c *Config) {
 	c.FirestoreBasePath = FirestoreDefaultBasePath
 	c.KmsBasePath = KmsDefaultBasePath
 	c.LoggingBasePath = LoggingDefaultBasePath
+	c.MLEngineBasePath = MLEngineDefaultBasePath
 	c.MonitoringBasePath = MonitoringDefaultBasePath
 	c.PubsubBasePath = PubsubDefaultBasePath
 	c.RedisBasePath = RedisDefaultBasePath
