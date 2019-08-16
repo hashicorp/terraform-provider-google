@@ -28,6 +28,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"project_id":    getTestProjectFromEnv(),
 		"random_suffix": acctest.RandString(10),
 	}
 
@@ -62,7 +63,7 @@ resource "google_monitoring_uptime_check_config" "http" {
   monitored_resource {
     type = "uptime_url"
     labels = {
-      project_id = "example"
+      project_id = "%{project_id}"
       host = "192.168.1.1"
     }
   }
