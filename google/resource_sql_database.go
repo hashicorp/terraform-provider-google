@@ -318,6 +318,7 @@ func resourceSqlDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*sch
 		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
 		"(?P<instance>[^/]+)/(?P<name>[^/]+)",
+		"(?P<instance>[^/]+):(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
