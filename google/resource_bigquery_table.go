@@ -300,6 +300,16 @@ func resourceBigQueryTable() *schema.Resource {
 				},
 			},
 
+			// Clustering: [Optional] Specifies column names to use for data clustering.  Up to four
+			// top-level columns are allowed, and should be specified in descending priority order.
+			"clustering": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 4,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
 			// CreationTime: [Output-only] The time when this table was created, in
 			// milliseconds since the epoch.
 			"creation_time": {
@@ -432,6 +442,13 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 		table.TimePartitioning = expandTimePartitioning(v)
 	}
 
+	if v, ok := d.GetOk("clustering"); ok {
+		table.Clustering = &bigquery.Clustering{
+			Fields:          convertStringArr(v.([]interface{})),
+			ForceSendFields: []string{"Fields"},
+		}
+	}
+
 	return table, nil
 }
 
@@ -509,6 +526,10 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 		if err := d.Set("time_partitioning", flattenTimePartitioning(res.TimePartitioning)); err != nil {
 			return err
 		}
+	}
+
+	if res.Clustering != nil {
+		d.Set("clustering", res.Clustering.Fields)
 	}
 
 	if res.Schema != nil {
