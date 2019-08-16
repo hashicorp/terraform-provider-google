@@ -82,6 +82,7 @@ type Config struct {
 	FirestoreBasePath            string
 	KmsBasePath                  string
 	LoggingBasePath              string
+	MLEngineBasePath             string
 	MonitoringBasePath           string
 	PubsubBasePath               string
 	RedisBasePath                string
@@ -206,6 +207,7 @@ var FilestoreDefaultBasePath = "https://file.googleapis.com/v1/"
 var FirestoreDefaultBasePath = "https://firestore.googleapis.com/v1/"
 var KmsDefaultBasePath = "https://cloudkms.googleapis.com/v1/"
 var LoggingDefaultBasePath = "https://logging.googleapis.com/v2/"
+var MLEngineDefaultBasePath = "https://ml.googleapis.com/v1/"
 var MonitoringDefaultBasePath = "https://monitoring.googleapis.com/v3/"
 var PubsubDefaultBasePath = "https://pubsub.googleapis.com/v1/"
 var RedisDefaultBasePath = "https://redis.googleapis.com/v1/"
