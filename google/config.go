@@ -72,6 +72,7 @@ type Config struct {
 	AccessContextManagerBasePath string
 	AppEngineBasePath            string
 	BigqueryDataTransferBasePath string
+	BigtableBasePath             string
 	BinaryAuthorizationBasePath  string
 	CloudBuildBasePath           string
 	CloudSchedulerBasePath       string
@@ -195,6 +196,7 @@ type Config struct {
 var AccessContextManagerDefaultBasePath = "https://accesscontextmanager.googleapis.com/v1/"
 var AppEngineDefaultBasePath = "https://appengine.googleapis.com/v1/"
 var BigqueryDataTransferDefaultBasePath = "https://bigquerydatatransfer.googleapis.com/v1/"
+var BigtableDefaultBasePath = "https://bigtableadmin.googleapis.com/v2/"
 var BinaryAuthorizationDefaultBasePath = "https://binaryauthorization.googleapis.com/v1/"
 var CloudBuildDefaultBasePath = "https://cloudbuild.googleapis.com/v1/"
 var CloudSchedulerDefaultBasePath = "https://cloudscheduler.googleapis.com/v1/"
