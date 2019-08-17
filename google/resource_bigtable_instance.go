@@ -20,6 +20,7 @@ func resourceBigtableInstance() *schema.Resource {
 		Delete: resourceBigtableInstanceDestroy,
 
 		CustomizeDiff: customdiff.All(
+			resourceBigtableInstanceValidateDevelopment,
 			resourceBigtableInstanceClusterReorderTypeList,
 		),
 
@@ -64,6 +65,7 @@ func resourceBigtableInstance() *schema.Resource {
 			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Computed: true,
 			},
 
@@ -311,6 +313,19 @@ func expandBigtableClusters(clusters []interface{}, instanceID string) []bigtabl
 		})
 	}
 	return results
+}
+
+func resourceBigtableInstanceValidateDevelopment(diff *schema.ResourceDiff, meta interface{}) error {
+	if diff.Get("instance_type").(string) != "DEVELOPMENT" {
+		return nil
+	}
+	if diff.Get("cluster.#").(int) != 1 {
+		return fmt.Errorf("config is invalid: instance with instance_type=\"DEVELOPMENT\" should have exactly one \"cluster\" block")
+	}
+	if diff.Get("cluster.0.num_nodes").(int) != 0 {
+		return fmt.Errorf("config is invalid: num_nodes cannot be set for instance_type=\"DEVELOPMENT\"")
+	}
+	return nil
 }
 
 func resourceBigtableInstanceClusterReorderTypeList(diff *schema.ResourceDiff, meta interface{}) error {
