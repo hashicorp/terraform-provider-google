@@ -226,10 +226,6 @@ func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	defer c.Close()
 
-	if d.Get("instance_type").(string) == "DEVELOPMENT" {
-		return resourceBigtableInstanceRead(d, meta)
-	}
-
 	clusters, err := c.Clusters(ctx, d.Get("name").(string))
 	if err != nil {
 		return fmt.Errorf("Error retrieving clusters for instance %s", err.Error())
