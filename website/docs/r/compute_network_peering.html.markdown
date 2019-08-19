@@ -64,3 +64,10 @@ exported:
 * `state` - State for the peering.
 
 * `state_details` - Details about the current state of the peering.
+
+## Import
+VPC Peering Networks can be imported using the name of the network the peering exists in and the name of the peering network
+
+```
+$ terraform import google_compute_network_peering.peering_network network-name/peering-network-name
+```
