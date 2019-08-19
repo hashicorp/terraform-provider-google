@@ -106,6 +106,78 @@ resource "google_pubsub_subscription" "example" {
   topic   = "${google_pubsub_topic.example.id}"
 }
 ```
+## Example Usage - Pubsub Subscription Push With Service Account
+
+
+```hcl
+data "google_project" "current" {}
+
+# ------------------
+# CloudRun
+# ------------------
+resource "google_cloud_run_service" "example" {
+  name     = "example-cloudrun"
+  location = "us-central1"
+  provider = "google-beta"
+
+  metadata {
+    namespace = "${google_project.current.name}"
+  }
+
+  spec {
+    containers {
+      image = "gcr.io/cloudrun/hello"
+    }
+  }
+}
+
+# -------------
+# Cloud Pub/Sub
+# -------------
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+}
+
+resource "google_project_iam_member" "pubsub_sa_token_creator" {
+  role   = "roles/iam.serviceAccountTokenCreator"
+  member = "serviceAccount:service-${google_project.current.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+resource "google_service_account" "example" {
+  account_id = "example-service-account"
+}
+
+# TODO: grant role only to the CloudRun service rather than project wide.
+# (CloudRun service iam policy is not implemented on the Terraform yet)
+# ```
+# gcloud beta run services add-iam-policy-binding "${google_cloud_run_service.example.name}" \
+#    --member="serviceAccount:${google_service_account.example.email}" \
+#    --role=roles/run.invoker
+# ```
+resource "google_project_iam_member" "example_run_invoker" {
+  role   = "roles/run.invoker"
+  member = "serviceAccount:${google_service_account.example.email}"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "example-subscription"
+  topic = "${google_pubsub_topic.example.name}"
+
+  push_config {
+    # TODO: this must be CloudRun's url, which is not currently exposed on the Terraform
+    # push_endpoint = "${google_cloud_run_service.example.status.url}"
+    push_endpoint = "https://example.com/push"
+
+    attributes {
+      x-goog-version = "v1"
+    }
+
+    oidcToken {
+      serviceAccountEmail = "${google_service_account.example.email}"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -211,6 +283,31 @@ The `push_config` block supports:
   The possible values for this attribute are:
   - v1beta1: uses the push format defined in the v1beta1 Pub/Sub API.
   - v1 or v1beta2: uses the push format defined in the v1 Pub/Sub API.
+
+* `oidc_token` -
+  (Optional)
+  If specified, Pub/Sub will generate and attach an OIDC JWT token as
+  an Authorization header in the HTTP request for every pushed message.  Structure is documented below.
+
+
+The `oidc_token` block supports:
+
+* `service_account_email` -
+  (Required)
+  Service account email to be used for generating the OIDC token.
+  The caller (for subscriptions.create, UpdateSubscription, and
+  subscriptions.modifyPushConfig RPCs) must have the
+  iam.serviceAccounts.actAs permission for the service account.
+
+* `audience` -
+  (Optional)
+  Audience to be used when generating OIDC token. The audience
+  claim identifies the recipients that the JWT is intended for.
+  The audience value is a single case-sensitive string. Having
+  multiple values (array) for the audience field is not supported.
+  More info about the OIDC JWT token audience here:
+  https://tools.ietf.org/html/rfc7519#section-4.1.3
+  Note: if not specified, the Push endpoint URL will be used.
 
 The `expiration_policy` block supports:
 

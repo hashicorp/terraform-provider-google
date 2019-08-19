@@ -113,6 +113,23 @@ func resourcePubsubSubscription() *schema.Resource {
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"oidc_token": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"service_account_email": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"audience": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -453,6 +470,8 @@ func flattenPubsubSubscriptionPushConfig(v interface{}, d *schema.ResourceData) 
 		flattenPubsubSubscriptionPushConfigPushEndpoint(original["pushEndpoint"], d)
 	transformed["attributes"] =
 		flattenPubsubSubscriptionPushConfigAttributes(original["attributes"], d)
+	transformed["oidc_token"] =
+		flattenPubsubSubscriptionPushConfigOidcToken(original["oidcToken"], d)
 	return []interface{}{transformed}
 }
 func flattenPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d *schema.ResourceData) interface{} {
@@ -460,6 +479,29 @@ func flattenPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d *schema.Re
 }
 
 func flattenPubsubSubscriptionPushConfigAttributes(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionPushConfigOidcToken(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service_account_email"] =
+		flattenPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(original["serviceAccountEmail"], d)
+	transformed["audience"] =
+		flattenPubsubSubscriptionPushConfigOidcTokenAudience(original["audience"], d)
+	return []interface{}{transformed}
+}
+func flattenPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionPushConfigOidcTokenAudience(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -572,6 +614,13 @@ func expandPubsubSubscriptionPushConfig(v interface{}, d TerraformResourceData, 
 		transformed["attributes"] = transformedAttributes
 	}
 
+	transformedOidcToken, err := expandPubsubSubscriptionPushConfigOidcToken(original["oidc_token"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOidcToken); val.IsValid() && !isEmptyValue(val) {
+		transformed["oidcToken"] = transformedOidcToken
+	}
+
 	return transformed, nil
 }
 
@@ -588,6 +637,40 @@ func expandPubsubSubscriptionPushConfigAttributes(v interface{}, d TerraformReso
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandPubsubSubscriptionPushConfigOidcToken(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedServiceAccountEmail, err := expandPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(original["service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !isEmptyValue(val) {
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
+	}
+
+	transformedAudience, err := expandPubsubSubscriptionPushConfigOidcTokenAudience(original["audience"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAudience); val.IsValid() && !isEmptyValue(val) {
+		transformed["audience"] = transformedAudience
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionPushConfigOidcTokenAudience(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandPubsubSubscriptionAckDeadlineSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
