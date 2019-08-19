@@ -168,6 +168,7 @@ func TestAccProjectServices_ignoreUnenablableServices(t *testing.T) {
 		"pubsub.googleapis.com",
 		"oslogin.googleapis.com",
 		"bigquery-json.googleapis.com",
+		"bigquerystorage.googleapis.com",
 		"iam.googleapis.com",
 		"iamcredentials.googleapis.com",
 	}
@@ -201,6 +202,7 @@ func TestAccProjectServices_pagination(t *testing.T) {
 		"appengineflex.googleapis.com",
 		"bigquery-json.googleapis.com",
 		"bigquerydatatransfer.googleapis.com",
+		"bigquerystorage.googleapis.com",
 		"bigtableadmin.googleapis.com",
 		"bigtabletableadmin.googleapis.com",
 		"cloudbuild.googleapis.com",
