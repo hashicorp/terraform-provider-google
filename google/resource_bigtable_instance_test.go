@@ -22,17 +22,21 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 		CheckDestroy: testAccCheckBigtableInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
+				Config:      testAccBigtableInstance_invalid(instanceName),
+				ExpectError: regexp.MustCompile("config is invalid: Too few cluster blocks: Should have at least 1 \"cluster\" block"),
+			},
+			{
 				Config: testAccBigtableInstance(instanceName, 3),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigtableInstanceExists(
-						"google_bigtable_instance.instance"),
+						"google_bigtable_instance.instance", 3),
 				),
 			},
 			{
 				Config: testAccBigtableInstance(instanceName, 4),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigtableInstanceExists(
-						"google_bigtable_instance.instance"),
+						"google_bigtable_instance.instance", 4),
 				),
 			},
 		},
@@ -54,10 +58,17 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ExpectError: regexp.MustCompile("config is invalid: Too many cluster blocks: No more than 4 \"cluster\" blocks are allowed"),
 			},
 			{
-				Config: testAccBigtableInstance_cluster(instanceName),
+				Config: testAccBigtableInstance_cluster(instanceName, 3),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigtableInstanceExists(
-						"google_bigtable_instance.instance"),
+						"google_bigtable_instance.instance", 3),
+				),
+			},
+			{
+				Config: testAccBigtableInstance_cluster_reordered(instanceName, 5),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigtableInstanceExists(
+						"google_bigtable_instance.instance", 5),
 				),
 			},
 		},
@@ -75,10 +86,18 @@ func TestAccBigtableInstance_development(t *testing.T) {
 		CheckDestroy: testAccCheckBigtableInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
+				Config:      testAccBigtableInstance_development_invalid_no_cluster(instanceName),
+				ExpectError: regexp.MustCompile("config is invalid: instance with instance_type=\"DEVELOPMENT\" should have exactly one \"cluster\" block"),
+			},
+			{
+				Config:      testAccBigtableInstance_development_invalid_num_nodes(instanceName),
+				ExpectError: regexp.MustCompile("config is invalid: num_nodes cannot be set for instance_type=\"DEVELOPMENT\""),
+			},
+			{
 				Config: testAccBigtableInstance_development(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigtableInstanceExists(
-						"google_bigtable_instance.instance"),
+						"google_bigtable_instance.instance", 0),
 				),
 			},
 		},
@@ -109,7 +128,7 @@ func testAccCheckBigtableInstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccBigtableInstanceExists(n string) resource.TestCheckFunc {
+func testAccBigtableInstanceExists(n string, numNodes int) resource.TestCheckFunc {
 	var ctx = context.Background()
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -133,6 +152,21 @@ func testAccBigtableInstanceExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("Error retrieving instance %s.", rs.Primary.Attributes["name"])
 		}
 
+		clusters, err := c.Clusters(ctx, rs.Primary.Attributes["name"])
+		if err != nil {
+			return fmt.Errorf("Error retrieving cluster list for instance %s.", rs.Primary.Attributes["name"])
+		}
+
+		for _, c := range clusters {
+			if c.ServeNodes != numNodes {
+				return fmt.Errorf("Expected cluster %s to have %d nodes but got %d nodes for instance %s.",
+					c.Name,
+					numNodes,
+					c.ServeNodes,
+					rs.Primary.Attributes["name"])
+			}
+		}
+
 		return nil
 	}
 }
@@ -151,36 +185,44 @@ resource "google_bigtable_instance" "instance" {
 `, instanceName, instanceName, numNodes)
 }
 
-func testAccBigtableInstance_cluster(instanceName string) string {
+func testAccBigtableInstance_invalid(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+	name = "%s"
+}
+`, instanceName)
+}
+
+func testAccBigtableInstance_cluster(instanceName string, numNodes int) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
 	name = "%s"
 	cluster {
 		cluster_id   = "%s-a"
 		zone         = "us-central1-a"
-		num_nodes    = 3
+		num_nodes    = %d
 		storage_type = "HDD"
 	}
 	cluster {
 		cluster_id   = "%s-b"
 		zone         = "us-central1-b"
-		num_nodes    = 3
+		num_nodes    = %d
 		storage_type = "HDD"
 	}
 	cluster {
 		cluster_id   = "%s-c"
 		zone         = "us-central1-c"
-		num_nodes    = 3
+		num_nodes    = %d
 		storage_type = "HDD"
 	}
 	cluster {
 		cluster_id   = "%s-d"
 		zone         = "us-central1-f"
-		num_nodes    = 3
+		num_nodes    = %d
 		storage_type = "HDD"
 	}
 }
-`, instanceName, instanceName, instanceName, instanceName, instanceName)
+`, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
 }
 
 func testAccBigtableInstance_clusterMax(instanceName string) string {
@@ -221,6 +263,38 @@ resource "google_bigtable_instance" "instance" {
 `, instanceName, instanceName, instanceName, instanceName, instanceName, instanceName)
 }
 
+func testAccBigtableInstance_cluster_reordered(instanceName string, numNodes int) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+	name = "%s"
+	cluster {
+		cluster_id   = "%s-c"
+		zone         = "us-central1-c"
+		num_nodes    = %d
+		storage_type = "HDD"
+	}
+	cluster {
+		cluster_id   = "%s-d"
+		zone         = "us-central1-f"
+		num_nodes    = %d
+		storage_type = "HDD"
+	}
+	cluster {
+		cluster_id   = "%s-a"
+		zone         = "us-central1-a"
+		num_nodes    = %d
+		storage_type = "HDD"
+	}
+	cluster {
+		cluster_id   = "%s-b"
+		zone         = "us-central1-b"
+		num_nodes    = %d
+		storage_type = "HDD"
+	}
+}
+`, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
+}
+
 func testAccBigtableInstance_development(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
@@ -232,4 +306,27 @@ resource "google_bigtable_instance" "instance" {
 	instance_type = "DEVELOPMENT"
 }
 `, instanceName, instanceName)
+}
+
+func testAccBigtableInstance_development_invalid_num_nodes(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+	name = "%s"
+	cluster {
+		cluster_id    = "%s"
+		zone          = "us-central1-b"
+        num_nodes     = 3
+	}
+	instance_type = "DEVELOPMENT"
+}
+`, instanceName, instanceName)
+}
+
+func testAccBigtableInstance_development_invalid_no_cluster(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+	name = "%s"
+	instance_type = "DEVELOPMENT"
+}
+`, instanceName)
 }
