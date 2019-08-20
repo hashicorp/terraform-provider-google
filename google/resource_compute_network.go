@@ -224,16 +224,9 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNetwork %q", d.Id()))
 	}
 
-	res, err = resourceComputeNetworkDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
-
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing ComputeNetwork because it no longer exists.")
-		d.SetId("")
-		return nil
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOk("delete_default_routes_on_create"); !ok {
+		d.Set("delete_default_routes_on_create", false)
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -377,8 +370,8 @@ func resourceComputeNetworkImport(d *schema.ResourceData, meta interface{}) ([]*
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-	// Explicitly set to default as a workaround for `ImportStateVerify` tests, and so that users
-	// don't see a diff immediately after import.
+
+	// Explicitly set virtual fields to default values on import
 	d.Set("delete_default_routes_on_create", false)
 
 	return []*schema.ResourceData{d}, nil
@@ -459,12 +452,4 @@ func resourceComputeNetworkEncoder(d *schema.ResourceData, meta interface{}, obj
 	}
 
 	return obj, nil
-}
-
-func resourceComputeNetworkDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	// Explicitly set to default if not set
-	if _, ok := d.GetOk("delete_default_routes_on_create"); !ok {
-		d.Set("delete_default_routes_on_create", false)
-	}
-	return res, nil
 }
