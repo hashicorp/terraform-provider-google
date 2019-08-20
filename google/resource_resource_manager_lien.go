@@ -239,6 +239,7 @@ func resourceResourceManagerLienImport(d *schema.ResourceData, meta interface{})
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
 	parent, err := replaceVars(d, config, "projects/{{parent}}")
 	if err != nil {
 		return nil, err
