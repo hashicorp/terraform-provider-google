@@ -77,6 +77,14 @@ The following arguments are supported:
   (Optional)
   An optional description of this resource.
 
+* `bandwidth` -
+  (Optional)
+  Provisioned bandwidth capacity for the interconnect attachment.
+  For attachments of type DEDICATED, the user can set the bandwidth.
+  For attachments of type PARTNER, the Google Partner that is operating the interconnect must set the bandwidth.
+  Output only for PARTNER type, mutable for PARTNER_PROVIDER and DEDICATED,
+  Defaults to BPS_10G
+
 * `edge_availability_domain` -
   (Optional)
   Desired availability domain for the attachment. Only available for type
