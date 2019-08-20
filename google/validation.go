@@ -145,19 +145,6 @@ func validateIpCidrRange(v interface{}, k string) (warnings []string, errors []e
 	return
 }
 
-func validateCloudIoTID(v interface{}, k string) (warnings []string, errors []error) {
-	value := v.(string)
-	if strings.HasPrefix(value, "goog") {
-		errors = append(errors, fmt.Errorf(
-			"%q (%q) can not start with \"goog\"", k, value))
-	}
-	if !regexp.MustCompile(CloudIoTIdRegex).MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q (%q) doesn't match regexp %q", k, value, CloudIoTIdRegex))
-	}
-	return
-}
-
 func validateIAMCustomRoleID(v interface{}, k string) (warnings []string, errors []error) {
 	value := v.(string)
 	if !regexp.MustCompile(IAMCustomRoleIDRegex).MatchString(value) {
