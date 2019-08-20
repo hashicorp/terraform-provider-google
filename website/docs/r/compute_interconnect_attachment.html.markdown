@@ -67,6 +67,11 @@ The following arguments are supported:
 - - -
 
 
+* `admin_enabled` -
+  (Optional)
+  Whether the VLAN attachment is enabled or disabled.  When using
+  PARTNER type this will Pre-Activate the interconnect attachment
+
 * `interconnect` -
   (Optional)
   URL of the underlying Interconnect object that this attachment's
