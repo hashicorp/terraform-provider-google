@@ -71,6 +71,7 @@ type Config struct {
 
 	AccessContextManagerBasePath string
 	AppEngineBasePath            string
+	BigQueryBasePath             string
 	BigqueryDataTransferBasePath string
 	BigtableBasePath             string
 	BinaryAuthorizationBasePath  string
@@ -163,8 +164,7 @@ type Config struct {
 	ServiceUsageBasePath string
 	clientServiceUsage   *serviceusage.Service
 
-	BigQueryBasePath string
-	clientBigQuery   *bigquery.Service
+	clientBigQuery *bigquery.Service
 
 	CloudFunctionsBasePath string
 	clientCloudFunctions   *cloudfunctions.Service
@@ -196,6 +196,7 @@ type Config struct {
 // Generated product base paths
 var AccessContextManagerDefaultBasePath = "https://accesscontextmanager.googleapis.com/v1/"
 var AppEngineDefaultBasePath = "https://appengine.googleapis.com/v1/"
+var BigQueryDefaultBasePath = "https://www.googleapis.com/bigquery/v2/"
 var BigqueryDataTransferDefaultBasePath = "https://bigquerydatatransfer.googleapis.com/v1/"
 var BigtableDefaultBasePath = "https://bigtableadmin.googleapis.com/v2/"
 var BinaryAuthorizationDefaultBasePath = "https://binaryauthorization.googleapis.com/v1/"
@@ -656,6 +657,7 @@ func ConfigureBasePaths(c *Config) {
 	// Generated Products
 	c.AccessContextManagerBasePath = AccessContextManagerDefaultBasePath
 	c.AppEngineBasePath = AppEngineDefaultBasePath
+	c.BigQueryBasePath = BigQueryDefaultBasePath
 	c.BigqueryDataTransferBasePath = BigqueryDataTransferDefaultBasePath
 	c.BigtableBasePath = BigtableDefaultBasePath
 	c.BinaryAuthorizationBasePath = BinaryAuthorizationDefaultBasePath

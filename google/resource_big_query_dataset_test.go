@@ -135,23 +135,6 @@ func TestAccBigQueryDataset_regionalLocation(t *testing.T) {
 	})
 }
 
-func testAccCheckBigQueryDatasetDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_bigquery_dataset" {
-			continue
-		}
-
-		_, err := config.clientBigQuery.Datasets.Get(config.Project, rs.Primary.Attributes["dataset_id"]).Do()
-		if err == nil {
-			return fmt.Errorf("Dataset still exists")
-		}
-	}
-
-	return nil
-}
-
 func testAccAddTable(datasetID string, tableID string) resource.TestCheckFunc {
 	// Not actually a check, but adds a table independently of terraform
 	return func(s *terraform.State) error {

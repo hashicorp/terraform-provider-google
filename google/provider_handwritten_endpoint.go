@@ -8,17 +8,6 @@ import (
 // files. Collect handwritten ones here. If any of these are modified, be sure
 // to update the provider_reference docs page.
 
-var BigQueryDefaultBasePath = "https://www.googleapis.com/bigquery/v2/"
-var BigQueryCustomEndpointEntryKey = "bigquery_custom_endpoint"
-var BigQueryCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_BIGQUERY_CUSTOM_ENDPOINT",
-	}, BigQueryDefaultBasePath),
-}
-
 var CloudBillingDefaultBasePath = "https://cloudbilling.googleapis.com/v1/"
 var CloudBillingCustomEndpointEntryKey = "cloud_billing_custom_endpoint"
 var CloudBillingCustomEndpointEntry = &schema.Schema{
