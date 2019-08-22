@@ -175,6 +175,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_COMPUTE_CUSTOM_ENDPOINT",
 				}, ComputeDefaultBasePath),
 			},
+			"dataproc_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_DATAPROC_CUSTOM_ENDPOINT",
+				}, DataprocDefaultBasePath),
+			},
 			"dns_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -310,7 +318,6 @@ func Provider() terraform.ResourceProvider {
 			ComputeBetaCustomEndpointEntryKey:            ComputeBetaCustomEndpointEntry,
 			ContainerCustomEndpointEntryKey:              ContainerCustomEndpointEntry,
 			ContainerBetaCustomEndpointEntryKey:          ContainerBetaCustomEndpointEntry,
-			DataprocCustomEndpointEntryKey:               DataprocCustomEndpointEntry,
 			DataprocBetaCustomEndpointEntryKey:           DataprocBetaCustomEndpointEntry,
 			DataflowCustomEndpointEntryKey:               DataflowCustomEndpointEntry,
 			DnsBetaCustomEndpointEntryKey:                DnsBetaCustomEndpointEntry,
@@ -639,6 +646,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config.CloudBuildBasePath = d.Get("cloud_build_custom_endpoint").(string)
 	config.CloudSchedulerBasePath = d.Get("cloud_scheduler_custom_endpoint").(string)
 	config.ComputeBasePath = d.Get("compute_custom_endpoint").(string)
+	config.DataprocBasePath = d.Get("dataproc_custom_endpoint").(string)
 	config.DnsBasePath = d.Get("dns_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
@@ -663,7 +671,6 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config.ComputeBetaBasePath = d.Get(ComputeBetaCustomEndpointEntryKey).(string)
 	config.ContainerBasePath = d.Get(ContainerCustomEndpointEntryKey).(string)
 	config.ContainerBetaBasePath = d.Get(ContainerBetaCustomEndpointEntryKey).(string)
-	config.DataprocBasePath = d.Get(DataprocCustomEndpointEntryKey).(string)
 	config.DataprocBetaBasePath = d.Get(DataprocBetaCustomEndpointEntryKey).(string)
 	config.DataflowBasePath = d.Get(DataflowCustomEndpointEntryKey).(string)
 	config.DnsBetaBasePath = d.Get(DnsBetaCustomEndpointEntryKey).(string)

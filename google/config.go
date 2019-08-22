@@ -78,6 +78,7 @@ type Config struct {
 	CloudBuildBasePath           string
 	CloudSchedulerBasePath       string
 	ComputeBasePath              string
+	DataprocBasePath             string
 	DnsBasePath                  string
 	FilestoreBasePath            string
 	FirestoreBasePath            string
@@ -114,8 +115,7 @@ type Config struct {
 	ContainerBetaBasePath string
 	clientContainerBeta   *containerBeta.Service
 
-	DataprocBasePath string
-	clientDataproc   *dataproc.Service
+	clientDataproc *dataproc.Service
 
 	DataprocBetaBasePath string
 	clientDataprocBeta   *dataprocBeta.Service
@@ -203,6 +203,7 @@ var BinaryAuthorizationDefaultBasePath = "https://binaryauthorization.googleapis
 var CloudBuildDefaultBasePath = "https://cloudbuild.googleapis.com/v1/"
 var CloudSchedulerDefaultBasePath = "https://cloudscheduler.googleapis.com/v1/"
 var ComputeDefaultBasePath = "https://www.googleapis.com/compute/v1/"
+var DataprocDefaultBasePath = "https://dataproc.googleapis.com/v1/"
 var DnsDefaultBasePath = "https://www.googleapis.com/dns/v1/"
 var FilestoreDefaultBasePath = "https://file.googleapis.com/v1/"
 var FirestoreDefaultBasePath = "https://firestore.googleapis.com/v1/"
@@ -664,6 +665,7 @@ func ConfigureBasePaths(c *Config) {
 	c.CloudBuildBasePath = CloudBuildDefaultBasePath
 	c.CloudSchedulerBasePath = CloudSchedulerDefaultBasePath
 	c.ComputeBasePath = ComputeDefaultBasePath
+	c.DataprocBasePath = DataprocDefaultBasePath
 	c.DnsBasePath = DnsDefaultBasePath
 	c.FilestoreBasePath = FilestoreDefaultBasePath
 	c.FirestoreBasePath = FirestoreDefaultBasePath

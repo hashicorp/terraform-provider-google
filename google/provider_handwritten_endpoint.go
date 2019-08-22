@@ -85,17 +85,6 @@ var ContainerBetaCustomEndpointEntry = &schema.Schema{
 	}, ContainerBetaDefaultBasePath),
 }
 
-var DataprocDefaultBasePath = "https://dataproc.googleapis.com/v1/"
-var DataprocCustomEndpointEntryKey = "dataproc_custom_endpoint"
-var DataprocCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_DATAPROC_CUSTOM_ENDPOINT",
-	}, DataprocDefaultBasePath),
-}
-
 var DataprocBetaDefaultBasePath = "https://dataproc.googleapis.com/v1beta2/"
 var DataprocBetaCustomEndpointEntryKey = "dataproc_beta_custom_endpoint"
 var DataprocBetaCustomEndpointEntry = &schema.Schema{
