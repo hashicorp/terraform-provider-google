@@ -1650,9 +1650,10 @@ func getInstanceGroupUrlsFromManagerUrls(config *Config, igmUrls []string) ([]st
 		matches := instanceGroupManagerURL.FindStringSubmatch(u)
 		instanceGroupManager, err := config.clientCompute.InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
 		if err != nil {
-			return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %s", err)
+			log.Printf("[DEBUG] Error reading instance group manager returned as an instance group URL: %s", err)
+		} else {
+			instanceGroupURLs = append(instanceGroupURLs, instanceGroupManager.InstanceGroup)
 		}
-		instanceGroupURLs = append(instanceGroupURLs, instanceGroupManager.InstanceGroup)
 	}
 	return instanceGroupURLs, nil
 }
