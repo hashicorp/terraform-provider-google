@@ -77,6 +77,7 @@ func resourceComputeRoute() *schema.Resource {
 			},
 			"next_hop_ip": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 			},
