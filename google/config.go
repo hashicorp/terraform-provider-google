@@ -78,23 +78,23 @@ type Config struct {
 	CloudBuildBasePath           string
 	CloudSchedulerBasePath       string
 	ComputeBasePath              string
+	DNSBasePath                  string
 	DataprocBasePath             string
-	DnsBasePath                  string
 	FilestoreBasePath            string
 	FirestoreBasePath            string
-	KmsBasePath                  string
+	KMSBasePath                  string
 	LoggingBasePath              string
 	MLEngineBasePath             string
 	MonitoringBasePath           string
 	PubsubBasePath               string
 	RedisBasePath                string
 	ResourceManagerBasePath      string
+	SQLBasePath                  string
 	SecurityCenterBasePath       string
 	SourceRepoBasePath           string
 	SpannerBasePath              string
-	SqlBasePath                  string
 	StorageBasePath              string
-	TpuBasePath                  string
+	TPUBasePath                  string
 
 	CloudBillingBasePath string
 	clientBilling        *cloudbilling.APIService
@@ -203,23 +203,23 @@ var BinaryAuthorizationDefaultBasePath = "https://binaryauthorization.googleapis
 var CloudBuildDefaultBasePath = "https://cloudbuild.googleapis.com/v1/"
 var CloudSchedulerDefaultBasePath = "https://cloudscheduler.googleapis.com/v1/"
 var ComputeDefaultBasePath = "https://www.googleapis.com/compute/v1/"
+var DNSDefaultBasePath = "https://www.googleapis.com/dns/v1/"
 var DataprocDefaultBasePath = "https://dataproc.googleapis.com/v1/"
-var DnsDefaultBasePath = "https://www.googleapis.com/dns/v1/"
 var FilestoreDefaultBasePath = "https://file.googleapis.com/v1/"
 var FirestoreDefaultBasePath = "https://firestore.googleapis.com/v1/"
-var KmsDefaultBasePath = "https://cloudkms.googleapis.com/v1/"
+var KMSDefaultBasePath = "https://cloudkms.googleapis.com/v1/"
 var LoggingDefaultBasePath = "https://logging.googleapis.com/v2/"
 var MLEngineDefaultBasePath = "https://ml.googleapis.com/v1/"
 var MonitoringDefaultBasePath = "https://monitoring.googleapis.com/v3/"
 var PubsubDefaultBasePath = "https://pubsub.googleapis.com/v1/"
 var RedisDefaultBasePath = "https://redis.googleapis.com/v1/"
 var ResourceManagerDefaultBasePath = "https://cloudresourcemanager.googleapis.com/v1/"
+var SQLDefaultBasePath = "https://www.googleapis.com/sql/v1beta4/"
 var SecurityCenterDefaultBasePath = "https://securitycenter.googleapis.com/v1/"
 var SourceRepoDefaultBasePath = "https://sourcerepo.googleapis.com/v1/"
 var SpannerDefaultBasePath = "https://spanner.googleapis.com/v1/"
-var SqlDefaultBasePath = "https://www.googleapis.com/sql/v1beta4/"
 var StorageDefaultBasePath = "https://www.googleapis.com/storage/v1/"
-var TpuDefaultBasePath = "https://tpu.googleapis.com/v1/"
+var TPUDefaultBasePath = "https://tpu.googleapis.com/v1/"
 
 var defaultClientScopes = []string{
 	"https://www.googleapis.com/auth/compute",
@@ -665,23 +665,23 @@ func ConfigureBasePaths(c *Config) {
 	c.CloudBuildBasePath = CloudBuildDefaultBasePath
 	c.CloudSchedulerBasePath = CloudSchedulerDefaultBasePath
 	c.ComputeBasePath = ComputeDefaultBasePath
+	c.DNSBasePath = DNSDefaultBasePath
 	c.DataprocBasePath = DataprocDefaultBasePath
-	c.DnsBasePath = DnsDefaultBasePath
 	c.FilestoreBasePath = FilestoreDefaultBasePath
 	c.FirestoreBasePath = FirestoreDefaultBasePath
-	c.KmsBasePath = KmsDefaultBasePath
+	c.KMSBasePath = KMSDefaultBasePath
 	c.LoggingBasePath = LoggingDefaultBasePath
 	c.MLEngineBasePath = MLEngineDefaultBasePath
 	c.MonitoringBasePath = MonitoringDefaultBasePath
 	c.PubsubBasePath = PubsubDefaultBasePath
 	c.RedisBasePath = RedisDefaultBasePath
 	c.ResourceManagerBasePath = ResourceManagerDefaultBasePath
+	c.SQLBasePath = SQLDefaultBasePath
 	c.SecurityCenterBasePath = SecurityCenterDefaultBasePath
 	c.SourceRepoBasePath = SourceRepoDefaultBasePath
 	c.SpannerBasePath = SpannerDefaultBasePath
-	c.SqlBasePath = SqlDefaultBasePath
 	c.StorageBasePath = StorageDefaultBasePath
-	c.TpuBasePath = TpuDefaultBasePath
+	c.TPUBasePath = TPUDefaultBasePath
 
 	// Handwritten Products / Versioned / Atypical Entries
 	c.CloudBillingBasePath = CloudBillingDefaultBasePath

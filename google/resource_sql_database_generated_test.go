@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccSqlDatabase_sqlDatabaseBasicExample(t *testing.T) {
+func TestAccSQLDatabase_sqlDatabaseBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -34,10 +34,10 @@ func TestAccSqlDatabase_sqlDatabaseBasicExample(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSqlDatabaseDestroy,
+		CheckDestroy: testAccCheckSQLDatabaseDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSqlDatabase_sqlDatabaseBasicExample(context),
+				Config: testAccSQLDatabase_sqlDatabaseBasicExample(context),
 			},
 			{
 				ResourceName:      "google_sql_database.database",
@@ -48,7 +48,7 @@ func TestAccSqlDatabase_sqlDatabaseBasicExample(t *testing.T) {
 	})
 }
 
-func testAccSqlDatabase_sqlDatabaseBasicExample(context map[string]interface{}) string {
+func testAccSQLDatabase_sqlDatabaseBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sql_database" "database" {
 	name = "my-database%{random_suffix}"
@@ -65,7 +65,7 @@ resource "google_sql_database_instance" "instance" {
 `, context)
 }
 
-func testAccCheckSqlDatabaseDestroy(s *terraform.State) error {
+func testAccCheckSQLDatabaseDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_sql_database" {
 			continue
@@ -76,14 +76,14 @@ func testAccCheckSqlDatabaseDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(config, rs, "{{SqlBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 		if err != nil {
 			return err
 		}
 
 		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
-			return fmt.Errorf("SqlDatabase still exists at %s", url)
+			return fmt.Errorf("SQLDatabase still exists at %s", url)
 		}
 	}
 

@@ -17,13 +17,13 @@ import (
 	"fmt"
 )
 
-type TpuOperationWaiter struct {
+type TPUOperationWaiter struct {
 	Config  *Config
 	Project string
 	CommonOperationWaiter
 }
 
-func (w *TpuOperationWaiter) QueryOp() (interface{}, error) {
+func (w *TPUOperationWaiter) QueryOp() (interface{}, error) {
 	if w == nil {
 		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
 	}
@@ -32,12 +32,12 @@ func (w *TpuOperationWaiter) QueryOp() (interface{}, error) {
 	return sendRequest(w.Config, "GET", w.Project, url, nil)
 }
 
-func tpuOperationWaitTime(config *Config, op map[string]interface{}, project, activity string, timeoutMinutes int) error {
+func tPUOperationWaitTime(config *Config, op map[string]interface{}, project, activity string, timeoutMinutes int) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil
 	}
-	w := &TpuOperationWaiter{
+	w := &TPUOperationWaiter{
 		Config:  config,
 		Project: project,
 	}
