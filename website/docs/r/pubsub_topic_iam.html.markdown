@@ -45,7 +45,7 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_pubsub_topic_iam_policy" "editor" {
-  topic       = "projects/{{project}}/topics/{{topic}}"
+  topic = "projects/{{project}}/topics/{{topic}}"
   policy_data = "${data.google_iam_policy.admin.policy_data}"
 }
 ```
@@ -54,7 +54,8 @@ resource "google_pubsub_topic_iam_policy" "editor" {
 
 ```hcl
 resource "google_pubsub_topic_iam_binding" "editor" {
-  topic   = "projects/{{project}}/topics/{{topic}}"
+  topic = "projects/{{project}}/topics/{{topic}}"
+  
   role    = "roles/editor"
   members = [
     "user:jane@example.com",
@@ -67,6 +68,7 @@ resource "google_pubsub_topic_iam_binding" "editor" {
 ```hcl
 resource "google_pubsub_topic_iam_member" "editor" {
   topic  = "projects/{{project}}/topics/{{topic}}"
+  
   role   = "roles/editor"
   member = "user:jane@example.com"
 }
