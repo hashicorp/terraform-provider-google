@@ -41,6 +41,23 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 	})
 }
 
+// Test that an IAM policy with empty members does not cause a permadiff.
+func TestAccProjectIamPolicy_emptyMembers(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := "terraform-" + acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProjectIamPolicyEmptyMembers(pid, pname, org),
+			},
+		},
+	})
+}
+
 // Test that a non-collapsed IAM policy doesn't perpetually diff
 func TestAccProjectIamPolicy_expanded(t *testing.T) {
 	t.Parallel()
@@ -273,6 +290,27 @@ resource "google_project" "acceptance" {
     project_id = "%s"
     name = "%s"
     org_id = "%s"
+}`, pid, name, org)
+}
+
+func testAccProjectIamPolicyEmptyMembers(pid, name, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    project_id = "%s"
+    name = "%s"
+    org_id = "%s"
+}
+
+resource "google_project_iam_policy" "acceptance" {
+    project = "${google_project.acceptance.id}"
+    policy_data = "${data.google_iam_policy.expanded.policy_data}"
+}
+
+data "google_iam_policy" "expanded" {
+    binding {
+        role = "roles/viewer"
+		members = []
+    }
 }`, pid, name, org)
 }
 

@@ -193,9 +193,10 @@ func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[string]m
 	bm := make(map[string]map[string]struct{})
 	// Get each binding
 	for _, b := range bindings {
+		members := make(map[string]struct{})
 		// Initialize members map
-		if _, ok := bm[b.Role]; !ok {
-			bm[b.Role] = make(map[string]struct{})
+		if _, ok := bm[b.Role]; ok {
+			members = bm[b.Role]
 		}
 		// Get each member (user/principal) for the binding
 		for _, m := range b.Members {
@@ -210,7 +211,12 @@ func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[string]m
 			m = strings.Join(pieces, ":")
 
 			// Add the member
-			bm[b.Role][m] = struct{}{}
+			members[m] = struct{}{}
+		}
+		if len(members) > 0 {
+			bm[b.Role] = members
+		} else {
+			delete(bm, b.Role)
 		}
 	}
 	return bm
