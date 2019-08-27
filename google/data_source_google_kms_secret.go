@@ -18,6 +18,10 @@ func dataSourceGoogleKmsSecret() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"crypto_key_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"ciphertext": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -35,25 +39,27 @@ func dataSourceGoogleKmsSecretRead(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*Config)
 
 	cryptoKeyId, err := parseKmsCryptoKeyId(d.Get("crypto_key").(string), config)
-
 	if err != nil {
 		return err
 	}
+	keyId := cryptoKeyId.cryptoKeyId()
+
+	cryptoKeyVer, ok := d.GetOk("crypto_key_version")
+	if ok && cryptoKeyVer.(string) != "" {
+		keyId = fmt.Sprintf("%s/cryptoKeyVersions/%s", keyId, GetResourceNameFromSelfLink(cryptoKeyVer.(string)))
+	}
 
 	ciphertext := d.Get("ciphertext").(string)
-
 	kmsDecryptRequest := &cloudkms.DecryptRequest{
 		Ciphertext: ciphertext,
 	}
 
-	decryptResponse, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Decrypt(cryptoKeyId.cryptoKeyId(), kmsDecryptRequest).Do()
-
+	decryptResponse, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Decrypt(keyId, kmsDecryptRequest).Do()
 	if err != nil {
 		return fmt.Errorf("Error decrypting ciphertext: %s", err)
 	}
 
 	plaintext, err := base64.StdEncoding.DecodeString(decryptResponse.Plaintext)
-
 	if err != nil {
 		return fmt.Errorf("Error decoding base64 response: %s", err)
 	}

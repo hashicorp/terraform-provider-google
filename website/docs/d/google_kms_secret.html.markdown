@@ -89,6 +89,8 @@ The following arguments are supported:
 * `crypto_key` (Required) - The id of the CryptoKey that will be used to
   decrypt the provided ciphertext. This is represented by the format
   `{projectId}/{location}/{keyRingName}/{cryptoKeyName}`.
+* `crypto_key_version` (Optional) - The full name or number ID of the specific 
+  cryptoKeyVersion to decrypt the provided ciphertext.
 
 ## Attributes Reference
 
