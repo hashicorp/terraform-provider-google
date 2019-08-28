@@ -1,4 +1,29 @@
-## 2.13.1 (Unreleased)
+## 2.14.0 (Unreleased)
+
+DEPRECATIONS:
+* cloudiot: `resource_cloudiot_registry`'s `event_notification_config` field has been deprecated. [GH-4282]
+
+FEATURES:
+* **New Resource**: `google_bigtable_app_profile` is now available. [GH-4126]
+* **New Resource**: `google_ml_engine_model` [GH-4053]
+* **New Resource**: `google_dataproc_autoscaling_policy` [GH-2220]
+* **New Data Source**: `google_kms_secret_ciphertext` [GH-4204]
+
+ENHANCEMENTS:
+* bigquery: Add support for clustering/partitioning to bigquery_table [GH-4223]
+* bigtable: `num_nodes` can now be updated in `google_bigtable_instance` [GH-4026]
+* cloudiot: `resource_cloudiot_registry` now has fields plural `event_notification_configs` and `log_level`, and `event_notification_config` has been deprecated. [GH-4282]
+* cloud_run: New output-only fields have been added to google_cloud_run_service' status. [GH-3799]
+* compute: Adding bandwidth attribute to interconnect attachment. [GH-4212]
+* compute: `google_compute_region_instance_group_manager.update_policy` now supports `instance_redistribution_type` [GH-4301]
+* compute: adds admin_enabled to google_compute_interconnect_attachment [GH-4300]
+* compute: The compute routes includes next_hop_ilb attribute support in beta. [GH-4311]
+* scheduler: Add support for `oauth_token` and `oidc_token` on resource `google_cloud_scheduler_job` [GH-4222]
+
+BUG FIXES:
+* containerregistry: Correctly handle domain-scoped projects [GH-4129]
+* sql: Added back a missing import format for `google_sql_database`. [GH-4279]
+
 ## 2.13.0 (August 15, 2019)
 
 FEATURES:
