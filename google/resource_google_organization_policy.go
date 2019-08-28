@@ -14,7 +14,7 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		Type:             schema.TypeString,
 		Required:         true,
 		ForceNew:         true,
-		DiffSuppressFunc: linkDiffSuppress,
+		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 	"boolean_policy": {
 		Type:          schema.TypeList,

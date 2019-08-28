@@ -62,7 +62,7 @@ var schemaNodeConfig = &schema.Schema{
 							Type:             schema.TypeString,
 							Required:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: linkDiffSuppress,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
 						},
 					},
 				},
