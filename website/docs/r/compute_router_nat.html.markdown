@@ -34,6 +34,9 @@ resource "google_compute_router" "router" {
   name    = "router"
   region  = google_compute_subnetwork.default.region
   network = google_compute_network.default.self_link
+  bgp {
+    asn = 64514
+  }
 }
 
 resource "google_compute_router_nat" "simple-nat" {
@@ -64,6 +67,9 @@ resource "google_compute_router" "router" {
   name    = "router"
   region  = google_compute_subnetwork.default.region
   network = google_compute_network.default.self_link
+  bgp {
+    asn = 64514
+  }
 }
 
 resource "google_compute_address" "address" {
