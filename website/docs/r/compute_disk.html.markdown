@@ -105,7 +105,7 @@ The following arguments are supported:
   `snapshot` parameter, or specify it alone to create an empty
   persistent disk.
   If you specify this field along with `image` or `snapshot`,
-  the value of sizeGb must not be less than the size of the image
+  the value must not be less than the size of the image
   or the size of the snapshot.
 
 * `physical_block_size_bytes` -
