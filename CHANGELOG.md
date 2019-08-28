@@ -22,6 +22,8 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * containerregistry: Correctly handle domain-scoped projects [GH-4129]
+* iam: Fixed regression in 2.13.0 for permadiff on empty members in IAM policy bindings. [GH-4347]
+* project: `google_project_iam_custom_role` now sets the project properly on import. [GH-4343]
 * sql: Added back a missing import format for `google_sql_database`. [GH-4279]
 
 ## 2.13.0 (August 15, 2019)
