@@ -26,7 +26,7 @@ for an example of enabling notifications by granting the correct IAM permission.
 resource "google_storage_notification" "notification" {
 	bucket            = "${google_storage_bucket.bucket.name}"
 	payload_format    = "JSON_API_V1"
-	topic             = "${google_pubsub_topic.topic.id}"
+	topic             = "${google_pubsub_topic.topic.name}"
 	event_types       = ["OBJECT_FINALIZE", "OBJECT_METADATA_UPDATE"]
 	custom_attributes = {
 		new-attribute = "new-attribute-value"
