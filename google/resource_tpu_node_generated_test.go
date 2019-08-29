@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccTpuNode_tpuNodeBasicExample(t *testing.T) {
+func TestAccTPUNode_tpuNodeBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -34,10 +34,10 @@ func TestAccTpuNode_tpuNodeBasicExample(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckTpuNodeDestroy,
+		CheckDestroy: testAccCheckTPUNodeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccTpuNode_tpuNodeBasicExample(context),
+				Config: testAccTPUNode_tpuNodeBasicExample(context),
 			},
 			{
 				ResourceName:            "google_tpu_node.tpu",
@@ -49,7 +49,7 @@ func TestAccTpuNode_tpuNodeBasicExample(t *testing.T) {
 	})
 }
 
-func testAccTpuNode_tpuNodeBasicExample(context map[string]interface{}) string {
+func testAccTPUNode_tpuNodeBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 data "google_tpu_tensorflow_versions" "available" { }
 
@@ -64,7 +64,7 @@ resource "google_tpu_node" "tpu" {
 `, context)
 }
 
-func TestAccTpuNode_tpuNodeFullExample(t *testing.T) {
+func TestAccTPUNode_tpuNodeFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -74,10 +74,10 @@ func TestAccTpuNode_tpuNodeFullExample(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckTpuNodeDestroy,
+		CheckDestroy: testAccCheckTPUNodeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccTpuNode_tpuNodeFullExample(context),
+				Config: testAccTPUNode_tpuNodeFullExample(context),
 			},
 			{
 				ResourceName:            "google_tpu_node.tpu",
@@ -89,7 +89,7 @@ func TestAccTpuNode_tpuNodeFullExample(t *testing.T) {
 	})
 }
 
-func testAccTpuNode_tpuNodeFullExample(context map[string]interface{}) string {
+func testAccTPUNode_tpuNodeFullExample(context map[string]interface{}) string {
 	return Nprintf(`
 data "google_tpu_tensorflow_versions" "available" { }
 
@@ -116,7 +116,7 @@ resource "google_tpu_node" "tpu" {
 `, context)
 }
 
-func testAccCheckTpuNodeDestroy(s *terraform.State) error {
+func testAccCheckTPUNodeDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_tpu_node" {
 			continue
@@ -127,14 +127,14 @@ func testAccCheckTpuNodeDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(config, rs, "{{TpuBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 		if err != nil {
 			return err
 		}
 
 		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
-			return fmt.Errorf("TpuNode still exists at %s", url)
+			return fmt.Errorf("TPUNode still exists at %s", url)
 		}
 	}
 

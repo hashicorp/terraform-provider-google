@@ -105,7 +105,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	IPv4RangeProp, err := expandComputeNetworkIpv4_range(d.Get("ipv4_range"), d, config)
+	IPv4RangeProp, err := expandComputeNetworkIpv4Range(d.Get("ipv4_range"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("ipv4_range"); !isEmptyValue(reflect.ValueOf(IPv4RangeProp)) && (ok || !reflect.DeepEqual(v, IPv4RangeProp)) {
@@ -236,10 +236,10 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("description", flattenComputeNetworkDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
-	if err := d.Set("gateway_ipv4", flattenComputeNetworkGateway_ipv4(res["gatewayIPv4"], d)); err != nil {
+	if err := d.Set("gateway_ipv4", flattenComputeNetworkGatewayIpv4(res["gatewayIPv4"], d)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
-	if err := d.Set("ipv4_range", flattenComputeNetworkIpv4_range(res["IPv4Range"], d)); err != nil {
+	if err := d.Set("ipv4_range", flattenComputeNetworkIpv4Range(res["IPv4Range"], d)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	if err := d.Set("name", flattenComputeNetworkName(res["name"], d)); err != nil {
@@ -381,11 +381,11 @@ func flattenComputeNetworkDescription(v interface{}, d *schema.ResourceData) int
 	return v
 }
 
-func flattenComputeNetworkGateway_ipv4(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkGatewayIpv4(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeNetworkIpv4_range(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkIpv4Range(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -418,7 +418,7 @@ func expandComputeNetworkDescription(v interface{}, d TerraformResourceData, con
 	return v, nil
 }
 
-func expandComputeNetworkIpv4_range(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeNetworkIpv4Range(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

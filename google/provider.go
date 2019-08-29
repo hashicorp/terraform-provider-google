@@ -189,7 +189,7 @@ func Provider() terraform.ResourceProvider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_DNS_CUSTOM_ENDPOINT",
-				}, DnsDefaultBasePath),
+				}, DNSDefaultBasePath),
 			},
 			"filestore_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -213,7 +213,7 @@ func Provider() terraform.ResourceProvider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_KMS_CUSTOM_ENDPOINT",
-				}, KmsDefaultBasePath),
+				}, KMSDefaultBasePath),
 			},
 			"logging_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -293,7 +293,7 @@ func Provider() terraform.ResourceProvider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_SQL_CUSTOM_ENDPOINT",
-				}, SqlDefaultBasePath),
+				}, SQLDefaultBasePath),
 			},
 			"storage_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -309,7 +309,7 @@ func Provider() terraform.ResourceProvider {
 				ValidateFunc: validateCustomEndpoint,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_TPU_CUSTOM_ENDPOINT",
-				}, TpuDefaultBasePath),
+				}, TPUDefaultBasePath),
 			},
 
 			// Handwritten Products / Versioned / Atypical Entries
@@ -467,11 +467,11 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_vpn_gateway":                      resourceComputeVpnGateway(),
 			"google_compute_url_map":                          resourceComputeUrlMap(),
 			"google_compute_vpn_tunnel":                       resourceComputeVpnTunnel(),
-			"google_dns_managed_zone":                         resourceDnsManagedZone(),
+			"google_dns_managed_zone":                         resourceDNSManagedZone(),
 			"google_filestore_instance":                       resourceFilestoreInstance(),
 			"google_firestore_index":                          resourceFirestoreIndex(),
-			"google_kms_key_ring":                             resourceKmsKeyRing(),
-			"google_kms_crypto_key":                           resourceKmsCryptoKey(),
+			"google_kms_key_ring":                             resourceKMSKeyRing(),
+			"google_kms_crypto_key":                           resourceKMSCryptoKey(),
 			"google_logging_metric":                           resourceLoggingMetric(),
 			"google_ml_engine_model":                          resourceMLEngineModel(),
 			"google_monitoring_alert_policy":                  resourceMonitoringAlertPolicy(),
@@ -492,10 +492,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_sourcerepo_repository_iam_policy":         ResourceIamPolicy(SourceRepoRepositoryIamSchema, SourceRepoRepositoryIamUpdaterProducer, SourceRepoRepositoryIdParseFunc),
 			"google_spanner_instance":                         resourceSpannerInstance(),
 			"google_spanner_database":                         resourceSpannerDatabase(),
-			"google_sql_database":                             resourceSqlDatabase(),
+			"google_sql_database":                             resourceSQLDatabase(),
 			"google_storage_object_access_control":            resourceStorageObjectAccessControl(),
 			"google_storage_default_object_access_control":    resourceStorageDefaultObjectAccessControl(),
-			"google_tpu_node":                                 resourceTpuNode(),
+			"google_tpu_node":                                 resourceTPUNode(),
 		},
 		map[string]*schema.Resource{
 			"google_app_engine_application":                resourceAppEngineApplication(),
@@ -659,10 +659,10 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	config.CloudSchedulerBasePath = d.Get("cloud_scheduler_custom_endpoint").(string)
 	config.ComputeBasePath = d.Get("compute_custom_endpoint").(string)
 	config.DataprocBasePath = d.Get("dataproc_custom_endpoint").(string)
-	config.DnsBasePath = d.Get("dns_custom_endpoint").(string)
+	config.DNSBasePath = d.Get("dns_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
-	config.KmsBasePath = d.Get("kms_custom_endpoint").(string)
+	config.KMSBasePath = d.Get("kms_custom_endpoint").(string)
 	config.LoggingBasePath = d.Get("logging_custom_endpoint").(string)
 	config.MLEngineBasePath = d.Get("ml_engine_custom_endpoint").(string)
 	config.MonitoringBasePath = d.Get("monitoring_custom_endpoint").(string)
@@ -672,9 +672,9 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	config.SecurityCenterBasePath = d.Get("security_center_custom_endpoint").(string)
 	config.SourceRepoBasePath = d.Get("source_repo_custom_endpoint").(string)
 	config.SpannerBasePath = d.Get("spanner_custom_endpoint").(string)
-	config.SqlBasePath = d.Get("sql_custom_endpoint").(string)
+	config.SQLBasePath = d.Get("sql_custom_endpoint").(string)
 	config.StorageBasePath = d.Get("storage_custom_endpoint").(string)
-	config.TpuBasePath = d.Get("tpu_custom_endpoint").(string)
+	config.TPUBasePath = d.Get("tpu_custom_endpoint").(string)
 
 	// Handwritten Products / Versioned / Atypical Entries
 

@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccTpuTensorflowVersions_basic(t *testing.T) {
+func TestAccTPUTensorflowVersions_basic(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{

@@ -251,7 +251,7 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineStandardAppVersionVersion_id(d.Get("version_id"), d, config)
+	idProp, err := expandAppEngineStandardAppVersionVersionId(d.Get("version_id"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("version_id"); !isEmptyValue(reflect.ValueOf(idProp)) && (ok || !reflect.DeepEqual(v, idProp)) {
@@ -385,7 +385,7 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("name", flattenAppEngineStandardAppVersionName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
-	if err := d.Set("version_id", flattenAppEngineStandardAppVersionVersion_id(res["id"], d)); err != nil {
+	if err := d.Set("version_id", flattenAppEngineStandardAppVersionVersionId(res["id"], d)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
 	if err := d.Set("runtime", flattenAppEngineStandardAppVersionRuntime(res["runtime"], d)); err != nil {
@@ -413,7 +413,7 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 	}
 
 	obj := make(map[string]interface{})
-	idProp, err := expandAppEngineStandardAppVersionVersion_id(d.Get("version_id"), d, config)
+	idProp, err := expandAppEngineStandardAppVersionVersionId(d.Get("version_id"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("version_id"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, idProp)) {
@@ -581,7 +581,7 @@ func flattenAppEngineStandardAppVersionName(v interface{}, d *schema.ResourceDat
 	return v
 }
 
-func flattenAppEngineStandardAppVersionVersion_id(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionVersionId(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -734,7 +734,7 @@ func flattenAppEngineStandardAppVersionLibrariesVersion(v interface{}, d *schema
 	return v
 }
 
-func expandAppEngineStandardAppVersionVersion_id(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineStandardAppVersionVersionId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

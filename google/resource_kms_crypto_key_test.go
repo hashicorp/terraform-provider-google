@@ -149,7 +149,7 @@ func TestCryptoKeyStateUpgradeV0(t *testing.T) {
 	}
 	for tn, tc := range cases {
 		t.Run(tn, func(t *testing.T) {
-			actual, err := resourceKmsCryptoKeyUpgradeV0(tc.Attributes, tc.Meta)
+			actual, err := resourceKMSCryptoKeyUpgradeV0(tc.Attributes, tc.Meta)
 
 			if err != nil {
 				t.Error(err)
