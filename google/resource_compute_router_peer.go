@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
@@ -53,6 +54,41 @@ func resourceComputeRouterPeer() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
+			},
+
+			"advertise_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"DEFAULT", "CUSTOM", ""}, false),
+				Default:      "DEFAULT",
+			},
+
+			"advertised_groups": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+
+			"advertised_ip_ranges": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"description": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"range": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
 			},
 
 			"ip_address": {
@@ -136,6 +172,18 @@ func resourceComputeRouterPeerCreate(d *schema.ResourceData, meta interface{}) e
 		peer.AdvertisedRoutePriority = int64(v.(int))
 	}
 
+	if v, ok := d.GetOk("advertise_mode"); ok {
+		peer.AdvertiseMode = v.(string)
+	}
+
+	if v, ok := d.GetOk("advertised_groups"); ok {
+		peer.AdvertisedGroups = expandAdvertisedGroups(v.([]interface{}))
+	}
+
+	if v, ok := d.GetOk("advertised_ip_ranges"); ok {
+		peer.AdvertisedIpRanges = expandAdvertisedIpRanges(v.([]interface{}))
+	}
+
 	log.Printf("[INFO] Adding peer %s", peerName)
 	peers = append(peers, peer)
 	patchRouter := &compute.Router{
@@ -195,6 +243,9 @@ func resourceComputeRouterPeerRead(d *schema.ResourceData, meta interface{}) err
 			d.Set("peer_ip_address", peer.PeerIpAddress)
 			d.Set("peer_asn", peer.PeerAsn)
 			d.Set("advertised_route_priority", peer.AdvertisedRoutePriority)
+			d.Set("advertise_mode", peer.AdvertiseMode)
+			d.Set("advertised_groups", peer.AdvertisedGroups)
+			d.Set("advertised_ip_ranges", flattenAdvertisedIpRanges(peer.AdvertisedIpRanges))
 			d.Set("ip_address", peer.IpAddress)
 			d.Set("region", region)
 			d.Set("project", project)
@@ -291,4 +342,51 @@ func resourceComputeRouterPeerImportState(d *schema.ResourceData, meta interface
 	d.Set("name", parts[2])
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func expandAdvertisedGroups(v []interface{}) []string {
+	var groups []string
+
+	if len(v) == 0 {
+		return nil
+	}
+
+	for _, group := range v {
+		groups = append(groups, group.(string))
+	}
+
+	return groups
+}
+
+func expandAdvertisedIpRanges(v []interface{}) []*compute.RouterAdvertisedIpRange {
+	var ranges []*compute.RouterAdvertisedIpRange
+
+	if len(v) == 0 {
+		return nil
+	}
+
+	for _, r := range v {
+		ipRange := r.(map[string]interface{})
+
+		ranges = append(ranges, &compute.RouterAdvertisedIpRange{
+			Range:       ipRange["range"].(string),
+			Description: ipRange["description"].(string),
+		})
+	}
+
+	return ranges
+}
+
+func flattenAdvertisedIpRanges(ranges []*compute.RouterAdvertisedIpRange) []map[string]interface{} {
+	ls := make([]map[string]interface{}, 0, len(ranges))
+	for _, r := range ranges {
+		if r == nil {
+			continue
+		}
+		ls = append(ls, map[string]interface{}{
+			"range":       r.Range,
+			"description": r.Description,
+		})
+	}
+	return ls
 }
