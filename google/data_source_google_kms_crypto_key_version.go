@@ -59,7 +59,7 @@ func dataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
 func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{KmsBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}")
+	url, err := replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}")
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
 	}
 
-	url, err = replaceVars(d, config, "{{KmsBasePath}}{{crypto_key}}")
+	url, err = replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}")
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 	}
 
 	if res["purpose"] == "ASYMMETRIC_SIGN" || res["purpose"] == "ASYMMETRIC_DECRYPT" {
-		url, err = replaceVars(d, config, "{{KmsBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}/publicKey")
+		url, err = replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}/publicKey")
 		if err != nil {
 			return err
 		}

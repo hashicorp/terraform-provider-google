@@ -5,7 +5,7 @@ import (
 )
 
 func dataSourceGoogleKmsKeyRing() *schema.Resource {
-	dsSchema := datasourceSchemaFromResourceSchema(resourceKmsKeyRing().Schema)
+	dsSchema := datasourceSchemaFromResourceSchema(resourceKMSKeyRing().Schema)
 	addRequiredFieldsToSchema(dsSchema, "name")
 	addRequiredFieldsToSchema(dsSchema, "location")
 	addOptionalFieldsToSchema(dsSchema, "project")
@@ -31,5 +31,5 @@ func dataSourceGoogleKmsKeyRingRead(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(keyRingId.terraformId())
 
-	return resourceKmsKeyRingRead(d, meta)
+	return resourceKMSKeyRingRead(d, meta)
 }

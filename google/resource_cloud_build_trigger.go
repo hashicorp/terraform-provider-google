@@ -344,7 +344,7 @@ func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
 
-	if err := d.Set("trigger_id", flattenCloudBuildTriggerTrigger_id(res["id"], d)); err != nil {
+	if err := d.Set("trigger_id", flattenCloudBuildTriggerTriggerId(res["id"], d)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
 	if err := d.Set("description", flattenCloudBuildTriggerDescription(res["description"], d)); err != nil {
@@ -497,7 +497,7 @@ func resourceCloudBuildTriggerImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenCloudBuildTriggerTrigger_id(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudBuildTriggerTriggerId(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
