@@ -94,7 +94,8 @@ The `file_shares` block supports:
 
 * `capacity_gb` -
   (Required)
-  File share capacity in GB.
+  File share capacity in GiB. This must be at least 1024 GiB
+  for the standard tier, or 2560 GiB for the premium tier.
 
 The `networks` block supports:
 
