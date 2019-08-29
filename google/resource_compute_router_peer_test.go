@@ -37,6 +37,29 @@ func TestAccComputeRouterPeer_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeRouterPeer_customAdvertisement(t *testing.T) {
+	t.Parallel()
+
+	testId := acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRouterPeerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouterPeerCustomAdvertisement(testId),
+				Check: testAccCheckComputeRouterPeerCustomSetCorrect(
+					"google_compute_router_peer.foobar"),
+			},
+			{
+				ResourceName:      "google_compute_router_peer.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeRouterPeerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -302,4 +325,154 @@ func testAccComputeRouterPeerKeepRouter(testId string) string {
 			vpn_tunnel = "${google_compute_vpn_tunnel.foobar.name}"
 		}
 	`, testId, testId, testId, testId, testId, testId, testId, testId, testId, testId)
+}
+
+func testAccComputeRouterPeerCustomAdvertisement(testId string) string {
+	return fmt.Sprintf(`
+	        resource "google_compute_network" "foobar" {
+			name = "router-peer-test-%s"
+		}
+		resource "google_compute_subnetwork" "foobar" {
+			name = "router-peer-test-subnetwork-%s"
+			network = "${google_compute_network.foobar.self_link}"
+			ip_cidr_range = "10.0.0.0/16"
+			region = "us-central1"
+		}
+		resource "google_compute_address" "foobar" {
+			name = "router-peer-test-%s"
+			region = "${google_compute_subnetwork.foobar.region}"
+		}
+		resource "google_compute_vpn_gateway" "foobar" {
+			name = "router-peer-test-%s"
+			network = "${google_compute_network.foobar.self_link}"
+			region = "${google_compute_subnetwork.foobar.region}"
+		}
+		resource "google_compute_forwarding_rule" "foobar_esp" {
+			name = "router-peer-test-%s-1"
+			region = "${google_compute_vpn_gateway.foobar.region}"
+			ip_protocol = "ESP"
+			ip_address = "${google_compute_address.foobar.address}"
+			target = "${google_compute_vpn_gateway.foobar.self_link}"
+		}
+		resource "google_compute_forwarding_rule" "foobar_udp500" {
+			name = "router-peer-test-%s-2"
+			region = "${google_compute_forwarding_rule.foobar_esp.region}"
+			ip_protocol = "UDP"
+			port_range = "500-500"
+			ip_address = "${google_compute_address.foobar.address}"
+			target = "${google_compute_vpn_gateway.foobar.self_link}"
+		}
+		resource "google_compute_forwarding_rule" "foobar_udp4500" {
+			name = "router-peer-test-%s-3"
+			region = "${google_compute_forwarding_rule.foobar_udp500.region}"
+			ip_protocol = "UDP"
+			port_range = "4500-4500"
+			ip_address = "${google_compute_address.foobar.address}"
+			target = "${google_compute_vpn_gateway.foobar.self_link}"
+		}
+		resource "google_compute_router" "foobar"{
+			name = "router-peer-test-%s"
+			region = "${google_compute_forwarding_rule.foobar_udp500.region}"
+			network = "${google_compute_network.foobar.self_link}"
+			bgp {
+				asn = 64514
+			}
+		}
+		resource "google_compute_vpn_tunnel" "foobar" {
+			name = "router-peer-test-%s"
+			region = "${google_compute_forwarding_rule.foobar_udp4500.region}"
+			target_vpn_gateway = "${google_compute_vpn_gateway.foobar.self_link}"
+			shared_secret = "unguessable"
+			peer_ip = "8.8.8.8"
+			router = "${google_compute_router.foobar.name}"
+		}
+		resource "google_compute_router_interface" "foobar" {
+			name = "router-peer-test-%s"
+			router = "${google_compute_router.foobar.name}"
+			region = "${google_compute_router.foobar.region}"
+			ip_range = "169.254.3.1/30"
+			vpn_tunnel = "${google_compute_vpn_tunnel.foobar.name}"
+		}
+		resource "google_compute_router_peer" "foobar" {
+			name = "router-peer-test-%s"
+			router = "${google_compute_router.foobar.name}"
+			region = "${google_compute_router.foobar.region}"
+			peer_ip_address = "169.254.3.2"
+			peer_asn = 65515
+			advertised_route_priority = 100
+			interface = "${google_compute_router_interface.foobar.name}"
+			advertise_mode = "CUSTOM"
+			advertised_groups = ["ALL_SUBNETS"]
+			advertised_ip_ranges {
+				range       = "6.7.0.0/16"
+				description = "test number 1"
+			}
+			advertised_ip_ranges {
+				range       = "8.9.0.0/16"
+				description = "test number 2"
+			}
+		}
+	`, testId, testId, testId, testId, testId, testId, testId, testId, testId, testId, testId)
+}
+
+func testAccCheckComputeRouterPeerCustomSetCorrect(n string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		project, err := getTestProject(rs.Primary, config)
+		if err != nil {
+			return err
+		}
+
+		region, err := getTestRegion(rs.Primary, config)
+		if err != nil {
+			return err
+		}
+
+		name := rs.Primary.Attributes["name"]
+		routerName := rs.Primary.Attributes["router"]
+
+		routersService := config.clientCompute.Routers
+		router, err := routersService.Get(project, region, routerName).Do()
+
+		if err != nil {
+			return fmt.Errorf("Error Reading Router %s: %s", routerName, err)
+		}
+
+		for _, peer := range router.BgpPeers {
+
+			if peer.Name == name {
+				if peer.AdvertiseMode != "CUSTOM" {
+					return fmt.Errorf("Advertisement Mode is incorrect")
+				}
+				if len(peer.AdvertisedGroups) != 1 {
+					return fmt.Errorf("Number of advertised groups is incorrect")
+				}
+				if peer.AdvertisedGroups[0] != "ALL_SUBNETS" {
+					return fmt.Errorf("Advertised group is incorrect")
+				}
+				if len(peer.AdvertisedIpRanges) != 2 {
+					return fmt.Errorf("Number of advertised ip ranges is incorrect")
+				}
+				if peer.AdvertisedIpRanges[0].Range != "6.7.0.0/16" {
+					return fmt.Errorf("Advertised ip range value is incorrect")
+				}
+				if peer.AdvertisedIpRanges[0].Description != "test number 1" {
+					return fmt.Errorf("Advertised ip range description is incorrect")
+				}
+				return nil
+			}
+		}
+
+		return fmt.Errorf("Peer %s not found for router %s", name, router.Name)
+	}
 }

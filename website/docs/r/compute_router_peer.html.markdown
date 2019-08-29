@@ -27,6 +27,27 @@ resource "google_compute_router_peer" "foobar" {
 }
 ```
 
+To create a peer with custom advertised ranges:
+
+```hcl
+resource "google_compute_router_peer" "foobar" {
+  name                      = "peer-1"
+  router                    = "router-1"
+  region                    = "us-central1"
+  peer_ip_address           = "169.254.1.2"
+  peer_asn                  = 65513
+  advertised_route_priority = 100
+  interface                 = "interface-1"
+  advertise_mode            = "CUSTOM"
+  advertised_groups         = ["ALL_SUBNETS"]
+
+  advertised_ip_ranges {
+    range       = "192.168.0.0/16"
+    description = "example range"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -57,6 +78,31 @@ The following arguments are supported:
 * `region` - (Optional) The region this peer's router sits in. If not specified,
     the project region will be used. Changing this forces a new peer to be
     created.
+
+* `advertise_mode` - (Optional) User-specified flag to indicate which mode to use for advertisement.
+    Valid values of this enum field are: DEFAULT, CUSTOM
+
+* `advertised_groups` - (Optional) User-specified list of prefix groups to advertise in custom mode.
+    This field can only be populated if advertiseMode is CUSTOM and
+    is advertised to all peers of the router. These groups will be
+    advertised in addition to any specified prefixes. Leave this field
+    blank to advertise no custom groups.
+    This enum field has the one valid value: ALL_SUBNETS
+
+* `advertised_ip_ranges` - (Optional) User-specified list of individual IP ranges to advertise in
+    custom mode. This field can only be populated if advertiseMode
+    is CUSTOM and is advertised to all peers of the router. These IP
+    ranges will be advertised in addition to any specified groups.
+    Leave this field blank to advertise no custom IP ranges.  Structure is documented below.
+
+
+The `advertised_ip_ranges` block supports:
+
+* `range` - (Optional) The IP range to advertise. The value must be a
+    CIDR-formatted string.
+
+* `description` - (Optional) User-specified description for the IP range.
+
 
 ## Attributes Reference
 

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
@@ -16,6 +17,7 @@ func resourceComputeRouterPeer() *schema.Resource {
 		Create: resourceComputeRouterPeerCreate,
 		Read:   resourceComputeRouterPeerRead,
 		Delete: resourceComputeRouterPeerDelete,
+		Update: resourceComputeRouterPeerUpdate,
 		Importer: &schema.ResourceImporter{
 			State: resourceComputeRouterPeerImportState,
 		},
@@ -53,6 +55,38 @@ func resourceComputeRouterPeer() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
+			},
+
+			"advertise_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"DEFAULT", "CUSTOM", ""}, false),
+				Default:      "DEFAULT",
+			},
+
+			"advertised_groups": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+
+			"advertised_ip_ranges": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"description": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"range": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
 			},
 
 			"ip_address": {
@@ -136,6 +170,23 @@ func resourceComputeRouterPeerCreate(d *schema.ResourceData, meta interface{}) e
 		peer.AdvertisedRoutePriority = int64(v.(int))
 	}
 
+	if v, ok := d.GetOk("advertise_mode"); ok {
+		peer.AdvertiseMode = v.(string)
+	}
+
+	if v, ok := d.GetOk("advertised_groups"); ok {
+		agInterface := v.([]interface{})
+		agString := make([]string, len(agInterface))
+		for i, v2 := range agInterface {
+			agString[i] = v2.(string)
+		}
+		peer.AdvertisedGroups = agString
+	}
+
+	if ipRanges, err := expandComputeRouterPeerBgpAdvertisedIPRanges(d, config); err == nil {
+		peer.AdvertisedIpRanges = ipRanges
+	}
+
 	log.Printf("[INFO] Adding peer %s", peerName)
 	peers = append(peers, peer)
 	patchRouter := &compute.Router{
@@ -195,6 +246,9 @@ func resourceComputeRouterPeerRead(d *schema.ResourceData, meta interface{}) err
 			d.Set("peer_ip_address", peer.PeerIpAddress)
 			d.Set("peer_asn", peer.PeerAsn)
 			d.Set("advertised_route_priority", peer.AdvertisedRoutePriority)
+			d.Set("advertise_mode", peer.AdvertiseMode)
+			d.Set("advertised_groups", peer.AdvertisedGroups)
+			d.Set("advertised_ip_ranges", flattenComputeRouterPeerBgpAdvertisedIpRanges(peer.AdvertisedIpRanges, d))
 			d.Set("ip_address", peer.IpAddress)
 			d.Set("region", region)
 			d.Set("project", project)
@@ -205,6 +259,93 @@ func resourceComputeRouterPeerRead(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[WARN] Removing router peer %s/%s/%s because it is gone", region, routerName, peerName)
 	d.SetId("")
 	return nil
+}
+
+func resourceComputeRouterPeerUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
+	}
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	routerName := d.Get("router").(string)
+	peerName := d.Get("name").(string)
+
+	routerLock := getRouterLockName(region, routerName)
+	mutexKV.Lock(routerLock)
+	defer mutexKV.Unlock(routerLock)
+
+	routersService := config.clientCompute.Routers
+	router, err := routersService.Get(project, region, routerName).Do()
+	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+			log.Printf("[WARN] Removing router peer %s because its router %s/%s is gone", peerName, region, routerName)
+			d.SetId("")
+
+			return nil
+		}
+
+		return fmt.Errorf("Error Reading router %s/%s: %s", region, routerName, err)
+	}
+
+	peers := router.BgpPeers
+	for _, peer := range peers {
+		if peer.Name == peerName {
+			if v, ok := d.GetOk("peer_ip_address"); ok {
+				peer.PeerIpAddress = v.(string)
+			}
+
+			if v, ok := d.GetOk("peer_asn"); ok {
+				peer.PeerAsn = int64(v.(int))
+			}
+
+			if v, ok := d.GetOk("advertised_route_priority"); ok {
+				peer.AdvertisedRoutePriority = int64(v.(int))
+			}
+
+			if v, ok := d.GetOk("advertise_mode"); ok {
+				peer.AdvertiseMode = v.(string)
+			}
+
+			if v, ok := d.GetOk("advertised_groups"); ok {
+				agInterface := v.([]interface{})
+				agString := make([]string, len(agInterface))
+				for i, v2 := range agInterface {
+					agString[i] = v2.(string)
+				}
+				peer.AdvertisedGroups = agString
+			}
+
+			if ipRanges, err := expandComputeRouterPeerBgpAdvertisedIPRanges(d, config); err == nil {
+				peer.AdvertisedIpRanges = ipRanges
+			}
+
+		}
+	}
+
+	patchRouter := &compute.Router{
+		BgpPeers: peers,
+	}
+
+	log.Printf("[DEBUG] Updating router %s/%s with peers: %+v", region, routerName, peers)
+	op, err := routersService.Patch(project, region, router.Name, patchRouter).Do()
+	if err != nil {
+		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
+	}
+	d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, peerName))
+	err = computeOperationWait(config.clientCompute, op, project, "Patching router")
+	if err != nil {
+		d.SetId("")
+		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
+	}
+
+	return resourceComputeRouterPeerRead(d, meta)
 }
 
 func resourceComputeRouterPeerDelete(d *schema.ResourceData, meta interface{}) error {
@@ -240,7 +381,7 @@ func resourceComputeRouterPeerDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error Reading Router %s: %s", routerName, err)
 	}
 
-	var newPeers []*compute.RouterBgpPeer = make([]*compute.RouterBgpPeer, 0, len(router.BgpPeers))
+	var newPeers = make([]*compute.RouterBgpPeer, 0, len(router.BgpPeers))
 	for _, peer := range router.BgpPeers {
 		if peer.Name == peerName {
 			continue
@@ -291,4 +432,35 @@ func resourceComputeRouterPeerImportState(d *schema.ResourceData, meta interface
 	d.Set("name", parts[2])
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func expandComputeRouterPeerBgpAdvertisedIPRanges(d TerraformResourceData, config *Config) ([]*compute.RouterAdvertisedIpRange, error) {
+	l := d.Get("advertised_ip_ranges").([]interface{})
+	result := []*compute.RouterAdvertisedIpRange{}
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		current := &compute.RouterAdvertisedIpRange{}
+		current.Range = original["range"].(string)
+		current.Description = original["description"].(string)
+		result = append(result, current)
+	}
+	return result, nil
+}
+
+func flattenComputeRouterPeerBgpAdvertisedIpRanges(v []*compute.RouterAdvertisedIpRange, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v
+	transformed := make([]interface{}, 0, len(l))
+	for _, e := range l {
+		transformed = append(transformed, map[string]string{
+			"range":       e.Range,
+			"description": e.Description,
+		})
+	}
+	return transformed
 }
