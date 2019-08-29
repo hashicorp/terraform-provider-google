@@ -30,3 +30,10 @@ func pubsubTopicProjectNotReady(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+func isSqlOperationInProgressError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 {
+		return true, "Waiting for other concurrent Cloud SQL operations to finish"
+	}
+	return false, ""
+}
