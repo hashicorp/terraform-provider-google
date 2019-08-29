@@ -64,8 +64,9 @@ type Config struct {
 	BatchingConfig      *batchingConfig
 	UserProjectOverride bool
 
-	client    *http.Client
-	userAgent string
+	client           *http.Client
+	terraformVersion string
+	userAgent        string
 
 	tokenSource oauth2.TokenSource
 
@@ -246,10 +247,9 @@ func (c *Config) LoadAndValidate() error {
 	// timeout for the maximum amount of time a logical request can take.
 	client.Timeout, _ = time.ParseDuration("30s")
 
-	terraformVersion := httpclient.UserAgentString()
+	tfUserAgent := httpclient.TerraformUserAgent(c.terraformVersion)
 	providerVersion := fmt.Sprintf("terraform-provider-google/%s", version.ProviderVersion)
-	terraformWebsite := "(+https://www.terraform.io)"
-	userAgent := fmt.Sprintf("%s %s %s", terraformVersion, terraformWebsite, providerVersion)
+	userAgent := fmt.Sprintf("%s %s", tfUserAgent, providerVersion)
 
 	c.client = client
 	c.userAgent = userAgent
