@@ -41,7 +41,7 @@ var (
 
 	ServiceAccountLinkRegexPrefix = "projects/" + ProjectRegexWildCard + "/serviceAccounts/"
 	PossibleServiceAccountNames   = []string{
-		AppEngineServiceAccountNameRegex,
+		ServiceDefaultAccountNameRegex,
 		ComputeServiceAccountNameRegex,
 		CreatedServiceAccountNameRegex,
 	}
@@ -51,12 +51,16 @@ var (
 
 	// Format of service accounts created through the API
 	CreatedServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, 4, 28) + "@" + ProjectNameInDNSFormRegex + "\\.iam\\.gserviceaccount\\.com$"
-	ProjectNameInDNSFormRegex      = "[-a-z0-9\\.]{1,63}"
 
-	// Format of default App Engine service accounts created by Google
-	AppEngineServiceAccountNameRegex = ProjectRegex + "@appspot.gserviceaccount.com"
+	// Format of service-created service account
+	// examples are:
+	// 		$PROJECTID@cloudbuild.gserviceaccount.com
+	// 		$PROJECTID@cloudservices.gserviceaccount.com
+	// 		$PROJECTID@appspot.gserviceaccount.com
+	ServiceDefaultAccountNameRegex = ProjectRegex + "@[a-z]+.gserviceaccount.com$"
 
-	ProjectNameRegex = "^[A-Za-z0-9-'\"\\s!]{4,30}$"
+	ProjectNameInDNSFormRegex = "[-a-z0-9\\.]{1,63}"
+	ProjectNameRegex          = "^[A-Za-z0-9-'\"\\s!]{4,30}$"
 )
 
 var rfc1918Networks = []string{
