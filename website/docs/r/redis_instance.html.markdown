@@ -37,7 +37,6 @@ To get more information about Instance, see:
 </div>
 ## Example Usage - Redis Instance Basic
 
-
 ```hcl
 resource "google_redis_instance" "cache" {
   name           = "memory-cache"
@@ -50,7 +49,6 @@ resource "google_redis_instance" "cache" {
   </a>
 </div>
 ## Example Usage - Redis Instance Full
-
 
 ```hcl
 resource "google_redis_instance" "cache" {

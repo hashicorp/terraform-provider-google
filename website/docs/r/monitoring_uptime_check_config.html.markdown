@@ -37,7 +37,6 @@ To get more information about UptimeCheckConfig, see:
 </div>
 ## Example Usage - Uptime Check Config Http
 
-
 ```hcl
 resource "google_monitoring_uptime_check_config" "http" {
   display_name = "http-uptime-check"
@@ -67,7 +66,6 @@ resource "google_monitoring_uptime_check_config" "http" {
   </a>
 </div>
 ## Example Usage - Uptime Check Tcp
-
 
 ```hcl
 resource "google_monitoring_uptime_check_config" "tcp_group" {

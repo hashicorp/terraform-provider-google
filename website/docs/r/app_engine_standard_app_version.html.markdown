@@ -39,7 +39,6 @@ To get more information about StandardAppVersion, see:
 </div>
 ## Example Usage - App Engine Standard App Version
 
-
 ```hcl
 resource "google_storage_bucket" "bucket" {
 	name = "appengine-static-content"

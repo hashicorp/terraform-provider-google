@@ -39,7 +39,6 @@ To get more information about SslCertificate, see:
 </div>
 ## Example Usage - Ssl Certificate Basic
 
-
 ```hcl
 resource "google_compute_ssl_certificate" "default" {
   name_prefix = "my-certificate-"
@@ -58,7 +57,6 @@ resource "google_compute_ssl_certificate" "default" {
   </a>
 </div>
 ## Example Usage - Ssl Certificate Random Provider
-
 
 ```hcl
 # You may also want to control name generation explicitly:
@@ -91,7 +89,6 @@ resource "random_id" "certificate" {
   </a>
 </div>
 ## Example Usage - Ssl Certificate Target Https Proxies
-
 
 ```hcl
 // Using with Target HTTPS Proxies

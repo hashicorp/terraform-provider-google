@@ -39,7 +39,6 @@ To get more information about TargetHttpsProxy, see:
 </div>
 ## Example Usage - Target Https Proxy Basic
 
-
 ```hcl
 resource "google_compute_target_https_proxy" "default" {
   name             = "test-proxy"

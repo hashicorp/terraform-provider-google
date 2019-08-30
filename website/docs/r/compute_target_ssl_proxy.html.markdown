@@ -41,7 +41,6 @@ To get more information about TargetSslProxy, see:
 </div>
 ## Example Usage - Target Ssl Proxy Basic
 
-
 ```hcl
 resource "google_compute_target_ssl_proxy" "default" {
   name             = "test-proxy"

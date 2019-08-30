@@ -37,7 +37,6 @@ To get more information about Network, see:
 </div>
 ## Example Usage - Network Basic
 
-
 ```hcl
 resource "google_compute_network" "vpc_network" {
   name = "vpc-network"

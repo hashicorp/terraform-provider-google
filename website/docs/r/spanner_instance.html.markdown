@@ -39,7 +39,6 @@ To get more information about Instance, see:
 </div>
 ## Example Usage - Spanner Instance Basic
 
-
 ```hcl
 resource "google_spanner_instance" "example" {
   config        = "regional-us-central1"

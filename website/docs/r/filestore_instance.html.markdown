@@ -39,7 +39,6 @@ To get more information about Instance, see:
 </div>
 ## Example Usage - Filestore Instance Basic
 
-
 ```hcl
 resource "google_filestore_instance" "instance" {
   name = "test-instance"

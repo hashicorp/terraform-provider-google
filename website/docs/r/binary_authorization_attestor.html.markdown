@@ -32,7 +32,6 @@ To get more information about Attestor, see:
 
 ## Example Usage - Binary Authorization Attestor Basic
 
-
 ```hcl
 resource "google_binary_authorization_attestor" "attestor" {
   name = "test-attestor"
@@ -70,7 +69,6 @@ resource "google_container_analysis_note" "note" {
 }
 ```
 ## Example Usage - Binary Authorization Attestor Kms
-
 
 ```hcl
 resource "google_binary_authorization_attestor" "attestor" {

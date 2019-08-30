@@ -47,7 +47,6 @@ To get more information about HealthCheck, see:
 </div>
 ## Example Usage - Health Check Basic
 
-
 ```hcl
 resource "google_compute_health_check" "internal-health-check" {
  name = "internal-service-health-check"

@@ -48,7 +48,6 @@ To get more information about NetworkEndpointGroup, see:
 </div>
 ## Example Usage - Network Endpoint Group
 
-
 ```hcl
 resource "google_compute_network_endpoint_group" "neg" {
   name         = "my-lb-neg"

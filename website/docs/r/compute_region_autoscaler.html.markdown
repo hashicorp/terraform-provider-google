@@ -41,7 +41,6 @@ To get more information about RegionAutoscaler, see:
 </div>
 ## Example Usage - Region Autoscaler Beta
 
-
 ```hcl
 resource "google_compute_region_autoscaler" "foobar" {
   provider = "google-beta"
@@ -126,7 +125,6 @@ provider "google-beta"{
   </a>
 </div>
 ## Example Usage - Region Autoscaler Basic
-
 
 ```hcl
 resource "google_compute_region_autoscaler" "foobar" {

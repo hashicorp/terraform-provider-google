@@ -48,7 +48,6 @@ To get more information about Snapshot, see:
 </div>
 ## Example Usage - Snapshot Basic
 
-
 ```hcl
 resource "google_compute_snapshot" "snapshot" {
 	name = "my-snapshot"

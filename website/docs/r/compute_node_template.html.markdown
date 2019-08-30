@@ -39,7 +39,6 @@ To get more information about NodeTemplate, see:
 </div>
 ## Example Usage - Node Template Basic
 
-
 ```hcl
 data "google_compute_node_types" "central1a" {
   zone = "us-central1-a"
@@ -57,7 +56,6 @@ resource "google_compute_node_template" "template" {
   </a>
 </div>
 ## Example Usage - Node Template Server Binding
-
 
 ```hcl
 provider "google-beta" {

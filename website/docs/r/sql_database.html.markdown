@@ -34,7 +34,6 @@ Google's cloud.
 </div>
 ## Example Usage - Sql Database Basic
 
-
 ```hcl
 resource "google_sql_database" "database" {
 	name = "my-database"

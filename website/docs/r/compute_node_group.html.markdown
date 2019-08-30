@@ -42,7 +42,6 @@ Terraform to delete and recreate the node group.
 </div>
 ## Example Usage - Node Group Basic
 
-
 ```hcl
 data "google_compute_node_types" "central1a" {
   zone = "us-central1-a"

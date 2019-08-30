@@ -57,7 +57,6 @@ To get more information about Route, see:
 </div>
 ## Example Usage - Route Basic
 
-
 ```hcl
 resource "google_compute_route" "default" {
   name        = "network-route"
@@ -77,7 +76,6 @@ resource "google_compute_network" "default" {
   </a>
 </div>
 ## Example Usage - Route Ilb Beta
-
 
 ```hcl
 resource "google_compute_network" "default" {

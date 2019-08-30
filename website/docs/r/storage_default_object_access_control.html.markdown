@@ -51,7 +51,6 @@ To get more information about DefaultObjectAccessControl, see:
 </div>
 ## Example Usage - Storage Default Object Access Control Public
 
-
 ```hcl
 resource "google_storage_default_object_access_control" "public_rule" {
   bucket = "${google_storage_bucket.bucket.name}"

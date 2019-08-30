@@ -37,7 +37,6 @@ To get more information about Database, see:
 </div>
 ## Example Usage - Spanner Database Basic
 
-
 ```hcl
 resource "google_spanner_instance" "main" {
   config       = "regional-europe-west1"

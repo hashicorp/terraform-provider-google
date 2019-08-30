@@ -35,7 +35,6 @@ ready to receive prediction requests. The model itself is just a container.
 </div>
 ## Example Usage - Ml Model Basic
 
-
 ```hcl
 resource "google_ml_engine_model" "default" {
   name = "default"
@@ -49,7 +48,6 @@ resource "google_ml_engine_model" "default" {
   </a>
 </div>
 ## Example Usage - Ml Model Full
-
 
 ```hcl
 resource "google_ml_engine_model" "default" {

@@ -32,7 +32,6 @@ App profile is a configuration object describing how Cloud Bigtable should treat
 </div>
 ## Example Usage - Bigtable App Profile Multicluster
 
-
 ```hcl
 resource "google_bigtable_instance" "instance" {
 	name = "tf-test-instance-"
@@ -58,7 +57,6 @@ resource "google_bigtable_app_profile" "ap" {
   </a>
 </div>
 ## Example Usage - Bigtable App Profile Singlecluster
-
 
 ```hcl
 resource "google_bigtable_instance" "instance" {

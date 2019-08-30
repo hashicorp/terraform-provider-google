@@ -41,7 +41,6 @@ To get more information about TargetTcpProxy, see:
 </div>
 ## Example Usage - Target Tcp Proxy Basic
 
-
 ```hcl
 resource "google_compute_target_tcp_proxy" "default" {
   name            = "test-proxy"

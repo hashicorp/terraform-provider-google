@@ -38,7 +38,6 @@ To get more information about SslPolicy, see:
 </div>
 ## Example Usage - Ssl Policy Basic
 
-
 ```hcl
 resource "google_compute_ssl_policy" "prod-ssl-policy" {
   name    = "production-ssl-policy"

@@ -42,7 +42,6 @@ state as plain-text.
 </div>
 ## Example Usage - Vpn Tunnel Basic
 
-
 ```hcl
 resource "google_compute_vpn_tunnel" "tunnel1" {
   name          = "tunnel1"
@@ -109,7 +108,6 @@ resource "google_compute_route" "route1" {
   </a>
 </div>
 ## Example Usage - Vpn Tunnel Beta
-
 
 ```hcl
 resource "google_compute_vpn_tunnel" "tunnel1" {

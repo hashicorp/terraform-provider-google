@@ -37,7 +37,6 @@ we cannot confirm or reverse changes to a key outside of Terraform.
 
 ## Example Usage - Backend Service Signed Url Key
 
-
 ```hcl
 resource "google_compute_backend_service_signed_url_key" "backend_key" {
   name           = "test-key"

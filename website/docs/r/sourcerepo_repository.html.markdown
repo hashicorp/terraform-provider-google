@@ -37,7 +37,6 @@ To get more information about Repository, see:
 </div>
 ## Example Usage - Sourcerepo Repository Basic
 
-
 ```hcl
 resource "google_sourcerepo_repository" "my-repo" {
   name = "my-repository"

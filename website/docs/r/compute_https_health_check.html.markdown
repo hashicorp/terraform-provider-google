@@ -45,7 +45,6 @@ To get more information about HttpsHealthCheck, see:
 </div>
 ## Example Usage - Https Health Check Basic
 
-
 ```hcl
 resource "google_compute_https_health_check" "default" {
   name         = "authentication-health-check"

@@ -39,7 +39,6 @@ To get more information about ForwardingRule, see:
 </div>
 ## Example Usage - Forwarding Rule Basic
 
-
 ```hcl
 resource "google_compute_forwarding_rule" "default" {
   name       = "website-forwarding-rule"
@@ -57,7 +56,6 @@ resource "google_compute_target_pool" "default" {
   </a>
 </div>
 ## Example Usage - Forwarding Rule Internallb
-
 
 ```hcl
 // Forwarding rule for Internal Load Balancing

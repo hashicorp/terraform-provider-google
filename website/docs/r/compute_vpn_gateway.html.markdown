@@ -36,7 +36,6 @@ To get more information about VpnGateway, see:
 </div>
 ## Example Usage - Target Vpn Gateway Basic
 
-
 ```hcl
 resource "google_compute_vpn_gateway" "target_gateway" {
   name    = "vpn1"
