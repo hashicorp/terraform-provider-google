@@ -49,7 +49,6 @@ To get more information about ObjectAccessControl, see:
 </div>
 ## Example Usage - Storage Object Access Control Public Object
 
-
 ```hcl
 resource "google_storage_object_access_control" "public_rule" {
   object = "${google_storage_bucket_object.object.output_name}"

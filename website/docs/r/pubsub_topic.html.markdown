@@ -37,7 +37,6 @@ To get more information about Topic, see:
 </div>
 ## Example Usage - Pubsub Topic Basic
 
-
 ```hcl
 resource "google_pubsub_topic" "example" {
   name = "example-topic"
@@ -48,7 +47,6 @@ resource "google_pubsub_topic" "example" {
 }
 ```
 ## Example Usage - Pubsub Topic Cmek
-
 
 ```hcl
 resource "google_pubsub_topic" "example" {
@@ -72,7 +70,6 @@ resource "google_kms_key_ring" "key_ring" {
   </a>
 </div>
 ## Example Usage - Pubsub Topic Geo Restricted
-
 
 ```hcl
 resource "google_pubsub_topic" "example" {

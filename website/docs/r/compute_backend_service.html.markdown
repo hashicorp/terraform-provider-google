@@ -43,7 +43,6 @@ To get more information about BackendService, see:
 </div>
 ## Example Usage - Backend Service Basic
 
-
 ```hcl
 resource "google_compute_backend_service" "default" {
   name          = "backend-service"

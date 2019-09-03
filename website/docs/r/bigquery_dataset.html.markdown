@@ -32,7 +32,6 @@ Datasets allow you to organize and control access to your tables.
 </div>
 ## Example Usage - Bigquery Dataset Basic
 
-
 ```hcl
 resource "google_bigquery_dataset" "dataset" {
   dataset_id                  = "example_dataset"

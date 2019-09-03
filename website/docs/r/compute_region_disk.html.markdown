@@ -56,7 +56,6 @@ state as plain-text.
 </div>
 ## Example Usage - Region Disk Basic
 
-
 ```hcl
 resource "google_compute_region_disk" "regiondisk" {
   name = "my-region-disk"

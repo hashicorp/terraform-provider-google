@@ -49,7 +49,6 @@ To get more information about Firewall, see:
 </div>
 ## Example Usage - Firewall Basic
 
-
 ```hcl
 resource "google_compute_firewall" "default" {
   name    = "test-firewall"

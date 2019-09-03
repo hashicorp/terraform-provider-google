@@ -34,7 +34,6 @@ To get more information about Subscription, see:
 
 ## Example Usage - Pubsub Subscription Push
 
-
 ```hcl
 resource "google_pubsub_topic" "example" {
   name = "example-topic"
@@ -66,7 +65,6 @@ resource "google_pubsub_subscription" "example" {
 </div>
 ## Example Usage - Pubsub Subscription Pull
 
-
 ```hcl
 resource "google_pubsub_topic" "example" {
   name = "example-topic"
@@ -92,7 +90,6 @@ resource "google_pubsub_subscription" "example" {
 }
 ```
 ## Example Usage - Pubsub Subscription Different Project
-
 
 ```hcl
 resource "google_pubsub_topic" "example" {

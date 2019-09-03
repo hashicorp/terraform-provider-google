@@ -38,7 +38,6 @@ To get more information about GlobalAddress, see:
 </div>
 ## Example Usage - Global Address Basic
 
-
 ```hcl
 resource "google_compute_global_address" "default" {
   name = "global-appserver-ip"

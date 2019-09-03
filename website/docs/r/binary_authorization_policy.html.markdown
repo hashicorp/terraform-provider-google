@@ -32,7 +32,6 @@ To get more information about Policy, see:
 
 ## Example Usage - Binary Authorization Policy Basic
 
-
 ```hcl
 resource "google_binary_authorization_policy" "policy" {
   admission_whitelist_patterns {
@@ -69,7 +68,6 @@ resource "google_binary_authorization_attestor" "attestor" {
 }
 ```
 ## Example Usage - Binary Authorization Policy Global Evaluation
-
 
 ```hcl
 resource "google_binary_authorization_policy" "policy" {

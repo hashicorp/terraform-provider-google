@@ -41,7 +41,6 @@ To get more information about Autoscaler, see:
 </div>
 ## Example Usage - Autoscaler Single Instance
 
-
 ```hcl
 resource "google_compute_autoscaler" "default" {
   provider = "google-beta"
@@ -128,7 +127,6 @@ provider "google-beta"{
   </a>
 </div>
 ## Example Usage - Autoscaler Basic
-
 
 ```hcl
 resource "google_compute_autoscaler" "foobar" {

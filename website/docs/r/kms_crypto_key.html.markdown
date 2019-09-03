@@ -41,7 +41,6 @@ To get more information about CryptoKey, see:
 
 ## Example Usage - Kms Crypto Key Basic
 
-
 ```hcl
 resource "google_kms_key_ring" "keyring" {
   name = "keyring-example"
@@ -59,7 +58,6 @@ resource "google_kms_crypto_key" "example-key" {
 }
 ```
 ## Example Usage - Kms Crypto Key Asymmetric Sign
-
 
 ```hcl
 resource "google_kms_key_ring" "keyring" {

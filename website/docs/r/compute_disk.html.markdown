@@ -56,7 +56,6 @@ state as plain-text.
 </div>
 ## Example Usage - Disk Basic
 
-
 ```hcl
 resource "google_compute_disk" "default" {
   name  = "test-disk"

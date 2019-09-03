@@ -50,7 +50,6 @@ To get more information about Address, see:
 </div>
 ## Example Usage - Address Basic
 
-
 ```hcl
 resource "google_compute_address" "ip_address" {
   name = "my-address"
@@ -62,7 +61,6 @@ resource "google_compute_address" "ip_address" {
   </a>
 </div>
 ## Example Usage - Address With Subnetwork
-
 
 ```hcl
 resource "google_compute_network" "default" {
@@ -90,7 +88,6 @@ resource "google_compute_address" "internal_with_subnet_and_address" {
   </a>
 </div>
 ## Example Usage - Instance With Ip
-
 
 ```hcl
 resource "google_compute_address" "static" {

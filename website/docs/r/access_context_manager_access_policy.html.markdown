@@ -38,7 +38,6 @@ To get more information about AccessPolicy, see:
 
 ## Example Usage - Access Context Manager Access Policy Basic
 
-
 ```hcl
 resource "google_access_context_manager_access_policy" "access-policy" {
   parent = "organizations/123456789"

@@ -40,7 +40,6 @@ To get more information about ManagedZone, see:
 </div>
 ## Example Usage - Dns Managed Zone Basic
 
-
 ```hcl
 resource "google_dns_managed_zone" "example-zone" {
   name = "example-zone"
@@ -61,7 +60,6 @@ resource "random_id" "rnd" {
   </a>
 </div>
 ## Example Usage - Dns Managed Zone Private
-
 
 ```hcl
 resource "google_dns_managed_zone" "private-zone" {
@@ -95,7 +93,6 @@ resource "google_compute_network" "network-2" {
 }
 ```
 ## Example Usage - Dns Managed Zone Private Forwarding
-
 
 ```hcl
 resource "google_dns_managed_zone" "private-zone" {
@@ -145,7 +142,6 @@ resource "google_compute_network" "network-2" {
   </a>
 </div>
 ## Example Usage - Dns Managed Zone Private Peering
-
 
 ```hcl
 resource "google_dns_managed_zone" "peering-zone" {

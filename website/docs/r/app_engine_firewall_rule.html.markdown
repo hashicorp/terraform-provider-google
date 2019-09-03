@@ -39,7 +39,6 @@ To get more information about FirewallRule, see:
 </div>
 ## Example Usage - App Engine Firewall Rule Basic
 
-
 ```hcl
 resource "google_project" "my_project" {
   name       = "tf-test-project"

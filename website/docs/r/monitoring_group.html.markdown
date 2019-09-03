@@ -40,7 +40,6 @@ To get more information about Group, see:
 </div>
 ## Example Usage - Monitoring Group Basic
 
-
 ```hcl
 resource "google_monitoring_group" "basic" {
   display_name = "New Test Group"
@@ -54,7 +53,6 @@ resource "google_monitoring_group" "basic" {
   </a>
 </div>
 ## Example Usage - Monitoring Group Subgroup
-
 
 ```hcl
 resource "google_monitoring_group" "parent" {

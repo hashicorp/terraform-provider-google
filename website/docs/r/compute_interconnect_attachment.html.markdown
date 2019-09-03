@@ -28,7 +28,6 @@ information, see Creating VLAN Attachments.
 
 ## Example Usage - Interconnect Attachment Basic
 
-
 ```hcl
 resource "google_compute_interconnect_attachment" "on_prem" {
   name         = "on-prem-attachment"

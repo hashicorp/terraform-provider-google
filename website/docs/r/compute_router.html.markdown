@@ -37,7 +37,6 @@ To get more information about Router, see:
 </div>
 ## Example Usage - Router Basic
 
-
 ```hcl
 resource "google_compute_router" "foobar" {
   name    = "my-router"

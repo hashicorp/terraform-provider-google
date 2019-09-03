@@ -33,7 +33,6 @@ To get more information about Config, see:
 
 ## Example Usage - Scheduled Query
 
-
 ```hcl
 data "google_project" "project" {}
 

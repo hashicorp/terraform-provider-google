@@ -34,7 +34,6 @@ that you define for the host and path of an incoming URL.
 </div>
 ## Example Usage - Url Map Basic
 
-
 ```hcl
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap"

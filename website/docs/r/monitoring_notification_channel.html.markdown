@@ -54,7 +54,6 @@ To get more information about NotificationChannel, see:
 </div>
 ## Example Usage - Notification Channel Basic
 
-
 ```hcl
 resource "google_monitoring_notification_channel" "basic" {
   display_name = "Test Notification Channel"

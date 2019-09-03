@@ -38,7 +38,6 @@ https://cloud.google.com/compute/docs/load-balancing/http/
 </div>
 ## Example Usage - Global Forwarding Rule Http
 
-
 ```hcl
 resource "google_compute_global_forwarding_rule" "default" {
   name       = "global-rule"
@@ -95,7 +94,6 @@ resource "google_compute_http_health_check" "default" {
   </a>
 </div>
 ## Example Usage - Global Forwarding Rule Internal
-
 
 ```hcl
 resource "google_compute_global_forwarding_rule" "default" {

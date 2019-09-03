@@ -42,7 +42,6 @@ To get more information about RegionBackendService, see:
 </div>
 ## Example Usage - Region Backend Service Basic
 
-
 ```hcl
 resource "google_compute_region_backend_service" "default" {
   name                            = "region-backend-service"

@@ -60,7 +60,6 @@ To get more information about Subnetwork, see:
 </div>
 ## Example Usage - Subnetwork Basic
 
-
 ```hcl
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "test-subnetwork"
@@ -84,7 +83,6 @@ resource "google_compute_network" "custom-test" {
   </a>
 </div>
 ## Example Usage - Subnetwork Logging Config Beta
-
 
 ```hcl
 resource "google_compute_subnetwork" "subnet-with-logging" {

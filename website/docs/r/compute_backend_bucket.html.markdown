@@ -44,7 +44,6 @@ To get more information about BackendBucket, see:
 </div>
 ## Example Usage - Backend Bucket Basic
 
-
 ```hcl
 resource "google_compute_backend_bucket" "image_backend" {
   name        = "image-backend-bucket"

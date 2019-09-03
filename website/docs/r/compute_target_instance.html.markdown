@@ -43,7 +43,6 @@ To get more information about TargetInstance, see:
 </div>
 ## Example Usage - Target Instance Basic
 
-
 ```hcl
 resource "google_compute_target_instance" "default" {
   name        = "target"

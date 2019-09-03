@@ -42,7 +42,6 @@ To get more information about ServicePerimeter, see:
 
 ## Example Usage - Access Context Manager Service Perimeter Basic
 
-
 ```hcl
 resource "google_access_context_manager_service_perimeter" "service-perimeter" {
   parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"

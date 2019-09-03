@@ -39,7 +39,6 @@ To get more information about Index, see:
 </div>
 ## Example Usage - Firestore Index Basic
 
-
 ```hcl
 resource "google_firestore_index" "my-index" {
   project    = "my-project-name"

@@ -40,7 +40,6 @@ To get more information about Metric, see:
 </div>
 ## Example Usage - Logging Metric Basic
 
-
 ```hcl
 resource "google_logging_metric" "logging_metric" {
   name = "my-(custom)/metric"
@@ -72,7 +71,6 @@ resource "google_logging_metric" "logging_metric" {
 </div>
 ## Example Usage - Logging Metric Counter Basic
 
-
 ```hcl
 resource "google_logging_metric" "logging_metric" {
   name = "my-(custom)/metric"
@@ -89,7 +87,6 @@ resource "google_logging_metric" "logging_metric" {
   </a>
 </div>
 ## Example Usage - Logging Metric Counter Labels
-
 
 ```hcl
 resource "google_logging_metric" "logging_metric" {

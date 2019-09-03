@@ -52,7 +52,6 @@ To get more information about Image, see:
 </div>
 ## Example Usage - Image Basic
 
-
 ```hcl
 resource "google_compute_image" "example" {
   name = "example-image"

@@ -35,7 +35,6 @@ To get more information about Source, see:
 
 ## Example Usage - Scc Source Basic
 
-
 ```hcl
 resource "google_scc_source" "custom_source" {
   display_name = "My Source"

@@ -34,7 +34,6 @@ To get more information about AccessLevel, see:
 
 ## Example Usage - Access Context Manager Access Level Basic
 
-
 ```hcl
 resource "google_access_context_manager_access_level" "access-level" {
   parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"

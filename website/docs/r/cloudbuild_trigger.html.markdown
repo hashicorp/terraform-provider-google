@@ -37,7 +37,6 @@ To get more information about Trigger, see:
 </div>
 ## Example Usage - Cloudbuild Trigger Filename
 
-
 ```hcl
 resource "google_cloudbuild_trigger" "filename-trigger" {
   trigger_template {

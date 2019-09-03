@@ -43,7 +43,6 @@ To get more information about Job, see:
 </div>
 ## Example Usage - Scheduler Job Pubsub
 
-
 ```hcl
 resource "google_pubsub_topic" "topic" {
   name = "job-topic"
@@ -67,7 +66,6 @@ resource "google_cloud_scheduler_job" "job" {
 </div>
 ## Example Usage - Scheduler Job Http
 
-
 ```hcl
 resource "google_cloud_scheduler_job" "job" {
   name     = "test-job"
@@ -87,7 +85,6 @@ resource "google_cloud_scheduler_job" "job" {
   </a>
 </div>
 ## Example Usage - Scheduler Job App Engine
-
 
 ```hcl
 resource "google_cloud_scheduler_job" "job" {
@@ -116,7 +113,6 @@ resource "google_cloud_scheduler_job" "job" {
 </div>
 ## Example Usage - Scheduler Job Oauth
 
-
 ```hcl
 data "google_compute_default_service_account" "default" { }
 
@@ -142,7 +138,6 @@ resource "google_cloud_scheduler_job" "job" {
   </a>
 </div>
 ## Example Usage - Scheduler Job Oidc
-
 
 ```hcl
 data "google_compute_default_service_account" "default" { }

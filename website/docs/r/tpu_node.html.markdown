@@ -37,7 +37,6 @@ To get more information about Node, see:
 </div>
 ## Example Usage - TPU Node Basic
 
-
 ```hcl
 data "google_tpu_tensorflow_versions" "available" { }
 
@@ -56,7 +55,6 @@ resource "google_tpu_node" "tpu" {
   </a>
 </div>
 ## Example Usage - TPU Node Full
-
 
 ```hcl
 data "google_tpu_tensorflow_versions" "available" { }
