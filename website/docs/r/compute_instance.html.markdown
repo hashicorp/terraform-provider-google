@@ -106,6 +106,10 @@ The following arguments are supported:
     within the instance. Ssh keys attached in the Cloud Console will be removed.
     Add them to your config in order to keep them attached to your instance.
 
+-> On import, `metadata_startup_script` will be set while 
+`metadata.startup-script` will not be. You'll need to match 
+`metadata_startup_script` to your `startup-script` value.
+
 * `metadata_startup_script` - (Optional) An alternative to using the
     startup-script metadata key, except this one forces the instance to be
     recreated (thus re-running the script) if it is changed. This replaces the

@@ -188,7 +188,7 @@ func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("name", flattenComputeVpnGatewayName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
-	if err := d.Set("gateway_id", flattenComputeVpnGatewayGateway_id(res["id"], d)); err != nil {
+	if err := d.Set("gateway_id", flattenComputeVpnGatewayGatewayId(res["id"], d)); err != nil {
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
 	if err := d.Set("network", flattenComputeVpnGatewayNetwork(res["network"], d)); err != nil {
@@ -276,7 +276,7 @@ func flattenComputeVpnGatewayName(v interface{}, d *schema.ResourceData) interfa
 	return v
 }
 
-func flattenComputeVpnGatewayGateway_id(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeVpnGatewayGatewayId(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
