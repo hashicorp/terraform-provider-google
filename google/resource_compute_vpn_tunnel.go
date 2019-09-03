@@ -377,7 +377,7 @@ func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
 
-	if err := d.Set("tunnel_id", flattenComputeVpnTunnelTunnel_id(res["id"], d)); err != nil {
+	if err := d.Set("tunnel_id", flattenComputeVpnTunnelTunnelId(res["id"], d)); err != nil {
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
 	if err := d.Set("creation_timestamp", flattenComputeVpnTunnelCreationTimestamp(res["creationTimestamp"], d)); err != nil {
@@ -483,7 +483,7 @@ func resourceComputeVpnTunnelImport(d *schema.ResourceData, meta interface{}) ([
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeVpnTunnelTunnel_id(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeVpnTunnelTunnelId(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
