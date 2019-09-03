@@ -98,7 +98,7 @@ func resourceLoggingMetric() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"explicit": {
+						"explicit_buckets": {
 							Type:     schema.TypeList,
 							Optional: true,
 							MaxItems: 1,
@@ -108,7 +108,7 @@ func resourceLoggingMetric() *schema.Resource {
 										Type:     schema.TypeList,
 										Optional: true,
 										Elem: &schema.Schema{
-											Type: schema.TypeString,
+											Type: schema.TypeFloat,
 										},
 									},
 								},
@@ -528,8 +528,8 @@ func flattenLoggingMetricBucketOptions(v interface{}, d *schema.ResourceData) in
 		flattenLoggingMetricBucketOptionsLinearBuckets(original["linearBuckets"], d)
 	transformed["exponential_buckets"] =
 		flattenLoggingMetricBucketOptionsExponentialBuckets(original["exponentialBuckets"], d)
-	transformed["explicit"] =
-		flattenLoggingMetricBucketOptionsExplicit(original["explicit"], d)
+	transformed["explicit_buckets"] =
+		flattenLoggingMetricBucketOptionsExplicitBuckets(original["explicitBuckets"], d)
 	return []interface{}{transformed}
 }
 func flattenLoggingMetricBucketOptionsLinearBuckets(v interface{}, d *schema.ResourceData) interface{} {
@@ -614,7 +614,7 @@ func flattenLoggingMetricBucketOptionsExponentialBucketsScale(v interface{}, d *
 	return v
 }
 
-func flattenLoggingMetricBucketOptionsExplicit(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricBucketOptionsExplicitBuckets(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -624,10 +624,10 @@ func flattenLoggingMetricBucketOptionsExplicit(v interface{}, d *schema.Resource
 	}
 	transformed := make(map[string]interface{})
 	transformed["bounds"] =
-		flattenLoggingMetricBucketOptionsExplicitBounds(original["bounds"], d)
+		flattenLoggingMetricBucketOptionsExplicitBucketsBounds(original["bounds"], d)
 	return []interface{}{transformed}
 }
-func flattenLoggingMetricBucketOptionsExplicitBounds(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricBucketOptionsExplicitBucketsBounds(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -770,11 +770,11 @@ func expandLoggingMetricBucketOptions(v interface{}, d TerraformResourceData, co
 		transformed["exponentialBuckets"] = transformedExponentialBuckets
 	}
 
-	transformedExplicit, err := expandLoggingMetricBucketOptionsExplicit(original["explicit"], d, config)
+	transformedExplicitBuckets, err := expandLoggingMetricBucketOptionsExplicitBuckets(original["explicit_buckets"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedExplicit); val.IsValid() && !isEmptyValue(val) {
-		transformed["explicit"] = transformedExplicit
+	} else if val := reflect.ValueOf(transformedExplicitBuckets); val.IsValid() && !isEmptyValue(val) {
+		transformed["explicitBuckets"] = transformedExplicitBuckets
 	}
 
 	return transformed, nil
@@ -870,7 +870,7 @@ func expandLoggingMetricBucketOptionsExponentialBucketsScale(v interface{}, d Te
 	return v, nil
 }
 
-func expandLoggingMetricBucketOptionsExplicit(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketOptionsExplicitBuckets(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -879,7 +879,7 @@ func expandLoggingMetricBucketOptionsExplicit(v interface{}, d TerraformResource
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedBounds, err := expandLoggingMetricBucketOptionsExplicitBounds(original["bounds"], d, config)
+	transformedBounds, err := expandLoggingMetricBucketOptionsExplicitBucketsBounds(original["bounds"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedBounds); val.IsValid() && !isEmptyValue(val) {
@@ -889,6 +889,6 @@ func expandLoggingMetricBucketOptionsExplicit(v interface{}, d TerraformResource
 	return transformed, nil
 }
 
-func expandLoggingMetricBucketOptionsExplicitBounds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketOptionsExplicitBucketsBounds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

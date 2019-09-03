@@ -213,7 +213,7 @@ The `bucket_options` block supports:
   Specifies an exponential sequence of buckets that have a width that is proportional to the value of
   the lower bound. Each bucket represents a constant relative uncertainty on a specific value in the bucket.  Structure is documented below.
 
-* `explicit` -
+* `explicit_buckets` -
   (Optional)
   Specifies a set of buckets with arbitrary widths.  Structure is documented below.
 
@@ -246,7 +246,7 @@ The `exponential_buckets` block supports:
   (Optional)
   Must be greater than 0.
 
-The `explicit` block supports:
+The `explicit_buckets` block supports:
 
 * `bounds` -
   (Optional)
