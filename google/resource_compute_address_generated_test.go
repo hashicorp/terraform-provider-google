@@ -103,6 +103,40 @@ resource "google_compute_address" "internal_with_subnet_and_address" {
 `, context)
 }
 
+func TestAccComputeAddress_addressWithGceEndpointExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeAddressDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeAddress_addressWithGceEndpointExample(context),
+			},
+			{
+				ResourceName:      "google_compute_address.internal_with_gce_endpoint",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeAddress_addressWithGceEndpointExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_address" "internal_with_gce_endpoint" {
+  name         = "my-internal-address-%{random_suffix}"
+  address_type = "INTERNAL"
+  purpose      = "GCE_ENDPOINT"
+}
+`, context)
+}
+
 func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 	t.Parallel()
 
