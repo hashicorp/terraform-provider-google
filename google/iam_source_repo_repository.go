@@ -56,6 +56,7 @@ func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Conf
 	// name or otherwise doesn't include the project.
 	values["project"] = project
 
+	// We may have gotten either a long or short name, so attempt to parse long name if possible
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/repos/(?P<repository>[^/]+)", "(?P<project>[^/]+)/(?P<repository>[^/]+)", "(?P<repository>[^/]+)"}, d, config, d.Get("repository").(string))
 	if err != nil {
 		return nil, err
@@ -71,6 +72,10 @@ func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Conf
 		d:          d,
 		Config:     config,
 	}
+
+	d.Set("project", u.project)
+	d.Set("repository", u.GetResourceId())
+
 	d.SetId(u.GetResourceId())
 
 	return u, nil

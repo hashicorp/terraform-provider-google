@@ -27,20 +27,19 @@ func TestAccSourceRepoRepositoryIamBindingGenerated(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(10),
-		"role":          "roles/editor",
+		"role":          "roles/viewer",
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSourceRepoRepositoryIamBinding_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/editor", getTestProjectFromEnv(), fmt.Sprintf("my-repository%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("my-repository%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -50,7 +49,7 @@ func TestAccSourceRepoRepositoryIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/editor", getTestProjectFromEnv(), fmt.Sprintf("my-repository%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("my-repository%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -63,13 +62,12 @@ func TestAccSourceRepoRepositoryIamMemberGenerated(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(10),
-		"role":          "roles/editor",
+		"role":          "roles/viewer",
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -77,7 +75,7 @@ func TestAccSourceRepoRepositoryIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/editor user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("my-repository%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("my-repository%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -90,13 +88,12 @@ func TestAccSourceRepoRepositoryIamPolicyGenerated(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(10),
-		"role":          "roles/editor",
+		"role":          "roles/viewer",
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSourceRepoRepositoryIamPolicy_basicGenerated(context),
@@ -118,9 +115,10 @@ resource "google_sourcerepo_repository" "my-repo" {
 }
 
 resource "google_sourcerepo_repository_iam_member" "foo" {
+	project = "${google_sourcerepo_repository.my-repo.project}"
 	repository = "${google_sourcerepo_repository.my-repo.id}"
-	role          = "%{role}"
-	member        = "user:admin@hashicorptest.com"
+	role = "%{role}"
+	member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -133,14 +131,15 @@ resource "google_sourcerepo_repository" "my-repo" {
 
 data "google_iam_policy" "foo" {
 	binding {
-		role    = "%{role}"
+		role = "%{role}"
 		members = ["user:admin@hashicorptest.com"]
 	}
 }
 
 resource "google_sourcerepo_repository_iam_policy" "foo" {
+	project = "${google_sourcerepo_repository.my-repo.project}"
 	repository = "${google_sourcerepo_repository.my-repo.id}"
-	policy_data   = "${data.google_iam_policy.foo.policy_data}"
+	policy_data = "${data.google_iam_policy.foo.policy_data}"
 }
 `, context)
 }
@@ -152,9 +151,10 @@ resource "google_sourcerepo_repository" "my-repo" {
 }
 
 resource "google_sourcerepo_repository_iam_binding" "foo" {
+	project = "${google_sourcerepo_repository.my-repo.project}"
 	repository = "${google_sourcerepo_repository.my-repo.id}"
-	role          = "%{role}"
-	members       = ["user:admin@hashicorptest.com"]
+	role = "%{role}"
+	members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -166,9 +166,10 @@ resource "google_sourcerepo_repository" "my-repo" {
 }
 
 resource "google_sourcerepo_repository_iam_binding" "foo" {
+	project = "${google_sourcerepo_repository.my-repo.project}"
 	repository = "${google_sourcerepo_repository.my-repo.id}"
-	role          = "%{role}"
-	members       = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+	role = "%{role}"
+	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }
