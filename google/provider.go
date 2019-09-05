@@ -207,6 +207,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_FIRESTORE_CUSTOM_ENDPOINT",
 				}, FirestoreDefaultBasePath),
 			},
+			"iap_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_IAP_CUSTOM_ENDPOINT",
+				}, IapDefaultBasePath),
+			},
 			"kms_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -406,9 +414,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 73
-// Generated IAM resources: 6
-// Total generated resources: 79
+// Generated resources: 77
+// Generated IAM resources: 18
+// Total generated resources: 95
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -470,6 +478,18 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dns_managed_zone":                         resourceDNSManagedZone(),
 			"google_filestore_instance":                       resourceFilestoreInstance(),
 			"google_firestore_index":                          resourceFirestoreIndex(),
+			"google_iap_web_iam_binding":                      ResourceIamBinding(IapWebIamSchema, IapWebIamUpdaterProducer, IapWebIdParseFunc),
+			"google_iap_web_iam_member":                       ResourceIamMember(IapWebIamSchema, IapWebIamUpdaterProducer, IapWebIdParseFunc),
+			"google_iap_web_iam_policy":                       ResourceIamPolicy(IapWebIamSchema, IapWebIamUpdaterProducer, IapWebIdParseFunc),
+			"google_iap_web_type_compute_iam_binding":         ResourceIamBinding(IapWebTypeComputeIamSchema, IapWebTypeComputeIamUpdaterProducer, IapWebTypeComputeIdParseFunc),
+			"google_iap_web_type_compute_iam_member":          ResourceIamMember(IapWebTypeComputeIamSchema, IapWebTypeComputeIamUpdaterProducer, IapWebTypeComputeIdParseFunc),
+			"google_iap_web_type_compute_iam_policy":          ResourceIamPolicy(IapWebTypeComputeIamSchema, IapWebTypeComputeIamUpdaterProducer, IapWebTypeComputeIdParseFunc),
+			"google_iap_web_type_app_engine_iam_binding":      ResourceIamBinding(IapWebTypeAppEngineIamSchema, IapWebTypeAppEngineIamUpdaterProducer, IapWebTypeAppEngineIdParseFunc),
+			"google_iap_web_type_app_engine_iam_member":       ResourceIamMember(IapWebTypeAppEngineIamSchema, IapWebTypeAppEngineIamUpdaterProducer, IapWebTypeAppEngineIdParseFunc),
+			"google_iap_web_type_app_engine_iam_policy":       ResourceIamPolicy(IapWebTypeAppEngineIamSchema, IapWebTypeAppEngineIamUpdaterProducer, IapWebTypeAppEngineIdParseFunc),
+			"google_iap_web_backend_service_iam_binding":      ResourceIamBinding(IapWebBackendServiceIamSchema, IapWebBackendServiceIamUpdaterProducer, IapWebBackendServiceIdParseFunc),
+			"google_iap_web_backend_service_iam_member":       ResourceIamMember(IapWebBackendServiceIamSchema, IapWebBackendServiceIamUpdaterProducer, IapWebBackendServiceIdParseFunc),
+			"google_iap_web_backend_service_iam_policy":       ResourceIamPolicy(IapWebBackendServiceIamSchema, IapWebBackendServiceIamUpdaterProducer, IapWebBackendServiceIdParseFunc),
 			"google_kms_key_ring":                             resourceKMSKeyRing(),
 			"google_kms_crypto_key":                           resourceKMSCryptoKey(),
 			"google_logging_metric":                           resourceLoggingMetric(),
@@ -662,6 +682,7 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	config.DNSBasePath = d.Get("dns_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
+	config.IapBasePath = d.Get("iap_custom_endpoint").(string)
 	config.KMSBasePath = d.Get("kms_custom_endpoint").(string)
 	config.LoggingBasePath = d.Get("logging_custom_endpoint").(string)
 	config.MLEngineBasePath = d.Get("ml_engine_custom_endpoint").(string)

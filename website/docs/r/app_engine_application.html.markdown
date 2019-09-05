@@ -57,6 +57,8 @@ exported:
 
 * `name` - Unique name of the app, usually `apps/{PROJECT_ID}`
 
+* `app_id` - Identifier of the app, usually `{PROJECT_ID}`
+
 * `url_dispatch_rule` - A list of dispatch rule blocks. Each block has a `domain`, `path`, and `service` field.
 
 * `code_bucket` - The GCS bucket code is being stored in for this app.

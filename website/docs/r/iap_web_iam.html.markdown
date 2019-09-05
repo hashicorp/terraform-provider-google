@@ -13,64 +13,61 @@
 #
 # ----------------------------------------------------------------------------
 layout: "google"
-page_title: "Google: google_pubsub_topic_iam"
-sidebar_current: "docs-google-pubsub-topic-iam"
+page_title: "Google: google_iap_web_iam"
+sidebar_current: "docs-google-iap-web-iam"
 description: |-
-  Collection of resources to manage IAM policy for PubsubTopic
+  Collection of resources to manage IAM policy for IapWeb
 ---
 
-# IAM policy for PubsubTopic
-Three different resources help you manage your IAM policy for Pubsub Topic. Each of these resources serves a different use case:
+# IAM policy for IapWeb
+Three different resources help you manage your IAM policy for Iap Web. Each of these resources serves a different use case:
 
-* `google_pubsub_topic_iam_policy`: Authoritative. Sets the IAM policy for the topic and replaces any existing policy already attached.
-* `google_pubsub_topic_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the topic are preserved.
-* `google_pubsub_topic_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the topic are preserved.
+* `google_iap_web_iam_policy`: Authoritative. Sets the IAM policy for the web and replaces any existing policy already attached.
+* `google_iap_web_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the web are preserved.
+* `google_iap_web_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the web are preserved.
 
-~> **Note:** `google_pubsub_topic_iam_policy` **cannot** be used in conjunction with `google_pubsub_topic_iam_binding` and `google_pubsub_topic_iam_member` or they will fight over what your policy should be.
+~> **Note:** `google_iap_web_iam_policy` **cannot** be used in conjunction with `google_iap_web_iam_binding` and `google_iap_web_iam_member` or they will fight over what your policy should be.
 
-~> **Note:** `google_pubsub_topic_iam_binding` resources **can be** used in conjunction with `google_pubsub_topic_iam_member` resources **only if** they do not grant privilege to the same role.
+~> **Note:** `google_iap_web_iam_binding` resources **can be** used in conjunction with `google_iap_web_iam_member` resources **only if** they do not grant privilege to the same role.
 
 
 
-## google\_pubsub\_topic\_iam\_policy
+## google\_iap\_web\_iam\_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
 	binding {
-		role = "roles/viewer"
+		role = "roles/iap.httpsResourceAccessor"
 		members = [
 			"user:jane@example.com",
 		]
 	}
 }
 
-resource "google_pubsub_topic_iam_policy" "editor" {
-	project = "${google_pubsub_topic_iam.example.project}"
-	name = "${google_pubsub_topic_iam.example.id}"
+resource "google_iap_web_iam_policy" "editor" {
+	project = "${google_project_service.project_service.project}"
 	policy_data = "${data.google_iam_policy.admin.policy_data}"
 }
 ```
 
-## google\_pubsub\_topic\_iam\_binding
+## google\_iap\_web\_iam\_binding
 
 ```hcl
-resource "google_pubsub_topic_iam_binding" "editor" {
-	project = "${google_pubsub_topic_iam.example.project}"
-	name = "${google_pubsub_topic_iam.example.id}"
-	role = "roles/viewer"
+resource "google_iap_web_iam_binding" "editor" {
+	project = "${google_project_service.project_service.project}"
+	role = "roles/iap.httpsResourceAccessor"
 	members = [
 		"user:jane@example.com",
 	]
 }
 ```
 
-## google\_pubsub\_topic\_iam\_member
+## google\_iap\_web\_iam\_member
 
 ```hcl
-resource "google_pubsub_topic_iam_member" "editor" {
-	project = "${google_pubsub_topic_iam.example.project}"
-	name = "${google_pubsub_topic_iam.example.id}"
-	role = "roles/viewer"
+resource "google_iap_web_iam_member" "editor" {
+	project = "${google_project_service.project_service.project}"
+	role = "roles/iap.httpsResourceAccessor"
 	member = "user:jane@example.com"
 }
 ```
@@ -79,7 +76,6 @@ resource "google_pubsub_topic_iam_member" "editor" {
 
 The following arguments are supported:
 
-* `topic` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.
@@ -94,10 +90,10 @@ The following arguments are supported:
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
 
 * `role` - (Required) The role that should be applied. Only one
-    `google_pubsub_topic_iam_binding` can be used per role. Note that custom roles must be of the format
+    `google_iap_web_iam_binding` can be used per role. Note that custom roles must be of the format
     `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
-* `policy_data` - (Required only by `google_pubsub_topic_iam_policy`) The policy data generated by
+* `policy_data` - (Required only by `google_iap_web_iam_policy`) The policy data generated by
   a `google_iam_policy` data source.
 
 ## Attributes Reference
@@ -109,14 +105,14 @@ exported:
 
 ## Import
 
-Pubsub topic IAM resources can be imported using the project, resource identifiers, role and member.
+Iap web IAM resources can be imported using the project, resource identifiers, role and member.
 
 ```
-$ terraform import google_pubsub_topic_iam_policy.editor projects/{{project}}/topics/{{topic}}
+$ terraform import google_iap_web_iam_policy.editor projects/{{project}}/iap_web
 
-$ terraform import google_pubsub_topic_iam_binding.editor "projects/{{project}}/topics/{{topic}} roles/viewer"
+$ terraform import google_iap_web_iam_binding.editor "projects/{{project}}/iap_web roles/iap.httpsResourceAccessor"
 
-$ terraform import google_pubsub_topic_iam_member.editor "projects/{{project}}/topics/{{topic}} roles/viewer jane@example.com"
+$ terraform import google_iap_web_iam_member.editor "projects/{{project}}/iap_web roles/iap.httpsResourceAccessor jane@example.com"
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`

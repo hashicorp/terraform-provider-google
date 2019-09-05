@@ -21,29 +21,23 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
-var PubsubTopicIamSchema = map[string]*schema.Schema{
+var IapWebIamSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
-		Computed: true,
-		Optional: true,
-		ForceNew: true,
-	},
-	"topic": {
 		Type:             schema.TypeString,
-		Required:         true,
+		Computed:         true,
+		Optional:         true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 }
 
-type PubsubTopicIamUpdater struct {
+type IapWebIamUpdater struct {
 	project string
-	topic   string
 	d       *schema.ResourceData
 	Config  *Config
 }
 
-func PubsubTopicIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func IapWebIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, err := getProject(d, config)
@@ -57,7 +51,7 @@ func PubsubTopicIamUpdaterProducer(d *schema.ResourceData, config *Config) (Reso
 	values["project"] = project
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/topics/(?P<topic>[^/]+)", "(?P<project>[^/]+)/(?P<topic>[^/]+)", "(?P<topic>[^/]+)"}, d, config, d.Get("topic").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web", "(?P<project>[^/]+)"}, d, config, d.Get("project").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -66,22 +60,20 @@ func PubsubTopicIamUpdaterProducer(d *schema.ResourceData, config *Config) (Reso
 		values[k] = v
 	}
 
-	u := &PubsubTopicIamUpdater{
+	u := &IapWebIamUpdater{
 		project: values["project"],
-		topic:   values["topic"],
 		d:       d,
 		Config:  config,
 	}
 
 	d.Set("project", u.project)
-	d.Set("topic", u.GetResourceId())
 
 	d.SetId(u.GetResourceId())
 
 	return u, nil
 }
 
-func PubsubTopicIdParseFunc(d *schema.ResourceData, config *Config) error {
+func IapWebIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
 	project, err := getProject(d, config)
@@ -91,7 +83,7 @@ func PubsubTopicIdParseFunc(d *schema.ResourceData, config *Config) error {
 
 	values["project"] = project
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/topics/(?P<topic>[^/]+)", "(?P<project>[^/]+)/(?P<topic>[^/]+)", "(?P<topic>[^/]+)"}, d, config, d.Id())
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web", "(?P<project>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
@@ -100,26 +92,25 @@ func PubsubTopicIdParseFunc(d *schema.ResourceData, config *Config) error {
 		values[k] = v
 	}
 
-	u := &PubsubTopicIamUpdater{
+	u := &IapWebIamUpdater{
 		project: values["project"],
-		topic:   values["topic"],
 		d:       d,
 		Config:  config,
 	}
-	d.Set("topic", u.GetResourceId())
+	d.Set("project", u.project)
 	d.SetId(u.GetResourceId())
 	return nil
 }
 
-func (u *PubsubTopicIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyTopicUrl("getIamPolicy")
+func (u *IapWebIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
+	url := u.qualifyWebUrl("getIamPolicy")
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
 
-	policy, err := sendRequest(u.Config, "GET", project, url, nil)
+	policy, err := sendRequest(u.Config, "POST", project, url, nil)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -133,7 +124,7 @@ func (u *PubsubTopicIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Po
 	return out, nil
 }
 
-func (u *PubsubTopicIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
+func (u *IapWebIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
 	json, err := ConvertToMap(policy)
 	if err != nil {
 		return err
@@ -142,7 +133,7 @@ func (u *PubsubTopicIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyTopicUrl("setIamPolicy")
+	url := u.qualifyWebUrl("setIamPolicy")
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
@@ -157,18 +148,18 @@ func (u *PubsubTopicIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 	return nil
 }
 
-func (u *PubsubTopicIamUpdater) qualifyTopicUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://pubsub.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/topics/%s", u.project, u.topic), methodIdentifier)
+func (u *IapWebIamUpdater) qualifyWebUrl(methodIdentifier string) string {
+	return fmt.Sprintf("https://iap.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/iap_web", u.project), methodIdentifier)
 }
 
-func (u *PubsubTopicIamUpdater) GetResourceId() string {
-	return fmt.Sprintf("projects/%s/topics/%s", u.project, u.topic)
+func (u *IapWebIamUpdater) GetResourceId() string {
+	return fmt.Sprintf("projects/%s/iap_web", u.project)
 }
 
-func (u *PubsubTopicIamUpdater) GetMutexKey() string {
-	return fmt.Sprintf("iam-pubsub-topic-%s", u.GetResourceId())
+func (u *IapWebIamUpdater) GetMutexKey() string {
+	return fmt.Sprintf("iam-iap-web-%s", u.GetResourceId())
 }
 
-func (u *PubsubTopicIamUpdater) DescribeResource() string {
-	return fmt.Sprintf("pubsub topic %q", u.GetResourceId())
+func (u *IapWebIamUpdater) DescribeResource() string {
+	return fmt.Sprintf("iap web %q", u.GetResourceId())
 }

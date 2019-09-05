@@ -36,17 +36,18 @@ Three different resources help you manage your IAM policy for SourceRepo Reposit
 
 ```hcl
 data "google_iam_policy" "admin" {
-  binding {
-    role    = "roles/editor"
-    members = [
-      "user:jane@example.com",
-    ]
-  }
+	binding {
+		role = "roles/viewer"
+		members = [
+			"user:jane@example.com",
+		]
+	}
 }
 
 resource "google_sourcerepo_repository_iam_policy" "editor" {
-  repository = "{{project}}/{{repository}}"
-  policy_data = "${data.google_iam_policy.admin.policy_data}"
+	project = "${google_sourcerepo_repository_iam.my-repo.project}"
+	name = "${google_sourcerepo_repository_iam.my-repo.id}"
+	policy_data = "${data.google_iam_policy.admin.policy_data}"
 }
 ```
 
@@ -54,12 +55,12 @@ resource "google_sourcerepo_repository_iam_policy" "editor" {
 
 ```hcl
 resource "google_sourcerepo_repository_iam_binding" "editor" {
-  repository = "{{project}}/{{repository}}"
-  
-  role    = "roles/editor"
-  members = [
-    "user:jane@example.com",
-  ]
+	project = "${google_sourcerepo_repository_iam.my-repo.project}"
+	name = "${google_sourcerepo_repository_iam.my-repo.id}"
+	role = "roles/viewer"
+	members = [
+		"user:jane@example.com",
+	]
 }
 ```
 
@@ -67,10 +68,10 @@ resource "google_sourcerepo_repository_iam_binding" "editor" {
 
 ```hcl
 resource "google_sourcerepo_repository_iam_member" "editor" {
-  repository  = "{{project}}/{{repository}}"
-  
-  role   = "roles/editor"
-  member = "user:jane@example.com"
+	project = "${google_sourcerepo_repository_iam.my-repo.project}"
+	name = "${google_sourcerepo_repository_iam.my-repo.id}"
+	role = "roles/viewer"
+	member = "user:jane@example.com"
 }
 ```
 
@@ -78,10 +79,10 @@ resource "google_sourcerepo_repository_iam_member" "editor" {
 
 The following arguments are supported:
 
-* `repository` - (Required) The repository name or id to bind to attach IAM policy to.
+* `repository` - (Required) Used to find the parent resource to bind the IAM policy to
 
-* `project` - (Optional) The project in which the resource belongs. If it
-    is not provided, the provider project is used.
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.
 
 * `member/members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
@@ -104,17 +105,18 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `etag` - (Computed) The etag of the repository's IAM policy.
+* `etag` - (Computed) The etag of the IAM policy.
 
 ## Import
 
-SourceRepo repository IAM resources can be imported using the project, repository name, role and member.
+SourceRepo repository IAM resources can be imported using the project, resource identifiers, role and member.
 
 ```
 $ terraform import google_sourcerepo_repository_iam_policy.editor {{project}}/{{repository}}
-$ terraform import google_sourcerepo_repository_iam_binding.editor "{{project}}/{{repository}} roles/editor"
 
-$ terraform import google_sourcerepo_repository_iam_member.editor "{{project}}/{{repository}} roles/editor jane@example.com"
+$ terraform import google_sourcerepo_repository_iam_binding.editor "{{project}}/{{repository}} roles/viewer"
+
+$ terraform import google_sourcerepo_repository_iam_member.editor "{{project}}/{{repository}} roles/viewer jane@example.com"
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
