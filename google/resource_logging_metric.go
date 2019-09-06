@@ -85,11 +85,6 @@ func resourceLoggingMetric() *schema.Resource {
 								},
 							},
 						},
-						"unit": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "1",
-						},
 					},
 				},
 			},
@@ -461,8 +456,6 @@ func flattenLoggingMetricMetricDescriptor(v interface{}, d *schema.ResourceData)
 		return nil
 	}
 	transformed := make(map[string]interface{})
-	transformed["unit"] =
-		flattenLoggingMetricMetricDescriptorUnit(original["unit"], d)
 	transformed["value_type"] =
 		flattenLoggingMetricMetricDescriptorValueType(original["valueType"], d)
 	transformed["metric_kind"] =
@@ -471,10 +464,6 @@ func flattenLoggingMetricMetricDescriptor(v interface{}, d *schema.ResourceData)
 		flattenLoggingMetricMetricDescriptorLabels(original["labels"], d)
 	return []interface{}{transformed}
 }
-func flattenLoggingMetricMetricDescriptorUnit(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
 func flattenLoggingMetricMetricDescriptorValueType(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
@@ -663,13 +652,6 @@ func expandLoggingMetricMetricDescriptor(v interface{}, d TerraformResourceData,
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedUnit, err := expandLoggingMetricMetricDescriptorUnit(original["unit"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedUnit); val.IsValid() && !isEmptyValue(val) {
-		transformed["unit"] = transformedUnit
-	}
-
 	transformedValueType, err := expandLoggingMetricMetricDescriptorValueType(original["value_type"], d, config)
 	if err != nil {
 		return nil, err
@@ -692,10 +674,6 @@ func expandLoggingMetricMetricDescriptor(v interface{}, d TerraformResourceData,
 	}
 
 	return transformed, nil
-}
-
-func expandLoggingMetricMetricDescriptorUnit(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandLoggingMetricMetricDescriptorValueType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
