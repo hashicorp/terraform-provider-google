@@ -48,6 +48,7 @@ resource "google_logging_metric" "logging_metric" {
   metric_descriptor {
     metric_kind = "DELTA"
     value_type = "DISTRIBUTION"
+    unit = "1"
     labels {
         key = "mass"
         value_type = "STRING"
@@ -132,6 +133,12 @@ The following arguments are supported:
 
 
 The `metric_descriptor` block supports:
+
+* `unit` -
+  (Optional)
+  The unit in which the metric value is reported. It is only applicable if the valueType is
+  `INT64`, `DOUBLE`, or `DISTRIBUTION`. The supported units are a subset of
+  [The Unified Code for Units of Measure](http://unitsofmeasure.org/ucum.html) standard
 
 * `value_type` -
   (Required)
