@@ -1,6 +1,7 @@
 package google
 
 import (
+	"net/url"
 	"reflect"
 	"strings"
 	"testing"
@@ -526,5 +527,38 @@ func TestRetryTimeDuration_noretry(t *testing.T) {
 	}
 	if i != 1 {
 		t.Errorf("expected error function to be called exactly once, but was called %d times", i)
+	}
+}
+
+type TimeoutError struct {
+	timeout bool
+}
+
+func (e *TimeoutError) Timeout() bool {
+	return e.timeout
+}
+
+func (e *TimeoutError) Error() string {
+	return "timeout error"
+}
+
+func TestRetryTimeDuration_URLTimeoutsShouldRetry(t *testing.T) {
+	runCount := 0
+	retryFunc := func() error {
+		runCount++
+		if runCount == 1 {
+			return &url.Error{
+				Err: &TimeoutError{timeout: true},
+			}
+		}
+		return nil
+	}
+	err := retryTimeDuration(retryFunc, 1*time.Minute)
+	if err != nil {
+		t.Errorf("unexpected error: got '%v' want 'nil'", err)
+	}
+	expectedRunCount := 2
+	if runCount != expectedRunCount {
+		t.Errorf("expected the retryFunc to be called %v time(s), instead was called %v time(s)", expectedRunCount, runCount)
 	}
 }
