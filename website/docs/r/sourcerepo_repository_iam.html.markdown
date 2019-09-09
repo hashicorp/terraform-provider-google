@@ -46,7 +46,7 @@ data "google_iam_policy" "admin" {
 
 resource "google_sourcerepo_repository_iam_policy" "editor" {
 	project = "${google_sourcerepo_repository_iam.my-repo.project}"
-	name = "${google_sourcerepo_repository_iam.my-repo.id}"
+	repository = "${google_sourcerepo_repository_iam.my-repo.name}"
 	policy_data = "${data.google_iam_policy.admin.policy_data}"
 }
 ```
@@ -56,7 +56,7 @@ resource "google_sourcerepo_repository_iam_policy" "editor" {
 ```hcl
 resource "google_sourcerepo_repository_iam_binding" "editor" {
 	project = "${google_sourcerepo_repository_iam.my-repo.project}"
-	name = "${google_sourcerepo_repository_iam.my-repo.id}"
+	repository = "${google_sourcerepo_repository_iam.my-repo.name}"
 	role = "roles/viewer"
 	members = [
 		"user:jane@example.com",
@@ -69,7 +69,7 @@ resource "google_sourcerepo_repository_iam_binding" "editor" {
 ```hcl
 resource "google_sourcerepo_repository_iam_member" "editor" {
 	project = "${google_sourcerepo_repository_iam.my-repo.project}"
-	name = "${google_sourcerepo_repository_iam.my-repo.id}"
+	repository = "${google_sourcerepo_repository_iam.my-repo.name}"
 	role = "roles/viewer"
 	member = "user:jane@example.com"
 }

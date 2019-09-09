@@ -28,7 +28,7 @@ var IapWebBackendServiceIamSchema = map[string]*schema.Schema{
 		Optional: true,
 		ForceNew: true,
 	},
-	"backend_service_name": {
+	"web_backend_service": {
 		Type:             schema.TypeString,
 		Required:         true,
 		ForceNew:         true,
@@ -37,10 +37,10 @@ var IapWebBackendServiceIamSchema = map[string]*schema.Schema{
 }
 
 type IapWebBackendServiceIamUpdater struct {
-	project            string
-	backendServiceName string
-	d                  *schema.ResourceData
-	Config             *Config
+	project           string
+	webBackendService string
+	d                 *schema.ResourceData
+	Config            *Config
 }
 
 func IapWebBackendServiceIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
@@ -57,7 +57,7 @@ func IapWebBackendServiceIamUpdaterProducer(d *schema.ResourceData, config *Conf
 	values["project"] = project
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<backendServiceName>[^/]+)", "(?P<project>[^/]+)/(?P<backendServiceName>[^/]+)", "(?P<backendServiceName>[^/]+)"}, d, config, d.Get("backend_service_name").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<web_backend_service>[^/]+)", "(?P<project>[^/]+)/(?P<web_backend_service>[^/]+)", "(?P<web_backend_service>[^/]+)"}, d, config, d.Get("web_backend_service").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -67,14 +67,14 @@ func IapWebBackendServiceIamUpdaterProducer(d *schema.ResourceData, config *Conf
 	}
 
 	u := &IapWebBackendServiceIamUpdater{
-		project:            values["project"],
-		backendServiceName: values["backendServiceName"],
-		d:                  d,
-		Config:             config,
+		project:           values["project"],
+		webBackendService: values["web_backend_service"],
+		d:                 d,
+		Config:            config,
 	}
 
 	d.Set("project", u.project)
-	d.Set("backend_service_name", u.GetResourceId())
+	d.Set("web_backend_service", u.GetResourceId())
 
 	d.SetId(u.GetResourceId())
 
@@ -91,7 +91,7 @@ func IapWebBackendServiceIdParseFunc(d *schema.ResourceData, config *Config) err
 
 	values["project"] = project
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<backendServiceName>[^/]+)", "(?P<project>[^/]+)/(?P<backendServiceName>[^/]+)", "(?P<backendServiceName>[^/]+)"}, d, config, d.Id())
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<web_backend_service>[^/]+)", "(?P<project>[^/]+)/(?P<web_backend_service>[^/]+)", "(?P<web_backend_service>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
@@ -101,12 +101,12 @@ func IapWebBackendServiceIdParseFunc(d *schema.ResourceData, config *Config) err
 	}
 
 	u := &IapWebBackendServiceIamUpdater{
-		project:            values["project"],
-		backendServiceName: values["backendServiceName"],
-		d:                  d,
-		Config:             config,
+		project:           values["project"],
+		webBackendService: values["web_backend_service"],
+		d:                 d,
+		Config:            config,
 	}
-	d.Set("backend_service_name", u.GetResourceId())
+	d.Set("web_backend_service", u.GetResourceId())
 	d.SetId(u.GetResourceId())
 	return nil
 }
@@ -158,11 +158,11 @@ func (u *IapWebBackendServiceIamUpdater) SetResourceIamPolicy(policy *cloudresou
 }
 
 func (u *IapWebBackendServiceIamUpdater) qualifyWebBackendServiceUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://iap.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/iap_web/compute/services/%s", u.project, u.backendServiceName), methodIdentifier)
+	return fmt.Sprintf("https://iap.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/iap_web/compute/services/%s", u.project, u.webBackendService), methodIdentifier)
 }
 
 func (u *IapWebBackendServiceIamUpdater) GetResourceId() string {
-	return fmt.Sprintf("projects/%s/iap_web/compute/services/%s", u.project, u.backendServiceName)
+	return fmt.Sprintf("projects/%s/iap_web/compute/services/%s", u.project, u.webBackendService)
 }
 
 func (u *IapWebBackendServiceIamUpdater) GetMutexKey() string {
