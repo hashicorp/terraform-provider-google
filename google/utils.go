@@ -361,13 +361,24 @@ func retryTimeDuration(retryFunc func() error, duration time.Duration, errorRetr
 		if err == nil {
 			return nil
 		}
-		for _, e := range errwrap.GetAllType(err, &googleapi.Error{}) {
+		for _, e := range getAllTypes(err, &googleapi.Error{}, &url.Error{}) {
 			if isRetryableError(e, errorRetryPredicates) {
 				return resource.RetryableError(e)
 			}
 		}
 		return resource.NonRetryableError(err)
 	})
+}
+
+func getAllTypes(err error, args ...interface{}) []error {
+	var result []error
+	for _, v := range args {
+		subResult := errwrap.GetAllType(err, v)
+		if subResult != nil {
+			result = append(result, subResult...)
+		}
+	}
+	return result
 }
 
 func isRetryableError(err error, retryPredicates []func(e error) (bool, string)) bool {
