@@ -124,7 +124,7 @@ resource "google_compute_http_health_check" "default" {
 
 resource "google_iap_web_backend_service_iam_member" "foo" {
 	project = "${google_compute_backend_service.default.project}"
-	backend_service_name = "${google_compute_backend_service.default.name}"
+	web_backend_service = "${google_compute_backend_service.default.name}"
 	role = "%{role}"
 	member = "user:admin@hashicorptest.com"
 }
@@ -154,7 +154,7 @@ data "google_iam_policy" "foo" {
 
 resource "google_iap_web_backend_service_iam_policy" "foo" {
 	project = "${google_compute_backend_service.default.project}"
-	backend_service_name = "${google_compute_backend_service.default.name}"
+	web_backend_service = "${google_compute_backend_service.default.name}"
 	policy_data = "${data.google_iam_policy.foo.policy_data}"
 }
 `, context)
@@ -176,7 +176,7 @@ resource "google_compute_http_health_check" "default" {
 
 resource "google_iap_web_backend_service_iam_binding" "foo" {
 	project = "${google_compute_backend_service.default.project}"
-	backend_service_name = "${google_compute_backend_service.default.name}"
+	web_backend_service = "${google_compute_backend_service.default.name}"
 	role = "%{role}"
 	members = ["user:admin@hashicorptest.com"]
 }
@@ -199,7 +199,7 @@ resource "google_compute_http_health_check" "default" {
 
 resource "google_iap_web_backend_service_iam_binding" "foo" {
 	project = "${google_compute_backend_service.default.project}"
-	backend_service_name = "${google_compute_backend_service.default.name}"
+	web_backend_service = "${google_compute_backend_service.default.name}"
 	role = "%{role}"
 	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }

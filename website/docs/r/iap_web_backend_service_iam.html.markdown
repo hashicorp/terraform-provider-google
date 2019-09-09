@@ -46,7 +46,7 @@ data "google_iam_policy" "admin" {
 
 resource "google_iap_web_backend_service_iam_policy" "editor" {
 	project = "${google_compute_backend_service.default.project}"
-	backend_service_name = "${google_compute_backend_service.default.name}"
+	web_backend_service = "${google_compute_backend_service.default.name}"
 	policy_data = "${data.google_iam_policy.admin.policy_data}"
 }
 ```
@@ -56,7 +56,7 @@ resource "google_iap_web_backend_service_iam_policy" "editor" {
 ```hcl
 resource "google_iap_web_backend_service_iam_binding" "editor" {
 	project = "${google_compute_backend_service.default.project}"
-	backend_service_name = "${google_compute_backend_service.default.name}"
+	web_backend_service = "${google_compute_backend_service.default.name}"
 	role = "roles/iap.httpsResourceAccessor"
 	members = [
 		"user:jane@example.com",
@@ -69,7 +69,7 @@ resource "google_iap_web_backend_service_iam_binding" "editor" {
 ```hcl
 resource "google_iap_web_backend_service_iam_member" "editor" {
 	project = "${google_compute_backend_service.default.project}"
-	backend_service_name = "${google_compute_backend_service.default.name}"
+	web_backend_service = "${google_compute_backend_service.default.name}"
 	role = "roles/iap.httpsResourceAccessor"
 	member = "user:jane@example.com"
 }
@@ -79,7 +79,7 @@ resource "google_iap_web_backend_service_iam_member" "editor" {
 
 The following arguments are supported:
 
-* `backend_service_name` - (Required) Name or self link of a backend service. Used to find the parent resource to bind the IAM policy to
+* `web_backend_service` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.
@@ -112,11 +112,11 @@ exported:
 Iap webbackendservice IAM resources can be imported using the project, resource identifiers, role and member.
 
 ```
-$ terraform import google_iap_web_backend_service_iam_policy.editor projects/{{project}}/iap_web/compute/services/{{backendServiceName}}
+$ terraform import google_iap_web_backend_service_iam_policy.editor projects/{{project}}/iap_web/compute/services/{{web_backend_service}}
 
-$ terraform import google_iap_web_backend_service_iam_binding.editor "projects/{{project}}/iap_web/compute/services/{{backendServiceName}} roles/iap.httpsResourceAccessor"
+$ terraform import google_iap_web_backend_service_iam_binding.editor "projects/{{project}}/iap_web/compute/services/{{web_backend_service}} roles/iap.httpsResourceAccessor"
 
-$ terraform import google_iap_web_backend_service_iam_member.editor "projects/{{project}}/iap_web/compute/services/{{backendServiceName}} roles/iap.httpsResourceAccessor jane@example.com"
+$ terraform import google_iap_web_backend_service_iam_member.editor "projects/{{project}}/iap_web/compute/services/{{web_backend_service}} roles/iap.httpsResourceAccessor jane@example.com"
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
