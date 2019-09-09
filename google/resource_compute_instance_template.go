@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -20,8 +21,10 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		SchemaVersion: 1,
-		CustomizeDiff: resourceComputeInstanceTemplateSourceImageCustomizeDiff,
-		MigrateState:  resourceComputeInstanceTemplateMigrateState,
+		CustomizeDiff: customdiff.All(
+			resourceComputeInstanceTemplateSourceImageCustomizeDiff,
+			resourceComputeInstanceTemplateScratchDiskSizeCustomizeDiff),
+		MigrateState: resourceComputeInstanceTemplateMigrateState,
 
 		// A compute instance template is more or less a subset of a compute
 		// instance. Please attempt to maintain consistency with the
@@ -483,6 +486,22 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			},
 		},
 	}
+}
+
+func resourceComputeInstanceTemplateScratchDiskSizeCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	// separate func to allow unit testing
+	return resourceComputeInstanceTemplateScratchDiskSizeCustomizeDiffFunc(diff)
+}
+
+func resourceComputeInstanceTemplateScratchDiskSizeCustomizeDiffFunc(diff TerraformResourceDiff) error {
+	numDisks := diff.Get("disk.#").(int)
+	for i := 0; i < numDisks; i++ {
+		key := fmt.Sprintf("disk.%d.", i)
+		if diff.Get(key+"type").(string) == "SCRATCH" && diff.Get(key+"disk_size_gb").(int) != 375 {
+			return fmt.Errorf("disk %d error: SCRATCH disks must be exactly 375GB", i)
+		}
+	}
+	return nil
 }
 
 func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
