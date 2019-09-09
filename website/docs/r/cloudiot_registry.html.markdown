@@ -43,14 +43,12 @@ resource "google_cloudiot_registry" "default-registry" {
     mqtt_enabled_state = "MQTT_ENABLED"
   }
 
-  credentials = [
-    {
-      public_key_certificate = {
-        format      = "X509_CERTIFICATE_PEM"
-        certificate = "${file("rsa_cert.pem")}"
-      }
-    },
-  ]
+  credentials {
+    public_key_certificate = {
+      format      = "X509_CERTIFICATE_PEM"
+      certificate = "${file("rsa_cert.pem")}"
+    }
+  }
 }
 ```
 
