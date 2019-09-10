@@ -15,10 +15,7 @@ func TestAccDataSourceGoogleCloudFunctionsFunction_basic(t *testing.T) {
 	funcDataNameHttp := "data.google_cloudfunctions_function.function_http"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
-	zipFilePath, err := createZIPArchiveForIndexJs(testHTTPTriggerPath)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
 	defer os.Remove(zipFilePath) // clean up
 
 	resource.Test(t, resource.TestCase{
