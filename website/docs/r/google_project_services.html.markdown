@@ -10,7 +10,8 @@ description: |-
 
 Allows management of enabled API services for an existing Google Cloud
 Platform project. Services in an existing project that are not defined
-in the config will be removed.
+in the config will be removed, except for those services that are well
+known to be required by a service defined in the config.
 
 For a list of services available, visit the
 [API library page](https://console.cloud.google.com/apis/library) or run `gcloud services list`.
@@ -44,6 +45,13 @@ The following arguments are supported:
     when destroyed. Defaults to true. **Note**: When `disable_on_destroy` is
     true and the project is changed, Terraform will force disable API services
     managed by Terraform for the previous project.
+
+* `ignore_auto_enabled` - (Optional) Whether or not to ignore APIs which are
+    known to be auto-enabled by GCP when enabling the configured APIs.
+    Defaults to true. **Note**: The Google Cloud provider does not know
+    about all service dependencies. Also, service dependencies can change
+    over time. If needed, or if you want to do so for documentation
+    purposes, you can always add the auto-enabled APIs to your config, too.
 
 ## Import
 

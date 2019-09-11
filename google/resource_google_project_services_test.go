@@ -178,7 +178,58 @@ func TestAccProjectServices_ignoreUnenablableServices(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId),
+				Config: testAccProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId, false),
+				Check: resource.ComposeTestCheckFunc(
+					testProjectServicesMatch(services, pid),
+				),
+			},
+		},
+	})
+}
+
+// Test that auto-enabled services are ignored.
+func TestAccProjectServices_ignoreAutoEnablabledServices(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	billingId := getTestBillingAccountFromEnv(t)
+	pid := "terraform-" + acctest.RandString(10)
+	services := []string{
+		"compute.googleapis.com",
+		// The following services are enabled as a side-effect of compute's enablement
+		"oslogin.googleapis.com",
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId, true),
+				Check: resource.ComposeTestCheckFunc(
+					testProjectServicesMatch(services, pid),
+				),
+			},
+			// Remove all auto-enabled services from the config.
+			// It should not remove the auto-enabled services.
+			{
+				Config: testAccProjectAssociateServicesBasic_withBilling([]string{"compute.googleapis.com"}, pid, pname, org, billingId, true),
+				Check: resource.ComposeTestCheckFunc(
+					testProjectServicesMatch(services, pid),
+				),
+			},
+			// No longer ignore auto-enabled services and remove auto-enabled services from the config.
+			// It should remove the auto-enabled services.
+			{
+				Config: testAccProjectAssociateServicesBasic_withBilling([]string{"compute.googleapis.com"}, pid, pname, org, billingId, false),
+				Check: resource.ComposeTestCheckFunc(
+					testProjectServicesMatch([]string{"compute.googleapis.com"}, pid),
+				),
+			},
+			// Ignore auto-enabled services and explicitly add the auto-enabled service to the config.
+			// It should enable the service.
+			{
+				Config: testAccProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId, true),
 				Check: resource.ComposeTestCheckFunc(
 					testProjectServicesMatch(services, pid),
 				),
@@ -260,7 +311,7 @@ func TestAccProjectServices_pagination(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId),
+				Config: testAccProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId, false),
 				Check: resource.ComposeTestCheckFunc(
 					testProjectServicesMatch(services, pid),
 				),
@@ -277,14 +328,15 @@ resource "google_project" "acceptance" {
   org_id     = "%s"
 }
 resource "google_project_services" "acceptance" {
-  project            = "${google_project.acceptance.project_id}"
-  services           = [%s]
-  disable_on_destroy = true
+  project             = "${google_project.acceptance.project_id}"
+  services            = [%s]
+  disable_on_destroy  = true
+  ignore_auto_enabled = false
 }
 `, pid, name, org, testStringsToString(services))
 }
 
-func testAccProjectAssociateServicesBasic_withBilling(services []string, pid, name, org, billing string) string {
+func testAccProjectAssociateServicesBasic_withBilling(services []string, pid, name, org, billing string, ignoreAutoEnabled bool) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id      = "%s"
@@ -296,8 +348,9 @@ resource "google_project_services" "acceptance" {
   project            = "${google_project.acceptance.project_id}"
   services           = [%s]
   disable_on_destroy = false
+  ignore_auto_enabled = %v
 }
-`, pid, name, org, billing, testStringsToString(services))
+`, pid, name, org, billing, testStringsToString(services), ignoreAutoEnabled)
 }
 
 func testProjectServicesMatch(services []string, pid string) resource.TestCheckFunc {

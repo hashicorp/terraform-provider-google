@@ -8,6 +8,7 @@ import (
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/serviceusage/v1"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -18,6 +19,41 @@ var ignoredProjectServices = []string{"dataproc-control.googleapis.com", "source
 // These services can only be enabled as a side-effect of enabling other services,
 // so don't bother storing them in the config or using them for diffing.
 var ignoredProjectServicesSet = golangSetFromStringSlice(ignoredProjectServices)
+
+// Well known service dependencies, represented by a map from service to the
+// set of services that are known to auto-enable the given service. Transitive
+// dependencies are already flattened in this representation so that lookups
+// can be performed in a single step.
+var serviceAutoEnabledBy = map[string]*schema.Set{
+	"bigquery-json.googleapis.com":      apiSet("container", "dataproc", "resourceviews"),
+	"bigquerystorage.googleapis.com":    apiSet("container", "dataproc", "resourceviews"),
+	"compute.googleapis.com":            apiSet("container", "dataproc", "resourceviews"),
+	"container.googleapis.com":          apiSet("dataproc", "resourceviews"),
+	"containerregistry.googleapis.com":  apiSet("container", "dataproc", "resourceviews"),
+	"deploymentmanager.googleapis.com":  apiSet("dataproc", "resourceviews"),
+	"iam.googleapis.com":                apiSet("container", "dataproc", "resourceviews"),
+	"iamcredentials.googleapis.com":     apiSet("container", "dataproc", "iam", "resourceviews"),
+	"logging.googleapis.com":            apiSet("ml"),
+	"oslogin.googleapis.com":            apiSet("compute", "container", "dataproc", "resourceviews"),
+	"pubsub.googleapis.com":             apiSet("container", "dataproc", "resourceviews"),
+	"replicapool.googleapis.com":        apiSet("dataproc", "resourceviews"),
+	"replicapoolupdater.googleapis.com": apiSet("dataproc", "resourceviews"),
+	"resourceviews.googleapis.com":      apiSet("dataproc"),
+	"storage-api.googleapis.com":        apiSet("container", "dataproc", "resourceviews"),
+	"storage-component.googleapis.com":  apiSet("dataproc", "resourceviews"),
+}
+
+func apiSet(ss ...string) *schema.Set {
+	set := &schema.Set{F: schema.HashString}
+	for _, s := range ss {
+		if strings.Contains(s, ".") {
+			set.Add(s)
+		} else {
+			set.Add(s + ".googleapis.com")
+		}
+	}
+	return set
+}
 
 func resourceGoogleProjectServices() *schema.Resource {
 	return &schema.Resource{
@@ -48,8 +84,9 @@ func resourceGoogleProjectServices() *schema.Resource {
 				Required: true,
 				Set:      schema.HashString,
 				Elem: &schema.Schema{
-					Type:         schema.TypeString,
-					ValidateFunc: StringNotInSlice(ignoredProjectServices, false),
+					Type:             schema.TypeString,
+					ValidateFunc:     StringNotInSlice(ignoredProjectServices, false),
+					DiffSuppressFunc: resourceGoogleProjectServicesDiffSuppress,
 				},
 			},
 			"disable_on_destroy": {
@@ -57,8 +94,31 @@ func resourceGoogleProjectServices() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
+			"ignore_auto_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 		},
 	}
+}
+
+func resourceGoogleProjectServicesDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if ignore := d.Get("ignore_auto_enabled"); !(ignore.(bool)) {
+		return false
+	}
+
+	configuredServices := d.Get("services").(*schema.Set)
+
+	// Ignore changes to an already enabled service if it is
+	// is auto-enabled by one of the configured services.
+	if services, ok := serviceAutoEnabledBy[old]; ok {
+		if services.Intersection(configuredServices).Len() > 0 {
+			return true
+		}
+	}
+
+	return false
 }
 
 func resourceGoogleProjectServicesCreateUpdate(d *schema.ResourceData, meta interface{}) error {
