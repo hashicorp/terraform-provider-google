@@ -41,6 +41,10 @@ func (w *ContainerOperationWaiter) Error() error {
 	return nil
 }
 
+func (w *ContainerOperationWaiter) IsRetryable(error) bool {
+	return false
+}
+
 func (w *ContainerOperationWaiter) SetOp(op interface{}) error {
 	var ok bool
 	w.Op, ok = op.(*container.Operation)

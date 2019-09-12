@@ -18,6 +18,9 @@ type Waiter interface {
 	// if the operation has no current error.
 	Error() error
 
+	// IsRetryable returns whether a given error should be retried.
+	IsRetryable(error) bool
+
 	// SetOp sets the operation we're waiting on in a Waiter struct so that it
 	// can be used in other methods.
 	SetOp(interface{}) error
@@ -57,6 +60,10 @@ func (w *CommonOperationWaiter) Error() error {
 		return fmt.Errorf("Error code %v, message: %s", w.Op.Error.Code, w.Op.Error.Message)
 	}
 	return nil
+}
+
+func (w *CommonOperationWaiter) IsRetryable(error) bool {
+	return false
 }
 
 func (w *CommonOperationWaiter) SetOp(op interface{}) error {
@@ -110,6 +117,10 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 		}
 
 		if err = w.Error(); err != nil {
+			if w.IsRetryable(err) {
+				log.Printf("[DEBUG] Retrying operation GET based on retryable err: %s", err)
+				return op, w.State(), nil
+			}
 			return nil, "", err
 		}
 
