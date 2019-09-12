@@ -126,6 +126,14 @@ func resourceComputeInstance() *schema.Resource {
 							},
 						},
 
+						"mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							Default:      "READ_WRITE",
+							ValidateFunc: validation.StringInSlice([]string{"READ_WRITE", "READ_ONLY"}, false),
+						},
+
 						"source": {
 							Type:             schema.TypeString,
 							Optional:         true,
@@ -1664,6 +1672,10 @@ func expandBootDisk(d *schema.ResourceData, config *Config, project string) (*co
 		}
 	}
 
+	if v, ok := d.GetOk("boot_disk.0.mode"); ok {
+		disk.Mode = v.(string)
+	}
+
 	return disk, nil
 }
 
@@ -1671,6 +1683,7 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, con
 	result := map[string]interface{}{
 		"auto_delete": disk.AutoDelete,
 		"device_name": disk.DeviceName,
+		"mode":        disk.Mode,
 		"source":      ConvertSelfLinkToV1(disk.Source),
 		// disk_encryption_key_raw is not returned from the API, so copy it from what the user
 		// originally specified to avoid diffs.

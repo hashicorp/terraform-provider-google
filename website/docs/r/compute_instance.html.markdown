@@ -148,6 +148,9 @@ The `boot_disk` block supports:
 * `device_name` - (Optional) Name with which attached disk will be accessible.
     On the instance, this device will be `/dev/disk/by-id/google-{{device_name}}`.
 
+* `mode` - (Optional) The mode in which to attach this disk, either `READ_WRITE`
+  or `READ_ONLY`. If not specified, the default is to attach the disk in `READ_WRITE` mode.
+
 * `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
     encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
