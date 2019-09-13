@@ -106,7 +106,8 @@ The following arguments are supported:
   Template describing the types of source changes to trigger a build.
   Branch and tag names in trigger templates are interpreted as regular
   expressions. Any branch or tag change that matches that regular
-  expression will trigger a build.  Structure is documented below.
+  expression will trigger a build.
+  This field is required, and will be validated as such in 3.0.0.  Structure is documented below.
 
 * `build` -
   (Optional)
