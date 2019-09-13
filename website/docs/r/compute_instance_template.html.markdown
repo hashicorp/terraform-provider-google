@@ -278,7 +278,8 @@ The `disk` block supports:
     `"local-ssd"`, or `"pd-standard"`.
 
 * `disk_size_gb` - (Optional) The size of the image in gigabytes. If not
-    specified, it will inherit the size of its base image.
+    specified, it will inherit the size of its base image. For SCRATCH disks,
+    the size must be exactly 375GB.
 
 * `type` - (Optional) The type of GCE disk, can be either `"SCRATCH"` or
     `"PERSISTENT"`.
