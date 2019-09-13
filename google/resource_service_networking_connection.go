@@ -177,12 +177,11 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 	obj["name"] = peering
 	url := fmt.Sprintf("%s%s/removePeering", config.ComputeBasePath, serviceNetworkingNetworkName)
 
-	networkFieldValue, err := ParseNetworkFieldValue(network, d, config)
+	project, err := getProject(d, config)
 	if err != nil {
-		return errwrap.Wrapf("Failed to retrieve network field value, err: {{err}}", err)
+		return err
 	}
 
-	project := networkFieldValue.Project
 	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ServiceNetworkingConnection %q", d.Id()))
