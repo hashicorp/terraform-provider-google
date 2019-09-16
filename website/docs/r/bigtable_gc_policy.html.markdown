@@ -36,7 +36,7 @@ resource "google_bigtable_table" "table" {
 resource "google_bigtable_gc_policy" "policy" {
   instance_name = "${google_bigtable_instance.instance.name}"
   table         = "${google_bigtable_table.table.name}"
-  family        = "name"
+  column_family = "name"
   
   max_age {
     days = 7

@@ -36,7 +36,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"family": {
+			"column_family": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -110,9 +110,9 @@ func resourceBigtableGCPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	tableName := d.Get("table").(string)
-	family := d.Get("family").(string)
+	columnFamily := d.Get("column_family").(string)
 
-	if err := c.SetGCPolicy(ctx, tableName, family, gcPolicy); err != nil {
+	if err := c.SetGCPolicy(ctx, tableName, columnFamily, gcPolicy); err != nil {
 		return err
 	}
 
@@ -122,7 +122,7 @@ func resourceBigtableGCPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	for _, i := range table.FamilyInfos {
-		if i.Name == family {
+		if i.Name == columnFamily {
 			d.SetId(i.GCPolicy)
 		}
 	}
@@ -177,7 +177,7 @@ func resourceBigtableGCPolicyDestroy(d *schema.ResourceData, meta interface{}) e
 
 	defer c.Close()
 
-	if err := c.SetGCPolicy(ctx, d.Get("table").(string), d.Get("family").(string), bigtable.NoGcPolicy()); err != nil {
+	if err := c.SetGCPolicy(ctx, d.Get("table").(string), d.Get("column_family").(string), bigtable.NoGcPolicy()); err != nil {
 		return err
 	}
 

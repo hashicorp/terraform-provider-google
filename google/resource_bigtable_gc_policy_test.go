@@ -77,9 +77,9 @@ func testAccCheckBigtableGCPolicyDestroy(s *terraform.State) error {
 		}
 
 		for _, i := range table.FamilyInfos {
-			if i.Name == rs.Primary.Attributes["family"] {
+			if i.Name == rs.Primary.Attributes["column_family"] {
 				if i.GCPolicy != "<never>" {
-					return fmt.Errorf("GC Policy still present. Found %s in %s.", i.GCPolicy, rs.Primary.Attributes["family"])
+					return fmt.Errorf("GC Policy still present. Found %s in %s.", i.GCPolicy, rs.Primary.Attributes["column_family"])
 				}
 			}
 		}
@@ -115,12 +115,12 @@ func testAccBigtableGCPolicyExists(n string) resource.TestCheckFunc {
 		}
 
 		for _, i := range table.FamilyInfos {
-			if i.Name == rs.Primary.Attributes["family"] {
+			if i.Name == rs.Primary.Attributes["column_family"] {
 				return nil
 			}
 		}
 
-		return fmt.Errorf("Error retrieving gc policy. Could not find policy in family %s", rs.Primary.Attributes["family"])
+		return fmt.Errorf("Error retrieving gc policy. Could not find policy in family %s", rs.Primary.Attributes["column_family"])
 	}
 }
 
@@ -149,7 +149,7 @@ resource "google_bigtable_table" "table" {
 resource "google_bigtable_gc_policy" "policy" {
   instance_name = "${google_bigtable_instance.instance.name}"
   table         = "${google_bigtable_table.table.name}"
-  family        = "%s"
+  column_family = "%s"
 
   max_age {	
     days = 3
@@ -183,7 +183,7 @@ resource "google_bigtable_table" "table" {
 resource "google_bigtable_gc_policy" "policy" {
   instance_name = "${google_bigtable_instance.instance.name}"
   table         = "${google_bigtable_table.table.name}"
-  family        = "%s"
+  column_family = "%s"
 
   mode = "UNION"
 
