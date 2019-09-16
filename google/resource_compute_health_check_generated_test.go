@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccComputeHealthCheck_healthCheckBasicExample(t *testing.T) {
+func TestAccComputeHealthCheck_healthCheckTcpExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -37,10 +37,10 @@ func TestAccComputeHealthCheck_healthCheckBasicExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeHealthCheck_healthCheckBasicExample(context),
+				Config: testAccComputeHealthCheck_healthCheckTcpExample(context),
 			},
 			{
-				ResourceName:      "google_compute_health_check.internal-health-check",
+				ResourceName:      "google_compute_health_check.tcp-health-check",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -48,10 +48,10 @@ func TestAccComputeHealthCheck_healthCheckBasicExample(t *testing.T) {
 	})
 }
 
-func testAccComputeHealthCheck_healthCheckBasicExample(context map[string]interface{}) string {
+func testAccComputeHealthCheck_healthCheckTcpExample(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_compute_health_check" "internal-health-check" {
- name = "internal-service-health-check%{random_suffix}"
+resource "google_compute_health_check" "tcp-health-check" {
+ name = "tcp-health-check%{random_suffix}"
 
  timeout_sec        = 1
  check_interval_sec = 1
@@ -59,6 +59,395 @@ resource "google_compute_health_check" "internal-health-check" {
  tcp_health_check {
    port = "80"
  }
+}
+`, context)
+}
+
+func TestAccComputeHealthCheck_healthCheckTcpFullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_healthCheckTcpFullExample(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.tcp-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_healthCheckTcpFullExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_health_check" "tcp-health-check" {
+  name = "tcp-health-check%{random_suffix}"
+  description = "Health check via tcp"
+
+  timeout_sec         = 1
+  check_interval_sec  = 1
+  healthy_threshold   = 4
+  unhealthy_threshold = 5
+
+  tcp_health_check {
+    port_name = "health-check-port"
+    port_specification = "USE_NAMED_PORT"
+    request = "ARE YOU HEALTHY?"
+    proxy_header = "NONE"
+    response = "I AM HEALTHY"
+  }
+}
+`, context)
+}
+
+func TestAccComputeHealthCheck_healthCheckSslExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_healthCheckSslExample(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.ssl-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_healthCheckSslExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_health_check" "ssl-health-check" {
+ name = "ssl-health-check%{random_suffix}"
+
+ timeout_sec        = 1
+ check_interval_sec = 1
+
+ ssl_health_check {
+   port = "443"
+ }
+}
+`, context)
+}
+
+func TestAccComputeHealthCheck_healthCheckSslFullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_healthCheckSslFullExample(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.ssl-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_healthCheckSslFullExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_health_check" "ssl-health-check" {
+  name = "ssl-health-check%{random_suffix}"
+  description = "Health check via ssl"
+
+  timeout_sec         = 1
+  check_interval_sec  = 1
+  healthy_threshold   = 4
+  unhealthy_threshold = 5
+
+  ssl_health_check {
+    port_name = "health-check-port"
+    port_specification = "USE_NAMED_PORT"
+    request = "ARE YOU HEALTHY?"
+    proxy_header = "NONE"
+    response = "I AM HEALTHY"
+  }
+}
+`, context)
+}
+
+func TestAccComputeHealthCheck_healthCheckHttpExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_healthCheckHttpExample(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.http-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_healthCheckHttpExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_health_check" "http-health-check" {
+ name = "http-health-check%{random_suffix}"
+
+ timeout_sec        = 1
+ check_interval_sec = 1
+
+ http_health_check {
+   port = 80
+ }
+}
+`, context)
+}
+
+func TestAccComputeHealthCheck_healthCheckHttpFullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_healthCheckHttpFullExample(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.http-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_healthCheckHttpFullExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_health_check" "http-health-check" {
+  name = "http-health-check%{random_suffix}"
+  description = "Health check via http"
+
+  timeout_sec         = 1
+  check_interval_sec  = 1
+  healthy_threshold   = 4
+  unhealthy_threshold = 5
+
+  http_health_check {
+    port_name = "health-check-port"
+    port_specification = "USE_NAMED_PORT"
+    host = "1.2.3.4"
+    request_path = "/mypath"
+    proxy_header = "NONE"
+    response = "I AM HEALTHY"
+  }
+}
+`, context)
+}
+
+func TestAccComputeHealthCheck_healthCheckHttpsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_healthCheckHttpsExample(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.https-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_healthCheckHttpsExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_health_check" "https-health-check" {
+ name = "https-health-check%{random_suffix}"
+
+ timeout_sec        = 1
+ check_interval_sec = 1
+
+ https_health_check {
+   port = "443"
+ }
+}
+`, context)
+}
+
+func TestAccComputeHealthCheck_healthCheckHttpsFullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_healthCheckHttpsFullExample(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.https-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_healthCheckHttpsFullExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_health_check" "https-health-check" {
+  name = "https-health-check%{random_suffix}"
+  description = "Health check via https"
+
+  timeout_sec         = 1
+  check_interval_sec  = 1
+  healthy_threshold   = 4
+  unhealthy_threshold = 5
+
+  https_health_check {
+    port_name = "health-check-port"
+    port_specification = "USE_NAMED_PORT"
+    host = "1.2.3.4"
+    request_path = "/mypath"
+    proxy_header = "NONE"
+    response = "I AM HEALTHY"
+  }
+}
+`, context)
+}
+
+func TestAccComputeHealthCheck_healthCheckHttp2Example(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_healthCheckHttp2Example(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.http2-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_healthCheckHttp2Example(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_health_check" "http2-health-check" {
+ name = "http2-health-check%{random_suffix}"
+
+ timeout_sec        = 1
+ check_interval_sec = 1
+
+ http2_health_check {
+   port = "443"
+ }
+}
+`, context)
+}
+
+func TestAccComputeHealthCheck_healthCheckHttp2FullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_healthCheckHttp2FullExample(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.http2-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_healthCheckHttp2FullExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_health_check" "http2-health-check" {
+  name = "http2-health-check%{random_suffix}"
+  description = "Health check via http2"
+
+  timeout_sec         = 1
+  check_interval_sec  = 1
+  healthy_threshold   = 4
+  unhealthy_threshold = 5
+
+  http2_health_check {
+    port_name = "health-check-port"
+    port_specification = "USE_NAMED_PORT"
+    host = "1.2.3.4"
+    request_path = "/mypath"
+    proxy_header = "NONE"
+    response = "I AM HEALTHY"
+  }
 }
 `, context)
 }
