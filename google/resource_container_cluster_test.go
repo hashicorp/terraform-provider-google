@@ -390,6 +390,15 @@ func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
 				ImportState:         true,
 				ImportStateVerify:   true,
 			},
+			{
+				Config: testAccContainerCluster_removeMasterAuthorizedNetworksConfig(clusterName),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_master_authorized_networks",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
 		},
 	})
 }
@@ -1463,13 +1472,22 @@ func testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName stri
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_master_authorized_networks" {
 	name = "%s"
-	zone = "us-central1-a"
+	location = "us-central1-a"
 	initial_node_count = 1
 
 	master_authorized_networks_config {
 		%s
 	}
 }`, clusterName, cidrBlocks)
+}
+
+func testAccContainerCluster_removeMasterAuthorizedNetworksConfig(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_master_authorized_networks" {
+	name = "%s"
+	location = "us-central1-a"
+	initial_node_count = 1
+}`, clusterName)
 }
 
 func testAccContainerCluster_regional(clusterName string) string {
