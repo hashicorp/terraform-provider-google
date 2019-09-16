@@ -26,6 +26,30 @@ func init() {
 	})
 }
 
+func TestComposerImageVersionDiffSuppress(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name     string
+		old      string
+		new      string
+		expected bool
+	}{
+		{"matches", "composer-1.4.0-airflow-1.10.0", "composer-1.4.0-airflow-1.10.0", true},
+		{"old latest", "composer-latest-airflow-1.10.0", "composer-1.4.1-airflow-1.10.0", true},
+		{"new latest", "composer-1.4.1-airflow-1.10.0", "composer-latest-airflow-1.10.0", true},
+		{"airflow equivalent", "composer-1.4.0-airflow-1.10.0", "composer-1.4.0-airflow-1.10", true},
+		{"airflow different", "composer-1.4.0-airflow-1.10.0", "composer-1.4-airflow-1.9.0", false},
+		{"airflow different composer latest", "composer-1.4.0-airflow-1.10.0", "composer-latest-airflow-1.9.0", false},
+	}
+
+	for _, tc := range cases {
+		if actual := composerImageVersionDiffSuppress("", tc.old, tc.new, nil); actual != tc.expected {
+			t.Fatalf("'%s' failed, expected %v but got %v", tc.name, tc.expected, actual)
+		}
+	}
+}
+
 // Checks environment creation with minimum required information.
 func TestAccComposerEnvironment_basic(t *testing.T) {
 	t.Parallel()
@@ -159,6 +183,28 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_nodeCfg(envName, network, subnetwork, serviceAccount),
 				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+			},
+		},
+	})
+}
+
+func TestAccComposerEnvironment_withSoftwareConfig(t *testing.T) {
+	t.Parallel()
+	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
+	var env composer.Environment
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccComposerEnvironmentDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComposerEnvironment_softwareCfg(envName),
+				Check:  testAccCheckComposerEnvironmentExists("google_composer_environment.test", &env),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -301,6 +347,7 @@ resource "google_composer_environment" "test" {
 		node_count = 4
 
 		software_config {
+			image_version = "${data.google_composer_image_versions.all.image_versions.0.image_version_id}"
 
 			airflow_config_overrides = {
 			  core-load_example = "True"
@@ -364,6 +411,24 @@ resource "google_project_iam_member" "composer-worker" {
   member  = "serviceAccount:${google_service_account.test.email}"
 }
 `, environment, network, subnetwork, serviceAccount)
+}
+
+func testAccComposerEnvironment_softwareCfg(name string) string {
+	return fmt.Sprintf(`
+data "google_composer_image_versions" "all" {
+}
+
+resource "google_composer_environment" "test" {
+	name           = "%s"
+	region         = "us-central1"
+	config {
+		software_config {
+			image_version = "${data.google_composer_image_versions.all.image_versions.0.image_version_id}"
+			python_version = "3"
+		}
+	}
+}
+`, name)
 }
 
 func testAccComposerEnvironment_updateOnlyFields(name string) string {
