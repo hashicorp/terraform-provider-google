@@ -44,6 +44,25 @@ resource "google_bigtable_gc_policy" "policy" {
 }
 ```
 
+Multiple conditions is also supported. `UNION` when any of its sub-policies apply (OR). `INTERSECTION` when all its sub-policies apply (AND)
+```
+resource "google_bigtable_gc_policy" "policy" {
+  instance_name = "${google_bigtable_instance.instance.name}"
+  table         = "${google_bigtable_table.table.name}"
+  column_family = "name"
+  
+  mode = "UNION"
+  
+  max_age {
+    days = 7
+  }
+  
+  max_version {
+    number = 10
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
