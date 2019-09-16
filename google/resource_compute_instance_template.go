@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -20,8 +21,11 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		SchemaVersion: 1,
-		CustomizeDiff: resourceComputeInstanceTemplateSourceImageCustomizeDiff,
-		MigrateState:  resourceComputeInstanceTemplateMigrateState,
+		CustomizeDiff: customdiff.All(
+			resourceComputeInstanceTemplateSourceImageCustomizeDiff,
+			resourceComputeInstanceTemplateScratchDiskCustomizeDiff,
+		),
+		MigrateState: resourceComputeInstanceTemplateMigrateState,
 
 		// A compute instance template is more or less a subset of a compute
 		// instance. Please attempt to maintain consistency with the
@@ -538,6 +542,24 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.Resour
 			}
 		}
 	}
+	return nil
+}
+
+func resourceComputeInstanceTemplateScratchDiskCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	numDisks := diff.Get("disk.#").(int)
+	for i := 0; i < numDisks; i++ {
+		// misspelled on purpose, type is a special symbol
+		typee := diff.Get(fmt.Sprintf("disk.%d.type", i)).(string)
+		diskType := diff.Get(fmt.Sprintf("disk.%d.disk_type", i)).(string)
+		if typee == "SCRATCH" && diskType != "local-ssd" {
+			return fmt.Errorf("SCRATCH disks must have a disk_type of local-ssd. disk %d has disk_type %s", i, diskType)
+		}
+
+		if diskType == "local-ssd" && typee != "SCRATCH" {
+			return fmt.Errorf("disks with a disk_type of local-ssd must be SCRATCH disks. disk %d is a %s disk", i, typee)
+		}
+	}
+
 	return nil
 }
 
