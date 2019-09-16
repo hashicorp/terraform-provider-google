@@ -50,7 +50,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 			},
 
 			"max_age": {
-				Type:     schema.TypeMap,
+				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
@@ -64,7 +64,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 			},
 
 			"max_version": {
-				Type:     schema.TypeMap,
+				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
