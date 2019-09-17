@@ -8,6 +8,7 @@ FEATURES:
 * **New Resource**: Add the new resource `google_app_engine_domain_mapping` [GH-4310]
 * **New Resource**: `google_cloudfunctions_function_iam_policy`, `google_cloudfunctions_function_iam_binding`, and `google_cloudfunctions_function_iam_member` have been added [GH-4420]
 * **New Resource**: `google_compute_reservation` allows you to reserve instance capacity in GCE. [GH-4332]
+* **New Resource**: `google_compute_region_health_check` is now available. This and `google_compute_health_check` now include additional support for HTTP2 health checks. [GH-4270]
 
 ENHANCEMENTS:
 * compute: Add all options to `google_compute_router_peer` [GH-4371]
@@ -16,7 +17,6 @@ ENHANCEMENTS:
 * compute: add `purpose` field to `google_compute_address` [GH-4400]
 * compute: add `mode` option to `google_compute_instance.boot_disk` [GH-4413]
 * compute: `google_compute_firewall` does not show a diff if allowed or denied rules are specified with uppercase protocol values [GH-4467]
-* compute: `google_compute_region_health_check` is now available. This and `google_compute_health_check` now include additional support for HTTP2 health checks. [GH-4270]
 * logging: added `metric_descriptor.unit` to `google_logging_metric` resource [GH-4407]
 
 BUG FIXES:
