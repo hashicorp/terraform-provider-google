@@ -1,13 +1,14 @@
-dist: trusty
+dist: xenial
 sudo: required
 services:
 - docker
 language: go
 go:
-- "1.11.x"
-env:
-  - GO111MODULE=on
-    GOFLAGS=-mod=vendor
+- "1.13.x"
+
+branches:
+  only:
+  - master
 
 install:
 # This script is used by the Travis build to install a cookie for
@@ -22,9 +23,6 @@ script:
 - make test
 - make website-test
 
-branches:
-  only:
-  - master
 matrix:
   fast_finish: true
   allow_failures:

@@ -2,6 +2,10 @@ TEST?=$$(go list ./... |grep -v 'vendor')
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=google
 
+TF_SCHEMA_PANIC_ON_ERROR=1
+GO111MODULE=on
+GOFLAGS=-mod=vendor
+
 default: build
 
 build: fmtcheck
