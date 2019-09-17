@@ -1,4 +1,37 @@
-## 2.14.1 (Unreleased)
+## 2.15.0 (Unreleased)
+
+FEATURES:
+* **New Resource**: `google_iap_web_iam_binding/_member/_policy` are now available for managing IAP web IAM permissions [GH-4253]
+* **New Resource**: `google_iap_web_backend_service_binding/_member/_policy` are now available for managing IAM permissions on IAP enabled backend services [GH-4253]
+* **New Resource**: `google_iap_web_type_compute_iam_binding/_member/_policy` are now available for managing IAM permissions on IAP enabled compute services [GH-4253]
+* **New Resource**: `google_iap_web_type_app_engine_iam_binding/_member/_policy` are now available for managing IAM permissions on IAP enabled App Engine applications [GH-4253]
+* **New Resource**: Add the new resource `google_app_engine_domain_mapping` [GH-4310]
+* **New Resource**: `google_cloudfunctions_function_iam_policy`, `google_cloudfunctions_function_iam_binding`, and `google_cloudfunctions_function_iam_member` have been added [GH-4420]
+* **New Resource**: `google_compute_reservation` allows you to reserve instance capacity in GCE. [GH-4332]
+
+ENHANCEMENTS:
+* compute: Add all options to `google_compute_router_peer` [GH-4371]
+* compute: add `tunnel_id` to `google_compute_vpn_tunnel` and `gateway_id` to `google_compute_vpn_gateway` [GH-4373]
+* compute: `google_compute_subnetwork` now includes the `purpose` and `role` fields. [GH-4261]
+* compute: add `purpose` field to `google_compute_address` [GH-4400]
+* compute: add `mode` option to `google_compute_instance.boot_disk` [GH-4413]
+* compute: `google_compute_firewall` does not show a diff if allowed or denied rules are specified with uppercase protocol values [GH-4467]
+* compute: `google_compute_region_health_check` is now available. This and `google_compute_health_check` now include additional support for HTTP2 health checks. [GH-4270]
+* logging: added `metric_descriptor.unit` to `google_logging_metric` resource [GH-4407]
+
+BUG FIXES:
+* all: More classes of generic HTTP errors are retried provider-wide.
+* container: Fix error when `master_authorized_networks_config` is removed from the `google_container_cluster` configuration. [GH-4446]
+* iam: Make `google_service_account_` and `google_service_account_iam_*` validation less restrictive to allow for more default service accounts [GH-4377]
+* iam: set auditconfigs in state for google_\*\_iam_policy resources [GH-4447]
+* logging: `google_logging_metric` `explicit` bucket option can now be set [GH-4358]
+* pubsub: Add retry for Pubsub Topic creation when project is still initializing org policies [GH-4352]
+* servicenetworking: remove need for provider-level project to delete connection [GH-4445]
+* sql: Add more retries for operationInProgress 409 errors for `google_sql_database_instance` [GH-4376]
+
+MISC:
+* The User-Agent header that Terraform sends has been updated to correctly report the version of Terraform being run, and has minorly changed the formatting on the Terraform string. [GH-4374]
+
 ## 2.14.0 (August 28, 2019)
 
 DEPRECATIONS:
