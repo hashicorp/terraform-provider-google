@@ -13,8 +13,15 @@ Creates a new Cloud Function. For more information see
 and
 [API](https://cloud.google.com/functions/docs/apis).
 
+~> **Warning:** As of November 1, 2019, newly created Functions are
+private-by-default and will require [appropriate IAM permissions](https://cloud.google.com/functions/docs/reference/iam/roles)
+to be invoked. See below examples for how to set up the appropriate permissions,
+or view the [Cloud Functions IAM resources](/docs/r/cloudfunctions_cloud_function_iam.html)
+for Cloud Functions.
+
 ## Example Usage
 
+Secured function with a user allowed to invoke:
 ```hcl
 resource "google_storage_bucket" "bucket" {
   name = "test-bucket"
@@ -40,13 +47,59 @@ resource "google_cloudfunctions_function" "function" {
   labels = {
     my-label = "my-label-value"
   }
-  
+
   environment_variables = {
     MY_ENV_VAR = "my-env-var-value"
   }
 }
+
+# Add IAM member for a user who can invoke the function (no admin actions)
+resource "google_cloudfunctions_function_iam_member" "invoker" {
+  project = "${google_cloudfunctions_function.function.project}"
+  region = "${google_cloudfunctions_function.function.region}"
+  cloud_function = "${google_cloudfunctions_function.function.name}"
+
+  role = "roles/cloudfunctions.invoker"
+  member = "user:myFunctionInvoker@example.com"
+}
 ```
 
+A publically invocable function (similar behavior to functions created before
+private-by-default):
+
+```hcl
+resource "google_storage_bucket" "bucket" {
+  name = "test-bucket"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = "${google_storage_bucket.bucket.name}"
+  source = "./path/to/zip/file/which/contains/code"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name                  = "function-test"
+  description           = "My function"
+  runtime               = "nodejs10"
+
+  available_memory_mb   = 128
+  source_archive_bucket = "${google_storage_bucket.bucket.name}"
+  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  trigger_http          = true
+  entry_point           = "helloGET"
+}
+
+# Add IAM member for a user who can invoke the function (no admin actions)
+resource "google_cloudfunctions_function_iam_member" "invoker" {
+  project = "${google_cloudfunctions_function.function.project}"
+  region = "${google_cloudfunctions_function.function.region}"
+  cloud_function = "${google_cloudfunctions_function.function.name}"
+
+  role = "roles/cloudfunctions.invoker"
+  member = "allUsers"
+}
+```
 ## Argument Reference
 
 The following arguments are supported:
