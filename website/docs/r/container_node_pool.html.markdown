@@ -98,12 +98,11 @@ resource "google_container_cluster" "primary" {
 
 ## Argument Reference
 
-* `cluster` - (Required) The cluster to create the node pool for.  Cluster must be present in `zone` provided for zonal clusters.
+* `cluster` - (Required) The cluster to create the node pool for. Cluster must be present in `zone` provided for zonal clusters.
 
 - - -
 
-* `location` - (Optional) The location (region or zone) in which the cluster
-resides.
+* `location` - (Optional) The location (region or zone) of the cluster.
 
 * `zone` - (Optional, Deprecated) The zone in which the cluster resides. `zone`
 has been deprecated in favor of `location`.
@@ -119,8 +118,9 @@ type-specific `region` for regional clusters / `zone` for zonal clusters.
 * `autoscaling` - (Optional) Configuration required by cluster autoscaler to adjust
     the size of the node pool to the current cluster usage. Structure is documented below.
 
-* `initial_node_count` - (Optional) The initial node count for the pool. Changing this will force
-    recreation of the resource.
+* `initial_node_count` - (Optional) The initial number of nodes for the pool. In
+regional or multi-zonal clusters, this is the number of nodes per zone. Changing
+this will force recreation of the resource.
 
 * `management` - (Optional) Node management configuration, wherein auto-repair and
     auto-upgrade is configured. Structure is documented below.
@@ -130,6 +130,16 @@ type-specific `region` for regional clusters / `zone` for zonal clusters.
     pools belonging to clusters that do not have IP Aliasing enabled.
     See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr)
     for more information.
+
+* `node_locations` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
+The list of zones in which the node pool's nodes should be located. Nodes must
+be in the region of their regional cluster or in the same region as their
+cluster's zone for zonal clusters. If unspecified, the cluster-level
+`node_locations` will be used.
+
+-> Note: `node_locations` will not revert to the cluster's default set of zones
+upon being unset. You must manually reconcile the list of zones with your
+cluster.
 
 * `name` - (Optional) The name of the node pool. If left blank, Terraform will
     auto-generate a unique name.
