@@ -92,6 +92,7 @@ type Config struct {
 	PubsubBasePath               string
 	RedisBasePath                string
 	ResourceManagerBasePath      string
+	RuntimeConfigBasePath        string
 	SecurityCenterBasePath       string
 	SourceRepoBasePath           string
 	SpannerBasePath              string
@@ -147,8 +148,7 @@ type Config struct {
 	ResourceManagerV2Beta1BasePath string
 	clientResourceManagerV2Beta1   *resourceManagerV2Beta1.Service
 
-	RuntimeconfigBasePath string
-	clientRuntimeconfig   *runtimeconfig.Service
+	clientRuntimeconfig *runtimeconfig.Service
 
 	clientSpanner *spanner.Service
 
@@ -218,6 +218,7 @@ var MonitoringDefaultBasePath = "https://monitoring.googleapis.com/v3/"
 var PubsubDefaultBasePath = "https://pubsub.googleapis.com/v1/"
 var RedisDefaultBasePath = "https://redis.googleapis.com/v1/"
 var ResourceManagerDefaultBasePath = "https://cloudresourcemanager.googleapis.com/v1/"
+var RuntimeConfigDefaultBasePath = "https://runtimeconfig.googleapis.com/v1beta1/"
 var SecurityCenterDefaultBasePath = "https://securitycenter.googleapis.com/v1/"
 var SourceRepoDefaultBasePath = "https://sourcerepo.googleapis.com/v1/"
 var SpannerDefaultBasePath = "https://spanner.googleapis.com/v1/"
@@ -390,14 +391,14 @@ func (c *Config) LoadAndValidate() error {
 	c.clientResourceManagerV2Beta1.UserAgent = userAgent
 	c.clientResourceManagerV2Beta1.BasePath = resourceManagerV2Beta1BasePath
 
-	runtimeconfigClientBasePath := removeBasePathVersion(c.RuntimeconfigBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Runtimeconfig client for path %s", runtimeconfigClientBasePath)
+	runtimeConfigClientBasePath := removeBasePathVersion(c.RuntimeConfigBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Runtimeconfig client for path %s", runtimeConfigClientBasePath)
 	c.clientRuntimeconfig, err = runtimeconfig.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
 		return err
 	}
 	c.clientRuntimeconfig.UserAgent = userAgent
-	c.clientRuntimeconfig.BasePath = runtimeconfigClientBasePath
+	c.clientRuntimeconfig.BasePath = runtimeConfigClientBasePath
 
 	iamClientBasePath := removeBasePathVersion(c.IAMBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud IAM client for path %s", iamClientBasePath)
@@ -681,6 +682,7 @@ func ConfigureBasePaths(c *Config) {
 	c.PubsubBasePath = PubsubDefaultBasePath
 	c.RedisBasePath = RedisDefaultBasePath
 	c.ResourceManagerBasePath = ResourceManagerDefaultBasePath
+	c.RuntimeConfigBasePath = RuntimeConfigDefaultBasePath
 	c.SecurityCenterBasePath = SecurityCenterDefaultBasePath
 	c.SourceRepoBasePath = SourceRepoDefaultBasePath
 	c.SpannerBasePath = SpannerDefaultBasePath
@@ -699,7 +701,6 @@ func ConfigureBasePaths(c *Config) {
 	c.DnsBetaBasePath = DnsBetaDefaultBasePath
 	c.IamCredentialsBasePath = IamCredentialsDefaultBasePath
 	c.ResourceManagerV2Beta1BasePath = ResourceManagerV2Beta1DefaultBasePath
-	c.RuntimeconfigBasePath = RuntimeconfigDefaultBasePath
 	c.IAMBasePath = IAMDefaultBasePath
 	c.ServiceManagementBasePath = ServiceManagementDefaultBasePath
 	c.ServiceNetworkingBasePath = ServiceNetworkingDefaultBasePath
