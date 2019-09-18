@@ -26,7 +26,7 @@ fmtcheck:
 
 lint:
 	@echo "==> Checking source code against linters..."
-	GOPACKAGESPRINTGOLISTERRORS=1 golangci-lint run ./$(PKG_NAME)
+	GL_DEBUG=linters_output GOPACKAGESPRINTGOLISTERRORS=1 golangci-lint run -v ./$(PKG_NAME)
 
 tools:
 	@echo "==> installing required tooling..."
