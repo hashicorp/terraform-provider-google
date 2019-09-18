@@ -28,6 +28,8 @@ func NewProjectIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUp
 		return nil, err
 	}
 
+	d.Set("project", pid)
+
 	return &ProjectIamUpdater{
 		resourceId: pid,
 		Config:     config,
