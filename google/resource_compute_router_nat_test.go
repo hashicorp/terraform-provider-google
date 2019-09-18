@@ -205,9 +205,6 @@ resource "google_compute_router" "foobar"{
 	name    = "router-nat-test-%s"
 	region  = "${google_compute_subnetwork.foobar.region}"
 	network = "${google_compute_network.foobar.self_link}"
-	bgp {
-		asn = 64514
-	}
 }
 resource "google_compute_router_nat" "foobar" {
 	name                               = "router-nat-test-%s"
@@ -229,9 +226,6 @@ resource "google_compute_router" "foobar"{
 	name    = "router-nat-test-%s"
 	region  = "${google_compute_subnetwork.foobar.region}"
 	network = "${google_compute_network.foobar.self_link}"
-	bgp {
-		asn = 64514
-	}
 }
 
 resource "google_compute_network" "foobar" {
@@ -368,12 +362,10 @@ resource "google_compute_subnetwork" "foobar" {
 	ip_cidr_range = "10.0.0.0/16"
 	region        = "us-central1"
 }
+
 resource "google_compute_router" "foobar"{
 	name    = "router-nat-test-%s"
 	region  = "${google_compute_subnetwork.foobar.region}"
 	network = "${google_compute_network.foobar.self_link}"
-	bgp {
-		asn = 64514
-	}
 }`, testId, testId, testId)
 }

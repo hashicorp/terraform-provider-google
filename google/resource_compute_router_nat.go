@@ -27,6 +27,57 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func resourceNameSetFromSelfLinkSet(v interface{}) *schema.Set {
+	if v == nil {
+		return schema.NewSet(schema.HashString, nil)
+	}
+	vSet := v.(*schema.Set)
+	ls := make([]interface{}, 0, vSet.Len())
+	for _, v := range vSet.List() {
+		if v == nil {
+			continue
+		}
+		ls = append(ls, GetResourceNameFromSelfLink(v.(string)))
+	}
+	return schema.NewSet(schema.HashString, ls)
+}
+
+// drain_nat_ips MUST be set from (just set) previous values of nat_ips
+// so this customizeDiff func makes sure drainNatIps values:
+//   - aren't set at creation time
+//   - are in old value of nat_ips but not in new values
+func resourceComputeRouterNatDrainNatIpsCustomDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	o, n := diff.GetChange("drain_nat_ips")
+	oSet := resourceNameSetFromSelfLinkSet(o)
+	nSet := resourceNameSetFromSelfLinkSet(n)
+	addDrainIps := nSet.Difference(oSet)
+
+	// We don't care if there are no new drainNatIps
+	if addDrainIps.Len() == 0 {
+		return nil
+	}
+
+	// Resource hasn't been created yet - return error
+	if diff.Id() == "" {
+		return fmt.Errorf("New RouterNat cannot have drain_nat_ips, got values %+v", addDrainIps.List())
+	}
+	//
+	o, n = diff.GetChange("nat_ips")
+	oNatSet := resourceNameSetFromSelfLinkSet(o)
+	nNatSet := resourceNameSetFromSelfLinkSet(n)
+
+	// Resource is being updated - make sure new drainNatIps were in natIps prior d and no longer are in natIps.
+	for _, v := range addDrainIps.List() {
+		if !oNatSet.Contains(v) {
+			return fmt.Errorf("drain_nat_ip %q was not previously set in nat_ips %+v", v.(string), oNatSet.List())
+		}
+		if nNatSet.Contains(v) {
+			return fmt.Errorf("drain_nat_ip %q cannot be drained if still set in nat_ips %+v", v.(string), nNatSet.List())
+		}
+	}
+	return nil
+}
+
 func resourceComputeRouterNat() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRouterNatCreate,
@@ -43,6 +94,8 @@ func resourceComputeRouterNat() *schema.Resource {
 			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
+
+		CustomizeDiff: resourceComputeRouterNatDrainNatIpsCustomDiff,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
