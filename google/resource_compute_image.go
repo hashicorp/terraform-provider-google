@@ -65,6 +65,21 @@ func resourceComputeImage() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"guest_os_features": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"MULTI_IP_SUBNET", "SECURE_BOOT", "UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS", ""}, false),
+						},
+					},
+				},
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -160,6 +175,12 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	} else if v, ok := d.GetOkExists("family"); !isEmptyValue(reflect.ValueOf(familyProp)) && (ok || !reflect.DeepEqual(v, familyProp)) {
 		obj["family"] = familyProp
+	}
+	guestOsFeaturesProp, err := expandComputeImageGuestOsFeatures(d.Get("guest_os_features"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("guest_os_features"); !isEmptyValue(reflect.ValueOf(guestOsFeaturesProp)) && (ok || !reflect.DeepEqual(v, guestOsFeaturesProp)) {
+		obj["guestOsFeatures"] = guestOsFeaturesProp
 	}
 	labelsProp, err := expandComputeImageLabels(d.Get("labels"), d, config)
 	if err != nil {
@@ -275,6 +296,9 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 	if err := d.Set("family", flattenComputeImageFamily(res["family"], d)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err := d.Set("guest_os_features", flattenComputeImageGuestOsFeatures(res["guestOsFeatures"], d)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 	if err := d.Set("labels", flattenComputeImageLabels(res["labels"], d)); err != nil {
@@ -447,6 +471,28 @@ func flattenComputeImageFamily(v interface{}, d *schema.ResourceData) interface{
 	return v
 }
 
+func flattenComputeImageGuestOsFeatures(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"type": flattenComputeImageGuestOsFeaturesType(original["type"], d),
+		})
+	}
+	return transformed
+}
+func flattenComputeImageGuestOsFeaturesType(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
 func flattenComputeImageLabels(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
@@ -482,6 +528,32 @@ func expandComputeImageDiskSizeGb(v interface{}, d TerraformResourceData, config
 }
 
 func expandComputeImageFamily(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeImageGuestOsFeatures(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedType, err := expandComputeImageGuestOsFeaturesType(original["type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !isEmptyValue(val) {
+			transformed["type"] = transformedType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeImageGuestOsFeaturesType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
