@@ -62,31 +62,6 @@ resource "google_compute_image" "example" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=image_guest_os&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Image Guest Os
-
-
-```hcl
-resource "google_compute_image" "example" {
-  name = "example-image"
-
-  raw_disk {
-    source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
-  }
-
-  guest_os_features {
-    type = "SECURE_BOOT"
-  }
-
-  guest_os_features {
-    type = "MULTI_IP_SUBNET"
-  }
-}
-```
 
 ## Argument Reference
 
@@ -124,11 +99,6 @@ The following arguments are supported:
   not deprecated. The name of the image family must comply with
   RFC1035.
 
-* `guest_os_features` -
-  (Optional)
-  A list of features to enable on the guest operating system.
-  Applicable only for bootable images.  Structure is documented below.
-
 * `labels` -
   (Optional)
   Labels to apply to this Image.
@@ -150,12 +120,6 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-
-The `guest_os_features` block supports:
-
-* `type` -
-  (Optional)
-  The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.
 
 The `raw_disk` block supports:
 
