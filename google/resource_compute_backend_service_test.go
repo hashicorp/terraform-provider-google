@@ -690,6 +690,161 @@ func TestAccComputeBackendService_withMaxConnectionsPerEndpoint(t *testing.T) {
 	})
 }
 
+func testAccComputeBackendService_trafficDirectorBasic(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+
+  name = "%s"
+  health_checks = ["${google_compute_health_check.health_check.self_link}"]
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  locality_lb_policy = "RING_HASH"
+  circuit_breakers {
+    max_connections = 10
+  }
+  consistent_hash {
+    http_cookie {
+      ttl {
+        seconds = 11
+        nanos = 1234
+      }
+      name = "mycookie"
+    }
+  }
+  outlier_detection {
+    consecutive_errors = 2
+  }
+}
+
+resource "google_compute_health_check" "health_check" {
+
+  name = "%s"
+  http_health_check {
+
+  }
+}
+`, serviceName, checkName)
+}
+
+func testAccComputeBackendService_trafficDirectorUpdateBasic(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+
+  name = "%s"
+  health_checks = ["${google_compute_health_check.health_check.self_link}"]
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  locality_lb_policy = "RANDOM"
+  circuit_breakers {
+    max_connections = 10
+  }
+  outlier_detection {
+    consecutive_errors = 2
+  }
+}
+
+resource "google_compute_health_check" "health_check" {
+
+  name = "%s"
+  http_health_check {
+
+  }
+}
+`, serviceName, checkName)
+}
+
+func testAccComputeBackendService_trafficDirectorFull(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+
+  name = "%s"
+  health_checks = ["${google_compute_health_check.health_check.self_link}"]
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  locality_lb_policy = "MAGLEV"
+  circuit_breakers {
+    max_connections = 10
+  }
+  consistent_hash {
+    http_cookie {
+      ttl {
+        seconds = 11
+        nanos = 1234
+      }
+      name = "mycookie"
+    }
+  }
+  outlier_detection {
+    consecutive_errors = 2
+  }
+}
+
+resource "google_compute_health_check" "health_check" {
+
+  name = "%s"
+  http_health_check {
+
+  }
+}
+`, serviceName, checkName)
+}
+
+func testAccComputeBackendService_trafficDirectorUpdateFull(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+
+  name = "%s"
+  health_checks = ["${google_compute_health_check.health_check.self_link}"]
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  locality_lb_policy = "MAGLEV"
+  circuit_breakers {
+    connect_timeout {
+      seconds = 3
+      nanos = 4
+    }
+    max_connections = 11
+    max_requests_per_connection = 12
+    max_pending_requests = 13
+    max_requests = 14
+    max_retries = 15
+  }
+  consistent_hash {
+    http_cookie {
+      ttl {
+        seconds = 12
+      }
+      name = "mycookie2"
+      path = "mycookie2/path"
+    }
+    minimum_ring_size = 16
+  }
+  outlier_detection {
+    base_ejection_time {
+      seconds = 0
+      nanos = 5
+    }
+    consecutive_errors = 1
+    consecutive_gateway_failure = 3
+    enforcing_consecutive_errors = 4
+    enforcing_consecutive_gateway_failure = 5
+    enforcing_success_rate = 6
+    interval {
+      seconds = 7
+    }
+    max_ejection_percent = 99
+    success_rate_minimum_hosts = 98
+    success_rate_request_volume = 97
+    success_rate_stdev_factor = 1800
+  }
+}
+
+resource "google_compute_health_check" "health_check" {
+
+  name = "%s"
+  http_health_check {
+
+  }
+}
+`, serviceName, checkName)
+}
+
 func testAccComputeBackendService_basic(serviceName, checkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
