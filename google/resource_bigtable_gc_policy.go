@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 
 	"cloud.google.com/go/bigtable"
@@ -208,18 +207,16 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 	}
 
 	if aok {
-		d, err := strconv.Atoi(ma.(map[string]interface{})["days"].(string))
-		if err != nil {
-			return nil, err
-		}
+		l, _ := ma.([]interface{})
+		d, _ := l[0].(map[string]interface{})["days"].(int)
+
 		policies = append(policies, bigtable.MaxAgePolicy(time.Duration(d)*time.Hour*24))
 	}
 
 	if vok {
-		n, err := strconv.Atoi(mv.(map[string]interface{})["number"].(string))
-		if err != nil {
-			return nil, err
-		}
+		l, _ := mv.([]interface{})
+		n, _ := l[0].(map[string]interface{})["number"].(int)
+
 		policies = append(policies, bigtable.MaxVersionsPolicy(n))
 	}
 
