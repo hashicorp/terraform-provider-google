@@ -32,7 +32,7 @@ resource "google_kms_key_ring" "my_key_ring" {
 
 resource "google_kms_crypto_key" "my_crypto_key" {
   name     = "my-crypto-key"
-  key_ring = "${google_kms_key_ring.my_key_ring.id}"
+  key_ring = "${google_kms_key_ring.my_key_ring.self_link}"
 }
 ```
 
@@ -40,7 +40,7 @@ Next, encrypt some sensitive information and use the encrypted data in your reso
 
 ```hcl
 data "google_kms_secret_ciphertext" "my_password" {
-  crypto_key = "${google_kms_crypto_key.my_crypto_key.id}"
+  crypto_key = "${google_kms_crypto_key.my_crypto_key.self_link}"
   plaintext = "my-secret-password"
 }
 
