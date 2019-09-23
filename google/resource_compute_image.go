@@ -67,6 +67,7 @@ func resourceComputeImage() *schema.Resource {
 			},
 			"guest_os_features": {
 				Type:     schema.TypeList,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
