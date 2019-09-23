@@ -138,10 +138,38 @@ func TestAccCloudIoTRegistry_eventNotificationConfigDeprecatedSingleToPlural(t *
 				),
 			},
 			{
+				ResourceName:      "google_cloudiot_registry.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				// Use new field (event_notification_configs) to see if plan changed
 				Config:             testAccCloudIoTRegistry_pluralEventNotificationConfigs(topic, registryName),
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
+func TestAccCloudIoTRegistry_eventNotificationConfigMultiple(t *testing.T) {
+	t.Parallel()
+
+	registryName := fmt.Sprintf("tf-registry-test-%s", acctest.RandString(10))
+	topic := fmt.Sprintf("tf-registry-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudIoTRegistryDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudIoTRegistry_multipleEventNotificationConfigs(topic, registryName),
+			},
+			{
+				ResourceName:      "google_cloudiot_registry.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -159,7 +187,7 @@ func TestAccCloudIoTRegistry_eventNotificationConfigPluralToDeprecatedSingle(t *
 		CheckDestroy: testAccCheckCloudIoTRegistryDestroy,
 		Steps: []resource.TestStep{
 			{
-				// Use new field (event_notification_config) to create
+				// Use new field (event_notification_configs) to create
 				Config: testAccCloudIoTRegistry_pluralEventNotificationConfigs(topic, registryName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -167,7 +195,12 @@ func TestAccCloudIoTRegistry_eventNotificationConfigPluralToDeprecatedSingle(t *
 				),
 			},
 			{
-				// Use new field (event_notification_configs) to see if plan changed
+				ResourceName:      "google_cloudiot_registry.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Use old field (event_notification_config) to see if plan changed
 				Config:             testAccCloudIoTRegistry_singleEventNotificationConfig(topic, registryName),
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
@@ -235,7 +268,7 @@ resource "google_cloudiot_registry" "foobar" {
 
   name = "%s"
 
-  event_notification_config = {
+  event_notification_configs {
     pubsub_topic_name = "${google_pubsub_topic.default-devicestatus.id}"
   }
 
@@ -307,4 +340,37 @@ resource "google_cloudiot_registry" "foobar" {
   }
 }
 `, topic, registryName)
+}
+
+func testAccCloudIoTRegistry_multipleEventNotificationConfigs(topic, registryName string) string {
+	return fmt.Sprintf(`
+resource "google_project_iam_binding" "cloud-iot-iam-binding" {
+  members = ["serviceAccount:cloud-iot@system.gserviceaccount.com"]
+  role    = "roles/pubsub.publisher"
+}
+
+resource "google_pubsub_topic" "event-topic-1" {
+  name = "%s"
+}
+
+resource "google_pubsub_topic" "event-topic-2" {
+  name = "%s-alt"
+}
+
+resource "google_cloudiot_registry" "foobar" {
+  depends_on = ["google_project_iam_binding.cloud-iot-iam-binding"]
+
+  name = "%s"
+
+  event_notification_configs {
+    pubsub_topic_name = "${google_pubsub_topic.event-topic-1.id}"
+	subfolder_matches = "test"
+  }
+
+  event_notification_configs {
+    pubsub_topic_name = "${google_pubsub_topic.event-topic-2.id}"
+	subfolder_matches = ""
+  }
+}
+`, topic, topic, registryName)
 }
