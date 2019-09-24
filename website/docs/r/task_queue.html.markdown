@@ -38,7 +38,7 @@ resource "google_task_queue" "foo" {
 
  * `name` - (Required) The name of the queue.
 
- * `location` - (Optional) The location (region or zone) where the queue will be created. If it is not provided, the provider region is used.
+ * `location` - (Required) The region where the queue will be created.
 
   - - -
 
