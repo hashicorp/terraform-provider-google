@@ -26,18 +26,9 @@ func resourceTaskQueue() *schema.Resource {
 				ForceNew: true,
 			},
 			"location": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"region"},
-			},
-			"region": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"location"},
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 			"rate_limits": {
 				Type:     schema.TypeList,
