@@ -178,17 +178,12 @@ func buildEventNotificationConfigs(v []interface{}) []*cloudiot.EventNotificatio
 }
 
 func buildEventNotificationConfig(config map[string]interface{}) *cloudiot.EventNotificationConfig {
-	if len(config) == 0 {
-		return nil
-	}
-	cfg := &cloudiot.EventNotificationConfig{}
 	if v, ok := config["pubsub_topic_name"]; ok {
-		cfg.PubsubTopicName = v.(string)
+		return &cloudiot.EventNotificationConfig{
+			PubsubTopicName: v.(string),
+		}
 	}
-	if v, ok := config["subfolder_matches"]; ok {
-		cfg.SubfolderMatches = v.(string)
-	}
-	return cfg
+	return nil
 }
 
 func buildStateNotificationConfig(config map[string]interface{}) *cloudiot.StateNotificationConfig {
