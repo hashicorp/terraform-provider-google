@@ -66,20 +66,12 @@ func resourceComputeImage() *schema.Resource {
 				ForceNew: true,
 			},
 			"guest_os_features": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"MULTI_IP_SUBNET", "SECURE_BOOT", "UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS", ""}, false),
-						},
-					},
-				},
+				Elem:     computeImageGuestOsFeaturesSchema(),
+				// Default schema.HashSchema is used.
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -150,6 +142,19 @@ func resourceComputeImage() *schema.Resource {
 			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+		},
+	}
+}
+
+func computeImageGuestOsFeaturesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"MULTI_IP_SUBNET", "SECURE_BOOT", "UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS", ""}, false),
 			},
 		},
 	}
@@ -477,14 +482,14 @@ func flattenComputeImageGuestOsFeatures(v interface{}, d *schema.ResourceData) i
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(schema.HashResource(computeImageGuestOsFeaturesSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"type": flattenComputeImageGuestOsFeaturesType(original["type"], d),
 		})
 	}
@@ -533,6 +538,7 @@ func expandComputeImageFamily(v interface{}, d TerraformResourceData, config *Co
 }
 
 func expandComputeImageGuestOsFeatures(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
