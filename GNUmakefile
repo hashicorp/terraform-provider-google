@@ -16,17 +16,16 @@ testacc: fmtcheck
 	TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test $(TEST) -v $(TESTARGS) -timeout 240m -ldflags="-X=github.com/terraform-providers/terraform-provider-google/version.ProviderVersion=acc"
 
 fmt:
-	@echo "==> Fixing source code with gofmt..."
 	gofmt -w -s ./$(PKG_NAME)
 
 # Currently required by tf-deploy compile
 fmtcheck:
-	@echo "==> Checking source code against gofmt..."
+	@echo "==> Fixing source code with gofmt..."
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
 
 lint:
 	@echo "==> Checking source code against linters..."
-	@golangci-lint run ./$(PKG_NAME)
+	@golangci-lint run -v ./$(PKG_NAME)
 
 tools:
 	@echo "==> installing required tooling..."
