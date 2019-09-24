@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	composer "google.golang.org/api/composer/v1beta1"
 	"google.golang.org/api/storage/v1"
 )
 
@@ -55,13 +54,15 @@ func TestAccComposerEnvironment_basic(t *testing.T) {
 	t.Parallel()
 
 	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
+	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	subnetwork := network + "-1"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccComposerEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_basic(envName),
+				Config: testAccComposerEnvironment_basic(envName, network, subnetwork),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_composer_environment.test", "config.0.airflow_uri"),
 					resource.TestCheckResourceAttrSet("google_composer_environment.test", "config.0.gke_cluster"),
@@ -80,6 +81,15 @@ func TestAccComposerEnvironment_basic(t *testing.T) {
 				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/environments/%s", getTestProjectFromEnv(), "us-central1", envName),
 				ImportStateVerify: true,
 			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironment_basic(envName, network, subnetwork),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+			},
 		},
 	})
 }
@@ -90,7 +100,8 @@ func TestAccComposerEnvironment_update(t *testing.T) {
 	t.Parallel()
 
 	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	var env composer.Environment
+	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	subnetwork := network + "-1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -98,21 +109,24 @@ func TestAccComposerEnvironment_update(t *testing.T) {
 		CheckDestroy: testAccComposerEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_basic(envName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComposerEnvironmentExists("google_composer_environment.test", &env),
-				),
+				Config: testAccComposerEnvironment_basic(envName, network, subnetwork),
 			},
 			{
-				Config: testAccComposerEnvironment_update(envName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComposerEnvironmentExists("google_composer_environment.test", &env),
-				),
+				Config: testAccComposerEnvironment_update(envName, network, subnetwork),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironment_update(envName, network, subnetwork),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
 			},
 		},
 	})
@@ -123,8 +137,8 @@ func TestAccComposerEnvironment_private(t *testing.T) {
 	t.Parallel()
 
 	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-
-	var env composer.Environment
+	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	subnetwork := network + "-1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -132,8 +146,7 @@ func TestAccComposerEnvironment_private(t *testing.T) {
 		CheckDestroy: testAccComposerEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_private(envName),
-				Check:  testAccCheckComposerEnvironmentExists("google_composer_environment.test", &env),
+				Config: testAccComposerEnvironment_private(envName, network, subnetwork),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
@@ -145,6 +158,15 @@ func TestAccComposerEnvironment_private(t *testing.T) {
 				ImportState:       true,
 				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/environments/%s", getTestProjectFromEnv(), "us-central1", envName),
 				ImportStateVerify: true,
+			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironment_private(envName, network, subnetwork),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
 			},
 		},
 	})
@@ -159,8 +181,6 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 	subnetwork := network + "-1"
 	serviceAccount := acctest.RandomWithPrefix("tf-test")
 
-	var env composer.Environment
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -168,7 +188,6 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_nodeCfg(envName, network, subnetwork, serviceAccount),
-				Check:  testAccCheckComposerEnvironmentExists("google_composer_environment.test", &env),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
@@ -191,20 +210,30 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 func TestAccComposerEnvironment_withSoftwareConfig(t *testing.T) {
 	t.Parallel()
 	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	var env composer.Environment
+	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	subnetwork := network + "-1"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccComposerEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_softwareCfg(envName),
-				Check:  testAccCheckComposerEnvironmentExists("google_composer_environment.test", &env),
+				Config: testAccComposerEnvironment_softwareCfg(envName, network, subnetwork),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironment_softwareCfg(envName, network, subnetwork),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
 			},
 		},
 	})
@@ -216,7 +245,8 @@ func TestAccComposerEnvironment_withUpdateOnCreate(t *testing.T) {
 	t.Parallel()
 
 	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	var env composer.Environment
+	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	subnetwork := network + "-1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -224,56 +254,24 @@ func TestAccComposerEnvironment_withUpdateOnCreate(t *testing.T) {
 		CheckDestroy: testAccComposerEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_updateOnlyFields(envName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComposerEnvironmentExists("google_composer_environment.test", &env),
-				),
+				Config: testAccComposerEnvironment_updateOnlyFields(envName, network, subnetwork),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironment_updateOnlyFields(envName, network, subnetwork),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+			},
 		},
 	})
-}
-
-func testAccCheckComposerEnvironmentExists(n string, environment *composer.Environment) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		idTokens := strings.Split(rs.Primary.ID, "/")
-		if len(idTokens) != 3 {
-			return fmt.Errorf("Invalid ID %q, expected format {project}/{region}/{environment}", rs.Primary.ID)
-		}
-		envName := &composerEnvironmentName{
-			Project:     idTokens[0],
-			Region:      idTokens[1],
-			Environment: idTokens[2],
-		}
-
-		nameFromId := envName.resourceName()
-		config := testAccProvider.Meta().(*Config)
-
-		found, err := config.clientComposer.Projects.Locations.Environments.Get(nameFromId).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != nameFromId {
-			return fmt.Errorf("Environment not found")
-		}
-
-		*environment = *found
-		return nil
-	}
 }
 
 func testAccComposerEnvironmentDestroy(s *terraform.State) error {
@@ -303,16 +301,37 @@ func testAccComposerEnvironmentDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccComposerEnvironment_basic(name string) string {
+func testAccComposerEnvironment_basic(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
-	name           = "%s"
-	region         = "us-central1"
-}
-`, name)
+	name   = "%s"
+	region = "us-central1"
+	config {
+		node_config {
+			network    = "${google_compute_network.test.self_link}"
+			subnetwork = "${google_compute_subnetwork.test.self_link}"
+			zone       = "us-central1-a"
+		}
+	}
 }
 
-func testAccComposerEnvironment_private(name string) string {
+// use a separate network to avoid conflicts with other tests running in parallel
+// that use the default network/subnet
+resource "google_compute_network" "test" {
+	name 					= "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = "${google_compute_network.test.self_link}"
+}
+`, name, network, subnetwork)
+}
+
+func testAccComposerEnvironment_private(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
 	name           = "%s"
@@ -320,7 +339,9 @@ resource "google_composer_environment" "test" {
 
 	config {
 		node_config {
-			zone = "us-central1-a"
+			network    = "${google_compute_network.test.self_link}"
+			subnetwork = "${google_compute_subnetwork.test.self_link}"
+			zone       = "us-central1-a"
 			ip_allocation_policy {
 				use_ip_aliases = true
 				cluster_ipv4_cidr_block = "10.0.0.0/16"
@@ -331,20 +352,40 @@ resource "google_composer_environment" "test" {
 		}
 	}
 }
-`, name)
+
+// use a separate network to avoid conflicts with other tests running in parallel
+// that use the default network/subnet
+resource "google_compute_network" "test" {
+	name 					= "%s"
+	auto_create_subnetworks = false
 }
 
-func testAccComposerEnvironment_update(name string) string {
+resource "google_compute_subnetwork" "test" {
+	name                     = "%s"
+	ip_cidr_range            = "10.2.0.0/16"
+	region                   = "us-central1"
+	network                  = "${google_compute_network.test.self_link}"
+	private_ip_google_access = true
+}
+`, name, network, subnetwork)
+}
+
+func testAccComposerEnvironment_update(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
 data "google_composer_image_versions" "all" {
 }
 
 resource "google_composer_environment" "test" {
-	name = "%s"
+	name   = "%s"
 	region = "us-central1"
 
 	config {
 		node_count = 4
+		node_config {
+			network    = "${google_compute_network.test.self_link}"
+			subnetwork = "${google_compute_subnetwork.test.self_link}"
+			zone       = "us-central1-a"
+		}
 
 		software_config {
 			image_version = "${data.google_composer_image_versions.all.image_versions.0.image_version_id}"
@@ -368,19 +409,33 @@ resource "google_composer_environment" "test" {
 		anotherlabel = "boo"
  	}
 }
-`, name)
+
+// use a separate network to avoid conflicts with other tests running in parallel
+// that use the default network/subnet
+resource "google_compute_network" "test" {
+	name 					= "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = "${google_compute_network.test.self_link}"
+}
+`, name, network, subnetwork)
 }
 
 func testAccComposerEnvironment_nodeCfg(environment, network, subnetwork, serviceAccount string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
-	name = "%s"
+	name   = "%s"
 	region = "us-central1"
 	config {
 		node_config {
-			network = "${google_compute_network.test.self_link}"
+			network    = "${google_compute_network.test.self_link}"
 			subnetwork =  "${google_compute_subnetwork.test.self_link}"
-			zone = "us-central1-a"
+			zone       = "us-central1-a"
 
 			service_account = "${google_service_account.test.name}"
 		}
@@ -413,7 +468,7 @@ resource "google_project_iam_member" "composer-worker" {
 `, environment, network, subnetwork, serviceAccount)
 }
 
-func testAccComposerEnvironment_softwareCfg(name string) string {
+func testAccComposerEnvironment_softwareCfg(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
 data "google_composer_image_versions" "all" {
 }
@@ -422,21 +477,45 @@ resource "google_composer_environment" "test" {
 	name           = "%s"
 	region         = "us-central1"
 	config {
+		node_config {
+			network    = "${google_compute_network.test.self_link}"
+			subnetwork =  "${google_compute_subnetwork.test.self_link}"
+			zone       = "us-central1-a"
+		}
 		software_config {
-			image_version = "${data.google_composer_image_versions.all.image_versions.0.image_version_id}"
+			image_version  = "${data.google_composer_image_versions.all.image_versions.0.image_version_id}"
 			python_version = "3"
 		}
 	}
 }
-`, name)
+
+// use a separate network to avoid conflicts with other tests running in parallel
+// that use the default network/subnet
+resource "google_compute_network" "test" {
+	name 					= "%s"
+	auto_create_subnetworks = false
 }
 
-func testAccComposerEnvironment_updateOnlyFields(name string) string {
+resource "google_compute_subnetwork" "test" {
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = "${google_compute_network.test.self_link}"
+}
+`, name, network, subnetwork)
+}
+
+func testAccComposerEnvironment_updateOnlyFields(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
 	name = "%s"
 	region = "us-central1"
 	config {
+		node_config {
+			network    = "${google_compute_network.test.self_link}"
+			subnetwork =  "${google_compute_subnetwork.test.self_link}"
+			zone       = "us-central1-a"
+		}
 		software_config {
 			pypi_packages = {
 			  scipy = "==1.1.0"
@@ -444,7 +523,21 @@ resource "google_composer_environment" "test" {
 		}
 	}
 }
-`, name)
+
+// use a separate network to avoid conflicts with other tests running in parallel
+// that use the default network/subnet
+resource "google_compute_network" "test" {
+	name 					= "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = "${google_compute_network.test.self_link}"
+}
+`, name, network, subnetwork)
 }
 
 /**
