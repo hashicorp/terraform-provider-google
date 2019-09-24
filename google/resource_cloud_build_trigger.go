@@ -43,6 +43,41 @@ func resourceCloudBuildTrigger() *schema.Resource {
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
+			"trigger_template": {
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"branch_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"commit_sha": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"dir": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"project_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+						},
+						"repo_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "default",
+						},
+						"tag_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
 			"build": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -174,41 +209,6 @@ func resourceCloudBuildTrigger() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"trigger_template": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"branch_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"commit_sha": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"dir": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"project_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-							Optional: true,
-						},
-						"repo_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "default",
-						},
-						"tag_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-					},
-				},
 			},
 			"create_time": {
 				Type:     schema.TypeString,

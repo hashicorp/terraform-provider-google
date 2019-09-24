@@ -59,6 +59,43 @@ resource "google_cloudbuild_trigger" "filename-trigger" {
 The following arguments are supported:
 
 
+* `trigger_template` -
+  (Required)
+  Template describing the types of source changes to trigger a build.
+  Branch and tag names in trigger templates are interpreted as regular
+  expressions. Any branch or tag change that matches that regular
+  expression will trigger a build.  Structure is documented below.
+
+
+The `trigger_template` block supports:
+
+* `project_id` -
+  (Optional)
+  ID of the project that owns the Cloud Source Repository. If
+  omitted, the project ID requesting the build is assumed.
+
+* `repo_name` -
+  (Optional)
+  Name of the Cloud Source Repository. If omitted, the name "default" is assumed.
+
+* `dir` -
+  (Optional)
+  Directory, relative to the source root, in which to run the build.
+  This must be a relative path. If a step's dir is specified and
+  is an absolute path, this value is ignored for that step's
+  execution.
+
+* `branch_name` -
+  (Optional)
+  Name of the branch to build. Exactly one a of branch name, tag, or commit SHA must be provided.
+
+* `tag_name` -
+  (Optional)
+  Name of the tag to build. Exactly one of a branch name, tag, or commit SHA must be provided.
+
+* `commit_sha` -
+  (Optional)
+  Explicit commit SHA to build. Exactly one of a branch name, tag, or commit SHA must be provided.
 
 - - -
 
@@ -101,14 +138,6 @@ The following arguments are supported:
   those files matches a includedFiles glob. If not, then we do not trigger
   a build.
 
-* `trigger_template` -
-  (Optional)
-  Template describing the types of source changes to trigger a build.
-  Branch and tag names in trigger templates are interpreted as regular
-  expressions. Any branch or tag change that matches that regular
-  expression will trigger a build.
-  This field is required, and will be validated as such in 3.0.0.  Structure is documented below.
-
 * `build` -
   (Optional)
   Contents of the build template. Either a filename or build template must be provided.  Structure is documented below.
@@ -116,36 +145,6 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-
-The `trigger_template` block supports:
-
-* `project_id` -
-  (Optional)
-  ID of the project that owns the Cloud Source Repository. If
-  omitted, the project ID requesting the build is assumed.
-
-* `repo_name` -
-  (Optional)
-  Name of the Cloud Source Repository. If omitted, the name "default" is assumed.
-
-* `dir` -
-  (Optional)
-  Directory, relative to the source root, in which to run the build.
-  This must be a relative path. If a step's dir is specified and
-  is an absolute path, this value is ignored for that step's
-  execution.
-
-* `branch_name` -
-  (Optional)
-  Name of the branch to build. Exactly one a of branch name, tag, or commit SHA must be provided.
-
-* `tag_name` -
-  (Optional)
-  Name of the tag to build. Exactly one of a branch name, tag, or commit SHA must be provided.
-
-* `commit_sha` -
-  (Optional)
-  Explicit commit SHA to build. Exactly one of a branch name, tag, or commit SHA must be provided.
 
 The `build` block supports:
 
