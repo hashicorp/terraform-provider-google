@@ -78,6 +78,32 @@ func resourceComputeRouterNatDrainNatIpsCustomDiff(diff *schema.ResourceDiff, me
 	return nil
 }
 
+func computeRouterNatSubnetworkHash(v interface{}) int {
+	obj := v.(map[string]interface{})
+	name := obj["name"]
+	sourceIpRanges := obj["source_ip_ranges_to_nat"]
+	sourceIpRangesHash := 0
+	if sourceIpRanges != nil {
+		sourceIpSet := sourceIpRanges.(*schema.Set)
+
+		for _, ipRange := range sourceIpSet.List() {
+			sourceIpRangesHash += schema.HashString(ipRange.(string))
+		}
+	}
+
+	secondaryIpRangeNames := obj["secondary_ip_range_names"]
+	secondaryIpRangeHash := 0
+	if secondaryIpRangeNames != nil {
+		secondaryIpRangeSet := secondaryIpRangeNames.(*schema.Set)
+
+		for _, secondaryIp := range secondaryIpRangeSet.List() {
+			secondaryIpRangeHash += schema.HashString(secondaryIp.(string))
+		}
+	}
+
+	return schema.HashString(NameFromSelfLinkStateFunc(name)) + sourceIpRangesHash + secondaryIpRangeHash
+}
+
 func resourceComputeRouterNat() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRouterNatCreate,
@@ -167,7 +193,7 @@ func resourceComputeRouterNat() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     computeRouterNatSubnetworkSchema(),
-				// Default schema.HashSchema is used.
+				Set:      computeRouterNatSubnetworkHash,
 			},
 			"tcp_established_idle_timeout_sec": {
 				Type:     schema.TypeInt,
@@ -626,7 +652,7 @@ func flattenComputeRouterNatSubnetwork(v interface{}, d *schema.ResourceData) in
 		return v
 	}
 	l := v.([]interface{})
-	transformed := schema.NewSet(schema.HashResource(computeRouterNatSubnetworkSchema()), []interface{}{})
+	transformed := schema.NewSet(computeRouterNatSubnetworkHash, []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {

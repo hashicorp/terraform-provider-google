@@ -344,7 +344,7 @@ resource "google_compute_router_nat" "foobar" {
 	nat_ips                            = ["${google_compute_address.foobar.self_link}"]
 	source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
 	subnetwork {
-	  name                    = "${google_compute_subnetwork.foobar.self_link}"
+	  name                    = "${google_compute_subnetwork.foobar.name}"
 	  source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
 	}
 }`, testId, testId, testId, testId, testId)
