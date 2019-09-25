@@ -65,9 +65,10 @@ func TestAccTaskQueue_withParams(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_task_queue.fizzbuzz",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_task_queue.fizzbuzz",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_engine_routing_override.0.service", "app_engine_routing_override.0.instance", "app_engine_routing_override.0.version"},
 			},
 		},
 	})
@@ -146,6 +147,10 @@ resource "google_task_queue" "fizzbuzz" {
 
   location = "us-central1"
 
+  app_engine_routing_override {
+    service = "worker"
+  }
+
   rate_limits {
     max_concurrent_dispatches = 1000
     max_dispatches_per_second = 500
@@ -215,6 +220,12 @@ func testAccCheckTaskQueueEquals(n string, queue *cloudtasks.Queue) resource.Tes
 			return fmt.Errorf("Error name mismatch, (%s, %s)", expectedName, queue.Name)
 		}
 
+		// AppEngineRoutingOverride comparison
+		if len(rs.Primary.Attributes["app_engine_routing_override.0"]) > 0 && queue.AppEngineRoutingOverride == nil {
+			return fmt.Errorf("Error app_engine_routing_override mismatch, (%v, %v)", rs.Primary.Attributes["app_engine_routing_override.0"], queue.AppEngineRoutingOverride)
+		}
+
+		// RateLimits comparison
 		if maxBurstSize != queue.RateLimits.MaxBurstSize {
 			return fmt.Errorf("Error max_burst_size mismatch, (%v, %v)", maxBurstSize, queue.RateLimits.MaxBurstSize)
 		}
@@ -225,6 +236,7 @@ func testAccCheckTaskQueueEquals(n string, queue *cloudtasks.Queue) resource.Tes
 			return fmt.Errorf("Error max_dispatches_per_second mismatch, (%v, %v)", maxDispatchesPerSecond, queue.RateLimits.MaxDispatchesPerSecond)
 		}
 
+		// RetryConfig comparison
 		if maxBackoff != queue.RetryConfig.MaxBackoff {
 			return fmt.Errorf("Error max_backoff mismatch, (%s, %s)", maxBackoff, queue.RetryConfig.MaxBackoff)
 		}

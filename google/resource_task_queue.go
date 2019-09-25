@@ -30,6 +30,35 @@ func resourceTaskQueue() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"app_engine_routing_override": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"host": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"instance": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"service": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"version": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"rate_limits": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -39,7 +68,6 @@ func resourceTaskQueue() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"max_burst_size": {
 							Type:     schema.TypeInt,
-							Optional: true,
 							Computed: true,
 						},
 						"max_dispatches_per_second": {
@@ -108,6 +136,7 @@ func resourceTaskQueueRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading task queue: %s %s", location, err)
 	}
 
+	d.Set("app_engine_routing_override", flattenAppEngineRoutingOverride(project, d.Get("app_engine_routing_override").([]interface{}), resp.AppEngineRoutingOverride))
 	d.Set("retry", flattenRetryConfig(resp.RetryConfig))
 	d.Set("rate_limits", flattenRateLimits(resp.RateLimits))
 
@@ -128,9 +157,10 @@ func resourceTaskQueueCreateUpdate(d *schema.ResourceData, meta interface{}) err
 	id := fmt.Sprintf("%s/%s/%s", project, location, name)
 
 	rb := &cloudtasks.Queue{
-		Name:        url,
-		RateLimits:  expandRateLimits(d.Get("rate_limits").([]interface{})),
-		RetryConfig: expandRetryConfig(d.Get("retry").([]interface{})),
+		Name:                     url,
+		AppEngineRoutingOverride: expandAppEngineRoutingOverride(project, d.Get("app_engine_routing_override").([]interface{})),
+		RateLimits:               expandRateLimits(d.Get("rate_limits").([]interface{})),
+		RetryConfig:              expandRetryConfig(d.Get("retry").([]interface{})),
 	}
 
 	log.Printf("[DEBUG] Updating Task Queue: %#v", name)
@@ -238,4 +268,67 @@ func expandRetryConfig(configured interface{}) *cloudtasks.RetryConfig {
 		MaxBackoff:   retry["max_backoff"].(string),
 		MinBackoff:   retry["min_backoff"].(string),
 	}
+}
+
+func flattenAppEngineRoutingOverride(project string, configured interface{}, in *cloudtasks.AppEngineRouting) []interface{} {
+	var instance, service, version string
+
+	l := configured.([]interface{})
+	if len(l) != 0 && l[0] != nil {
+		appEngineRouting := l[0].(map[string]interface{})
+		instance = appEngineRouting["instance"].(string)
+		service = appEngineRouting["service"].(string)
+		version = appEngineRouting["version"].(string)
+	}
+
+	m := make(map[string]interface{})
+
+	if in != nil {
+		m["host"] = in.Host
+		m["instance"] = in.Instance
+		m["service"] = in.Service
+		m["version"] = in.Version
+
+		// instance, service, and version aren't returned by the API
+		// so if the host matches expected value, override the returned values
+		if generateHost(project, instance, service, version) == in.Host {
+			m["instance"] = instance
+			m["service"] = service
+			m["version"] = version
+		}
+	}
+
+	return []interface{}{m}
+}
+
+func expandAppEngineRoutingOverride(project string, configured interface{}) *cloudtasks.AppEngineRouting {
+	var instance, service, version string
+
+	l := configured.([]interface{})
+	if len(l) != 0 && l[0] != nil {
+		appEngineRouting := l[0].(map[string]interface{})
+		instance = appEngineRouting["instance"].(string)
+		service = appEngineRouting["service"].(string)
+		version = appEngineRouting["version"].(string)
+	}
+
+	return &cloudtasks.AppEngineRouting{
+		Instance: instance,
+		Service:  service,
+		Version:  version,
+	}
+}
+
+func generateHost(project, instance, service, version string) string {
+	host := fmt.Sprintf("%s.appspot.com", project)
+	if service != "" {
+		host = fmt.Sprintf("%s.%s", service, host)
+	}
+	if version != "" {
+		host = fmt.Sprintf("%s.%s", version, host)
+	}
+	if instance != "" {
+		host = fmt.Sprintf("%s.%s", instance, host)
+	}
+	return host
 }

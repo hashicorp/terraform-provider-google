@@ -42,11 +42,21 @@ resource "google_task_queue" "foo" {
 
   - - -
 
+ * `app_engine_routing_override` - (Optional) Overrides for task-level AppEngine routing.
+
  * `rate_limits` - (Optional) Rate limits for the task dispatches.
 
  * `retry` - (Optional) Settings that determine the retry behavior.
 
   - - -
+
+ The `app_engine_routing_override` block supports:
+
+ * `instance` - (Optional) App instance to which the task is sent.
+
+ * `service` - (Optional) Service to which the task is sent.
+
+ * `version` - (Optional) Version to which the task is sent.
 
  The `rate_limits` block supports:
 
@@ -67,6 +77,8 @@ resource "google_task_queue" "foo" {
  ## Attributes Reference
 
   * `max_burst_size` - The max burst size that limits how fast tasks in queue are processwed. Cloud Tasks will pick the value based on the value of `max_dispatches_per_second`.
+
+  * `app_engine_routing_override.0.host` - The host that the task is sent to. Constructed from the project ID, service, version, and instance in the format <app-id>.appspot.com.
 
  ## Import
 
