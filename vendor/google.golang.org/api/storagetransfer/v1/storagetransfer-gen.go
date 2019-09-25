@@ -517,8 +517,8 @@ type ErrorSummary struct {
 
 	// ErrorLogEntries: Error samples.
 	//
-	// No more than 100 error log entries may be recorded for a given
-	// error code for a single task.
+	// At most 5 error log entries will be recorded for a given
+	// error code for a single transfer operation.
 	ErrorLogEntries []*ErrorLogEntry `json:"errorLogEntries,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ErrorCode") to
@@ -544,14 +544,14 @@ func (s *ErrorSummary) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// GcsData: In a GcsData resource, an object's name is the Google Cloud
-// Storage object's
+// GcsData: In a GcsData resource, an object's name is the Cloud Storage
+// object's
 // name and its `lastModificationTime` refers to the object's updated
 // time,
 // which changes when the content or the metadata of the object is
 // updated.
 type GcsData struct {
-	// BucketName: Required. Google Cloud Storage bucket name (see
+	// BucketName: Required. Cloud Storage bucket name (see
 	// [Bucket
 	// Name
 	// Requirements](https://cloud.google.com/storage/docs/naming#requir
@@ -659,7 +659,7 @@ func (s *GoogleServiceAccount) MarshalJSON() ([]byte, error) {
 //
 // * Ensure that each URL you specify is publicly accessible.
 // For
-// example, in Google Cloud Storage you can
+// example, in Cloud Storage you can
 // [share an object
 // publicly]
 // (https://cloud.google.com/storage/docs/cloud-console#_sharin
@@ -780,7 +780,7 @@ func (s *ListTransferJobsResponse) MarshalJSON() ([]byte, error) {
 
 // ObjectConditions: Conditions that determine which objects will be
 // transferred. Applies only
-// to S3 and GCS objects.
+// to S3 and Cloud Storage objects.
 type ObjectConditions struct {
 	// ExcludePrefixes: `excludePrefixes` must follow the requirements
 	// described for
@@ -847,13 +847,17 @@ type ObjectConditions struct {
 	// have
 	// a `lastModificationTime` are transferred.
 	//
-	// Note that `NOW` refers to the creation time of the transfer job,
-	// and
+	// Note that, for each `TransferOperation` started by this
+	// `TransferJob`,
+	// `NOW` refers to the `start_time` of the 'TransferOperation`.
+	// Also,
 	// `lastModificationTime` refers to the time of the last change to
 	// the
-	// object's content or metadata. Specifically, this would be the
+	// object's content or metadata - specifically, this would be the
 	// `updated`
-	// property of GCS objects and the `LastModified` field of S3 objects.
+	// property of Cloud Storage objects and the `LastModified` field of
+	// S3
+	// objects.
 	MaxTimeElapsedSinceLastModification string `json:"maxTimeElapsedSinceLastModification,omitempty"`
 
 	// MinTimeElapsedSinceLastModification: If specified, only objects with
@@ -862,13 +866,17 @@ type ObjectConditions struct {
 	// have a
 	// `lastModificationTime` are transferred.
 	//
-	// Note that `NOW` refers to the creation time of the transfer job,
-	// and
+	// Note that, for each `TransferOperation` started by this
+	// `TransferJob`,
+	// `NOW` refers to the `start_time` of the 'TransferOperation`.
+	// Also,
 	// `lastModificationTime` refers to the time of the last change to
 	// the
-	// object's content or metadata. Specifically, this would be the
+	// object's content or metadata - specifically, this would be the
 	// `updated`
-	// property of GCS objects and the `LastModified` field of S3 objects.
+	// property of Cloud Storage objects and the `LastModified` field of
+	// S3
+	// objects.
 	MinTimeElapsedSinceLastModification string `json:"minTimeElapsedSinceLastModification,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "ExcludePrefixes") to
@@ -1032,81 +1040,14 @@ func (s *Schedule) MarshalJSON() ([]byte, error) {
 // suitable for
 // different programming environments, including REST APIs and RPC APIs.
 // It is
-// used by [gRPC](https://github.com/grpc). The error model is designed
-// to be:
+// used by [gRPC](https://github.com/grpc). Each `Status` message
+// contains
+// three pieces of data: error code, error message, and error
+// details.
 //
-// - Simple to use and understand for most users
-// - Flexible enough to meet unexpected needs
-//
-// # Overview
-//
-// The `Status` message contains three pieces of data: error code,
-// error
-// message, and error details. The error code should be an enum value
-// of
-// google.rpc.Code, but it may accept additional error codes if needed.
-// The
-// error message should be a developer-facing English message that
-// helps
-// developers *understand* and *resolve* the error. If a localized
-// user-facing
-// error message is needed, put the localized message in the error
-// details or
-// localize it in the client. The optional error details may contain
-// arbitrary
-// information about the error. There is a predefined set of error
-// detail types
-// in the package `google.rpc` that can be used for common error
-// conditions.
-//
-// # Language mapping
-//
-// The `Status` message is the logical representation of the error
-// model, but it
-// is not necessarily the actual wire format. When the `Status` message
-// is
-// exposed in different client libraries and different wire protocols,
-// it can be
-// mapped differently. For example, it will likely be mapped to some
-// exceptions
-// in Java, but more likely mapped to some error codes in C.
-//
-// # Other uses
-//
-// The error model and the `Status` message can be used in a variety
-// of
-// environments, either with or without APIs, to provide a
-// consistent developer experience across different
-// environments.
-//
-// Example uses of this error model include:
-//
-// - Partial errors. If a service needs to return partial errors to the
-// client,
-//     it may embed the `Status` in the normal response to indicate the
-// partial
-//     errors.
-//
-// - Workflow errors. A typical workflow has multiple steps. Each step
-// may
-//     have a `Status` message for error reporting.
-//
-// - Batch operations. If a client uses batch request and batch
-// response, the
-//     `Status` message should be used directly inside batch response,
-// one for
-//     each error sub-response.
-//
-// - Asynchronous operations. If an API call embeds asynchronous
-// operation
-//     results in its response, the status of those operations should
-// be
-//     represented directly using the `Status` message.
-//
-// - Logging. If some API errors are stored in logs, the message
-// `Status` could
-//     be used directly after any stripping needed for security/privacy
-// reasons.
+// You can find out more about this error model and how to work with it
+// in the
+// [API Design Guide](https://cloud.google.com/apis/design/errors).
 type Status struct {
 	// Code: The status code, which should be an enum value of
 	// google.rpc.Code.
@@ -1496,10 +1437,10 @@ type TransferSpec struct {
 	// AwsS3DataSource: An AWS S3 data source.
 	AwsS3DataSource *AwsS3Data `json:"awsS3DataSource,omitempty"`
 
-	// GcsDataSink: A Google Cloud Storage data sink.
+	// GcsDataSink: A Cloud Storage data sink.
 	GcsDataSink *GcsData `json:"gcsDataSink,omitempty"`
 
-	// GcsDataSource: A Google Cloud Storage data source.
+	// GcsDataSource: A Cloud Storage data source.
 	GcsDataSource *GcsData `json:"gcsDataSource,omitempty"`
 
 	// HttpDataSource: An HTTP URL data source.
@@ -1662,6 +1603,7 @@ func (c *GoogleServiceAccountsGetCall) Header() http.Header {
 
 func (c *GoogleServiceAccountsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -1793,6 +1735,7 @@ func (c *TransferJobsCreateCall) Header() http.Header {
 
 func (c *TransferJobsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -1936,6 +1879,7 @@ func (c *TransferJobsGetCall) Header() http.Header {
 
 func (c *TransferJobsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2115,6 +2059,7 @@ func (c *TransferJobsListCall) Header() http.Header {
 
 func (c *TransferJobsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2278,6 +2223,7 @@ func (c *TransferJobsPatchCall) Header() http.Header {
 
 func (c *TransferJobsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2417,6 +2363,7 @@ func (c *TransferOperationsCancelCall) Header() http.Header {
 
 func (c *TransferOperationsCancelCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2547,6 +2494,7 @@ func (c *TransferOperationsDeleteCall) Header() http.Header {
 
 func (c *TransferOperationsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2691,6 +2639,7 @@ func (c *TransferOperationsGetCall) Header() http.Header {
 
 func (c *TransferOperationsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2881,6 +2830,7 @@ func (c *TransferOperationsListCall) Header() http.Header {
 
 func (c *TransferOperationsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3052,6 +3002,7 @@ func (c *TransferOperationsPauseCall) Header() http.Header {
 
 func (c *TransferOperationsPauseCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3191,6 +3142,7 @@ func (c *TransferOperationsResumeCall) Header() http.Header {
 
 func (c *TransferOperationsResumeCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
