@@ -243,7 +243,7 @@ func resourceComputeRouterPeerRead(d *schema.ResourceData, meta interface{}) err
 			d.Set("peer_ip_address", peer.PeerIpAddress)
 			d.Set("peer_asn", peer.PeerAsn)
 			d.Set("advertised_route_priority", peer.AdvertisedRoutePriority)
-			d.Set("advertise_mode", peer.AdvertiseMode)
+			d.Set("advertise_mode", flattenAdvertiseMode(peer.AdvertiseMode, d))
 			d.Set("advertised_groups", peer.AdvertisedGroups)
 			d.Set("advertised_ip_ranges", flattenAdvertisedIpRanges(peer.AdvertisedIpRanges))
 			d.Set("ip_address", peer.IpAddress)
@@ -389,4 +389,11 @@ func flattenAdvertisedIpRanges(ranges []*compute.RouterAdvertisedIpRange) []map[
 		})
 	}
 	return ls
+}
+
+func flattenAdvertiseMode(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil || v.(string) == "" {
+		return "DEFAULT"
+	}
+	return v
 }
