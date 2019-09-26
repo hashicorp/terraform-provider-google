@@ -32,3 +32,16 @@ poll "closed_issue_locker" "locker" {
     If you feel this issue should be reopened, we encourage creating a new issue linking back to this one for added context. If you feel I made an error 🤖 🙉  , please reach out to my human friends 👉  hashibot-feedback@hashicorp.com. Thanks!
     EOF
 }
+
+behavior "assign_random_reviewer" "random" {
+  reviewers            = [
+    "paddycarver",
+    "danawillow",
+    "megan07",
+    "rileykarson",
+    "tysen",
+    "ndmckinley",
+    "slevenick",
+  ]
+  only_non_maintainers = true
+}
