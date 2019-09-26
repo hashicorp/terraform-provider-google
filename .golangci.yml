@@ -12,10 +12,13 @@ linters:
     - deadcode
     - errcheck
     - gofmt
+    - gosimple
     - ineffassign
     - misspell
+    - staticcheck
     - structcheck
     - unconvert
+    - unused
     - varcheck
     - vet
 
