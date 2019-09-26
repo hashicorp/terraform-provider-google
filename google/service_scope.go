@@ -1,6 +1,6 @@
 package google
 
-import "github.com/hashicorp/terraform/helper/schema"
+import "github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 func canonicalizeServiceScope(scope string) string {
 	// This is a convenience map of short names used by the gcloud tool
