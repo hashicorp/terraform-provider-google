@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"fmt"
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccTPUNode_tpuNodeBUpdateTensorFlowVersion(t *testing.T) {

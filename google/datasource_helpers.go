@@ -1,7 +1,7 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 // datasourceSchemaFromResourceSchema is a recursive func that

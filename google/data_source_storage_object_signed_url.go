@@ -21,9 +21,9 @@ import (
 	"sort"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform/helper/pathorcontents"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
 )
