@@ -38,6 +38,8 @@ resource "google_task_queue" "foo" {
 
  * `name` - (Required) The name of the queue.
 
+ * `project` - (Optional) The ID of the project in which the resource belongs. If it is not provided, the provider project is used.
+
  * `location` - (Required) The region where the queue will be created.
 
   - - -

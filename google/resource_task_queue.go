@@ -25,6 +25,12 @@ func resourceTaskQueue() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"location": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -125,6 +131,7 @@ func resourceTaskQueueRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+	d.Set("project", project)
 
 	location := d.Get("location")
 	name := d.Get("name")
@@ -208,6 +215,7 @@ func resourceTaskQueueImportState(d *schema.ResourceData, meta interface{}) ([]*
 		return nil, fmt.Errorf("Invalid import id %q. Expecting {project}/{location}/{queue}", d.Id())
 	}
 
+	d.Set("project", parts[0])
 	d.Set("location", parts[1])
 	d.Set("name", parts[2])
 
