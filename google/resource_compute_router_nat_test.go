@@ -264,9 +264,6 @@ resource "google_compute_router" "foobar"{
 	name    = "router-nat-test-%s"
 	region  = "${google_compute_subnetwork.foobar.region}"
 	network = "${google_compute_network.foobar.self_link}"
-	bgp {
-		asn = 64514
-	}
 }
 
 resource "google_compute_network" "foobar" {

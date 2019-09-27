@@ -111,6 +111,44 @@ func TestAccComputeRouter_update(t *testing.T) {
 	})
 }
 
+func TestAccComputeRouter_updateAddRemoveBGP(t *testing.T) {
+	t.Parallel()
+
+	testId := acctest.RandString(10)
+	region := getTestRegionFromEnv()
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRouterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouterBasic(testId, region),
+			},
+			{
+				ResourceName:      "google_compute_router.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRouter_noBGP(testId, region),
+			},
+			{
+				ResourceName:      "google_compute_router.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRouterBasic(testId, region),
+			},
+			{
+				ResourceName:      "google_compute_router.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeRouterBasic(testId, resourceRegion string) string {
 	return fmt.Sprintf(`
 		resource "google_compute_network" "foobar" {
@@ -179,4 +217,24 @@ func testAccComputeRouterFull(testId string) string {
 			}
 		}
 	`, testId, testId)
+}
+
+func testAccComputeRouter_noBGP(testId, resourceRegion string) string {
+	return fmt.Sprintf(`
+		resource "google_compute_network" "foobar" {
+			name = "router-test-%s"
+			auto_create_subnetworks = false
+		}
+		resource "google_compute_subnetwork" "foobar" {
+			name = "router-test-subnetwork-%s"
+			network = "${google_compute_network.foobar.self_link}"
+			ip_cidr_range = "10.0.0.0/16"
+			region = "%s"
+		}
+		resource "google_compute_router" "foobar" {
+			name = "router-test-%s"
+			region = "${google_compute_subnetwork.foobar.region}"
+			network = "${google_compute_network.foobar.name}"
+		}
+	`, testId, testId, resourceRegion, testId)
 }
