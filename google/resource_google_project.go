@@ -55,6 +55,11 @@ func resourceGoogleProject() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
+			"delete_service_accounts": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -279,6 +284,12 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 			} else {
 				return fmt.Errorf("Error deleting default network in project %s: %s", project.ProjectId, err)
 			}
+		}
+	}
+
+	if d.Get("delete_service_accounts").(bool) {
+		if err = deleteServiceAccounts(project.ProjectId, config); err != nil {
+			return fmt.Errorf("Error deleting default service accounts in project %s: %s", project.ProjectId, err)
 		}
 	}
 	return nil
@@ -578,4 +589,24 @@ func readGoogleProject(d *schema.ResourceData, config *Config) (*cloudresourcema
 		return reqErr
 	}, d.Timeout(schema.TimeoutRead))
 	return p, err
+}
+
+func deleteServiceAccounts(projectId string, config *Config) error {
+	resp, err := config.clientIAM.Projects.ServiceAccounts.List(projectId).Do()
+	if err != nil {
+		return fmt.Errorf("Error listing service accounts in proj: %s", err)
+	}
+
+	for _, sa := range resp.Accounts {
+		op, err := config.clientIAM.Projects.ServiceAccounts.Delete(sa.Name).Do()
+		if err != nil {
+			return fmt.Errorf("Error deleting service account: %s", err)
+		}
+
+		err = computeSharedOperationWait(config.clientCompute, op, projectId, "Deleting Service Account")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
