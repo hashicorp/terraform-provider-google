@@ -29,6 +29,11 @@ func TestAccComputeNetworkPeering_basic(t *testing.T) {
 					testAccCheckComputeNetworkPeeringAutoCreateRoutes(true, &peering_beta),
 				),
 			},
+			{
+				ResourceName:      "google_compute_network_peering.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 

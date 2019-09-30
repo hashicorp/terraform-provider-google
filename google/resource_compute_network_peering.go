@@ -18,7 +18,9 @@ func resourceComputeNetworkPeering() *schema.Resource {
 		Create: resourceComputeNetworkPeeringCreate,
 		Read:   resourceComputeNetworkPeeringRead,
 		Delete: resourceComputeNetworkPeeringDelete,
-
+		Importer: &schema.ResourceImporter{
+			State: resourceComputeNetworkPeeringImporter,
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:         schema.TypeString,
@@ -59,6 +61,22 @@ func resourceComputeNetworkPeering() *schema.Resource {
 			},
 		},
 	}
+}
+
+func resourceComputeNetworkPeeringImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	if err := parseImportId([]string{"(?P<network>[^/]+)/(?P<name>[^/]+)"}, d, config); err != nil {
+		return nil, err
+	}
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }
 
 func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{}) error {
