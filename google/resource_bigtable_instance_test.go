@@ -133,6 +133,104 @@ func testAccCheckBigtableInstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
+func TestAccBigtableInstance_unit(t *testing.T) {
+	t.Parallel()
+
+	clusterIds := []string{"0", "1234567890"}
+
+	for _, clusterId := range clusterIds {
+		state := testUnitGenInstanceState(clusterId)
+
+		data := resourceBigtableInstance().Data(state)
+
+		// For v2.13.0
+		//clusters := data.Get("cluster").(*schema.Set).List()
+		// For v2.14.0+
+		clusters := data.Get("cluster").([]interface{})
+
+		if data.Id() != "foo" {
+			t.Fatalf("ID incorrect: %s", data.Id())
+		}
+		numClusters := len(clusters)
+		if numClusters != 1 {
+			t.Fatalf("Num clusters incorrect: %d", numClusters)
+		}
+		cluster := clusters[0].(map[string]interface{})
+		clusterId := cluster["cluster_id"]
+		if clusterId != "cluster1" {
+			t.Fatalf("cluster_id incorrect: %s", clusterId)
+		}
+	}
+}
+
+func testUnitGenInstanceState(clusterId string) *terraform.InstanceState {
+	clusterPrefix := fmt.Sprintf("cluster.%s", clusterId)
+
+	state := &terraform.InstanceState{
+		ID: "foo",
+		Attributes: map[string]string{
+			"cluster.#": "1",
+			fmt.Sprintf("%s.cluster_id", clusterPrefix):   "cluster1",
+			fmt.Sprintf("%s.num_nodes", clusterPrefix):    "3",
+			fmt.Sprintf("%s.storage_type", clusterPrefix): "SSD",
+			fmt.Sprintf("%s.zone", clusterPrefix):         "us-central1-a",
+			"cluster_id":                                  "",
+			"display_name":                                "foo",
+			"instance_type":                               "PRODUCTION",
+			"name":                                        "foo",
+			"num_nodes":                                   "0",
+			"project":                                     "some-project",
+			"storage_type":                                "SSD",
+			"zone":                                        "",
+		},
+	}
+
+	return state
+}
+
+func testAccBigtableInstanceExists(n string, numNodes int) resource.TestCheckFunc {
+	var ctx = context.Background()
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+		config := testAccProvider.Meta().(*Config)
+		c, err := config.bigtableClientFactory.NewInstanceAdminClient(config.Project)
+		if err != nil {
+			return fmt.Errorf("Error starting instance admin client. %s", err)
+		}
+
+		defer c.Close()
+
+		_, err = c.InstanceInfo(ctx, rs.Primary.Attributes["name"])
+		if err != nil {
+			return fmt.Errorf("Error retrieving instance %s.", rs.Primary.Attributes["name"])
+		}
+
+		clusters, err := c.Clusters(ctx, rs.Primary.Attributes["name"])
+		if err != nil {
+			return fmt.Errorf("Error retrieving cluster list for instance %s.", rs.Primary.Attributes["name"])
+		}
+
+		for _, c := range clusters {
+			if c.ServeNodes != numNodes {
+				return fmt.Errorf("Expected cluster %s to have %d nodes but got %d nodes for instance %s.",
+					c.Name,
+					numNodes,
+					c.ServeNodes,
+					rs.Primary.Attributes["name"])
+			}
+		}
+
+		return nil
+	}
+}
+
 func testAccBigtableInstance(instanceName string, numNodes int) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
