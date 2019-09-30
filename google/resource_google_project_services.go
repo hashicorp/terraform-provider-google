@@ -13,7 +13,7 @@ import (
 
 const maxServiceUsageBatchSize = 20
 
-var ignoredProjectServices = []string{"dataproc-control.googleapis.com", "source.googleapis.com", "stackdriverprovisioning.googleapis.com"}
+var ignoredProjectServices = []string{"dataproc-control.googleapis.com", "source.googleapis.com", "stackdriverprovisioning.googleapis.com", "bigquerystorage.googleapis.com", "cloudtrace.googleapis.com", "storage-component.googleapis.com"}
 
 // These services can only be enabled as a side-effect of enabling other services,
 // so don't bother storing them in the config or using them for diffing.
