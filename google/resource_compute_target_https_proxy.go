@@ -71,6 +71,7 @@ func resourceComputeTargetHttpsProxy() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "ENABLE", "DISABLE", ""}, false),
+				Default:      "NONE",
 			},
 			"ssl_policy": {
 				Type:             schema.TypeString,
