@@ -2112,7 +2112,13 @@ func containerClusterPrivateClusterConfigCustomDiff(d *schema.ResourceDiff, meta
 	config := pccList[0].(map[string]interface{})
 	if config["enable_private_nodes"].(bool) == true {
 		block := config["master_ipv4_cidr_block"]
-		if block == nil || block == "" {
+
+		// We can only apply this validation if we know the final value of the field, and we may
+		// not know the final value if users feed the value into their config in unintuitive ways.
+		// https://github.com/terraform-providers/terraform-provider-google/issues/4186
+		blockValueKnown := d.NewValueKnown("private_cluster_config.0.master_ipv4_cidr_block")
+
+		if blockValueKnown && (block == nil || block == "") {
 			return fmt.Errorf("master_ipv4_cidr_block must be set if enable_private_nodes == true")
 		}
 	}
