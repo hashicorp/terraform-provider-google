@@ -69,6 +69,43 @@ resource "google_app_engine_standard_app_version" "version_id" {
   } 
 
 }
+
+resource "google_app_engine_standard_app_version" "myapp_v1" {
+  version_id = "v1"
+  service = "myapp"
+  runtime = "nodejs10"
+  delete_service_on_destroy = true
+  entrypoint {
+    shell = "node ./app.js"
+  }
+  deployment {
+    zip {
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+    }  
+  }
+  env_variables = {
+    port = "8080"
+  } 
+  depends_on = ["google_storage_bucket_object.object"]
+}
+resource "google_app_engine_standard_app_version" "myapp_v2" {
+  version_id = "v2"
+  service = "myapp"
+  runtime = "nodejs10"
+  entrypoint {
+    shell = "node ./app.js"
+  }
+  deployment {
+    zip {
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+    }  
+  }
+  env_variables = {
+    port = "8080"
+  } 
+  depends_on = ["google_app_engine_standard_app_version.myapp_v1"]
+
+}
 ```
 
 ## Argument Reference
@@ -118,6 +155,12 @@ The following arguments are supported:
   (Optional)
   The entrypoint for the application.  Structure is documented below.
 
+* `instance_class` -
+  (Optional)
+  Instance class that is used to run this version. Valid values are
+  AutomaticScaling F1, F2, F4, F4_1G
+  (Only AutomaticScaling is supported at the moment)
+
 * `service` -
   (Optional)
   AppEngine service resource
@@ -126,6 +169,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `noop_on_destroy` - (Optional) If set to `true`, the application version will not be deleted.
+* `delete_service_on_destroy` - (Optional) If set to `true`, the service will be deleted if it is the last version.    
 
 The `handlers` block supports:
 

@@ -44,7 +44,7 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 				ResourceName:            "google_app_engine_standard_app_version.version_id",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"threadsafe", "env_variables", "deployment", "entrypoint", "noop_on_destroy"},
+				ImportStateVerifyIgnore: []string{"threadsafe", "env_variables", "deployment", "entrypoint", "instance_class", "noop_on_destroy"},
 			},
 		},
 	})
@@ -78,6 +78,43 @@ resource "google_app_engine_standard_app_version" "version_id" {
   env_variables = {
     port = "8080"
   } 
+
+}
+
+resource "google_app_engine_standard_app_version" "myapp_v1" {
+  version_id = "v1"
+  service = "myapp"
+  runtime = "nodejs10"
+  delete_service_on_destroy = true
+  entrypoint {
+    shell = "node ./app.js"
+  }
+  deployment {
+    zip {
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+    }  
+  }
+  env_variables = {
+    port = "8080"
+  } 
+  depends_on = ["google_storage_bucket_object.object"]
+}
+resource "google_app_engine_standard_app_version" "myapp_v2" {
+  version_id = "v2"
+  service = "myapp"
+  runtime = "nodejs10"
+  entrypoint {
+    shell = "node ./app.js"
+  }
+  deployment {
+    zip {
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+    }  
+  }
+  env_variables = {
+    port = "8080"
+  } 
+  depends_on = ["google_app_engine_standard_app_version.myapp_v1"]
 
 }
 `, context)

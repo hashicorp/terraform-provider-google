@@ -194,6 +194,10 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 					},
 				},
 			},
+			"instance_class": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"libraries": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -233,6 +237,11 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 				Computed: true,
 			},
 			"noop_on_destroy": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			"delete_service_on_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -305,6 +314,12 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("entrypoint"); !isEmptyValue(reflect.ValueOf(entrypointProp)) && (ok || !reflect.DeepEqual(v, entrypointProp)) {
 		obj["entrypoint"] = entrypointProp
 	}
+	instanceClassProp, err := expandAppEngineStandardAppVersionInstanceClass(d.Get("instance_class"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instance_class"); !isEmptyValue(reflect.ValueOf(instanceClassProp)) && (ok || !reflect.DeepEqual(v, instanceClassProp)) {
+		obj["instanceClass"] = instanceClassProp
+	}
 
 	lockName, err := replaceVars(d, config, "apps/{{project}}/services/{{service}}")
 	if err != nil {
@@ -376,6 +391,9 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOk("noop_on_destroy"); !ok {
 		d.Set("noop_on_destroy", false)
+	}
+	if _, ok := d.GetOk("delete_service_on_destroy"); !ok {
+		d.Set("delete_service_on_destroy", false)
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -467,6 +485,12 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("entrypoint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, entrypointProp)) {
 		obj["entrypoint"] = entrypointProp
 	}
+	instanceClassProp, err := expandAppEngineStandardAppVersionInstanceClass(d.Get("instance_class"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instance_class"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, instanceClassProp)) {
+		obj["instanceClass"] = instanceClassProp
+	}
 
 	lockName, err := replaceVars(d, config, "apps/{{project}}/services/{{service}}")
 	if err != nil {
@@ -505,6 +529,7 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta interface{}) error {
+
 	if d.Get("noop_on_destroy") == true {
 		log.Printf("[DEBUG] Keeping the StandardAppVersion %q", d.Id())
 		return nil
@@ -523,35 +548,58 @@ func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta inte
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}/versions/{{version_id}}")
-	if err != nil {
-		return err
+	if d.Get("delete_service_on_destroy") == true {
+		url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}")
+		if err != nil {
+			return err
+		}
+		var obj map[string]interface{}
+		log.Printf("[DEBUG] Deleting Service %q", d.Id())
+		res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+		if err != nil {
+			return handleNotFoundError(err, d, "Service")
+		}
+		op := &appengine.Operation{}
+		err = Convert(res, op)
+		if err != nil {
+			return err
+		}
+		err = appEngineOperationWaitTime(
+			config.clientAppEngine, op, project, "Deleting Service",
+			int(d.Timeout(schema.TimeoutDelete).Minutes()))
+
+		if err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] Finished deleting Service %q: %#v", d.Id(), res)
+		return nil
+	} else {
+		url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}/versions/{{version_id}}")
+		if err != nil {
+			return err
+		}
+		var obj map[string]interface{}
+		log.Printf("[DEBUG] Deleting StandardAppVersion %q", d.Id())
+		res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+		if err != nil {
+			return handleNotFoundError(err, d, "StandardAppVersion")
+		}
+		op := &appengine.Operation{}
+		err = Convert(res, op)
+		if err != nil {
+			return err
+		}
+		err = appEngineOperationWaitTime(
+			config.clientAppEngine, op, project, "Deleting StandardAppVersion",
+			int(d.Timeout(schema.TimeoutDelete).Minutes()))
+
+		if err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] Finished deleting StandardAppVersion %q: %#v", d.Id(), res)
+		return nil
+
 	}
-
-	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting StandardAppVersion %q", d.Id())
-
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return handleNotFoundError(err, d, "StandardAppVersion")
-	}
-
-	op := &appengine.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	err = appEngineOperationWaitTime(
-		config.clientAppEngine, op, project, "Deleting StandardAppVersion",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
-
-	if err != nil {
-		return err
-	}
-
-	log.Printf("[DEBUG] Finished deleting StandardAppVersion %q: %#v", d.Id(), res)
-	return nil
 }
 
 func resourceAppEngineStandardAppVersionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
@@ -573,6 +621,7 @@ func resourceAppEngineStandardAppVersionImport(d *schema.ResourceData, meta inte
 
 	// Explicitly set virtual fields to default values on import
 	d.Set("noop_on_destroy", false)
+	d.Set("delete_service_on_destroy", false)
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -1114,5 +1163,9 @@ func expandAppEngineStandardAppVersionEntrypoint(v interface{}, d TerraformResou
 }
 
 func expandAppEngineStandardAppVersionEntrypointShell(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionInstanceClass(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
