@@ -4,10 +4,15 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
+
+	//"github.com/golang-collections/collections/set"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"cloud.google.com/go/bigtable"
 )
@@ -27,6 +32,8 @@ func resourceBigtableInstance() *schema.Resource {
 			resourceBigtableInstanceValidateDevelopment,
 			resourceBigtableInstanceClusterReorderTypeList,
 		),
+
+		MigrateState: resourceBigtableInstanceMigrateState,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -407,3 +414,62 @@ func resourceBigtableInstanceImport(d *schema.ResourceData, meta interface{}) ([
 
 	return []*schema.ResourceData{d}, nil
 }
+
+func resourceBigtableInstanceMigrateState(
+	v int,
+	is *terraform.InstanceState,
+	meta interface{},
+) (*terraform.InstanceState, error) {
+	switch v {
+	case 0:
+		// Pre-2.14.0 version; assume "cluster" is a set
+		// Pull out clusters and reindex to store as a list
+		// TODO: Also remove cluster_id, zone, num_nodes, and storage_type
+		// in favor of nested cluster object
+		//hashes := set.New()
+		numClusters, _ := strconv.Atoi(is.Attributes["cluster.#"])
+		hashes := make([]string, numClusters)
+		//log.Printf("hashes (len: %d): %v", len(hashes), hashes)
+		//log.Printf("hashes[0]: %s; hashes[1]: %s", hashes[0], hashes[1])
+		hashMap := make(map[string]bool)
+		for k := range is.Attributes {
+			if strings.HasPrefix(k, "cluster.") && !strings.Contains(k, "#") {
+				//log.Printf("key: %s", k)
+				parts := strings.Split(k, ".")
+				//hashes.Insert(parts[1])
+				hash := parts[1]
+				if _, ok := hashMap[hash]; !ok {
+					hashMap[hash] = true
+					hashes[len(hashMap)-1] = hash
+					//hashes = append(hashes, hash)
+					//log.Printf("hashes: %v", hashes)
+				}
+			}
+		}
+		// TODO: Make sure hashes are actually hashes and not indexes?
+		newAttributes := make(map[string]string)
+		idx := 0
+		fields := []string{"cluster_id", "num_nodes", "storage_type", "zone"}
+		for _, hash := range hashes {
+			//log.Printf("hash: %s", hash)
+			for _, field := range fields {
+				//log.Printf("field: %s", field)
+				// TODO: Existence checks
+				oldAttrKey := fmt.Sprintf("cluster.%s.%s", hash, field)
+				newAttrKey := fmt.Sprintf("cluster.%d.%s", idx, field)
+				newAttributes[newAttrKey] = is.Attributes[oldAttrKey]
+				delete(is.Attributes, oldAttrKey)
+			}
+			idx++
+		}
+		for k, v := range newAttributes {
+			is.Attributes[k] = v
+		}
+	default:
+		return nil, fmt.Errorf("invalid schema version %d", v)
+	}
+
+	return is, nil
+}
+
+//func resourceBigtableInstanceMigrateState

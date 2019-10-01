@@ -3,11 +3,13 @@ package google
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	//"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
@@ -133,55 +135,104 @@ func testAccCheckBigtableInstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func TestAccBigtableInstance_unit(t *testing.T) {
+func TestUnitBigtableInstance_regression(t *testing.T) {
 	t.Parallel()
 
-	clusterIds := []string{"0", "1234567890"}
+	clusterIdxPairs := [][]string{{"0", "1"}, {"1234567890", "9876543210"}}
 
-	for _, clusterId := range clusterIds {
-		state := testUnitGenInstanceState(clusterId)
+	for _, clusterIdxs := range clusterIdxPairs {
+		clusterIdx1 := clusterIdxs[0]
+		clusterIdx2 := clusterIdxs[1]
+
+		state := testUnitGenInstanceState(clusterIdx1, clusterIdx2)
 
 		data := resourceBigtableInstance().Data(state)
+
+		log.Printf("%v", data.Get("cluster"))
+		log.Printf("%T", data.Get("cluster"))
+		for k, v := range data.Get("cluster").([]interface{}) {
+			log.Printf("%v", k)
+			log.Printf("%v", v)
+		}
+
+		if data.Id() != "foo" {
+			t.Fatalf("ID incorrect: %s", data.Id())
+		}
 
 		// For v2.13.0
 		//clusters := data.Get("cluster").(*schema.Set).List()
 		// For v2.14.0+
 		clusters := data.Get("cluster").([]interface{})
 
-		if data.Id() != "foo" {
-			t.Fatalf("ID incorrect: %s", data.Id())
-		}
-		numClusters := len(clusters)
-		if numClusters != 1 {
-			t.Fatalf("Num clusters incorrect: %d", numClusters)
-		}
-		cluster := clusters[0].(map[string]interface{})
-		clusterId := cluster["cluster_id"]
-		if clusterId != "cluster1" {
-			t.Fatalf("cluster_id incorrect: %s", clusterId)
-		}
+		testUnitBigtableInstance_checkClusters(clusters, t)
 	}
 }
 
-func testUnitGenInstanceState(clusterId string) *terraform.InstanceState {
-	clusterPrefix := fmt.Sprintf("cluster.%s", clusterId)
+func testUnitBigtableInstance_checkClusters(clusters []interface{}, t *testing.T) {
+	numClusters := len(clusters)
+	if numClusters != 2 {
+		t.Fatalf("Num clusters incorrect: %d", numClusters)
+	}
+	cluster1 := clusters[0].(map[string]interface{})
+	clusterId1 := cluster1["cluster_id"]
+	if clusterId1 != "cluster1" {
+		t.Fatalf("cluster_id (1) incorrect: %s", clusterId1)
+	}
+	cluster2 := clusters[1].(map[string]interface{})
+	clusterId2 := cluster2["cluster_id"]
+	if clusterId2 != "cluster2" {
+		t.Fatalf("cluster_id (2) incorrect: %s", clusterId2)
+	}
+}
+
+func TestUnitBigtableInstance_MigrateState(t *testing.T) {
+	t.Parallel()
+
+	clusterIdxPairs := [][]string{{"0", "1"}, {"1234567890", "9876543210"}}
+
+	for _, clusterIdxs := range clusterIdxPairs {
+		clusterIdx1 := clusterIdxs[0]
+		clusterIdx2 := clusterIdxs[1]
+
+		state := testUnitGenInstanceState(clusterIdx1, clusterIdx2)
+		log.Printf("state: %v", state)
+		newState, err := resourceBigtableInstance().MigrateState(0, state, nil)
+		if err != nil {
+			t.Fatalf("MigrateState returned error: %s", err)
+		}
+		log.Printf("newState: %v", newState)
+		data := resourceBigtableInstance().Data(newState)
+		log.Printf("data: %v", data)
+		clusters := data.Get("cluster").([]interface{})
+
+		testUnitBigtableInstance_checkClusters(clusters, t)
+	}
+}
+
+func testUnitGenInstanceState(clusterIdx1 string, clusterIdx2 string) *terraform.InstanceState {
+	clusterPrefix1 := fmt.Sprintf("cluster.%s", clusterIdx1)
+	clusterPrefix2 := fmt.Sprintf("cluster.%s", clusterIdx2)
 
 	state := &terraform.InstanceState{
 		ID: "foo",
 		Attributes: map[string]string{
-			"cluster.#": "1",
-			fmt.Sprintf("%s.cluster_id", clusterPrefix):   "cluster1",
-			fmt.Sprintf("%s.num_nodes", clusterPrefix):    "3",
-			fmt.Sprintf("%s.storage_type", clusterPrefix): "SSD",
-			fmt.Sprintf("%s.zone", clusterPrefix):         "us-central1-a",
-			"cluster_id":                                  "",
-			"display_name":                                "foo",
-			"instance_type":                               "PRODUCTION",
-			"name":                                        "foo",
-			"num_nodes":                                   "0",
-			"project":                                     "some-project",
-			"storage_type":                                "SSD",
-			"zone":                                        "",
+			"cluster.#": "2",
+			fmt.Sprintf("%s.cluster_id", clusterPrefix1):   "cluster1",
+			fmt.Sprintf("%s.num_nodes", clusterPrefix1):    "3",
+			fmt.Sprintf("%s.storage_type", clusterPrefix1): "SSD",
+			fmt.Sprintf("%s.zone", clusterPrefix1):         "us-central1-a",
+			fmt.Sprintf("%s.cluster_id", clusterPrefix2):   "cluster2",
+			fmt.Sprintf("%s.num_nodes", clusterPrefix2):    "3",
+			fmt.Sprintf("%s.storage_type", clusterPrefix2): "SSD",
+			fmt.Sprintf("%s.zone", clusterPrefix2):         "us-central1-a",
+			"cluster_id":                                   "",
+			"display_name":                                 "foo",
+			"instance_type":                                "PRODUCTION",
+			"name":                                         "foo",
+			"num_nodes":                                    "0",
+			"project":                                      "some-project",
+			"storage_type":                                 "SSD",
+			"zone":                                         "",
 		},
 	}
 
