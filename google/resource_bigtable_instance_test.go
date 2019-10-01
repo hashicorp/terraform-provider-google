@@ -188,7 +188,12 @@ func testUnitBigtableInstance_checkClusters(clusters []interface{}, t *testing.T
 func TestUnitBigtableInstance_MigrateState(t *testing.T) {
 	t.Parallel()
 
-	clusterIdxPairs := [][]string{{"0", "1"}, {"1234567890", "9876543210"}}
+	clusterIdxPairs := [][]string{
+		{"0", "1"},
+		{"1", "2"},
+		{"1234567890", "9876543210"},
+		{"9876543210", "1234567890"},
+	}
 
 	for _, clusterIdxs := range clusterIdxPairs {
 		clusterIdx1 := clusterIdxs[0]
