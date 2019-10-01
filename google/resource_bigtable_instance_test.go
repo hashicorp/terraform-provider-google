@@ -27,17 +27,19 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 			},
 			{
 				Config: testAccBigtableInstance(instanceName, 3),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigtableInstanceExists(
-						"google_bigtable_instance.instance", 3),
-				),
+			},
+			{
+				ResourceName:      "google_bigtable_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccBigtableInstance(instanceName, 4),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigtableInstanceExists(
-						"google_bigtable_instance.instance", 4),
-				),
+			},
+			{
+				ResourceName:      "google_bigtable_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -59,17 +61,19 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 			},
 			{
 				Config: testAccBigtableInstance_cluster(instanceName, 3),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigtableInstanceExists(
-						"google_bigtable_instance.instance", 3),
-				),
+			},
+			{
+				ResourceName:      "google_bigtable_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccBigtableInstance_cluster_reordered(instanceName, 5),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigtableInstanceExists(
-						"google_bigtable_instance.instance", 5),
-				),
+			},
+			{
+				ResourceName:      "google_bigtable_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -95,10 +99,11 @@ func TestAccBigtableInstance_development(t *testing.T) {
 			},
 			{
 				Config: testAccBigtableInstance_development(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigtableInstanceExists(
-						"google_bigtable_instance.instance", 0),
-				),
+			},
+			{
+				ResourceName:      "google_bigtable_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -126,49 +131,6 @@ func testAccCheckBigtableInstanceDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func testAccBigtableInstanceExists(n string, numNodes int) resource.TestCheckFunc {
-	var ctx = context.Background()
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-		config := testAccProvider.Meta().(*Config)
-		c, err := config.bigtableClientFactory.NewInstanceAdminClient(config.Project)
-		if err != nil {
-			return fmt.Errorf("Error starting instance admin client. %s", err)
-		}
-
-		defer c.Close()
-
-		_, err = c.InstanceInfo(ctx, rs.Primary.Attributes["name"])
-		if err != nil {
-			return fmt.Errorf("Error retrieving instance %s.", rs.Primary.Attributes["name"])
-		}
-
-		clusters, err := c.Clusters(ctx, rs.Primary.Attributes["name"])
-		if err != nil {
-			return fmt.Errorf("Error retrieving cluster list for instance %s.", rs.Primary.Attributes["name"])
-		}
-
-		for _, c := range clusters {
-			if c.ServeNodes != numNodes {
-				return fmt.Errorf("Expected cluster %s to have %d nodes but got %d nodes for instance %s.",
-					c.Name,
-					numNodes,
-					c.ServeNodes,
-					rs.Primary.Attributes["name"])
-			}
-		}
-
-		return nil
-	}
 }
 
 func testAccBigtableInstance(instanceName string, numNodes int) string {

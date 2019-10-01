@@ -76,3 +76,13 @@ The `cluster` block supports the following arguments:
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.
+
+## Import
+
+Bigtable Instances can be imported using any of these accepted formats:
+
+```
+$ terraform import google_bigtable_instance.default projects/{{project}}/instances/{{name}}
+$ terraform import google_bigtable_instance.default {{project}}/{{name}}
+$ terraform import google_bigtable_instance.default {{name}}
+```

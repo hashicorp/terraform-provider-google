@@ -19,6 +19,10 @@ func resourceBigtableInstance() *schema.Resource {
 		Update: resourceBigtableInstanceUpdate,
 		Delete: resourceBigtableInstanceDestroy,
 
+		Importer: &schema.ResourceImporter{
+			State: resourceBigtableInstanceImport,
+		},
+
 		CustomizeDiff: customdiff.All(
 			resourceBigtableInstanceValidateDevelopment,
 			resourceBigtableInstanceClusterReorderTypeList,
@@ -185,22 +189,31 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("project", project)
 
-	clusters := d.Get("cluster").([]interface{})
-	clusterState := []map[string]interface{}{}
-	for _, cl := range clusters {
-		cluster := cl.(map[string]interface{})
-		clus, err := c.GetCluster(ctx, instance.Name, cluster["cluster_id"].(string))
-		if err != nil {
-			if isGoogleApiErrorWithCode(err, 404) {
-				log.Printf("[WARN] Cluster %q not found, not setting it in state", cluster["cluster_id"].(string))
-				continue
-			}
-			return fmt.Errorf("Error retrieving cluster %q: %s", cluster["cluster_id"].(string), err.Error())
-		}
-		clusterState = append(clusterState, flattenBigtableCluster(clus, cluster["storage_type"].(string)))
+	clusters, err := c.Clusters(ctx, instance.Name)
+	if err != nil {
+		return fmt.Errorf("Error retrieving instance clusters. %s", err)
 	}
 
-	err = d.Set("cluster", clusterState)
+	clustersNewState := []map[string]interface{}{}
+	for i, cluster := range clusters {
+		// DEVELOPMENT clusters have num_nodes = 0 on their first (and only)
+		// cluster while PRODUCTION clusters will have at least 3.
+		if i == 0 {
+			var instanceType string
+			if cluster.ServeNodes == 0 {
+				instanceType = "DEVELOPMENT"
+			} else {
+				instanceType = "PRODUCTION"
+			}
+
+			d.Set("instance_type", instanceType)
+		}
+
+		clustersNewState = append(clustersNewState, flattenBigtableCluster(cluster))
+	}
+
+	log.Printf("[DEBUG] Setting clusters in state: %#v", clustersNewState)
+	err = d.Set("cluster", clustersNewState)
 	if err != nil {
 		return fmt.Errorf("Error setting clusters in state: %s", err.Error())
 	}
@@ -279,7 +292,15 @@ func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
-func flattenBigtableCluster(c *bigtable.ClusterInfo, storageType string) map[string]interface{} {
+func flattenBigtableCluster(c *bigtable.ClusterInfo) map[string]interface{} {
+	var storageType string
+	switch c.StorageType {
+	case bigtable.SSD:
+		storageType = "SSD"
+	case bigtable.HDD:
+		storageType = "HDD"
+	}
+
 	return map[string]interface{}{
 		"zone":         c.Zone,
 		"num_nodes":    c.ServeNodes,
@@ -365,4 +386,24 @@ func resourceBigtableInstanceClusterReorderTypeList(diff *schema.ResourceDiff, m
 	}
 
 	return nil
+}
+
+func resourceBigtableInstanceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/instances/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<name>[^/]+)",
+		"(?P<name>[^/]+)",
+	}, d, config); err != nil {
+		return nil, err
+	}
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }
