@@ -11,6 +11,12 @@ import (
 	"time"
 )
 
+var ignoredProjectServices = []string{"dataproc-control.googleapis.com", "source.googleapis.com", "stackdriverprovisioning.googleapis.com"}
+
+// These services can only be enabled as a side-effect of enabling other services,
+// so don't bother storing them in the config or using them for diffing.
+var ignoredProjectServicesSet = golangSetFromStringSlice(ignoredProjectServices)
+
 func resourceGoogleProjectService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleProjectServiceCreate,
@@ -170,4 +176,27 @@ func isServiceEnabled(project, serviceName string, config *Config) (bool, error)
 		return false, errwrap.Wrapf(fmt.Sprintf("Failed to list enabled services for project %s: {{err}}", project), err)
 	}
 	return srv.State == "ENABLED", nil
+}
+
+// Disables a project service.
+func disableServiceUsageProjectService(service, project string, d *schema.ResourceData, config *Config, disableDependentServices bool) error {
+	err := retryTimeDuration(func() error {
+		name := fmt.Sprintf("projects/%s/services/%s", project, service)
+		sop, err := config.clientServiceUsage.Services.Disable(name, &serviceusage.DisableServiceRequest{
+			DisableDependentServices: disableDependentServices,
+		}).Do()
+		if err != nil {
+			return err
+		}
+		// Wait for the operation to complete
+		waitErr := serviceUsageOperationWait(config, sop, "api to disable")
+		if waitErr != nil {
+			return waitErr
+		}
+		return nil
+	}, d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return fmt.Errorf("Error disabling service %q for project %q: %v", service, project, err)
+	}
+	return nil
 }
