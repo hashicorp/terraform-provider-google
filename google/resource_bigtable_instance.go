@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strconv"
+	//"strconv"
 	"strings"
 
 	//"github.com/golang-collections/collections/set"
@@ -430,32 +430,34 @@ func resourceBigtableInstanceMigrateState(
 		// in favor of nested cluster object
 		// TODO: Anything we can do about ordering?
 		//hashes := set.New()
-		numClusters, _ := strconv.Atoi(is.Attributes["cluster.#"])
-		hashes := make([]string, numClusters)
+		//numClusters, _ := strconv.Atoi(is.Attributes["cluster.#"])
+		//hashes := make([]string, numClusters)
 		//log.Printf("hashes (len: %d): %v", len(hashes), hashes)
 		//log.Printf("hashes[0]: %s; hashes[1]: %s", hashes[0], hashes[1])
-		hashMap := make(map[string]bool)
-		//hashes := make(map[string]bool)
+		//hashMap := make(map[string]bool)
+		hashes := make(map[string]bool)
 		for k := range is.Attributes {
 			if strings.HasPrefix(k, "cluster.") && !strings.Contains(k, "#") {
 				//log.Printf("key: %s", k)
 				parts := strings.Split(k, ".")
 				//hashes.Insert(parts[1])
 				hash := parts[1]
-				//hashes[hash] = true
-				if _, ok := hashMap[hash]; !ok {
-					hashMap[hash] = true
-					hashes[len(hashMap)-1] = hash
-					//hashes = append(hashes, hash)
-					log.Printf("hashes: %v", hashes)
-				}
+				hashes[hash] = true
+				/*
+					if _, ok := hashMap[hash]; !ok {
+						hashMap[hash] = true
+						//hashes[len(hashMap)-1] = hash
+						//hashes = append(hashes, hash)
+						log.Printf("hashes: %v", hashes)
+					}
+				*/
 			}
 		}
 		// TODO: Make sure hashes are actually hashes and not indexes?
 		newAttributes := make(map[string]string)
 		idx := 0
 		fields := []string{"cluster_id", "num_nodes", "storage_type", "zone"}
-		for _, hash := range hashes {
+		for hash, _ := range hashes {
 			log.Printf("hash: %s", hash)
 			for _, field := range fields {
 				//log.Printf("field: %s", field)
