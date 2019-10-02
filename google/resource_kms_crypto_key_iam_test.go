@@ -181,24 +181,24 @@ resource "google_project" "test_project" {
   billing_account = "%s"
 }
 
-resource "google_project_services" "test_project" {
+resource "google_project_service" "kms" {
   project = "${google_project.test_project.project_id}"
+  service = "cloudkms.googleapis.com"
+}
 
-  services = [
-     "cloudkms.googleapis.com",
-     "iam.googleapis.com",
-     "iamcredentials.googleapis.com",
-  ]
+resource "google_project_service" "iam" {
+  project = "${google_project_service.kms.project}"
+  service = "iam.googleapis.com"
 }
 
 resource "google_service_account" "test_account" {
-  project      = "${google_project_services.test_project.project}"
+  project      = "${google_project_service.iam.project}"
   account_id   = "%s"
   display_name = "Kms Crypto Key Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project      = "${google_project_services.test_project.project}"
+  project      = "${google_project_service.iam.project}"
   location = "us-central1"
   name     = "%s"
 }
@@ -225,30 +225,30 @@ resource "google_project" "test_project" {
   billing_account = "%s"
 }
 
-resource "google_project_services" "test_project" {
+resource "google_project_service" "kms" {
   project = "${google_project.test_project.project_id}"
+  service = "cloudkms.googleapis.com"
+}
 
-  services = [
-     "cloudkms.googleapis.com",
-     "iam.googleapis.com",
-     "iamcredentials.googleapis.com",
-  ]
+resource "google_project_service" "iam" {
+  project = "${google_project_service.kms.project}"
+  service = "iam.googleapis.com"
 }
 
 resource "google_service_account" "test_account" {
-  project      = "${google_project_services.test_project.project}"
+  project      = "${google_project_service.iam.project}"
   account_id   = "%s"
   display_name = "Kms Crypto Key Iam Testing Account"
 }
 
 resource "google_service_account" "test_account_2" {
-  project      = "${google_project_services.test_project.project}"
+  project      = "${google_project_service.iam.project}"
   account_id   = "%s-2"
   display_name = "Kms Crypto Key Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project  = "${google_project_services.test_project.project}"
+  project  = "${google_project_service.iam.project}"
   location = "us-central1"
   name     = "%s"
 }
@@ -278,24 +278,24 @@ resource "google_project" "test_project" {
   billing_account = "%s"
 }
 
-resource "google_project_services" "test_project" {
+resource "google_project_service" "kms" {
   project = "${google_project.test_project.project_id}"
+  service = "cloudkms.googleapis.com"
+}
 
-  services = [
-     "cloudkms.googleapis.com",
-     "iam.googleapis.com",
-     "iamcredentials.googleapis.com",
-  ]
+resource "google_project_service" "iam" {
+  project = "${google_project_service.kms.project}"
+  service = "iam.googleapis.com"
 }
 
 resource "google_service_account" "test_account" {
-  project      = "${google_project_services.test_project.project}"
+  project      = "${google_project_service.iam.project}"
   account_id   = "%s"
   display_name = "Kms Crypto Key Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project  = "${google_project_services.test_project.project}"
+  project  = "${google_project_service.iam.project}"
   location = "us-central1"
   name     = "%s"
 }

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -578,4 +579,70 @@ func readGoogleProject(d *schema.ResourceData, config *Config) (*cloudresourcema
 		return reqErr
 	}, d.Timeout(schema.TimeoutRead))
 	return p, err
+}
+
+// Enables services. WARNING: Use BatchRequestEnableServices for better batching if possible.
+func enableServiceUsageProjectServices(services []string, project string, config *Config, timeout time.Duration) error {
+	// ServiceUsage does not allow more than 20 services to be enabled per
+	// batchEnable API call. See
+	// https://cloud.google.com/service-usage/docs/reference/rest/v1/services/batchEnable
+	for i := 0; i < len(services); i += maxServiceUsageBatchSize {
+		j := i + maxServiceUsageBatchSize
+		if j > len(services) {
+			j = len(services)
+		}
+		nextBatch := services[i:j]
+		if len(nextBatch) == 0 {
+			// All batches finished, return.
+			return nil
+		}
+
+		if err := doEnableServicesRequest(nextBatch, project, config, timeout); err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] Finished enabling next batch of %d project services: %+v", len(nextBatch), nextBatch)
+	}
+
+	log.Printf("[DEBUG] Verifying that all services are enabled")
+	return waitForServiceUsageEnabledServices(services, project, config, timeout)
+}
+
+// waitForServiceUsageEnabledServices doesn't resend enable requests - it just
+// waits for service enablement status to propagate. Essentially, it waits until
+// all services show up as enabled when listing services on the project.
+func waitForServiceUsageEnabledServices(services []string, project string, config *Config, timeout time.Duration) error {
+	missing := make([]string, 0, len(services))
+	delay := time.Duration(0)
+	interval := time.Second
+	err := retryTimeDuration(func() error {
+		// Get the list of services that are enabled on the project
+		enabledServices, err := listCurrentlyEnabledServices(project, config, timeout)
+		if err != nil {
+			return err
+		}
+
+		missing := make([]string, 0, len(services))
+		for _, s := range services {
+			if _, ok := enabledServices[s]; !ok {
+				missing = append(missing, s)
+			}
+		}
+		if len(missing) > 0 {
+			log.Printf("[DEBUG] waiting %v before reading project %s services...", delay, project)
+			time.Sleep(delay)
+			delay += interval
+			interval += delay
+
+			// Spoof a googleapi Error so retryTime will try again
+			return &googleapi.Error{
+				Code:    503,
+				Message: fmt.Sprintf("The service(s) %q are still being enabled for project %s. This isn't a real API error, this is just eventual consistency.", missing, project),
+			}
+		}
+		return nil
+	}, timeout)
+	if err != nil {
+		return errwrap.Wrap(err, fmt.Errorf("failed to enable some service(s) %q for project %s", missing, project))
+	}
+	return nil
 }
