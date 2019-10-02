@@ -428,6 +428,7 @@ func resourceBigtableInstanceMigrateState(
 		// Pull out clusters and reindex to store as a list
 		// TODO: Also remove cluster_id, zone, num_nodes, and storage_type
 		// in favor of nested cluster object
+		// TODO: Anything we can do about ordering?
 		//hashes := set.New()
 		numClusters, _ := strconv.Atoi(is.Attributes["cluster.#"])
 		hashes := make([]string, numClusters)
