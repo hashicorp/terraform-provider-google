@@ -458,11 +458,12 @@ func resourceBigtableInstanceMigrateState(
 			log.Printf("hash: %s", hash)
 			for _, field := range fields {
 				//log.Printf("field: %s", field)
-				// TODO: Existence checks
 				oldAttrKey := fmt.Sprintf("cluster.%s.%s", hash, field)
 				newAttrKey := fmt.Sprintf("cluster.%d.%s", idx, field)
-				newAttributes[newAttrKey] = is.Attributes[oldAttrKey]
-				delete(is.Attributes, oldAttrKey)
+				if _, exists := is.Attributes[oldAttrKey]; exists {
+					newAttributes[newAttrKey] = is.Attributes[oldAttrKey]
+					delete(is.Attributes, oldAttrKey)
+				}
 			}
 			idx++
 		}

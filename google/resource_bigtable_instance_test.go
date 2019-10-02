@@ -177,6 +177,7 @@ func testUnitBigtableInstance_checkClusters(clusterSpecs map[string]map[string]s
 	data := resourceBigtableInstance().Data(newState)
 	//log.Printf("data: %v", data)
 	clusters := data.Get("cluster").([]interface{})
+	//log.Printf("clusters: %v", clusters)
 
 	numClustersExpected := len(clusterSpecs)
 	numClustersActualState, _ := strconv.Atoi(attributes["cluster.#"])
@@ -187,6 +188,8 @@ func testUnitBigtableInstance_checkClusters(clusterSpecs map[string]map[string]s
 	if numClustersActualResource != numClustersExpected {
 		t.Fatalf("Num clusters in resource data (%d) incorrect; expected %d", numClustersActualResource, numClustersExpected)
 	}
+
+	clusterSpecByIndex := make(map[int]map[string]string)
 
 	for _, clusterSpec := range clusterSpecs {
 		// Look for cluster in migrated state
@@ -208,11 +211,12 @@ func testUnitBigtableInstance_checkClusters(clusterSpecs map[string]map[string]s
 				}
 			}
 			if hits == len(clusterSpec) {
+				clusterSpecByIndex[i] = clusterSpec
 				numMatches++
 			}
 		}
 		if numMatches == 0 {
-			t.Fatalf("Did not find cluster %#v in state attributes %v", clusterSpec, attributes)
+			t.Fatalf("Did not find cluster %#v in state attributes %#v", clusterSpec, attributes)
 		} else if numMatches > 1 {
 			t.Fatalf("Found multiple matches for cluster %#v in state attributes %#v", clusterSpec, attributes)
 		}
@@ -246,6 +250,21 @@ func testUnitBigtableInstance_checkClusters(clusterSpecs map[string]map[string]s
 			t.Fatalf("Found multiple matches for cluster %#v in resource data %#v", clusterSpec, clusters)
 		}
 	}
+
+	// Make sure nothing exists that shouldn't
+	// TODO: Also do for resource data?
+	fields := []string{"cluster_id", "num_nodes", "storage_type", "zone"}
+	for idx, clusterSpec := range clusterSpecByIndex {
+		for _, field := range fields {
+			_, existsSpec := clusterSpec[field]
+			attrKey := fmt.Sprintf("cluster.%d.%s", idx, field)
+			_, existsState := attributes[attrKey]
+			if existsState && !existsSpec {
+				t.Fatalf("Found %s unexpectedly for cluster_id=%s in state attributes %#v", field, clusterSpec["cluster_id"], attributes)
+			}
+		}
+	}
+
 }
 
 func testUnitGenCluster(clusterId string, zone string, numNodes string, storageType string) map[string]string {
@@ -289,9 +308,16 @@ func TestUnitBigtableInstance_MigrateState(t *testing.T) {
 			"9876543210": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
 			"1234567890": testUnitGenCluster("cluster2", "us-central1-a", "3", "SSD"),
 		},
+		{
+			"1234567890": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
+			"9876543210": testUnitGenCluster("cluster2", "us-central1-a", "", "SSD"),
+			"6789054321": testUnitGenCluster("cluster3", "us-central1-a", "3", ""),
+			"5432167890": testUnitGenCluster("cluster4", "us-central1-a", "", ""),
+		},
 	}
 
 	for _, clusterSpecs := range testCases {
+		//log.Printf("clusterSpecs: %v", clusterSpecs)
 		state := testUnitGenInstanceState(clusterSpecs)
 		//log.Printf("state: %v", state)
 		newState, err := resourceBigtableInstance().MigrateState(0, state, nil)
