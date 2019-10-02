@@ -10,7 +10,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	//"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
@@ -136,41 +135,6 @@ func testAccCheckBigtableInstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
-/*
-func TestUnitBigtableInstance_regression(t *testing.T) {
-	t.Parallel()
-
-	clusterIdxPairs := [][]string{{"0", "1"}, {"1234567890", "9876543210"}}
-
-	for _, clusterIdxs := range clusterIdxPairs {
-		clusterIdx1 := clusterIdxs[0]
-		clusterIdx2 := clusterIdxs[1]
-
-		state := testUnitGenInstanceState(clusterIdx1, clusterIdx2)
-
-		data := resourceBigtableInstance().Data(state)
-
-		log.Printf("%v", data.Get("cluster"))
-		log.Printf("%T", data.Get("cluster"))
-		for k, v := range data.Get("cluster").([]interface{}) {
-			log.Printf("%v", k)
-			log.Printf("%v", v)
-		}
-
-		if data.Id() != "foo" {
-			t.Fatalf("ID incorrect: %s", data.Id())
-		}
-
-		// For v2.13.0
-		//clusters := data.Get("cluster").(*schema.Set).List()
-		// For v2.14.0+
-		clusters := data.Get("cluster").([]interface{})
-
-		testUnitBigtableInstance_checkClusters(clusters, t)
-	}
-}
-*/
-
 // Check both state and resource
 func testUnitBigtableInstance_checkClusters(clusterSpecs map[string]map[string]string, newState *terraform.InstanceState, t *testing.T) {
 	attributes := newState.Attributes
@@ -264,7 +228,6 @@ func testUnitBigtableInstance_checkClusters(clusterSpecs map[string]map[string]s
 			}
 		}
 	}
-
 }
 
 func testUnitGenCluster(clusterId string, zone string, numNodes string, storageType string) map[string]string {
