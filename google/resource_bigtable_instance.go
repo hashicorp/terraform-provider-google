@@ -423,8 +423,6 @@ func resourceBigtableInstanceMigrateState(
 	case 0:
 		// Pre-2.14.0 version; assume "cluster" is a set
 		// Pull out clusters and reindex to store as a list
-		// TODO: Also remove cluster_id, zone, num_nodes, and storage_type
-		// in favor of nested cluster object
 		// TODO: Anything we can do about ordering?
 		//log.Printf("hashes (len: %d): %v", len(hashes), hashes)
 		//log.Printf("hashes[0]: %s; hashes[1]: %s", hashes[0], hashes[1])
@@ -456,6 +454,13 @@ func resourceBigtableInstanceMigrateState(
 		}
 		for k, v := range newAttributes {
 			is.Attributes[k] = v
+		}
+		// Also remove legacy cluster_id, zone, num_nodes, and storage_type attributes
+		// in favor of nested cluster object
+		for _, field := range fields {
+			if _, exists := is.Attributes[field]; exists {
+				delete(is.Attributes, field)
+			}
 		}
 	default:
 		return nil, fmt.Errorf("invalid schema version %d", v)

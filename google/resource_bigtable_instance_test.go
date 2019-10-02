@@ -228,6 +228,13 @@ func testUnitBigtableInstance_checkClusters(clusterSpecs map[string]map[string]s
 			}
 		}
 	}
+
+	// Make sure fields marked as Removed do not exist in the state attributes
+	for _, field := range fields {
+		if v, exists := attributes[field]; exists {
+			t.Fatalf("Found removed field %s (value: '%s') unexpectedly in state attributes %#v", field, v, attributes)
+		}
+	}
 }
 
 func testUnitGenCluster(clusterId string, zone string, numNodes string, storageType string) map[string]string {
@@ -279,30 +286,31 @@ func TestUnitBigtableInstance_MigrateState(t *testing.T) {
 		},
 	}
 
-	for _, clusterSpecs := range testCases {
-		//log.Printf("clusterSpecs: %v", clusterSpecs)
-		state := testUnitGenInstanceState(clusterSpecs)
-		//log.Printf("state: %v", state)
-		newState, err := resourceBigtableInstance().MigrateState(0, state, nil)
-		if err != nil {
-			t.Fatalf("MigrateState returned error: %s", err)
-		}
-		//log.Printf("newState: %v", newState)
+	// Test with and without top-level fields marked as "Removed"
+	withRemovedFieldsOptions := []bool{true, false}
 
-		testUnitBigtableInstance_checkClusters(clusterSpecs, newState, t)
+	for _, clusterSpecs := range testCases {
+		for _, withRemovedFields := range withRemovedFieldsOptions {
+			//log.Printf("clusterSpecs: %v", clusterSpecs)
+			state := testUnitGenInstanceState(clusterSpecs, withRemovedFields)
+			//log.Printf("state: %v", state)
+			newState, err := resourceBigtableInstance().MigrateState(0, state, nil)
+			if err != nil {
+				t.Fatalf("MigrateState returned error: %s", err)
+			}
+			//log.Printf("newState: %v", newState)
+
+			testUnitBigtableInstance_checkClusters(clusterSpecs, newState, t)
+		}
 	}
 }
 
-func testUnitGenInstanceState(clusterSpecs map[string]map[string]string) *terraform.InstanceState {
+func testUnitGenInstanceState(clusterSpecs map[string]map[string]string, withRemovedFields bool) *terraform.InstanceState {
 	attributes := map[string]string{
-		"cluster_id":    "",
 		"display_name":  "foo",
 		"instance_type": "PRODUCTION",
 		"name":          "foo",
-		"num_nodes":     "0",
 		"project":       "some-project",
-		"storage_type":  "SSD",
-		"zone":          "",
 	}
 
 	attributes["cluster.#"] = strconv.Itoa(len(clusterSpecs))
@@ -312,6 +320,13 @@ func testUnitGenInstanceState(clusterSpecs map[string]map[string]string) *terraf
 			attribute := fmt.Sprintf("cluster.%s.%s", idxOrHash, k)
 			attributes[attribute] = v
 		}
+	}
+
+	if withRemovedFields {
+		attributes["cluster_id"] = ""
+		attributes["num_nodes"] = "0"
+		attributes["storage_type"] = "SSD"
+		attributes["zone"] = ""
 	}
 
 	state := &terraform.InstanceState{
