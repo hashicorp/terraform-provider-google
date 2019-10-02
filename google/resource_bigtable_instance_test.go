@@ -3,8 +3,9 @@ package google
 import (
 	"context"
 	"fmt"
-	"log"
+	//"log"
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -135,6 +136,7 @@ func testAccCheckBigtableInstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
+/*
 func TestUnitBigtableInstance_regression(t *testing.T) {
 	t.Parallel()
 
@@ -167,78 +169,165 @@ func TestUnitBigtableInstance_regression(t *testing.T) {
 		testUnitBigtableInstance_checkClusters(clusters, t)
 	}
 }
+*/
 
-func testUnitBigtableInstance_checkClusters(clusters []interface{}, t *testing.T) {
-	numClusters := len(clusters)
-	if numClusters != 2 {
-		t.Fatalf("Num clusters incorrect: %d", numClusters)
+// Check both state and resource
+func testUnitBigtableInstance_checkClusters(clusterSpecs map[string]map[string]string, newState *terraform.InstanceState, t *testing.T) {
+	attributes := newState.Attributes
+	data := resourceBigtableInstance().Data(newState)
+	//log.Printf("data: %v", data)
+	clusters := data.Get("cluster").([]interface{})
+
+	numClustersExpected := len(clusterSpecs)
+	numClustersActualState, _ := strconv.Atoi(attributes["cluster.#"])
+	numClustersActualResource := len(clusters)
+	if numClustersActualState != numClustersExpected {
+		t.Fatalf("Num clusters in migrated state (%d) incorrect; expected %d", numClustersActualState, numClustersExpected)
 	}
-	cluster1 := clusters[0].(map[string]interface{})
-	clusterId1 := cluster1["cluster_id"]
-	if clusterId1 != "cluster1" {
-		t.Fatalf("cluster_id (1) incorrect: %s", clusterId1)
+	if numClustersActualResource != numClustersExpected {
+		t.Fatalf("Num clusters in resource data (%d) incorrect; expected %d", numClustersActualResource, numClustersExpected)
 	}
-	cluster2 := clusters[1].(map[string]interface{})
-	clusterId2 := cluster2["cluster_id"]
-	if clusterId2 != "cluster2" {
-		t.Fatalf("cluster_id (2) incorrect: %s", clusterId2)
+
+	for _, clusterSpec := range clusterSpecs {
+		// Look for cluster in migrated state
+		numMatches := 0
+		// TODO: Look for more clusters?
+		for i := 0; i < numClustersExpected; i++ {
+			var hits, misses int = 0, 0
+			for key, expectedValue := range clusterSpec {
+				attrKey := fmt.Sprintf("cluster.%d.%s", i, key)
+				if value, exists := attributes[attrKey]; exists {
+					if value == expectedValue {
+						hits++
+					} else {
+						misses++
+					}
+				}
+				if hits+misses == len(clusterSpec) {
+					continue
+				}
+			}
+			if hits == len(clusterSpec) {
+				numMatches++
+			}
+		}
+		if numMatches == 0 {
+			t.Fatalf("Did not find cluster %#v in state attributes %v", clusterSpec, attributes)
+		} else if numMatches > 1 {
+			t.Fatalf("Found multiple matches for cluster %#v in state attributes %#v", clusterSpec, attributes)
+		}
+
+		// Look for cluster in resource data
+		numMatches = 0
+		for _, cl := range clusters {
+			cluster := cl.(map[string]interface{})
+			hits := 0
+			for key, expectedValue := range clusterSpec {
+				if value, exists := cluster[key]; exists {
+					if key == "num_nodes" {
+						expected, _ := strconv.Atoi(expectedValue)
+						if value == expected {
+							hits++
+						}
+					} else {
+						if value == expectedValue {
+							hits++
+						}
+					}
+				}
+			}
+			if hits == len(clusterSpec) {
+				numMatches++
+			}
+		}
+		if numMatches == 0 {
+			t.Fatalf("Did not find cluster %#v in resource data %#v", clusterSpec, clusters)
+		} else if numMatches > 1 {
+			t.Fatalf("Found multiple matches for cluster %#v in resource data %#v", clusterSpec, clusters)
+		}
 	}
+}
+
+func testUnitGenCluster(clusterId string, zone string, numNodes string, storageType string) map[string]string {
+	m := map[string]string{
+		"cluster_id": clusterId,
+		"zone":       zone,
+	}
+	if numNodes != "" {
+		m["num_nodes"] = numNodes
+	}
+	if storageType != "" {
+		m["storage_type"] = storageType
+	}
+
+	return m
 }
 
 func TestUnitBigtableInstance_MigrateState(t *testing.T) {
 	t.Parallel()
 
-	clusterIdxPairs := [][]string{
-		{"0", "1"},
-		{"1", "2"},
-		{"1234567890", "9876543210"},
-		{"9876543210", "1234567890"},
+	testCases := []map[string]map[string]string{
+		{
+			"0": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
+		},
+		{
+			"0": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
+			"1": testUnitGenCluster("cluster2", "us-central1-a", "3", "SSD"),
+		},
+		{
+			"1": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
+			"0": testUnitGenCluster("cluster2", "us-central1-a", "3", "SSD"),
+		},
+		{
+			"1234567890": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
+		},
+		{
+			"1234567890": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
+			"9876543210": testUnitGenCluster("cluster2", "us-central1-a", "3", "SSD"),
+		},
+		{
+			"9876543210": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
+			"1234567890": testUnitGenCluster("cluster2", "us-central1-a", "3", "SSD"),
+		},
 	}
 
-	for _, clusterIdxs := range clusterIdxPairs {
-		clusterIdx1 := clusterIdxs[0]
-		clusterIdx2 := clusterIdxs[1]
-
-		state := testUnitGenInstanceState(clusterIdx1, clusterIdx2)
-		log.Printf("state: %v", state)
+	for _, clusterSpecs := range testCases {
+		state := testUnitGenInstanceState(clusterSpecs)
+		//log.Printf("state: %v", state)
 		newState, err := resourceBigtableInstance().MigrateState(0, state, nil)
 		if err != nil {
 			t.Fatalf("MigrateState returned error: %s", err)
 		}
-		log.Printf("newState: %v", newState)
-		data := resourceBigtableInstance().Data(newState)
-		log.Printf("data: %v", data)
-		clusters := data.Get("cluster").([]interface{})
+		//log.Printf("newState: %v", newState)
 
-		testUnitBigtableInstance_checkClusters(clusters, t)
+		testUnitBigtableInstance_checkClusters(clusterSpecs, newState, t)
 	}
 }
 
-func testUnitGenInstanceState(clusterIdx1 string, clusterIdx2 string) *terraform.InstanceState {
-	clusterPrefix1 := fmt.Sprintf("cluster.%s", clusterIdx1)
-	clusterPrefix2 := fmt.Sprintf("cluster.%s", clusterIdx2)
+func testUnitGenInstanceState(clusterSpecs map[string]map[string]string) *terraform.InstanceState {
+	attributes := map[string]string{
+		"cluster_id":    "",
+		"display_name":  "foo",
+		"instance_type": "PRODUCTION",
+		"name":          "foo",
+		"num_nodes":     "0",
+		"project":       "some-project",
+		"storage_type":  "SSD",
+		"zone":          "",
+	}
+
+	attributes["cluster.#"] = strconv.Itoa(len(clusterSpecs))
+
+	for idxOrHash, clusterSpec := range clusterSpecs {
+		for k, v := range clusterSpec {
+			attribute := fmt.Sprintf("cluster.%s.%s", idxOrHash, k)
+			attributes[attribute] = v
+		}
+	}
 
 	state := &terraform.InstanceState{
-		ID: "foo",
-		Attributes: map[string]string{
-			"cluster.#": "2",
-			fmt.Sprintf("%s.cluster_id", clusterPrefix1):   "cluster1",
-			fmt.Sprintf("%s.num_nodes", clusterPrefix1):    "3",
-			fmt.Sprintf("%s.storage_type", clusterPrefix1): "SSD",
-			fmt.Sprintf("%s.zone", clusterPrefix1):         "us-central1-a",
-			fmt.Sprintf("%s.cluster_id", clusterPrefix2):   "cluster2",
-			fmt.Sprintf("%s.num_nodes", clusterPrefix2):    "3",
-			fmt.Sprintf("%s.storage_type", clusterPrefix2): "SSD",
-			fmt.Sprintf("%s.zone", clusterPrefix2):         "us-central1-a",
-			"cluster_id":                                   "",
-			"display_name":                                 "foo",
-			"instance_type":                                "PRODUCTION",
-			"name":                                         "foo",
-			"num_nodes":                                    "0",
-			"project":                                      "some-project",
-			"storage_type":                                 "SSD",
-			"zone":                                         "",
-		},
+		ID:         "foo",
+		Attributes: attributes,
 	}
 
 	return state
