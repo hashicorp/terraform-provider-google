@@ -269,6 +269,105 @@ func TestAccProjectServices_pagination(t *testing.T) {
 	})
 }
 
+func TestAccProjectServices_renamedServices(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := "terraform-" + acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				// create new
+				Config: testAccProjectAssociateServicesBasic([]string{
+					"bigquery.googleapis.com",
+					"bigquerystorage.googleapis.com",
+					"iam.googleapis.com",
+					"iamcredentials.googleapis.com",
+					"oslogin.googleapis.com",
+				}, pid, pname, org),
+			},
+			{
+				// transition to old
+				Config: testAccProjectAssociateServicesBasic([]string{
+					"bigquery-json.googleapis.com",
+					"bigquerystorage.googleapis.com",
+					"iam.googleapis.com",
+					"iamcredentials.googleapis.com",
+					"oslogin.googleapis.com",
+				}, pid, pname, org),
+			},
+			{
+				// transition to new
+				Config: testAccProjectAssociateServicesBasic([]string{
+					"bigquery.googleapis.com",
+					"bigquerystorage.googleapis.com",
+					"iam.googleapis.com",
+					"iamcredentials.googleapis.com",
+					"oslogin.googleapis.com",
+				}, pid, pname, org),
+			},
+			{
+				// remove new
+				Config: testAccProjectAssociateServicesBasic([]string{
+					"iam.googleapis.com",
+					"iamcredentials.googleapis.com",
+					"oslogin.googleapis.com",
+				}, pid, pname, org),
+			},
+			{
+				// create both
+				Config: testAccProjectAssociateServicesBasic([]string{
+					"bigquery.googleapis.com",
+					"bigquery-json.googleapis.com",
+					"bigquerystorage.googleapis.com",
+					"iam.googleapis.com",
+					"iamcredentials.googleapis.com",
+					"oslogin.googleapis.com",
+				}, pid, pname, org),
+			},
+			{
+				// remove new
+				Config: testAccProjectAssociateServicesBasic([]string{
+					"bigquery-json.googleapis.com",
+					"bigquerystorage.googleapis.com",
+					"iam.googleapis.com",
+					"iamcredentials.googleapis.com",
+					"oslogin.googleapis.com",
+				}, pid, pname, org),
+			},
+			{
+				// import imports old
+				ResourceName:            "google_project_services.acceptance",
+				ImportState:             true,
+				ImportStateId:           pid,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
+			},
+			{
+				// transition to both
+				Config: testAccProjectAssociateServicesBasic([]string{
+					"bigquery.googleapis.com",
+					"bigquery-json.googleapis.com",
+					"bigquerystorage.googleapis.com",
+					"iam.googleapis.com",
+					"iamcredentials.googleapis.com",
+					"oslogin.googleapis.com",
+				}, pid, pname, org),
+			},
+			{
+				// remove both
+				Config: testAccProjectAssociateServicesBasic([]string{
+					"iam.googleapis.com",
+					"iamcredentials.googleapis.com",
+					"oslogin.googleapis.com",
+				}, pid, pname, org),
+			},
+		},
+	})
+}
+
 func testAccProjectAssociateServicesBasic(services []string, pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {

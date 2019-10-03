@@ -17,6 +17,39 @@ var ignoredProjectServices = []string{"dataproc-control.googleapis.com", "source
 // so don't bother storing them in the config or using them for diffing.
 var ignoredProjectServicesSet = golangSetFromStringSlice(ignoredProjectServices)
 
+// Service Renames
+// we expect when a service is renamed:
+// - both service names will continue to be able to be set
+// - setting one will effectively enable the other as a dependent
+// - GET will return whichever service name is requested
+// - LIST responses will not contain the old service name
+// renames may be reverted, though, so we should canonicalise both ways until
+// the old service is fully removed from the provider
+//
+// We handle service renames in the provider by pretending that we've read both
+// the old and new service names from the API if we see either, and only setting
+// the one(s) that existed in prior state in config (if any). If neither exists,
+// we'll set the new service name in state.
+// Additionally, in case of service rename rollbacks or unexpected early
+// removals, if we fail to create a service that's been renamed we'll attempt to
+// create it with the other name. If both fail, we return the original error.
+
+// map from old -> new names of services that have been renamed
+// these should be removed during major provider versions. comment here with
+// "DEPRECATED FOR {{version}} next to entries slated for removal in {{version}}
+// upon removal, we should disallow the old name from being used even if it's
+// not gone from the underlying API yet
+var renamedServices = map[string]string{
+	"bigquery-json.googleapis.com": "bigquery.googleapis.com", // DEPRECATED FOR 3.0.0
+	"compute2.googleapis.com":      "compute.googleapis.com",
+}
+
+// renamedServices in reverse (new -> old)
+var renamedServicesByNewServiceNames = reverseStringMap(renamedServices)
+
+// renamedServices expressed as both old -> new and new -> old
+var renamedServicesByOldAndNewServiceNames = mergeStringMaps(renamedServices, renamedServicesByNewServiceNames)
+
 func resourceGoogleProjectService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleProjectServiceCreate,
@@ -82,7 +115,7 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	srv := d.Get("service").(string)
-	err = BatchRequestEnableServices([]string{srv}, project, d, config)
+	err = BatchRequestEnableServices(map[string]struct{}{srv: {}}, project, d, config)
 	if err != nil {
 		return err
 	}
@@ -176,6 +209,28 @@ func isServiceEnabled(project, serviceName string, config *Config) (bool, error)
 		return false, errwrap.Wrapf(fmt.Sprintf("Failed to list enabled services for project %s: {{err}}", project), err)
 	}
 	return srv.State == "ENABLED", nil
+}
+
+// Enables a project service. BatchRequestEnableServices should be strongly
+// preferred over this function.
+func enableServiceUsageProjectService(service, project string, d *schema.ResourceData, config *Config) error {
+	err := retryTimeDuration(func() error {
+		name := fmt.Sprintf("projects/%s/services/%s", project, service)
+		sop, err := config.clientServiceUsage.Services.Enable(name, &serviceusage.EnableServiceRequest{}).Do()
+		if err != nil {
+			return err
+		}
+		// Wait for the operation to complete
+		waitErr := serviceUsageOperationWait(config, sop, "api to enable")
+		if waitErr != nil {
+			return waitErr
+		}
+		return nil
+	}, d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return fmt.Errorf("Error enabling service %q for project %q: %v", service, project, err)
+	}
+	return nil
 }
 
 // Disables a project service.
