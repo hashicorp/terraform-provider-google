@@ -148,7 +148,7 @@ func TestAccProjectService_renamedService(t *testing.T) {
 				ResourceName:            "google_project_service.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
+				ImportStateVerifyIgnore: []string{"disable_on_destroy", "disable_dependent_services"},
 			},
 		},
 	})
