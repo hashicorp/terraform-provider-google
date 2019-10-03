@@ -9,60 +9,84 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestUnitBigtableInstance_MigrateState(t *testing.T) {
+func TestBigtableInstanceMigrateState(t *testing.T) {
 	t.Parallel()
 
-	testCases := []map[string]map[string]string{
-		{
-			"0": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
+	cases := map[string]struct {
+		StateVersion int
+		ClusterSpecs map[string]map[string]string
+	}{
+		"one cluster (0-indexed)": {
+			StateVersion: 0,
+			ClusterSpecs: map[string]map[string]string{
+				"0": testGenBigtableCluster("cluster1", "us-central1-a", "3", "SSD"),
+			},
 		},
-		{
-			"0": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
-			"1": testUnitGenCluster("cluster2", "us-central1-a", "3", "SSD"),
+		"two clusters (0-indexed, ordered)": {
+			StateVersion: 0,
+			ClusterSpecs: map[string]map[string]string{
+				"0": testGenBigtableCluster("cluster1", "us-central1-a", "3", "SSD"),
+				"1": testGenBigtableCluster("cluster2", "us-central1-a", "3", "SSD"),
+			},
 		},
-		{
-			"1": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
-			"0": testUnitGenCluster("cluster2", "us-central1-a", "3", "SSD"),
+		"two clusters (0-indexed, unordered)": {
+			StateVersion: 0,
+			ClusterSpecs: map[string]map[string]string{
+				"1": testGenBigtableCluster("cluster1", "us-central1-a", "3", "SSD"),
+				"0": testGenBigtableCluster("cluster2", "us-central1-a", "3", "SSD"),
+			},
 		},
-		{
-			"1234567890": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
+		"one cluster (hash-indexed)": {
+			StateVersion: 0,
+			ClusterSpecs: map[string]map[string]string{
+				"1234567890": testGenBigtableCluster("cluster1", "us-central1-a", "3", "SSD"),
+			},
 		},
-		{
-			"1234567890": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
-			"9876543210": testUnitGenCluster("cluster2", "us-central1-a", "3", "SSD"),
+		"two clusters (hash-indexed, ordered)": {
+			StateVersion: 0,
+			ClusterSpecs: map[string]map[string]string{
+				"1234567890": testGenBigtableCluster("cluster1", "us-central1-a", "3", "SSD"),
+				"9876543210": testGenBigtableCluster("cluster2", "us-central1-a", "3", "SSD"),
+			},
 		},
-		{
-			"9876543210": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
-			"1234567890": testUnitGenCluster("cluster2", "us-central1-a", "3", "SSD"),
+		"two clusters (hash-indexed, unordered)": {
+			StateVersion: 0,
+			ClusterSpecs: map[string]map[string]string{
+				"9876543210": testGenBigtableCluster("cluster1", "us-central1-a", "3", "SSD"),
+				"1234567890": testGenBigtableCluster("cluster2", "us-central1-a", "3", "SSD"),
+			},
 		},
-		{
-			"1234567890": testUnitGenCluster("cluster1", "us-central1-a", "3", "SSD"),
-			"9876543210": testUnitGenCluster("cluster2", "us-central1-a", "", "SSD"),
-			"6789054321": testUnitGenCluster("cluster3", "us-central1-a", "3", ""),
-			"5432167890": testUnitGenCluster("cluster4", "us-central1-a", "", ""),
+		"four clusters (hash-indexed, unordered)": {
+			StateVersion: 0,
+			ClusterSpecs: map[string]map[string]string{
+				"1234567890": testGenBigtableCluster("cluster1", "us-central1-a", "3", "SSD"),
+				"9876543210": testGenBigtableCluster("cluster2", "us-central1-a", "", "SSD"),
+				"6789054321": testGenBigtableCluster("cluster3", "us-central1-a", "3", ""),
+				"5432167890": testGenBigtableCluster("cluster4", "us-central1-a", "", ""),
+			},
 		},
 	}
 
 	// Test with and without top-level fields marked as "Removed"
 	withRemovedFieldsOptions := []bool{true, false}
 
-	for _, clusterSpecs := range testCases {
+	for tn, tc := range cases {
 		for _, withRemovedFields := range withRemovedFieldsOptions {
 			//log.Printf("clusterSpecs: %v", clusterSpecs)
-			state := testUnitGenInstanceState(clusterSpecs, withRemovedFields)
+			state := testGenBigtableInstanceState(tc.ClusterSpecs, withRemovedFields)
 			//log.Printf("state: %v", state)
-			newState, err := resourceBigtableInstance().MigrateState(0, state, nil)
+			newState, err := resourceBigtableInstanceMigrateState(tc.StateVersion, state, nil)
 			if err != nil {
-				t.Fatalf("MigrateState returned error: %s", err)
+				t.Fatalf("bad: %s, err: %#v", tn, err)
 			}
 			//log.Printf("newState: %v", newState)
 
-			testUnitBigtableInstance_checkClusters(clusterSpecs, newState, t)
+			testBigtableInstanceMigrateStateCheckClusters(tn, tc.ClusterSpecs, newState, t)
 		}
 	}
 }
 
-func testUnitGenCluster(clusterId string, zone string, numNodes string, storageType string) map[string]string {
+func testGenBigtableCluster(clusterId string, zone string, numNodes string, storageType string) map[string]string {
 	m := map[string]string{
 		"cluster_id": clusterId,
 		"zone":       zone,
@@ -77,7 +101,7 @@ func testUnitGenCluster(clusterId string, zone string, numNodes string, storageT
 	return m
 }
 
-func testUnitGenInstanceState(clusterSpecs map[string]map[string]string, withRemovedFields bool) *terraform.InstanceState {
+func testGenBigtableInstanceState(clusterSpecs map[string]map[string]string, withRemovedFields bool) *terraform.InstanceState {
 	attributes := map[string]string{
 		"display_name":  "foo",
 		"instance_type": "PRODUCTION",
@@ -110,7 +134,8 @@ func testUnitGenInstanceState(clusterSpecs map[string]map[string]string, withRem
 }
 
 // Check both state and resource
-func testUnitBigtableInstance_checkClusters(
+func testBigtableInstanceMigrateStateCheckClusters(
+	tn string,
 	clusterSpecs map[string]map[string]string,
 	newState *terraform.InstanceState,
 	t *testing.T,
@@ -125,10 +150,16 @@ func testUnitBigtableInstance_checkClusters(
 	numClustersActualState, _ := strconv.Atoi(attributes["cluster.#"])
 	numClustersActualResource := len(clusters)
 	if numClustersActualState != numClustersExpected {
-		t.Fatalf("Num clusters in migrated state (%d) incorrect; expected %d", numClustersActualState, numClustersExpected)
+		assertionKey := "num clusters in migrated state"
+		t.Fatalf(
+			"bad: %s\n\n expected: %s -> %d\n got: %s -> %d",
+			tn, assertionKey, numClustersExpected, assertionKey, numClustersActualState)
 	}
 	if numClustersActualResource != numClustersExpected {
-		t.Fatalf("Num clusters in resource data (%d) incorrect; expected %d", numClustersActualResource, numClustersExpected)
+		assertionKey := "num clusters in resource data"
+		t.Fatalf(
+			"bad: %s\n\n expected: %s -> %d\n got: %s -> %d",
+			tn, assertionKey, numClustersExpected, assertionKey, numClustersActualResource)
 	}
 
 	clusterSpecByIndex := make(map[int]map[string]string)
@@ -157,10 +188,12 @@ func testUnitBigtableInstance_checkClusters(
 				numMatches++
 			}
 		}
-		if numMatches == 0 {
-			t.Fatalf("Did not find cluster %#v in state attributes %#v", clusterSpec, attributes)
-		} else if numMatches > 1 {
-			t.Fatalf("Found multiple matches for cluster %#v in state attributes %#v", clusterSpec, attributes)
+		if numMatches != 1 {
+			assertionKey := "matching clusters in state attributes"
+			in := fmt.Sprintf("for\n - cluster: %#v\n - state attributes: %#v", clusterSpec, attributes)
+			t.Fatalf(
+				"bad: %s\n\n expected: %s -> %d\n got: %s -> %d\n%s",
+				tn, assertionKey, 1, assertionKey, numMatches, in)
 		}
 
 		// Look for cluster in resource data
@@ -186,10 +219,12 @@ func testUnitBigtableInstance_checkClusters(
 				numMatches++
 			}
 		}
-		if numMatches == 0 {
-			t.Fatalf("Did not find cluster %#v in resource data %#v", clusterSpec, clusters)
-		} else if numMatches > 1 {
-			t.Fatalf("Found multiple matches for cluster %#v in resource data %#v", clusterSpec, clusters)
+		if numMatches != 1 {
+			assertionKey := "matching clusters in resource data"
+			in := fmt.Sprintf("for\n - cluster: %#v\n - resouce data clusters: %#v", clusterSpec, clusters)
+			t.Fatalf(
+				"bad: %s\n\n expected: %s -> %d\n got: %s -> %d\n%s",
+				tn, assertionKey, 1, assertionKey, numMatches, in)
 		}
 	}
 
@@ -199,9 +234,13 @@ func testUnitBigtableInstance_checkClusters(
 		for _, field := range fields {
 			_, existsSpec := clusterSpec[field]
 			attrKey := fmt.Sprintf("cluster.%d.%s", idx, field)
-			_, existsState := attributes[attrKey]
+			stateValue, existsState := attributes[attrKey]
 			if existsState && !existsSpec {
-				t.Fatalf("Found %s unexpectedly for cluster_id=%s in state attributes %#v", field, clusterSpec["cluster_id"], attributes)
+				assertionKey := fmt.Sprintf("cluster[%s]", field)
+				in := fmt.Sprintf("for\n - cluster: %#v\n - state attributes: %#v", clusterSpec, attributes)
+				t.Fatalf(
+					"bad: %s\n\n expected: %s -> %s\n got: %s -> %s\n%s",
+					tn, assertionKey, "(should not be set)", assertionKey, stateValue, in)
 			}
 		}
 	}
@@ -209,7 +248,11 @@ func testUnitBigtableInstance_checkClusters(
 	// Make sure fields marked as Removed do not exist in the state attributes
 	for _, field := range fields {
 		if v, exists := attributes[field]; exists {
-			t.Fatalf("Found removed field %s (value: '%s') unexpectedly in state attributes %#v", field, v, attributes)
+			assertionKey := fmt.Sprintf("attributes[%s]", field)
+			in := fmt.Sprintf("for\n - state attributes: %#v", attributes)
+			t.Fatalf(
+				"bad: %s\n\n expected: %s -> %s\n got: %s -> %s\n%s",
+				tn, assertionKey, "(should not be set; removed from schema)", assertionKey, v, in)
 		}
 	}
 }
