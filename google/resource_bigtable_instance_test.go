@@ -136,7 +136,11 @@ func testAccCheckBigtableInstanceDestroy(s *terraform.State) error {
 }
 
 // Check both state and resource
-func testUnitBigtableInstance_checkClusters(clusterSpecs map[string]map[string]string, newState *terraform.InstanceState, t *testing.T) {
+func testUnitBigtableInstance_checkClusters(
+	clusterSpecs map[string]map[string]string,
+	newState *terraform.InstanceState,
+	t *testing.T,
+) {
 	attributes := newState.Attributes
 	data := resourceBigtableInstance().Data(newState)
 	//log.Printf("data: %v", data)
@@ -216,7 +220,6 @@ func testUnitBigtableInstance_checkClusters(clusterSpecs map[string]map[string]s
 	}
 
 	// Make sure nothing exists that shouldn't
-	// TODO: Also do for resource data?
 	fields := []string{"cluster_id", "num_nodes", "storage_type", "zone"}
 	for idx, clusterSpec := range clusterSpecByIndex {
 		for _, field := range fields {
