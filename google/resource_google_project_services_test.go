@@ -406,13 +406,16 @@ func testProjectServicesMatch(services []string, pid string) resource.TestCheckF
 			return fmt.Errorf("Error listing services for project %q: %v", pid, err)
 		}
 
+		servicesSet := golangSetFromStringSlice(services)
 		// add renamed service aliases because listCurrentlyEnabledServices will
 		// have both
-		for k := range currentlyEnabled {
+		for k := range servicesSet {
 			if v, ok := renamedServicesByOldAndNewServiceNames[k]; ok {
-				currentlyEnabled[v] = struct{}{}
+				servicesSet[v] = struct{}{}
 			}
 		}
+
+		services = stringSliceFromGolangSet(servicesSet)
 
 		apiServices := stringSliceFromGolangSet(currentlyEnabled)
 		sort.Strings(services)
