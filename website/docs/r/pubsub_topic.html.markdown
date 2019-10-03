@@ -145,12 +145,11 @@ This resource provides the following
 
 ## Import
 
-Topic can be imported using any of these accepted formats:
+Topic can be imported using either of these accepted formats:
 
 ```
 $ terraform import google_pubsub_topic.default projects/{{project}}/topics/{{name}}
 $ terraform import google_pubsub_topic.default {{project}}/{{name}}
-$ terraform import google_pubsub_topic.default {{name}}
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
