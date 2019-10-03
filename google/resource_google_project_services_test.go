@@ -179,8 +179,7 @@ func TestAccProjectServices_ignoreUnenablableServices(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId),
-				Check: resource.ComposeTestCheckFunc(
-					testProjectServicesMatch(services, pid),
+				Check: resource.ComposeTestCheckFunc(testProjectServicesMatch(services, pid),
 				),
 			},
 		},
@@ -406,6 +405,14 @@ func testProjectServicesMatch(services []string, pid string) resource.TestCheckF
 		currentlyEnabled, err := listCurrentlyEnabledServices(pid, config, time.Minute*10)
 		if err != nil {
 			return fmt.Errorf("Error listing services for project %q: %v", pid, err)
+		}
+
+		// add renamed service aliases because listCurrentlyEnabledServices will
+		// have both
+		for k := range currentlyEnabled {
+			if v, ok := renamedServicesByOldAndNewServiceNames[k]; ok {
+				currentlyEnabled[v] = struct{}{}
+			}
 		}
 
 		apiServices := stringSliceFromGolangSet(currentlyEnabled)

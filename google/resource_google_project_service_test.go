@@ -304,6 +304,8 @@ resource "google_project" "acceptance" {
 resource "google_project_service" "test" {
   project = "${google_project.acceptance.project_id}"
   service = "%s"
+
+  disable_dependent_services = true
 }
 
 `, pid, name, org, service)
