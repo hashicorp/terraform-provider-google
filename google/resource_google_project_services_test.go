@@ -179,8 +179,7 @@ func TestAccProjectServices_ignoreUnenablableServices(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectAssociateServicesBasic_withBilling(services, pid, pname, org, billingId),
-				Check: resource.ComposeTestCheckFunc(testProjectServicesMatch(services, pid),
-				),
+				Check:  resource.ComposeTestCheckFunc(testProjectServicesMatch(services, pid)),
 			},
 		},
 	})
