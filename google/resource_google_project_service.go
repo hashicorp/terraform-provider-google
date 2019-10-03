@@ -211,28 +211,6 @@ func isServiceEnabled(project, serviceName string, config *Config) (bool, error)
 	return srv.State == "ENABLED", nil
 }
 
-// Enables a project service. BatchRequestEnableServices should be strongly
-// preferred over this function.
-func enableServiceUsageProjectService(service, project string, d *schema.ResourceData, config *Config) error {
-	err := retryTimeDuration(func() error {
-		name := fmt.Sprintf("projects/%s/services/%s", project, service)
-		sop, err := config.clientServiceUsage.Services.Enable(name, &serviceusage.EnableServiceRequest{}).Do()
-		if err != nil {
-			return err
-		}
-		// Wait for the operation to complete
-		waitErr := serviceUsageOperationWait(config, sop, "api to enable")
-		if waitErr != nil {
-			return waitErr
-		}
-		return nil
-	}, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return fmt.Errorf("Error enabling service %q for project %q: %v", service, project, err)
-	}
-	return nil
-}
-
 // Disables a project service.
 func disableServiceUsageProjectService(service, project string, d *schema.ResourceData, config *Config, disableDependentServices bool) error {
 	err := retryTimeDuration(func() error {
