@@ -775,6 +775,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		ResourceLabels:          expandStringMap(d, "resource_labels"),
 	}
 
+	if v, ok := d.GetOk("default_max_pods_per_node"); ok {
+		cluster.DefaultMaxPodsConstraint = expandDefaultMaxPodsConstraint(v)
+	}
+
 	// Only allow setting node_version on create if it's set to the equivalent master version,
 	// since `InitialClusterVersion` only accepts valid master-style versions.
 	if v, ok := d.GetOk("node_version"); ok {
