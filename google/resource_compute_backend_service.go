@@ -129,6 +129,15 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))
 	}
 
+	// This is in region backend service, but not in backend service.  Should be a no-op
+	// if it's not present.
+	if v, ok := m["failover"]; ok {
+		if v == nil {
+			v = false
+		}
+		buf.WriteString(fmt.Sprintf("%v-", v.(bool)))
+	}
+
 	log.Printf("[DEBUG] computed hash value of %v from %v", hashcode.String(buf.String()), buf.String())
 	return hashcode.String(buf.String())
 }
