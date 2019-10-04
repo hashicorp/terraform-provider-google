@@ -60,7 +60,7 @@ func migrateBigtableInstanceStateV0toV1(is *terraform.InstanceState) (*terraform
 			oldAttrKey := fmt.Sprintf("cluster.%s.%s", hash, field)
 			newAttrKey := fmt.Sprintf("cluster.%d.%s", idx, field)
 			if _, exists := is.Attributes[oldAttrKey]; exists {
-				log.Printf("[DEBUG] Migrating %s to %s", oldAttrKey, newAttrKey)
+				log.Printf("[DEBUG] Migrating %s to %s (value: %s)", oldAttrKey, newAttrKey, is.Attributes[oldAttrKey])
 				newAttributes[newAttrKey] = is.Attributes[oldAttrKey]
 				delete(is.Attributes, oldAttrKey)
 			}
