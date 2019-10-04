@@ -311,6 +311,28 @@ func stringSliceFromGolangSet(sset map[string]struct{}) []string {
 	return ls
 }
 
+func reverseStringMap(m map[string]string) map[string]string {
+	o := map[string]string{}
+	for k, v := range m {
+		o[v] = k
+	}
+	return o
+}
+
+func mergeStringMaps(a, b map[string]string) map[string]string {
+	merged := make(map[string]string)
+
+	for k, v := range a {
+		merged[k] = v
+	}
+
+	for k, v := range b {
+		merged[k] = v
+	}
+
+	return merged
+}
+
 func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 	merged := make(map[string]*schema.Schema)
 
