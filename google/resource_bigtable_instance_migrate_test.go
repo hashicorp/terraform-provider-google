@@ -2,7 +2,7 @@ package google
 
 import (
 	"fmt"
-	//"log"
+	"log"
 	"strconv"
 	"testing"
 
@@ -34,6 +34,33 @@ func TestBigtableInstanceMigrateState(t *testing.T) {
 			ClusterSpecs: map[string]map[string]string{
 				"1": testGenBigtableCluster("cluster1", "us-central1-a", "3", "SSD"),
 				"0": testGenBigtableCluster("cluster2", "us-central1-a", "3", "SSD"),
+			},
+		},
+		"four clusters (0-indexed, ordered)": {
+			StateVersion: 0,
+			ClusterSpecs: map[string]map[string]string{
+				"0": testGenBigtableCluster("cluster1", "us-central1-a", "3", "SSD"),
+				"1": testGenBigtableCluster("cluster2", "us-central1-a", "", "SSD"),
+				"2": testGenBigtableCluster("cluster3", "us-central1-a", "3", ""),
+				"3": testGenBigtableCluster("cluster4", "us-central1-a", "", ""),
+			},
+		},
+		"four clusters (0-indexed, unordered indexes)": {
+			StateVersion: 0,
+			ClusterSpecs: map[string]map[string]string{
+				"2": testGenBigtableCluster("cluster1", "us-central1-a", "3", "SSD"),
+				"1": testGenBigtableCluster("cluster2", "us-central1-a", "", "SSD"),
+				"3": testGenBigtableCluster("cluster3", "us-central1-a", "3", ""),
+				"0": testGenBigtableCluster("cluster4", "us-central1-a", "", ""),
+			},
+		},
+		"four clusters (0-indexed, unordered elements)": {
+			StateVersion: 0,
+			ClusterSpecs: map[string]map[string]string{
+				"3": testGenBigtableCluster("cluster4", "us-central1-a", "", ""),
+				"0": testGenBigtableCluster("cluster1", "us-central1-a", "3", "SSD"),
+				"2": testGenBigtableCluster("cluster3", "us-central1-a", "3", ""),
+				"1": testGenBigtableCluster("cluster2", "us-central1-a", "", "SSD"),
 			},
 		},
 		"one cluster (hash-indexed)": {
@@ -72,14 +99,12 @@ func TestBigtableInstanceMigrateState(t *testing.T) {
 
 	for tn, tc := range cases {
 		for _, withRemovedFields := range withRemovedFieldsOptions {
-			//log.Printf("clusterSpecs: %v", clusterSpecs)
+			log.Printf("[DEBUG] Running test '%s' (withRemovedFields=%#v)", tn, withRemovedFields)
 			state := testGenBigtableInstanceState(tc.ClusterSpecs, withRemovedFields)
-			//log.Printf("state: %v", state)
 			newState, err := resourceBigtableInstanceMigrateState(tc.StateVersion, state, nil)
 			if err != nil {
 				t.Fatalf("bad: %s, err: %#v", tn, err)
 			}
-			//log.Printf("newState: %v", newState)
 
 			testBigtableInstanceMigrateStateCheckClusters(tn, tc.ClusterSpecs, newState, t)
 		}
@@ -142,9 +167,7 @@ func testBigtableInstanceMigrateStateCheckClusters(
 ) {
 	attributes := newState.Attributes
 	data := resourceBigtableInstance().Data(newState)
-	//log.Printf("data: %v", data)
 	clusters := data.Get("cluster").([]interface{})
-	//log.Printf("clusters: %v", clusters)
 
 	numClustersExpected := len(clusterSpecs)
 	numClustersActualState, _ := strconv.Atoi(attributes["cluster.#"])
@@ -221,10 +244,47 @@ func testBigtableInstanceMigrateStateCheckClusters(
 		}
 		if numMatches != 1 {
 			assertionKey := "matching clusters in resource data"
-			in := fmt.Sprintf("for\n - cluster: %#v\n - resouce data clusters: %#v", clusterSpec, clusters)
+			in := fmt.Sprintf("for\n - cluster: %#v\n - resource data clusters: %#v", clusterSpec, clusters)
 			t.Fatalf(
 				"bad: %s\n\n expected: %s -> %d\n got: %s -> %d\n%s",
 				tn, assertionKey, 1, assertionKey, numMatches, in)
+		}
+	}
+
+	// Make sure clusters stayed in order if the input state was 0-indexed
+	shouldRetainOrder := true
+	for idxOrHash, _ := range clusterSpecs {
+		idxOrHashInt, err := strconv.Atoi(idxOrHash)
+		if err == nil && idxOrHashInt < numClustersExpected {
+			shouldRetainOrder = shouldRetainOrder && true
+		} else {
+			shouldRetainOrder = false
+		}
+	}
+	if shouldRetainOrder {
+		for key, clusterSpec := range clusterSpecs {
+			idx, _ := strconv.Atoi(key)
+			clusterIdSpec := clusterSpec["cluster_id"]
+			// Check state
+			attrKey := fmt.Sprintf("cluster.%d.cluster_id", idx)
+			clusterIdState := attributes[attrKey]
+			if clusterIdState != clusterIdSpec {
+				assertionKey := fmt.Sprintf("attributes[%s]", attrKey)
+				in := fmt.Sprintf("for\n - state attributes: %#v", attributes)
+				t.Fatalf(
+					"bad: %s\n\n expected: %s -> %s\n got: %s -> %s\n%s",
+					tn, assertionKey, clusterIdSpec, assertionKey, clusterIdState, in)
+			}
+			// Also check resource data
+			cluster := clusters[idx].(map[string]interface{})
+			clusterIdResourceData := cluster["cluster_id"]
+			if clusterIdResourceData != clusterIdSpec {
+				assertionKey := fmt.Sprintf("data.Get(\"cluster\")[%d][\"cluster_id\"]", idx)
+				in := fmt.Sprintf("for\n - resource data clusters: %#v", clusters)
+				t.Fatalf(
+					"bad: %s\n\n expected: %s -> %s\n got: %s -> %s\n%s",
+					tn, assertionKey, clusterIdSpec, assertionKey, clusterIdResourceData, in)
+			}
 		}
 	}
 
