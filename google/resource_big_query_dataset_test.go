@@ -135,6 +135,29 @@ func TestAccBigQueryDataset_regionalLocation(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDataset_cmek(t *testing.T) {
+	t.Parallel()
+
+	kms := BootstrapKMSKeyInLocation(t, "us")
+	pid := getTestProjectFromEnv()
+	datasetID1 := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDataset_cmek(pid, datasetID1, kms.CryptoKey.Name),
+			},
+			{
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccAddTable(datasetID string, tableID string) resource.TestCheckFunc {
 	// Not actually a check, but adds a table independently of terraform
 	return func(s *terraform.State) error {
@@ -302,4 +325,32 @@ resource "google_bigquery_dataset" "access_test" {
     default_table_expiration_ms = 3600000
   }
 }`, otherDatasetID, otherTableID, datasetID)
+}
+
+func testAccBigQueryDataset_cmek(pid, datasetID, kmsKey string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+
+resource "google_project_iam_member" "kms-project-binding" {
+  project = "${data.google_project.project.project_id}"
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:bq-${data.google_project.project.number}@bigquery-encryption.iam.gserviceaccount.com"
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id                  = "%s"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "US"
+  default_table_expiration_ms = 3600000
+
+  default_encryption_configuration {
+    kms_key_name = "%s"
+  }
+
+  project = "${google_project_iam_member.kms-project-binding.project}"
+}
+`, pid, datasetID, kmsKey)
 }

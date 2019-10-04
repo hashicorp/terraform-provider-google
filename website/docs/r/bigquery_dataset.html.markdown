@@ -55,6 +55,32 @@ resource "google_bigquery_dataset" "dataset" {
   }
 }
 ```
+## Example Usage - Bigquery Dataset Cmek
+
+
+```hcl
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id                  = "example_dataset"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "US"
+  default_table_expiration_ms = 3600000
+
+  default_encryption_configuration {
+    kms_key_name = "${google_kms_crypto_key.crypto_key.self_link}"
+  }
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  name     = "example-key"
+  key_ring = "${google_kms_key_ring.key_ring.self_link}"
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  name     = "example-keyring"
+  location = "us"
+}
+```
 
 ## Argument Reference
 
@@ -139,6 +165,12 @@ The following arguments are supported:
   The default value is multi-regional location `US`.
   Changing this forces a new resource to be created.
 
+* `default_encryption_configuration` -
+  (Optional)
+  The default encryption key for all tables in the dataset. Once this property is set,
+  all newly-created partitioned tables in the dataset will have encryption key set to
+  this value, unless table creation request (or query) overrides the key.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -209,6 +241,14 @@ The `view` block supports:
   The ID of the table. The ID must contain only letters (a-z,
   A-Z), numbers (0-9), or underscores (_). The maximum length
   is 1,024 characters.
+
+The `default_encryption_configuration` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Describes the Cloud KMS encryption key that will be used to protect destination
+  BigQuery table. The BigQuery Service Account associated with your project requires
+  access to this encryption key.
 
 ## Attributes Reference
 
