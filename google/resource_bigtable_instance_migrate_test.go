@@ -158,7 +158,8 @@ func testGenBigtableInstanceState(clusterSpecs map[string]map[string]string, wit
 	return state
 }
 
-// Check both state and resource
+// Run tests to validate that the state has been correctly migrated, and that the
+// resource data it represents is also generated correctly from the state
 func testBigtableInstanceMigrateStateCheckClusters(
 	tn string,
 	clusterSpecs map[string]map[string]string,
@@ -170,6 +171,29 @@ func testBigtableInstanceMigrateStateCheckClusters(
 	clusters := data.Get("cluster").([]interface{})
 
 	numClustersExpected := len(clusterSpecs)
+
+	// First, validate that the expected number of clusters exist in both the state
+	// and the resource data it represents
+	validateNumClusters(tn, numClustersExpected, attributes, clusters, t)
+
+	// Ensure that each expected cluster exists only once in both the state and the
+	// resource data it represents
+	expectedAttributes := validateClustersExist(tn, clusterSpecs, numClustersExpected, attributes, clusters, t)
+
+	// Make sure clusters stayed in order if the input state was 0-indexed
+	validateClusterOrder(tn, clusterSpecs, numClustersExpected, attributes, clusters, t)
+
+	// Make sure no unexpected attributes are in the state
+	validateNoUnexpectedAttributes(tn, attributes, expectedAttributes, t)
+}
+
+func validateNumClusters(
+	tn string,
+	numClustersExpected int,
+	attributes map[string]string,
+	clusters []interface{},
+	t *testing.T,
+) {
 	numClustersActualState, _ := strconv.Atoi(attributes["cluster.#"])
 	numClustersActualResource := len(clusters)
 	if numClustersActualState != numClustersExpected {
@@ -184,7 +208,18 @@ func testBigtableInstanceMigrateStateCheckClusters(
 			"bad: %s\n\n expected: %s -> %d\n got: %s -> %d",
 			tn, assertionKey, numClustersExpected, assertionKey, numClustersActualResource)
 	}
+}
 
+func validateClustersExist(
+	tn string,
+	clusterSpecs map[string]map[string]string,
+	numClustersExpected int,
+	attributes map[string]string,
+	clusters []interface{},
+	t *testing.T,
+) map[string]bool {
+	// Keep track of the attributes we expect to be in the state so we can later make
+	// sure nothing unexpected is also there
 	expectedAttributes := make(map[string]bool)
 	coreAttributes := []string{"cluster.#", "display_name", "id", "instance_type", "name", "project"}
 	for _, attr := range coreAttributes {
@@ -193,32 +228,13 @@ func testBigtableInstanceMigrateStateCheckClusters(
 
 	for _, clusterSpec := range clusterSpecs {
 		// Look for cluster in migrated state
-		numMatches := 0
-		for i := 0; i < numClustersExpected; i++ {
-			var hits, misses int = 0, 0
-			clusterAttributes := make([]string, 0, len(clusterSpec))
-			for key, expectedValue := range clusterSpec {
-				attrKey := fmt.Sprintf("cluster.%d.%s", i, key)
-				if value, exists := attributes[attrKey]; exists {
-					if value == expectedValue {
-						clusterAttributes = append(clusterAttributes, attrKey)
-						hits++
-					} else {
-						misses++
-					}
-				}
-				if hits+misses == len(clusterSpec) {
-					continue
-				}
+		numMatches, expectedAttributesForCluster := findMatchingClustersInState(clusterSpec, numClustersExpected, attributes)
+		if numMatches == 1 {
+			// Add found attributes to the overall set of expected ones
+			for attr, _ := range expectedAttributesForCluster {
+				expectedAttributes[attr] = true
 			}
-			if hits == len(clusterSpec) {
-				for _, attr := range clusterAttributes {
-					expectedAttributes[attr] = true
-				}
-				numMatches++
-			}
-		}
-		if numMatches != 1 {
+		} else {
 			assertionKey := "matching clusters in state attributes"
 			in := fmt.Sprintf("for\n - cluster: %#v\n - state attributes: %#v", clusterSpec, attributes)
 			t.Fatalf(
@@ -227,28 +243,7 @@ func testBigtableInstanceMigrateStateCheckClusters(
 		}
 
 		// Look for cluster in resource data
-		numMatches = 0
-		for _, cl := range clusters {
-			cluster := cl.(map[string]interface{})
-			hits := 0
-			for key, expectedValue := range clusterSpec {
-				if value, exists := cluster[key]; exists {
-					if key == "num_nodes" {
-						expected, _ := strconv.Atoi(expectedValue)
-						if value == expected {
-							hits++
-						}
-					} else {
-						if value == expectedValue {
-							hits++
-						}
-					}
-				}
-			}
-			if hits == len(clusterSpec) {
-				numMatches++
-			}
-		}
+		numMatches = findMatchingClustersInResourceData(clusterSpec, clusters)
 		if numMatches != 1 {
 			assertionKey := "matching clusters in resource data"
 			in := fmt.Sprintf("for\n - cluster: %#v\n - resource data clusters: %#v", clusterSpec, clusters)
@@ -258,7 +253,79 @@ func testBigtableInstanceMigrateStateCheckClusters(
 		}
 	}
 
-	// Make sure clusters stayed in order if the input state was 0-indexed
+	return expectedAttributes
+}
+
+func findMatchingClustersInState(
+	clusterSpec map[string]string,
+	numClustersExpected int,
+	attributes map[string]string,
+) (int, map[string]bool) {
+	numMatches := 0
+	expectedAttributes := make(map[string]bool)
+	for i := 0; i < numClustersExpected; i++ {
+		var hits, misses int = 0, 0
+		clusterAttributes := make([]string, 0, len(clusterSpec))
+		for key, expectedValue := range clusterSpec {
+			attrKey := fmt.Sprintf("cluster.%d.%s", i, key)
+			if value, exists := attributes[attrKey]; exists {
+				if value == expectedValue {
+					clusterAttributes = append(clusterAttributes, attrKey)
+					hits++
+				} else {
+					misses++
+				}
+			}
+			if hits+misses == len(clusterSpec) {
+				continue
+			}
+		}
+		if hits == len(clusterSpec) {
+			for _, attr := range clusterAttributes {
+				expectedAttributes[attr] = true
+			}
+			numMatches++
+		}
+	}
+
+	return numMatches, expectedAttributes
+}
+
+func findMatchingClustersInResourceData(clusterSpec map[string]string, clusters []interface{}) int {
+	numMatches := 0
+	for _, cl := range clusters {
+		cluster := cl.(map[string]interface{})
+		hits := 0
+		for key, expectedValue := range clusterSpec {
+			if value, exists := cluster[key]; exists {
+				if key == "num_nodes" {
+					expected, _ := strconv.Atoi(expectedValue)
+					if value == expected {
+						hits++
+					}
+				} else {
+					if value == expectedValue {
+						hits++
+					}
+				}
+			}
+		}
+		if hits == len(clusterSpec) {
+			numMatches++
+		}
+	}
+
+	return numMatches
+}
+
+func validateClusterOrder(
+	tn string,
+	clusterSpecs map[string]map[string]string,
+	numClustersExpected int,
+	attributes map[string]string,
+	clusters []interface{},
+	t *testing.T,
+) {
 	shouldRetainOrder := true
 	for idxOrHash, _ := range clusterSpecs {
 		idxOrHashInt, err := strconv.Atoi(idxOrHash)
@@ -294,8 +361,14 @@ func testBigtableInstanceMigrateStateCheckClusters(
 			}
 		}
 	}
+}
 
-	// Make sure no unexpected attributes are in the state
+func validateNoUnexpectedAttributes(
+	tn string,
+	attributes map[string]string,
+	expectedAttributes map[string]bool,
+	t *testing.T,
+) {
 	for k, v := range attributes {
 		if _, exists := expectedAttributes[k]; !exists {
 			assertionKey := fmt.Sprintf("attributes[\"%s\"]", k)
