@@ -132,6 +132,28 @@ func TestAccProjectService_handleNotFound(t *testing.T) {
 	})
 }
 
+func TestAccProjectService_renamedService(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := "terraform-" + acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProjectService_single("bigquery-json.googleapis.com", pid, pname, org),
+			},
+			{
+				ResourceName:            "google_project_service.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disable_on_destroy", "disable_dependent_services"},
+			},
+		},
+	})
+}
+
 func testAccCheckProjectService(services []string, pid string, expectEnabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -269,4 +291,22 @@ resource "google_project_service" "test" {
   service = "%s"
 }
 `, pid, service)
+}
+
+func testAccProjectService_single(service string, pid, name, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
+}
+
+resource "google_project_service" "test" {
+  project = "${google_project.acceptance.project_id}"
+  service = "%s"
+
+  disable_dependent_services = true
+}
+
+`, pid, name, org, service)
 }

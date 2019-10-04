@@ -8,6 +8,7 @@ import (
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/serviceusage/v1"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -90,10 +91,35 @@ func resourceGoogleProjectServicesRead(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
+
+	// use old services to set the correct renamed service names in state
+	s, _ := expandServiceUsageProjectServicesServices(d.Get("services"), d, config)
+	log.Printf("[DEBUG] Saw services in state on Read: %s ", s)
+	sset := golangSetFromStringSlice(s)
+	for ov, nv := range renamedServices {
+		_, ook := sset[ov]
+		_, nok := sset[nv]
+
+		// preserve the values set in prior state if they're identical. If none
+		// were set, we  delete the new value if it exists. By doing that that
+		// we only store the old value if the service is enabled, and no value
+		// if it isn't.
+		if ook && nok {
+			continue
+		} else if ook {
+			delete(enabledSet, nv)
+		} else if nok {
+			delete(enabledSet, ov)
+		} else {
+			delete(enabledSet, nv)
+		}
+	}
+
 	services := stringSliceFromGolangSet(enabledSet)
 
 	d.Set("project", d.Id())
 	d.Set("services", flattenServiceUsageProjectServicesServices(services, d))
+
 	return nil
 }
 
@@ -132,25 +158,59 @@ func setServiceUsageProjectEnabledServices(services []string, project string, d 
 		return err
 	}
 
-	toEnable := make([]string, 0, len(services))
+	toEnable := map[string]struct{}{}
 	for _, srv := range services {
 		// We don't have to enable a service if it's already enabled.
 		if _, ok := currentlyEnabled[srv]; !ok {
-			toEnable = append(toEnable, srv)
+			toEnable[srv] = struct{}{}
 		}
 	}
 
-	if err := BatchRequestEnableServices(toEnable, project, d, config); err != nil {
-		return fmt.Errorf("unable to enable Project Services %s (%+v): %s", project, services, err)
+	if len(toEnable) > 0 {
+		log.Printf("[DEBUG] Enabling services: %s", toEnable)
+		if err := BatchRequestEnableServices(toEnable, project, d, config); err != nil {
+			return fmt.Errorf("unable to enable Project Services %s (%+v): %s", project, services, err)
+		}
+	} else {
+		log.Printf("[DEBUG] No services to enable.")
 	}
 
 	srvSet := golangSetFromStringSlice(services)
+
+	srvSetWithRenames := map[string]struct{}{}
+
+	// we'll always list both names for renamed services, so allow both forms if
+	// we see both.
+	for k := range srvSet {
+		srvSetWithRenames[k] = struct{}{}
+		if v, ok := renamedServicesByOldAndNewServiceNames[k]; ok {
+			srvSetWithRenames[v] = struct{}{}
+		}
+	}
+
 	for srv := range currentlyEnabled {
 		// Disable any services that are currently enabled for project but are not
 		// in our list of acceptable services.
-		if _, ok := srvSet[srv]; !ok {
+		if _, ok := srvSetWithRenames[srv]; !ok {
+			// skip deleting services by their new names and prefer the old name.
+			if _, ok := renamedServicesByNewServiceNames[srv]; ok {
+				continue
+			}
+
 			log.Printf("[DEBUG] Disabling project %s service %s", project, srv)
-			if err := disableServiceUsageProjectService(srv, project, d, config, true); err != nil {
+			err := disableServiceUsageProjectService(srv, project, d, config, true)
+			if err != nil {
+				log.Printf("[DEBUG] Saw error %s deleting service %s", err, srv)
+
+				// if we got the right error and the service is renamed, delete by the new name
+				if n, ok := renamedServices[srv]; ok && strings.Contains(err.Error(), "not found or permission denied.") {
+					log.Printf("[DEBUG] Failed to delete service %s, it doesn't exist. Trying %s", srv, n)
+					err = disableServiceUsageProjectService(n, project, d, config, true)
+					if err == nil {
+						return nil
+					}
+				}
+
 				return fmt.Errorf("unable to disable unwanted Project Service %s %s): %s", project, srv, err)
 			}
 		}
@@ -222,6 +282,9 @@ func expandServiceUsageProjectServicesServices(v interface{}, d TerraformResourc
 }
 
 // Retrieve a project's services from the API
+// if a service has been renamed, this function will list both the old and new
+// forms of the service. LIST responses are expected to return only the old or
+// new form, but we'll always return both.
 func listCurrentlyEnabledServices(project string, config *Config, timeout time.Duration) (map[string]struct{}, error) {
 	// Verify project for services still exists
 	p, err := config.clientResourceManager.Projects.Get(project).Do()
@@ -246,10 +309,19 @@ func listCurrentlyEnabledServices(project string, config *Config, timeout time.D
 			Filter("state:ENABLED").
 			Pages(ctx, func(r *serviceusage.ListServicesResponse) error {
 				for _, v := range r.Services {
-					// services are returned as "projects/PROJECT/services/NAME"
+					// services are returned as "projects/{{project}}/services/{{name}}"
 					name := GetResourceNameFromSelfLink(v.Name)
+
+					// if name not in ignoredProjectServicesSet
 					if _, ok := ignoredProjectServicesSet[name]; !ok {
 						apiServices[name] = struct{}{}
+
+						// if a service has been renamed, set both. We'll deal
+						// with setting the right values later.
+						if v, ok := renamedServicesByOldAndNewServiceNames[name]; ok {
+							log.Printf("[DEBUG] Adding service alias for %s to enabled services: %s", name, v)
+							apiServices[v] = struct{}{}
+						}
 					}
 				}
 				return nil
