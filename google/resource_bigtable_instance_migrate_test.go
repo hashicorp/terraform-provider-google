@@ -185,18 +185,23 @@ func testBigtableInstanceMigrateStateCheckClusters(
 			tn, assertionKey, numClustersExpected, assertionKey, numClustersActualResource)
 	}
 
-	clusterSpecByIndex := make(map[int]map[string]string)
+	expectedAttributes := make(map[string]bool)
+	coreAttributes := []string{"cluster.#", "display_name", "id", "instance_type", "name", "project"}
+	for _, attr := range coreAttributes {
+		expectedAttributes[attr] = true
+	}
 
 	for _, clusterSpec := range clusterSpecs {
 		// Look for cluster in migrated state
 		numMatches := 0
-		// TODO: Look for more clusters?
 		for i := 0; i < numClustersExpected; i++ {
 			var hits, misses int = 0, 0
+			clusterAttributes := make([]string, 0, len(clusterSpec))
 			for key, expectedValue := range clusterSpec {
 				attrKey := fmt.Sprintf("cluster.%d.%s", i, key)
 				if value, exists := attributes[attrKey]; exists {
 					if value == expectedValue {
+						clusterAttributes = append(clusterAttributes, attrKey)
 						hits++
 					} else {
 						misses++
@@ -207,7 +212,9 @@ func testBigtableInstanceMigrateStateCheckClusters(
 				}
 			}
 			if hits == len(clusterSpec) {
-				clusterSpecByIndex[i] = clusterSpec
+				for _, attr := range clusterAttributes {
+					expectedAttributes[attr] = true
+				}
 				numMatches++
 			}
 		}
@@ -288,31 +295,14 @@ func testBigtableInstanceMigrateStateCheckClusters(
 		}
 	}
 
-	// Make sure nothing exists that shouldn't
-	fields := []string{"cluster_id", "num_nodes", "storage_type", "zone"}
-	for idx, clusterSpec := range clusterSpecByIndex {
-		for _, field := range fields {
-			_, existsSpec := clusterSpec[field]
-			attrKey := fmt.Sprintf("cluster.%d.%s", idx, field)
-			stateValue, existsState := attributes[attrKey]
-			if existsState && !existsSpec {
-				assertionKey := fmt.Sprintf("cluster[%s]", field)
-				in := fmt.Sprintf("for\n - cluster: %#v\n - state attributes: %#v", clusterSpec, attributes)
-				t.Fatalf(
-					"bad: %s\n\n expected: %s -> %s\n got: %s -> %s\n%s",
-					tn, assertionKey, "(should not be set)", assertionKey, stateValue, in)
-			}
-		}
-	}
-
-	// Make sure fields marked as Removed do not exist in the state attributes
-	for _, field := range fields {
-		if v, exists := attributes[field]; exists {
-			assertionKey := fmt.Sprintf("attributes[%s]", field)
+	// Make sure no unexpected attributes are in the state
+	for k, v := range attributes {
+		if _, exists := expectedAttributes[k]; !exists {
+			assertionKey := fmt.Sprintf("attributes[\"%s\"]", k)
 			in := fmt.Sprintf("for\n - state attributes: %#v", attributes)
 			t.Fatalf(
 				"bad: %s\n\n expected: %s -> %s\n got: %s -> %s\n%s",
-				tn, assertionKey, "(should not be set; removed from schema)", assertionKey, v, in)
+				tn, assertionKey, "(should not be set)", assertionKey, v, in)
 		}
 	}
 }
