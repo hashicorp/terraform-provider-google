@@ -438,8 +438,8 @@ func Provider() terraform.ResourceProvider {
 }
 
 // Generated resources: 80
-// Generated IAM resources: 27
-// Total generated resources: 107
+// Generated IAM resources: 33
+// Total generated resources: 113
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -522,6 +522,12 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_iap_web_type_app_engine_iam_binding":       ResourceIamBinding(IapWebTypeAppEngineIamSchema, IapWebTypeAppEngineIamUpdaterProducer, IapWebTypeAppEngineIdParseFunc),
 			"google_iap_web_type_app_engine_iam_member":        ResourceIamMember(IapWebTypeAppEngineIamSchema, IapWebTypeAppEngineIamUpdaterProducer, IapWebTypeAppEngineIdParseFunc),
 			"google_iap_web_type_app_engine_iam_policy":        ResourceIamPolicy(IapWebTypeAppEngineIamSchema, IapWebTypeAppEngineIamUpdaterProducer, IapWebTypeAppEngineIdParseFunc),
+			"google_iap_app_engine_version_iam_binding":        ResourceIamBinding(IapAppEngineVersionIamSchema, IapAppEngineVersionIamUpdaterProducer, IapAppEngineVersionIdParseFunc),
+			"google_iap_app_engine_version_iam_member":         ResourceIamMember(IapAppEngineVersionIamSchema, IapAppEngineVersionIamUpdaterProducer, IapAppEngineVersionIdParseFunc),
+			"google_iap_app_engine_version_iam_policy":         ResourceIamPolicy(IapAppEngineVersionIamSchema, IapAppEngineVersionIamUpdaterProducer, IapAppEngineVersionIdParseFunc),
+			"google_iap_app_engine_service_iam_binding":        ResourceIamBinding(IapAppEngineServiceIamSchema, IapAppEngineServiceIamUpdaterProducer, IapAppEngineServiceIdParseFunc),
+			"google_iap_app_engine_service_iam_member":         ResourceIamMember(IapAppEngineServiceIamSchema, IapAppEngineServiceIamUpdaterProducer, IapAppEngineServiceIdParseFunc),
+			"google_iap_app_engine_service_iam_policy":         ResourceIamPolicy(IapAppEngineServiceIamSchema, IapAppEngineServiceIamUpdaterProducer, IapAppEngineServiceIdParseFunc),
 			"google_iap_web_backend_service_iam_binding":       ResourceIamBinding(IapWebBackendServiceIamSchema, IapWebBackendServiceIamUpdaterProducer, IapWebBackendServiceIdParseFunc),
 			"google_iap_web_backend_service_iam_member":        ResourceIamMember(IapWebBackendServiceIamSchema, IapWebBackendServiceIamUpdaterProducer, IapWebBackendServiceIdParseFunc),
 			"google_iap_web_backend_service_iam_policy":        ResourceIamPolicy(IapWebBackendServiceIamSchema, IapWebBackendServiceIamUpdaterProducer, IapWebBackendServiceIdParseFunc),

@@ -51,6 +51,9 @@ func PubsubTopicIamUpdaterProducer(d *schema.ResourceData, config *Config) (Reso
 		return nil, err
 	}
 	values["project"] = project
+	if v, ok := d.GetOk("topic"); ok {
+		values["topic"] = v.(string)
+	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/topics/(?P<topic>[^/]+)", "(?P<project>[^/]+)/(?P<topic>[^/]+)", "(?P<topic>[^/]+)"}, d, config, d.Get("topic").(string))
