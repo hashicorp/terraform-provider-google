@@ -51,6 +51,9 @@ func RuntimeConfigConfigIamUpdaterProducer(d *schema.ResourceData, config *Confi
 		return nil, err
 	}
 	values["project"] = project
+	if v, ok := d.GetOk("config"); ok {
+		values["config"] = v.(string)
+	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/configs/(?P<config>[^/]+)", "(?P<project>[^/]+)/(?P<config>[^/]+)", "(?P<config>[^/]+)"}, d, config, d.Get("config").(string))

@@ -58,12 +58,14 @@ func CloudFunctionsCloudFunctionIamUpdaterProducer(d *schema.ResourceData, confi
 		return nil, err
 	}
 	values["project"] = project
-
 	region, err := getRegion(d, config)
 	if err != nil {
 		return nil, err
 	}
 	values["region"] = region
+	if v, ok := d.GetOk("cloud_function"); ok {
+		values["cloud_function"] = v.(string)
+	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<cloud_function>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<cloud_function>[^/]+)"}, d, config, d.Get("cloud_function").(string))
@@ -100,7 +102,6 @@ func CloudFunctionsCloudFunctionIdParseFunc(d *schema.ResourceData, config *Conf
 		return err
 	}
 	values["project"] = project
-
 	region, err := getRegion(d, config)
 	if err != nil {
 		return err

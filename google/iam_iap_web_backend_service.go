@@ -51,6 +51,9 @@ func IapWebBackendServiceIamUpdaterProducer(d *schema.ResourceData, config *Conf
 		return nil, err
 	}
 	values["project"] = project
+	if v, ok := d.GetOk("web_backend_service"); ok {
+		values["web_backend_service"] = v.(string)
+	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<web_backend_service>[^/]+)", "(?P<project>[^/]+)/(?P<web_backend_service>[^/]+)", "(?P<web_backend_service>[^/]+)"}, d, config, d.Get("web_backend_service").(string))
