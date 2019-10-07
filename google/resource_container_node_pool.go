@@ -99,7 +99,6 @@ var schemaNodePool = map[string]*schema.Schema{
 	},
 
 	"max_pods_per_node": {
-		Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 		Type:     schema.TypeInt,
 		Optional: true,
 		ForceNew: true,
@@ -494,6 +493,12 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodeP
 		}
 	}
 
+	if v, ok := d.GetOk(prefix + "max_pods_per_node"); ok {
+		np.MaxPodsConstraint = &containerBeta.MaxPodsConstraint{
+			MaxPodsPerNode: int64(v.(int)),
+		}
+	}
+
 	if v, ok := d.GetOk(prefix + "management"); ok {
 		managementConfig := v.([]interface{})[0].(map[string]interface{})
 		np.Management = &containerBeta.NodeManagement{}
@@ -548,6 +553,10 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 		} else {
 			nodePool["autoscaling"] = []map[string]interface{}{}
 		}
+	}
+
+	if np.MaxPodsConstraint != nil {
+		nodePool["max_pods_per_node"] = np.MaxPodsConstraint.MaxPodsPerNode
 	}
 
 	nodePool["management"] = []map[string]interface{}{
