@@ -29,7 +29,7 @@ var ignoredProjectServicesSet = golangSetFromStringSlice(ignoredProjectServices)
 // We handle service renames in the provider by pretending that we've read both
 // the old and new service names from the API if we see either, and only setting
 // the one(s) that existed in prior state in config (if any). If neither exists,
-// we'll set the new service name in state.
+// we'll set the old service name in state.
 // Additionally, in case of service rename rollbacks or unexpected early
 // removals of services, if we fail to create or delete a service that's been
 // renamed we'll retry using an alternate name.
