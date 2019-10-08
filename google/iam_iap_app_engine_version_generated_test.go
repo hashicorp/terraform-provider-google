@@ -26,11 +26,8 @@ func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(10),
-		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(10)),
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
+		"random_suffix": acctest.RandString(10),
+		"role":          "roles/iap.httpsResourceAccessor",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -42,7 +39,7 @@ func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", context["project_id"], context["project_id"], "default", "v2"),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -52,7 +49,7 @@ func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", context["project_id"], context["project_id"], "default", "v2"),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -64,11 +61,8 @@ func TestAccIapAppEngineVersionIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(10),
-		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(10)),
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
+		"random_suffix": acctest.RandString(10),
+		"role":          "roles/iap.httpsResourceAccessor",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -81,7 +75,7 @@ func TestAccIapAppEngineVersionIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", context["project_id"], context["project_id"], "default", "v2"),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -93,11 +87,8 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(10),
-		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(10)),
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
+		"random_suffix": acctest.RandString(10),
+		"role":          "roles/iap.httpsResourceAccessor",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -109,7 +100,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", context["project_id"], context["project_id"], "default", "v2"),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -119,30 +110,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 
 func testAccIapAppEngineVersionIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_project" "my_project" {
-  name            = "%{project_id}"
-  project_id      = "%{project_id}"
-  org_id          = "%{org_id}"
-  billing_account = "%{billing_account}"
-}
-
-resource "google_project_service" "project_service" {
-  project = "${google_project.my_project.project_id}"
-  service = "iap.googleapis.com"
-}
-
-resource "google_project_service" "cloudbuild_service" {
-  project = "${google_project_service.project_service.project}"
-  service = "cloudbuild.googleapis.com"
-}
-
-resource "google_app_engine_application" "app" {
-  project     = "${google_project_service.cloudbuild_service.project}"
-  location_id = "us-central"
-}
-
 resource "google_storage_bucket" "bucket" {
-  project = "${google_app_engine_application.app.project}"
   name    = "appengine-static-content-%{random_suffix}"
 }
 
@@ -153,11 +121,10 @@ resource "google_storage_bucket_object" "object" {
 }
 
 resource "google_app_engine_standard_app_version" "version" {
-  project = "${google_app_engine_application.app.project}"
-  version_id = "v2"
+  version_id = "%{random_suffix}"
   service = "default"
   runtime = "nodejs10"
-  noop_on_destroy = true
+  noop_on_destroy = false
   entrypoint {
     shell = "node ./app.js"
   }
@@ -184,30 +151,7 @@ resource "google_iap_app_engine_version_iam_member" "foo" {
 
 func testAccIapAppEngineVersionIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_project" "my_project" {
-  name            = "%{project_id}"
-  project_id      = "%{project_id}"
-  org_id          = "%{org_id}"
-  billing_account = "%{billing_account}"
-}
-
-resource "google_project_service" "project_service" {
-  project = "${google_project.my_project.project_id}"
-  service = "iap.googleapis.com"
-}
-
-resource "google_project_service" "cloudbuild_service" {
-  project = "${google_project_service.project_service.project}"
-  service = "cloudbuild.googleapis.com"
-}
-
-resource "google_app_engine_application" "app" {
-  project     = "${google_project_service.cloudbuild_service.project}"
-  location_id = "us-central"
-}
-
 resource "google_storage_bucket" "bucket" {
-  project = "${google_app_engine_application.app.project}"
   name    = "appengine-static-content-%{random_suffix}"
 }
 
@@ -218,11 +162,10 @@ resource "google_storage_bucket_object" "object" {
 }
 
 resource "google_app_engine_standard_app_version" "version" {
-  project = "${google_app_engine_application.app.project}"
-  version_id = "v2"
+  version_id = "%{random_suffix}"
   service = "default"
   runtime = "nodejs10"
-  noop_on_destroy = true
+  noop_on_destroy = false
   entrypoint {
     shell = "node ./app.js"
   }
@@ -255,30 +198,7 @@ resource "google_iap_app_engine_version_iam_policy" "foo" {
 
 func testAccIapAppEngineVersionIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_project" "my_project" {
-  name            = "%{project_id}"
-  project_id      = "%{project_id}"
-  org_id          = "%{org_id}"
-  billing_account = "%{billing_account}"
-}
-
-resource "google_project_service" "project_service" {
-  project = "${google_project.my_project.project_id}"
-  service = "iap.googleapis.com"
-}
-
-resource "google_project_service" "cloudbuild_service" {
-  project = "${google_project_service.project_service.project}"
-  service = "cloudbuild.googleapis.com"
-}
-
-resource "google_app_engine_application" "app" {
-  project     = "${google_project_service.cloudbuild_service.project}"
-  location_id = "us-central"
-}
-
 resource "google_storage_bucket" "bucket" {
-  project = "${google_app_engine_application.app.project}"
   name    = "appengine-static-content-%{random_suffix}"
 }
 
@@ -289,11 +209,10 @@ resource "google_storage_bucket_object" "object" {
 }
 
 resource "google_app_engine_standard_app_version" "version" {
-  project = "${google_app_engine_application.app.project}"
-  version_id = "v2"
+  version_id = "%{random_suffix}"
   service = "default"
   runtime = "nodejs10"
-  noop_on_destroy = true
+  noop_on_destroy = false
   entrypoint {
     shell = "node ./app.js"
   }
@@ -320,30 +239,7 @@ resource "google_iap_app_engine_version_iam_binding" "foo" {
 
 func testAccIapAppEngineVersionIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_project" "my_project" {
-  name            = "%{project_id}"
-  project_id      = "%{project_id}"
-  org_id          = "%{org_id}"
-  billing_account = "%{billing_account}"
-}
-
-resource "google_project_service" "project_service" {
-  project = "${google_project.my_project.project_id}"
-  service = "iap.googleapis.com"
-}
-
-resource "google_project_service" "cloudbuild_service" {
-  project = "${google_project_service.project_service.project}"
-  service = "cloudbuild.googleapis.com"
-}
-
-resource "google_app_engine_application" "app" {
-  project     = "${google_project_service.cloudbuild_service.project}"
-  location_id = "us-central"
-}
-
 resource "google_storage_bucket" "bucket" {
-  project = "${google_app_engine_application.app.project}"
   name    = "appengine-static-content-%{random_suffix}"
 }
 
@@ -354,11 +250,10 @@ resource "google_storage_bucket_object" "object" {
 }
 
 resource "google_app_engine_standard_app_version" "version" {
-  project = "${google_app_engine_application.app.project}"
-  version_id = "v2"
+  version_id = "%{random_suffix}"
   service = "default"
   runtime = "nodejs10"
-  noop_on_destroy = true
+  noop_on_destroy = false
   entrypoint {
     shell = "node ./app.js"
   }
