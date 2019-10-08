@@ -1,4 +1,37 @@
-## 2.16.1 (Unreleased)
+## 2.17.0 (Unreleased)
+
+NOTES:
+* An [upgrade guide](https://www.terraform.io/docs/providers/google/version_3_upgrade.html) has been started for the upcoming 3.0.0 release. ([#4594](https://github.com/terraform-providers/terraform-provider-google/pull/4594))
+* `google_project_services` users of provider versions prior to `2.17.0` should update, as past versions of the provider will not handle an upcoming rename of `bigquery-json.googleapis.com` to `bigquery.googleapis.com` well. See https://github.com/terraform-providers/terraform-provider-google/issues/4590 for details. ([#4616](https://github.com/terraform-providers/terraform-provider-google/pull/4616))
+DEPRECATIONS:
+* `google_project_services` ([#4587](https://github.com/terraform-providers/terraform-provider-google/pull/4587))
+
+FEATURES:
+* **New Resource:** `google_bigtable_gc_policy` ([#4578](https://github.com/terraform-providers/terraform-provider-google/pull/4578))
+* **New Resource:** `google_binary_authorization_attestor_iam_policy` ([#4517](https://github.com/terraform-providers/terraform-provider-google/pull/4517))
+* **New Resource:** `google_compute_region_ssl_certificate` ([#4537](https://github.com/terraform-providers/terraform-provider-google/pull/4537))
+* **New Resource:** `google_compute_region_target_http_proxy` ([#4537](https://github.com/terraform-providers/terraform-provider-google/pull/4537))
+* **New Resource:** `google_compute_region_target_https_proxy` ([#4537](https://github.com/terraform-providers/terraform-provider-google/pull/4537))
+* **New Resource:** `google_iap_app_engine_service_iam_*` ([#4566](https://github.com/terraform-providers/terraform-provider-google/pull/4566))
+* **New Resource:** `google_iap_app_engine_version_iam_*` ([#4566](https://github.com/terraform-providers/terraform-provider-google/pull/4566))
+* **New Resource:** `google_storage_bucket_access_control` ([#4531](https://github.com/terraform-providers/terraform-provider-google/pull/4531))
+
+IMPROVEMENTS:
+* all: made `monitoring-read` scope available. ([#4569](https://github.com/terraform-providers/terraform-provider-google/pull/4569))
+* bigquery: Added support for default customer-managed encryption keys (CMEK) for BigQuery datasets. ([#4312](https://github.com/terraform-providers/terraform-provider-google/pull/4312))
+* bigtable: import support added to `google_bigtable_instance` ([#4598](https://github.com/terraform-providers/terraform-provider-google/pull/4598))
+* container: moved `default_max_pods_per_node` to ga. ([#4621](https://github.com/terraform-providers/terraform-provider-google/pull/4621))
+* containeranalysis: moved `google_containeranalysis_note` to ga ([#4517](https://github.com/terraform-providers/terraform-provider-google/pull/4517))
+* projectservice: added mitigations for bigquery-json to bigquery rename in project service resources. ([#4616](https://github.com/terraform-providers/terraform-provider-google/pull/4616))
+
+BUGS:
+* cloudscheduler: Fixed permadiff for `app_engine_http_target.app_engine_routing` on `google_cloud_scheduler_job` ([#4444](https://github.com/terraform-providers/terraform-provider-google/pull/4444))
+* compute: Added ability to set `quic_override` on `google_compute_https_target_proxy` to empty. ([#4588](https://github.com/terraform-providers/terraform-provider-google/pull/4588))
+* compute: Fix bug where changes to `region_backend_service.backends.failover` was not detected. ([#4622](https://github.com/terraform-providers/terraform-provider-google/pull/4622))
+* compute: fixed `google_compute_router_peer` to default if empty for `advertise_mode` ([#4503](https://github.com/terraform-providers/terraform-provider-google/pull/4503))
+* compute: fixed perma-diff in `google_compute_router_nat` when referencing subnetwork via `name` ([#4549](https://github.com/terraform-providers/terraform-provider-google/pull/4549))
+* container: fixed an overly-aggressive validation for `master_ipv4_cidr_block` in `google_container_cluster` ([#4577](https://github.com/terraform-providers/terraform-provider-google/pull/4577))
+
 ## 2.16.0 (September 24, 2019)
 
 KNOWN ISSUES:
