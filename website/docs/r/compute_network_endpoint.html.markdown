@@ -39,7 +39,7 @@ To get more information about NetworkEndpoint, see:
 
 
 ```hcl
-resource "google_compute_network_endpoint" "default-endpoint {
+resource "google_compute_network_endpoint" "default-endpoint" {
   network_endpoint_group = "${google_compute_network_endpoint_group.neg.name}"
 
   instance    = "${google_compute_instance.endpoint-instance.name}"

@@ -29,6 +29,17 @@ func (w *ComputeOperationWaiter) Error() error {
 	return nil
 }
 
+func (w *ComputeOperationWaiter) IsRetryable(err error) bool {
+	if oe, ok := err.(ComputeOperationError); ok {
+		for _, e := range oe.Errors {
+			if e.Code == "RESOURCE_NOT_READY" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (w *ComputeOperationWaiter) SetOp(op interface{}) error {
 	var ok bool
 	w.Op, ok = op.(*compute.Operation)

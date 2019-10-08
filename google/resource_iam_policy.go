@@ -1,11 +1,12 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -139,7 +140,8 @@ func setIamPolicyData(d *schema.ResourceData, updater ResourceIamUpdater) error 
 
 func marshalIamPolicy(policy *cloudresourcemanager.Policy) string {
 	pdBytes, _ := json.Marshal(&cloudresourcemanager.Policy{
-		Bindings: policy.Bindings,
+		AuditConfigs: policy.AuditConfigs,
+		Bindings:     policy.Bindings,
 	})
 	return string(pdBytes)
 }

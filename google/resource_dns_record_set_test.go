@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestIpv6AddressDiffSuppress(t *testing.T) {
@@ -34,7 +34,7 @@ func TestIpv6AddressDiffSuppress(t *testing.T) {
 	}
 }
 
-func TestAccDnsRecordSet_basic(t *testing.T) {
+func TestAccDNSRecordSet_basic(t *testing.T) {
 	t.Parallel()
 
 	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(10))
@@ -67,7 +67,7 @@ func TestAccDnsRecordSet_basic(t *testing.T) {
 	})
 }
 
-func TestAccDnsRecordSet_modify(t *testing.T) {
+func TestAccDNSRecordSet_modify(t *testing.T) {
 	t.Parallel()
 
 	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(10))
@@ -101,7 +101,7 @@ func TestAccDnsRecordSet_modify(t *testing.T) {
 	})
 }
 
-func TestAccDnsRecordSet_changeType(t *testing.T) {
+func TestAccDNSRecordSet_changeType(t *testing.T) {
 	t.Parallel()
 
 	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(10))
@@ -128,7 +128,7 @@ func TestAccDnsRecordSet_changeType(t *testing.T) {
 	})
 }
 
-func TestAccDnsRecordSet_ns(t *testing.T) {
+func TestAccDNSRecordSet_ns(t *testing.T) {
 	t.Parallel()
 
 	zoneName := fmt.Sprintf("dnszone-test-ns-%s", acctest.RandString(10))
@@ -154,7 +154,7 @@ func TestAccDnsRecordSet_ns(t *testing.T) {
 	})
 }
 
-func TestAccDnsRecordSet_nestedNS(t *testing.T) {
+func TestAccDNSRecordSet_nestedNS(t *testing.T) {
 	t.Parallel()
 
 	zoneName := fmt.Sprintf("dnszone-test-ns-%s", acctest.RandString(10))
@@ -174,7 +174,7 @@ func TestAccDnsRecordSet_nestedNS(t *testing.T) {
 	})
 }
 
-func TestAccDnsRecordSet_quotedTXT(t *testing.T) {
+func TestAccDNSRecordSet_quotedTXT(t *testing.T) {
 	t.Parallel()
 
 	zoneName := fmt.Sprintf("dnszone-test-txt-%s", acctest.RandString(10))
@@ -194,7 +194,7 @@ func TestAccDnsRecordSet_quotedTXT(t *testing.T) {
 	})
 }
 
-func TestAccDnsRecordSet_uppercaseMX(t *testing.T) {
+func TestAccDNSRecordSet_uppercaseMX(t *testing.T) {
 	t.Parallel()
 
 	zoneName := fmt.Sprintf("dnszone-test-txt-%s", acctest.RandString(10))

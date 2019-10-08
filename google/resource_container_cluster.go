@@ -10,10 +10,10 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/go-version"
-	"github.com/hashicorp/terraform/helper/customdiff"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	containerBeta "google.golang.org/api/container/v1beta1"
 )
 
@@ -633,6 +633,13 @@ func resourceContainerCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
+			"default_max_pods_per_node": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+
 			"enable_intranode_visibility": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -773,6 +780,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		PodSecurityPolicyConfig: expandPodSecurityPolicyConfig(d.Get("pod_security_policy_config")),
 		MasterAuth:              expandMasterAuth(d.Get("master_auth")),
 		ResourceLabels:          expandStringMap(d, "resource_labels"),
+	}
+
+	if v, ok := d.GetOk("default_max_pods_per_node"); ok {
+		cluster.DefaultMaxPodsConstraint = expandDefaultMaxPodsConstraint(v)
 	}
 
 	// Only allow setting node_version on create if it's set to the equivalent master version,
@@ -988,6 +999,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("subnetwork", cluster.NetworkConfig.Subnetwork)
 	if err := d.Set("cluster_autoscaling", nil); err != nil {
 		return err
+	}
+	if cluster.DefaultMaxPodsConstraint != nil {
+		d.Set("default_max_pods_per_node", cluster.DefaultMaxPodsConstraint.MaxPodsPerNode)
 	}
 	if err := d.Set("node_config", flattenNodeConfig(cluster.NodeConfig)); err != nil {
 		return err
@@ -1771,7 +1785,9 @@ func expandMasterAuth(configured interface{}) *containerBeta.MasterAuth {
 func expandMasterAuthorizedNetworksConfig(configured interface{}) *containerBeta.MasterAuthorizedNetworksConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 {
-		return nil
+		return &containerBeta.MasterAuthorizedNetworksConfig{
+			Enabled: false,
+		}
 	}
 	result := &containerBeta.MasterAuthorizedNetworksConfig{
 		Enabled: true,
@@ -1826,6 +1842,16 @@ func expandPodSecurityPolicyConfig(configured interface{}) *containerBeta.PodSec
 	// Removing lists is hard - the element count (#) will have a diff from nil -> computed
 	// If we set this to empty on Read, it will be stable.
 	return nil
+}
+
+func expandDefaultMaxPodsConstraint(v interface{}) *containerBeta.MaxPodsConstraint {
+	if v == nil {
+		return nil
+	}
+
+	return &containerBeta.MaxPodsConstraint{
+		MaxPodsPerNode: int64(v.(int)),
+	}
 }
 
 func flattenNetworkPolicy(c *containerBeta.NetworkPolicy) []map[string]interface{} {
@@ -1990,7 +2016,7 @@ func flattenMasterAuth(ma *containerBeta.MasterAuth) []map[string]interface{} {
 }
 
 func flattenMasterAuthorizedNetworksConfig(c *containerBeta.MasterAuthorizedNetworksConfig) []map[string]interface{} {
-	if c == nil {
+	if c == nil || !c.Enabled {
 		return nil
 	}
 	result := make(map[string]interface{})
@@ -2110,7 +2136,13 @@ func containerClusterPrivateClusterConfigCustomDiff(d *schema.ResourceDiff, meta
 	config := pccList[0].(map[string]interface{})
 	if config["enable_private_nodes"].(bool) == true {
 		block := config["master_ipv4_cidr_block"]
-		if block == nil || block == "" {
+
+		// We can only apply this validation if we know the final value of the field, and we may
+		// not know the final value if users feed the value into their config in unintuitive ways.
+		// https://github.com/terraform-providers/terraform-provider-google/issues/4186
+		blockValueKnown := d.NewValueKnown("private_cluster_config.0.master_ipv4_cidr_block")
+
+		if blockValueKnown && (block == nil || block == "") {
 			return fmt.Errorf("master_ipv4_cidr_block must be set if enable_private_nodes == true")
 		}
 	}

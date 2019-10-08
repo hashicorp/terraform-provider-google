@@ -21,19 +21,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
-func resourceKmsCryptoKey() *schema.Resource {
+func resourceKMSCryptoKey() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKmsCryptoKeyCreate,
-		Read:   resourceKmsCryptoKeyRead,
-		Update: resourceKmsCryptoKeyUpdate,
-		Delete: resourceKmsCryptoKeyDelete,
+		Create: resourceKMSCryptoKeyCreate,
+		Read:   resourceKMSCryptoKeyRead,
+		Update: resourceKMSCryptoKeyUpdate,
+		Delete: resourceKMSCryptoKeyDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceKmsCryptoKeyImport,
+			State: resourceKMSCryptoKeyImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -45,8 +45,8 @@ func resourceKmsCryptoKey() *schema.Resource {
 		SchemaVersion: 1,
 		StateUpgraders: []schema.StateUpgrader{
 			{
-				Type:    resourceKmsCryptoKeyResourceV0().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceKmsCryptoKeyUpgradeV0,
+				Type:    resourceKMSCryptoKeyResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceKMSCryptoKeyUpgradeV0,
 				Version: 0,
 			},
 		},
@@ -109,41 +109,41 @@ func resourceKmsCryptoKey() *schema.Resource {
 	}
 }
 
-func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceKMSCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandKmsCryptoKeyLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandKMSCryptoKeyLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
-	purposeProp, err := expandKmsCryptoKeyPurpose(d.Get("purpose"), d, config)
+	purposeProp, err := expandKMSCryptoKeyPurpose(d.Get("purpose"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("purpose"); !isEmptyValue(reflect.ValueOf(purposeProp)) && (ok || !reflect.DeepEqual(v, purposeProp)) {
 		obj["purpose"] = purposeProp
 	}
-	rotationPeriodProp, err := expandKmsCryptoKeyRotationPeriod(d.Get("rotation_period"), d, config)
+	rotationPeriodProp, err := expandKMSCryptoKeyRotationPeriod(d.Get("rotation_period"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("rotation_period"); !isEmptyValue(reflect.ValueOf(rotationPeriodProp)) && (ok || !reflect.DeepEqual(v, rotationPeriodProp)) {
 		obj["rotationPeriod"] = rotationPeriodProp
 	}
-	versionTemplateProp, err := expandKmsCryptoKeyVersionTemplate(d.Get("version_template"), d, config)
+	versionTemplateProp, err := expandKMSCryptoKeyVersionTemplate(d.Get("version_template"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("version_template"); !isEmptyValue(reflect.ValueOf(versionTemplateProp)) && (ok || !reflect.DeepEqual(v, versionTemplateProp)) {
 		obj["versionTemplate"] = versionTemplateProp
 	}
 
-	obj, err = resourceKmsCryptoKeyEncoder(d, meta, obj)
+	obj, err = resourceKMSCryptoKeyEncoder(d, meta, obj)
 	if err != nil {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{KmsBasePath}}{{key_ring}}/cryptoKeys?cryptoKeyId={{name}}")
+	url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys?cryptoKeyId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -163,79 +163,79 @@ func resourceKmsCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("[DEBUG] Finished creating CryptoKey %q: %#v", d.Id(), res)
 
-	return resourceKmsCryptoKeyRead(d, meta)
+	return resourceKMSCryptoKeyRead(d, meta)
 }
 
-func resourceKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceKMSCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{KmsBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
+	url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	res, err := sendRequest(config, "GET", "", url, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("KmsCryptoKey %q", d.Id()))
+		return handleNotFoundError(err, d, fmt.Sprintf("KMSCryptoKey %q", d.Id()))
 	}
 
-	res, err = resourceKmsCryptoKeyDecoder(d, meta, res)
+	res, err = resourceKMSCryptoKeyDecoder(d, meta, res)
 	if err != nil {
 		return err
 	}
 
 	if res == nil {
 		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing KmsCryptoKey because it no longer exists.")
+		log.Printf("[DEBUG] Removing KMSCryptoKey because it no longer exists.")
 		d.SetId("")
 		return nil
 	}
 
-	if err := d.Set("labels", flattenKmsCryptoKeyLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenKMSCryptoKeyLabels(res["labels"], d)); err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
-	if err := d.Set("purpose", flattenKmsCryptoKeyPurpose(res["purpose"], d)); err != nil {
+	if err := d.Set("purpose", flattenKMSCryptoKeyPurpose(res["purpose"], d)); err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
-	if err := d.Set("rotation_period", flattenKmsCryptoKeyRotationPeriod(res["rotationPeriod"], d)); err != nil {
+	if err := d.Set("rotation_period", flattenKMSCryptoKeyRotationPeriod(res["rotationPeriod"], d)); err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
-	if err := d.Set("version_template", flattenKmsCryptoKeyVersionTemplate(res["versionTemplate"], d)); err != nil {
+	if err := d.Set("version_template", flattenKMSCryptoKeyVersionTemplate(res["versionTemplate"], d)); err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
 
 	return nil
 }
 
-func resourceKmsCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceKMSCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandKmsCryptoKeyLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandKMSCryptoKeyLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
-	rotationPeriodProp, err := expandKmsCryptoKeyRotationPeriod(d.Get("rotation_period"), d, config)
+	rotationPeriodProp, err := expandKMSCryptoKeyRotationPeriod(d.Get("rotation_period"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("rotation_period"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rotationPeriodProp)) {
 		obj["rotationPeriod"] = rotationPeriodProp
 	}
-	versionTemplateProp, err := expandKmsCryptoKeyVersionTemplate(d.Get("version_template"), d, config)
+	versionTemplateProp, err := expandKMSCryptoKeyVersionTemplate(d.Get("version_template"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("version_template"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, versionTemplateProp)) {
 		obj["versionTemplate"] = versionTemplateProp
 	}
 
-	obj, err = resourceKmsCryptoKeyUpdateEncoder(d, meta, obj)
+	obj, err = resourceKMSCryptoKeyUpdateEncoder(d, meta, obj)
 	if err != nil {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{KmsBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
+	url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -266,10 +266,10 @@ func resourceKmsCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error updating CryptoKey %q: %s", d.Id(), err)
 	}
 
-	return resourceKmsCryptoKeyRead(d, meta)
+	return resourceKMSCryptoKeyRead(d, meta)
 }
 
-func resourceKmsCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceKMSCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	cryptoKeyId, err := parseKmsCryptoKeyId(d.Id(), config)
@@ -299,7 +299,7 @@ and all its CryptoKeyVersions will be destroyed, but it will still be present on
 	return nil
 }
 
-func resourceKmsCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceKMSCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 
 	config := meta.(*Config)
 
@@ -314,19 +314,19 @@ func resourceKmsCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenKmsCryptoKeyLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSCryptoKeyLabels(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenKmsCryptoKeyPurpose(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSCryptoKeyPurpose(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenKmsCryptoKeyRotationPeriod(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSCryptoKeyRotationPeriod(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenKmsCryptoKeyVersionTemplate(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSCryptoKeyVersionTemplate(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -336,20 +336,20 @@ func flattenKmsCryptoKeyVersionTemplate(v interface{}, d *schema.ResourceData) i
 	}
 	transformed := make(map[string]interface{})
 	transformed["algorithm"] =
-		flattenKmsCryptoKeyVersionTemplateAlgorithm(original["algorithm"], d)
+		flattenKMSCryptoKeyVersionTemplateAlgorithm(original["algorithm"], d)
 	transformed["protection_level"] =
-		flattenKmsCryptoKeyVersionTemplateProtectionLevel(original["protectionLevel"], d)
+		flattenKMSCryptoKeyVersionTemplateProtectionLevel(original["protectionLevel"], d)
 	return []interface{}{transformed}
 }
-func flattenKmsCryptoKeyVersionTemplateAlgorithm(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSCryptoKeyVersionTemplateAlgorithm(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenKmsCryptoKeyVersionTemplateProtectionLevel(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSCryptoKeyVersionTemplateProtectionLevel(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func expandKmsCryptoKeyLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandKMSCryptoKeyLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -360,15 +360,15 @@ func expandKmsCryptoKeyLabels(v interface{}, d TerraformResourceData, config *Co
 	return m, nil
 }
 
-func expandKmsCryptoKeyPurpose(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandKMSCryptoKeyPurpose(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandKmsCryptoKeyRotationPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandKMSCryptoKeyRotationPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandKmsCryptoKeyVersionTemplate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandKMSCryptoKeyVersionTemplate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -377,14 +377,14 @@ func expandKmsCryptoKeyVersionTemplate(v interface{}, d TerraformResourceData, c
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedAlgorithm, err := expandKmsCryptoKeyVersionTemplateAlgorithm(original["algorithm"], d, config)
+	transformedAlgorithm, err := expandKMSCryptoKeyVersionTemplateAlgorithm(original["algorithm"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedAlgorithm); val.IsValid() && !isEmptyValue(val) {
 		transformed["algorithm"] = transformedAlgorithm
 	}
 
-	transformedProtectionLevel, err := expandKmsCryptoKeyVersionTemplateProtectionLevel(original["protection_level"], d, config)
+	transformedProtectionLevel, err := expandKMSCryptoKeyVersionTemplateProtectionLevel(original["protection_level"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedProtectionLevel); val.IsValid() && !isEmptyValue(val) {
@@ -394,15 +394,15 @@ func expandKmsCryptoKeyVersionTemplate(v interface{}, d TerraformResourceData, c
 	return transformed, nil
 }
 
-func expandKmsCryptoKeyVersionTemplateAlgorithm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandKMSCryptoKeyVersionTemplateAlgorithm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandKmsCryptoKeyVersionTemplateProtectionLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandKMSCryptoKeyVersionTemplateProtectionLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func resourceKmsCryptoKeyEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+func resourceKMSCryptoKeyEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// if rotationPeriod is set, nextRotationTime must also be set.
 	if d.Get("rotation_period") != "" {
 		rotationPeriod := d.Get("rotation_period").(string)
@@ -418,7 +418,7 @@ func resourceKmsCryptoKeyEncoder(d *schema.ResourceData, meta interface{}, obj m
 	return obj, nil
 }
 
-func resourceKmsCryptoKeyUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+func resourceKMSCryptoKeyUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// if rotationPeriod is changed, nextRotationTime must also be set.
 	if d.HasChange("rotation_period") && d.Get("rotation_period") != "" {
 		rotationPeriod := d.Get("rotation_period").(string)
@@ -434,7 +434,7 @@ func resourceKmsCryptoKeyUpdateEncoder(d *schema.ResourceData, meta interface{},
 	return obj, nil
 }
 
-func resourceKmsCryptoKeyDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+func resourceKMSCryptoKeyDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	// Take the returned long form of the name and use it as `self_link`.
 	// Then modify the name to be the user specified form.
 	// We can't just ignore_read on `name` as the linter will
@@ -445,7 +445,7 @@ func resourceKmsCryptoKeyDecoder(d *schema.ResourceData, meta interface{}, res m
 	return res, nil
 }
 
-func resourceKmsCryptoKeyResourceV0() *schema.Resource {
+func resourceKMSCryptoKeyResourceV0() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -471,7 +471,7 @@ func resourceKmsCryptoKeyResourceV0() *schema.Resource {
 	}
 }
 
-func resourceKmsCryptoKeyUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceKMSCryptoKeyUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
 
 	config := meta.(*Config)

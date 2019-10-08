@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeAddress_addressBasicExample(t *testing.T) {
@@ -99,6 +99,40 @@ resource "google_compute_address" "internal_with_subnet_and_address" {
   address_type = "INTERNAL"
   address      = "10.0.42.42"
   region       = "us-central1"
+}
+`, context)
+}
+
+func TestAccComputeAddress_addressWithGceEndpointExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeAddressDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeAddress_addressWithGceEndpointExample(context),
+			},
+			{
+				ResourceName:      "google_compute_address.internal_with_gce_endpoint",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeAddress_addressWithGceEndpointExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_address" "internal_with_gce_endpoint" {
+  name         = "my-internal-address-%{random_suffix}"
+  address_type = "INTERNAL"
+  purpose      = "GCE_ENDPOINT"
 }
 `, context)
 }

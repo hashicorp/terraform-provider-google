@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -27,6 +27,8 @@ func NewProjectIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUp
 	if err != nil {
 		return nil, err
 	}
+
+	d.Set("project", pid)
 
 	return &ProjectIamUpdater{
 		resourceId: pid,

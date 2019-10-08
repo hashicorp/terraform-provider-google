@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-func TestAccDnsManagedZone_update(t *testing.T) {
+func TestAccDNSManagedZone_update(t *testing.T) {
 	t.Parallel()
 
 	zoneSuffix := acctest.RandString(10)
@@ -16,7 +16,7 @@ func TestAccDnsManagedZone_update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDnsManagedZoneDestroy,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsManagedZone_basic(zoneSuffix, "description1"),
@@ -38,7 +38,7 @@ func TestAccDnsManagedZone_update(t *testing.T) {
 	})
 }
 
-func TestAccDnsManagedZone_privateUpdate(t *testing.T) {
+func TestAccDNSManagedZone_privateUpdate(t *testing.T) {
 	t.Parallel()
 
 	zoneSuffix := acctest.RandString(10)
@@ -46,7 +46,7 @@ func TestAccDnsManagedZone_privateUpdate(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDnsManagedZoneDestroy,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsManagedZone_privateUpdate(zoneSuffix, "network-1", "network-2"),
@@ -68,7 +68,7 @@ func TestAccDnsManagedZone_privateUpdate(t *testing.T) {
 	})
 }
 
-func TestAccDnsManagedZone_dnssec_on(t *testing.T) {
+func TestAccDNSManagedZone_dnssec_on(t *testing.T) {
 	t.Parallel()
 
 	zoneSuffix := acctest.RandString(10)
@@ -76,7 +76,7 @@ func TestAccDnsManagedZone_dnssec_on(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDnsManagedZoneDestroy,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsManagedZone_dnssec_on(zoneSuffix),
@@ -90,7 +90,7 @@ func TestAccDnsManagedZone_dnssec_on(t *testing.T) {
 	})
 }
 
-func TestAccDnsManagedZone_dnssec_off(t *testing.T) {
+func TestAccDNSManagedZone_dnssec_off(t *testing.T) {
 	t.Parallel()
 
 	zoneSuffix := acctest.RandString(10)
@@ -98,7 +98,7 @@ func TestAccDnsManagedZone_dnssec_off(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDnsManagedZoneDestroy,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsManagedZone_dnssec_off(zoneSuffix),
@@ -270,7 +270,7 @@ func TestDnsManagedZoneImport_parseImportId(t *testing.T) {
 	}
 }
 
-func TestAccDnsManagedZone_importWithProject(t *testing.T) {
+func TestAccDNSManagedZone_importWithProject(t *testing.T) {
 	t.Parallel()
 
 	zoneSuffix := acctest.RandString(10)
@@ -279,7 +279,7 @@ func TestAccDnsManagedZone_importWithProject(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDnsManagedZoneDestroy,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsManagedZone_basicWithProject(zoneSuffix, "description1", project),

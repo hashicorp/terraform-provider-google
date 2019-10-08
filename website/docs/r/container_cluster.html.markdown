@@ -129,11 +129,9 @@ throughout the region. `region` has been deprecated in favour of `location`.
 the provider zone is used to create a zonal cluster.
 
 * `node_locations` - (Optional) The list of zones in which the cluster's nodes
-should be located. These must be in the same region as the cluster zone for
-zonal clusters, or in the region of a regional cluster. In a multi-zonal cluster,
-the number of nodes specified in `initial_node_count` is created in
-all specified zones as well as the primary zone. If specified for a regional
-cluster, nodes will be created in only these zones.
+are located. Nodes must be in the region of their regional cluster or in the
+same region as their cluster's zone for zonal clusters. If this is specified for
+a zonal cluster, omit the cluster's zone.
 
 -> A "multi-zonal" cluster is a zonal cluster with at least one additional zone
 defined; in a multi-zonal cluster, the cluster master is only present in a
@@ -194,10 +192,11 @@ for more details. Structure is documented below.
     Defaults to `false`
 
 * `initial_node_count` - (Optional) The number of nodes to create in this
-    cluster's default node pool. Must be set if `node_pool` is not set. If
-    you're using `google_container_node_pool` objects with no default node pool,
-    you'll need to set this to a value of at least `1`, alongside setting
-    `remove_default_node_pool` to `true`.
+cluster's default node pool. In regional or multi-zonal clusters, this is the
+number of nodes per zone. Must be set if `node_pool` is not set. If you're using
+`google_container_node_pool` objects with no default node pool, you'll need to
+set this to a value of at least `1`, alongside setting
+`remove_default_node_pool` to `true`.
 
 * `ip_allocation_policy` - (Optional) Configuration for cluster IP allocation. As of now, only pre-allocated subnetworks (custom type with secondary ranges) are supported.
     This will activate IP aliases. See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases)

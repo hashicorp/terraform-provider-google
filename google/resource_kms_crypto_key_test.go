@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestCryptoKeyIdParsing(t *testing.T) {
@@ -149,7 +149,7 @@ func TestCryptoKeyStateUpgradeV0(t *testing.T) {
 	}
 	for tn, tc := range cases {
 		t.Run(tn, func(t *testing.T) {
-			actual, err := resourceKmsCryptoKeyUpgradeV0(tc.Attributes, tc.Meta)
+			actual, err := resourceKMSCryptoKeyUpgradeV0(tc.Attributes, tc.Meta)
 
 			if err != nil {
 				t.Error(err)
@@ -371,16 +371,13 @@ resource "google_project" "acceptance" {
 	billing_account = "%s"
 }
 
-resource "google_project_services" "acceptance" {
+resource "google_project_service" "acceptance" {
 	project = "${google_project.acceptance.project_id}"
-
-	services = [
-	  "cloudkms.googleapis.com",
-	]
+	service = "cloudkms.googleapis.com"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project_services.acceptance.project}"
+	project  = "${google_project_service.acceptance.project}"
 	name     = "%s"
 	location = "us-central1"
 }
@@ -404,16 +401,13 @@ resource "google_project" "acceptance" {
 	billing_account = "%s"
 }
 
-resource "google_project_services" "acceptance" {
+resource "google_project_service" "acceptance" {
 	project = "${google_project.acceptance.project_id}"
-
-	services = [
-	  "cloudkms.googleapis.com",
-	]
+	service = "cloudkms.googleapis.com"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project_services.acceptance.project}"
+	project  = "${google_project_service.acceptance.project}"
 	name     = "%s"
 	location = "us-central1"
 }
@@ -435,16 +429,13 @@ resource "google_project" "acceptance" {
 	billing_account = "%s"
 }
 
-resource "google_project_services" "acceptance" {
+resource "google_project_service" "acceptance" {
 	project = "${google_project.acceptance.project_id}"
-
-	services = [
-	  "cloudkms.googleapis.com",
-	]
+	service = "cloudkms.googleapis.com"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project_services.acceptance.project}"
+	project  = "${google_project_service.acceptance.project}"
 	name     = "%s"
 	location = "us-central1"
 }
@@ -465,16 +456,13 @@ resource "google_project" "acceptance" {
 	billing_account = "%s"
 }
 
-resource "google_project_services" "acceptance" {
+resource "google_project_service" "acceptance" {
 	project = "${google_project.acceptance.project_id}"
-
-	services = [
-	  "cloudkms.googleapis.com",
-	]
+	service = "cloudkms.googleapis.com"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project_services.acceptance.project}"
+	project  = "${google_project_service.acceptance.project}"
 	name     = "%s"
 	location = "us-central1"
 }
@@ -500,16 +488,13 @@ resource "google_project" "acceptance" {
 	billing_account = "%s"
 }
 
-resource "google_project_services" "acceptance" {
+resource "google_project_service" "acceptance" {
 	project = "${google_project.acceptance.project_id}"
-
-	services = [
-	  "cloudkms.googleapis.com",
-	]
+	service = "cloudkms.googleapis.com"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project_services.acceptance.project}"
+	project  = "${google_project_service.acceptance.project}"
 	name     = "%s"
 	location = "us-central1"
 }

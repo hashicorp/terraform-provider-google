@@ -33,6 +33,10 @@ func (w *SqlAdminOperationWaiter) Error() error {
 	return nil
 }
 
+func (w *SqlAdminOperationWaiter) IsRetryable(error) bool {
+	return false
+}
+
 func (w *SqlAdminOperationWaiter) SetOp(op interface{}) error {
 	if op == nil {
 		// Starting as a log statement, this may be a useful error in the future

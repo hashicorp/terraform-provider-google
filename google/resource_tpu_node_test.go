@@ -4,11 +4,11 @@ import (
 	"testing"
 
 	"fmt"
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-func TestAccTpuNode_tpuNodeBUpdateTensorFlowVersion(t *testing.T) {
+func TestAccTPUNode_tpuNodeBUpdateTensorFlowVersion(t *testing.T) {
 	t.Parallel()
 
 	nodeId := acctest.RandomWithPrefix("tf-test")
@@ -16,7 +16,7 @@ func TestAccTpuNode_tpuNodeBUpdateTensorFlowVersion(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckTpuNodeDestroy,
+		CheckDestroy: testAccCheckTPUNodeDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccTpuNode_tpuNodeTensorFlow(nodeId, 0),

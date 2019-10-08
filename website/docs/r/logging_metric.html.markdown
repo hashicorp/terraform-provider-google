@@ -48,6 +48,7 @@ resource "google_logging_metric" "logging_metric" {
   metric_descriptor {
     metric_kind = "DELTA"
     value_type = "DISTRIBUTION"
+    unit = "1"
     labels {
         key = "mass"
         value_type = "STRING"
@@ -133,6 +134,12 @@ The following arguments are supported:
 
 The `metric_descriptor` block supports:
 
+* `unit` -
+  (Optional)
+  The unit in which the metric value is reported. It is only applicable if the valueType is
+  `INT64`, `DOUBLE`, or `DISTRIBUTION`. The supported units are a subset of
+  [The Unified Code for Units of Measure](http://unitsofmeasure.org/ucum.html) standard
+
 * `value_type` -
   (Required)
   Whether the measurement is an integer, a floating-point number, etc.
@@ -213,7 +220,7 @@ The `bucket_options` block supports:
   Specifies an exponential sequence of buckets that have a width that is proportional to the value of
   the lower bound. Each bucket represents a constant relative uncertainty on a specific value in the bucket.  Structure is documented below.
 
-* `explicit` -
+* `explicit_buckets` -
   (Optional)
   Specifies a set of buckets with arbitrary widths.  Structure is documented below.
 
@@ -246,7 +253,7 @@ The `exponential_buckets` block supports:
   (Optional)
   Must be greater than 0.
 
-The `explicit` block supports:
+The `explicit_buckets` block supports:
 
 * `bounds` -
   (Optional)

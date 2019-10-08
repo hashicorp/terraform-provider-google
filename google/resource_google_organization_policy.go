@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -14,7 +14,7 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		Type:             schema.TypeString,
 		Required:         true,
 		ForceNew:         true,
-		DiffSuppressFunc: linkDiffSuppress,
+		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 	"boolean_policy": {
 		Type:          schema.TypeList,

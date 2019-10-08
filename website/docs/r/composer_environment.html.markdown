@@ -275,17 +275,16 @@ The `software_config` block supports:
   SQL_USER
   ```
 
-* `image_version` (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) -
+* `image_version` (Optional) -
   The version of the software running in the environment. This encapsulates both the version of Cloud Composer
   functionality and the version of Apache Airflow. It must match the regular expression 
   `composer-[0-9]+\.[0-9]+(\.[0-9]+)?-airflow-[0-9]+\.[0-9]+(\.[0-9]+.*)?`.
   The Cloud Composer portion of the version is a semantic version. 
   The portion of the image version following 'airflow-' is an official Apache Airflow repository release name.
   See [documentation](https://cloud.google.com/composer/docs/reference/rest/v1beta1/projects.locations.environments#softwareconfig)
-  for allowed release names. This field can only be set in the [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
-  provider, but is an output-only attribute in the GA provider.
+  for allowed release names.
 
-* `python_version` (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) -
+* `python_version` (Optional) -
   The major version of Python used to run the Apache Airflow scheduler, worker, and webserver processes.
   Can be set to '2' or '3'. If not specified, the default is '2'. Cannot be updated.
 

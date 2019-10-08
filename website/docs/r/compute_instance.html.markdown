@@ -106,6 +106,10 @@ The following arguments are supported:
     within the instance. Ssh keys attached in the Cloud Console will be removed.
     Add them to your config in order to keep them attached to your instance.
 
+-> On import, `metadata_startup_script` will be set while 
+`metadata.startup-script` will not be. You'll need to match 
+`metadata_startup_script` to your `startup-script` value.
+
 * `metadata_startup_script` - (Optional) An alternative to using the
     startup-script metadata key, except this one forces the instance to be
     recreated (thus re-running the script) if it is changed. This replaces the
@@ -143,6 +147,9 @@ The `boot_disk` block supports:
 
 * `device_name` - (Optional) Name with which attached disk will be accessible.
     On the instance, this device will be `/dev/disk/by-id/google-{{device_name}}`.
+
+* `mode` - (Optional) The mode in which to attach this disk, either `READ_WRITE`
+  or `READ_ONLY`. If not specified, the default is to attach the disk in `READ_WRITE` mode.
 
 * `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),

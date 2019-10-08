@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func TestValidateGCPName(t *testing.T) {
@@ -214,30 +214,6 @@ func TestProjectRegex(t *testing.T) {
 		if got, err := regexp.MatchString("^"+ProjectRegex+"$", test.project); err != nil || got != test.want {
 			t.Errorf("got %t, want %t for project %v", got, test.want, test.project)
 		}
-	}
-}
-
-func TestValidateCloudIoTID(t *testing.T) {
-	x := []StringValidationTestCase{
-		// No errors
-		{TestName: "basic", Value: "foobar"},
-		{TestName: "with numbers", Value: "foobar123"},
-		{TestName: "short", Value: "foo"},
-		{TestName: "long", Value: "foobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoo"},
-		{TestName: "has a hyphen", Value: "foo-bar"},
-
-		// With errors
-		{TestName: "empty", Value: "", ExpectError: true},
-		{TestName: "starts with a goog", Value: "googfoobar", ExpectError: true},
-		{TestName: "starts with a number", Value: "1foobar", ExpectError: true},
-		{TestName: "has an slash", Value: "foo/bar", ExpectError: true},
-		{TestName: "has an backslash", Value: "foo\bar", ExpectError: true},
-		{TestName: "too long", Value: strings.Repeat("f", 260), ExpectError: true},
-	}
-
-	es := testStringValidationCases(x, validateCloudIoTID)
-	if len(es) > 0 {
-		t.Errorf("Failed to validate CloudIoT ID names: %v", es)
 	}
 }
 

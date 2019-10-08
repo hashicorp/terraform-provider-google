@@ -113,6 +113,33 @@ provider "google-beta"{
   zone   = "us-central1-a"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=subnetwork_internal_l7lb&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Subnetwork Internal L7lb
+
+
+```hcl
+resource "google_compute_subnetwork" "network-for-l7lb" {
+  provider	= "google-beta"
+
+  name          = "l7lb-test-subnetwork"
+  ip_cidr_range = "10.0.0.0/22"
+  region        = "us-central1"
+  purpose       = "INTERNAL_HTTPS_LOAD_BALANCER"
+  role          = "ACTIVE"
+  network       = "${google_compute_network.custom-test.self_link}"
+}
+
+resource "google_compute_network" "custom-test" {
+  provider		  = "google-beta"
+
+  name                    = "l7lb-test-network"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 

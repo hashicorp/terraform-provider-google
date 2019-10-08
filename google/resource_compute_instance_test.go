@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
@@ -518,6 +518,25 @@ func TestAccComputeInstance_bootDisk_type(t *testing.T) {
 					testAccCheckComputeInstanceBootDiskType(instanceName, diskType),
 				),
 			},
+		},
+	})
+}
+
+func TestAccComputeInstance_bootDisk_mode(t *testing.T) {
+	t.Parallel()
+
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var diskMode = "READ_WRITE"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_bootDisk_mode(instanceName, diskMode),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -2691,6 +2710,34 @@ resource "google_compute_instance" "foobar" {
 	}
 }
 `, instance, diskType)
+}
+
+func testAccComputeInstance_bootDisk_mode(instance string, diskMode string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "n1-standard-1"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params {
+			image	= "${data.google_compute_image.my_image.self_link}"
+			type	= "pd-ssd"
+		}
+
+		mode = "%s"
+	}
+
+	network_interface {
+		network = "default"
+	}
+}
+`, instance, diskMode)
 }
 
 func testAccComputeInstance_scratchDisk(instance string) string {

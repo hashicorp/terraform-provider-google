@@ -67,6 +67,11 @@ The following arguments are supported:
 - - -
 
 
+* `admin_enabled` -
+  (Optional)
+  Whether the VLAN attachment is enabled or disabled.  When using
+  PARTNER type this will Pre-Activate the interconnect attachment
+
 * `interconnect` -
   (Optional)
   URL of the underlying Interconnect object that this attachment's
@@ -76,6 +81,14 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional description of this resource.
+
+* `bandwidth` -
+  (Optional)
+  Provisioned bandwidth capacity for the interconnect attachment.
+  For attachments of type DEDICATED, the user can set the bandwidth.
+  For attachments of type PARTNER, the Google Partner that is operating the interconnect must set the bandwidth.
+  Output only for PARTNER type, mutable for PARTNER_PROVIDER and DEDICATED,
+  Defaults to BPS_10G
 
 * `edge_availability_domain` -
   (Optional)

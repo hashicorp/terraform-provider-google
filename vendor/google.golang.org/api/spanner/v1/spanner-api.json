@@ -812,6 +812,35 @@
                 },
                 "sessions": {
                   "methods": {
+                    "batchCreate": {
+                      "description": "Creates multiple new sessions. If the requested number of sessions would\ncause the database to exceed its session limit, returns a\nRESOURCE_EXHAUSTED error.\n\nThis API can be used to initialize a session cache on the clients.\nSee https://goo.gl/TgSFN2 for best practices on session cache management.",
+                      "flatPath": "v1/projects/{projectsId}/instances/{instancesId}/databases/{databasesId}/sessions:batchCreate",
+                      "httpMethod": "POST",
+                      "id": "spanner.projects.instances.databases.sessions.batchCreate",
+                      "parameterOrder": [
+                        "database"
+                      ],
+                      "parameters": {
+                        "database": {
+                          "description": "Required. The database in which the new sessions are created.",
+                          "location": "path",
+                          "pattern": "^projects/[^/]+/instances/[^/]+/databases/[^/]+$",
+                          "required": true,
+                          "type": "string"
+                        }
+                      },
+                      "path": "v1/{+database}/sessions:batchCreate",
+                      "request": {
+                        "$ref": "BatchCreateSessionsRequest"
+                      },
+                      "response": {
+                        "$ref": "BatchCreateSessionsResponse"
+                      },
+                      "scopes": [
+                        "https://www.googleapis.com/auth/cloud-platform",
+                        "https://www.googleapis.com/auth/spanner.data"
+                      ]
+                    },
                     "beginTransaction": {
                       "description": "Begins a new transaction. This step can often be skipped:\nRead, ExecuteSql and\nCommit can begin a new transaction as a\nside-effect.",
                       "flatPath": "v1/projects/{projectsId}/instances/{instancesId}/databases/{databasesId}/sessions/{sessionsId}:beginTransaction",
@@ -871,7 +900,7 @@
                       ]
                     },
                     "create": {
-                      "description": "Creates a new session. A session can be used to perform\ntransactions that read and/or modify data in a Cloud Spanner database.\nSessions are meant to be reused for many consecutive\ntransactions.\n\nSessions can only execute one transaction at a time. To execute\nmultiple concurrent read-write/write-only transactions, create\nmultiple sessions. Note that standalone reads and queries use a\ntransaction internally, and count toward the one transaction\nlimit.\n\nCloud Spanner limits the number of sessions that can exist at any given\ntime; thus, it is a good idea to delete idle and/or unneeded sessions.\nAside from explicit deletes, Cloud Spanner can delete sessions for which no\noperations are sent for more than an hour. If a session is deleted,\nrequests to it return `NOT_FOUND`.\n\nIdle sessions can be kept alive by sending a trivial SQL query\nperiodically, e.g., `\"SELECT 1\"`.",
+                      "description": "Creates a new session. A session can be used to perform\ntransactions that read and/or modify data in a Cloud Spanner database.\nSessions are meant to be reused for many consecutive\ntransactions.\n\nSessions can only execute one transaction at a time. To execute\nmultiple concurrent read-write/write-only transactions, create\nmultiple sessions. Note that standalone reads and queries use a\ntransaction internally, and count toward the one transaction\nlimit.\n\nActive sessions use additional server resources, so it is a good idea to\ndelete idle and unneeded sessions.\nAside from explicit deletes, Cloud Spanner can delete sessions for which no\noperations are sent for more than an hour. If a session is deleted,\nrequests to it return `NOT_FOUND`.\n\nIdle sessions can be kept alive by sending a trivial SQL query\nperiodically, e.g., `\"SELECT 1\"`.",
                       "flatPath": "v1/projects/{projectsId}/instances/{instancesId}/databases/{databasesId}/sessions",
                       "httpMethod": "POST",
                       "id": "spanner.projects.instances.databases.sessions.create",
@@ -926,7 +955,7 @@
                       ]
                     },
                     "executeBatchDml": {
-                      "description": "Executes a batch of SQL DML statements. This method allows many statements\nto be run with lower latency than submitting them sequentially with\nExecuteSql.\n\nStatements are executed in order, sequentially.\nExecuteBatchDmlResponse will contain a\nResultSet for each DML statement that has successfully executed. If a\nstatement fails, its error status will be returned as part of the\nExecuteBatchDmlResponse. Execution will\nstop at the first failed statement; the remaining statements will not run.\n\nExecuteBatchDml is expected to return an OK status with a response even if\nthere was an error while processing one of the DML statements. Clients must\ninspect response.status to determine if there were any errors while\nprocessing the request.\n\nSee more details in\nExecuteBatchDmlRequest and\nExecuteBatchDmlResponse.",
+                      "description": "Executes a batch of SQL DML statements. This method allows many statements\nto be run with lower latency than submitting them sequentially with\nExecuteSql.\n\nStatements are executed in sequential order. A request can succeed even if\na statement fails. The ExecuteBatchDmlResponse.status field in the\nresponse provides information about the statement that failed. Clients must\ninspect this field to determine whether an error occurred.\n\nExecution stops after the first failed statement; the remaining statements\nare not executed.",
                       "flatPath": "v1/projects/{projectsId}/instances/{instancesId}/databases/{databasesId}/sessions/{sessionsId}:executeBatchDml",
                       "httpMethod": "POST",
                       "id": "spanner.projects.instances.databases.sessions.executeBatchDml",
@@ -1358,9 +1387,39 @@
       }
     }
   },
-  "revision": "20190503",
+  "revision": "20190719",
   "rootUrl": "https://spanner.googleapis.com/",
   "schemas": {
+    "BatchCreateSessionsRequest": {
+      "description": "The request for BatchCreateSessions.",
+      "id": "BatchCreateSessionsRequest",
+      "properties": {
+        "sessionCount": {
+          "description": "Required. The number of sessions to be created in this batch call.\nThe API may return fewer than the requested number of sessions. If a\nspecific number of sessions are desired, the client can make additional\ncalls to BatchCreateSessions (adjusting\nsession_count as necessary).\nThe maximum allowed sessions are documented at https://goo.gl/hBUQED.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "sessionTemplate": {
+          "$ref": "Session",
+          "description": "Parameters to be applied to each created session."
+        }
+      },
+      "type": "object"
+    },
+    "BatchCreateSessionsResponse": {
+      "description": "The response for BatchCreateSessions.",
+      "id": "BatchCreateSessionsResponse",
+      "properties": {
+        "session": {
+          "description": "The freshly created sessions.",
+          "items": {
+            "$ref": "Session"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
     "BeginTransactionRequest": {
       "description": "The request for BeginTransaction.",
       "id": "BeginTransactionRequest",
@@ -1381,7 +1440,7 @@
           "description": "The condition that is associated with this binding.\nNOTE: An unsatisfied condition will not allow user access via current\nbinding. Different bindings, including their conditions, are examined\nindependently."
         },
         "members": {
-          "description": "Specifies the identities requesting access for a Cloud Platform resource.\n`members` can have the following values:\n\n* `allUsers`: A special identifier that represents anyone who is\n   on the internet; with or without a Google account.\n\n* `allAuthenticatedUsers`: A special identifier that represents anyone\n   who is authenticated with a Google account or a service account.\n\n* `user:{emailid}`: An email address that represents a specific Google\n   account. For example, `alice@gmail.com` .\n\n\n* `serviceAccount:{emailid}`: An email address that represents a service\n   account. For example, `my-other-app@appspot.gserviceaccount.com`.\n\n* `group:{emailid}`: An email address that represents a Google group.\n   For example, `admins@example.com`.\n\n\n* `domain:{domain}`: The G Suite domain (primary) that represents all the\n   users of that domain. For example, `google.com` or `example.com`.\n\n",
+          "description": "Specifies the identities requesting access for a Cloud Platform resource.\n`members` can have the following values:\n\n* `allUsers`: A special identifier that represents anyone who is\n   on the internet; with or without a Google account.\n\n* `allAuthenticatedUsers`: A special identifier that represents anyone\n   who is authenticated with a Google account or a service account.\n\n* `user:{emailid}`: An email address that represents a specific Google\n   account. For example, `alice@example.com` .\n\n\n* `serviceAccount:{emailid}`: An email address that represents a service\n   account. For example, `my-other-app@appspot.gserviceaccount.com`.\n\n* `group:{emailid}`: An email address that represents a Google group.\n   For example, `admins@example.com`.\n\n\n* `domain:{domain}`: The G Suite domain (primary) that represents all the\n   users of that domain. For example, `google.com` or `example.com`.\n\n",
           "items": {
             "type": "string"
           },
@@ -1577,16 +1636,16 @@
       "type": "object"
     },
     "ExecuteBatchDmlRequest": {
-      "description": "The request for ExecuteBatchDml",
+      "description": "The request for ExecuteBatchDml.",
       "id": "ExecuteBatchDmlRequest",
       "properties": {
         "seqno": {
-          "description": "A per-transaction sequence number used to identify this request. This is\nused in the same space as the seqno in\nExecuteSqlRequest. See more details\nin ExecuteSqlRequest.",
+          "description": "A per-transaction sequence number used to identify this request. This field\nmakes each request idempotent such that if the request is received multiple\ntimes, at most one will succeed.\n\nThe sequence number must be monotonically increasing within the\ntransaction. If a request arrives for the first time with an out-of-order\nsequence number, the transaction may be aborted. Replays of previously\nhandled requests will yield the same response as the first execution.",
           "format": "int64",
           "type": "string"
         },
         "statements": {
-          "description": "The list of statements to execute in this batch. Statements are executed\nserially, such that the effects of statement i are visible to statement\ni+1. Each statement must be a DML statement. Execution will stop at the\nfirst failed statement; the remaining statements will not run.\n\nREQUIRES: `statements_size()` \u003e 0.",
+          "description": "The list of statements to execute in this batch. Statements are executed\nserially, such that the effects of statement `i` are visible to statement\n`i+1`. Each statement must be a DML statement. Execution stops at the\nfirst failed statement; the remaining statements are not executed.\n\nCallers must provide at least one statement.",
           "items": {
             "$ref": "Statement"
           },
@@ -1594,17 +1653,17 @@
         },
         "transaction": {
           "$ref": "TransactionSelector",
-          "description": "The transaction to use. A ReadWrite transaction is required. Single-use\ntransactions are not supported (to avoid replay).  The caller must either\nsupply an existing transaction ID or begin a new transaction."
+          "description": "The transaction to use. Must be a read-write transaction.\n\nTo protect against replays, single-use transactions are not supported. The\ncaller must either supply an existing transaction ID or begin a new\ntransaction."
         }
       },
       "type": "object"
     },
     "ExecuteBatchDmlResponse": {
-      "description": "The response for ExecuteBatchDml. Contains a list\nof ResultSet, one for each DML statement that has successfully executed.\nIf a statement fails, the error is returned as part of the response payload.\nClients can determine whether all DML statements have run successfully, or if\na statement failed, using one of the following approaches:\n\n  1. Check if `'status'` field is `OkStatus`.\n  2. Check if `result_sets_size()` equals the number of statements in\n     ExecuteBatchDmlRequest.\n\nExample 1: A request with 5 DML statements, all executed successfully.\n\nResult: A response with 5 ResultSets, one for each statement in the same\norder, and an `OkStatus`.\n\nExample 2: A request with 5 DML statements. The 3rd statement has a syntax\nerror.\n\nResult: A response with 2 ResultSets, for the first 2 statements that\nrun successfully, and a syntax error (`INVALID_ARGUMENT`) status. From\n`result_set_size()` client can determine that the 3rd statement has failed.",
+      "description": "The response for ExecuteBatchDml. Contains a list\nof ResultSet messages, one for each DML statement that has successfully\nexecuted, in the same order as the statements in the request. If a statement\nfails, the status in the response body identifies the cause of the failure.\n\nTo check for DML statements that failed, use the following approach:\n\n1. Check the status in the response message. The google.rpc.Code enum\n   value `OK` indicates that all statements were executed successfully.\n2. If the status was not `OK`, check the number of result sets in the\n   response. If the response contains `N` ResultSet messages, then\n   statement `N+1` in the request failed.\n\nExample 1:\n\n* Request: 5 DML statements, all executed successfully.\n* Response: 5 ResultSet messages, with the status `OK`.\n\nExample 2:\n\n* Request: 5 DML statements. The third statement has a syntax error.\n* Response: 2 ResultSet messages, and a syntax error (`INVALID_ARGUMENT`)\n  status. The number of ResultSet messages indicates that the third\n  statement failed, and the fourth and fifth statements were not executed.",
       "id": "ExecuteBatchDmlResponse",
       "properties": {
         "resultSets": {
-          "description": "ResultSets, one for each statement in the request that ran successfully, in\nthe same order as the statements in the request. Each ResultSet will\nnot contain any rows. The ResultSetStats in each ResultSet will\ncontain the number of rows modified by the statement.\n\nOnly the first ResultSet in the response contains a valid\nResultSetMetadata.",
+          "description": "One ResultSet for each statement in the request that ran successfully,\nin the same order as the statements in the request. Each ResultSet does\nnot contain any rows. The ResultSetStats in each ResultSet contain\nthe number of rows modified by the statement.\n\nOnly the first ResultSet in the response contains valid\nResultSetMetadata.",
           "items": {
             "$ref": "ResultSet"
           },
@@ -1612,7 +1671,7 @@
         },
         "status": {
           "$ref": "Status",
-          "description": "If all DML statements are executed successfully, status will be OK.\nOtherwise, the error status of the first failed statement."
+          "description": "If all DML statements are executed successfully, the status is `OK`.\nOtherwise, the error status of the first failed statement."
         }
       },
       "type": "object"
@@ -1633,7 +1692,7 @@
             "description": "Properties of the object.",
             "type": "any"
           },
-          "description": "The SQL string can contain parameter placeholders. A parameter\nplaceholder consists of `'@'` followed by the parameter\nname. Parameter names consist of any combination of letters,\nnumbers, and underscores.\n\nParameters can appear anywhere that a literal value is expected.  The same\nparameter name can be used more than once, for example:\n  `\"WHERE id \u003e @msg_id AND id \u003c @msg_id + 100\"`\n\nIt is an error to execute an SQL statement with unbound parameters.\n\nParameter values are specified using `params`, which is a JSON\nobject whose keys are parameter names, and whose values are the\ncorresponding parameter values.",
+          "description": "Parameter names and values that bind to placeholders in the SQL string.\n\nA parameter placeholder consists of the `@` character followed by the\nparameter name (for example, `@firstName`). Parameter names can contain\nletters, numbers, and underscores.\n\nParameters can appear anywhere that a literal value is expected.  The same\nparameter name can be used more than once, for example:\n\n`\"WHERE id \u003e @msg_id AND id \u003c @msg_id + 100\"`\n\nIt is an error to execute a SQL statement with unbound parameters.",
           "type": "object"
         },
         "partitionToken": {
@@ -1661,7 +1720,7 @@
           "type": "string"
         },
         "seqno": {
-          "description": "A per-transaction sequence number used to identify this request. This\nmakes each request idempotent such that if the request is received multiple\ntimes, at most one will succeed.\n\nThe sequence number must be monotonically increasing within the\ntransaction. If a request arrives for the first time with an out-of-order\nsequence number, the transaction may be aborted. Replays of previously\nhandled requests will yield the same response as the first execution.\n\nRequired for DML statements. Ignored for queries.",
+          "description": "A per-transaction sequence number used to identify this request. This field\nmakes each request idempotent such that if the request is received multiple\ntimes, at most one will succeed.\n\nThe sequence number must be monotonically increasing within the\ntransaction. If a request arrives for the first time with an out-of-order\nsequence number, the transaction may be aborted. Replays of previously\nhandled requests will yield the same response as the first execution.\n\nRequired for DML statements. Ignored for queries.",
           "format": "int64",
           "type": "string"
         },
@@ -1671,7 +1730,7 @@
         },
         "transaction": {
           "$ref": "TransactionSelector",
-          "description": "The transaction to use. If none is provided, the default is a\ntemporary read-only transaction with strong concurrency.\n\nThe transaction to use.\n\nFor queries, if none is provided, the default is a temporary read-only\ntransaction with strong concurrency.\n\nStandard DML statements require a ReadWrite transaction. Single-use\ntransactions are not supported (to avoid replay).  The caller must\neither supply an existing transaction ID or begin a new transaction.\n\nPartitioned DML requires an existing PartitionedDml transaction ID."
+          "description": "The transaction to use.\n\nFor queries, if none is provided, the default is a temporary read-only\ntransaction with strong concurrency.\n\nStandard DML statements require a read-write transaction. To protect\nagainst replays, single-use transactions are not supported.  The caller\nmust either supply an existing transaction ID or begin a new transaction.\n\nPartitioned DML requires an existing Partitioned DML transaction ID."
         }
       },
       "type": "object"
@@ -1731,7 +1790,24 @@
     "GetIamPolicyRequest": {
       "description": "Request message for `GetIamPolicy` method.",
       "id": "GetIamPolicyRequest",
-      "properties": {},
+      "properties": {
+        "options": {
+          "$ref": "GetPolicyOptions",
+          "description": "OPTIONAL: A `GetPolicyOptions` object for specifying options to\n`GetIamPolicy`. This field is only used by Cloud IAM."
+        }
+      },
+      "type": "object"
+    },
+    "GetPolicyOptions": {
+      "description": "Encapsulates settings provided to GetIamPolicy.",
+      "id": "GetPolicyOptions",
+      "properties": {
+        "requestedPolicyVersion": {
+          "description": "Optional. The policy format version to be returned.\nAcceptable values are 0 and 1.\nIf the value is 0, or the field is omitted, policy format version 1 will be\nreturned.",
+          "format": "int32",
+          "type": "integer"
+        }
+      },
       "type": "object"
     },
     "Instance": {
@@ -2092,7 +2168,7 @@
             "description": "Properties of the object.",
             "type": "any"
           },
-          "description": "The SQL query string can contain parameter placeholders. A parameter\nplaceholder consists of `'@'` followed by the parameter\nname. Parameter names consist of any combination of letters,\nnumbers, and underscores.\n\nParameters can appear anywhere that a literal value is expected.  The same\nparameter name can be used more than once, for example:\n  `\"WHERE id \u003e @msg_id AND id \u003c @msg_id + 100\"`\n\nIt is an error to execute an SQL query with unbound parameters.\n\nParameter values are specified using `params`, which is a JSON\nobject whose keys are parameter names, and whose values are the\ncorresponding parameter values.",
+          "description": "Parameter names and values that bind to placeholders in the SQL string.\n\nA parameter placeholder consists of the `@` character followed by the\nparameter name (for example, `@firstName`). Parameter names can contain\nletters, numbers, and underscores.\n\nParameters can appear anywhere that a literal value is expected.  The same\nparameter name can be used more than once, for example:\n\n`\"WHERE id \u003e @msg_id AND id \u003c @msg_id + 100\"`\n\nIt is an error to execute a SQL statement with unbound parameters.",
           "type": "object"
         },
         "partitionOptions": {
@@ -2237,7 +2313,7 @@
           "type": "array"
         },
         "etag": {
-          "description": "`etag` is used for optimistic concurrency control as a way to help\nprevent simultaneous updates of a policy from overwriting each other.\nIt is strongly suggested that systems make use of the `etag` in the\nread-modify-write cycle to perform policy updates in order to avoid race\nconditions: An `etag` is returned in the response to `getIamPolicy`, and\nsystems are expected to put that etag in the request to `setIamPolicy` to\nensure that their change will be applied to the same version of the policy.\n\nIf no `etag` is provided in the call to `setIamPolicy`, then the existing\npolicy is overwritten blindly.",
+          "description": "`etag` is used for optimistic concurrency control as a way to help\nprevent simultaneous updates of a policy from overwriting each other.\nIt is strongly suggested that systems make use of the `etag` in the\nread-modify-write cycle to perform policy updates in order to avoid race\nconditions: An `etag` is returned in the response to `getIamPolicy`, and\nsystems are expected to put that etag in the request to `setIamPolicy` to\nensure that their change will be applied to the same version of the policy.\n\nIf no `etag` is provided in the call to `setIamPolicy`, then the existing\npolicy is overwritten.",
           "format": "byte",
           "type": "string"
         },
@@ -2370,9 +2446,9 @@
           ],
           "enumDescriptions": [
             "Not specified.",
-            "Read-write replicas support both reads and writes. These replicas:\n* Maintain a full copy of your data.\n* Serve reads.\n* Can vote whether to commit a write.\n* Participate in leadership election.\n* Are eligible to become a leader.",
-            "Read-only replicas only support reads (not writes). Read-only replicas:\n* Maintain a full copy of your data.\n* Serve reads.\n* Do not participate in voting to commit writes.\n* Are not eligible to become a leader.",
-            "Witness replicas don’t support reads but do participate in voting to\ncommit writes. Witness replicas:\n* Do not maintain a full copy of data.\n* Do not serve reads.\n* Vote whether to commit writes.\n* Participate in leader election but are not eligible to become leader."
+            "Read-write replicas support both reads and writes. These replicas:\n\n* Maintain a full copy of your data.\n* Serve reads.\n* Can vote whether to commit a write.\n* Participate in leadership election.\n* Are eligible to become a leader.",
+            "Read-only replicas only support reads (not writes). Read-only replicas:\n\n* Maintain a full copy of your data.\n* Serve reads.\n* Do not participate in voting to commit writes.\n* Are not eligible to become a leader.",
+            "Witness replicas don't support reads but do participate in voting to\ncommit writes. Witness replicas:\n\n* Do not maintain a full copy of data.\n* Do not serve reads.\n* Vote whether to commit writes.\n* Participate in leader election but are not eligible to become leader."
           ],
           "type": "string"
         }
@@ -2534,7 +2610,7 @@
             "description": "Properties of the object.",
             "type": "any"
           },
-          "description": "The DML string can contain parameter placeholders. A parameter\nplaceholder consists of `'@'` followed by the parameter\nname. Parameter names consist of any combination of letters,\nnumbers, and underscores.\n\nParameters can appear anywhere that a literal value is expected.  The\nsame parameter name can be used more than once, for example:\n  `\"WHERE id \u003e @msg_id AND id \u003c @msg_id + 100\"`\n\nIt is an error to execute an SQL statement with unbound parameters.\n\nParameter values are specified using `params`, which is a JSON\nobject whose keys are parameter names, and whose values are the\ncorresponding parameter values.",
+          "description": "Parameter names and values that bind to placeholders in the DML string.\n\nA parameter placeholder consists of the `@` character followed by the\nparameter name (for example, `@firstName`). Parameter names can contain\nletters, numbers, and underscores.\n\nParameters can appear anywhere that a literal value is expected.  The\nsame parameter name can be used more than once, for example:\n\n`\"WHERE id \u003e @msg_id AND id \u003c @msg_id + 100\"`\n\nIt is an error to execute a SQL statement with unbound parameters.",
           "type": "object"
         },
         "sql": {
@@ -2545,7 +2621,7 @@
       "type": "object"
     },
     "Status": {
-      "description": "The `Status` type defines a logical error model that is suitable for\ndifferent programming environments, including REST APIs and RPC APIs. It is\nused by [gRPC](https://github.com/grpc). The error model is designed to be:\n\n- Simple to use and understand for most users\n- Flexible enough to meet unexpected needs\n\n# Overview\n\nThe `Status` message contains three pieces of data: error code, error\nmessage, and error details. The error code should be an enum value of\ngoogle.rpc.Code, but it may accept additional error codes if needed.  The\nerror message should be a developer-facing English message that helps\ndevelopers *understand* and *resolve* the error. If a localized user-facing\nerror message is needed, put the localized message in the error details or\nlocalize it in the client. The optional error details may contain arbitrary\ninformation about the error. There is a predefined set of error detail types\nin the package `google.rpc` that can be used for common error conditions.\n\n# Language mapping\n\nThe `Status` message is the logical representation of the error model, but it\nis not necessarily the actual wire format. When the `Status` message is\nexposed in different client libraries and different wire protocols, it can be\nmapped differently. For example, it will likely be mapped to some exceptions\nin Java, but more likely mapped to some error codes in C.\n\n# Other uses\n\nThe error model and the `Status` message can be used in a variety of\nenvironments, either with or without APIs, to provide a\nconsistent developer experience across different environments.\n\nExample uses of this error model include:\n\n- Partial errors. If a service needs to return partial errors to the client,\n    it may embed the `Status` in the normal response to indicate the partial\n    errors.\n\n- Workflow errors. A typical workflow has multiple steps. Each step may\n    have a `Status` message for error reporting.\n\n- Batch operations. If a client uses batch request and batch response, the\n    `Status` message should be used directly inside batch response, one for\n    each error sub-response.\n\n- Asynchronous operations. If an API call embeds asynchronous operation\n    results in its response, the status of those operations should be\n    represented directly using the `Status` message.\n\n- Logging. If some API errors are stored in logs, the message `Status` could\n    be used directly after any stripping needed for security/privacy reasons.",
+      "description": "The `Status` type defines a logical error model that is suitable for\ndifferent programming environments, including REST APIs and RPC APIs. It is\nused by [gRPC](https://github.com/grpc). Each `Status` message contains\nthree pieces of data: error code, error message, and error details.\n\nYou can find out more about this error model and how to work with it in the\n[API Design Guide](https://cloud.google.com/apis/design/errors).",
       "id": "Status",
       "properties": {
         "code": {

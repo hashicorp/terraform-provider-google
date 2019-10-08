@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -361,22 +361,29 @@ func flattenNestedComputeNetworkEndpoint(d *schema.ResourceData, meta interface{
 		return nil, fmt.Errorf("expected list or map for value items. Actual value: %v", v)
 	}
 
-	expectedInstance, err := expandComputeNetworkEndpointInstance(d.Get("instance"), d, meta.(*Config))
+	_, item, err := resourceComputeNetworkEndpointFindNestedObjectInList(d, meta, v.([]interface{}))
 	if err != nil {
 		return nil, err
+	}
+	return item, nil
+}
+
+func resourceComputeNetworkEndpointFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
+	expectedInstance, err := expandComputeNetworkEndpointInstance(d.Get("instance"), d, meta.(*Config))
+	if err != nil {
+		return -1, nil, err
 	}
 	expectedIpAddress, err := expandComputeNetworkEndpointIpAddress(d.Get("ip_address"), d, meta.(*Config))
 	if err != nil {
-		return nil, err
+		return -1, nil, err
 	}
 	expectedPort, err := expandComputeNetworkEndpointPort(d.Get("port"), d, meta.(*Config))
 	if err != nil {
-		return nil, err
+		return -1, nil, err
 	}
 
 	// Search list for this resource.
-	items := v.([]interface{})
-	for _, itemRaw := range items {
+	for idx, itemRaw := range items {
 		if itemRaw == nil {
 			continue
 		}
@@ -385,7 +392,7 @@ func flattenNestedComputeNetworkEndpoint(d *schema.ResourceData, meta interface{
 		// Decode list item before comparing.
 		item, err := resourceComputeNetworkEndpointDecoder(d, meta, item)
 		if err != nil {
-			return nil, err
+			return -1, nil, err
 		}
 
 		itemInstance := flattenComputeNetworkEndpointInstance(item["instance"], d)
@@ -404,12 +411,10 @@ func flattenNestedComputeNetworkEndpoint(d *schema.ResourceData, meta interface{
 			continue
 		}
 		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
-		return item, nil
+		return idx, item, nil
 	}
-
-	return nil, nil
+	return -1, nil, nil
 }
-
 func resourceComputeNetworkEndpointDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	v, ok := res["networkEndpoint"]
 	if !ok || v == nil {

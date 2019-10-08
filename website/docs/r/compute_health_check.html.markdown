@@ -41,16 +41,16 @@ To get more information about HealthCheck, see:
     * [Official Documentation](https://cloud.google.com/load-balancing/docs/health-checks)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_tcp&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Health Check Basic
+## Example Usage - Health Check Tcp
 
 
 ```hcl
-resource "google_compute_health_check" "internal-health-check" {
- name = "internal-service-health-check"
+resource "google_compute_health_check" "tcp-health-check" {
+ name = "tcp-health-check"
 
  timeout_sec        = 1
  check_interval_sec = 1
@@ -58,6 +58,224 @@ resource "google_compute_health_check" "internal-health-check" {
  tcp_health_check {
    port = "80"
  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_tcp_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Tcp Full
+
+
+```hcl
+resource "google_compute_health_check" "tcp-health-check" {
+  name = "tcp-health-check"
+  description = "Health check via tcp"
+
+  timeout_sec         = 1
+  check_interval_sec  = 1
+  healthy_threshold   = 4
+  unhealthy_threshold = 5
+
+  tcp_health_check {
+    port_name = "health-check-port"
+    port_specification = "USE_NAMED_PORT"
+    request = "ARE YOU HEALTHY?"
+    proxy_header = "NONE"
+    response = "I AM HEALTHY"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_ssl&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Ssl
+
+
+```hcl
+resource "google_compute_health_check" "ssl-health-check" {
+ name = "ssl-health-check"
+
+ timeout_sec        = 1
+ check_interval_sec = 1
+
+ ssl_health_check {
+   port = "443"
+ }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_ssl_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Ssl Full
+
+
+```hcl
+resource "google_compute_health_check" "ssl-health-check" {
+  name = "ssl-health-check"
+  description = "Health check via ssl"
+
+  timeout_sec         = 1
+  check_interval_sec  = 1
+  healthy_threshold   = 4
+  unhealthy_threshold = 5
+
+  ssl_health_check {
+    port_name = "health-check-port"
+    port_specification = "USE_NAMED_PORT"
+    request = "ARE YOU HEALTHY?"
+    proxy_header = "NONE"
+    response = "I AM HEALTHY"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_http&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Http
+
+
+```hcl
+resource "google_compute_health_check" "http-health-check" {
+ name = "http-health-check"
+
+ timeout_sec        = 1
+ check_interval_sec = 1
+
+ http_health_check {
+   port = 80
+ }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_http_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Http Full
+
+
+```hcl
+resource "google_compute_health_check" "http-health-check" {
+  name = "http-health-check"
+  description = "Health check via http"
+
+  timeout_sec         = 1
+  check_interval_sec  = 1
+  healthy_threshold   = 4
+  unhealthy_threshold = 5
+
+  http_health_check {
+    port_name = "health-check-port"
+    port_specification = "USE_NAMED_PORT"
+    host = "1.2.3.4"
+    request_path = "/mypath"
+    proxy_header = "NONE"
+    response = "I AM HEALTHY"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_https&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Https
+
+
+```hcl
+resource "google_compute_health_check" "https-health-check" {
+ name = "https-health-check"
+
+ timeout_sec        = 1
+ check_interval_sec = 1
+
+ https_health_check {
+   port = "443"
+ }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_https_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Https Full
+
+
+```hcl
+resource "google_compute_health_check" "https-health-check" {
+  name = "https-health-check"
+  description = "Health check via https"
+
+  timeout_sec         = 1
+  check_interval_sec  = 1
+  healthy_threshold   = 4
+  unhealthy_threshold = 5
+
+  https_health_check {
+    port_name = "health-check-port"
+    port_specification = "USE_NAMED_PORT"
+    host = "1.2.3.4"
+    request_path = "/mypath"
+    proxy_header = "NONE"
+    response = "I AM HEALTHY"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_http2&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Http2
+
+
+```hcl
+resource "google_compute_health_check" "http2-health-check" {
+ name = "http2-health-check"
+
+ timeout_sec        = 1
+ check_interval_sec = 1
+
+ http2_health_check {
+   port = "443"
+ }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_http2_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Http2 Full
+
+
+```hcl
+resource "google_compute_health_check" "http2-health-check" {
+  name = "http2-health-check"
+  description = "Health check via http2"
+
+  timeout_sec         = 1
+  check_interval_sec  = 1
+  healthy_threshold   = 4
+  unhealthy_threshold = 5
+
+  http2_health_check {
+    port_name = "health-check-port"
+    port_specification = "USE_NAMED_PORT"
+    host = "1.2.3.4"
+    request_path = "/mypath"
+    proxy_header = "NONE"
+    response = "I AM HEALTHY"
+  }
 }
 ```
 
@@ -119,6 +337,10 @@ The following arguments are supported:
   A nested object resource  Structure is documented below.
 
 * `ssl_health_check` -
+  (Optional)
+  A nested object resource  Structure is documented below.
+
+* `http2_health_check` -
   (Optional)
   A nested object resource  Structure is documented below.
 
@@ -304,6 +526,53 @@ The `ssl_health_check` block supports:
     port or named port specified in the Backend Service is used for health
     checking.
   If not specified, SSL health check follows behavior specified in `port` and
+  `portName` fields.
+
+The `http2_health_check` block supports:
+
+* `host` -
+  (Optional)
+  The value of the host header in the HTTP2 health check request.
+  If left empty (default value), the public IP on behalf of which this health
+  check is performed will be used.
+
+* `request_path` -
+  (Optional)
+  The request path of the HTTP2 health check request.
+  The default value is /.
+
+* `response` -
+  (Optional)
+  The bytes to match against the beginning of the response data. If left empty
+  (the default value), any response will indicate health. The response data
+  can only be ASCII.
+
+* `port` -
+  (Optional)
+  The TCP port number for the HTTP2 health check request.
+  The default value is 443.
+
+* `port_name` -
+  (Optional)
+  Port name as defined in InstanceGroup#NamedPort#name. If both port and
+  port_name are defined, port takes precedence.
+
+* `proxy_header` -
+  (Optional)
+  Specifies the type of proxy header to append before sending data to the
+  backend, either NONE or PROXY_V1. The default is NONE.
+
+* `port_specification` -
+  (Optional)
+  Specifies how port is selected for health checking, can be one of the
+  following values:
+    * `USE_FIXED_PORT`: The port number in `port` is used for health checking.
+    * `USE_NAMED_PORT`: The `portName` is used for health checking.
+    * `USE_SERVING_PORT`: For NetworkEndpointGroup, the port specified for each
+    network endpoint is used for health checking. For other backends, the
+    port or named port specified in the Backend Service is used for health
+    checking.
+  If not specified, HTTP2 health check follows behavior specified in `port` and
   `portName` fields.
 
 ## Attributes Reference

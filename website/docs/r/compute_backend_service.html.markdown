@@ -57,6 +57,76 @@ resource "google_compute_http_health_check" "default" {
   timeout_sec        = 1
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_traffic_director_round_robin&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Traffic Director Round Robin
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  provider = "google-beta"
+
+  name          = "backend-service"
+  health_checks = ["${google_compute_health_check.health_check.self_link}"]
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  locality_lb_policy = "ROUND_ROBIN"
+}
+
+resource "google_compute_health_check" "health_check" {
+  provider = "google-beta"
+
+  name               = "health-check"
+  http_health_check {
+
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_traffic_director_ring_hash&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Traffic Director Ring Hash
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  provider = "google-beta"
+
+  name          = "backend-service"
+  health_checks = ["${google_compute_health_check.health_check.self_link}"]
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  locality_lb_policy = "RING_HASH"
+  session_affinity = "HTTP_COOKIE"
+  circuit_breakers {
+    max_connections = 10
+  }
+  consistent_hash {
+    http_cookie {
+      ttl {
+        seconds = 11
+        nanos = 1111
+      }
+      name = "mycookie"
+    }
+  }
+  outlier_detection {
+    consecutive_errors = 2
+  }
+}
+
+resource "google_compute_health_check" "health_check" {
+  provider = "google-beta"
+
+  name               = "health-check"
+  http_health_check {
+
+  }
+}
+```
 
 ## Argument Reference
 
@@ -143,10 +213,8 @@ The following arguments are supported:
 
 * `session_affinity` -
   (Optional)
-  Type of session affinity to use. The default is NONE.
-  When the load balancing scheme is EXTERNAL, can be NONE, CLIENT_IP, or
-  GENERATED_COOKIE.
-  When the protocol is UDP, this field is not used.
+  Type of session affinity to use. The default is NONE. Session affinity is
+  not applicable if the protocol is UDP.
 
 * `timeout_sec` -
   (Optional)

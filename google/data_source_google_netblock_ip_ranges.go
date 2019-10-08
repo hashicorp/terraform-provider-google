@@ -2,7 +2,7 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -68,8 +68,14 @@ func dataSourceGoogleNetblockIpRangesRead(d *schema.ResourceData, meta interface
 		d.Set("cidr_blocks_ipv6", CidrBlocks["cidr_blocks_ipv6"])
 	// Static ranges
 	case "restricted-googleapis":
-		// https://cloud.google.com/vpc/docs/configure-private-google-access-hybrid
+		// https://cloud.google.com/vpc/docs/private-access-options#domain-vips
 		CidrBlocks["cidr_blocks_ipv4"] = append(CidrBlocks["cidr_blocks_ipv4"], "199.36.153.4/30")
+		CidrBlocks["cidr_blocks"] = CidrBlocks["cidr_blocks_ipv4"]
+		d.Set("cidr_blocks", CidrBlocks["cidr_blocks"])
+		d.Set("cidr_blocks_ipv4", CidrBlocks["cidr_blocks_ipv4"])
+	case "private-googleapis":
+		// https://cloud.google.com/vpc/docs/private-access-options#domain-vips
+		CidrBlocks["cidr_blocks_ipv4"] = append(CidrBlocks["cidr_blocks_ipv4"], "199.36.153.8/30")
 		CidrBlocks["cidr_blocks"] = CidrBlocks["cidr_blocks_ipv4"]
 		d.Set("cidr_blocks", CidrBlocks["cidr_blocks"])
 		d.Set("cidr_blocks_ipv4", CidrBlocks["cidr_blocks_ipv4"])

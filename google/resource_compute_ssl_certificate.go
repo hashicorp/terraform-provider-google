@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -208,7 +208,7 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("description", flattenComputeSslCertificateDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading SslCertificate: %s", err)
 	}
-	if err := d.Set("certificate_id", flattenComputeSslCertificateCertificate_id(res["id"], d)); err != nil {
+	if err := d.Set("certificate_id", flattenComputeSslCertificateCertificateId(res["id"], d)); err != nil {
 		return fmt.Errorf("Error reading SslCertificate: %s", err)
 	}
 	if err := d.Set("name", flattenComputeSslCertificateName(res["name"], d)); err != nil {
@@ -292,7 +292,7 @@ func flattenComputeSslCertificateDescription(v interface{}, d *schema.ResourceDa
 	return v
 }
 
-func flattenComputeSslCertificateCertificate_id(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSslCertificateCertificateId(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {

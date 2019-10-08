@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccDataSourceGoogleNetblockIpRanges_basic(t *testing.T) {
@@ -59,6 +59,19 @@ func TestAccDataSourceGoogleNetblockIpRanges_basic(t *testing.T) {
 					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.restricted",
 						"cidr_blocks_ipv4.0", regexp.MustCompile("^(?:[0-9]{1,3}.){3}[0-9]{1,3}/[0-9]{1,2}$")),
 					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.restricted", "cidr_blocks_ipv6.#", "0"),
+				),
+			},
+			{
+				Config: testAccNetblockIpRangesConfig_private,
+				Check: resource.ComposeTestCheckFunc(
+					// Private Google Access Unrestricted VIP
+					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.private", "cidr_blocks.#", "1"),
+					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.private",
+						"cidr_blocks.0", regexp.MustCompile("^(?:[0-9a-fA-F./:]{1,4}){1,2}.*/[0-9]{1,3}$")),
+					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.private", "cidr_blocks_ipv4.#", "1"),
+					resource.TestMatchResourceAttr("data.google_netblock_ip_ranges.private",
+						"cidr_blocks_ipv4.0", regexp.MustCompile("^(?:[0-9]{1,3}.){3}[0-9]{1,3}/[0-9]{1,2}$")),
+					resource.TestCheckResourceAttr("data.google_netblock_ip_ranges.private", "cidr_blocks_ipv6.#", "0"),
 				),
 			},
 			{
@@ -130,6 +143,12 @@ data "google_netblock_ip_ranges" "google" {
 const testAccNetblockIpRangesConfig_restricted = `
 data "google_netblock_ip_ranges" "restricted" {
   range_type = "restricted-googleapis"
+}
+`
+
+const testAccNetblockIpRangesConfig_private = `
+data "google_netblock_ip_ranges" "private" {
+  range_type = "private-googleapis"
 }
 `
 

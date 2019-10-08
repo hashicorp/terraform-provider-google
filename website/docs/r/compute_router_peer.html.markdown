@@ -51,12 +51,41 @@ The following arguments are supported:
 * `advertised_route_priority` - (Optional) The priority of routes advertised to this BGP peer.
     Changing this forces a new peer to be created.
 
+* `advertise_mode` - (Optional) User-specified flag to indicate which mode to use for advertisement.
+    Options include `DEFAULT` or `CUSTOM`.
+
+* `advertised_groups` - (Optional) User-specified list of prefix groups to advertise in custom mode,
+    which can take one of the following options:
+
+    `ALL_SUBNETS`: Advertises all available subnets, including peer VPC subnets.  
+    `ALL_VPC_SUBNETS`: Advertises the router's own VPC subnets.  
+    `ALL_PEER_VPC_SUBNETS`: Advertises peer subnets of the router's VPC network.
+
+    Note that this field can only be populated if `advertise_mode` is `CUSTOM` and overrides the list
+    defined for the router (in the "bgp" message). These groups are advertised in addition to any
+    specified prefixes. Leave this field blank to advertise no custom groups.
+
+* `advertised_ip_ranges` - (Optional) User-specified list of individual IP ranges to advertise in
+    custom mode. This field can only be populated if `advertise_mode` is `CUSTOM` and overrides
+    the list defined for the router (in the "bgp" message). These IP ranges are advertised in
+    addition to any specified groups. Leave this field blank to advertise no custom IP ranges.
+
 * `project` - (Optional) The ID of the project in which this peer's router belongs. If it
     is not provided, the provider project is used. Changing this forces a new peer to be created.
 
 * `region` - (Optional) The region this peer's router sits in. If not specified,
     the project region will be used. Changing this forces a new peer to be
     created.
+
+
+The `advertised_ip_ranges` block supports:
+
+* `description` -
+  (Optional) User-specified description for the IP range.
+
+* `range` -
+  (Optional) The IP range to advertise. The value must be a CIDR-formatted string.
+
 
 ## Attributes Reference
 

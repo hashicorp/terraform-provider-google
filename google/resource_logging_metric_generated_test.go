@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccLoggingMetric_loggingMetricBasicExample(t *testing.T) {
@@ -56,6 +56,7 @@ resource "google_logging_metric" "logging_metric" {
   metric_descriptor {
     metric_kind = "DELTA"
     value_type = "DISTRIBUTION"
+    unit = "1"
     labels {
         key = "mass"
         value_type = "STRING"

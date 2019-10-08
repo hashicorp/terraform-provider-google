@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/customdiff"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"google.golang.org/api/googleapi"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
@@ -490,11 +490,12 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		defer mutexKV.Unlock(instanceMutexKey(project, instance.MasterInstanceName))
 	}
 
-	op, err := config.clientSqlAdmin.Instances.Insert(project, instance).Do()
+	var op *sqladmin.Operation
+	err = retryTimeDuration(func() (operr error) {
+		op, operr = config.clientSqlAdmin.Instances.Insert(project, instance).Do()
+		return operr
+	}, d.Timeout(schema.TimeoutCreate), isSqlOperationInProgressError)
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 {
-			return fmt.Errorf("Error, failed to create instance %s with error code 409: %s. This may be due to a name collision - SQL instance names cannot be reused within a week.", instance.Name, err)
-		}
 		return fmt.Errorf("Error, failed to create instance %s: %s", instance.Name, err)
 	}
 
@@ -515,10 +516,10 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	// Users in a replica instance are inherited from the master instance and should be left alone.
 	if sqlDatabaseIsMaster(d) {
 		var users *sqladmin.UsersListResponse
-		err = retryTime(func() error {
+		err = retryTimeDuration(func() error {
 			users, err = config.clientSqlAdmin.Users.List(project, instance.Name).Do()
 			return err
-		}, 5)
+		}, d.Timeout(schema.TimeoutRead), isSqlOperationInProgressError)
 		if err != nil {
 			return fmt.Errorf("Error, attempting to list users associated with instance %s: %s", instance.Name, err)
 		}
@@ -701,13 +702,10 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	var instance *sqladmin.DatabaseInstance
-	err = retry(
-		func() error {
-			instance, err = config.clientSqlAdmin.Instances.Get(project, d.Id()).Do()
-			return err
-		},
-	)
-
+	err = retryTimeDuration(func() (rerr error) {
+		instance, rerr = config.clientSqlAdmin.Instances.Get(project, d.Id()).Do()
+		return rerr
+	}, d.Timeout(schema.TimeoutRead), isSqlOperationInProgressError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SQL Database Instance %q", d.Get("name").(string)))
 	}
@@ -781,7 +779,11 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		defer mutexKV.Unlock(instanceMutexKey(project, v.(string)))
 	}
 
-	op, err := config.clientSqlAdmin.Instances.Update(project, d.Get("name").(string), instance).Do()
+	var op *sqladmin.Operation
+	err = retryTimeDuration(func() (rerr error) {
+		op, rerr = config.clientSqlAdmin.Instances.Update(project, d.Get("name").(string), instance).Do()
+		return rerr
+	}, d.Timeout(schema.TimeoutUpdate), isSqlOperationInProgressError)
 	if err != nil {
 		return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
 	}
@@ -810,11 +812,10 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	var op *sqladmin.Operation
-	err = retryTimeDuration(func() error {
-		op, err = config.clientSqlAdmin.Instances.Delete(project, d.Get("name").(string)).Do()
-		return err
+	err = retryTimeDuration(func() (rerr error) {
+		op, rerr = config.clientSqlAdmin.Instances.Delete(project, d.Get("name").(string)).Do()
+		return rerr
 	}, d.Timeout(schema.TimeoutDelete))
-
 	if err != nil {
 		return fmt.Errorf("Error, failed to delete instance %s: %s", d.Get("name").(string), err)
 	}

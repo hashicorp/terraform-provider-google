@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestContainerClusterIpAllocationCustomizeDiff(t *testing.T) {
@@ -383,6 +383,15 @@ func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
 					resource.TestCheckNoResourceAttr("google_container_cluster.with_master_authorized_networks",
 						"master_authorized_networks_config.0.cidr_blocks"),
 				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_master_authorized_networks",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_removeMasterAuthorizedNetworksConfig(clusterName),
 			},
 			{
 				ResourceName:        "google_container_cluster.with_master_authorized_networks",
@@ -1118,6 +1127,56 @@ func TestAccContainerCluster_errorNoClusterCreated(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withMasterAuthorizedNetworksDisabled(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withMasterAuthorizedNetworksDisabled(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccContainerCluster_masterAuthorizedNetworksDisabled("google_container_cluster.with_private_cluster"),
+				),
+			},
+			{
+				ResourceName:        "google_container_cluster.with_private_cluster",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_masterAuthorizedNetworksDisabled(resource_name string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resource_name]
+		if !ok {
+			return fmt.Errorf("can't find %s in state", resource_name)
+		}
+
+		config := testAccProvider.Meta().(*Config)
+		attributes := rs.Primary.Attributes
+
+		cluster, err := config.clientContainer.Projects.Zones.Clusters.Get(
+			config.Project, attributes["zone"], attributes["name"]).Do()
+		if err != nil {
+			return err
+		}
+
+		if cluster.MasterAuthorizedNetworksConfig.Enabled {
+			return fmt.Errorf("Cluster's master authorized networks config is enabled, but expected to be disabled.")
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1463,13 +1522,22 @@ func testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName stri
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_master_authorized_networks" {
 	name = "%s"
-	zone = "us-central1-a"
+	location = "us-central1-a"
 	initial_node_count = 1
 
 	master_authorized_networks_config {
 		%s
 	}
 }`, clusterName, cidrBlocks)
+}
+
+func testAccContainerCluster_removeMasterAuthorizedNetworksConfig(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_master_authorized_networks" {
+	name = "%s"
+	location = "us-central1-a"
+	initial_node_count = 1
+}`, clusterName)
 }
 
 func testAccContainerCluster_regional(clusterName string) string {
@@ -2214,4 +2282,50 @@ resource "google_container_cluster" "with_resource_labels" {
 	initial_node_count = 1
 }
 `, location)
+}
+
+func testAccContainerCluster_withMasterAuthorizedNetworksDisabled(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+	name = "container-net-%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+	name					 = "${google_compute_network.container_network.name}"
+	network					 = "${google_compute_network.container_network.name}"
+	ip_cidr_range			 = "10.0.36.0/24"
+	region					 = "us-central1"
+	private_ip_google_access = true
+
+	secondary_ip_range {
+		range_name	  = "pod"
+		ip_cidr_range = "10.0.0.0/19"
+	}
+
+	secondary_ip_range {
+		range_name	  = "svc"
+		ip_cidr_range = "10.0.32.0/22"
+	}
+}
+
+resource "google_container_cluster" "with_private_cluster" {
+	name = "cluster-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+
+	network = "${google_compute_network.container_network.name}"
+	subnetwork = "${google_compute_subnetwork.container_subnetwork.name}"
+
+	private_cluster_config {
+		enable_private_endpoint = false
+		enable_private_nodes = true
+		master_ipv4_cidr_block = "10.42.0.0/28"
+	}
+
+	ip_allocation_policy {
+		cluster_secondary_range_name  = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.0.range_name}"
+		services_secondary_range_name = "${google_compute_subnetwork.container_subnetwork.secondary_ip_range.1.range_name}"
+	}
+}`, clusterName, clusterName)
 }

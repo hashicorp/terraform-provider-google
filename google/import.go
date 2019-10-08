@@ -101,6 +101,7 @@ func setDefaultValues(idRegex string, d TerraformResourceData, config *Config) e
 // Parse an import id extracting field values using the given list of regexes.
 // They are applied in order. The first in the list is tried first.
 // This does not mutate any of the parameters, returning a map of matches
+// Similar to parseImportId in import.go, but less import specific
 //
 // e.g:
 // - projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<name>[^/]+) (applied first)
@@ -126,20 +127,22 @@ func getImportIdQualifiers(idRegexes []string, d TerraformResourceData, config *
 				result[fieldName] = fieldValue
 			}
 
-			// The first id format is applied first and contains all the fields.
 			defaults, err := getDefaultValues(idRegexes[0], d, config)
 			if err != nil {
 				return nil, err
 			}
 
 			for k, v := range defaults {
-				result[k] = v
+				if _, ok := result[k]; !ok {
+					// Set any fields that are defaultable and not specified in import ID
+					result[k] = v
+				}
 			}
 
 			return result, nil
 		}
 	}
-	return nil, fmt.Errorf("Resource id %q doesn't match any of the accepted formats: %v", id, idRegexes)
+	return nil, fmt.Errorf("Import id %q doesn't match any of the accepted formats: %v", d.Id(), idRegexes)
 }
 
 // Returns a set of default values that are contained in a regular expression

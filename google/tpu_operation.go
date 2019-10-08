@@ -17,13 +17,13 @@ import (
 	"fmt"
 )
 
-type TpuOperationWaiter struct {
+type TPUOperationWaiter struct {
 	Config  *Config
 	Project string
 	CommonOperationWaiter
 }
 
-func (w *TpuOperationWaiter) QueryOp() (interface{}, error) {
+func (w *TPUOperationWaiter) QueryOp() (interface{}, error) {
 	if w == nil {
 		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
 	}
@@ -37,7 +37,7 @@ func tpuOperationWaitTime(config *Config, op map[string]interface{}, project, ac
 		// This was a synchronous call - there is no operation to wait for.
 		return nil
 	}
-	w := &TpuOperationWaiter{
+	w := &TPUOperationWaiter{
 		Config:  config,
 		Project: project,
 	}

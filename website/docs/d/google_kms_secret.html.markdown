@@ -32,7 +32,7 @@ resource "google_kms_key_ring" "my_key_ring" {
 
 resource "google_kms_crypto_key" "my_crypto_key" {
   name     = "my-crypto-key"
-  key_ring = "${google_kms_key_ring.my_key_ring.id}"
+  key_ring = "${google_kms_key_ring.my_key_ring.self_link}"
 }
 ```
 
@@ -55,7 +55,7 @@ Finally, reference the encrypted ciphertext in your resource definitions:
 
 ```hcl
 data "google_kms_secret" "sql_user_password" {
-  crypto_key = "${google_kms_crypto_key.my_crypto_key.id}"
+  crypto_key = "${google_kms_crypto_key.my_crypto_key.self_link}"
   ciphertext = "CiQAqD+xX4SXOSziF4a8JYvq4spfAuWhhYSNul33H85HnVtNQW4SOgDu2UZ46dQCRFl5MF6ekabviN8xq+F+2035ZJ85B+xTYXqNf4mZs0RJitnWWuXlYQh6axnnJYu3kDU="
 }
 

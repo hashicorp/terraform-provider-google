@@ -103,7 +103,7 @@ resource "google_pubsub_topic" "example" {
 resource "google_pubsub_subscription" "example" {
   project = "subscription-project"
   name    = "example-subscription"
-  topic   = "${google_pubsub_topic.example.id}"
+  topic   = "${google_pubsub_topic.example.name}"
 }
 ```
 

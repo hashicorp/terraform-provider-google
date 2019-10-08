@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 const (
@@ -41,7 +41,7 @@ var (
 
 	ServiceAccountLinkRegexPrefix = "projects/" + ProjectRegexWildCard + "/serviceAccounts/"
 	PossibleServiceAccountNames   = []string{
-		AppEngineServiceAccountNameRegex,
+		ServiceDefaultAccountNameRegex,
 		ComputeServiceAccountNameRegex,
 		CreatedServiceAccountNameRegex,
 	}
@@ -51,12 +51,16 @@ var (
 
 	// Format of service accounts created through the API
 	CreatedServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, 4, 28) + "@" + ProjectNameInDNSFormRegex + "\\.iam\\.gserviceaccount\\.com$"
-	ProjectNameInDNSFormRegex      = "[-a-z0-9\\.]{1,63}"
 
-	// Format of default App Engine service accounts created by Google
-	AppEngineServiceAccountNameRegex = ProjectRegex + "@appspot.gserviceaccount.com"
+	// Format of service-created service account
+	// examples are:
+	// 		$PROJECTID@cloudbuild.gserviceaccount.com
+	// 		$PROJECTID@cloudservices.gserviceaccount.com
+	// 		$PROJECTID@appspot.gserviceaccount.com
+	ServiceDefaultAccountNameRegex = ProjectRegex + "@[a-z]+.gserviceaccount.com$"
 
-	ProjectNameRegex = "^[A-Za-z0-9-'\"\\s!]{4,30}$"
+	ProjectNameInDNSFormRegex = "[-a-z0-9\\.]{1,63}"
+	ProjectNameRegex          = "^[A-Za-z0-9-'\"\\s!]{4,30}$"
 )
 
 var rfc1918Networks = []string{
@@ -141,19 +145,6 @@ func validateIpCidrRange(v interface{}, k string) (warnings []string, errors []e
 	_, _, err := net.ParseCIDR(v.(string))
 	if err != nil {
 		errors = append(errors, fmt.Errorf("%q is not a valid IP CIDR range: %s", k, err))
-	}
-	return
-}
-
-func validateCloudIoTID(v interface{}, k string) (warnings []string, errors []error) {
-	value := v.(string)
-	if strings.HasPrefix(value, "goog") {
-		errors = append(errors, fmt.Errorf(
-			"%q (%q) can not start with \"goog\"", k, value))
-	}
-	if !regexp.MustCompile(CloudIoTIdRegex).MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q (%q) doesn't match regexp %q", k, value, CloudIoTIdRegex))
 	}
 	return
 }

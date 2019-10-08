@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeRouterNat_basic(t *testing.T) {
@@ -205,9 +205,6 @@ resource "google_compute_router" "foobar"{
 	name    = "router-nat-test-%s"
 	region  = "${google_compute_subnetwork.foobar.region}"
 	network = "${google_compute_network.foobar.self_link}"
-	bgp {
-		asn = 64514
-	}
 }
 resource "google_compute_router_nat" "foobar" {
 	name                               = "router-nat-test-%s"
@@ -229,9 +226,6 @@ resource "google_compute_router" "foobar"{
 	name    = "router-nat-test-%s"
 	region  = "${google_compute_subnetwork.foobar.region}"
 	network = "${google_compute_network.foobar.self_link}"
-	bgp {
-		asn = 64514
-	}
 }
 
 resource "google_compute_network" "foobar" {
@@ -270,9 +264,6 @@ resource "google_compute_router" "foobar"{
 	name    = "router-nat-test-%s"
 	region  = "${google_compute_subnetwork.foobar.region}"
 	network = "${google_compute_network.foobar.self_link}"
-	bgp {
-		asn = 64514
-	}
 }
 
 resource "google_compute_network" "foobar" {
@@ -350,7 +341,7 @@ resource "google_compute_router_nat" "foobar" {
 	nat_ips                            = ["${google_compute_address.foobar.self_link}"]
 	source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
 	subnetwork {
-	  name                    = "${google_compute_subnetwork.foobar.self_link}"
+	  name                    = "${google_compute_subnetwork.foobar.name}"
 	  source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
 	}
 }`, testId, testId, testId, testId, testId)
@@ -368,12 +359,10 @@ resource "google_compute_subnetwork" "foobar" {
 	ip_cidr_range = "10.0.0.0/16"
 	region        = "us-central1"
 }
+
 resource "google_compute_router" "foobar"{
 	name    = "router-nat-test-%s"
 	region  = "${google_compute_subnetwork.foobar.region}"
 	network = "${google_compute_network.foobar.self_link}"
-	bgp {
-		asn = 64514
-	}
 }`, testId, testId, testId)
 }

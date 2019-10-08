@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -36,6 +36,23 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 			{
 				ResourceName: "google_project_iam_policy.acceptance",
 				ImportState:  true,
+			},
+		},
+	})
+}
+
+// Test that an IAM policy with empty members does not cause a permadiff.
+func TestAccProjectIamPolicy_emptyMembers(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := "terraform-" + acctest.RandString(10)
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProjectIamPolicyEmptyMembers(pid, pname, org),
 			},
 		},
 	})
@@ -273,6 +290,27 @@ resource "google_project" "acceptance" {
     project_id = "%s"
     name = "%s"
     org_id = "%s"
+}`, pid, name, org)
+}
+
+func testAccProjectIamPolicyEmptyMembers(pid, name, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+    project_id = "%s"
+    name = "%s"
+    org_id = "%s"
+}
+
+resource "google_project_iam_policy" "acceptance" {
+    project = "${google_project.acceptance.id}"
+    policy_data = "${data.google_iam_policy.expanded.policy_data}"
+}
+
+data "google_iam_policy" "expanded" {
+    binding {
+        role = "roles/viewer"
+		members = []
+    }
 }`, pid, name, org)
 }
 

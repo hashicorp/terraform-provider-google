@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 )
@@ -111,26 +111,4 @@ func getFolderIamPolicyByFolderName(folderName string, config *Config) (*cloudre
 	}
 
 	return v1Policy, nil
-}
-
-func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config *Config) (*cloudresourcemanager.Policy, error) {
-	queryString := fmt.Sprintf("lifecycleState=ACTIVE AND parent=%s AND displayName=%s", parent, displayName)
-	searchRequest := &resourceManagerV2Beta1.SearchFoldersRequest{
-		Query: queryString,
-	}
-	searchResponse, err := config.clientResourceManagerV2Beta1.Folders.Search(searchRequest).Do()
-	if err != nil {
-		if isGoogleApiErrorWithCode(err, 404) {
-			return nil, fmt.Errorf("Folder not found: %s,%s", parent, displayName)
-		}
-
-		return nil, errwrap.Wrapf("Error reading folders: {{err}}", err)
-	}
-
-	folders := searchResponse.Folders
-	if len(folders) != 1 {
-		return nil, fmt.Errorf("More than one folder found")
-	}
-
-	return getFolderIamPolicyByFolderName(folders[0].Name, config)
 }

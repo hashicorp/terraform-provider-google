@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceResourceManagerLien() *schema.Resource {
@@ -239,6 +239,7 @@ func resourceResourceManagerLienImport(d *schema.ResourceData, meta interface{})
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
 	parent, err := replaceVars(d, config, "projects/{{parent}}")
 	if err != nil {
 		return nil, err
@@ -310,11 +311,18 @@ func flattenNestedResourceManagerLien(d *schema.ResourceData, meta interface{}, 
 		return nil, fmt.Errorf("expected list or map for value liens. Actual value: %v", v)
 	}
 
+	_, item, err := resourceResourceManagerLienFindNestedObjectInList(d, meta, v.([]interface{}))
+	if err != nil {
+		return nil, err
+	}
+	return item, nil
+}
+
+func resourceResourceManagerLienFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
 	expectedName := d.Get("name")
 
 	// Search list for this resource.
-	items := v.([]interface{})
-	for _, itemRaw := range items {
+	for idx, itemRaw := range items {
 		if itemRaw == nil {
 			continue
 		}
@@ -323,7 +331,7 @@ func flattenNestedResourceManagerLien(d *schema.ResourceData, meta interface{}, 
 		// Decode list item before comparing.
 		item, err := resourceResourceManagerLienDecoder(d, meta, item)
 		if err != nil {
-			return nil, err
+			return -1, nil, err
 		}
 
 		itemName := flattenResourceManagerLienName(item["name"], d)
@@ -332,12 +340,10 @@ func flattenNestedResourceManagerLien(d *schema.ResourceData, meta interface{}, 
 			continue
 		}
 		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
-		return item, nil
+		return idx, item, nil
 	}
-
-	return nil, nil
+	return -1, nil, nil
 }
-
 func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	// The problem we're trying to solve here is that this property is a Project,
 	// and there are a lot of ways to specify a Project, including the ID vs

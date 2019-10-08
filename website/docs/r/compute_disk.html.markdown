@@ -101,11 +101,11 @@ The following arguments are supported:
 * `size` -
   (Optional)
   Size of the persistent disk, specified in GB. You can specify this
-  field when creating a persistent disk using the sourceImage or
-  sourceSnapshot parameter, or specify it alone to create an empty
+  field when creating a persistent disk using the `image` or
+  `snapshot` parameter, or specify it alone to create an empty
   persistent disk.
-  If you specify this field along with sourceImage or sourceSnapshot,
-  the value of sizeGb must not be less than the size of the sourceImage
+  If you specify this field along with `image` or `snapshot`,
+  the value must not be less than the size of the image
   or the size of the snapshot.
 
 * `physical_block_size_bytes` -

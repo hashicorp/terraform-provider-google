@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/customdiff"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	appengine "google.golang.org/api/appengine/v1"
 )
 
@@ -61,6 +61,10 @@ func resourceAppEngineApplication() *schema.Resource {
 				Elem:     appEngineApplicationFeatureSettingsResource(),
 			},
 			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"app_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -171,6 +175,7 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("default_hostname", app.DefaultHostname)
 	d.Set("location_id", app.LocationId)
 	d.Set("name", app.Name)
+	d.Set("app_id", app.Id)
 	d.Set("serving_status", app.ServingStatus)
 	d.Set("gcr_domain", app.GcrDomain)
 	d.Set("project", pid)

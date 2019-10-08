@@ -3,15 +3,17 @@ package google
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"os"
+	"strings"
 	"testing"
 
 	"archive/zip"
 	"io/ioutil"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/cloudfunctions/v1"
 )
 
@@ -24,6 +26,14 @@ const testHTTPTriggerUpdatePath = "./test-fixtures/cloudfunctions/http_trigger_u
 const testPubSubTriggerPath = "./test-fixtures/cloudfunctions/pubsub_trigger.js"
 const testBucketTriggerPath = "./test-fixtures/cloudfunctions/bucket_trigger.js"
 const testFirestoreTriggerPath = "./test-fixtures/cloudfunctions/firestore_trigger.js"
+const testFunctionsSourceArchivePrefix = "cloudfunczip"
+
+func init() {
+	resource.AddTestSweepers("gcp_cloud_function_source_archive", &resource.Sweeper{
+		Name: "gcp_cloud_function_source_archive",
+		F:    sweepCloudFunctionSourceZipArchives,
+	})
+}
 
 func TestCloudFunctionsFunction_nameValidator(t *testing.T) {
 	validNames := []string{
@@ -68,10 +78,7 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
-	zipFilePath, err := createZIPArchiveForIndexJs(testHTTPTriggerPath)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
 	defer os.Remove(zipFilePath) // clean up
 
 	resource.Test(t, resource.TestCase{
@@ -122,11 +129,8 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
-	zipFilePath, err := createZIPArchiveForIndexJs(testHTTPTriggerPath)
-	zipFileUpdatePath, err := createZIPArchiveForIndexJs(testHTTPTriggerUpdatePath)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
+	zipFileUpdatePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerUpdatePath)
 	defer os.Remove(zipFilePath) // clean up
 
 	resource.Test(t, resource.TestCase{
@@ -185,10 +189,7 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	topicName := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
-	zipFilePath, err := createZIPArchiveForIndexJs(testPubSubTriggerPath)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testPubSubTriggerPath)
 	defer os.Remove(zipFilePath) // clean up
 
 	resource.Test(t, resource.TestCase{
@@ -214,10 +215,7 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
-	zipFilePath, err := createZIPArchiveForIndexJs(testBucketTriggerPath)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testBucketTriggerPath)
 	defer os.Remove(zipFilePath) // clean up
 
 	resource.Test(t, resource.TestCase{
@@ -250,10 +248,7 @@ func TestAccCloudFunctionsFunction_firestore(t *testing.T) {
 	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
-	zipFilePath, err := createZIPArchiveForIndexJs(testFirestoreTriggerPath)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testFirestoreTriggerPath)
 	defer os.Remove(zipFilePath) // clean up
 
 	resource.Test(t, resource.TestCase{
@@ -303,10 +298,7 @@ func TestAccCloudFunctionsFunction_serviceAccountEmail(t *testing.T) {
 	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
-	zipFilePath, err := createZIPArchiveForIndexJs(testHTTPTriggerPath)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
 	defer os.Remove(zipFilePath) // clean up
 
 	resource.Test(t, resource.TestCase{
@@ -435,10 +427,10 @@ func testAccCloudFunctionsFunctionHasEnvironmentVariable(key, value string,
 	}
 }
 
-func createZIPArchiveForIndexJs(sourcePath string) (string, error) {
+func createZIPArchiveForCloudFunctionSource(t *testing.T, sourcePath string) string {
 	source, err := ioutil.ReadFile(sourcePath)
 	if err != nil {
-		return "", err
+		t.Fatal(err.Error())
 	}
 	// Create a buffer to write our archive to.
 	buf := new(bytes.Buffer)
@@ -448,31 +440,51 @@ func createZIPArchiveForIndexJs(sourcePath string) (string, error) {
 
 	f, err := w.Create("index.js")
 	if err != nil {
-		return "", err
+		t.Fatal(err.Error())
 	}
 	_, err = f.Write(source)
 	if err != nil {
-		return "", err
+		t.Fatal(err.Error())
 	}
 
 	// Make sure to check the error on Close.
 	err = w.Close()
 	if err != nil {
-		return "", err
+		t.Fatal(err.Error())
 	}
 	// Create temp file to write zip to
-	tmpfile, err := ioutil.TempFile("", "zip")
+	tmpfile, err := ioutil.TempFile("", "sourceArchivePrefix")
 	if err != nil {
-		return "", err
+		t.Fatal(err.Error())
 	}
 
 	if _, err := tmpfile.Write(buf.Bytes()); err != nil {
-		return "", err
+		t.Fatal(err.Error())
 	}
 	if err := tmpfile.Close(); err != nil {
-		return "", err
+		t.Fatal(err.Error())
 	}
-	return tmpfile.Name(), nil
+	return tmpfile.Name()
+}
+
+func sweepCloudFunctionSourceZipArchives(_ string) error {
+	files, err := ioutil.ReadDir(os.TempDir())
+	if err != nil {
+		return err
+	}
+	for _, f := range files {
+		if f.IsDir() {
+			continue
+		}
+		if strings.HasPrefix(f.Name(), testFunctionsSourceArchivePrefix) {
+			filepath := fmt.Sprintf("%s/%s", os.TempDir(), f.Name())
+			if err := os.Remove(filepath); err != nil {
+				return err
+			}
+			log.Printf("[INFO] cloud functions sweeper removed old file %s", filepath)
+		}
+	}
+	return nil
 }
 
 func testAccCloudFunctionsFunction_basic(functionName string, bucketName string, zipFilePath string) string {

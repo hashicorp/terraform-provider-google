@@ -146,6 +146,7 @@ The `update_policy` block supports:
 ```hcl
 update_policy{
   type = "PROACTIVE"
+  instance_redistribution_type = "PROACTIVE"
   minimal_action = "REPLACE"
   max_surge_percent = 20
   max_unavailable_fixed = 2
@@ -156,6 +157,8 @@ update_policy{
 * `minimal_action` - (Required) - Minimal action to be taken on an instance. Valid values are `"RESTART"`, `"REPLACE"`
 
 * `type` - (Required) - The type of update. Valid values are `"OPPORTUNISTIC"`, `"PROACTIVE"`
+
+* `instance_redistribution_type` - (Optional) - The instance redistribution policy for regional managed instance groups. Valid values are: `"PROACTIVE"`, `"NONE"`. If `PROACTIVE` (default), the group attempts to maintain an even distribution of VM instances across zones in the region. If `NONE`, proactive redistribution is disabled.
 
 * `max_surge_fixed` - (Optional), The maximum number of instances that can be created above the specified targetSize during the update process. Conflicts with `max_surge_percent`. It has to be either 0 or at least equal to the number of zones.  If fixed values are used, at least one of `max_unavailable_fixed` or `max_surge_fixed` must be greater than 0.
 

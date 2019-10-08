@@ -64,7 +64,9 @@ The following arguments are supported:
 
   * `google-netblocks` - Corresponds to IP addresses used for Google services. [More details.](https://support.google.com/a/answer/33786?hl=en)
 
-  * `restricted-googleapis` - Corresponds to the IP addresses used for Private Google Access and/or VPC Service Controls API access. [More details.](https://cloud.google.com/vpc/docs/configure-private-google-access-hybrid)
+  * `restricted-googleapis` - Corresponds to the IP addresses used for Private Google Access only for services that support VPC Service Controls API access. [More details.](https://cloud.google.com/vpc/docs/private-access-options#domain-vips)
+
+  * `private-googleapis` - Corresponds to the IP addresses used for Private Google Access for services that do not support VPC Service Controls. [More details.](https://cloud.google.com/vpc/docs/private-access-options#domain-vips)
 
   * `dns-forwarders` - Corresponds to the IP addresses used to originate Cloud DNS outbound forwarding. [More details.](https://cloud.google.com/dns/zones/#creating-forwarding-zones)
 

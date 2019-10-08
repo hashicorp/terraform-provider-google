@@ -18,9 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -65,6 +66,10 @@ func resourceComputeVpnGateway() *schema.Resource {
 			},
 			"creation_timestamp": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"gateway_id": {
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"project": {
@@ -183,6 +188,9 @@ func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("name", flattenComputeVpnGatewayName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
+	if err := d.Set("gateway_id", flattenComputeVpnGatewayGatewayId(res["id"], d)); err != nil {
+		return fmt.Errorf("Error reading VpnGateway: %s", err)
+	}
 	if err := d.Set("network", flattenComputeVpnGatewayNetwork(res["network"], d)); err != nil {
 		return fmt.Errorf("Error reading VpnGateway: %s", err)
 	}
@@ -265,6 +273,16 @@ func flattenComputeVpnGatewayDescription(v interface{}, d *schema.ResourceData) 
 }
 
 func flattenComputeVpnGatewayName(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeVpnGatewayGatewayId(v interface{}, d *schema.ResourceData) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		} // let terraform core handle it if we can't convert the string to an int.
+	}
 	return v
 }
 

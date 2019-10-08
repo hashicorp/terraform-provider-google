@@ -232,7 +232,7 @@ The required `settings` block supports:
 * `crash_safe_replication` - (Optional) Specific to read instances, indicates
     when crash-safe replication flags are enabled.
 
-* `disk_autoresize` - (Optional, Second Generation, Default: `true`) Configuration to increase storage size automatically.
+* `disk_autoresize` - (Optional, Second Generation, Default: `true`) Configuration to increase storage size automatically.  Note that future `terraform apply` calls will attempt to resize the disk to the value specified in `disk_size` - if this is set, do not set `disk_size`.
 
 * `disk_size` - (Optional, Second Generation, Default: `10`) The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased.
 
@@ -270,7 +270,7 @@ a public IPV4 address. Either `ipv4_enabled` must be enabled or a
 `private_network` must be configured.
 
 * `private_network` - (Optional) The VPC network from which the Cloud SQL
-instance is accessible for private IP. For example, /projects/myProject/global/networks/default.
+instance is accessible for private IP. For example, projects/myProject/global/networks/default.
 Specifying a network enables private IP.
 Either `ipv4_enabled` must be enabled or a `private_network` must be configured.
 This setting can be updated, but it cannot be removed after it is set.

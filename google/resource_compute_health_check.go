@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -61,6 +61,9 @@ func healthCheckCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
 	if diff.Get("https_health_check") != nil {
 		return validatePortSpec(diff, "https_health_check")
 	}
+	if diff.Get("http2_health_check") != nil {
+		return validatePortSpec(diff, "http2_health_check")
+	}
 	if diff.Get("tcp_health_check") != nil {
 		return validatePortSpec(diff, "tcp_health_check")
 	}
@@ -85,6 +88,8 @@ func portDiffSuppress(k, old, new string, _ *schema.ResourceData) bool {
 			case "http_health_check":
 				defaultPort = 80
 			case "https_health_check":
+				defaultPort = 443
+			case "http2_health_check":
 				defaultPort = 443
 			case "tcp_health_check":
 				defaultPort = 80
@@ -143,6 +148,49 @@ func resourceComputeHealthCheck() *schema.Resource {
 				Optional: true,
 				Default:  2,
 			},
+			"http2_health_check": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: portDiffSuppress,
+				MaxItems:         1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"host": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"port": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"port_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"port_specification": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT", ""}, false),
+						},
+						"proxy_header": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
+							Default:      "NONE",
+						},
+						"request_path": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "/",
+						},
+						"response": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+				ConflictsWith: []string{"http_health_check", "https_health_check", "tcp_health_check", "ssl_health_check"},
+			},
 			"http_health_check": {
 				Type:             schema.TypeList,
 				Optional:         true,
@@ -184,7 +232,7 @@ func resourceComputeHealthCheck() *schema.Resource {
 						},
 					},
 				},
-				ConflictsWith: []string{"https_health_check", "tcp_health_check", "ssl_health_check"},
+				ConflictsWith: []string{"https_health_check", "tcp_health_check", "ssl_health_check", "http2_health_check"},
 			},
 			"https_health_check": {
 				Type:             schema.TypeList,
@@ -227,7 +275,7 @@ func resourceComputeHealthCheck() *schema.Resource {
 						},
 					},
 				},
-				ConflictsWith: []string{"http_health_check", "tcp_health_check", "ssl_health_check"},
+				ConflictsWith: []string{"http_health_check", "tcp_health_check", "ssl_health_check", "http2_health_check"},
 			},
 			"ssl_health_check": {
 				Type:             schema.TypeList,
@@ -265,7 +313,7 @@ func resourceComputeHealthCheck() *schema.Resource {
 						},
 					},
 				},
-				ConflictsWith: []string{"http_health_check", "https_health_check", "tcp_health_check"},
+				ConflictsWith: []string{"http_health_check", "https_health_check", "tcp_health_check", "http2_health_check"},
 			},
 			"tcp_health_check": {
 				Type:             schema.TypeList,
@@ -303,7 +351,7 @@ func resourceComputeHealthCheck() *schema.Resource {
 						},
 					},
 				},
-				ConflictsWith: []string{"http_health_check", "https_health_check", "ssl_health_check"},
+				ConflictsWith: []string{"http_health_check", "https_health_check", "ssl_health_check", "http2_health_check"},
 			},
 			"timeout_sec": {
 				Type:     schema.TypeInt,
@@ -400,6 +448,12 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("ssl_health_check"); !isEmptyValue(reflect.ValueOf(sslHealthCheckProp)) && (ok || !reflect.DeepEqual(v, sslHealthCheckProp)) {
 		obj["sslHealthCheck"] = sslHealthCheckProp
+	}
+	http2HealthCheckProp, err := expandComputeHealthCheckHttp2HealthCheck(d.Get("http2_health_check"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("http2_health_check"); !isEmptyValue(reflect.ValueOf(http2HealthCheckProp)) && (ok || !reflect.DeepEqual(v, http2HealthCheckProp)) {
+		obj["http2HealthCheck"] = http2HealthCheckProp
 	}
 
 	obj, err = resourceComputeHealthCheckEncoder(d, meta, obj)
@@ -507,6 +561,9 @@ func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("ssl_health_check", flattenComputeHealthCheckSslHealthCheck(res["sslHealthCheck"], d)); err != nil {
 		return fmt.Errorf("Error reading HealthCheck: %s", err)
 	}
+	if err := d.Set("http2_health_check", flattenComputeHealthCheckHttp2HealthCheck(res["http2HealthCheck"], d)); err != nil {
+		return fmt.Errorf("Error reading HealthCheck: %s", err)
+	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading HealthCheck: %s", err)
 	}
@@ -582,6 +639,12 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("ssl_health_check"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslHealthCheckProp)) {
 		obj["sslHealthCheck"] = sslHealthCheckProp
+	}
+	http2HealthCheckProp, err := expandComputeHealthCheckHttp2HealthCheck(d.Get("http2_health_check"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("http2_health_check"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, http2HealthCheckProp)) {
+		obj["http2HealthCheck"] = http2HealthCheckProp
 	}
 
 	obj, err = resourceComputeHealthCheckEncoder(d, meta, obj)
@@ -957,6 +1020,65 @@ func flattenComputeHealthCheckSslHealthCheckPortSpecification(v interface{}, d *
 	return v
 }
 
+func flattenComputeHealthCheckHttp2HealthCheck(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["host"] =
+		flattenComputeHealthCheckHttp2HealthCheckHost(original["host"], d)
+	transformed["request_path"] =
+		flattenComputeHealthCheckHttp2HealthCheckRequestPath(original["requestPath"], d)
+	transformed["response"] =
+		flattenComputeHealthCheckHttp2HealthCheckResponse(original["response"], d)
+	transformed["port"] =
+		flattenComputeHealthCheckHttp2HealthCheckPort(original["port"], d)
+	transformed["port_name"] =
+		flattenComputeHealthCheckHttp2HealthCheckPortName(original["portName"], d)
+	transformed["proxy_header"] =
+		flattenComputeHealthCheckHttp2HealthCheckProxyHeader(original["proxyHeader"], d)
+	transformed["port_specification"] =
+		flattenComputeHealthCheckHttp2HealthCheckPortSpecification(original["portSpecification"], d)
+	return []interface{}{transformed}
+}
+func flattenComputeHealthCheckHttp2HealthCheckHost(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeHealthCheckHttp2HealthCheckRequestPath(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeHealthCheckHttp2HealthCheckResponse(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeHealthCheckHttp2HealthCheckPort(v interface{}, d *schema.ResourceData) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		} // let terraform core handle it if we can't convert the string to an int.
+	}
+	return v
+}
+
+func flattenComputeHealthCheckHttp2HealthCheckPortName(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeHealthCheckHttp2HealthCheckProxyHeader(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeHealthCheckHttp2HealthCheckPortSpecification(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
 func expandComputeHealthCheckCheckIntervalSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1315,6 +1437,95 @@ func expandComputeHealthCheckSslHealthCheckPortSpecification(v interface{}, d Te
 	return v, nil
 }
 
+func expandComputeHealthCheckHttp2HealthCheck(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHost, err := expandComputeHealthCheckHttp2HealthCheckHost(original["host"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHost); val.IsValid() && !isEmptyValue(val) {
+		transformed["host"] = transformedHost
+	}
+
+	transformedRequestPath, err := expandComputeHealthCheckHttp2HealthCheckRequestPath(original["request_path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequestPath); val.IsValid() && !isEmptyValue(val) {
+		transformed["requestPath"] = transformedRequestPath
+	}
+
+	transformedResponse, err := expandComputeHealthCheckHttp2HealthCheckResponse(original["response"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResponse); val.IsValid() && !isEmptyValue(val) {
+		transformed["response"] = transformedResponse
+	}
+
+	transformedPort, err := expandComputeHealthCheckHttp2HealthCheckPort(original["port"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !isEmptyValue(val) {
+		transformed["port"] = transformedPort
+	}
+
+	transformedPortName, err := expandComputeHealthCheckHttp2HealthCheckPortName(original["port_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPortName); val.IsValid() && !isEmptyValue(val) {
+		transformed["portName"] = transformedPortName
+	}
+
+	transformedProxyHeader, err := expandComputeHealthCheckHttp2HealthCheckProxyHeader(original["proxy_header"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProxyHeader); val.IsValid() && !isEmptyValue(val) {
+		transformed["proxyHeader"] = transformedProxyHeader
+	}
+
+	transformedPortSpecification, err := expandComputeHealthCheckHttp2HealthCheckPortSpecification(original["port_specification"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPortSpecification); val.IsValid() && !isEmptyValue(val) {
+		transformed["portSpecification"] = transformedPortSpecification
+	}
+
+	return transformed, nil
+}
+
+func expandComputeHealthCheckHttp2HealthCheckHost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeHealthCheckHttp2HealthCheckRequestPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeHealthCheckHttp2HealthCheckResponse(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeHealthCheckHttp2HealthCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeHealthCheckHttp2HealthCheckPortName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeHealthCheckHttp2HealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeHealthCheckHttp2HealthCheckPortSpecification(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceComputeHealthCheckEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 
 	if _, ok := d.GetOk("http_health_check"); ok {
@@ -1341,6 +1552,19 @@ func resourceComputeHealthCheckEncoder(d *schema.ResourceData, meta interface{},
 			}
 		}
 		obj["type"] = "HTTPS"
+		return obj, nil
+	}
+	if _, ok := d.GetOk("http2_health_check"); ok {
+		hc := d.Get("http2_health_check").([]interface{})[0]
+		ps := hc.(map[string]interface{})["port_specification"]
+
+		if ps == "USE_FIXED_PORT" || ps == "" {
+			m := obj["http2HealthCheck"].(map[string]interface{})
+			if m["port"] == nil {
+				m["port"] = 443
+			}
+		}
+		obj["type"] = "HTTP2"
 		return obj, nil
 	}
 	if _, ok := d.GetOk("tcp_health_check"); ok {

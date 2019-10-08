@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -195,7 +195,7 @@ func resourceComputeUrlMapCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	hostRulesProp, err := expandComputeUrlMapHost_rule(d.Get("host_rule"), d, config)
+	hostRulesProp, err := expandComputeUrlMapHostRule(d.Get("host_rule"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("host_rule"); !isEmptyValue(reflect.ValueOf(hostRulesProp)) && (ok || !reflect.DeepEqual(v, hostRulesProp)) {
@@ -213,7 +213,7 @@ func resourceComputeUrlMapCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	pathMatchersProp, err := expandComputeUrlMapPath_matcher(d.Get("path_matcher"), d, config)
+	pathMatchersProp, err := expandComputeUrlMapPathMatcher(d.Get("path_matcher"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("path_matcher"); !isEmptyValue(reflect.ValueOf(pathMatchersProp)) && (ok || !reflect.DeepEqual(v, pathMatchersProp)) {
@@ -299,10 +299,10 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("description", flattenComputeUrlMapDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("host_rule", flattenComputeUrlMapHost_rule(res["hostRules"], d)); err != nil {
+	if err := d.Set("host_rule", flattenComputeUrlMapHostRule(res["hostRules"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("map_id", flattenComputeUrlMapMap_id(res["id"], d)); err != nil {
+	if err := d.Set("map_id", flattenComputeUrlMapMapId(res["id"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
 	if err := d.Set("fingerprint", flattenComputeUrlMapFingerprint(res["fingerprint"], d)); err != nil {
@@ -311,7 +311,7 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("name", flattenComputeUrlMapName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("path_matcher", flattenComputeUrlMapPath_matcher(res["pathMatchers"], d)); err != nil {
+	if err := d.Set("path_matcher", flattenComputeUrlMapPathMatcher(res["pathMatchers"], d)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
 	if err := d.Set("test", flattenComputeUrlMapTest(res["tests"], d)); err != nil {
@@ -345,7 +345,7 @@ func resourceComputeUrlMapUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	hostRulesProp, err := expandComputeUrlMapHost_rule(d.Get("host_rule"), d, config)
+	hostRulesProp, err := expandComputeUrlMapHostRule(d.Get("host_rule"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("host_rule"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, hostRulesProp)) {
@@ -363,7 +363,7 @@ func resourceComputeUrlMapUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	pathMatchersProp, err := expandComputeUrlMapPath_matcher(d.Get("path_matcher"), d, config)
+	pathMatchersProp, err := expandComputeUrlMapPathMatcher(d.Get("path_matcher"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("path_matcher"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pathMatchersProp)) {
@@ -479,7 +479,7 @@ func flattenComputeUrlMapDescription(v interface{}, d *schema.ResourceData) inte
 	return v
 }
 
-func flattenComputeUrlMapHost_rule(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHostRule(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -492,29 +492,29 @@ func flattenComputeUrlMapHost_rule(v interface{}, d *schema.ResourceData) interf
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"description":  flattenComputeUrlMapHost_ruleDescription(original["description"], d),
-			"hosts":        flattenComputeUrlMapHost_ruleHosts(original["hosts"], d),
-			"path_matcher": flattenComputeUrlMapHost_rulePathMatcher(original["pathMatcher"], d),
+			"description":  flattenComputeUrlMapHostRuleDescription(original["description"], d),
+			"hosts":        flattenComputeUrlMapHostRuleHosts(original["hosts"], d),
+			"path_matcher": flattenComputeUrlMapHostRulePathMatcher(original["pathMatcher"], d),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapHost_ruleDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHostRuleDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHost_ruleHosts(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHostRuleHosts(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeUrlMapHost_rulePathMatcher(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHostRulePathMatcher(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapMap_id(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapMapId(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -532,7 +532,7 @@ func flattenComputeUrlMapName(v interface{}, d *schema.ResourceData) interface{}
 	return v
 }
 
-func flattenComputeUrlMapPath_matcher(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcher(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -545,30 +545,30 @@ func flattenComputeUrlMapPath_matcher(v interface{}, d *schema.ResourceData) int
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"default_service": flattenComputeUrlMapPath_matcherDefaultService(original["defaultService"], d),
-			"description":     flattenComputeUrlMapPath_matcherDescription(original["description"], d),
-			"name":            flattenComputeUrlMapPath_matcherName(original["name"], d),
-			"path_rule":       flattenComputeUrlMapPath_matcherPath_rule(original["pathRules"], d),
+			"default_service": flattenComputeUrlMapPathMatcherDefaultService(original["defaultService"], d),
+			"description":     flattenComputeUrlMapPathMatcherDescription(original["description"], d),
+			"name":            flattenComputeUrlMapPathMatcherName(original["name"], d),
+			"path_rule":       flattenComputeUrlMapPathMatcherPathRule(original["pathRules"], d),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPath_matcherDefaultService(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultService(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPath_matcherDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPath_matcherName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPath_matcherPath_rule(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRule(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -581,20 +581,20 @@ func flattenComputeUrlMapPath_matcherPath_rule(v interface{}, d *schema.Resource
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"paths":   flattenComputeUrlMapPath_matcherPath_rulePaths(original["paths"], d),
-			"service": flattenComputeUrlMapPath_matcherPath_ruleService(original["service"], d),
+			"paths":   flattenComputeUrlMapPathMatcherPathRulePaths(original["paths"], d),
+			"service": flattenComputeUrlMapPathMatcherPathRuleService(original["service"], d),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPath_matcherPath_rulePaths(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRulePaths(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeUrlMapPath_matcherPath_ruleService(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleService(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -651,7 +651,7 @@ func expandComputeUrlMapDescription(v interface{}, d TerraformResourceData, conf
 	return v, nil
 }
 
-func expandComputeUrlMapHost_rule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHostRule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -662,21 +662,21 @@ func expandComputeUrlMapHost_rule(v interface{}, d TerraformResourceData, config
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedDescription, err := expandComputeUrlMapHost_ruleDescription(original["description"], d, config)
+		transformedDescription, err := expandComputeUrlMapHostRuleDescription(original["description"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
 			transformed["description"] = transformedDescription
 		}
 
-		transformedHosts, err := expandComputeUrlMapHost_ruleHosts(original["hosts"], d, config)
+		transformedHosts, err := expandComputeUrlMapHostRuleHosts(original["hosts"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedHosts); val.IsValid() && !isEmptyValue(val) {
 			transformed["hosts"] = transformedHosts
 		}
 
-		transformedPathMatcher, err := expandComputeUrlMapHost_rulePathMatcher(original["path_matcher"], d, config)
+		transformedPathMatcher, err := expandComputeUrlMapHostRulePathMatcher(original["path_matcher"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedPathMatcher); val.IsValid() && !isEmptyValue(val) {
@@ -688,16 +688,16 @@ func expandComputeUrlMapHost_rule(v interface{}, d TerraformResourceData, config
 	return req, nil
 }
 
-func expandComputeUrlMapHost_ruleDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHostRuleDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapHost_ruleHosts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHostRuleHosts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeUrlMapHost_rulePathMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHostRulePathMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -709,7 +709,7 @@ func expandComputeUrlMapName(v interface{}, d TerraformResourceData, config *Con
 	return v, nil
 }
 
-func expandComputeUrlMapPath_matcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -719,32 +719,32 @@ func expandComputeUrlMapPath_matcher(v interface{}, d TerraformResourceData, con
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedDefaultService, err := expandComputeUrlMapPath_matcherDefaultService(original["default_service"], d, config)
+		transformedDefaultService, err := expandComputeUrlMapPathMatcherDefaultService(original["default_service"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedDefaultService); val.IsValid() && !isEmptyValue(val) {
 			transformed["defaultService"] = transformedDefaultService
 		}
 
-		transformedDescription, err := expandComputeUrlMapPath_matcherDescription(original["description"], d, config)
+		transformedDescription, err := expandComputeUrlMapPathMatcherDescription(original["description"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
 			transformed["description"] = transformedDescription
 		}
 
-		transformedName, err := expandComputeUrlMapPath_matcherName(original["name"], d, config)
+		transformedName, err := expandComputeUrlMapPathMatcherName(original["name"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
 			transformed["name"] = transformedName
 		}
 
-		transformedPath_rule, err := expandComputeUrlMapPath_matcherPath_rule(original["path_rule"], d, config)
+		transformedPathRule, err := expandComputeUrlMapPathMatcherPathRule(original["path_rule"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedPath_rule); val.IsValid() && !isEmptyValue(val) {
-			transformed["pathRules"] = transformedPath_rule
+		} else if val := reflect.ValueOf(transformedPathRule); val.IsValid() && !isEmptyValue(val) {
+			transformed["pathRules"] = transformedPathRule
 		}
 
 		req = append(req, transformed)
@@ -754,19 +754,19 @@ func expandComputeUrlMapPath_matcher(v interface{}, d TerraformResourceData, con
 
 // ResourceRef only supports 1 type and UrlMap has references to a BackendBucket or BackendService. Just read the self_link string
 // instead of extracting the name and making a self_link out of it.
-func expandComputeUrlMapPath_matcherDefaultService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPath_matcherDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPath_matcherName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPath_matcherPath_rule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -776,14 +776,14 @@ func expandComputeUrlMapPath_matcherPath_rule(v interface{}, d TerraformResource
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedPaths, err := expandComputeUrlMapPath_matcherPath_rulePaths(original["paths"], d, config)
+		transformedPaths, err := expandComputeUrlMapPathMatcherPathRulePaths(original["paths"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedPaths); val.IsValid() && !isEmptyValue(val) {
 			transformed["paths"] = transformedPaths
 		}
 
-		transformedService, err := expandComputeUrlMapPath_matcherPath_ruleService(original["service"], d, config)
+		transformedService, err := expandComputeUrlMapPathMatcherPathRuleService(original["service"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedService); val.IsValid() && !isEmptyValue(val) {
@@ -795,14 +795,14 @@ func expandComputeUrlMapPath_matcherPath_rule(v interface{}, d TerraformResource
 	return req, nil
 }
 
-func expandComputeUrlMapPath_matcherPath_rulePaths(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRulePaths(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
 // ResourceRef only supports 1 type and UrlMap has references to a BackendBucket or BackendService. Just read the self_link string
 // instead of extracting the name and making a self_link out of it.
-func expandComputeUrlMapPath_matcherPath_ruleService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

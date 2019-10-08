@@ -105,6 +105,13 @@ resource "google_compute_global_forwarding_rule" "default" {
   port_range            = "80"
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
   ip_address            = "0.0.0.0"
+  metadata_filters {
+    filter_match_criteria = "MATCH_ANY"
+    filter_labels {
+      name = "PLANET"
+      value = "MARS"
+    }
+  }
 }
 
 resource "google_compute_target_http_proxy" "default" {
@@ -219,6 +226,8 @@ The following arguments are supported:
   (Required)
   The URL of the target resource to receive the matched traffic.
   The forwarded traffic must be of a type appropriate to the target object.
+  For INTERNAL_SELF_MANAGED load balancing, only HTTP and HTTPS targets
+  are valid.
 
 
 - - -
@@ -276,6 +285,23 @@ The following arguments are supported:
   NOTE: Currently global forwarding rules cannot be used for INTERNAL
   load balancing.
 
+* `metadata_filters` -
+  (Optional)
+  Opaque filter criteria used by Loadbalancer to restrict routing
+  configuration to a limited set xDS compliant clients. In their xDS
+  requests to Loadbalancer, xDS clients present node metadata. If a
+  match takes place, the relevant routing configuration is made available
+  to those proxies.
+  For each metadataFilter in this list, if its filterMatchCriteria is set
+  to MATCH_ANY, at least one of the filterLabels must match the
+  corresponding label provided in the metadata. If its filterMatchCriteria
+  is set to MATCH_ALL, then all of its filterLabels must match with
+  corresponding labels in the provided metadata.
+  metadataFilters specified here can be overridden by those specified in
+  the UrlMap that this ForwardingRule references.
+  metadataFilters only applies to Loadbalancers that have their
+  loadBalancingScheme set to INTERNAL_SELF_MANAGED.  Structure is documented below.
+
 * `port_range` -
   (Optional)
   This field is used along with the target field for TargetHttpProxy,
@@ -298,6 +324,36 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `metadata_filters` block supports:
+
+* `filter_match_criteria` -
+  (Required)
+  Specifies how individual filterLabel matches within the list of
+  filterLabels contribute towards the overall metadataFilter match.
+  MATCH_ANY - At least one of the filterLabels must have a matching
+  label in the provided metadata.
+  MATCH_ALL - All filterLabels must have matching labels in the
+  provided metadata.
+
+* `filter_labels` -
+  (Required)
+  The list of label value pairs that must match labels in the
+  provided metadata based on filterMatchCriteria
+  This list must not be empty and can have at the most 64 entries.  Structure is documented below.
+
+
+The `filter_labels` block supports:
+
+* `name` -
+  (Required)
+  Name of the metadata label. The length must be between
+  1 and 1024 characters, inclusive.
+
+* `value` -
+  (Required)
+  The value that the label must match. The value has a maximum
+  length of 1024 characters.
 
 
 ## Timeouts

@@ -115,6 +115,10 @@ The following arguments are supported:
 * `time_partitioning` - (Optional) If specified, configures time-based
     partitioning for this table. Structure is documented below.
 
+* `clustering` - (Optional) Specifies column names to use for data clustering.
+    Up to four top-level columns are allowed, and should be specified in
+    descending priority order.
+
 * `view` - (Optional) If specified, configures this table as a view.
     Structure is documented below.
 

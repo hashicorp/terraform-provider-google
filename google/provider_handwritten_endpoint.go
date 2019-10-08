@@ -1,23 +1,12 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 // For generated resources, endpoint entries live in product-specific provider
 // files. Collect handwritten ones here. If any of these are modified, be sure
 // to update the provider_reference docs page.
-
-var BigQueryDefaultBasePath = "https://www.googleapis.com/bigquery/v2/"
-var BigQueryCustomEndpointEntryKey = "bigquery_custom_endpoint"
-var BigQueryCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_BIGQUERY_CUSTOM_ENDPOINT",
-	}, BigQueryDefaultBasePath),
-}
 
 var CloudBillingDefaultBasePath = "https://cloudbilling.googleapis.com/v1/"
 var CloudBillingCustomEndpointEntryKey = "cloud_billing_custom_endpoint"
@@ -28,17 +17,6 @@ var CloudBillingCustomEndpointEntry = &schema.Schema{
 	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 		"GOOGLE_CLOUD_BILLING_CUSTOM_ENDPOINT",
 	}, CloudBillingDefaultBasePath),
-}
-
-var CloudFunctionsDefaultBasePath = "https://cloudfunctions.googleapis.com/v1/"
-var CloudFunctionsCustomEndpointEntryKey = "cloud_functions_custom_endpoint"
-var CloudFunctionsCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_CLOUD_FUNCTIONS_CUSTOM_ENDPOINT",
-	}, CloudFunctionsDefaultBasePath),
 }
 
 var CloudIoTDefaultBasePath = "https://cloudiot.googleapis.com/v1/"
@@ -94,17 +72,6 @@ var ContainerBetaCustomEndpointEntry = &schema.Schema{
 	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 		"GOOGLE_CONTAINER_BETA_CUSTOM_ENDPOINT",
 	}, ContainerBetaDefaultBasePath),
-}
-
-var DataprocDefaultBasePath = "https://dataproc.googleapis.com/v1/"
-var DataprocCustomEndpointEntryKey = "dataproc_custom_endpoint"
-var DataprocCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_DATAPROC_CUSTOM_ENDPOINT",
-	}, DataprocDefaultBasePath),
 }
 
 var DataprocBetaDefaultBasePath = "https://dataproc.googleapis.com/v1beta2/"
@@ -172,15 +139,14 @@ var ResourceManagerV2Beta1CustomEndpointEntry = &schema.Schema{
 	}, ResourceManagerV2Beta1DefaultBasePath),
 }
 
-var RuntimeconfigDefaultBasePath = "https://runtimeconfig.googleapis.com/v1beta1/"
-var RuntimeconfigCustomEndpointEntryKey = "runtimeconfig_custom_endpoint"
-var RuntimeconfigCustomEndpointEntry = &schema.Schema{
+var RuntimeConfigCustomEndpointEntryKey = "runtimeconfig_custom_endpoint"
+var RuntimeConfigCustomEndpointEntry = &schema.Schema{
 	Type:         schema.TypeString,
 	Optional:     true,
 	ValidateFunc: validateCustomEndpoint,
 	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 		"GOOGLE_RUNTIMECONFIG_CUSTOM_ENDPOINT",
-	}, RuntimeconfigDefaultBasePath),
+	}, RuntimeConfigDefaultBasePath),
 }
 
 var ServiceManagementDefaultBasePath = "https://servicemanagement.googleapis.com/v1/"

@@ -22,7 +22,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 // compareTpuNodeSchedulingConfig diff suppresses for the default
@@ -58,15 +58,15 @@ func validateHttpHeaders() schema.SchemaValidateFunc {
 	}
 }
 
-func resourceTpuNode() *schema.Resource {
+func resourceTPUNode() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceTpuNodeCreate,
-		Read:   resourceTpuNodeRead,
-		Update: resourceTpuNodeUpdate,
-		Delete: resourceTpuNodeDelete,
+		Create: resourceTPUNodeCreate,
+		Read:   resourceTPUNodeRead,
+		Update: resourceTPUNodeUpdate,
+		Delete: resourceTPUNodeDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceTpuNodeImport,
+			State: resourceTPUNodeImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -166,60 +166,60 @@ func resourceTpuNode() *schema.Resource {
 	}
 }
 
-func resourceTpuNodeCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandTpuNodeName(d.Get("name"), d, config)
+	nameProp, err := expandTPUNodeName(d.Get("name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	descriptionProp, err := expandTpuNodeDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandTPUNodeDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	acceleratorTypeProp, err := expandTpuNodeAcceleratorType(d.Get("accelerator_type"), d, config)
+	acceleratorTypeProp, err := expandTPUNodeAcceleratorType(d.Get("accelerator_type"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("accelerator_type"); !isEmptyValue(reflect.ValueOf(acceleratorTypeProp)) && (ok || !reflect.DeepEqual(v, acceleratorTypeProp)) {
 		obj["acceleratorType"] = acceleratorTypeProp
 	}
-	tensorflowVersionProp, err := expandTpuNodeTensorflowVersion(d.Get("tensorflow_version"), d, config)
+	tensorflowVersionProp, err := expandTPUNodeTensorflowVersion(d.Get("tensorflow_version"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("tensorflow_version"); !isEmptyValue(reflect.ValueOf(tensorflowVersionProp)) && (ok || !reflect.DeepEqual(v, tensorflowVersionProp)) {
 		obj["tensorflowVersion"] = tensorflowVersionProp
 	}
-	networkProp, err := expandTpuNodeNetwork(d.Get("network"), d, config)
+	networkProp, err := expandTPUNodeNetwork(d.Get("network"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
-	cidrBlockProp, err := expandTpuNodeCidrBlock(d.Get("cidr_block"), d, config)
+	cidrBlockProp, err := expandTPUNodeCidrBlock(d.Get("cidr_block"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("cidr_block"); !isEmptyValue(reflect.ValueOf(cidrBlockProp)) && (ok || !reflect.DeepEqual(v, cidrBlockProp)) {
 		obj["cidrBlock"] = cidrBlockProp
 	}
-	schedulingConfigProp, err := expandTpuNodeSchedulingConfig(d.Get("scheduling_config"), d, config)
+	schedulingConfigProp, err := expandTPUNodeSchedulingConfig(d.Get("scheduling_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("scheduling_config"); !isEmptyValue(reflect.ValueOf(schedulingConfigProp)) && (ok || !reflect.DeepEqual(v, schedulingConfigProp)) {
 		obj["schedulingConfig"] = schedulingConfigProp
 	}
-	labelsProp, err := expandTpuNodeLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandTPUNodeLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{TpuBasePath}}projects/{{project}}/locations/{{zone}}/nodes?nodeId={{name}}")
+	url, err := replaceVars(d, config, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes?nodeId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -253,13 +253,13 @@ func resourceTpuNodeCreate(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished creating Node %q: %#v", d.Id(), res)
 
-	return resourceTpuNodeRead(d, meta)
+	return resourceTPUNodeRead(d, meta)
 }
 
-func resourceTpuNodeRead(d *schema.ResourceData, meta interface{}) error {
+func resourceTPUNodeRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{TpuBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
+	url, err := replaceVars(d, config, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -270,48 +270,48 @@ func resourceTpuNodeRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	res, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("TpuNode %q", d.Id()))
+		return handleNotFoundError(err, d, fmt.Sprintf("TPUNode %q", d.Id()))
 	}
 
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
 
-	if err := d.Set("name", flattenTpuNodeName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenTPUNodeName(res["name"], d)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("description", flattenTpuNodeDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenTPUNodeDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("accelerator_type", flattenTpuNodeAcceleratorType(res["acceleratorType"], d)); err != nil {
+	if err := d.Set("accelerator_type", flattenTPUNodeAcceleratorType(res["acceleratorType"], d)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("tensorflow_version", flattenTpuNodeTensorflowVersion(res["tensorflowVersion"], d)); err != nil {
+	if err := d.Set("tensorflow_version", flattenTPUNodeTensorflowVersion(res["tensorflowVersion"], d)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("network", flattenTpuNodeNetwork(res["network"], d)); err != nil {
+	if err := d.Set("network", flattenTPUNodeNetwork(res["network"], d)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("cidr_block", flattenTpuNodeCidrBlock(res["cidrBlock"], d)); err != nil {
+	if err := d.Set("cidr_block", flattenTPUNodeCidrBlock(res["cidrBlock"], d)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("service_account", flattenTpuNodeServiceAccount(res["serviceAccount"], d)); err != nil {
+	if err := d.Set("service_account", flattenTPUNodeServiceAccount(res["serviceAccount"], d)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("scheduling_config", flattenTpuNodeSchedulingConfig(res["schedulingConfig"], d)); err != nil {
+	if err := d.Set("scheduling_config", flattenTPUNodeSchedulingConfig(res["schedulingConfig"], d)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("network_endpoints", flattenTpuNodeNetworkEndpoints(res["networkEndpoints"], d)); err != nil {
+	if err := d.Set("network_endpoints", flattenTPUNodeNetworkEndpoints(res["networkEndpoints"], d)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("labels", flattenTpuNodeLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenTPUNodeLabels(res["labels"], d)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
 
 	return nil
 }
 
-func resourceTpuNodeUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -323,14 +323,14 @@ func resourceTpuNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("tensorflow_version") {
 		obj := make(map[string]interface{})
-		tensorflowVersionProp, err := expandTpuNodeTensorflowVersion(d.Get("tensorflow_version"), d, config)
+		tensorflowVersionProp, err := expandTPUNodeTensorflowVersion(d.Get("tensorflow_version"), d, config)
 		if err != nil {
 			return err
 		} else if v, ok := d.GetOkExists("tensorflow_version"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tensorflowVersionProp)) {
 			obj["tensorflowVersion"] = tensorflowVersionProp
 		}
 
-		url, err := replaceVars(d, config, "{{TpuBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}:reimage")
+		url, err := replaceVars(d, config, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}:reimage")
 		if err != nil {
 			return err
 		}
@@ -352,10 +352,10 @@ func resourceTpuNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	d.Partial(false)
 
-	return resourceTpuNodeRead(d, meta)
+	return resourceTPUNodeRead(d, meta)
 }
 
-func resourceTpuNodeDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceTPUNodeDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -363,7 +363,7 @@ func resourceTpuNodeDelete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{TpuBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
+	url, err := replaceVars(d, config, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -388,7 +388,7 @@ func resourceTpuNodeDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceTpuNodeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceTPUNodeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<zone>[^/]+)/nodes/(?P<name>[^/]+)",
@@ -409,38 +409,38 @@ func resourceTpuNodeImport(d *schema.ResourceData, meta interface{}) ([]*schema.
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenTpuNodeName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeName(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenTpuNodeDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenTpuNodeAcceleratorType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeAcceleratorType(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenTpuNodeTensorflowVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeTensorflowVersion(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenTpuNodeNetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeNetwork(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenTpuNodeCidrBlock(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeCidrBlock(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenTpuNodeServiceAccount(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeServiceAccount(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenTpuNodeSchedulingConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeSchedulingConfig(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -450,14 +450,14 @@ func flattenTpuNodeSchedulingConfig(v interface{}, d *schema.ResourceData) inter
 	}
 	transformed := make(map[string]interface{})
 	transformed["preemptible"] =
-		flattenTpuNodeSchedulingConfigPreemptible(original["preemptible"], d)
+		flattenTPUNodeSchedulingConfigPreemptible(original["preemptible"], d)
 	return []interface{}{transformed}
 }
-func flattenTpuNodeSchedulingConfigPreemptible(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeSchedulingConfigPreemptible(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenTpuNodeNetworkEndpoints(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeNetworkEndpoints(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
 	}
@@ -470,17 +470,17 @@ func flattenTpuNodeNetworkEndpoints(v interface{}, d *schema.ResourceData) inter
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"ip_address": flattenTpuNodeNetworkEndpointsIpAddress(original["ipAddress"], d),
-			"port":       flattenTpuNodeNetworkEndpointsPort(original["port"], d),
+			"ip_address": flattenTPUNodeNetworkEndpointsIpAddress(original["ipAddress"], d),
+			"port":       flattenTPUNodeNetworkEndpointsPort(original["port"], d),
 		})
 	}
 	return transformed
 }
-func flattenTpuNodeNetworkEndpointsIpAddress(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeNetworkEndpointsIpAddress(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func flattenTpuNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -490,35 +490,35 @@ func flattenTpuNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData) i
 	return v
 }
 
-func flattenTpuNodeLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeLabels(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func expandTpuNodeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTpuNodeDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTpuNodeAcceleratorType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeAcceleratorType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTpuNodeTensorflowVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeTensorflowVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTpuNodeNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTpuNodeCidrBlock(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeCidrBlock(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTpuNodeSchedulingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeSchedulingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -527,7 +527,7 @@ func expandTpuNodeSchedulingConfig(v interface{}, d TerraformResourceData, confi
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedPreemptible, err := expandTpuNodeSchedulingConfigPreemptible(original["preemptible"], d, config)
+	transformedPreemptible, err := expandTPUNodeSchedulingConfigPreemptible(original["preemptible"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedPreemptible); val.IsValid() && !isEmptyValue(val) {
@@ -537,11 +537,11 @@ func expandTpuNodeSchedulingConfig(v interface{}, d TerraformResourceData, confi
 	return transformed, nil
 }
 
-func expandTpuNodeSchedulingConfigPreemptible(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeSchedulingConfigPreemptible(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTpuNodeLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandTPUNodeLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
