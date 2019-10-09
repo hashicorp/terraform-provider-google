@@ -38,10 +38,10 @@ resource "google_service_account_key" "mykey" {
 }
 
 resource "kubernetes_secret" "google-application-credentials" {
-  metadata = {
+  metadata {
     name = "google-application-credentials"
   }
-  data {
+  data = {
     credentials.json = "${base64decode(google_service_account_key.mykey.private_key)}"
   }
 }
