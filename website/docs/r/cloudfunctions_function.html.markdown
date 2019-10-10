@@ -22,6 +22,7 @@ for Cloud Functions.
 ## Example Usage
 
 Secured function with a user allowed to invoke:
+
 ```hcl
 resource "google_storage_bucket" "bucket" {
   name = "test-bucket"
