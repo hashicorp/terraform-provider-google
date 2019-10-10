@@ -18,12 +18,10 @@ For more info about signed URL's is available [here](https://cloud.google.com/st
 data "google_storage_object_signed_url" "artifact" {
   bucket = "install_binaries"
   path   = "path/to/install_file.bin"
-
 }
 
 resource "google_compute_instance" "vm" {
     name = "vm"
-    ...
     
     provisioner "remote-exec" {
         inline = [
@@ -64,7 +62,7 @@ The following arguments are supported:
 * `credentials` - (Optional) What Google service account credentials json should be used to sign the URL. 
      This data source checks the following locations for credentials, in order of preference: data source `credentials` attribute, provider `credentials` attribute and finally the GOOGLE_APPLICATION_CREDENTIALS environment variable.
      
-> **NOTE** the default google credentials configured by `gcloud` sdk or the service account associated with a compute instance cannot be used, because these do not include the private key required to sign the URL. A valid `json` service account credentials key file must be used, as generated via Google cloud console. 
+    > **NOTE** the default google credentials configured by `gcloud` sdk or the service account associated with a compute instance cannot be used, because these do not include the private key required to sign the URL. A valid `json` service account credentials key file must be used, as generated via Google cloud console. 
      
 * `content_type` - (Optional) If you specify this in the datasource, the client must provide the `Content-Type` HTTP header with the same value in its request.
 * `content_md5` - (Optional) The [MD5 digest](https://cloud.google.com/storage/docs/hashes-etags#_MD5) value in Base64.
