@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"sort"
 	"testing"
@@ -19,6 +20,10 @@ import (
 // serially.
 // Policies are *not tested*, because testing them will ruin changes made to the test org.
 func TestAccOrganizationIam(t *testing.T) {
+	if os.Getenv("TF_RUN_ORG_IAM") != "true" {
+		t.Skip("Environment variable TF_RUN_ORG_IAM is not set, skipping.")
+	}
+
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
