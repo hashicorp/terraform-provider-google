@@ -136,20 +136,25 @@ func convertHealthChecks(healthChecks []interface{}, d *schema.ResourceData, con
 
 // Instances do not need to exist yet, so we simply generate URLs.
 // Instances can be full URLS or zone/name
-func convertInstancesToUrls(project string, names *schema.Set) ([]string, error) {
+func convertInstancesToUrls(d *schema.ResourceData, config *Config, project string, names *schema.Set) ([]string, error) {
 	urls := make([]string, len(names.List()))
 	for i, nameI := range names.List() {
 		name := nameI.(string)
-		if strings.HasPrefix(name, "https://www.googleapis.com/compute/v1/") {
+		// assume that any URI will start with https://
+		if strings.HasPrefix(name, "https://") {
 			urls[i] = name
 		} else {
 			splitName := strings.Split(name, "/")
 			if len(splitName) != 2 {
 				return nil, fmt.Errorf("Invalid instance name, require URL or zone/name: %s", name)
 			} else {
-				urls[i] = fmt.Sprintf(
-					"https://www.googleapis.com/compute/v1/projects/%s/zones/%s/instances/%s",
-					project, splitName[0], splitName[1])
+				url, err := replaceVars(d, config, fmt.Sprintf(
+					"{{ComputeBasePath}}projects/%s/zones/%s/instances/%s",
+					project, splitName[0], splitName[1]))
+				if err != nil {
+					return nil, err
+				}
+				urls[i] = url
 			}
 		}
 	}
@@ -174,7 +179,7 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	instanceUrls, err := convertInstancesToUrls(project, d.Get("instances").(*schema.Set))
+	instanceUrls, err := convertInstancesToUrls(d, config, project, d.Get("instances").(*schema.Set))
 	if err != nil {
 		return err
 	}
@@ -310,11 +315,11 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		old := old_.(*schema.Set)
 		new := new_.(*schema.Set)
 
-		addUrls, err := convertInstancesToUrls(project, new.Difference(old))
+		addUrls, err := convertInstancesToUrls(d, config, project, new.Difference(old))
 		if err != nil {
 			return err
 		}
-		removeUrls, err := convertInstancesToUrls(project, old.Difference(new))
+		removeUrls, err := convertInstancesToUrls(d, config, project, old.Difference(new))
 		if err != nil {
 			return err
 		}

@@ -108,7 +108,7 @@ func getInstanceReferences(instanceUrls []string) (refs []*compute.InstanceRefer
 
 func validInstanceURLs(instanceUrls []string) bool {
 	for _, v := range instanceUrls {
-		if !strings.HasPrefix(v, "https://www.googleapis.com/compute/v1/") {
+		if !strings.HasPrefix(v, "https://") {
 			return false
 		}
 	}

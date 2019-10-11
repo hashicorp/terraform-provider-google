@@ -274,7 +274,7 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 			return fmt.Errorf("Error enabling the Compute Engine API required to delete the default network: %s", err)
 		}
 
-		if err = forceDeleteComputeNetwork(project.ProjectId, "default", config); err != nil {
+		if err = forceDeleteComputeNetwork(d, config, project.ProjectId, "default"); err != nil {
 			if isGoogleApiErrorWithCode(err, 404) {
 				log.Printf("[DEBUG] Default network not found for project %q, no need to delete it", project.ProjectId)
 			} else {
@@ -495,8 +495,11 @@ func resourceProjectImportState(d *schema.ResourceData, meta interface{}) ([]*sc
 }
 
 // Delete a compute network along with the firewall rules inside it.
-func forceDeleteComputeNetwork(projectId, networkName string, config *Config) error {
-	networkLink := fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/networks/%s", projectId, networkName)
+func forceDeleteComputeNetwork(d *schema.ResourceData, config *Config, projectId, networkName string) error {
+	networkLink, err := replaceVars(d, config, fmt.Sprintf("{{ComputeBasePath}}%s/global/networks/%s", projectId, networkName))
+	if err != nil {
+		return err
+	}
 
 	token := ""
 	for paginate := true; paginate; {
