@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	instanceGroupManagerURL = regexp.MustCompile(fmt.Sprintf("^https://www.googleapis.com/compute/v1/projects/(%s)/zones/([a-z0-9-]*)/instanceGroupManagers/([^/]*)", ProjectRegex))
+	instanceGroupManagerURL = regexp.MustCompile(fmt.Sprintf("projects/(%s)/zones/([a-z0-9-]*)/instanceGroupManagers/([^/]*)", ProjectRegex))
 
 	networkConfig = &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -1647,13 +1647,9 @@ func waitForContainerClusterReady(config *Config, project, location, clusterName
 	})
 }
 
-// container engine's API currently mistakenly returns the instance group manager's
-// URL instead of the instance group's URL in its responses. This shim detects that
-// error, and corrects it, by fetching the instance group manager URL and retrieving
-// the instance group manager, then using that to look up the instance group URL, which
-// is then substituted.
-//
-// This should be removed when the API response is fixed.
+// container engine's API returns the instance group manager's URL instead of the instance
+// group's URL in its responses, while the field is named as if it should have been the group
+// and not the manager. This shim should be supported for backwards compatibility reasons.
 func getInstanceGroupUrlsFromManagerUrls(config *Config, igmUrls []string) ([]string, error) {
 	instanceGroupURLs := make([]string, 0, len(igmUrls))
 	for _, u := range igmUrls {
