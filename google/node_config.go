@@ -147,6 +147,27 @@ var schemaNodeConfig = &schema.Schema{
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
+			"shielded_instance_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_secure_boot": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"enable_integrity_monitoring": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
+					},
+				},
+			},
+
 			"taint": {
 				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:     schema.TypeList,
@@ -301,6 +322,15 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 		}
 		nc.Tags = tags
 	}
+
+	if v, ok := nodeConfig["shielded_instance_config"]; ok && len(v.([]interface{})) > 0 {
+		conf := v.([]interface{})[0].(map[string]interface{})
+		nc.ShieldedInstanceConfig = &containerBeta.ShieldedInstanceConfig{
+			EnableSecureBoot:          conf["enable_secure_boot"].(bool),
+			EnableIntegrityMonitoring: conf["enable_integrity_monitoring"].(bool),
+		}
+	}
+
 	// Preemptible Is Optional+Default, so it always has a value
 	nc.Preemptible = nodeConfig["preemptible"].(bool)
 
@@ -319,18 +349,19 @@ func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
 	}
 
 	config = append(config, map[string]interface{}{
-		"machine_type":      c.MachineType,
-		"disk_size_gb":      c.DiskSizeGb,
-		"disk_type":         c.DiskType,
-		"guest_accelerator": flattenContainerGuestAccelerators(c.Accelerators),
-		"local_ssd_count":   c.LocalSsdCount,
-		"service_account":   c.ServiceAccount,
-		"metadata":          c.Metadata,
-		"image_type":        c.ImageType,
-		"labels":            c.Labels,
-		"tags":              c.Tags,
-		"preemptible":       c.Preemptible,
-		"min_cpu_platform":  c.MinCpuPlatform,
+		"machine_type":             c.MachineType,
+		"disk_size_gb":             c.DiskSizeGb,
+		"disk_type":                c.DiskType,
+		"guest_accelerator":        flattenContainerGuestAccelerators(c.Accelerators),
+		"local_ssd_count":          c.LocalSsdCount,
+		"service_account":          c.ServiceAccount,
+		"metadata":                 c.Metadata,
+		"image_type":               c.ImageType,
+		"labels":                   c.Labels,
+		"tags":                     c.Tags,
+		"preemptible":              c.Preemptible,
+		"min_cpu_platform":         c.MinCpuPlatform,
+		"shielded_instance_config": flattenShieldedInstanceConfig(c.ShieldedInstanceConfig),
 	})
 
 	if len(c.OauthScopes) > 0 {
@@ -346,6 +377,17 @@ func flattenContainerGuestAccelerators(c []*containerBeta.AcceleratorConfig) []m
 		result = append(result, map[string]interface{}{
 			"count": accel.AcceleratorCount,
 			"type":  accel.AcceleratorType,
+		})
+	}
+	return result
+}
+
+func flattenShieldedInstanceConfig(c *containerBeta.ShieldedInstanceConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"enable_secure_boot":          c.EnableSecureBoot,
+			"enable_integrity_monitoring": c.EnableIntegrityMonitoring,
 		})
 	}
 	return result

@@ -513,6 +513,39 @@ func TestAccContainerNodePool_EmptyGuestAccelerator(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_shieldedInstanceConfig(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+	np := fmt.Sprintf("tf-nodepool-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_shieldedInstanceConfig(cluster, np),
+			},
+			{
+				ResourceName:            "google_container_node_pool.np",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"max_pods_per_node"},
+			},
+			{
+				Config: testAccContainerNodePool_updateShieldedInstanceConfig(cluster, np),
+			},
+			{
+				ResourceName:            "google_container_node_pool.np",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"max_pods_per_node"},
+			},
+		},
+	})
+}
+
 func testAccCheckContainerNodePoolDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1086,6 +1119,49 @@ resource "google_container_node_pool" "np" {
 		guest_accelerator {
 			count = 1
 			type  = "nvidia-tesla-p9000"
+		}
+	}
+}`, cluster, np)
+}
+
+func testAccContainerNodePool_shieldedInstanceConfig(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name               = "%s"
+	location           = "us-central1-a"
+	initial_node_count = 1
+}
+
+resource "google_container_node_pool" "np" {
+	name               = "%s"
+	location           = "us-central1-a"
+	cluster            = "${google_container_cluster.cluster.name}"
+	initial_node_count = 2
+	node_config {
+		shielded_instance_config {
+			enable_integrity_monitoring = true
+		}
+	}
+}`, cluster, np)
+}
+
+func testAccContainerNodePool_updateShieldedInstanceConfig(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name               = "%s"
+	location           = "us-central1-a"
+	initial_node_count = 1
+}
+
+resource "google_container_node_pool" "np" {
+	name               = "%s"
+	location           = "us-central1-a"
+	cluster            = "${google_container_cluster.cluster.name}"
+	initial_node_count = 2
+	node_config {
+		shielded_instance_config {
+			enable_secure_boot          = true
+			enable_integrity_monitoring = true
 		}
 	}
 }`, cluster, np)

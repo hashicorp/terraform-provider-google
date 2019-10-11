@@ -191,6 +191,8 @@ for more details. Structure is documented below.
     will have statically granted permissions beyond those provided by the RBAC configuration or IAM.
     Defaults to `false`
 
+* `enable_shielded_nodes` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Enable Shielded Nodes features on all nodes in this cluster.  Defaults to `false`.
+
 * `initial_node_count` - (Optional) The number of nodes to create in this
 cluster's default node pool. In regional or multi-zonal clusters, this is the
 number of nodes per zone. Must be set if `node_pool` is not set. If you're using
@@ -557,6 +559,8 @@ The `node_config` block supports:
 
      -> Projects that enable the [Cloud Compute Engine API](https://cloud.google.com/compute/) with Terraform may need these roles added manually to the service account. Projects that enable the API in the Cloud Console should have them added automatically.
 
+* `shielded_instance_config` - (Optional) Shielded Instance options. Structure is documented below.
+
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
 
@@ -628,6 +632,16 @@ resource_usage_export_config {
   }
 }
 ```
+
+The `shielded_instance_config` block supports:
+
+* `enable_secure_boot` (Optional) - Defines if the instance has Secure Boot enabled.
+
+Secure Boot helps ensure that the system only runs authentic software by verifying the digital signature of all boot components, and halting the boot process if signature verification fails.  Defaults to `false`.
+
+* `enable_integrity_monitoring` (Optional) - Defines if the instance has integrity monitoring enabled.
+
+Enables monitoring and attestation of the boot integrity of the instance. The attestation is performed against the integrity policy baseline. This baseline is initially derived from the implicitly trusted boot image when the instance is created.  Defaults to `true`.
 
 The `taint` block supports:
 
