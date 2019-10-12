@@ -436,6 +436,8 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	if d.HasChange("versioning") {
 		if v, ok := d.GetOk("versioning"); ok {
 			sb.Versioning = expandBucketVersioning(v)
+		} else {
+			sb.NullFields = append(sb.NullFields, "Versioning")
 		}
 	}
 
