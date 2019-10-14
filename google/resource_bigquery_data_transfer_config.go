@@ -379,7 +379,17 @@ func flattenBigqueryDataTransferConfigDisabled(v interface{}, d *schema.Resource
 }
 
 func flattenBigqueryDataTransferConfigParams(v interface{}, d *schema.ResourceData) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	kv := v.(map[string]interface{})
+
+	res := make(map[string]string)
+	for key, value := range kv {
+		res[key] = fmt.Sprintf("%v", value)
+	}
+	return res
 }
 
 func expandBigqueryDataTransferConfigDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
