@@ -170,11 +170,10 @@ for more details. Structure is documented below.
 
 * `description` - (Optional) Description of the cluster.
 
-* `default_max_pods_per_node` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The default maximum number of pods per node in this cluster.
-    Note that this does not work on node pools which are "route-based" - that is, node
-    pools belonging to clusters that do not have IP Aliasing enabled.
-    See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr)
-    for more information.
+* `default_max_pods_per_node` - (Optional) The default maximum number of pods
+per node in this cluster. This doesn't work on "routes-based" clusters, clusters
+that don't have IP Aliasing enabled. See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr)
+for more information.
 
 * `enable_binary_authorization` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Enable Binary Authorization for this cluster.
     If enabled, all container images will be validated by Google Binary Authorization.

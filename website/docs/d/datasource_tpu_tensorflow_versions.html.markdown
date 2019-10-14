@@ -39,7 +39,7 @@ The following arguments are supported:
     is not provided, the provider project is used.
 
 * `zone` - (Optional) The zone to list versions for. If it
-    is not provided, the project zone is used.
+    is not provided, the provider zone is used.
 
 ## Attributes Reference
 
