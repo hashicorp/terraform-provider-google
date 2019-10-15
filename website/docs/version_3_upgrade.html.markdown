@@ -50,6 +50,7 @@ so Terraform knows to manage them.
 ## Upgrade Topics
 
 <!-- TOC depthFrom:2 depthTo:2 -->
+- [Resource: `google_container_cluster`](#resource-google_container_cluster)
 - [Resource: `google_project_services`](#resource-google_project_services)
 
 <!-- /TOC -->
@@ -88,6 +89,38 @@ provider "google" {
 
   version = "~> 3.0.0"
 }
+```
+
+## Resource: `google_container_cluster`
+
+### `logging_service` and `monitoring_service` defaults changed
+
+GKE Stackdriver Monitoring (the GKE-specific Stackdriver experience) is now
+enabled at cluster creation by default, similar to the default in GKE `1.14`
+through other tools.
+
+Terraform will now detect changes out of band when the field(s) are not defined
+in config, attempting to return them to their new defaults, and will be clear
+about what values will be set when creating a cluster.
+
+`terraform plan` will report changes upon upgrading if the field was previously
+unset. Applying this change will enable the new Stackdriver service without
+recreating clusters. Users who wish to use another value should record their
+intended value in config; the old default values can be added to a
+`google_container_cluster` resource config block to preserve them.
+
+#### Old Defaults
+
+```hcl
+logging_service    = "logging.googleapis.com"
+monitoring_service = "monitoring.googleapis.com"
+```
+
+#### New Defaults
+
+```hcl
+logging_service    = "logging.googleapis.com/kubernetes"
+monitoring_service = "monitoring.googleapis.com/kubernetes"
 ```
 
 ## Resource: `google_project_services`
