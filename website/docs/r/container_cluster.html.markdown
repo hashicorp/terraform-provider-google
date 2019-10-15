@@ -156,7 +156,7 @@ in this cluster in CIDR notation (e.g. 10.96.0.0/14). Leave blank to have one
 automatically chosen or specify a /14 block in 10.0.0.0/8. This field will only
 work if your cluster is not VPC-native- when an `ip_allocation_policy` block is
 not defined, or `ip_allocation_policy.use_ip_aliases` is set to false. If your
-cluster is VPC-native, use `ip_allocation_policy.cluster_ipv4_cidr_block`. 
+cluster is VPC-native, use `ip_allocation_policy.cluster_ipv4_cidr_block`.
 
 * `cluster_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
 Per-cluster configuration of Node Auto-Provisioning with Cluster Autoscaler to
@@ -288,6 +288,10 @@ to the datasource. A `region` can have a different set of supported versions tha
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
+
+* `release_channel` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Configuration options for the
+    [Release channel](https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels)
+    feature, which provide more control over automatic upgrades of your GKE clusters. Structure is documented below.
 
 * `remove_default_node_pool` - (Optional) If `true`, deletes the default node
     pool upon cluster creation. If you're using `google_container_node_pool`
@@ -433,7 +437,7 @@ to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.
 from the RFC-1918 private networks (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to
 pick a specific range to use. This field will only work if your cluster is
 VPC-native- when `ip_allocation_policy.use_ip_aliases` is undefined or set to
-true. If your cluster is not VPC-native, use `cluster_ipv4_cidr`. 
+true. If your cluster is not VPC-native, use `cluster_ipv4_cidr`.
 
 * `node_ipv4_cidr_block` - (Optional) The IP address range of the node IPs in this cluster.
     This should be set only if `create_subnetwork` is true.
@@ -547,7 +551,7 @@ The `node_config` block supports:
     are preemptible. See the [official documentation](https://cloud.google.com/container-engine/docs/preemptible-vm)
     for more information. Defaults to false.
 
-* `sandbox_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) [GKE Sandbox](https://cloud.google.com/kubernetes-engine/docs/how-to/sandbox-pods) configuration. When enabling this feature you must specify `image_type = "COS_CONTAINERD"` and `node_version = "1.12.7-gke.17"` or later to use it. 
+* `sandbox_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) [GKE Sandbox](https://cloud.google.com/kubernetes-engine/docs/how-to/sandbox-pods) configuration. When enabling this feature you must specify `image_type = "COS_CONTAINERD"` and `node_version = "1.12.7-gke.17"` or later to use it.
     Structure is documented below.
 
 * `service_account` - (Optional) The service account to be used by the Node VMs.
@@ -613,6 +617,15 @@ The `sandbox_type` block supports:
     Accepted values are:
 
     * `"gvisor"`: Pods run within a gVisor sandbox.
+
+The `release_channel` block supports:
+
+* `channel` - (Optional) The selected release channel. Defaults to `UNSPECIFIED`.
+    Accepted values are:
+    * UNSPECIFIED: Not set.
+    * RAPID: Weekly upgrade cadence; Early testers and developers who requires new features.
+    * REGULAR: Multiple per month upgrade cadence; Production users who need features not yet offered in the Stable channel.
+    * STABLE: Every few months upgrade cadence; Production users who need stability above all else, and for whom frequent upgrades are too risky.
 
 The `resource_usage_export_config` block supports:
 
