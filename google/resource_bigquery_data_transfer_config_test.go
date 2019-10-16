@@ -14,8 +14,9 @@ import (
 // but it will get deleted by parallel tests, so they need to be ran serially.
 func TestAccBigqueryDataTransferConfig(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"basic":  testAccBigqueryDataTransferConfig_scheduledQuery_basic,
-		"update": testAccBigqueryDataTransferConfig_scheduledQuery_update,
+		"basic":        testAccBigqueryDataTransferConfig_scheduledQuery_basic,
+		"update":       testAccBigqueryDataTransferConfig_scheduledQuery_update,
+		"booleanParam": testAccBigqueryDataTransferConfig_copy_booleanParam,
 	}
 
 	for name, tc := range testCases {
@@ -67,6 +68,27 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_bigquery_data_transfer_config.query_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryDataTransferConfig_copy_booleanParam(t *testing.T) {
+	random_suffix := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDataTransferConfig_booleanParam(random_suffix),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.copy_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
@@ -134,4 +156,48 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   }
 }
 `, random_suffix, random_suffix, schedule, letter)
+}
+
+func testAccBigqueryDataTransferConfig_booleanParam(random_suffix string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_project_iam_member" "permissions" {
+  role = "roles/iam.serviceAccountShortTermTokenMinter"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
+}
+
+resource "google_bigquery_dataset" "source_dataset" {
+  depends_on = [google_project_iam_member.permissions]
+
+  dataset_id = "source_%s"
+  friendly_name = "foo"
+  description = "bar"
+  location = "asia-northeast1"
+}
+
+resource "google_bigquery_dataset" "destination_dataset" {
+  depends_on = [google_project_iam_member.permissions]
+
+  dataset_id = "destination_%s"
+  friendly_name = "foo"
+  description = "bar"
+  location = "asia-northeast1"
+}
+
+resource "google_bigquery_data_transfer_config" "copy_config" {
+  depends_on = [google_project_iam_member.permissions]
+
+  location = "asia-northeast1"
+
+  display_name = "Copy test %s"
+  data_source_id = "cross_region_copy"
+  destination_dataset_id = google_bigquery_dataset.destination_dataset.dataset_id
+  params = {
+    overwrite_destination_table = "true"
+    source_dataset_id = google_bigquery_dataset.source_dataset.dataset_id
+    source_project_id = data.google_project.project.project_id
+  }
+}
+`, random_suffix, random_suffix, random_suffix)
 }
