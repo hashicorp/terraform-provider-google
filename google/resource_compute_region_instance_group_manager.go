@@ -362,10 +362,10 @@ func waitForInstancesRefreshFunc(f getInstanceManagerFunc, d *schema.ResourceDat
 			log.Printf("[WARNING] Error in fetching manager while waiting for instances to come up: %s\n", err)
 			return nil, "error", err
 		}
-		if done := m.CurrentActions.None; done < m.TargetSize {
-			return done, "creating", nil
+		if m.Status.IsStable {
+			return true, "created", nil
 		} else {
-			return done, "created", nil
+			return false, "creating", nil
 		}
 	}
 }
