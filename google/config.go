@@ -267,7 +267,7 @@ func (c *Config) LoadAndValidate() error {
 	// while most only want the host URL, some older ones also want the version and some
 	// of those "projects" as well. You can find out if this is required by looking at
 	// the basePath value in the client library file.
-	computeClientBasePath := removeBasePathVersion(c.ComputeBasePath) + "v1/projects/"
+	computeClientBasePath := c.ComputeBasePath + "projects/"
 	log.Printf("[INFO] Instantiating GCE client for path %s", computeClientBasePath)
 	c.clientCompute, err = compute.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
@@ -276,7 +276,7 @@ func (c *Config) LoadAndValidate() error {
 	c.clientCompute.UserAgent = userAgent
 	c.clientCompute.BasePath = computeClientBasePath
 
-	computeBetaClientBasePath := removeBasePathVersion(c.ComputeBetaBasePath) + "beta/projects/"
+	computeBetaClientBasePath := c.ComputeBetaBasePath + "projects/"
 	log.Printf("[INFO] Instantiating GCE Beta client for path %s", computeBetaClientBasePath)
 	c.clientComputeBeta, err = computeBeta.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
@@ -303,7 +303,7 @@ func (c *Config) LoadAndValidate() error {
 	c.clientContainerBeta.UserAgent = userAgent
 	c.clientContainerBeta.BasePath = containerBetaClientBasePath
 
-	dnsClientBasePath := removeBasePathVersion(c.DNSBasePath) + "v1/projects/"
+	dnsClientBasePath := c.DNSBasePath + "projects/"
 	log.Printf("[INFO] Instantiating Google Cloud DNS client for path %s", dnsClientBasePath)
 	c.clientDns, err = dns.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
@@ -312,7 +312,7 @@ func (c *Config) LoadAndValidate() error {
 	c.clientDns.UserAgent = userAgent
 	c.clientDns.BasePath = dnsClientBasePath
 
-	dnsBetaClientBasePath := removeBasePathVersion(c.DnsBetaBasePath) + "v1beta2/projects/"
+	dnsBetaClientBasePath := c.DnsBetaBasePath + "projects/"
 	log.Printf("[INFO] Instantiating Google Cloud DNS Beta client for path %s", dnsBetaClientBasePath)
 	c.clientDnsBeta, err = dnsBeta.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
@@ -339,7 +339,7 @@ func (c *Config) LoadAndValidate() error {
 	c.clientLogging.UserAgent = userAgent
 	c.clientLogging.BasePath = loggingClientBasePath
 
-	storageClientBasePath := removeBasePathVersion(c.StorageBasePath) + "v1/"
+	storageClientBasePath := c.StorageBasePath
 	log.Printf("[INFO] Instantiating Google Storage client for path %s", storageClientBasePath)
 	c.clientStorage, err = storage.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
@@ -348,7 +348,7 @@ func (c *Config) LoadAndValidate() error {
 	c.clientStorage.UserAgent = userAgent
 	c.clientStorage.BasePath = storageClientBasePath
 
-	sqlClientBasePath := removeBasePathVersion(c.SQLBasePath) + "v1beta4/"
+	sqlClientBasePath := c.SQLBasePath
 	log.Printf("[INFO] Instantiating Google SqlAdmin client for path %s", sqlClientBasePath)
 	c.clientSqlAdmin, err = sqladmin.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
@@ -456,7 +456,7 @@ func (c *Config) LoadAndValidate() error {
 	c.clientBuild.UserAgent = userAgent
 	c.clientBuild.BasePath = cloudBuildClientBasePath
 
-	bigQueryClientBasePath := removeBasePathVersion(c.BigQueryBasePath) + "v2/"
+	bigQueryClientBasePath := c.BigQueryBasePath
 	log.Printf("[INFO] Instantiating Google Cloud BigQuery client for path %s", bigQueryClientBasePath)
 	c.clientBigQuery, err = bigquery.NewService(context, option.WithHTTPClient(client))
 	if err != nil {
