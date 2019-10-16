@@ -40,7 +40,7 @@ func resourceComputeRouterPeer() *schema.Resource {
 
 			"peer_ip_address": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ForceNew: true,
 			},
 
