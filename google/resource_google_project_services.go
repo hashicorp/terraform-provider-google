@@ -26,7 +26,8 @@ func resourceGoogleProjectServices() *schema.Resource {
 		DeprecationMessage: "google_project_services is deprecated - many users reported " +
 			"issues with dependent services that were not resolvable.  Please use google_project_service or the " +
 			"https://github.com/terraform-google-modules/terraform-google-project-factory/tree/master/modules/project_services" +
-			" module.  This resource will be removed in version 3.0.0.",
+			" module.  It's recommended that you use a provider version of 2.13.0 or higher when you migrate so that requests are" +
+			" batched to the API, reducing the request rate. This resource will be removed in version 3.0.0.",
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
