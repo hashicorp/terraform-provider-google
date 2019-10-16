@@ -277,6 +277,7 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("routing_mode") {
 		obj := make(map[string]interface{})
+
 		routingConfigProp, err := expandComputeNetworkRoutingConfig(nil, d, config)
 		if err != nil {
 			return err

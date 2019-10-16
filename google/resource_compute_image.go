@@ -341,6 +341,7 @@ func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("labels") || d.HasChange("label_fingerprint") {
 		obj := make(map[string]interface{})
+
 		labelsProp, err := expandComputeImageLabels(d.Get("labels"), d, config)
 		if err != nil {
 			return err

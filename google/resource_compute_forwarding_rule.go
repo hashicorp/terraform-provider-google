@@ -408,6 +408,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 
 	if d.HasChange("target") {
 		obj := make(map[string]interface{})
+
 		targetProp, err := expandComputeForwardingRuleTarget(d.Get("target"), d, config)
 		if err != nil {
 			return err

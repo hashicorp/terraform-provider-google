@@ -360,6 +360,7 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("labels") || d.HasChange("label_fingerprint") {
 		obj := make(map[string]interface{})
+
 		labelsProp, err := expandComputeSnapshotLabels(d.Get("labels"), d, config)
 		if err != nil {
 			return err
