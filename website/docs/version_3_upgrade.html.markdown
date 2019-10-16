@@ -147,6 +147,11 @@ Users should migrate to using `google_project_service` resources, or using the
 [`"terraform-google-modules/project-factory/google//modules/project_services"`](https://registry.terraform.io/modules/terraform-google-modules/project-factory/google/3.3.0/submodules/project_services)
 module for a similar interface to `google_project_services`.
 
+-> Prior to `2.13.0`, each `google_project_service` sent separate API enablement
+requests. From `2.13.0` onwards, those requests are batched. It's recommended
+that you upgrade to `2.13.0+` before migrating if you encounter quota issues
+when you migrate off `google_project_services`.
+
 #### Old Config
 
 ```hcl
