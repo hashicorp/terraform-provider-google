@@ -201,6 +201,7 @@ func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface
 
 	if d.HasChange("url_map") {
 		obj := make(map[string]interface{})
+
 		urlMapProp, err := expandComputeTargetHttpProxyUrlMap(d.Get("url_map"), d, config)
 		if err != nil {
 			return err

@@ -323,6 +323,7 @@ func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("tensorflow_version") {
 		obj := make(map[string]interface{})
+
 		tensorflowVersionProp, err := expandTPUNodeTensorflowVersion(d.Get("tensorflow_version"), d, config)
 		if err != nil {
 			return err

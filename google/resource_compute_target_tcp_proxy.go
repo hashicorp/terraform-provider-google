@@ -217,6 +217,7 @@ func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{
 
 	if d.HasChange("proxy_header") {
 		obj := make(map[string]interface{})
+
 		proxyHeaderProp, err := expandComputeTargetTcpProxyProxyHeader(d.Get("proxy_header"), d, config)
 		if err != nil {
 			return err
@@ -251,6 +252,7 @@ func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{
 	}
 	if d.HasChange("backend_service") {
 		obj := make(map[string]interface{})
+
 		serviceProp, err := expandComputeTargetTcpProxyBackendService(d.Get("backend_service"), d, config)
 		if err != nil {
 			return err

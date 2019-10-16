@@ -123,6 +123,19 @@ func TestAccComputeSubnetwork_update(t *testing.T) {
 						"google_compute_subnetwork.network-with-private-google-access", &subnetwork),
 				),
 			},
+			{
+				// Add a secondary range and enable flow logs at once
+				Config: testAccComputeSubnetwork_update3(cnName, "10.2.0.0/24", subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(
+						"google_compute_subnetwork.network-with-private-google-access", &subnetwork),
+				),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.network-with-private-google-access",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 
@@ -352,6 +365,28 @@ resource "google_compute_subnetwork" "network-with-private-google-access" {
 	ip_cidr_range = "%s"
 	region = "us-central1"
 	network = "${google_compute_network.custom-test.self_link}"
+}
+`, cnName, subnetworkName, cidrRange)
+}
+
+func testAccComputeSubnetwork_update3(cnName, cidrRange, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+	name = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "network-with-private-google-access" {
+	name = "%s"
+	ip_cidr_range = "%s"
+	region = "us-central1"
+	network = "${google_compute_network.custom-test.self_link}"
+
+    enable_flow_logs = true
+	secondary_ip_range {
+		range_name = "tf-test-secondary-range-update"
+		ip_cidr_range = "192.168.10.0/24"
+	}
 }
 `, cnName, subnetworkName, cidrRange)
 }

@@ -378,6 +378,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("ip_cidr_range") {
 		obj := make(map[string]interface{})
+
 		ipCidrRangeProp, err := expandComputeSubnetworkIpCidrRange(d.Get("ip_cidr_range"), d, config)
 		if err != nil {
 			return err
@@ -410,20 +411,76 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 
 		d.SetPartial("ip_cidr_range")
 	}
-	if d.HasChange("enable_flow_logs") || d.HasChange("fingerprint") || d.HasChange("secondary_ip_range") {
+	if d.HasChange("enable_flow_logs") {
 		obj := make(map[string]interface{})
+
+		getUrl, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		project, err := getProject(d, config)
+		if err != nil {
+			return err
+		}
+		getRes, err := sendRequest(config, "GET", project, getUrl, nil)
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
+		}
+
+		obj["fingerprint"] = getRes["fingerprint"]
+
 		enableFlowLogsProp, err := expandComputeSubnetworkEnableFlowLogs(d.Get("enable_flow_logs"), d, config)
 		if err != nil {
 			return err
 		} else if v, ok := d.GetOkExists("enable_flow_logs"); ok || !reflect.DeepEqual(v, enableFlowLogsProp) {
 			obj["enableFlowLogs"] = enableFlowLogsProp
 		}
-		fingerprintProp, err := expandComputeSubnetworkFingerprint(d.Get("fingerprint"), d, config)
+
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("fingerprint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
-			obj["fingerprint"] = fingerprintProp
 		}
+		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+		}
+
+		op := &compute.Operation{}
+		err = Convert(res, op)
+		if err != nil {
+			return err
+		}
+
+		err = computeOperationWaitTime(
+			config.clientCompute, op, project, "Updating Subnetwork",
+			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("enable_flow_logs")
+	}
+	if d.HasChange("secondary_ip_range") {
+		obj := make(map[string]interface{})
+
+		getUrl, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		project, err := getProject(d, config)
+		if err != nil {
+			return err
+		}
+		getRes, err := sendRequest(config, "GET", project, getUrl, nil)
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
+		}
+
+		obj["fingerprint"] = getRes["fingerprint"]
+
 		secondaryIpRangesProp, err := expandComputeSubnetworkSecondaryIpRange(d.Get("secondary_ip_range"), d, config)
 		if err != nil {
 			return err
@@ -454,12 +511,11 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 
-		d.SetPartial("enable_flow_logs")
-		d.SetPartial("fingerprint")
 		d.SetPartial("secondary_ip_range")
 	}
 	if d.HasChange("private_ip_google_access") {
 		obj := make(map[string]interface{})
+
 		privateIpGoogleAccessProp, err := expandComputeSubnetworkPrivateIpGoogleAccess(d.Get("private_ip_google_access"), d, config)
 		if err != nil {
 			return err

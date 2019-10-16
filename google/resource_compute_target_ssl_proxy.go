@@ -249,6 +249,7 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 
 	if d.HasChange("proxy_header") {
 		obj := make(map[string]interface{})
+
 		proxyHeaderProp, err := expandComputeTargetSslProxyProxyHeader(d.Get("proxy_header"), d, config)
 		if err != nil {
 			return err
@@ -283,6 +284,7 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 	}
 	if d.HasChange("backend_service") {
 		obj := make(map[string]interface{})
+
 		serviceProp, err := expandComputeTargetSslProxyBackendService(d.Get("backend_service"), d, config)
 		if err != nil {
 			return err
@@ -317,6 +319,7 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 	}
 	if d.HasChange("ssl_certificates") {
 		obj := make(map[string]interface{})
+
 		sslCertificatesProp, err := expandComputeTargetSslProxySslCertificates(d.Get("ssl_certificates"), d, config)
 		if err != nil {
 			return err
@@ -351,6 +354,7 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 	}
 	if d.HasChange("ssl_policy") {
 		obj := make(map[string]interface{})
+
 		sslPolicyProp, err := expandComputeTargetSslProxySslPolicy(d.Get("ssl_policy"), d, config)
 		if err != nil {
 			return err

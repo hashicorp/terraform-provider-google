@@ -224,6 +224,7 @@ func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("node_template") {
 		obj := make(map[string]interface{})
+
 		nodeTemplateProp, err := expandComputeNodeGroupNodeTemplate(d.Get("node_template"), d, config)
 		if err != nil {
 			return err
