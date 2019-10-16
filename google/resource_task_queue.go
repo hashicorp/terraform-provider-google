@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"google.golang.org/api/cloudtasks/v2"
 )
@@ -89,7 +89,7 @@ func resourceTaskQueue() *schema.Resource {
 					},
 				},
 			},
-			"retry": {
+			"retry_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
@@ -144,7 +144,7 @@ func resourceTaskQueueRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("app_engine_routing_override", flattenAppEngineRoutingOverride(project, d.Get("app_engine_routing_override").([]interface{}), resp.AppEngineRoutingOverride))
-	d.Set("retry", flattenRetryConfig(resp.RetryConfig))
+	d.Set("retry_config", flattenRetryConfig(resp.RetryConfig))
 	d.Set("rate_limits", flattenRateLimits(resp.RateLimits))
 
 	return nil
@@ -167,7 +167,7 @@ func resourceTaskQueueCreateUpdate(d *schema.ResourceData, meta interface{}) err
 		Name:                     url,
 		AppEngineRoutingOverride: expandAppEngineRoutingOverride(project, d.Get("app_engine_routing_override").([]interface{})),
 		RateLimits:               expandRateLimits(d.Get("rate_limits").([]interface{})),
-		RetryConfig:              expandRetryConfig(d.Get("retry").([]interface{})),
+		RetryConfig:              expandRetryConfig(d.Get("retry_config").([]interface{})),
 	}
 
 	log.Printf("[DEBUG] Updating Task Queue: %#v", name)
@@ -268,13 +268,13 @@ func expandRetryConfig(configured interface{}) *cloudtasks.RetryConfig {
 		return nil
 	}
 
-	retry := l[0].(map[string]interface{})
+	retryConfig := l[0].(map[string]interface{})
 
 	return &cloudtasks.RetryConfig{
-		MaxAttempts:  int64(retry["max_attempts"].(int)),
-		MaxDoublings: int64(retry["max_doublings"].(int)),
-		MaxBackoff:   retry["max_backoff"].(string),
-		MinBackoff:   retry["min_backoff"].(string),
+		MaxAttempts:  int64(retryConfig["max_attempts"].(int)),
+		MaxDoublings: int64(retryConfig["max_doublings"].(int)),
+		MaxBackoff:   retryConfig["max_backoff"].(string),
+		MinBackoff:   retryConfig["min_backoff"].(string),
 	}
 }
 

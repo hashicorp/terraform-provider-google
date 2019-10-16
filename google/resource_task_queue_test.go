@@ -156,7 +156,7 @@ resource "google_task_queue" "fizzbuzz" {
     max_dispatches_per_second = 500
   }
 
-  retry {
+  retry_config {
     max_attempts  = 100
     max_backoff   = "3600s"
     min_backoff   = "0.100s"
