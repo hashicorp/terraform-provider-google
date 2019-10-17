@@ -106,6 +106,7 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 		if binding == nil {
 			log.Printf("[DEBUG]: Binding for role %q not found in policy for %s, assuming it has no members.", eBinding.Role, updater.DescribeResource())
 			d.Set("role", eBinding.Role)
+			d.Set("members", nil)
 			return nil
 		} else {
 			d.Set("role", binding.Role)
