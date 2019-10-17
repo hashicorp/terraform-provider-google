@@ -514,7 +514,7 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.Resour
 			if err != nil {
 				return err
 			}
-			oldResolved, err = resolvedImageSelfLink(project, oldResolved)
+			oldResolved, err = resolveImageRefToRelativeURI(project, oldResolved)
 			if err != nil {
 				return err
 			}
@@ -522,7 +522,7 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.Resour
 			if err != nil {
 				return err
 			}
-			newResolved, err = resolvedImageSelfLink(project, newResolved)
+			newResolved, err = resolveImageRefToRelativeURI(project, newResolved)
 			if err != nil {
 				return err
 			}
@@ -781,13 +781,9 @@ func flattenDisk(disk *computeBeta.AttachedDisk, defaultProject string) (map[str
 	diskMap := make(map[string]interface{})
 	if disk.InitializeParams != nil {
 		if disk.InitializeParams.SourceImage != "" {
-			selfLink, err := resolvedImageSelfLink(defaultProject, disk.InitializeParams.SourceImage)
+			path, err := resolveImageRefToRelativeURI(defaultProject, disk.InitializeParams.SourceImage)
 			if err != nil {
-				return nil, errwrap.Wrapf("Error expanding source image input to self_link: {{err}}", err)
-			}
-			path, err := getRelativePath(selfLink)
-			if err != nil {
-				return nil, errwrap.Wrapf("Error getting relative path for source image: {{err}}", err)
+				return nil, errwrap.Wrapf("Error expanding source image input to relative URI: {{err}}", err)
 			}
 			diskMap["source_image"] = path
 		} else {
