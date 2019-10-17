@@ -321,7 +321,7 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 		obj["instanceClass"] = instanceClassProp
 	}
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}/services/{{service}}")
+	lockName, err := replaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
@@ -492,7 +492,7 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 		obj["instanceClass"] = instanceClassProp
 	}
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}/services/{{service}}")
+	lockName, err := replaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
