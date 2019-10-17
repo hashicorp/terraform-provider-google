@@ -197,38 +197,40 @@ func resolveImage(c *Config, project, name string) (string, error) {
 	return "", fmt.Errorf("Could not find image or family %s", name)
 }
 
-// resolvedImageSelfLink takes the output of resolveImage and coerces it into a self_link.
-// In the event that a global/images/IMAGE or global/images/family/FAMILY reference is
-// returned from resolveImage, providerProject will be used as the project for the self_link.
-func resolvedImageSelfLink(providerProject, name string) (string, error) {
+// resolveImageRefToRelativeURI takes the output of resolveImage and coerces it
+// into a relative URI. In the event that a global/images/IMAGE or
+// global/images/family/FAMILY reference is returned from resolveImage,
+// providerProject will be used as the project for the self_link.
+func resolveImageRefToRelativeURI(providerProject, name string) (string, error) {
 	switch {
 	case resolveImageLink.MatchString(name): // https://www.googleapis.com/compute/v1/projects/xyz/global/images/xyz
-		return name, nil
-	case resolveImageProjectImage.MatchString(name): // projects/xyz/global/images/xyz
-		res := resolveImageProjectImage.FindStringSubmatch(name)
-		if err := sanityTestRegexMatches(2, res, "project image", name); err != nil {
+		namePath, err := getRelativePath(name)
+		if err != nil {
 			return "", err
 		}
-		return fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/images/%s", res[1], res[2]), nil
+
+		return namePath, nil
+	case resolveImageProjectImage.MatchString(name): // projects/xyz/global/images/xyz
+		return name, nil
 	case resolveImageProjectFamily.MatchString(name): // projects/xyz/global/images/family/xyz
 		res := resolveImageProjectFamily.FindStringSubmatch(name)
 		if err := sanityTestRegexMatches(2, res, "project family", name); err != nil {
 			return "", err
 		}
-		return fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/images/family/%s", res[1], res[2]), nil
+		return fmt.Sprintf("projects/%s/global/images/family/%s", res[1], res[2]), nil
 	case resolveImageGlobalImage.MatchString(name): // global/images/xyz
 		res := resolveImageGlobalImage.FindStringSubmatch(name)
 		if err := sanityTestRegexMatches(1, res, "global image", name); err != nil {
 			return "", err
 		}
-		return fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/images/%s", providerProject, res[1]), nil
+		return fmt.Sprintf("projects/%s/global/images/%s", providerProject, res[1]), nil
 	case resolveImageGlobalFamily.MatchString(name): // global/images/family/xyz
 		res := resolveImageGlobalFamily.FindStringSubmatch(name)
 		if err := sanityTestRegexMatches(1, res, "global family", name); err != nil {
 			return "", err
 		}
-		return fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/images/family/%s", providerProject, res[1]), nil
+		return fmt.Sprintf("projects/%s/global/images/family/%s", providerProject, res[1]), nil
 	}
-	return "", fmt.Errorf("Could not expand image or family %q into a self_link", name)
+	return "", fmt.Errorf("Could not expand image or family %q into a relative URI", name)
 
 }
