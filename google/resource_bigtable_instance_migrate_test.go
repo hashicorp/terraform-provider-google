@@ -231,7 +231,7 @@ func validateClustersExist(
 		numMatches, expectedAttributesForCluster := findMatchingClustersInState(clusterSpec, numClustersExpected, attributes)
 		if numMatches == 1 {
 			// Add found attributes to the overall set of expected ones
-			for attr, _ := range expectedAttributesForCluster {
+			for attr := range expectedAttributesForCluster {
 				expectedAttributes[attr] = true
 			}
 		} else {
@@ -327,7 +327,7 @@ func validateClusterOrder(
 	t *testing.T,
 ) {
 	shouldRetainOrder := true
-	for idxOrHash, _ := range clusterSpecs {
+	for idxOrHash := range clusterSpecs {
 		idxOrHashInt, err := strconv.Atoi(idxOrHash)
 		if err == nil && idxOrHashInt < numClustersExpected {
 			shouldRetainOrder = shouldRetainOrder && true
