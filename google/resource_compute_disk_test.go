@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -225,7 +224,6 @@ func TestAccComputeDisk_update(t *testing.T) {
 	t.Parallel()
 
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	var disk compute.Disk
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -233,24 +231,19 @@ func TestAccComputeDisk_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_basic(diskName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeDiskExists(
-						"google_compute_disk.foobar", getTestProjectFromEnv(), &disk),
-					resource.TestCheckResourceAttr("google_compute_disk.foobar", "size", "50"),
-					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-label-value"),
-					testAccCheckComputeDiskHasLabelFingerprint(&disk, "google_compute_disk.foobar"),
-				),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccComputeDisk_updated(diskName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeDiskExists(
-						"google_compute_disk.foobar", getTestProjectFromEnv(), &disk),
-					resource.TestCheckResourceAttr("google_compute_disk.foobar", "size", "100"),
-					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-updated-label-value"),
-					testAccCheckComputeDiskHasLabel(&disk, "a-new-label", "a-new-label-value"),
-					testAccCheckComputeDiskHasLabelFingerprint(&disk, "google_compute_disk.foobar"),
-				),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -264,8 +257,6 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	projectName := getTestProjectFromEnv()
 
-	var disk compute.Disk
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -273,17 +264,19 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "self_link"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeDiskExists(
-						"google_compute_disk.seconddisk", getTestProjectFromEnv(), &disk),
-				),
+			},
+			{
+				ResourceName:      "google_compute_disk.seconddisk",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "name"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeDiskExists(
-						"google_compute_disk.seconddisk", getTestProjectFromEnv(), &disk),
-				),
+			},
+			{
+				ResourceName:      "google_compute_disk.seconddisk",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -351,7 +344,6 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	var disk compute.Disk
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -360,10 +352,11 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeDiskExists(
-						"google_compute_disk.foo", getTestProjectFromEnv(), &disk),
-				),
+			},
+			{
+				ResourceName:      "google_compute_disk.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// this needs to be a second step so we refresh and see the instance
 			// listed as attached to the disk; the instance is created after the
@@ -371,12 +364,11 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 			// another step
 			{
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeDiskExists(
-						"google_compute_disk.foo", getTestProjectFromEnv(), &disk),
-					testAccCheckComputeDiskInstances(
-						"google_compute_disk.foo", &disk),
-				),
+			},
+			{
+				ResourceName:      "google_compute_disk.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -388,7 +380,6 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	diskName2 := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	mgrName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	var disk compute.Disk
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -397,10 +388,11 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName, mgrName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeDiskExists(
-						"google_compute_disk.foo", getTestProjectFromEnv(), &disk),
-				),
+			},
+			{
+				ResourceName:      "google_compute_disk.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// this needs to be a second step so we refresh and see the instance
 			// listed as attached to the disk; the instance is created after the
@@ -408,30 +400,29 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 			// another step
 			{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName, mgrName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeDiskExists(
-						"google_compute_disk.foo", getTestProjectFromEnv(), &disk),
-					testAccCheckComputeDiskInstances(
-						"google_compute_disk.foo", &disk),
-				),
+			},
+			{
+				ResourceName:      "google_compute_disk.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// Change the disk name to recreate the instances
 			{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName2, mgrName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeDiskExists(
-						"google_compute_disk.foo", getTestProjectFromEnv(), &disk),
-				),
+			},
+			{
+				ResourceName:      "google_compute_disk.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// Add the extra step like before
 			{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName2, mgrName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeDiskExists(
-						"google_compute_disk.foo", getTestProjectFromEnv(), &disk),
-					testAccCheckComputeDiskInstances(
-						"google_compute_disk.foo", &disk),
-				),
+			},
+			{
+				ResourceName:      "google_compute_disk.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -466,37 +457,6 @@ func testAccCheckComputeDiskExists(n, p string, disk *compute.Disk) resource.Tes
 	}
 }
 
-func testAccCheckComputeDiskHasLabel(disk *compute.Disk, key, value string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		val, ok := disk.Labels[key]
-		if !ok {
-			return fmt.Errorf("Label with key %s not found", key)
-		}
-
-		if val != value {
-			return fmt.Errorf("Label value did not match for key %s: expected %s but found %s", key, value, val)
-		}
-		return nil
-	}
-}
-
-func testAccCheckComputeDiskHasLabelFingerprint(disk *compute.Disk, resourceName string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		state := s.RootModule().Resources[resourceName]
-		if state == nil {
-			return fmt.Errorf("Unable to find resource named %s", resourceName)
-		}
-
-		labelFingerprint := state.Primary.Attributes["label_fingerprint"]
-		if labelFingerprint != disk.LabelFingerprint {
-			return fmt.Errorf("Label fingerprints do not match: api returned %s but state has %s",
-				disk.LabelFingerprint, labelFingerprint)
-		}
-
-		return nil
-	}
-}
-
 func testAccCheckEncryptionKey(n string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -510,28 +470,6 @@ func testAccCheckEncryptionKey(n string, disk *compute.Disk) resource.TestCheckF
 		} else if attr != disk.DiskEncryptionKey.Sha256 {
 			return fmt.Errorf("Disk %s has mismatched encryption key.\nTF State: %+v.\nGCP State: %+v",
 				n, attr, disk.DiskEncryptionKey.Sha256)
-		}
-		return nil
-	}
-}
-
-func testAccCheckComputeDiskInstances(n string, disk *compute.Disk) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		attr := rs.Primary.Attributes["users.#"]
-		if strconv.Itoa(len(disk.Users)) != attr {
-			return fmt.Errorf("Disk %s has mismatched users.\nTF State: %+v\nGCP State: %+v", n, rs.Primary.Attributes["users"], disk.Users)
-		}
-
-		for pos, user := range disk.Users {
-			if rs.Primary.Attributes["users."+strconv.Itoa(pos)] != user {
-				return fmt.Errorf("Disk %s has mismatched users.\nTF State: %+v.\nGCP State: %+v",
-					n, rs.Primary.Attributes["users"], disk.Users)
-			}
 		}
 		return nil
 	}

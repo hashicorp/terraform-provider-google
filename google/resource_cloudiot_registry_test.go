@@ -46,10 +46,6 @@ func TestAccCloudIoTRegistry_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIoTRegistry_basic(registryName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCloudIoTRegistryExists(
-						"google_cloudiot_registry.foobar"),
-				),
 			},
 			{
 				ResourceName:      "google_cloudiot_registry.foobar",
@@ -72,10 +68,6 @@ func TestAccCloudIoTRegistry_extended(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIoTRegistry_extended(registryName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCloudIoTRegistryExists(
-						"google_cloudiot_registry.foobar"),
-				),
 			},
 			{
 				ResourceName:      "google_cloudiot_registry.foobar",
@@ -98,13 +90,19 @@ func TestAccCloudIoTRegistry_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIoTRegistry_basic(registryName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCloudIoTRegistryExists(
-						"google_cloudiot_registry.foobar"),
-				),
+			},
+			{
+				ResourceName:      "google_cloudiot_registry.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccCloudIoTRegistry_extended(registryName),
+			},
+			{
+				ResourceName:      "google_cloudiot_registry.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccCloudIoTRegistry_basic(registryName),
@@ -221,24 +219,6 @@ func testAccCheckCloudIoTRegistryDestroy(s *terraform.State) error {
 		}
 	}
 	return nil
-}
-
-func testAccCloudIoTRegistryExists(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-		config := testAccProvider.Meta().(*Config)
-		_, err := config.clientCloudIoT.Projects.Locations.Registries.Get(rs.Primary.ID).Do()
-		if err != nil {
-			return fmt.Errorf("Registry does not exist")
-		}
-		return nil
-	}
 }
 
 func testAccCloudIoTRegistry_basic(registryName string) string {
