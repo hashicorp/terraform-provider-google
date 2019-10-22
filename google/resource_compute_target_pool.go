@@ -216,36 +216,6 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	return resourceComputeTargetPoolRead(d, meta)
 }
 
-func calcAddRemove(from []string, to []string) ([]string, []string) {
-	add := make([]string, 0)
-	remove := make([]string, 0)
-	for _, u := range to {
-		found := false
-		for _, v := range from {
-			if u == v {
-				found = true
-				break
-			}
-		}
-		if !found {
-			add = append(add, u)
-		}
-	}
-	for _, u := range from {
-		found := false
-		for _, v := range to {
-			if u == v {
-				found = true
-				break
-			}
-		}
-		if !found {
-			remove = append(remove, u)
-		}
-	}
-	return add, remove
-}
-
 func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
