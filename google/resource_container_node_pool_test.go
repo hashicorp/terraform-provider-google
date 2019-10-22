@@ -533,15 +533,6 @@ func TestAccContainerNodePool_shieldedInstanceConfig(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"max_pods_per_node"},
 			},
-			{
-				Config: testAccContainerNodePool_updateShieldedInstanceConfig(cluster, np),
-			},
-			{
-				ResourceName:            "google_container_node_pool.np",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"max_pods_per_node"},
-			},
 		},
 	})
 }
@@ -1140,28 +1131,7 @@ resource "google_container_node_pool" "np" {
 	node_config {
 		shielded_instance_config {
 			enable_integrity_monitoring = true
-		}
-	}
-}`, cluster, np)
-}
-
-func testAccContainerNodePool_updateShieldedInstanceConfig(cluster, np string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "cluster" {
-	name               = "%s"
-	location           = "us-central1-a"
-	initial_node_count = 1
-}
-
-resource "google_container_node_pool" "np" {
-	name               = "%s"
-	location           = "us-central1-a"
-	cluster            = "${google_container_cluster.cluster.name}"
-	initial_node_count = 2
-	node_config {
-		shielded_instance_config {
 			enable_secure_boot          = true
-			enable_integrity_monitoring = true
 		}
 	}
 }`, cluster, np)
