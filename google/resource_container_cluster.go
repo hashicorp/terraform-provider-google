@@ -179,10 +179,11 @@ func resourceContainerCluster() *schema.Resource {
 							},
 						},
 						"kubernetes_dashboard": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							MaxItems: 1,
+							Type:       schema.TypeList,
+							Optional:   true,
+							Computed:   true,
+							Deprecated: "The Kubernetes Dashboard addon is deprecated for clusters on GKE.",
+							MaxItems:   1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"disabled": {

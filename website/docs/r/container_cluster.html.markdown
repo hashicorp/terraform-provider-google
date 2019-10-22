@@ -332,7 +332,7 @@ The `addons_config` block supports:
     controller addon, which makes it easy to set up HTTP load balancers for services in a
     cluster. It is enabled by default; set `disabled = true` to disable.
 
-* `kubernetes_dashboard` - (Optional) The status of the Kubernetes Dashboard
+* `kubernetes_dashboard` - (Optional, Deprecated) The status of the Kubernetes Dashboard
     add-on, which controls whether the Kubernetes Dashboard is enabled for this cluster.
     It is disabled by default; set `disabled = false` to enable.
 
