@@ -908,7 +908,7 @@ resource "google_container_node_pool" "np_with_gpu" {
 
 	node_config {
 		machine_type = "n1-standard-1"
-		disk_size_gb = 10
+		disk_size_gb = 32
 
 		oauth_scopes = [
 			"https://www.googleapis.com/auth/devstorage.read_only",

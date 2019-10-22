@@ -844,7 +844,7 @@ resource "google_sql_database_instance" "instance" {
 
 		backup_configuration {
 			enabled   = true
-            location  = "us"
+			location  = "us"
 		}
 	}
 }
