@@ -393,7 +393,7 @@
       }
     }
   },
-  "revision": "20190807",
+  "revision": "20191010",
   "rootUrl": "https://serviceusage.googleapis.com/",
   "schemas": {
     "Api": {
@@ -1133,6 +1133,29 @@
       },
       "type": "object"
     },
+    "GetServiceIdentityResponse": {
+      "description": "Response message for getting service identity.",
+      "id": "GetServiceIdentityResponse",
+      "properties": {
+        "identity": {
+          "$ref": "ServiceIdentity",
+          "description": "Service identity that service producer can use to access consumer\nresources. If exists is true, it contains email and unique_id. If exists is\nfalse, it contains pre-constructed email and empty unique_id."
+        },
+        "state": {
+          "description": "Service identity state.",
+          "enum": [
+            "IDENTITY_STATE_UNSPECIFIED",
+            "ACTIVE"
+          ],
+          "enumDescriptions": [
+            "Default service identity state. This value is used if the state is\nomitted.",
+            "Service identity has been created and can be used."
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "GoogleApiService": {
       "description": "`Service` is the root object of Google service configuration schema. It\ndescribes basic information about a service, such as the name and the\ntitle, and delegates other aspects to sub-sections. Each sub-section is\neither a proto message or a repeated proto message that configures a\nspecific aspect, such as auth. See each proto message definition for details.\n\nExample:\n\n    type: google.api.Service\n    config_version: 3\n    name: calendar.googleapis.com\n    title: Google Calendar API\n    apis:\n    - name: google.calendar.v3.Calendar\n    authentication:\n      providers:\n      - id: google_calendar_auth\n        jwks_uri: https://www.googleapis.com/oauth2/v1/certs\n        issuer: https://securetoken.google.com\n      rules:\n      - selector: \"*\"\n        requirements:\n          provider_id: google_calendar_auth",
       "id": "GoogleApiService",
@@ -1361,6 +1384,44 @@
         "usage": {
           "$ref": "Usage",
           "description": "Configuration controlling usage of this service."
+        }
+      },
+      "type": "object"
+    },
+    "GoogleApiServiceusageV1beta1GetServiceIdentityResponse": {
+      "description": "Response message for getting service identity.",
+      "id": "GoogleApiServiceusageV1beta1GetServiceIdentityResponse",
+      "properties": {
+        "identity": {
+          "$ref": "GoogleApiServiceusageV1beta1ServiceIdentity",
+          "description": "Service identity that service producer can use to access consumer\nresources. If exists is true, it contains email and unique_id. If exists is\nfalse, it contains pre-constructed email and empty unique_id."
+        },
+        "state": {
+          "description": "Service identity state.",
+          "enum": [
+            "IDENTITY_STATE_UNSPECIFIED",
+            "ACTIVE"
+          ],
+          "enumDescriptions": [
+            "Default service identity state. This value is used if the state is\nomitted.",
+            "Service identity has been created and can be used."
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "GoogleApiServiceusageV1beta1ServiceIdentity": {
+      "description": "Service identity for a service. This is the identity that service producer\nshould use to access consumer resources.",
+      "id": "GoogleApiServiceusageV1beta1ServiceIdentity",
+      "properties": {
+        "email": {
+          "description": "The email address of the service account that a service producer would use\nto access consumer resources.",
+          "type": "string"
+        },
+        "uniqueId": {
+          "description": "The unique and stable id of the service account.\nhttps://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts#ServiceAccount",
+          "type": "string"
         }
       },
       "type": "object"
@@ -1668,6 +1729,13 @@
           ],
           "type": "string"
         },
+        "monitoredResourceTypes": {
+          "description": "Read-only. If present, then a time\nseries, which is identified partially by\na metric type and a MonitoredResourceDescriptor, that is associated\nwith this metric type can only be associated with one of the monitored\nresource types listed here.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "name": {
           "description": "The resource name of the metric descriptor.",
           "type": "string"
@@ -1715,7 +1783,7 @@
           "type": "string"
         },
         "launchStage": {
-          "description": "Deprecated. Please use the MetricDescriptor.launch_stage instead.\nThe launch stage of the metric definition.",
+          "description": "Deprecated. Must use the MetricDescriptor.launch_stage instead.",
           "enum": [
             "LAUNCH_STAGE_UNSPECIFIED",
             "EARLY_ACCESS",
@@ -2005,7 +2073,7 @@
           "type": "string"
         },
         "duration": {
-          "description": "Duration of this limit in textual notation. Example: \"100s\", \"24h\", \"1d\".\nFor duration longer than a day, only multiple of days is supported. We\nsupport only \"100s\" and \"1d\" for now. Additional support will be added in\nthe future. \"0\" indicates indefinite duration.\n\nUsed by group-based quotas only.",
+          "description": "Duration of this limit in textual notation. Must be \"100s\" or \"1d\".\n\nUsed by group-based quotas only.",
           "type": "string"
         },
         "freeTier": {
@@ -2059,6 +2127,21 @@
         "overrideValue": {
           "description": "The overriding quota limit value.\nCan be any nonnegative integer, or -1 (unlimited quota).",
           "format": "int64",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ServiceIdentity": {
+      "description": "Service identity for a service. This is the identity that service producer\nshould use to access consumer resources.",
+      "id": "ServiceIdentity",
+      "properties": {
+        "email": {
+          "description": "The email address of the service account that a service producer would use\nto access consumer resources.",
+          "type": "string"
+        },
+        "uniqueId": {
+          "description": "The unique and stable id of the service account.\nhttps://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts#ServiceAccount",
           "type": "string"
         }
       },
