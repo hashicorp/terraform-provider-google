@@ -37,6 +37,42 @@ To get more information about ApplicationUrlDispatchRules, see:
 
 
 ```hcl
+resource "google_app_engine_application_url_dispatch_rules" "web_service" {
+  dispatch_rules {
+    domain = "*"
+    path = "/*"
+    service = "default"
+  }
+
+  dispatch_rules {
+    domain = "*"
+    path = "/admin/*"
+    service = "${google_app_engine_standard_app_version.admin_v3.service}"
+  }
+}
+
+resource "google_app_engine_standard_app_version" "admin_v3" {
+  version_id = "v3"
+  service = "admin"
+  runtime = "nodejs10"
+
+  entrypoint {
+    shell = "node ./app.js"
+  }
+
+  deployment {
+    zip {
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.name}"
+    }
+  }
+
+  env_variables = {
+    port = "8080"
+  }
+
+  noop_on_destroy = true
+}
+
 resource "google_storage_bucket" "bucket" {
 	name = "appengine-test-bucket"
 }
@@ -45,40 +81,6 @@ resource "google_storage_bucket_object" "object" {
 	name   = "hello-world.zip"
 	bucket = "${google_storage_bucket.bucket.name}"
 	source = "./test-fixtures/appengine/hello-world.zip"
-}
-
-resource "google_app_engine_standard_app_version" "myapp_v1" {
-  version_id = "v1"
-  service = "myapp"
-  runtime = "nodejs10"
-  noop_on_destroy = true
-  entrypoint {
-    shell = "node ./app.js"
-  }
-  deployment {
-    zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
-    }  
-  }
-  env_variables = {
-    port = "8080"
-  } 
-  depends_on = ["google_storage_bucket_object.object"]
-
-}
-
-resource "google_app_engine_application_url_dispatch_rules" "service_rules" {
-  # project = "my-project"
-  dispatch_rules {
-    domain = "*"
-    path = "/default/*"
-    service = "default"
-  }
-  dispatch_rules {
-    domain = "*"
-    path = "/myapp/*"
-    service = "${google_app_engine_standard_app_version.myapp_v1.service}"
-  }
 }
 ```
 
