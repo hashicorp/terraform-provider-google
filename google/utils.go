@@ -531,3 +531,36 @@ func getInterconnectAttachmentLink(config *Config, project, region, ic string) (
 
 	return ic, nil
 }
+
+// Given two sets of references (with "from" values in self link form),
+// determine which need to be added or removed // during an update using
+// addX/removeX APIs.
+func calcAddRemove(from []string, to []string) (add, remove []string) {
+	add = make([]string, 0)
+	remove = make([]string, 0)
+	for _, u := range to {
+		found := false
+		for _, v := range from {
+			if compareSelfLinkOrResourceName("", v, u, nil) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			add = append(add, u)
+		}
+	}
+	for _, u := range from {
+		found := false
+		for _, v := range to {
+			if compareSelfLinkOrResourceName("", u, v, nil) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			remove = append(remove, u)
+		}
+	}
+	return add, remove
+}
