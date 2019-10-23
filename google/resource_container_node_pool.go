@@ -476,10 +476,15 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodeP
 		nodeCount = nc.(int)
 	}
 
+	nc, err := expandNodeConfig(d.Get(prefix + "node_config"))
+	if err != nil {
+		return nil, err
+	}
+
 	np := &containerBeta.NodePool{
 		Name:             name,
 		InitialNodeCount: int64(nodeCount),
-		Config:           expandNodeConfig(d.Get(prefix + "node_config")),
+		Config:           nc,
 		Version:          d.Get(prefix + "version").(string),
 	}
 

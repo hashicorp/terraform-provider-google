@@ -855,13 +855,22 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		}
 		cluster.NodePools = nodePools
 	} else {
+		nc, err := expandNodeConfig([]interface{}{})
+		if err != nil {
+			return err
+		}
 		// Node Configs have default values that are set in the expand function,
 		// but can only be set if node pools are unspecified.
-		cluster.NodeConfig = expandNodeConfig([]interface{}{})
+		cluster.NodeConfig = nc
 	}
 
 	if v, ok := d.GetOk("node_config"); ok {
-		cluster.NodeConfig = expandNodeConfig(v)
+		nc, err := expandNodeConfig(v)
+		if err != nil {
+			return err
+		}
+
+		cluster.NodeConfig = nc
 	}
 
 	if v, ok := d.GetOk("private_cluster_config"); ok {

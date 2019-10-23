@@ -137,6 +137,33 @@ func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 	})
 }
 
+// Authoritative taints
+func TestAccContainerNodePool_withNodeConfigTaints(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withNodeConfigTaints(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np_with_node_config", "node_config.0.taint.#", "2"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np_with_node_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// autoscaling.# = 0 is equivalent to no autoscaling at all,
+				// but will still cause an import diff
+				ImportStateVerifyIgnore: []string{"autoscaling.#"},
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withGPU(t *testing.T) {
 	t.Parallel()
 
@@ -840,6 +867,12 @@ resource "google_container_node_pool" "np_with_node_config" {
 		preemptible = true
 		min_cpu_platform = "Intel Broadwell"
 
+		initial_taint {
+			key = "taint_key"
+			value = "taint_value"
+			effect = "PREFER_NO_SCHEDULE"
+		}
+
 		// Updatable fields
 		image_type = "COS"
 	}
@@ -870,10 +903,44 @@ resource "google_container_node_pool" "np_with_node_config" {
 		preemptible = true
 		min_cpu_platform = "Intel Broadwell"
 
+		initial_taint {
+			key = "taint_key"
+			value = "taint_value"
+			effect = "PREFER_NO_SCHEDULE"
+		}
+
 		// Updatable fields
 		image_type = "UBUNTU"
 	}
 }`, cluster, nodePool)
+}
+
+func testAccContainerNodePool_withNodeConfigTaints() string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+	name = "tf-cluster-nodepool-test-%s"
+	zone = "us-central1-a"
+	initial_node_count = 1
+}
+resource "google_container_node_pool" "np_with_node_config" {
+	name = "tf-nodepool-test-%s"
+	zone = "us-central1-a"
+	cluster = "${google_container_cluster.cluster.name}"
+	initial_node_count = 1
+	node_config {
+		taint {
+			key = "taint_key"
+			value = "taint_value"
+			effect = "PREFER_NO_SCHEDULE"
+		}
+
+		taint {
+			key = "taint_key2"
+			value = "taint_value2"
+			effect = "NO_EXECUTE"
+		}
+	}
+}`, acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccContainerNodePool_withGPU() string {

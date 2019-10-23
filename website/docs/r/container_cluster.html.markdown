@@ -567,9 +567,17 @@ The `node_config` block supports:
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
 
-* `taint` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) List of
-    [kubernetes taints](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
-    to apply to each node. Structure is documented below.
+* `initial_taint` - (Optional) A list of [Kubernetes taints](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
+to apply to nodes on creation. Modifying this field will cause the resource to
+be recreated. This field only changes cluster creation, and the `taint` field
+contains the current taints set on nodes. `taint` values can be updated without
+recreating the cluster inside Kubernetes such as with `kubectl`. Structure is
+documented below.
+
+* `taint` - (Optional) List of [Kubernetes taints](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
+on each node. See `initial_taint` for more info. If this field is set, Terraform
+will authoritatively manage the taints on the resource, destroying it in order
+to amend them. Structure is documented below.
 
 * `workload_metadata_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Metadata configuration to expose to workloads on the node pool.
     Structure is documented below.
@@ -655,6 +663,14 @@ Secure Boot helps ensure that the system only runs authentic software by verifyi
 
 Enables monitoring and attestation of the boot integrity of the instance. The attestation is performed against the integrity policy baseline. This baseline is initially derived from the implicitly trusted boot image when the instance is created.  Defaults to `true`.
 
+The `initial_taint` block supports:
+
+* `key` (Required) Key for taint.
+
+* `value` (Required) Value for taint.
+
+* `effect` (Required) Effect for taint. Accepted values are `NO_SCHEDULE`, `PREFER_NO_SCHEDULE`, and `NO_EXECUTE`.
+
 The `taint` block supports:
 
 * `key` (Required) Key for taint.
@@ -736,5 +752,6 @@ $ terraform import google_container_cluster.mycluster us-east1-a/my-cluster
 
 For example, the following fields will show diffs if set in config:
 
+- `initial_taint`
 - `min_master_version`
 - `remove_default_node_pool`
