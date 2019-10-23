@@ -189,26 +189,21 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("project", project)
 
+	var instanceType string
+	if instance.InstanceType == bigtable.DEVELOPMENT {
+		instanceType = "DEVELOPMENT"
+	} else {
+		instanceType = "PRODUCTION"
+	}
+	d.Set("instance_type", instanceType)
+
 	clusters, err := c.Clusters(ctx, instance.Name)
 	if err != nil {
 		return fmt.Errorf("Error retrieving instance clusters. %s", err)
 	}
 
 	clustersNewState := []map[string]interface{}{}
-	for i, cluster := range clusters {
-		// DEVELOPMENT clusters have num_nodes = 0 on their first (and only)
-		// cluster while PRODUCTION clusters will have at least 3.
-		if i == 0 {
-			var instanceType string
-			if cluster.ServeNodes == 0 {
-				instanceType = "DEVELOPMENT"
-			} else {
-				instanceType = "PRODUCTION"
-			}
-
-			d.Set("instance_type", instanceType)
-		}
-
+	for _, cluster := range clusters {
 		clustersNewState = append(clustersNewState, flattenBigtableCluster(cluster))
 	}
 
