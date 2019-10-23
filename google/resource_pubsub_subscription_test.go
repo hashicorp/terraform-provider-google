@@ -105,6 +105,30 @@ func TestAccPubsubSubscription_update(t *testing.T) {
 	})
 }
 
+func TestAccPubsubSubscription_push(t *testing.T) {
+	t.Parallel()
+
+	topicFoo := fmt.Sprintf("tf-test-topic-foo-%s", acctest.RandString(10))
+	subscription := fmt.Sprintf("projects/%s/subscriptions/tf-test-topic-foo-%s", getTestProjectFromEnv(), acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPubsubSubscriptionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_push(topicFoo, subscription),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscription,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccPubsubSubscription_emptyTTL(topic, subscription string) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "foo" {
@@ -123,18 +147,41 @@ resource "google_pubsub_subscription" "foo" {
 `, topic, subscription)
 }
 
-// TODO: Add acceptance test for push delivery.
-//
-// Testing push endpoints is tricky for the following reason:
-// - You need a publicly accessible HTTPS server to handle POST requests in order to receive push messages.
-// - The server must present a valid SSL certificate signed by a certificate authority
-// - The server must be routable by DNS.
-// - You also need to validate that you own the domain (or have equivalent access to the endpoint).
-// - Finally, you must register the endpoint domain with the GCP project.
-//
-// An easy way to test this would be to create an App Engine Hello World app. With AppEngine, SSL certificate, DNS and domain registry is handled for us.
-// App Engine is not yet supported by Terraform but once it is, it will provide an easy path to testing push configs.
-// Another option would be to use Cloud Functions once Terraform support is added.
+func testAccPubsubSubscription_push(topicFoo string, subscription string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "pub_sub_service_account" {
+  account_id = "my-super-service"
+}
+
+data "google_iam_policy" "admin" {
+  binding {
+    role = "roles/projects.topics.publish"
+
+    members = [
+      "serviceAccount:${google_service_account.pub_sub_service_account.email}",
+    ]
+  }
+}
+
+resource "google_pubsub_topic" "foo" {
+	name = "%s"
+}
+
+resource "google_pubsub_subscription" "foo" {
+  name                 = "%s"
+  topic                = "${google_pubsub_topic.foo.name}"
+  ack_deadline_seconds = 10
+  push_config {
+    push_endpoint = "https://${data.google_project.project.project_id}.appspot.com"
+    oidc_token {
+      service_account_email = "${google_service_account.pub_sub_service_account.email}"
+    }
+  }
+}
+`, topicFoo, subscription)
+}
 
 func testAccPubsubSubscription_fullName(topic, subscription, label string, deadline int) string {
 	return fmt.Sprintf(`
