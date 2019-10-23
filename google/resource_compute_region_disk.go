@@ -535,7 +535,7 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 				return fmt.Errorf("Error retrieving instance %s: %s", instance, err.Error())
 			}
 			for _, disk := range i.Disks {
-				if disk.Source == self {
+				if compareSelfLinkOrResourceName("", disk.Source, self, nil) {
 					detachCalls = append(detachCalls, detachArgs{
 						project:    instanceProject,
 						zone:       GetResourceNameFromSelfLink(i.Zone),
