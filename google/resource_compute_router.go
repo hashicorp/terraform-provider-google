@@ -152,7 +152,7 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	bgpProp, err := expandComputeRouterBgp(d.Get("bgp"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("bgp"); !isEmptyValue(reflect.ValueOf(bgpProp)) && (ok || !reflect.DeepEqual(v, bgpProp)) {
+	} else if v, ok := d.GetOkExists("bgp"); ok || !reflect.DeepEqual(v, bgpProp) {
 		obj["bgp"] = bgpProp
 	}
 	regionProp, err := expandComputeRouterRegion(d.Get("region"), d, config)
@@ -276,7 +276,7 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 	bgpProp, err := expandComputeRouterBgp(d.Get("bgp"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("bgp"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bgpProp)) {
+	} else if v, ok := d.GetOkExists("bgp"); ok || !reflect.DeepEqual(v, bgpProp) {
 		obj["bgp"] = bgpProp
 	}
 
