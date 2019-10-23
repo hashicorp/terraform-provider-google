@@ -567,9 +567,14 @@ The `node_config` block supports:
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
 
-* `taint` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) List of
-    [kubernetes taints](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
-    to apply to each node. Structure is documented below.
+* `taint` - (Optional) A list of [Kubernetes taints](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
+to apply to nodes. GKE's API can only set this field on cluster creation.
+However, GKE will add taints to your nodes if you enable certain features such
+as GPUs. If this field is set, any diffs on this field will cause Terraform to
+recreate the underlying resource. Taint values can be updated safely in
+Kubernetes (eg. through `kubectl`), and it's recommended that you do not use
+this field to manage taints. If you do, `lifecycle.ignore_changes` is
+recommended. Structure is documented below.
 
 * `workload_metadata_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Metadata configuration to expose to workloads on the node pool.
     Structure is documented below.

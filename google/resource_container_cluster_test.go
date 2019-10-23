@@ -1686,6 +1686,18 @@ resource "google_container_cluster" "with_node_config" {
 		preemptible = true
 		min_cpu_platform = "Intel Broadwell"
 
+		taint {
+			key = "taint_key"
+			value = "taint_value"
+			effect = "PREFER_NO_SCHEDULE"
+		}
+
+		taint {
+			key = "taint_key2"
+			value = "taint_value2"
+			effect = "NO_EXECUTE"
+		}
+
 		// Updatable fields
 		image_type = "COS"
 	}
@@ -1721,6 +1733,18 @@ resource "google_container_cluster" "with_node_config" {
 		tags = ["foo", "bar"]
 		preemptible = true
 		min_cpu_platform = "Intel Broadwell"
+
+		taint {
+			key = "taint_key"
+			value = "taint_value"
+			effect = "PREFER_NO_SCHEDULE"
+		}
+
+		taint {
+			key = "taint_key2"
+			value = "taint_value2"
+			effect = "NO_EXECUTE"
+		}
 
 		// Updatable fields
 		image_type = "UBUNTU"
