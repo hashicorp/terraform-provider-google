@@ -176,8 +176,9 @@ The following arguments are supported:
   A subscription is considered active as long as any connected subscriber
   is successfully consuming messages from the subscription or is issuing
   operations on the subscription. If expirationPolicy is not set, a default
-  policy with ttl of 31 days will be used. The minimum allowed value for
-  expirationPolicy.ttl is 1 day.  Structure is documented below.
+  policy with ttl of 31 days will be used.  If it is set but left empty, the
+  resource never expires.  The minimum allowed value for expirationPolicy.ttl
+  is 1 day.  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -241,10 +242,8 @@ The `expiration_policy` block supports:
 * `ttl` -
   (Optional)
   Specifies the "time-to-live" duration for an associated resource. The
-  resource expires if it is not active for a period of ttl. The definition
-  of "activity" depends on the type of the associated resource. The minimum
-  and maximum allowed values for ttl depend on the type of the associated
-  resource, as well. If ttl is not set, the associated resource never expires.
+  resource expires if it is not active for a period of ttl.
+  If ttl is not set, the associated resource never expires.
   A duration in seconds with up to nine fractional digits, terminated by 's'.
   Example - "3.5s".
 
