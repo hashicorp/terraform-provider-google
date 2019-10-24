@@ -402,7 +402,7 @@ The `authenticator_groups_config` block supports:
 
 The `maintenance_policy` block supports:
 
-* `daily_maintenance_window` - (Required) Time window specified for daily maintenance operations.
+* `daily_maintenance_window` - (Required in GA, Optional in Beta) Time window specified for daily maintenance operations.
     Specify `start_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "HH:MM”,
     where HH : \[00-23\] and MM : \[00-59\] GMT. For example:
 
@@ -413,6 +413,26 @@ maintenance_policy {
   }
 }
 ```
+
+* `recurring_window` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Time window for
+recurring maintenance operations.
+
+Specify `start_time` and `end_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) date format.  The start time's date is
+the initial date that the window starts, and the end time is used for calculating duration.  Specify `recurrence` in
+[RFC5545](https://tools.ietf.org/html/rfc5545#section-3.8.5.3) RRULE format, to specify when this recurs.
+
+For example:
+```
+maintenance_policy {
+  recurring_window {
+    start_time = "2019-01-01T03:00"
+    end_time = "2019-01-01T06:00"
+    recurrence = "FREQ=DAILY"
+  }
+}
+```
+
+In beta, one or the other of `recurring_window` and `daily_maintenance_window` is required if a `maintenance_policy` block is supplied.
 
 The `ip_allocation_policy` block supports:
 
