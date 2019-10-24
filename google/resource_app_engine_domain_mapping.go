@@ -78,6 +78,7 @@ func resourceAppEngineDomainMapping() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"certificate_id": {
 							Type:     schema.TypeString,
+							Computed: true,
 							Optional: true,
 						},
 						"ssl_management_type": {
