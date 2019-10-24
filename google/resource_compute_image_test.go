@@ -13,8 +13,6 @@ import (
 func TestAccComputeImage_withLicense(t *testing.T) {
 	t.Parallel()
 
-	var image compute.Image
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -22,16 +20,11 @@ func TestAccComputeImage_withLicense(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeImage_license("image-test-" + acctest.RandString(10)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeImageExists(
-						"google_compute_image.foobar", &image),
-					testAccCheckComputeImageDescription(&image, "description-test"),
-					testAccCheckComputeImageFamily(&image, "family-test"),
-					testAccCheckComputeImageContainsLabel(&image, "my-label", "my-label-value"),
-					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
-					testAccCheckComputeImageContainsLicense(&image, "https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx"),
-					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
-				),
+			},
+			{
+				ResourceName:      "google_compute_image.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -223,24 +216,6 @@ func testAccCheckComputeImageResolution(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckComputeImageDescription(image *compute.Image, description string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if image.Description != description {
-			return fmt.Errorf("Wrong image description: expected '%s' got '%s'", description, image.Description)
-		}
-		return nil
-	}
-}
-
-func testAccCheckComputeImageFamily(image *compute.Image, family string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if image.Family != family {
-			return fmt.Errorf("Wrong image family: expected '%s' got '%s'", family, image.Family)
-		}
-		return nil
-	}
-}
-
 func testAccCheckComputeImageContainsLabel(image *compute.Image, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		v, ok := image.Labels[key]
@@ -251,19 +226,6 @@ func testAccCheckComputeImageContainsLabel(image *compute.Image, key string, val
 			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
 		}
 		return nil
-	}
-}
-
-func testAccCheckComputeImageContainsLicense(image *compute.Image, expectedLicense string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-
-		for _, thisLicense := range image.Licenses {
-			if thisLicense == expectedLicense {
-				return nil
-			}
-		}
-
-		return fmt.Errorf("Expected license '%s' was not found", expectedLicense)
 	}
 }
 
@@ -346,21 +308,30 @@ resource "google_compute_image" "foobar" {
 
 func testAccComputeImage_license(name string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+	name = "disk-test-%s"
+	zone = "us-central1-a"
+	image = "${data.google_compute_image.my_image.self_link}"
+}
+
 resource "google_compute_image" "foobar" {
 	name = "%s"
 	description = "description-test"
-	family = "family-test"
-	raw_disk {
-	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
-	}
+	source_disk = "${google_compute_disk.foobar.self_link}"
+
 	labels = {
 		my-label = "my-label-value"
 		empty-label = ""
 	}
 	licenses = [
-		"https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx",
+		"https://www.googleapis.com/compute/v1/projects/debian-cloud/global/licenses/debian-9-stretch",
 	]
-}`, name)
+}`, name, name)
 }
 
 func testAccComputeImage_update(name string) string {
@@ -391,6 +362,7 @@ resource "google_compute_disk" "foobar" {
 	zone = "us-central1-a"
 	image = "${data.google_compute_image.my_image.self_link}"
 }
+
 resource "google_compute_image" "foobar" {
 	name = "image-test-%s"
 	source_disk = "${google_compute_disk.foobar.self_link}"
