@@ -1,6 +1,9 @@
 ## 2.18.1 (Unreleased)
 ## 2.18.0 (October 23, 2019)
 
+KNOWN ISSUES:
+* `resourcemanager`: `google_project` `auto_create_network` is failing to delete networks when set to `false`. Use an earlier provider version to resolve.
+
 DEPRECATIONS:
 * `container`: The `kubernetes_dashboard` addon is deprecated for `google_container_cluster`. ([#4648](https://github.com/terraform-providers/terraform-provider-google/pull/4648))
 
