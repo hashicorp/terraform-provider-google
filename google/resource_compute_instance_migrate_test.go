@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"testing"
 
 	"google.golang.org/api/compute/v1"
@@ -863,18 +864,38 @@ func runInstanceMigrateTest(t *testing.T, id, testName string, version int, attr
 	}
 
 	for k, v := range expected {
-		if attributes[k] != v {
-			t.Fatalf(
-				"bad: %s\n\n expected: %#v -> %#v\n got: %#v -> %#v\n in: %#v",
-				testName, k, expected[k], k, attributes[k], attributes)
+		// source is the only self link, so compare by relpaths if source is being
+		// compared
+		if strings.HasSuffix(k, "source") {
+			if !compareSelfLinkOrResourceName("", attributes[k], v, nil) && attributes[k] != v {
+				t.Fatalf(
+					"bad uri: %s\n\n expected: %#v -> %#v\n got: %#v -> %#v\n in: %#v",
+					testName, k, expected[k], k, attributes[k], attributes)
+			}
+		} else {
+			if attributes[k] != v {
+				t.Fatalf(
+					"bad: %s\n\n expected: %#v -> %#v\n got: %#v -> %#v\n in: %#v",
+					testName, k, expected[k], k, attributes[k], attributes)
+			}
 		}
 	}
 
 	for k, v := range attributes {
-		if expected[k] != v {
-			t.Fatalf(
-				"bad: %s\n\n expected: %#v -> %#v\n got: %#v -> %#v\n in: %#v",
-				testName, k, expected[k], k, attributes[k], attributes)
+		// source is the only self link, so compare by relpaths if source is being
+		// compared
+		if strings.HasSuffix(k, "source") {
+			if !compareSelfLinkOrResourceName("", expected[k], v, nil) && expected[k] != v {
+				t.Fatalf(
+					"bad: %s\n\n expected: %#v -> %#v\n got: %#v -> %#v\n in: %#v",
+					testName, k, expected[k], k, attributes[k], expected)
+			}
+		} else {
+			if expected[k] != v {
+				t.Fatalf(
+					"bad: %s\n\n expected: %#v -> %#v\n got: %#v -> %#v\n in: %#v",
+					testName, k, expected[k], k, attributes[k], expected)
+			}
 		}
 	}
 }
