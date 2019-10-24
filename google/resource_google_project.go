@@ -496,7 +496,7 @@ func resourceProjectImportState(d *schema.ResourceData, meta interface{}) ([]*sc
 
 // Delete a compute network along with the firewall rules inside it.
 func forceDeleteComputeNetwork(d *schema.ResourceData, config *Config, projectId, networkName string) error {
-	networkLink, err := replaceVars(d, config, fmt.Sprintf("{{ComputeBasePath}}%s/global/networks/%s", projectId, networkName))
+	networkLink, err := replaceVars(d, config, fmt.Sprintf("{{ComputeBasePath}}projects/%s/global/networks/%s", projectId, networkName))
 	if err != nil {
 		return err
 	}
