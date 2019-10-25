@@ -152,6 +152,7 @@ The `cluster_config` block supports:
         # You can define multiple initialization_action blocks
         initialization_action     { ... }
         encryption_config         { ... }
+        endpoint_config           { ... }
     }
 ```
 
@@ -182,6 +183,9 @@ The `cluster_config` block supports:
    You can specify multiple versions of these. Structure defined below.
 
 * `encryption_config` (Optional) The Customer managed encryption keys settings for the cluster.
+   Structure defined below.
+
+* `endpoint_config` (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The config settings for port access on the cluster.
    Structure defined below.
 - - -
 
@@ -461,6 +465,20 @@ The `encryption_config` block supports:
 
 * `kms_key_name` - (Required) The Cloud KMS key name to use for PD disk encryption for
    all instances in the cluster.
+
+- - -
+
+The `endpoint_config` block (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) supports:
+
+```hcl
+    cluster_config {
+		endpoint_config {
+			enable_http_port_access = "true"
+		}
+    }
+```
+
+* `enable_http_port_access` - (Optional) The flag to enable http access to specific ports on the cluster from external sources (aka Component Gateway). Defaults to false.
 
 ## Attributes Reference
 
