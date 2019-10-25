@@ -138,10 +138,12 @@ The `trigger_template` block supports:
 * `branch_name` -
   (Optional)
   Name of the branch to build. Exactly one a of branch name, tag, or commit SHA must be provided.
+  This field is a regular expression.
 
 * `tag_name` -
   (Optional)
   Name of the tag to build. Exactly one of a branch name, tag, or commit SHA must be provided.
+  This field is a regular expression.
 
 * `commit_sha` -
   (Optional)
