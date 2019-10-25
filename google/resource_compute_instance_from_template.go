@@ -127,7 +127,6 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Force send all top-level fields that have been set in case they're overridden to zero values.
-	// TODO: consider doing so for nested fields as well.
 	// Initialize ForceSendFields to empty so we don't get things that the instance resource
 	// always force-sends.
 	instance.ForceSendFields = []string{}
