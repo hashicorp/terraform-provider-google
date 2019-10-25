@@ -392,7 +392,9 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Created bucket %v at location %v\n\n", res.Name, res.SelfLink)
 	d.SetId(res.Id)
 
-	if v, ok := d.GetOk("retention_policy"); ok {
+	// If the retention policy is not already locked, check if it
+	// needs to be locked.
+	if v, ok := d.GetOk("retention_policy"); ok && !res.RetentionPolicy.IsLocked {
 		retention_policies := v.([]interface{})
 
 		sb.RetentionPolicy = &storage.BucketRetentionPolicy{}
