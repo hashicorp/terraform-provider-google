@@ -1748,12 +1748,19 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 	if cluster != nil && cluster.MaintenancePolicy != nil {
 		resourceVersion = cluster.MaintenancePolicy.ResourceVersion
 	}
+	exclusions := make(map[string]containerBeta.TimeWindow, 0)
+	if cluster != nil && cluster.MaintenancePolicy != nil && cluster.MaintenancePolicy.Window != nil {
+		exclusions = cluster.MaintenancePolicy.Window.MaintenanceExclusions
+	}
 
 	configured := d.Get("maintenance_policy")
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return &containerBeta.MaintenancePolicy{
 			ResourceVersion: resourceVersion,
+			Window: &containerBeta.MaintenanceWindow{
+				MaintenanceExclusions: exclusions,
+			},
 		}
 	}
 	maintenancePolicy := l[0].(map[string]interface{})
@@ -1763,6 +1770,7 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 		startTime := dmw["start_time"].(string)
 		return &containerBeta.MaintenancePolicy{
 			Window: &containerBeta.MaintenanceWindow{
+				MaintenanceExclusions: exclusions,
 				DailyMaintenanceWindow: &containerBeta.DailyMaintenanceWindow{
 					StartTime: startTime,
 				},
