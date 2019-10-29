@@ -63,6 +63,10 @@ The following arguments are supported:
 - - -
 
 
+* `name` -
+  (Optional)
+  Name of the trigger. Must be unique within the project.
+
 * `description` -
   (Optional)
   Human-readable description of the trigger.
