@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-
-	"golang.org/x/net/context"
 )
 
 func TestAccTaskQueue_basic(t *testing.T) {
@@ -139,7 +137,7 @@ func testAccTaskQueueDestroy(s *terraform.State) error {
 
 		expectedName := fmt.Sprintf("projects/%s/locations/%s/queues/%s", config.Project, attributes["location"], attributes["name"])
 
-		_, err := config.clientCloudTasks.Projects.Locations.Queues.Get(expectedName).Context(context.Background()).Do()
+		_, err := config.clientCloudTasks.Projects.Locations.Queues.Get(expectedName).Do()
 		if err == nil {
 			return fmt.Errorf("Task Queue still exists")
 		}
