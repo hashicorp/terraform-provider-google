@@ -575,6 +575,7 @@ google.golang.org/api/cloudiot/v1
 google.golang.org/api/cloudkms/v1
 google.golang.org/api/cloudresourcemanager/v1
 google.golang.org/api/cloudresourcemanager/v2beta1
+google.golang.org/api/cloudtasks/v2
 google.golang.org/api/composer/v1beta1
 google.golang.org/api/compute/v0.beta
 google.golang.org/api/compute/v1
