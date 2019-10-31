@@ -18,6 +18,7 @@ install:
 - make tools
 
 script:
+- make docscheck
 - make lint
 - make test
 - make website-test
