@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_attached_disk"
 sidebar_current: "docs-google-compute-attached-disk"

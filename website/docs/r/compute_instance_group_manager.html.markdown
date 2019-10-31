@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_instance_group_manager"
 sidebar_current: "docs-google-compute-instance-group-manager"

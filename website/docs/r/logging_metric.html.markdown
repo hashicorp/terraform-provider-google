@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Stackdriver Logging"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

@@ -1,4 +1,5 @@
 ---
+subcategory: "Google BigQuery Data Transfer"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

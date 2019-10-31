@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Bigtable"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Cloud Security Command Center (SCC)"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Cloud Platform"
 layout: "google"
 page_title: "Google: google_folder_iam_binding"
 sidebar_current: "docs-google-folder-iam-binding"

@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Stackdriver Monitoring"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

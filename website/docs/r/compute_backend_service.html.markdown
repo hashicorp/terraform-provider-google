@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Compute Engine"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Google IAP"
 layout: "google"
 page_title: "Google: google_iap_web_type_compute_iam"
 sidebar_current: "docs-google-iap-web-type-compute-iam"

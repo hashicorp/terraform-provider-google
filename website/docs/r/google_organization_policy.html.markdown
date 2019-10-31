@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Cloud Platform"
 layout: "google"
 page_title: "Google: google_organization_policy"
 sidebar_current: "docs-google-organization-policy"

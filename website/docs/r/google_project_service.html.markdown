@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Cloud Platform"
 layout: "google"
 page_title: "Google: google_project_service"
 sidebar_current: "docs-google-project-service-x"

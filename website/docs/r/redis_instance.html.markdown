@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Redis (Cloud Memorystore)"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

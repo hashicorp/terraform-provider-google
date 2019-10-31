@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Cloud Platform"
 layout: "google"
 page_title: "Google: google_dns_managed_zone"
 sidebar_current: "docs-google-datasource-dns-managed-zone"

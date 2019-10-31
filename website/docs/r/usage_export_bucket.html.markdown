@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Cloud Platform"
 layout: "google"
 page_title: "Google: google_project_usage_export_bucket"
 sidebar_current: "docs-google-project-usage-export-bucket"

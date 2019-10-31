@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Cloud Platform"
 layout: "google"
 page_title: "Google: google_compute_network"
 sidebar_current: "docs-google-datasource-compute-network"

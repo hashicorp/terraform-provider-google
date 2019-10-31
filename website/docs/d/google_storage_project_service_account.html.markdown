@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Cloud Platform"
 layout: "google"
 page_title: "Google: google_storage_project_service_account"
 sidebar_current: "docs-google-datasource-storage-project-service-account"

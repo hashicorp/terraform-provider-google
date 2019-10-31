@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Cloud Functions"
 layout: "google"
 page_title: "Google: google_cloudfunctions_function"
 sidebar_current: "docs-google-cloudfunctions-function"

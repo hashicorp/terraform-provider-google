@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Storage"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

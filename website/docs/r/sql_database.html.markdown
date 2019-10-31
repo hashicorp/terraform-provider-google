@@ -1,4 +1,5 @@
 ---
+subcategory: "Google SQL"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

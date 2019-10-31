@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Bigtable"
 layout: "google"
 page_title: "Google: google_bigtable_instance_iam"
 sidebar_current: "docs-google-bigtable-instance-iam"

@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Binary Authorization"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

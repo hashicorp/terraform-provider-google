@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Google PubSub"
 layout: "google"
 page_title: "Google: google_pubsub_topic_iam"
 sidebar_current: "docs-google-pubsub-topic-iam"

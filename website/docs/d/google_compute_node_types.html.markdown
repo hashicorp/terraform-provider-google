@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Cloud Platform"
 layout: "google"
 page_title: "Google: google_compute_node_types"
 sidebar_current: "docs-google-datasource-compute-node-types"

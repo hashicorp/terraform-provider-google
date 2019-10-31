@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_shared_vpc_host_project"
 sidebar_current: "docs-google-compute-shared-vpc-host-project"

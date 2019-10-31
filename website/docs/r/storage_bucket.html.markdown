@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Storage"
 layout: "google"
 page_title: "Google: google_storage_bucket"
 sidebar_current: "docs-google-storage-bucket-x"

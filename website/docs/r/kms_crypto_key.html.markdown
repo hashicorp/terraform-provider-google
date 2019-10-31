@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Key Management Service"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

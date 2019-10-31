@@ -1,4 +1,5 @@
 ---
+subcategory: "Google BigQuery"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

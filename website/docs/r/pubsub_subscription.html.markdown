@@ -1,4 +1,5 @@
 ---
+subcategory: "Google PubSub"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

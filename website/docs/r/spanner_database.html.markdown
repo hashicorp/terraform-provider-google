@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Spanner"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***

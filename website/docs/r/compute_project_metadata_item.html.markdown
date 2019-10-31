@@ -1,4 +1,5 @@
 ---
+subcategory: "Google Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_project_metadata_item"
 sidebar_current: "docs-google-compute-project-metadata-item"

@@ -1,4 +1,5 @@
 ---
+subcategory: "Google DNS"
 # ----------------------------------------------------------------------------
 #
 #     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
