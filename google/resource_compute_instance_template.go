@@ -188,6 +188,12 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"enable_display": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"instance_description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -704,6 +710,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		ServiceAccounts:   expandServiceAccounts(d.Get("service_account").([]interface{})),
 		Tags:              resourceInstanceTags(d),
 		ShieldedVmConfig:  expandShieldedVmConfigs(d),
+		DisplayDevice:     expandDisplayDevice(d),
 	}
 
 	if _, ok := d.GetOk("labels"); ok {
@@ -1067,6 +1074,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	if instanceTemplate.Properties.ShieldedVmConfig != nil {
 		if err = d.Set("shielded_instance_config", flattenShieldedVmConfig(instanceTemplate.Properties.ShieldedVmConfig)); err != nil {
 			return fmt.Errorf("Error setting shielded_instance_config: %s", err)
+		}
+	}
+	if instanceTemplate.Properties.DisplayDevice != nil {
+		if err = d.Set("enable_display", flattenEnableDisplay(instanceTemplate.Properties.DisplayDevice)); err != nil {
+			return fmt.Errorf("Error setting enable_display: %s", err)
 		}
 	}
 	return nil
