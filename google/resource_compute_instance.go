@@ -394,6 +394,11 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
+			"enable_display": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
 			"guest_accelerator": {
 				Type:       schema.TypeList,
 				Optional:   true,
@@ -732,6 +737,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 		Hostname:           d.Get("hostname").(string),
 		ForceSendFields:    []string{"CanIpForward", "DeletionProtection"},
 		ShieldedVmConfig:   expandShieldedVmConfigs(d),
+		DisplayDevice:      expandDisplayDevice(d),
 	}, nil
 }
 
@@ -952,6 +958,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("scheduling", flattenScheduling(instance.Scheduling))
 	d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators))
 	d.Set("shielded_instance_config", flattenShieldedVmConfig(instance.ShieldedVmConfig))
+	d.Set("enable_display", flattenEnableDisplay(instance.DisplayDevice))
 	d.Set("cpu_platform", instance.CpuPlatform)
 	d.Set("min_cpu_platform", instance.MinCpuPlatform)
 	d.Set("deletion_protection", instance.DeletionProtection)
@@ -1329,9 +1336,9 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Attributes which can only be changed if the instance is stopped
-	if scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") {
+	if scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") {
 		if !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the machine_type, min_cpu_platform, or service_account on an instance requires stopping it. " +
+			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, or enable display on an instance requires stopping it. " +
 				"To acknowledge this, please set allow_stopping_for_update = true in your config.")
 		}
 		op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
@@ -1402,6 +1409,22 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return opErr
 			}
 			d.SetPartial("service_account")
+		}
+
+		if d.HasChange("enable_display") {
+			req := &compute.DisplayDevice{
+				EnableDisplay:   d.Get("enable_display").(bool),
+				ForceSendFields: []string{"EnableDisplay"},
+			}
+			op, err = config.clientCompute.Instances.UpdateDisplayDevice(project, zone, instance.Name, req).Do()
+			if err != nil {
+				return fmt.Errorf("Error updating display device: %s", err)
+			}
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating display device", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
+			d.SetPartial("enable_display")
 		}
 
 		op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()

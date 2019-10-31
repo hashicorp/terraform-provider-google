@@ -1201,6 +1201,28 @@ func TestAccComputeInstance_shieldedVmConfig2(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_enableDisplay(t *testing.T) {
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_enableDisplay(instanceName),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_enableDisplayUpdated(instanceName),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -3637,4 +3659,62 @@ resource "google_compute_instance" "foobar" {
 	}
 }
 `, instance, enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
+}
+
+func testAccComputeInstance_enableDisplay(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "centos-7"
+	project = "gce-uefi-images"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	enable_display = true
+
+	allow_stopping_for_update = true
+}
+`, instance)
+}
+
+func testAccComputeInstance_enableDisplayUpdated(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "centos-7"
+	project = "gce-uefi-images"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	enable_display = false
+
+	allow_stopping_for_update = true
+}
+`, instance)
 }
