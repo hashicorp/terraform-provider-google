@@ -55,7 +55,7 @@ In order to create a separate vendoring PR including a new library:
 
 ### Running Tests
 
-Configuring tests is similar to configuring the provider; see the [Provider Configuration Reference](https://www.terraform.io/docs/providers/google/provider_reference.html#configuration-reference) for more details. The following environment variables must be set in order to run tests:
+Configuring tests is similar to configuring the provider; see the [Provider Configuration Reference](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#configuration-reference) for more details. The following environment variables must be set in order to run tests:
 
 ```
 GOOGLE_PROJECT

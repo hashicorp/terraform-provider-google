@@ -90,11 +90,11 @@ The following arguments are supported:
     appending a hyphen and a random four-character string to the base instance
     name.
 
-* `instance_template` - (Required, [GA](https://terraform.io/docs/providers/google/provider_versions.html)) The full URL to an instance template from
+* `instance_template` - (Required, [GA](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The full URL to an instance template from
     which all new instances will be created. This field is only present in the
     `google` provider.
 
-* `version` - (Required, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Application versions managed by this instance group. Each
+* `version` - (Required, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Application versions managed by this instance group. Each
     version deals with a specific instance template, allowing canary release scenarios.
     Structure is documented below.
 
@@ -130,11 +130,11 @@ The following arguments are supported:
 
 ---
 
-* `auto_healing_policies` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The autohealing policies for this managed instance
+* `auto_healing_policies` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 
 
-* `update_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/regionInstanceGroupManagers/patch)
+* `update_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/regionInstanceGroupManagers/patch)
 
 
 * `distribution_policy_zones` - (Optional) The distribution policy for this managed instance

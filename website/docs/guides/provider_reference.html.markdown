@@ -42,7 +42,7 @@ To use Google Cloud Platform features that are in beta, you need to both:
 
 * explicitly set the provider for your resource to `google-beta`.
 
-See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
+See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html)
 for a full reference on how to use features from different GCP API versions in
 the Google provider.
 

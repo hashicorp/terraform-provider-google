@@ -201,7 +201,7 @@ resource "google_compute_instance" "beta-instance" {
 }
 ```
 
-See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
+See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html)
 for more details on how to use `google-beta`.
 
 ## Data Sources
