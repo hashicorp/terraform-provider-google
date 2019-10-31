@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccCloudBuildTrigger_basic(t *testing.T) {
 	t.Parallel()
+	name := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -16,7 +18,7 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudBuildTrigger_basic(),
+				Config: testAccCloudBuildTrigger_basic(name),
 			},
 			{
 				ResourceName:      "google_cloudbuild_trigger.build_trigger",
@@ -24,7 +26,7 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccCloudBuildTrigger_updated(),
+				Config: testAccCloudBuildTrigger_updated(name),
 			},
 			{
 				ResourceName:      "google_cloudbuild_trigger.build_trigger",
@@ -37,6 +39,7 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 
 func TestAccCloudBuildTrigger_disable(t *testing.T) {
 	t.Parallel()
+	name := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -44,7 +47,7 @@ func TestAccCloudBuildTrigger_disable(t *testing.T) {
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudBuildTrigger_basic(),
+				Config: testAccCloudBuildTrigger_basic(name),
 			},
 			{
 				ResourceName:      "google_cloudbuild_trigger.build_trigger",
@@ -52,7 +55,7 @@ func TestAccCloudBuildTrigger_disable(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccCloudBuildTrigger_basicDisabled(),
+				Config: testAccCloudBuildTrigger_basicDisabled(name),
 			},
 			{
 				ResourceName:      "google_cloudbuild_trigger.build_trigger",
@@ -83,9 +86,10 @@ func TestAccCloudBuildTrigger_fullStep(t *testing.T) {
 	})
 }
 
-func testAccCloudBuildTrigger_basic() string {
+func testAccCloudBuildTrigger_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
+  name = "%s"
   description = "acceptance test build trigger"
   trigger_template {
     branch_name = "master"
@@ -109,13 +113,14 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     }
   }
 }
-  `)
+  `, name)
 }
 
-func testAccCloudBuildTrigger_basicDisabled() string {
+func testAccCloudBuildTrigger_basicDisabled(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
   disabled = true
+  name = "%s"
   description = "acceptance test build trigger"
   trigger_template {
     branch_name = "master"
@@ -139,7 +144,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     }
   }
 }
-  `)
+  `, name)
 }
 
 func testAccCloudBuildTrigger_fullStep() string {
@@ -168,10 +173,11 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   `)
 }
 
-func testAccCloudBuildTrigger_updated() string {
+func testAccCloudBuildTrigger_updated(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
   description = "acceptance test build trigger updated"
+  name = "%s"
   trigger_template {
     branch_name = "master-updated"
     repo_name   = "some-repo-updated"
@@ -197,5 +203,5 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     }
   }
 }
-  `)
+  `, name)
 }
