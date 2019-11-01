@@ -981,7 +981,10 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("name", instance.Name)
 	d.Set("description", instance.Description)
 	d.Set("hostname", instance.Hostname)
-	waitUntilInstanceHaveTheExpectedStatus(config, d)
+	err = waitUntilInstanceHaveTheExpectedStatus(config, d)
+	if err != nil {
+		return fmt.Errorf("Error waiting for status: %s", err)
+	}
 	d.Set("status", instance.Status)
 	d.SetId(instance.Name)
 
@@ -1177,9 +1180,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return err
 			}
 		} else {
-			return errors.New(fmt.Sprintf(
-				"Unknown status : %s", expectedStatus,
-			))
+			return fmt.Errorf("Unknown status : %s", expectedStatus)
 		}
 		opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating status", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 		if opErr != nil {
