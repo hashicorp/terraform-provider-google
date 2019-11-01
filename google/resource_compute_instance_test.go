@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -1223,6 +1224,116 @@ func TestAccComputeInstance_enableDisplay(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_statusTerminatedUpdateFields(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_statusRunning(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatusRunning(&instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_statusTerminated(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatusTerminated(&instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_statusTerminatedUpdate(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceMetadata(
+						&instance, "bar", "baz"),
+					testAccCheckComputeInstanceLabel(&instance, "only_me", "nothing_else"),
+					testAccCheckComputeInstanceTag(&instance, "baz"),
+					testAccCheckComputeInstanceAccessConfig(&instance),
+					testAccCheckComputeInstanceHasStatusTerminated(&instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_statusTerminatedUpdateRequiringStopping(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasMachineType(&instance, "n1-standard-2"),
+					testAccCheckComputeInstanceHasStatusTerminated(&instance),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_statusTerminatedToRunning(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_statusRunning(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatusRunning(&instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_statusTerminated(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatusTerminated(&instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_statusRunning(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatusRunning(&instance),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_statusTerminatedOnCreation(t *testing.T) {
+	t.Parallel()
+
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeInstance_statusTerminated(instanceName),
+				ExpectError: regexp.MustCompile("On creation, status can only be RUNNING"),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -1744,6 +1855,16 @@ func testAccCheckComputeInstanceHasMinCpuPlatform(instance *compute.Instance, mi
 	}
 }
 
+func testAccCheckComputeInstanceHasMachineType(instance *compute.Instance, machineType string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if !strings.HasSuffix(instance.MachineType, "machineTypes/"+machineType) {
+			return fmt.Errorf("Wrong machine type: expected to end with %s, got %s", machineType, instance.MachineType)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceHasAliasIpRange(instance *compute.Instance, subnetworkRangeName, iPCidrRange string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, networkInterface := range instance.NetworkInterfaces {
@@ -1805,6 +1926,24 @@ func testAccCheckComputeInstanceLacksShieldedVmConfig(instance *computeBeta.Inst
 			return fmt.Errorf("Expected no shielded vm config")
 		}
 
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasStatusRunning(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.Status != "RUNNING" {
+			return fmt.Errorf("Instance is not RUNNING, state: %s", instance.Status)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasStatusTerminated(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.Status != "TERMINATED" {
+			return fmt.Errorf("Instance is not TERMINATED, state: %s", instance.Status)
+		}
 		return nil
 	}
 }
@@ -3715,6 +3854,148 @@ resource "google_compute_instance" "foobar" {
 	enable_display = false
 
 	allow_stopping_for_update = true
+}
+`, instance)
+}
+
+func testAccComputeInstance_statusRunning(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["foo", "bar"]
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	status = "RUNNING"
+
+	metadata = {
+		foo = "bar"
+	}
+}
+`, instance)
+}
+
+func testAccComputeInstance_statusTerminated(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["foo", "bar"]
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	status = "TERMINATED"
+
+	metadata = {
+		foo = "bar"
+	}
+}
+`, instance)
+}
+
+func testAccComputeInstance_statusTerminatedUpdate(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["baz"]
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+		access_config { }
+	}
+
+	status = "TERMINATED"
+
+	metadata = {
+		bar = "baz"
+	}
+
+	labels = {
+		only_me = "nothing_else"
+	}
+}
+`, instance)
+}
+
+func testAccComputeInstance_statusTerminatedUpdateRequiringStopping(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-2"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["baz"]
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+		access_config { }
+	}
+
+	status = "TERMINATED"
+
+	metadata = {
+		bar = "baz"
+	}
+
+	labels = {
+		only_me = "nothing_else"
+	}
 }
 `, instance)
 }

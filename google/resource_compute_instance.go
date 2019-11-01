@@ -12,6 +12,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/mitchellh/hashstructure"
@@ -563,6 +564,13 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
+			"status": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "RUNNING",
+				ValidateFunc: validation.StringInSlice([]string{"RUNNING", "TERMINATED"}, false),
+			},
+
 			"tags": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -716,6 +724,10 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 	accels, err := expandInstanceGuestAccelerators(d, config)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating guest accelerators: %s", err)
+	}
+
+	if d.Get("status") != "RUNNING" {
+		return nil, fmt.Errorf("On creation, status can only be RUNNING")
 	}
 
 	// Create the instance information
@@ -969,7 +981,57 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("name", instance.Name)
 	d.Set("description", instance.Description)
 	d.Set("hostname", instance.Hostname)
+	waitUntilInstanceHaveTheExpectedStatus(config, d)
+	d.Set("status", instance.Status)
 	d.SetId(instance.Name)
+
+	return nil
+}
+
+func getAllStatusExcept(exceptedStatus string) []string {
+	allStatus := []string{
+		"PROVISIONING",
+		"REPAIRING",
+		"RUNNING",
+		"STAGING",
+		"STOPPED",
+		"STOPPING",
+		"SUSPENDED",
+		"SUSPENDING",
+		"TERMINATED",
+	}
+	for i, status := range allStatus {
+		if exceptedStatus == status {
+			return append(allStatus[:i], allStatus[i+1:]...)
+		}
+	}
+	return nil
+}
+
+func waitUntilInstanceHaveTheExpectedStatus(config *Config, d *schema.ResourceData) error {
+	expectedStatus := d.Get("status").(string)
+	stateRefreshFunc := func() (interface{}, string, error) {
+		instance, err := getInstance(config, d)
+		if err != nil || instance == nil {
+			log.Printf("Error on InstanceStateRefresh: %s", err)
+			return nil, "", err
+		}
+		return instance.Id, instance.Status, nil
+	}
+	stateChangeConf := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    getAllStatusExcept(expectedStatus),
+		Refresh:    stateRefreshFunc,
+		Target:     []string{expectedStatus},
+		Timeout:    120 * time.Second,
+		MinTimeout: 5 * time.Second,
+	}
+	_, err := stateChangeConf.WaitForState()
+
+	if err != nil {
+		return fmt.Errorf(
+			"Error waiting for instance to reach status %s: %s", expectedStatus, err)
+	}
 
 	return nil
 }
@@ -1099,6 +1161,31 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		d.SetPartial("scheduling")
+	}
+
+	if d.HasChange("status") {
+		var op *compute.Operation
+		expectedStatus := d.Get("status").(string)
+		if expectedStatus == "RUNNING" {
+			op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+			if err != nil {
+				return err
+			}
+		} else if expectedStatus == "TERMINATED" {
+			op, err = config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+			if err != nil {
+				return err
+			}
+		} else {
+			return errors.New(fmt.Sprintf(
+				"Unknown status : %s", expectedStatus,
+			))
+		}
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating status", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		if opErr != nil {
+			return opErr
+		}
+		d.SetPartial("status")
 	}
 
 	networkInterfacesCount := d.Get("network_interface.#").(int)
@@ -1337,18 +1424,22 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	// Attributes which can only be changed if the instance is stopped
 	if scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") {
-		if !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, or enable display on an instance requires stopping it. " +
-				"To acknowledge this, please set allow_stopping_for_update = true in your config.")
-		}
-		op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
-		if err != nil {
-			return errwrap.Wrapf("Error stopping instance: {{err}}", err)
-		}
+		status := d.Get("status").(string)
 
-		opErr := computeOperationWaitTime(config.clientCompute, op, project, "stopping instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-		if opErr != nil {
-			return opErr
+		if status != "TERMINATED" {
+			if !d.Get("allow_stopping_for_update").(bool) {
+				return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, or enable display on an instance requires stopping it. " +
+					"To acknowledge this, please set allow_stopping_for_update = true in your config.")
+			}
+			op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+			if err != nil {
+				return errwrap.Wrapf("Error stopping instance: {{err}}", err)
+			}
+
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "stopping instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
 		}
 
 		if d.HasChange("machine_type") {
@@ -1359,7 +1450,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			req := &compute.InstancesSetMachineTypeRequest{
 				MachineType: mt.RelativeLink(),
 			}
-			op, err = config.clientCompute.Instances.SetMachineType(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.SetMachineType(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
@@ -1381,7 +1472,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			req := &compute.InstancesSetMinCpuPlatformRequest{
 				MinCpuPlatform: minCpuPlatform.(string),
 			}
-			op, err = config.clientCompute.Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
@@ -1400,7 +1491,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				req.Email = saMap["email"].(string)
 				req.Scopes = canonicalizeServiceScopes(convertStringSet(saMap["scopes"].(*schema.Set)))
 			}
-			op, err = config.clientCompute.Instances.SetServiceAccount(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.SetServiceAccount(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
@@ -1416,7 +1507,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				EnableDisplay:   d.Get("enable_display").(bool),
 				ForceSendFields: []string{"EnableDisplay"},
 			}
-			op, err = config.clientCompute.Instances.UpdateDisplayDevice(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.UpdateDisplayDevice(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return fmt.Errorf("Error updating display device: %s", err)
 			}
@@ -1427,14 +1518,16 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			d.SetPartial("enable_display")
 		}
 
-		op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
-		if err != nil {
-			return errwrap.Wrapf("Error starting instance: {{err}}", err)
-		}
+		if status != "TERMINATED" {
+			op, err := config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+			if err != nil {
+				return errwrap.Wrapf("Error starting instance: {{err}}", err)
+			}
 
-		opErr = computeOperationWaitTime(config.clientCompute, op, project, "starting instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-		if opErr != nil {
-			return opErr
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "starting instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
 		}
 	}
 
