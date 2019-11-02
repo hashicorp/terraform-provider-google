@@ -35,7 +35,10 @@ resource "google_compute_region_instance_group_manager" "appserver" {
   name = "appserver-igm"
 
   base_instance_name         = "app"
-  instance_template          = "${google_compute_instance_template.appserver.self_link}"
+
+  version {
+    instance_template        = "${google_compute_instance_template.appserver.self_link}"
+  }
   region                     = "us-central1"
   distribution_policy_zones  = ["us-central1-a", "us-central1-f"]
 
@@ -55,13 +58,12 @@ resource "google_compute_region_instance_group_manager" "appserver" {
 
 ```
 
-## Example Usage with multiple versions (`google-beta` provider)
+## Example Usage with multiple versions
 ```hcl
 resource "google_compute_region_instance_group_manager" "appserver" {
   name = "appserver-igm"
 
   base_instance_name = "app"
-  update_strategy    = "NONE"
   region             = "us-central1"
 
   target_size  = 5
@@ -90,13 +92,16 @@ The following arguments are supported:
     appending a hyphen and a random four-character string to the base instance
     name.
 
-* `instance_template` - (Required, [GA](https://terraform.io/docs/providers/google/provider_versions.html)) The full URL to an instance template from
-    which all new instances will be created. This field is only present in the
-    `google` provider.
+* `instance_template` - (Deprecated) The
+  full URL to an instance template from which all new instances
+  will be created. This field is replaced by `version.instance_template`. You must
+  specify at least one `version` block with an `instance_template`.
 
-* `version` - (Required, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Application versions managed by this instance group. Each
+* `version` - (Optional) Application versions managed by this instance group. Each
     version deals with a specific instance template, allowing canary release scenarios.
     Structure is documented below.
+    Until `instance_template` is removed this field will be Optional to allow for a
+    graceful upgrade. In the Beta provider and as of 3.0.0 it will be Required.
 
 * `name` - (Required) The name of the instance group manager. Must be 1-63
     characters long and comply with
@@ -130,11 +135,11 @@ The following arguments are supported:
 
 ---
 
-* `auto_healing_policies` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The autohealing policies for this managed instance
+* `auto_healing_policies` - (Optional) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 
 
-* `update_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/regionInstanceGroupManagers/patch)
+* `update_policy` - (Optional) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/regionInstanceGroupManagers/patch)
 
 
 * `distribution_policy_zones` - (Optional) The distribution policy for this managed instance
