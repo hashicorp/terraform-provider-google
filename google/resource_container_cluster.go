@@ -520,15 +520,18 @@ func resourceContainerCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"use_ip_aliases": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
-							ForceNew: true,
+							Type:       schema.TypeBool,
+							Deprecated: "This field is being removed in 3.0.0. If set to true, remove it from your config. If false, remove i.",
+							Optional:   true,
+							Default:    true,
+							ForceNew:   true,
 						},
 
 						// GKE creates subnetwork automatically
 						"create_subnetwork": {
 							Type:          schema.TypeBool,
+							Deprecated:    "This field is being removed in 3.0.0. Define an explicit google_compute_subnetwork and use subnetwork instead.",
+							Computed:      true,
 							Optional:      true,
 							ForceNew:      true,
 							ConflictsWith: ipAllocationRangeFields,
@@ -536,6 +539,8 @@ func resourceContainerCluster() *schema.Resource {
 
 						"subnetwork_name": {
 							Type:          schema.TypeString,
+							Deprecated:    "This field is being removed in 3.0.0. Define an explicit google_compute_subnetwork and use subnetwork instead.",
+							Computed:      true,
 							Optional:      true,
 							ForceNew:      true,
 							ConflictsWith: ipAllocationRangeFields,
@@ -560,8 +565,9 @@ func resourceContainerCluster() *schema.Resource {
 						},
 						"node_ipv4_cidr_block": {
 							Type:             schema.TypeString,
-							Optional:         true,
+							Deprecated:       "This field is being removed in 3.0.0. Define an explicit google_compute_subnetwork and use subnetwork instead.",
 							Computed:         true,
+							Optional:         true,
 							ForceNew:         true,
 							ConflictsWith:    ipAllocationRangeFields,
 							DiffSuppressFunc: cidrOrSizeDiffSuppress,
