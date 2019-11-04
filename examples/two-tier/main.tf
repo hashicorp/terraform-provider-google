@@ -58,21 +58,7 @@ resource "google_compute_instance" "www" {
     destination = var.install_script_dest_path
 
     connection {
-      host = coalesce( # Simplify this to reference a specific desired IP address, if possible.
-        concat(
-          # Prefer any available NAT IP address
-          flatten([
-            for ni in self.network_interface : [
-              for ac in ni.access_config : ac.nat_ip
-            ]
-          ]),
-
-          # Otherwise, use the first available LAN IP address
-          [
-            for ni in self.network_interface : ni.network_ip
-          ],
-        )...
-      )
+      host        = self.network_interface.0.access_config.0.nat_ip
       type        = "ssh"
       user        = "root"
       private_key = file(var.private_key_path)
@@ -82,21 +68,7 @@ resource "google_compute_instance" "www" {
 
   provisioner "remote-exec" {
     connection {
-      host = coalesce( # Simplify this to reference a specific desired IP address, if possible.
-        concat(
-          # Prefer any available NAT IP address
-          flatten([
-            for ni in self.network_interface : [
-              for ac in ni.access_config : ac.nat_ip
-            ]
-          ]),
-
-          # Otherwise, use the first available LAN IP address
-          [
-            for ni in self.network_interface : ni.network_ip
-          ],
-        )...
-      )
+      host        = self.network_interface.0.access_config.0.nat_ip
       type        = "ssh"
       user        = "root"
       private_key = file(var.private_key_path)
