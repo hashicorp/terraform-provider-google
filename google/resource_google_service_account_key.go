@@ -31,9 +31,10 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"KEY_ALG_UNSPECIFIED", "KEY_ALG_RSA_1024", "KEY_ALG_RSA_2048"}, false),
 			},
 			"pgp_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Deprecated: "The pgp_key field has been deprecated and support for encrypting values in state will be removed in version 3.0.0. See https://www.terraform.io/docs/extend/best-practices/sensitive-state.html for more information.",
 			},
 			"private_key_type": {
 				Type:         schema.TypeString,
