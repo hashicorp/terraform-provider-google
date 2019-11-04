@@ -214,12 +214,10 @@ func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
 		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSubnetwork_flowLogs(cnName, subnetworkName, true),
+				Config: testAccComputeSubnetwork_flowLogs(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
 						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
-					resource.TestCheckResourceAttr("google_compute_subnetwork.network-with-flow-logs",
-						"enable_flow_logs", "true"),
 				),
 			},
 			{
@@ -228,12 +226,75 @@ func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeSubnetwork_flowLogs(cnName, subnetworkName, false),
+				Config: testAccComputeSubnetwork_flowLogsUpdate(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
 						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
-					resource.TestCheckResourceAttr("google_compute_subnetwork.network-with-flow-logs",
-						"enable_flow_logs", "false"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.network-with-flow-logs",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSubnetwork_flowLogsDelete(cnName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(
+						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+				),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.network-with-flow-logs",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeSubnetwork_flowLogsMigrate(t *testing.T) {
+	t.Parallel()
+
+	var subnetwork compute.Subnetwork
+
+	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_flowLogsMigrate(cnName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(
+						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+				),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.network-with-flow-logs",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSubnetwork_flowLogsMigrate2(cnName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(
+						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+				),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.network-with-flow-logs",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSubnetwork_flowLogsMigrate3(cnName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(
+						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
 				),
 			},
 			{
@@ -259,6 +320,7 @@ func testAccCheckComputeSubnetworkExists(n string, subnetwork *compute.Subnetwor
 		config := testAccProvider.Meta().(*Config)
 
 		region, subnet_name := splitSubnetID(rs.Primary.ID)
+
 		found, err := config.clientCompute.Subnetworks.Get(
 			config.Project, region, subnet_name).Do()
 		if err != nil {
@@ -382,7 +444,6 @@ resource "google_compute_subnetwork" "network-with-private-google-access" {
 	region = "us-central1"
 	network = "${google_compute_network.custom-test.self_link}"
 
-    enable_flow_logs = true
 	secondary_ip_range {
 		range_name = "tf-test-secondary-range-update"
 		ip_cidr_range = "192.168.10.0/24"
@@ -476,7 +537,7 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
 `, cnName, subnetworkName)
 }
 
-func testAccComputeSubnetwork_flowLogs(cnName, subnetworkName string, enableLogs bool) string {
+func testAccComputeSubnetwork_flowLogs(cnName, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "custom-test" {
 	name = "%s"
@@ -488,7 +549,116 @@ resource "google_compute_subnetwork" "network-with-flow-logs" {
 	ip_cidr_range = "10.0.0.0/16"
 	region = "us-central1"
 	network = "${google_compute_network.custom-test.self_link}"
-	enable_flow_logs = %v
+	enable_flow_logs = true
+	log_config {
+		aggregation_interval = "INTERVAL_5_SEC"
+		flow_sampling        = 0.5
+		metadata             = "INCLUDE_ALL_METADATA"
+	}
 }
-`, cnName, subnetworkName, enableLogs)
+`, cnName, subnetworkName)
+}
+
+func testAccComputeSubnetwork_flowLogsUpdate(cnName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+	name = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "network-with-flow-logs" {
+	name = "%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region = "us-central1"
+	network = "${google_compute_network.custom-test.self_link}"
+	enable_flow_logs = true
+	log_config {
+		aggregation_interval = "INTERVAL_30_SEC"
+		flow_sampling        = 0.8
+		metadata             = "EXCLUDE_ALL_METADATA"
+	}
+}
+`, cnName, subnetworkName)
+}
+
+func testAccComputeSubnetwork_flowLogsDelete(cnName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+	name = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "network-with-flow-logs" {
+	name = "%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region = "us-central1"
+	network = "${google_compute_network.custom-test.self_link}"
+	enable_flow_logs = false
+}
+`, cnName, subnetworkName)
+}
+
+func testAccComputeSubnetwork_flowLogsMigrate(cnName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+	name = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "network-with-flow-logs" {
+	name = "%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region = "us-central1"
+	network = "${google_compute_network.custom-test.self_link}"
+	enable_flow_logs = true
+	log_config {
+		aggregation_interval = "INTERVAL_30_SEC"
+		flow_sampling        = 0.6
+		metadata             = "INCLUDE_ALL_METADATA"
+	}
+}
+`, cnName, subnetworkName)
+}
+
+func testAccComputeSubnetwork_flowLogsMigrate2(cnName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+	name = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "network-with-flow-logs" {
+	name = "%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region = "us-central1"
+	network = "${google_compute_network.custom-test.self_link}"
+	log_config {
+		aggregation_interval = "INTERVAL_30_SEC"
+		flow_sampling        = 0.7
+		metadata             = "INCLUDE_ALL_METADATA"
+	}
+}
+`, cnName, subnetworkName)
+}
+
+func testAccComputeSubnetwork_flowLogsMigrate3(cnName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+	name = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "network-with-flow-logs" {
+	name = "%s"
+	ip_cidr_range = "10.0.0.0/16"
+	region = "us-central1"
+	network = "${google_compute_network.custom-test.self_link}"
+	enable_flow_logs = true
+	log_config {
+		aggregation_interval = "INTERVAL_30_SEC"
+		flow_sampling        = 0.8
+		metadata             = "INCLUDE_ALL_METADATA"
+	}
+}
+`, cnName, subnetworkName)
 }
