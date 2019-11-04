@@ -93,6 +93,104 @@ provider "google" {
 
 ## Resource: `google_container_cluster`
 
+### Automatic subnetwork creation for VPC-native clusters removed
+
+Automatic creation of subnetworks in GKE has been removed. Now, users of
+VPC-native clusters will always need to provide a `google_compute_subnetwork`
+resource to use `ip_allocation_policy`. Routes-based clusters are unaffected.
+
+Representing resources managed by another source in Terraform is painful, and
+leads to confusing patterns that often involve unnecessarily recreating user
+resources. A number of fields in GKE are dedicated to a feature that allows
+users to create a GKE-managed subnetwork.
+
+This is a great fit for an imperative tool like `gcloud`, but it's not required
+for Terraform. With Terraform, it's relatively easy to specify a subnetwork in
+config alongside the cluster. Not only does that allow configuring subnetwork
+features like flow logging, it's more explicit, allows the subnetwork to be used
+by other resources, and the subnetwork persists through cluster deletion.
+
+Particularly, Shared VPC was incompatible with `create_subnetwork`, and
+`node_ipv4_cidr` was easy to confuse with
+`ip_allocation_policy.node_ipv4_cidr_block`.
+
+#### Detailed changes:
+
+* `ip_allocation_policy.node_ipv4_cidr_block` removed (This controls the primary range of the created subnetwork)
+* `ip_allocation_policy.create_subnetwork`, `ip_allocation_policy.subnetwork_name` removed
+* `ip_allocation_policy.use_ip_aliases` removed
+  * Enablement is now based on `ip_allocation_policy` being defined instead
+* Conflict added between `node_ipv4_cidr`, `ip_allocation_policy`
+
+#### Upgrade instructions
+
+1. Remove the removed fields from `google_container_cluster`
+1. Add a `google_compute_subnetwork` to your config, import it using `terraform import`
+1. Reference the subnetwork using the `subnetwork` field on your `google_container_cluster`
+
+-> Subnetworks originally created as part of `create_subnetwork` will be deleted
+alongside the cluster. If there are other users of the subnetwork, deletion of
+the cluster will fail. After the original resources are deleted,
+`terraform apply` will recreate the same subnetwork except that it won't be
+managed by a GKE cluster and other resources can use it safely.
+
+#### Old Config
+
+```hcl
+resource "google_compute_network" "container_network" {
+  name                    = "container-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_container_cluster" "primary" {
+  name       = "my-cluster"
+  location   = "us-central1"
+  network    = "${google_compute_network.container_network.name}"
+
+  initial_node_count = 1
+
+  ip_allocation_policy {
+    use_ip_aliases           = true
+    create_subnetwork        = true
+    cluster_ipv4_cidr_block  = "10.0.0.0/16"
+    services_ipv4_cidr_block = "10.1.0.0/16"
+    node_ipv4_cidr_block     = "10.2.0.0/16"
+  }
+}
+```
+
+#### New Config
+
+```hcl
+resource "google_compute_network" "container_network" {
+  name                    = "container-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+  name          = "container-subnetwork"
+  description   = "auto-created subnetwork for cluster \"my-cluster\""
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = "${google_compute_network.container_network.self_link}"
+}
+
+resource "google_container_cluster" "primary" {
+  name       = "my-cluster"
+  location   = "us-central1"
+  network    = "${google_compute_network.container_network.name}"
+  subnetwork = "${google_compute_subnetwork.container_subnetwork.name}"
+
+  initial_node_count = 1
+
+  ip_allocation_policy {
+    use_ip_aliases           = true
+    cluster_ipv4_cidr_block  = "10.0.0.0/16"
+    services_ipv4_cidr_block = "10.1.0.0/16"
+  }
+}
+```
+
 ### `logging_service` and `monitoring_service` defaults changed
 
 GKE Stackdriver Monitoring (the GKE-specific Stackdriver experience) is now

@@ -1059,6 +1059,17 @@ func TestAccContainerCluster_withIPAllocationPolicy_createSubnetwork(t *testing.
 				ImportState:         true,
 				ImportStateVerify:   true,
 			},
+			{
+				Config:             testAccContainerCluster_withIPAllocationPolicy_createSubnetworkUpdated(cluster),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+			{
+				ResourceName:        "google_container_cluster.with_ip_allocation_policy",
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
 		},
 	})
 }
@@ -2197,27 +2208,67 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
 
 func testAccContainerCluster_withIPAllocationPolicy_createSubnetwork(cluster string) string {
 	return fmt.Sprintf(`
-resource "google_container_cluster" "with_ip_allocation_policy" {
-	name = "%s"
-	zone = "us-central1-a"
+resource "google_compute_network" "container_network" {
+  name                    = "%s-network"
+  auto_create_subnetworks = false
+}
 
-	initial_node_count = 1
-	ip_allocation_policy {
-		use_ip_aliases    = true
-		create_subnetwork = true
-	}
-}`, cluster)
+resource "google_container_cluster" "with_ip_allocation_policy" {
+  name       = "%s"
+  location   = "us-central1-a"
+  network    = "${google_compute_network.container_network.name}"
+
+  initial_node_count = 1
+
+  ip_allocation_policy {
+    use_ip_aliases           = true
+    create_subnetwork        = true
+    subnetwork_name          = "%s-subnet"
+    cluster_ipv4_cidr_block  = "10.0.0.0/16"
+    services_ipv4_cidr_block = "10.1.0.0/16"
+    node_ipv4_cidr_block     = "10.2.0.0/16"
+  }
+}`, cluster, cluster, cluster)
+}
+
+func testAccContainerCluster_withIPAllocationPolicy_createSubnetworkUpdated(cluster string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+  name                    = "%s-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_container_cluster" "with_ip_allocation_policy" {
+  name       = "%s"
+  location   = "us-central1-a"
+  network    = "${google_compute_network.container_network.name}"
+  subnetwork = "%s-subnet"
+
+  initial_node_count = 1
+
+   ip_allocation_policy {
+     use_ip_aliases           = true
+     cluster_ipv4_cidr_block  = "10.0.0.0/16"
+     services_ipv4_cidr_block = "10.1.0.0/16"
+   }
+}`, cluster, cluster, cluster)
 }
 
 func testAccContainerCluster_withIPAllocationPolicy_explicitEmpty(cluster string) string {
 	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+  name                    = "%s-network"
+  auto_create_subnetworks = false
+}
+
 resource "google_container_cluster" "with_ip_allocation_policy" {
 	name = "%s"
 	zone = "us-central1-a"
 
 	initial_node_count = 1
+
 	ip_allocation_policy = []
-}`, cluster)
+}`, cluster, cluster)
 }
 
 func testAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(clusterName string) string {
