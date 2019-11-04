@@ -29,9 +29,6 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 			{
 				// Create one endpoint
 				Config: testAccComputeNetworkEndpoint_networkEndpointsBasic(context),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeNetworkEndpointWithPortExists("google_compute_network_endpoint.default", "90"),
-				),
 			},
 			{
 				ResourceName:      "google_compute_network_endpoint.default",
@@ -42,18 +39,32 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 				// Force-recreate old endpoint
 				Config: testAccComputeNetworkEndpoint_networkEndpointsModified(context),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeNetworkEndpointWithPortExists("google_compute_network_endpoint.default", "100"),
 					testAccCheckComputeNetworkEndpointWithPortsDestroyed(negId, "90"),
 				),
 			},
 			{
+				ResourceName:      "google_compute_network_endpoint.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				// Add two new endpoints
 				Config: testAccComputeNetworkEndpoint_networkEndpointsAdditional(context),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeNetworkEndpointWithPortExists("google_compute_network_endpoint.default", "100"),
-					testAccCheckComputeNetworkEndpointWithPortExists("google_compute_network_endpoint.add1", "101"),
-					testAccCheckComputeNetworkEndpointWithPortExists("google_compute_network_endpoint.add2", "102"),
-				),
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.add1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.add2",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// delete all endpoints
@@ -166,42 +177,6 @@ data "google_compute_image" "my_image" {
  project = "debian-cloud"
 }
 `, context)
-}
-
-// testAccCheckComputeNetworkEndpointExists makes sure the resource with given
-// (Terraform) name exists, and returns identifying information about the
-// existing endpoint
-func testAccCheckComputeNetworkEndpointWithPortExists(name, port string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[name]
-		if !ok {
-			return fmt.Errorf("resource %q not in path %q", name, s.RootModule().Path)
-		}
-
-		if rs.Type != "google_compute_network_endpoint" {
-			return fmt.Errorf("resource %q has unexpected type %q", name, rs.Type)
-		}
-
-		if rs.Primary.Attributes["port"] != port {
-			return fmt.Errorf("unexpected port %s for resource %s, expected %s", rs.Primary.Attributes["port"], name, port)
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		negResourceId, err := replaceVarsForTest(config, rs, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{network_endpoint_group}}")
-		if err != nil {
-			return fmt.Errorf("creating URL for getting network endpoint %q failed: %v", name, err)
-		}
-
-		foundPorts, err := testAccComputeNetworkEndpointsListEndpointPorts(negResourceId)
-		if err != nil {
-			return fmt.Errorf("unable to confirm endpoints with port %s exists: %v", port, err)
-		}
-		if _, ok := foundPorts[port]; !ok {
-			return fmt.Errorf("did not find endpoint with port %s", port)
-		}
-		return nil
-	}
 }
 
 // testAccCheckComputeNetworkEndpointDestroyed makes sure the endpoint with
