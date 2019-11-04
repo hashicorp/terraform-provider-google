@@ -2,18 +2,13 @@ package google
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"google.golang.org/api/compute/v1"
 )
 
 func TestAccComputeRegionAutoscaler_update(t *testing.T) {
-	var ascaler compute.Autoscaler
-
 	var it_name = fmt.Sprintf("region-autoscaler-test-%s", acctest.RandString(10))
 	var tp_name = fmt.Sprintf("region-autoscaler-test-%s", acctest.RandString(10))
 	var igm_name = fmt.Sprintf("region-autoscaler-test-%s", acctest.RandString(10))
@@ -26,80 +21,22 @@ func TestAccComputeRegionAutoscaler_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeRegionAutoscalerExists(
-						"google_compute_region_autoscaler.foobar", &ascaler),
-				),
+			},
+			{
+				ResourceName:      "google_compute_region_autoscaler.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccComputeRegionAutoscaler_update(it_name, tp_name, igm_name, autoscaler_name),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeRegionAutoscalerExists(
-						"google_compute_region_autoscaler.foobar", &ascaler),
-					testAccCheckComputeRegionAutoscalerUpdated(
-						"google_compute_region_autoscaler.foobar", 10),
-				),
+			},
+			{
+				ResourceName:      "google_compute_region_autoscaler.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
-}
-
-func testAccCheckComputeRegionAutoscalerExists(n string, ascaler *compute.Autoscaler) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		idParts := strings.Split(rs.Primary.ID, "/")
-		region, name := idParts[0], idParts[1]
-		found, err := config.clientCompute.RegionAutoscalers.Get(config.Project, region, name).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != name {
-			return fmt.Errorf("Autoscaler not found")
-		}
-
-		*ascaler = *found
-
-		return nil
-	}
-}
-
-func testAccCheckComputeRegionAutoscalerUpdated(n string, max int64) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		idParts := strings.Split(rs.Primary.ID, "/")
-		region, name := idParts[0], idParts[1]
-		ascaler, err := config.clientCompute.RegionAutoscalers.Get(config.Project, region, name).Do()
-		if err != nil {
-			return err
-		}
-
-		if ascaler.AutoscalingPolicy.MaxNumReplicas != max {
-			return fmt.Errorf("maximum replicas incorrect")
-		}
-
-		return nil
-	}
 }
 
 func testAccComputeRegionAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name string) string {
