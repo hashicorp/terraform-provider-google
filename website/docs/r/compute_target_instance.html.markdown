@@ -25,7 +25,7 @@ description: |-
 Represents a TargetInstance resource which defines an endpoint instance
 that terminates traffic of certain protocols. In particular, they are used
 in Protocol Forwarding, where forwarding rules can send packets to a
-non-NAT’ed target instance. Each target instance contains a single
+non-NAT'ed target instance. Each target instance contains a single
 virtual machine instance that receives and handles traffic from the
 corresponding forwarding rules.
 
