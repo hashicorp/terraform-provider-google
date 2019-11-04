@@ -35,9 +35,11 @@ resource "google_compute_instance_group_manager" "appserver" {
   name = "appserver-igm"
 
   base_instance_name = "app"
-  instance_template  = "${google_compute_instance_template.appserver.self_link}"
-  update_strategy    = "NONE"
   zone               = "us-central1-a"
+
+  version {
+    instance_template  = "${google_compute_instance_template.appserver.self_link}"
+  }
 
   target_pools = ["${google_compute_target_pool.appserver.self_link}"]
   target_size  = 2
@@ -91,13 +93,16 @@ The following arguments are supported:
     appending a hyphen and a random four-character string to the base instance
     name.
 
-* `instance_template` - (Required, [GA](https://terraform.io/docs/providers/google/provider_versions.html)) The
+* `instance_template` - (Deprecated) The
   full URL to an instance template from which all new instances
-  will be created. This field is only present in the `google` provider.
+  will be created. This field is replaced by `version.instance_template`. You must
+  specify at least one `version` block with an `instance_template`.
 
-* `version` - (Required, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Application versions managed by this instance group. Each
+* `version` - (Optional) Application versions managed by this instance group. Each
     version deals with a specific instance template, allowing canary release scenarios.
     Structure is documented below.
+    Until `instance_template` is removed this field will be Optional to allow for a
+    graceful upgrade. In the Beta provider and as of 3.0.0 it will be Required.
 
 * `name` - (Required) The name of the instance group manager. Must be 1-63
     characters long and comply with
@@ -118,11 +123,8 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `update_strategy` - (Optional, Default `"REPLACE"`) If the `instance_template`
-    resource is modified, a value of `"NONE"` will prevent any of the managed
-    instances from being restarted by Terraform. A value of `"REPLACE"` will
-    restart all of the instances at once. This field is only present in the
-    `google` provider.
+* `update_strategy` - (Deprecated)  This field has been deprecated, use `update_policy`
+  instead.
 
 * `target_size` - (Optional) The target number of running instances for this managed
     instance group. This value should always be explicitly set unless this resource is attached to
@@ -138,10 +140,10 @@ The following arguments are supported:
 
 ---
 
-* `auto_healing_policies` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The autohealing policies for this managed instance
+* `auto_healing_policies` - (Optional) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 
-* `update_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/instanceGroupManagers/patch)
+* `update_policy` - (Optional) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/instanceGroupManagers/patch)
 - - -
 
 The `update_policy` block supports:
