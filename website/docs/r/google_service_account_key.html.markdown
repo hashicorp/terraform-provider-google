@@ -57,7 +57,6 @@ resource "google_service_account" "myaccount" {
 
 resource "google_service_account_key" "mykey" {
   service_account_id = "${google_service_account.myaccount.name}"
-  pgp_key = "keybase:keybaseusername"
   public_key_type = "TYPE_X509_PEM_FILE"
 }
 ```
@@ -79,13 +78,14 @@ Valid values are listed at
 
 * `private_key_type` (Optional) The output format of the private key. TYPE_GOOGLE_CREDENTIALS_FILE is the default output format.
 
-* `pgp_key` – (Optional) An optional PGP key to encrypt the resulting private
+* `pgp_key` – (Optional, Deprecated) An optional PGP key to encrypt the resulting private
 key material. Only used when creating or importing a new key pair. May either be
 a base64-encoded public key or a `keybase:keybaseusername` string for looking up
 in Vault.
 
-~> **NOTE:** a PGP key is not required, however it is strongly encouraged.
-Without a PGP key, the private key material will be stored in state unencrypted.
+~> **NOTE:** The pgp_key field has been deprecated and support for encrypting values in state will be removed in version 3.0.0.
+See https://www.terraform.io/docs/extend/best-practices/sensitive-state.html for more information.
+
 
 ## Attributes Reference
 
