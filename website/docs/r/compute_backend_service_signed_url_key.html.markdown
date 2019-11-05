@@ -62,7 +62,12 @@ resource "google_compute_backend_service" "example_backend" {
 
 resource "google_compute_instance_group_manager" "webservers" {
   name               = "my-webservers"
-  instance_template  = "${google_compute_instance_template.webserver.self_link}"
+
+  version {
+    instance_template  = "${google_compute_instance_template.webserver.self_link}"
+    name               = "primary"
+  }
+
   base_instance_name = "webserver"
   zone               = "us-central1-f"
   target_size        = 1
