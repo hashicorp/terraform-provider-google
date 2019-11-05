@@ -1240,7 +1240,7 @@ func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFu
 		if err != nil {
 			return fmt.Errorf("Could not stop instance: %s", err)
 		}
-		err = computeOperationWait(config.clientCompute, op, config.Project, "Waiting on stop")
+		err = computeOperationWaitTime(config.clientCompute, op, config.Project, "Waiting on stop", 20)
 		if err != nil {
 			return fmt.Errorf("Could not stop instance: %s", err)
 		}
@@ -1254,7 +1254,7 @@ func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFu
 		if err != nil {
 			return fmt.Errorf("Could not change machine type: %s", err)
 		}
-		err = computeOperationWait(config.clientCompute, op, config.Project, "Waiting machine type change")
+		err = computeOperationWaitTime(config.clientCompute, op, config.Project, "Waiting machine type change", 20)
 		if err != nil {
 			return fmt.Errorf("Could not change machine type: %s", err)
 		}
