@@ -107,7 +107,6 @@ func testAccDataSourceComputeAddressCheck(data_source_name string, resource_name
 		rs_attr := rs.Primary.Attributes
 
 		address_attrs_to_test := []string{
-			"self_link",
 			"name",
 			"address",
 		}
@@ -121,6 +120,10 @@ func testAccDataSourceComputeAddressCheck(data_source_name string, resource_name
 					rs_attr[attr_to_check],
 				)
 			}
+		}
+
+		if !compareSelfLinkOrResourceName("", ds_attr["self_link"], rs_attr["self_link"], nil) && ds_attr["self_link"] != rs_attr["self_link"] {
+			return fmt.Errorf("self link does not match: %s vs %s", ds_attr["self_link"], rs_attr["self_link"])
 		}
 
 		if ds_attr["status"] != "RESERVED" {

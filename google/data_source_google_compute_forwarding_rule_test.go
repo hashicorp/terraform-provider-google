@@ -45,7 +45,6 @@ func testAccDataSourceGoogleForwardingRuleCheck(data_source_name string, resourc
 		rs_attr := rs.Primary.Attributes
 		forwarding_rule_attrs_to_test := []string{
 			"id",
-			"self_link",
 			"name",
 			"description",
 			"region",
@@ -70,6 +69,11 @@ func testAccDataSourceGoogleForwardingRuleCheck(data_source_name string, resourc
 				)
 			}
 		}
+
+		if !compareSelfLinkOrResourceName("", ds_attr["self_link"], rs_attr["self_link"], nil) && ds_attr["self_link"] != rs_attr["self_link"] {
+			return fmt.Errorf("self link does not match: %s vs %s", ds_attr["self_link"], rs_attr["self_link"])
+		}
+
 		return nil
 	}
 }

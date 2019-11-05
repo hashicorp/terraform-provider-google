@@ -43,7 +43,6 @@ func testAccDataSourceGoogleVpnGatewayCheck(data_source_name string, resource_na
 		rs_attr := rs.Primary.Attributes
 		vpn_gateway_attrs_to_test := []string{
 			"id",
-			"self_link",
 			"name",
 			"description",
 			"network",
@@ -59,6 +58,11 @@ func testAccDataSourceGoogleVpnGatewayCheck(data_source_name string, resource_na
 				)
 			}
 		}
+
+		if !compareSelfLinkOrResourceName("", ds_attr["self_link"], rs_attr["self_link"], nil) && ds_attr["self_link"] != rs_attr["self_link"] {
+			return fmt.Errorf("self link does not match: %s vs %s", ds_attr["self_link"], rs_attr["self_link"])
+		}
+
 		return nil
 	}
 }
