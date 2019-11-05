@@ -25,6 +25,7 @@ import (
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
+	cloudtasks "google.golang.org/api/cloudtasks/v2"
 	composer "google.golang.org/api/composer/v1beta1"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
@@ -182,6 +183,9 @@ type Config struct {
 
 	StorageTransferBasePath string
 	clientStorageTransfer   *storagetransfer.Service
+
+	CloudTasksBasePath string
+	clientCloudTasks   *cloudtasks.Service
 
 	bigtableClientFactory *BigtableClientFactory
 	BigtableAdminBasePath string
@@ -585,6 +589,16 @@ func (c *Config) LoadAndValidate() error {
 	c.requestBatcherServiceUsage = NewRequestBatcher("Service Usage", context, c.BatchingConfig)
 	c.requestBatcherIam = NewRequestBatcher("IAM", context, c.BatchingConfig)
 
+	cloudTasksClientBasePath := removeBasePathVersion(c.CloudTasksBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Tasks client for path %s", cloudTasksClientBasePath)
+	c.clientCloudTasks, err = cloudtasks.NewService(context, option.WithHTTPClient(client))
+	if err != nil {
+		return err
+	}
+
+	c.clientCloudTasks.UserAgent = userAgent
+	c.clientCloudTasks.BasePath = cloudTasksClientBasePath
+
 	return nil
 }
 
@@ -712,4 +726,5 @@ func ConfigureBasePaths(c *Config) {
 	c.CloudIoTBasePath = CloudIoTDefaultBasePath
 	c.StorageTransferBasePath = StorageTransferDefaultBasePath
 	c.BigtableAdminBasePath = BigtableAdminDefaultBasePath
+	c.CloudTasksBasePath = CloudTasksDefaultBasePath
 }
