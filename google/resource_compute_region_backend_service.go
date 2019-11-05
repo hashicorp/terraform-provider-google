@@ -86,7 +86,8 @@ func resourceComputeRegionBackendService() *schema.Resource {
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"INTERNAL", ""}, false),
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"INTERNAL", "INTERNAL_MANAGED", ""}, false),
 				Default:      "INTERNAL",
 			},
 			"protocol": {
@@ -99,19 +100,22 @@ func resourceComputeRegionBackendService() *schema.Resource {
 				Type:             schema.TypeString,
 				Computed:         true,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"session_affinity": {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"NONE", "CLIENT_IP", "CLIENT_IP_PROTO", "CLIENT_IP_PORT_PROTO", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", ""}, false),
 			},
 			"timeout_sec": {
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
+			},
+			"creation_timestamp": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"fingerprint": {
 				Type:     schema.TypeString,
@@ -134,14 +138,53 @@ func resourceComputeRegionBackendService() *schema.Resource {
 func computeRegionBackendServiceBackendSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"group": {
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: compareSelfLinkRelativePaths,
+			},
+			"balancing_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"UTILIZATION", "RATE", "CONNECTION", ""}, false),
+				Default:      "CONNECTION",
+			},
+			"capacity_scaler": {
+				Type:     schema.TypeFloat,
+				Computed: true,
+				Optional: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"group": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				DiffSuppressFunc: compareSelfLinkRelativePaths,
+			"max_connections": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"max_connections_per_endpoint": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"max_connections_per_instance": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"max_rate": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"max_rate_per_endpoint": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+			},
+			"max_rate_per_instance": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+			},
+			"max_utilization": {
+				Type:     schema.TypeFloat,
+				Optional: true,
 			},
 		},
 	}
@@ -151,23 +194,17 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandComputeRegionBackendServiceName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	healthChecksProp, err := expandComputeRegionBackendServiceHealthChecks(d.Get("health_checks"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("health_checks"); !isEmptyValue(reflect.ValueOf(healthChecksProp)) && (ok || !reflect.DeepEqual(v, healthChecksProp)) {
-		obj["healthChecks"] = healthChecksProp
-	}
 	backendsProp, err := expandComputeRegionBackendServiceBackend(d.Get("backend"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("backend"); !isEmptyValue(reflect.ValueOf(backendsProp)) && (ok || !reflect.DeepEqual(v, backendsProp)) {
 		obj["backends"] = backendsProp
+	}
+	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
+	if err != nil {
+		return err
+	} else if !isEmptyValue(reflect.ValueOf(connectionDrainingProp)) {
+		obj["connectionDraining"] = connectionDrainingProp
 	}
 	descriptionProp, err := expandComputeRegionBackendServiceDescription(d.Get("description"), d, config)
 	if err != nil {
@@ -181,6 +218,24 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("fingerprint"); !isEmptyValue(reflect.ValueOf(fingerprintProp)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
 		obj["fingerprint"] = fingerprintProp
 	}
+	healthChecksProp, err := expandComputeRegionBackendServiceHealthChecks(d.Get("health_checks"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("health_checks"); !isEmptyValue(reflect.ValueOf(healthChecksProp)) && (ok || !reflect.DeepEqual(v, healthChecksProp)) {
+		obj["healthChecks"] = healthChecksProp
+	}
+	loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !isEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
+		obj["loadBalancingScheme"] = loadBalancingSchemeProp
+	}
+	nameProp, err := expandComputeRegionBackendServiceName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
 	protocolProp, err := expandComputeRegionBackendServiceProtocol(d.Get("protocol"), d, config)
 	if err != nil {
 		return err
@@ -193,29 +248,17 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("session_affinity"); !isEmptyValue(reflect.ValueOf(sessionAffinityProp)) && (ok || !reflect.DeepEqual(v, sessionAffinityProp)) {
 		obj["sessionAffinity"] = sessionAffinityProp
 	}
-	regionProp, err := expandComputeRegionBackendServiceRegion(d.Get("region"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
-		obj["region"] = regionProp
-	}
 	timeoutSecProp, err := expandComputeRegionBackendServiceTimeoutSec(d.Get("timeout_sec"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("timeout_sec"); !isEmptyValue(reflect.ValueOf(timeoutSecProp)) && (ok || !reflect.DeepEqual(v, timeoutSecProp)) {
 		obj["timeoutSec"] = timeoutSecProp
 	}
-	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
+	regionProp, err := expandComputeRegionBackendServiceRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
-	} else if !isEmptyValue(reflect.ValueOf(connectionDrainingProp)) {
-		obj["connectionDraining"] = connectionDrainingProp
-	}
-	loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !isEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
-		obj["loadBalancingScheme"] = loadBalancingSchemeProp
+	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+		obj["region"] = regionProp
 	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices")
@@ -282,31 +325,7 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeRegionBackendServiceName(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("health_checks", flattenComputeRegionBackendServiceHealthChecks(res["healthChecks"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
 	if err := d.Set("backend", flattenComputeRegionBackendServiceBackend(res["backends"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("description", flattenComputeRegionBackendServiceDescription(res["description"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("fingerprint", flattenComputeRegionBackendServiceFingerprint(res["fingerprint"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("protocol", flattenComputeRegionBackendServiceProtocol(res["protocol"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("session_affinity", flattenComputeRegionBackendServiceSessionAffinity(res["sessionAffinity"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("region", flattenComputeRegionBackendServiceRegion(res["region"], d)); err != nil {
-		return fmt.Errorf("Error reading RegionBackendService: %s", err)
-	}
-	if err := d.Set("timeout_sec", flattenComputeRegionBackendServiceTimeoutSec(res["timeoutSec"], d)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 	// Terraform must set the top level schema field, but since this object contains collapsed properties
@@ -319,7 +338,34 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 			}
 		}
 	}
+	if err := d.Set("creation_timestamp", flattenComputeRegionBackendServiceCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("description", flattenComputeRegionBackendServiceDescription(res["description"], d)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("fingerprint", flattenComputeRegionBackendServiceFingerprint(res["fingerprint"], d)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("health_checks", flattenComputeRegionBackendServiceHealthChecks(res["healthChecks"], d)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	if err := d.Set("load_balancing_scheme", flattenComputeRegionBackendServiceLoadBalancingScheme(res["loadBalancingScheme"], d)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("name", flattenComputeRegionBackendServiceName(res["name"], d)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("protocol", flattenComputeRegionBackendServiceProtocol(res["protocol"], d)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("session_affinity", flattenComputeRegionBackendServiceSessionAffinity(res["sessionAffinity"], d)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("timeout_sec", flattenComputeRegionBackendServiceTimeoutSec(res["timeoutSec"], d)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("region", flattenComputeRegionBackendServiceRegion(res["region"], d)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -338,23 +384,17 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	}
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandComputeRegionBackendServiceName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	healthChecksProp, err := expandComputeRegionBackendServiceHealthChecks(d.Get("health_checks"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("health_checks"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, healthChecksProp)) {
-		obj["healthChecks"] = healthChecksProp
-	}
 	backendsProp, err := expandComputeRegionBackendServiceBackend(d.Get("backend"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("backend"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backendsProp)) {
 		obj["backends"] = backendsProp
+	}
+	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("connection_draining"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, connectionDrainingProp)) {
+		obj["connectionDraining"] = connectionDrainingProp
 	}
 	descriptionProp, err := expandComputeRegionBackendServiceDescription(d.Get("description"), d, config)
 	if err != nil {
@@ -368,6 +408,24 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("fingerprint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
 		obj["fingerprint"] = fingerprintProp
 	}
+	healthChecksProp, err := expandComputeRegionBackendServiceHealthChecks(d.Get("health_checks"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("health_checks"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, healthChecksProp)) {
+		obj["healthChecks"] = healthChecksProp
+	}
+	loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
+		obj["loadBalancingScheme"] = loadBalancingSchemeProp
+	}
+	nameProp, err := expandComputeRegionBackendServiceName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
 	protocolProp, err := expandComputeRegionBackendServiceProtocol(d.Get("protocol"), d, config)
 	if err != nil {
 		return err
@@ -380,29 +438,17 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("session_affinity"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sessionAffinityProp)) {
 		obj["sessionAffinity"] = sessionAffinityProp
 	}
-	regionProp, err := expandComputeRegionBackendServiceRegion(d.Get("region"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regionProp)) {
-		obj["region"] = regionProp
-	}
 	timeoutSecProp, err := expandComputeRegionBackendServiceTimeoutSec(d.Get("timeout_sec"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeoutSecProp)) {
 		obj["timeoutSec"] = timeoutSecProp
 	}
-	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
+	regionProp, err := expandComputeRegionBackendServiceRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("connection_draining"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, connectionDrainingProp)) {
-		obj["connectionDraining"] = connectionDrainingProp
-	}
-	loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
-		obj["loadBalancingScheme"] = loadBalancingSchemeProp
+	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+		obj["region"] = regionProp
 	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
@@ -494,17 +540,6 @@ func resourceComputeRegionBackendServiceImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeRegionBackendServiceName(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenComputeRegionBackendServiceHealthChecks(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil {
-		return v
-	}
-	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
-}
-
 func flattenComputeRegionBackendServiceBackend(v interface{}, d *schema.ResourceData) interface{} {
 	if v == nil {
 		return v
@@ -518,12 +553,29 @@ func flattenComputeRegionBackendServiceBackend(v interface{}, d *schema.Resource
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"description": flattenComputeRegionBackendServiceBackendDescription(original["description"], d),
-			"group":       flattenComputeRegionBackendServiceBackendGroup(original["group"], d),
+			"balancing_mode":               flattenComputeRegionBackendServiceBackendBalancingMode(original["balancingMode"], d),
+			"capacity_scaler":              flattenComputeRegionBackendServiceBackendCapacityScaler(original["capacityScaler"], d),
+			"description":                  flattenComputeRegionBackendServiceBackendDescription(original["description"], d),
+			"group":                        flattenComputeRegionBackendServiceBackendGroup(original["group"], d),
+			"max_connections":              flattenComputeRegionBackendServiceBackendMaxConnections(original["maxConnections"], d),
+			"max_connections_per_instance": flattenComputeRegionBackendServiceBackendMaxConnectionsPerInstance(original["maxConnectionsPerInstance"], d),
+			"max_connections_per_endpoint": flattenComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(original["maxConnectionsPerEndpoint"], d),
+			"max_rate":                     flattenComputeRegionBackendServiceBackendMaxRate(original["maxRate"], d),
+			"max_rate_per_instance":        flattenComputeRegionBackendServiceBackendMaxRatePerInstance(original["maxRatePerInstance"], d),
+			"max_rate_per_endpoint":        flattenComputeRegionBackendServiceBackendMaxRatePerEndpoint(original["maxRatePerEndpoint"], d),
+			"max_utilization":              flattenComputeRegionBackendServiceBackendMaxUtilization(original["maxUtilization"], d),
 		})
 	}
 	return transformed
 }
+func flattenComputeRegionBackendServiceBackendBalancingMode(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceBackendCapacityScaler(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
 func flattenComputeRegionBackendServiceBackendDescription(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
@@ -535,36 +587,55 @@ func flattenComputeRegionBackendServiceBackendGroup(v interface{}, d *schema.Res
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeRegionBackendServiceDescription(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenComputeRegionBackendServiceFingerprint(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenComputeRegionBackendServiceProtocol(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenComputeRegionBackendServiceSessionAffinity(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenComputeRegionBackendServiceRegion(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil {
-		return v
-	}
-	return NameFromSelfLinkStateFunc(v)
-}
-
-func flattenComputeRegionBackendServiceTimeoutSec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionBackendServiceBackendMaxConnections(v interface{}, d *schema.ResourceData) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
+	return v
+}
+
+func flattenComputeRegionBackendServiceBackendMaxConnectionsPerInstance(v interface{}, d *schema.ResourceData) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		} // let terraform core handle it if we can't convert the string to an int.
+	}
+	return v
+}
+
+func flattenComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(v interface{}, d *schema.ResourceData) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		} // let terraform core handle it if we can't convert the string to an int.
+	}
+	return v
+}
+
+func flattenComputeRegionBackendServiceBackendMaxRate(v interface{}, d *schema.ResourceData) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		} // let terraform core handle it if we can't convert the string to an int.
+	}
+	return v
+}
+
+func flattenComputeRegionBackendServiceBackendMaxRatePerInstance(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceBackendMaxRatePerEndpoint(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceBackendMaxUtilization(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -591,17 +662,56 @@ func flattenComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeo
 	return v
 }
 
+func flattenComputeRegionBackendServiceCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceDescription(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceFingerprint(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceHealthChecks(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return v
+	}
+	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+}
+
 func flattenComputeRegionBackendServiceLoadBalancingScheme(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
-func expandComputeRegionBackendServiceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+func flattenComputeRegionBackendServiceName(v interface{}, d *schema.ResourceData) interface{} {
+	return v
 }
 
-func expandComputeRegionBackendServiceHealthChecks(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	v = v.(*schema.Set).List()
-	return v, nil
+func flattenComputeRegionBackendServiceProtocol(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceSessionAffinity(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceTimeoutSec(v interface{}, d *schema.ResourceData) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		} // let terraform core handle it if we can't convert the string to an int.
+	}
+	return v
+}
+
+func flattenComputeRegionBackendServiceRegion(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return v
+	}
+	return NameFromSelfLinkStateFunc(v)
 }
 
 func expandComputeRegionBackendServiceBackend(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -614,6 +724,20 @@ func expandComputeRegionBackendServiceBackend(v interface{}, d TerraformResource
 		}
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
+
+		transformedBalancingMode, err := expandComputeRegionBackendServiceBackendBalancingMode(original["balancing_mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedBalancingMode); val.IsValid() && !isEmptyValue(val) {
+			transformed["balancingMode"] = transformedBalancingMode
+		}
+
+		transformedCapacityScaler, err := expandComputeRegionBackendServiceBackendCapacityScaler(original["capacity_scaler"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCapacityScaler); val.IsValid() && !isEmptyValue(val) {
+			transformed["capacityScaler"] = transformedCapacityScaler
+		}
 
 		transformedDescription, err := expandComputeRegionBackendServiceBackendDescription(original["description"], d, config)
 		if err != nil {
@@ -629,9 +753,66 @@ func expandComputeRegionBackendServiceBackend(v interface{}, d TerraformResource
 			transformed["group"] = transformedGroup
 		}
 
+		transformedMaxConnections, err := expandComputeRegionBackendServiceBackendMaxConnections(original["max_connections"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMaxConnections); val.IsValid() && !isEmptyValue(val) {
+			transformed["maxConnections"] = transformedMaxConnections
+		}
+
+		transformedMaxConnectionsPerInstance, err := expandComputeRegionBackendServiceBackendMaxConnectionsPerInstance(original["max_connections_per_instance"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMaxConnectionsPerInstance); val.IsValid() && !isEmptyValue(val) {
+			transformed["maxConnectionsPerInstance"] = transformedMaxConnectionsPerInstance
+		}
+
+		transformedMaxConnectionsPerEndpoint, err := expandComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(original["max_connections_per_endpoint"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMaxConnectionsPerEndpoint); val.IsValid() && !isEmptyValue(val) {
+			transformed["maxConnectionsPerEndpoint"] = transformedMaxConnectionsPerEndpoint
+		}
+
+		transformedMaxRate, err := expandComputeRegionBackendServiceBackendMaxRate(original["max_rate"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMaxRate); val.IsValid() && !isEmptyValue(val) {
+			transformed["maxRate"] = transformedMaxRate
+		}
+
+		transformedMaxRatePerInstance, err := expandComputeRegionBackendServiceBackendMaxRatePerInstance(original["max_rate_per_instance"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMaxRatePerInstance); val.IsValid() && !isEmptyValue(val) {
+			transformed["maxRatePerInstance"] = transformedMaxRatePerInstance
+		}
+
+		transformedMaxRatePerEndpoint, err := expandComputeRegionBackendServiceBackendMaxRatePerEndpoint(original["max_rate_per_endpoint"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMaxRatePerEndpoint); val.IsValid() && !isEmptyValue(val) {
+			transformed["maxRatePerEndpoint"] = transformedMaxRatePerEndpoint
+		}
+
+		transformedMaxUtilization, err := expandComputeRegionBackendServiceBackendMaxUtilization(original["max_utilization"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMaxUtilization); val.IsValid() && !isEmptyValue(val) {
+			transformed["maxUtilization"] = transformedMaxUtilization
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
+}
+
+func expandComputeRegionBackendServiceBackendBalancingMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceBackendCapacityScaler(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeRegionBackendServiceBackendDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -642,31 +823,31 @@ func expandComputeRegionBackendServiceBackendGroup(v interface{}, d TerraformRes
 	return v, nil
 }
 
-func expandComputeRegionBackendServiceDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionBackendServiceBackendMaxConnections(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionBackendServiceFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionBackendServiceBackendMaxConnectionsPerInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionBackendServiceProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionBackendServiceBackendMaxConnectionsPerEndpoint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionBackendServiceSessionAffinity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionBackendServiceBackendMaxRate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionBackendServiceRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for region: %s", err)
-	}
-	return f.RelativeLink(), nil
+func expandComputeRegionBackendServiceBackendMaxRatePerInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
-func expandComputeRegionBackendServiceTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionBackendServiceBackendMaxRatePerEndpoint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceBackendMaxUtilization(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -686,6 +867,43 @@ func expandComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeou
 	return v, nil
 }
 
+func expandComputeRegionBackendServiceDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceHealthChecks(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
 func expandComputeRegionBackendServiceLoadBalancingScheme(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandComputeRegionBackendServiceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceSessionAffinity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for region: %s", err)
+	}
+	return f.RelativeLink(), nil
 }

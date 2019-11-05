@@ -82,7 +82,7 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"INTERNAL_SELF_MANAGED", "EXTERNAL", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "INTERNAL_SELF_MANAGED", ""}, false),
 				Default:      "EXTERNAL",
 			},
 			"metadata_filters": {
