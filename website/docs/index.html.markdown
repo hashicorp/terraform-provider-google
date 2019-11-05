@@ -11,7 +11,7 @@ description: |-
 -> Try out Terraform 0.12 with the Google provider! `google` and `google-beta` are 0.12-compatible from `2.5.0` onwards.
 
 The Google provider is used to configure your [Google Cloud Platform](https://cloud.google.com/) infrastructure. 
-See the [Getting Started](/docs/providers/google/getting_started.html) page for an introduction to using the provider.
+See the [Getting Started](/docs/providers/google/guides/getting_started.html) page for an introduction to using the provider.
 
 A typical provider configuration will look something like:
 
@@ -23,7 +23,7 @@ provider "google" {
 }
 ```
 
-See the [provider reference](/docs/providers/google/provider_reference.html)
+See the [provider reference](/docs/providers/google/guides/provider_reference.html)
 for more details on authentication or otherwise configuring the provider.
 
 Take advantage of [Modules](https://www.terraform.io/docs/modules/index.html)
