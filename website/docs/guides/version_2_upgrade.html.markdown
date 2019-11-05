@@ -15,7 +15,7 @@ to upgrade from version `1.20.0` to `2.0.0`.
 
 -> The "Google provider" refers to both `google` and `google-beta`; each will
 have released `2.0.0` at around the same time, and this guide is for both
-variants of the Google provider. See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
+variants of the Google provider. See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html)
 for details if you're new to using `google-beta`.
 
 Most of the changes outlined in this guide have been previously marked as
@@ -201,7 +201,7 @@ resource "google_compute_instance" "beta-instance" {
 }
 ```
 
-See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html)
+See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html)
 for more details on how to use `google-beta`.
 
 ## Data Sources

@@ -215,7 +215,7 @@ func resourceContainerCluster() *schema.Resource {
 			"cluster_autoscaling": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
-				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -262,7 +262,7 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"enable_binary_authorization": {
-				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
 				Computed: true,
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -279,7 +279,7 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
-				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
 				Computed: true,
 			},
 
@@ -460,7 +460,7 @@ func resourceContainerCluster() *schema.Resource {
 
 			"pod_security_policy_config": {
 				// Remove return nil from expand when this is removed for good.
-				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
@@ -651,7 +651,7 @@ func resourceContainerCluster() *schema.Resource {
 			"enable_intranode_visibility": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
 			},
 		},
 	}

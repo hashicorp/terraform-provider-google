@@ -220,7 +220,7 @@ a virtual machine on Google Cloud Platform. The key concepts unique to GCP are:
 
 Run `terraform destroy` to tear down your resources.
 
-Afterwards, check out the [provider reference](/docs/providers/google/provider_reference.html) for more details on configuring
+Afterwards, check out the [provider reference](/docs/providers/google/guides/provider_reference.html) for more details on configuring
 the provider block (including how you can eliminate it entirely!).
 
 You can also check out the [GCP Community tutorials](https://cloud.google.com/community/tutorials/)
