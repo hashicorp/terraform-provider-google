@@ -51,8 +51,7 @@ func testAccDataSourceCheckPublicImage() resource.TestCheckFunc {
 
 		ds_attr := ds.Primary.Attributes
 		attrs_to_test := map[string]string{
-			"self_link": "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20171129",
-			"family":    "debian-9",
+			"family": "debian-9",
 		}
 
 		for attr, expect_value := range attrs_to_test {
@@ -64,6 +63,12 @@ func testAccDataSourceCheckPublicImage() resource.TestCheckFunc {
 					expect_value,
 				)
 			}
+		}
+
+		selfLink := "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20171129"
+
+		if !compareSelfLinkOrResourceName("", ds_attr["self_link"], selfLink, nil) && ds_attr["self_link"] != selfLink {
+			return fmt.Errorf("self link does not match: %s vs %s", ds_attr["self_link"], selfLink)
 		}
 
 		return nil

@@ -43,7 +43,6 @@ func testAccDataSourceGoogleSubnetworkCheck(data_source_name string, resource_na
 
 		subnetwork_attrs_to_test := []string{
 			"id",
-			"self_link",
 			"name",
 			"description",
 			"ip_cidr_range",
@@ -62,8 +61,12 @@ func testAccDataSourceGoogleSubnetworkCheck(data_source_name string, resource_na
 			}
 		}
 
-		if v1RsNetwork := ConvertSelfLinkToV1(rs_attr["network"]); ds_attr["network"] != v1RsNetwork {
-			return fmt.Errorf("network is %s; want %s", ds_attr["network"], v1RsNetwork)
+		if !compareSelfLinkOrResourceName("", ds_attr["network"], rs_attr["network"], nil) && ds_attr["network"] != rs_attr["network"] {
+			return fmt.Errorf("network does not match: %s vs %s", ds_attr["network"], rs_attr["network"])
+		}
+
+		if !compareSelfLinkOrResourceName("", ds_attr["self_link"], rs_attr["self_link"], nil) && ds_attr["self_link"] != rs_attr["self_link"] {
+			return fmt.Errorf("self link does not match: %s vs %s", ds_attr["self_link"], rs_attr["self_link"])
 		}
 
 		return nil
