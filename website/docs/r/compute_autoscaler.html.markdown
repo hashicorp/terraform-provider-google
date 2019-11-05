@@ -179,7 +179,10 @@ resource "google_compute_instance_group_manager" "foobar" {
   name = "my-igm"
   zone = "us-central1-f"
 
-  instance_template  = "${google_compute_instance_template.foobar.self_link}"
+  version {
+    instance_template  = "${google_compute_instance_template.foobar.self_link}"
+    name               = "primary"
+  }
 
   target_pools       = ["${google_compute_target_pool.foobar.self_link}"]
   base_instance_name = "foobar"
