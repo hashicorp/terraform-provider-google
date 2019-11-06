@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Functions"
 layout: "google"
 page_title: "Google: google_cloudfunctions_function_iam"
 sidebar_current: "docs-google-cloudfunctions-function-iam"

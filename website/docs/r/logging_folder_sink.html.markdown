@@ -1,4 +1,5 @@
 ---
+subcategory: "Stackdriver Logging"
 layout: "google"
 page_title: "Google: google_logging_folder_sink"
 sidebar_current: "docs-google-logging-folder-sink"

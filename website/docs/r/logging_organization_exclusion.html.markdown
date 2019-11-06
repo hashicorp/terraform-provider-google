@@ -1,4 +1,5 @@
 ---
+subcategory: "Stackdriver Logging"
 layout: "google"
 page_title: "Google: google_logging_organization_exclusion"
 sidebar_current: "docs-google-logging-organization-exclusion"

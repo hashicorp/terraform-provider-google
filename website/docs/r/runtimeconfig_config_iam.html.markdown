@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Runtime Configuration"
 layout: "google"
 page_title: "Google: google_runtimeconfig_config_iam"
 sidebar_current: "docs-google-runtimeconfig-config-iam"

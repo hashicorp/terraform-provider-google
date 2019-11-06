@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Storage"
 layout: "google"
 page_title: "Google: google_storage_default_object_access_control"
 sidebar_current: "docs-google-storage-default-object-access-control"

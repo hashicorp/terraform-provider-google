@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "BigQuery"
 layout: "google"
 page_title: "Google: google_bigquery_dataset"
 sidebar_current: "docs-google-bigquery-dataset"

@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Scheduler"
 layout: "google"
 page_title: "Google: google_cloud_scheduler_job"
 sidebar_current: "docs-google-cloud-scheduler-job"

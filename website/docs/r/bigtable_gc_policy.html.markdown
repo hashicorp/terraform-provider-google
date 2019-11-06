@@ -1,4 +1,5 @@
 ---
+subcategory: "Bigtable"
 layout: "google"
 page_title: "Google: google_bigtable_gc_policy"
 sidebar_current: "docs-google-bigtable-gc-policy"

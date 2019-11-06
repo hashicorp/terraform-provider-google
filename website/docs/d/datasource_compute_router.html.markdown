@@ -1,5 +1,6 @@
 ---
 layout: "google"
+subcategory: "Compute Engine"
 page_title: "Google: google_compute_router"
 sidebar_current: "docs-google-datasource-compute-router"
 description: |-
@@ -27,7 +28,7 @@ The following arguments are supported:
 
 * `network` - (Required) The VPC network on which this router lives.
 
-* `project` - (Optional) The ID of the project in which the resource 
+* `project` - (Optional) The ID of the project in which the resource
     belongs. If it is not provided, the provider project is used.
 
 * `region` - (Optional) The region this router has been created in. If

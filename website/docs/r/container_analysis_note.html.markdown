@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Container Registry"
 layout: "google"
 page_title: "Google: google_container_analysis_note"
 sidebar_current: "docs-google-container-analysis-note"

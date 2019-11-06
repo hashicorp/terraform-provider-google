@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_subnetwork"
 sidebar_current: "docs-google-datasource-compute-subnetwork"

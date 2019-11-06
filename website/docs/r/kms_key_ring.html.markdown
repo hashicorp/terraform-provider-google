@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud KMS"
 layout: "google"
 page_title: "Google: google_kms_key_ring"
 sidebar_current: "docs-google-kms-key-ring"

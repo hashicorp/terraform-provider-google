@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Spanner"
 layout: "google"
 page_title: "Google: google_spanner_database"
 sidebar_current: "docs-google-spanner-database"
