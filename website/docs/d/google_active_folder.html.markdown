@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_active_folder"
 sidebar_current: "docs-google-datasource-active-folder"

@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_interconnect_attachment"
 sidebar_current: "docs-google-compute-interconnect-attachment"

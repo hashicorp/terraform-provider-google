@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Storage"
 layout: "google"
 page_title: "Google: google_storage_default_object_acl"
 sidebar_current: "docs-google-storage-default-object-acl"

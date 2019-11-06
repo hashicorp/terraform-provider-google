@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Firestore"
 layout: "google"
 page_title: "Google: google_firestore_index"
 sidebar_current: "docs-google-firestore-index"

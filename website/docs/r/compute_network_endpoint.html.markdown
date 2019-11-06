@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_network_endpoint"
 sidebar_current: "docs-google-compute-network-endpoint"

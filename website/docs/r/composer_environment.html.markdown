@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Composer"
 layout: "google"
 page_title: "Google: google_composer_environment"
 sidebar_current: "docs-google-composer-environment"

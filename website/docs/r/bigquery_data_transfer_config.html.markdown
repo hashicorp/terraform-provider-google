@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "BigQueryDataTransfer"
 layout: "google"
 page_title: "Google: google_bigquery_data_transfer_config"
 sidebar_current: "docs-google-bigquery-data-transfer-config"

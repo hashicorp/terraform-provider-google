@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Resource Manager"
 layout: "google"
 page_title: "Google: google_resource_manager_lien"
 sidebar_current: "docs-google-resource-manager-lien"

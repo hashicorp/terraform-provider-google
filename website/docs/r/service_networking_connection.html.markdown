@@ -1,4 +1,5 @@
 ---
+subcategory: "Service Networking"
 layout: "google"
 page_title: "Google: google_service_networking_connection"
 sidebar_current: "docs-google-service-networking-connection"

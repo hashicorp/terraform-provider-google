@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_target_ssl_proxy"
 sidebar_current: "docs-google-compute-target-ssl-proxy"

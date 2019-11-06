@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Binary Authorization"
 layout: "google"
 page_title: "Google: google_binary_authorization_attestor_iam"
 sidebar_current: "docs-google-binary-authorization-attestor-iam"

@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud DNS"
 layout: "google"
 page_title: "Google: google_dns_managed_zone"
 sidebar_current: "docs-google-dns-managed-zone"

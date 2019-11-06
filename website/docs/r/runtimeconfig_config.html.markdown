@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Runtime Configuration"
 layout: "google"
 page_title: "Google: google_runtimeconfig_config"
 sidebar_current: "docs-google-runtimeconfig-config"

@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Source Repositories"
 layout: "google"
 page_title: "Google: google_sourcerepo_repository"
 sidebar_current: "docs-google-sourcerepo-repository"

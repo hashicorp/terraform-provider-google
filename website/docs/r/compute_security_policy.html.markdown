@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_security_policy"
 sidebar_current: "docs-google-compute-security-policy"

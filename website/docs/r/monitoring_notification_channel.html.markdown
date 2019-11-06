@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Stackdriver Monitoring"
 layout: "google"
 page_title: "Google: google_monitoring_notification_channel"
 sidebar_current: "docs-google-monitoring-notification-channel"

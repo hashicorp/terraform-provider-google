@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_network_peering"
 sidebar_current: "docs-google-compute-network-peering"

@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Storage"
 layout: "google"
 page_title: "Google: google_storage_notification"
 sidebar_current: "docs-google-storage-notification"
