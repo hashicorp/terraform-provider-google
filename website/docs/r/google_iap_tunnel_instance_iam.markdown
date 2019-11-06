@@ -1,5 +1,6 @@
 ---
 layout: "google"
+subcategory: "Identity-Aware Proxy"
 page_title: "Google: google_iap_tunnel_instance_iam"
 sidebar_current: "docs-google-iap-tunnel-instance-iam"
 description: |-
