@@ -1,5 +1,6 @@
 ---
 layout: "google"
+subcategory: "Cloud Healthcare"
 page_title: "Google: google_healthcare_dicom_store_iam"
 sidebar_current: "docs-google-healthcare-dicom-store-iam"
 description: |-
