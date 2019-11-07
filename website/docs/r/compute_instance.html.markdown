@@ -201,7 +201,7 @@ The `attached_disk` block supports:
 * `source` - (Required) The name or self_link of the disk to attach to this instance.
 
 * `device_name` - (Optional) Name with which the attached disk will be accessible
-    under `/dev/disk/by-id/`
+    under `/dev/disk/by-id/google-*`
 
 * `mode` - (Optional) Either "READ_ONLY" or "READ_WRITE", defaults to "READ_WRITE"
     If you have a persistent disk with data that you want to share
