@@ -47,6 +47,31 @@ data "google_iam_policy" "admin" {
 }
 ```
 
+With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html), Whitelist-only):
+
+```hcl
+resource "google_project_iam_policy" "project" {
+  project     = "your-project-id"
+  policy_data = "${data.google_iam_policy.admin.policy_data}"
+}
+
+data "google_iam_policy" "admin" {
+  binding {
+    role = "roles/editor"
+
+    members = [
+      "user:jane@example.com",
+    ]
+
+    condition {
+      title       = "expires_after_2019_12_31"
+      description = "Expiring at midnight of 2019-12-31"
+      expression  = "request.time < timestamp(\"2020-01-01T00:00:00Z\")"
+    }
+  }
+}
+```
+
 ## google\_project\_iam\_binding
 
 ~> **Note:** If `role` is set to `roles/owner` and you don't specify a user or service account you have access to in `members`, you can lock yourself out of your project.
@@ -62,6 +87,25 @@ resource "google_project_iam_binding" "project" {
 }
 ```
 
+With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html), Whitelist-only):
+
+```hcl
+resource "google_project_iam_binding" "project" {
+  project = "your-project-id"
+  role    = "roles/editor"
+
+  members = [
+    "user:jane@example.com",
+  ]
+
+  condition {
+    title       = "expires_after_2019_12_31"
+    description = "Expiring at midnight of 2019-12-31"
+    expression  = "request.time < timestamp(\"2020-01-01T00:00:00Z\")"
+  }
+}
+```
+
 ## google\_project\_iam\_member
 
 ```hcl
@@ -69,6 +113,22 @@ resource "google_project_iam_member" "project" {
   project = "your-project-id"
   role    = "roles/editor"
   member  = "user:jane@example.com"
+}
+```
+
+With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html), Whitelist-only):
+
+```hcl
+resource "google_project_iam_member" "project" {
+  project = "your-project-id"
+  role    = "roles/editor"
+  member  = "user:jane@example.com"
+
+  condition {
+    title       = "expires_after_2019_12_31"
+    description = "Expiring at midnight of 2019-12-31"
+    expression  = "request.time < timestamp(\"2020-01-01T00:00:00Z\")"
+  }
 }
 ```
 
@@ -119,6 +179,9 @@ will not be inferred from the provider.
 
 * `audit_log_config` - (Required only by google\_project\_iam\_audit\_config) The configuration for logging of each type of permission.  This can be specified multiple times.  Structure is documented below.
 
+* `condition` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding. You must be whitelisted for the IAM Conditions private beta in order to use them in Terraform.
+  Structure is documented below.
+
 ---
 
 The `audit_log_config` block supports:
@@ -126,6 +189,18 @@ The `audit_log_config` block supports:
 * `log_type` - (Required) Permission type for which logging is to be configured.  Must be one of `DATA_READ`, `DATA_WRITE`, or `ADMIN_READ`.
 
 * `exempted_members` - (Optional) Identities that do not cause logging for this type of permission.  The format is the same as that for `members`.
+
+The `condition` block supports:
+
+* `expression` - (Required) Textual representation of an expression in Common Expression Language syntax.
+
+* `title` - (Required) A title for the expression, i.e. a short string describing its purpose.
+
+* `description` - (Optional) An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.
+
+~> **Warning:** Terraform considers the `role` and condition contents (`title`+`description`+`expression`) as the
+  identifier for the binding. This means that if any part of the condition is changed out-of-band, Terraform will
+  consider it to be an entirely different resource and will treat it as such.
 
 ## Attributes Reference
 
