@@ -63,6 +63,10 @@ func resourceLoggingMetric() *schema.Resource {
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"}, false),
 						},
+						"display_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 						"labels": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -469,6 +473,8 @@ func flattenLoggingMetricMetricDescriptor(v interface{}, d *schema.ResourceData)
 		flattenLoggingMetricMetricDescriptorMetricKind(original["metricKind"], d)
 	transformed["labels"] =
 		flattenLoggingMetricMetricDescriptorLabels(original["labels"], d)
+	transformed["display_name"] =
+		flattenLoggingMetricMetricDescriptorDisplayName(original["displayName"], d)
 	return []interface{}{transformed}
 }
 func flattenLoggingMetricMetricDescriptorUnit(v interface{}, d *schema.ResourceData) interface{} {
@@ -515,6 +521,10 @@ func flattenLoggingMetricMetricDescriptorLabelsValueType(v interface{}, d *schem
 	if v == nil || v.(string) == "" {
 		return "STRING"
 	}
+	return v
+}
+
+func flattenLoggingMetricMetricDescriptorDisplayName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -691,6 +701,13 @@ func expandLoggingMetricMetricDescriptor(v interface{}, d TerraformResourceData,
 		transformed["labels"] = transformedLabels
 	}
 
+	transformedDisplayName, err := expandLoggingMetricMetricDescriptorDisplayName(original["display_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisplayName); val.IsValid() && !isEmptyValue(val) {
+		transformed["displayName"] = transformedDisplayName
+	}
+
 	return transformed, nil
 }
 
@@ -751,6 +768,10 @@ func expandLoggingMetricMetricDescriptorLabelsDescription(v interface{}, d Terra
 }
 
 func expandLoggingMetricMetricDescriptorLabelsValueType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLoggingMetricMetricDescriptorDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

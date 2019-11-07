@@ -71,6 +71,7 @@ resource "google_logging_metric" "logging_metric" {
 	metric_descriptor {
 		metric_kind = "DELTA"
 		value_type = "INT64"
+		display_name = "My metric"
 	}
 }`, suffix, filter)
 }

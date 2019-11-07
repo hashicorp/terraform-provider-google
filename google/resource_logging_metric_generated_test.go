@@ -62,6 +62,7 @@ resource "google_logging_metric" "logging_metric" {
         value_type = "STRING"
         description = "amount of matter"
     }
+    display_name = "My metric"
   }
   value_extractor = "EXTRACT(jsonPayload.request)"
   label_extractors = { "mass": "EXTRACT(jsonPayload.request)" }
