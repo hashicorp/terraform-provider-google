@@ -3,10 +3,11 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	"log"
 )
 
 func resourceGoogleProjectIamPolicy() *schema.Resource {
