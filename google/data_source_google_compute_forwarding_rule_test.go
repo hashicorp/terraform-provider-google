@@ -50,7 +50,6 @@ func testAccDataSourceGoogleForwardingRuleCheck(data_source_name string, resourc
 			"region",
 			"port_range",
 			"ports",
-			"target",
 			"ip_address",
 			"ip_protocol",
 			"load_balancing_scheme",
@@ -68,6 +67,10 @@ func testAccDataSourceGoogleForwardingRuleCheck(data_source_name string, resourc
 					rs_attr[attr_to_check],
 				)
 			}
+		}
+
+		if !compareSelfLinkOrResourceName("", ds_attr["target"], rs_attr["target"], nil) && ds_attr["target"] != rs_attr["target"] {
+			return fmt.Errorf("target does not match: %s vs %s", ds_attr["target"], rs_attr["target"])
 		}
 
 		if !compareSelfLinkOrResourceName("", ds_attr["self_link"], rs_attr["self_link"], nil) && ds_attr["self_link"] != rs_attr["self_link"] {
