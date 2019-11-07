@@ -31,7 +31,7 @@ func TestAccComputeVpnTunnel_regionFromGateway(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateIdPrefix:     fmt.Sprintf("%s/%s/", getTestProjectFromEnv(), region),
-				ImportStateVerifyIgnore: []string{"shared_secret"},
+				ImportStateVerifyIgnore: []string{"shared_secret", "detailed_status"},
 			},
 		},
 	})
@@ -53,7 +53,7 @@ func TestAccComputeVpnTunnel_router(t *testing.T) {
 				ResourceName:            "google_compute_vpn_tunnel.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"shared_secret"},
+				ImportStateVerifyIgnore: []string{"shared_secret", "detailed_status"},
 			},
 		},
 	})
@@ -74,7 +74,7 @@ func TestAccComputeVpnTunnel_defaultTrafficSelectors(t *testing.T) {
 				ResourceName:            "google_compute_vpn_tunnel.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"shared_secret"},
+				ImportStateVerifyIgnore: []string{"shared_secret", "detailed_status"},
 			},
 		},
 	})
