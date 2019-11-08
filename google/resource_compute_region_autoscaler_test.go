@@ -89,7 +89,7 @@ resource "google_compute_region_autoscaler" "foobar" {
 	target = "${google_compute_region_instance_group_manager.foobar.self_link}"
 	autoscaling_policy {
 		max_replicas = 5
-		min_replicas = 1
+		min_replicas = 0
 		cooldown_period = 60
 		cpu_utilization {
 			target = 0.5
