@@ -93,6 +93,55 @@ provider "google" {
 
 ## Resource: `google_container_cluster`
 
+### `ip_allocation_policy` will catch out-of-band changes, `use_ip_aliases` removed
+
+-> This change and "Automatic subnetwork creation for VPC-native clusters
+removed" are related; see the other entry for more details.
+
+In `2.X`, `ip_allocation_policy` wouldn't cause a diff if it was undefined in
+config but was set on the cluster itself. Additionally, it could be defined with
+`use_ip_aliases` set to `false`. However, this made it difficult to reason about 
+whether a cluster was routes-based or VPC-native.
+
+With `3.0.0`, Terraform will detect drift on the block. The configuration has also
+been simplified. Terraform creates a VPC-native cluster when
+`ip_allocation_policy` is defined (`use_ip_aliases` is implicitly set to true
+and is no longer configurable). When the block is undefined, Terraform creates a
+routes-based cluster.
+
+Other than removing the `use_ip_aliases` field, most users of VPC-native clusters
+won't be affected. `terraform plan` will show a diff if a config doesn't contain
+`ip_allocation_policy` but the underlying cluster does. Routes-based cluster
+users may need to remove `ip_allocation_policy` if `use_ip_aliases` had been set
+to `false`.
+
+#### Old Config
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name       = "my-cluster"
+  location   = "us-central1"
+
+  initial_node_count = 1
+
+  ip_allocation_policy {
+    use_ip_aliases = false
+  }
+}
+```
+
+#### New Config
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name       = "my-cluster"
+  location   = "us-central1"
+
+  initial_node_count = 1
+}
+```
+
+
 ### Automatic subnetwork creation for VPC-native clusters removed
 
 Automatic creation of subnetworks in GKE has been removed. Now, users of
@@ -118,6 +167,7 @@ Particularly, Shared VPC was incompatible with `create_subnetwork`, and
 
 * `ip_allocation_policy.node_ipv4_cidr_block` removed (This controls the primary range of the created subnetwork)
 * `ip_allocation_policy.create_subnetwork`, `ip_allocation_policy.subnetwork_name` removed
+* `ip_allocation_policy` will catch drift when not in config
 * `ip_allocation_policy.use_ip_aliases` removed
   * Enablement is now based on `ip_allocation_policy` being defined instead
 * Conflict added between `node_ipv4_cidr`, `ip_allocation_policy`
