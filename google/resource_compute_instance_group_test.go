@@ -302,7 +302,7 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(nInstanceGroup string, nNetwo
 			return fmt.Errorf("No ID is set")
 		}
 		network, err := config.clientCompute.Networks.Get(
-			config.Project, rsNetwork.Primary.ID).Do()
+			config.Project, rsNetwork.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}

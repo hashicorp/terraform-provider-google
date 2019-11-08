@@ -42,7 +42,7 @@ To get more information about UptimeCheckConfig, see:
 ```hcl
 resource "google_monitoring_uptime_check_config" "http" {
   display_name = "http-uptime-check"
-  timeout = "60s"
+  timeout      = "60s"
 
   http_check {
     path = "/some-path"
@@ -53,7 +53,7 @@ resource "google_monitoring_uptime_check_config" "http" {
     type = "uptime_url"
     labels = {
       project_id = "my-project-name"
-      host = "192.168.1.1"
+      host       = "192.168.1.1"
     }
   }
 
@@ -73,7 +73,7 @@ resource "google_monitoring_uptime_check_config" "http" {
 ```hcl
 resource "google_monitoring_uptime_check_config" "tcp_group" {
   display_name = "tcp-uptime-check"
-  timeout = "60s"
+  timeout      = "60s"
 
   tcp_check {
     port = 888
@@ -81,14 +81,13 @@ resource "google_monitoring_uptime_check_config" "tcp_group" {
 
   resource_group {
     resource_type = "INSTANCE"
-    group_id = "${google_monitoring_group.check.name}"
+    group_id      = google_monitoring_group.check.name
   }
 }
 
-
 resource "google_monitoring_group" "check" {
   display_name = "uptime-check-group"
-  filter = "resource.metadata.name=has_substring(\"foo\")"
+  filter       = "resource.metadata.name=has_substring(\"foo\")"
 }
 ```
 
@@ -144,7 +143,7 @@ The following arguments are supported:
 The `content_matchers` block supports:
 
 * `content` -
-  (Optional)
+  (Required)
   String or regex content to match (max 1024 bytes)
 
 The `http_check` block supports:

@@ -20,7 +20,7 @@ func TestAccDataSourceGoogleOrganization_byFullName(t *testing.T) {
 			{
 				Config: testAccCheckGoogleOrganization_byName(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_organization.org", "id", orgId),
+					resource.TestCheckResourceAttr("data.google_organization.org", "id", name),
 					resource.TestCheckResourceAttr("data.google_organization.org", "name", name),
 				),
 			},
@@ -39,7 +39,7 @@ func TestAccDataSourceGoogleOrganization_byShortName(t *testing.T) {
 			{
 				Config: testAccCheckGoogleOrganization_byName(orgId),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_organization.org", "id", orgId),
+					resource.TestCheckResourceAttr("data.google_organization.org", "id", name),
 					resource.TestCheckResourceAttr("data.google_organization.org", "name", name),
 				),
 			},

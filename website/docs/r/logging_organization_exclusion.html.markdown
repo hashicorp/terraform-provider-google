@@ -20,13 +20,13 @@ granted to the credentials used with Terraform.
 
 ```hcl
 resource "google_logging_organization_exclusion" "my-exclusion" {
-    name        = "my-instance-debug-exclusion"
-    org_id      = "123456789"
+  name   = "my-instance-debug-exclusion"
+  org_id = "123456789"
 
-    description = "Exclude GCE instance debug logs"
+  description = "Exclude GCE instance debug logs"
 
-    # Exclude all DEBUG or lower severity messages relating to instances
-    filter      = "resource.type = gce_instance AND severity <= DEBUG"
+  # Exclude all DEBUG or lower severity messages relating to instances
+  filter = "resource.type = gce_instance AND severity <= DEBUG"
 }
 ```
 

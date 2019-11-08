@@ -20,7 +20,7 @@ func resourceComputeTargetPool() *schema.Resource {
 		Delete: resourceComputeTargetPoolDelete,
 		Update: resourceComputeTargetPoolUpdate,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceTargetPoolStateImporter,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -207,7 +207,11 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// It probably maybe worked, so store the ID now
-	d.SetId(tpool.Name)
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	err = computeOperationWait(config.clientCompute, op, project, "Creating Target Pool")
 	if err != nil {
@@ -228,6 +232,8 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+
+	name := d.Get("name").(string)
 
 	d.Partial(true)
 
@@ -251,7 +257,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			removeReq.HealthChecks[i] = &compute.HealthCheckReference{HealthCheck: v}
 		}
 		op, err := config.clientCompute.TargetPools.RemoveHealthCheck(
-			project, region, d.Id(), removeReq).Do()
+			project, region, name, removeReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating health_check: %s", err)
 		}
@@ -267,7 +273,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			addReq.HealthChecks[i] = &compute.HealthCheckReference{HealthCheck: v}
 		}
 		op, err = config.clientCompute.TargetPools.AddHealthCheck(
-			project, region, d.Id(), addReq).Do()
+			project, region, name, addReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating health_check: %s", err)
 		}
@@ -301,7 +307,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			addReq.Instances[i] = &compute.InstanceReference{Instance: v}
 		}
 		op, err := config.clientCompute.TargetPools.AddInstance(
-			project, region, d.Id(), addReq).Do()
+			project, region, name, addReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating instances: %s", err)
 		}
@@ -317,7 +323,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			removeReq.Instances[i] = &compute.InstanceReference{Instance: v}
 		}
 		op, err = config.clientCompute.TargetPools.RemoveInstance(
-			project, region, d.Id(), removeReq).Do()
+			project, region, name, removeReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating instances: %s", err)
 		}
@@ -334,7 +340,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			Target: bpool_name,
 		}
 		op, err := config.clientCompute.TargetPools.SetBackup(
-			project, region, d.Id(), tref).Do()
+			project, region, name, tref).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating backup_pool: %s", err)
 		}
@@ -375,7 +381,7 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	tpool, err := config.clientCompute.TargetPools.Get(
-		project, region, d.Id()).Do()
+		project, region, d.Get("name").(string)).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Target Pool %q", d.Get("name").(string)))
 	}
@@ -412,7 +418,7 @@ func resourceComputeTargetPoolDelete(d *schema.ResourceData, meta interface{}) e
 
 	// Delete the TargetPool
 	op, err := config.clientCompute.TargetPools.Delete(
-		project, region, d.Id()).Do()
+		project, region, d.Get("name").(string)).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting TargetPool: %s", err)
 	}
@@ -423,4 +429,25 @@ func resourceComputeTargetPoolDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId("")
 	return nil
+}
+
+func resourceTargetPoolStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/targetPools/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
+		"(?P<region>[^/]+)/(?P<name>[^/]+)",
+		"(?P<name>[^/]+)",
+	}, d, config); err != nil {
+		return nil, err
+	}
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }

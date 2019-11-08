@@ -33,8 +33,8 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_compute_instance_iam_policy" "instance" {
-  instance_name  = "your-instance-name"
-  policy_data = "${data.google_iam_policy.admin.policy_data}"
+  instance_name = "your-instance-name"
+  policy_data   = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -43,7 +43,7 @@ resource "google_compute_instance_iam_policy" "instance" {
 ```hcl
 resource "google_compute_instance_iam_binding" "instance" {
   instance_name = "your-instance-name"
-  role       = "roles/compute.osLogin"
+  role          = "roles/compute.osLogin"
 
   members = [
     "user:jane@example.com",
@@ -56,8 +56,8 @@ resource "google_compute_instance_iam_binding" "instance" {
 ```hcl
 resource "google_compute_instance_iam_member" "instance" {
   instance_name = "your-instance-name"
-  role       = "roles/compute.osLogin"
-  member     = "user:jane@example.com"
+  role          = "roles/compute.osLogin"
+  member        = "user:jane@example.com"
 }
 ```
 

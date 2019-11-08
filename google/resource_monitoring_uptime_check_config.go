@@ -59,7 +59,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"content": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 					},
 				},
@@ -196,42 +196,40 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Computed: true,
 			},
 			"is_internal": {
-				Type:       schema.TypeBool,
-				Optional:   true,
-				Computed:   true,
-				Deprecated: "This field never worked, and will be removed in 3.0.0.",
+				Type:     schema.TypeBool,
+				Optional: true,
+				Removed:  "This field never worked, and will be removed in 3.0.0.",
 			},
 			"internal_checkers": {
-				Type:       schema.TypeList,
-				Optional:   true,
-				Computed:   true,
-				Deprecated: "This field never worked, and will be removed in 3.0.0.",
+				Type:     schema.TypeList,
+				Optional: true,
+				Removed:  "This field never worked, and will be removed in 3.0.0.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"display_name": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"gcp_zone": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"name": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"network": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"peer_project_id": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 					},
 				},
@@ -355,18 +353,6 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 	res, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringUptimeCheckConfig %q", d.Id()))
-	}
-
-	res, err = resourceMonitoringUptimeCheckConfigDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
-
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing MonitoringUptimeCheckConfig because it no longer exists.")
-		d.SetId("")
-		return nil
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -981,9 +967,4 @@ func expandMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d T
 		m[k] = val.(string)
 	}
 	return m, nil
-}
-
-func resourceMonitoringUptimeCheckConfigDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	d.Set("internal_checkers", nil)
-	return res, nil
 }

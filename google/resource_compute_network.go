@@ -59,12 +59,6 @@ func resourceComputeNetwork() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"ipv4_range": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Deprecated: "Legacy Networks are deprecated and you will no longer be able to create them using this field from Feb 1, 2020 onwards.",
-				ForceNew:   true,
-			},
 			"routing_mode": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -80,6 +74,11 @@ func resourceComputeNetwork() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
+			},
+			"ipv4_range": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Removed:  "Legacy Networks are deprecated and you will no longer be able to create them using this field from Feb 1, 2020 onwards.",
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -105,12 +104,6 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	IPv4RangeProp, err := expandComputeNetworkIpv4Range(d.Get("ipv4_range"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("ipv4_range"); !isEmptyValue(reflect.ValueOf(IPv4RangeProp)) && (ok || !reflect.DeepEqual(v, IPv4RangeProp)) {
-		obj["IPv4Range"] = IPv4RangeProp
-	}
 	nameProp, err := expandComputeNetworkName(d.Get("name"), d, config)
 	if err != nil {
 		return err
@@ -120,7 +113,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	autoCreateSubnetworksProp, err := expandComputeNetworkAutoCreateSubnetworks(d.Get("auto_create_subnetworks"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("auto_create_subnetworks"); !isEmptyValue(reflect.ValueOf(autoCreateSubnetworksProp)) && (ok || !reflect.DeepEqual(v, autoCreateSubnetworksProp)) {
+	} else if v, ok := d.GetOkExists("auto_create_subnetworks"); ok || !reflect.DeepEqual(v, autoCreateSubnetworksProp) {
 		obj["autoCreateSubnetworks"] = autoCreateSubnetworksProp
 	}
 	routingConfigProp, err := expandComputeNetworkRoutingConfig(nil, d, config)
@@ -128,11 +121,6 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if !isEmptyValue(reflect.ValueOf(routingConfigProp)) {
 		obj["routingConfig"] = routingConfigProp
-	}
-
-	obj, err = resourceComputeNetworkEncoder(d, meta, obj)
-	if err != nil {
-		return err
 	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks")
@@ -151,7 +139,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/networks/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -237,9 +225,6 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	if err := d.Set("gateway_ipv4", flattenComputeNetworkGatewayIpv4(res["gatewayIPv4"], d)); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
-	}
-	if err := d.Set("ipv4_range", flattenComputeNetworkIpv4Range(res["IPv4Range"], d)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	if err := d.Set("name", flattenComputeNetworkName(res["name"], d)); err != nil {
@@ -366,7 +351,7 @@ func resourceComputeNetworkImport(d *schema.ResourceData, meta interface{}) ([]*
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/networks/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -383,10 +368,6 @@ func flattenComputeNetworkDescription(v interface{}, d *schema.ResourceData) int
 }
 
 func flattenComputeNetworkGatewayIpv4(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenComputeNetworkIpv4Range(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -419,10 +400,6 @@ func expandComputeNetworkDescription(v interface{}, d TerraformResourceData, con
 	return v, nil
 }
 
-func expandComputeNetworkIpv4Range(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
 func expandComputeNetworkName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -445,12 +422,4 @@ func expandComputeNetworkRoutingConfig(v interface{}, d TerraformResourceData, c
 
 func expandComputeNetworkRoutingConfigRoutingMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
-}
-
-func resourceComputeNetworkEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	if _, ok := d.GetOk("ipv4_range"); !ok {
-		obj["autoCreateSubnetworks"] = d.Get("auto_create_subnetworks")
-	}
-
-	return obj, nil
 }

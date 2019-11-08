@@ -43,13 +43,13 @@ we cannot confirm or reverse changes to a key outside of Terraform.
 resource "google_compute_backend_bucket_signed_url_key" "backend_key" {
   name           = "test-key"
   key_value      = "pPsVemX8GM46QVeezid6Rw=="
-  backend_bucket = "${google_compute_backend_bucket.test_backend.name}"
+  backend_bucket = google_compute_backend_bucket.test_backend.name
 }
 
 resource "google_compute_backend_bucket" "test_backend" {
   name        = "test-signed-backend-bucket"
   description = "Contains beautiful images"
-  bucket_name = "${google_storage_bucket.bucket.name}"
+  bucket_name = google_storage_bucket.bucket.name
   enable_cdn  = true
 }
 

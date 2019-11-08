@@ -36,8 +36,8 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_healthcare_hl7_v2_store_iam_policy" "hl7_v2_store" {
-	hl7_v2_store_id = "your-hl7-v2-store-id"
-	policy_data = "${data.google_iam_policy.admin.policy_data}"
+  hl7_v2_store_id = "your-hl7-v2-store-id"
+  policy_data     = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -46,12 +46,13 @@ resource "google_healthcare_hl7_v2_store_iam_policy" "hl7_v2_store" {
 ```hcl
 resource "google_healthcare_hl7_v2_store_iam_binding" "hl7_v2_store" {
   hl7_v2_store_id = "your-hl7-v2-store-id"
-  role        = "roles/editor"
+  role            = "roles/editor"
 
   members = [
     "user:jane@example.com",
   ]
 }
+
 ```
 
 ## google\_healthcare\_hl7\_v2\_store\_iam\_member
@@ -59,8 +60,8 @@ resource "google_healthcare_hl7_v2_store_iam_binding" "hl7_v2_store" {
 ```hcl
 resource "google_healthcare_hl7_v2_store_iam_member" "hl7_v2_store" {
   hl7_v2_store_id = "your-hl7-v2-store-id"
-  role        = "roles/editor"
-  member      = "user:jane@example.com"
+  role            = "roles/editor"
+  member          = "user:jane@example.com"
 }
 ```
 

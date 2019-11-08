@@ -39,9 +39,9 @@ ready to receive prediction requests. The model itself is just a container.
 
 ```hcl
 resource "google_ml_engine_model" "default" {
-  name = "default"
+  name        = "default"
   description = "My model"
-  regions = ["us-central1"]
+  regions     = ["us-central1"]
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -54,13 +54,13 @@ resource "google_ml_engine_model" "default" {
 
 ```hcl
 resource "google_ml_engine_model" "default" {
-  name = "default"
+  name        = "default"
   description = "My model"
-  regions = ["us-central1"]
-  labels  = {
+  regions     = ["us-central1"]
+  labels = {
     my_model = "foo"
   }
-  online_prediction_logging = true
+  online_prediction_logging         = true
   online_prediction_console_logging = true
 }
 ```

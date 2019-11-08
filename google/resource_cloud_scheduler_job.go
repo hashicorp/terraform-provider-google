@@ -204,12 +204,12 @@ func resourceCloudSchedulerJob() *schema.Resource {
 							MaxItems:         1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"scope": {
+									"service_account_email": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 										ForceNew: true,
 									},
-									"service_account_email": {
+									"scope": {
 										Type:     schema.TypeString,
 										Optional: true,
 										ForceNew: true,
@@ -225,12 +225,12 @@ func resourceCloudSchedulerJob() *schema.Resource {
 							MaxItems:         1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"audience": {
+									"service_account_email": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 										ForceNew: true,
 									},
-									"service_account_email": {
+									"audience": {
 										Type:     schema.TypeString,
 										Optional: true,
 										ForceNew: true,
@@ -394,7 +394,7 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -499,7 +499,7 @@ func resourceCloudSchedulerJobImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -793,25 +793,7 @@ func flattenCloudSchedulerJobHttpTargetOidcTokenAudience(v interface{}, d *schem
 }
 
 func expandCloudSchedulerJobName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	var jobName string
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
-	}
-
-	region, err := getRegion(d, config)
-	if err != nil {
-		return nil, err
-	}
-
-	if v, ok := d.GetOk("name"); ok {
-		jobName = fmt.Sprintf("projects/%s/locations/%s/jobs/%s", project, region, v.(string))
-	} else {
-		err := fmt.Errorf("The name is missing for the job cannot be empty")
-		return nil, err
-	}
-
-	return jobName, nil
+	return replaceVars(d, config, "projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 }
 
 func expandCloudSchedulerJobDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

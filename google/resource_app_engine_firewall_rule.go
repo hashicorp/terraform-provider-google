@@ -116,7 +116,7 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{priority}}")
+	id, err := replaceVars(d, config, "apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -264,6 +264,7 @@ func resourceAppEngineFirewallRuleDelete(d *schema.ResourceData, meta interface{
 func resourceAppEngineFirewallRuleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
+		"apps/(?P<project>[^/]+)/firewall/ingressRules/(?P<priority>[^/]+)",
 		"(?P<project>[^/]+)/(?P<priority>[^/]+)",
 		"(?P<priority>[^/]+)",
 	}, d, config); err != nil {
@@ -271,7 +272,7 @@ func resourceAppEngineFirewallRuleImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{priority}}")
+	id, err := replaceVars(d, config, "apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

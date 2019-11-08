@@ -205,7 +205,7 @@ func resourceComputeRegionAutoscalerCreate(d *schema.ResourceData, meta interfac
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{region}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -398,7 +398,7 @@ func resourceComputeRegionAutoscalerImport(d *schema.ResourceData, meta interfac
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{region}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

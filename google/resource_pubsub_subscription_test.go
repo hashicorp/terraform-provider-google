@@ -12,7 +12,7 @@ func TestAccPubsubSubscription_emptyTTL(t *testing.T) {
 	t.Parallel()
 
 	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(10))
-	subscription := fmt.Sprintf("projects/%s/subscriptions/tf-test-sub-%s", getTestProjectFromEnv(), acctest.RandString(10))
+	subscription := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -32,11 +32,11 @@ func TestAccPubsubSubscription_emptyTTL(t *testing.T) {
 	})
 }
 
-func TestAccPubsubSubscription_fullName(t *testing.T) {
+func TestAccPubsubSubscription_basic(t *testing.T) {
 	t.Parallel()
 
 	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(10))
-	subscription := fmt.Sprintf("projects/%s/subscriptions/tf-test-sub-%s", getTestProjectFromEnv(), acctest.RandString(10))
+	subscription := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -44,7 +44,7 @@ func TestAccPubsubSubscription_fullName(t *testing.T) {
 		CheckDestroy: testAccCheckPubsubSubscriptionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPubsubSubscription_fullName(topic, subscription, "bar", 20),
+				Config: testAccPubsubSubscription_basic(topic, subscription, "bar", 20),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription.foo",
@@ -69,28 +69,16 @@ func TestAccPubsubSubscription_update(t *testing.T) {
 		CheckDestroy: testAccCheckPubsubSubscriptionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPubsubSubscription_fullName(topic, subscriptionLong, "bar", 20),
+				Config: testAccPubsubSubscription_basic(topic, subscriptionShort, "bar", 20),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription.foo",
-				ImportStateId:     subscriptionLong,
+				ImportStateId:     subscriptionShort,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccPubsubSubscription_fullName(topic, subscriptionLong, "baz", 30),
-				Check: resource.TestCheckResourceAttr(
-					"google_pubsub_subscription.foo", "path", subscriptionLong,
-				),
-			},
-			{
-				ResourceName:      "google_pubsub_subscription.foo",
-				ImportStateId:     subscriptionLong,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccPubsubSubscription_fullName(topic, subscriptionShort, "baz", 30),
+				Config: testAccPubsubSubscription_basic(topic, subscriptionShort, "baz", 30),
 				Check: resource.TestCheckResourceAttr(
 					"google_pubsub_subscription.foo", "path", subscriptionLong,
 				),
@@ -109,7 +97,7 @@ func TestAccPubsubSubscription_push(t *testing.T) {
 	t.Parallel()
 
 	topicFoo := fmt.Sprintf("tf-test-topic-foo-%s", acctest.RandString(10))
-	subscription := fmt.Sprintf("projects/%s/subscriptions/tf-test-topic-foo-%s", getTestProjectFromEnv(), acctest.RandString(10))
+	subscription := fmt.Sprintf("tf-test-topic-foo-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -183,7 +171,7 @@ resource "google_pubsub_subscription" "foo" {
 `, topicFoo, subscription)
 }
 
-func testAccPubsubSubscription_fullName(topic, subscription, label string, deadline int) string {
+func testAccPubsubSubscription_basic(topic, subscription, label string, deadline int) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "foo" {
 	name = "%s"

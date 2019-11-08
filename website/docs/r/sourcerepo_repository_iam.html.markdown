@@ -113,11 +113,11 @@ exported:
 SourceRepo repository IAM resources can be imported using the project, resource identifiers, role and member.
 
 ```
-$ terraform import google_sourcerepo_repository_iam_policy.editor {{project}}/{{repository}}
+$ terraform import google_sourcerepo_repository_iam_policy.editor projects/{{project}}/repos/{{repository}}
 
-$ terraform import google_sourcerepo_repository_iam_binding.editor "{{project}}/{{repository}} roles/viewer"
+$ terraform import google_sourcerepo_repository_iam_binding.editor "projects/{{project}}/repos/{{repository}} roles/viewer"
 
-$ terraform import google_sourcerepo_repository_iam_member.editor "{{project}}/{{repository}} roles/viewer jane@example.com"
+$ terraform import google_sourcerepo_repository_iam_member.editor "projects/{{project}}/repos/{{repository}} roles/viewer jane@example.com"
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`

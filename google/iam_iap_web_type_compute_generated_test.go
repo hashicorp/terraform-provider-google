@@ -114,14 +114,14 @@ func TestAccIapWebTypeComputeIamPolicyGenerated(t *testing.T) {
 func testAccIapWebTypeComputeIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "project" {
-	project_id = "tf-test%{random_suffix}"
-	name = "tf-test%{random_suffix}"
-	org_id = "%{org_id}"
+  project_id = "tf-test%{random_suffix}"
+  name       = "tf-test%{random_suffix}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_iap_web_type_compute_iam_member" "foo" {
@@ -135,14 +135,14 @@ resource "google_iap_web_type_compute_iam_member" "foo" {
 func testAccIapWebTypeComputeIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "project" {
-	project_id = "tf-test%{random_suffix}"
-	name = "tf-test%{random_suffix}"
-	org_id = "%{org_id}"
+  project_id = "tf-test%{random_suffix}"
+  name       = "tf-test%{random_suffix}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.project.project_id
+  service = "iap.googleapis.com"
 }
 
 data "google_iam_policy" "foo" {
@@ -162,14 +162,14 @@ resource "google_iap_web_type_compute_iam_policy" "foo" {
 func testAccIapWebTypeComputeIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "project" {
-	project_id = "tf-test%{random_suffix}"
-	name = "tf-test%{random_suffix}"
-	org_id = "%{org_id}"
+  project_id = "tf-test%{random_suffix}"
+  name       = "tf-test%{random_suffix}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_iap_web_type_compute_iam_binding" "foo" {
@@ -183,14 +183,14 @@ resource "google_iap_web_type_compute_iam_binding" "foo" {
 func testAccIapWebTypeComputeIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "project" {
-	project_id = "tf-test%{random_suffix}"
-	name = "tf-test%{random_suffix}"
-	org_id = "%{org_id}"
+  project_id = "tf-test%{random_suffix}"
+  name       = "tf-test%{random_suffix}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_iap_web_type_compute_iam_binding" "foo" {

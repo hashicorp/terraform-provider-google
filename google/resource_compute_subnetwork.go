@@ -19,7 +19,6 @@ import (
 	"log"
 	"net"
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/apparentlymart/go-cidr/cidr"
@@ -47,13 +46,6 @@ func isShrinkageIpCidr(old, new, _ interface{}) bool {
 	}
 
 	return true
-}
-
-func splitSubnetID(id string) (region string, name string) {
-	parts := strings.Split(id, "/")
-	region = parts[0]
-	name = parts[1]
-	return
 }
 
 func resourceComputeSubnetwork() *schema.Resource {
@@ -101,15 +93,8 @@ func resourceComputeSubnetwork() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"enable_flow_logs": {
-				Type:       schema.TypeBool,
-				Computed:   true,
-				Optional:   true,
-				Deprecated: "This field is being removed in favor of log_config. If log_config is present, flow logs are enabled.",
-			},
 			"log_config": {
 				Type:     schema.TypeList,
-				Computed: true,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -176,6 +161,12 @@ func resourceComputeSubnetwork() *schema.Resource {
 			"gateway_address": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"enable_flow_logs": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				Removed:  "This field is being removed in favor of log_config. If log_config is present, flow logs are enabled. Please remove this field",
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -261,12 +252,6 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
-	enableFlowLogsProp, err := expandComputeSubnetworkEnableFlowLogs(d.Get("enable_flow_logs"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("enable_flow_logs"); ok || !reflect.DeepEqual(v, enableFlowLogsProp) {
-		obj["enableFlowLogs"] = enableFlowLogsProp
-	}
 	fingerprintProp, err := expandComputeSubnetworkFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
 		return err
@@ -294,7 +279,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	logConfigProp, err := expandComputeSubnetworkLogConfig(d.Get("log_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(logConfigProp)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
+	} else if v, ok := d.GetOkExists("log_config"); ok || !reflect.DeepEqual(v, logConfigProp) {
 		obj["logConfig"] = logConfigProp
 	}
 
@@ -314,7 +299,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{region}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -378,9 +363,6 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("network", flattenComputeSubnetworkNetwork(res["network"], d)); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
-	}
-	if err := d.Set("enable_flow_logs", flattenComputeSubnetworkEnableFlowLogs(res["enableFlowLogs"], d)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("fingerprint", flattenComputeSubnetworkFingerprint(res["fingerprint"], d)); err != nil {
@@ -449,57 +431,6 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		d.SetPartial("ip_cidr_range")
-	}
-	if d.HasChange("enable_flow_logs") {
-		obj := make(map[string]interface{})
-
-		getUrl, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		project, err := getProject(d, config)
-		if err != nil {
-			return err
-		}
-		getRes, err := sendRequest(config, "GET", project, getUrl, nil)
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
-		}
-
-		obj["fingerprint"] = getRes["fingerprint"]
-
-		enableFlowLogsProp, err := expandComputeSubnetworkEnableFlowLogs(d.Get("enable_flow_logs"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("enable_flow_logs"); ok || !reflect.DeepEqual(v, enableFlowLogsProp) {
-			obj["enableFlowLogs"] = enableFlowLogsProp
-		}
-
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
-		if err != nil {
-			return err
-		}
-		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
-		}
-
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
-		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating Subnetwork",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("enable_flow_logs")
 	}
 	if d.HasChange("secondary_ip_range") {
 		obj := make(map[string]interface{})
@@ -609,7 +540,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		logConfigProp, err := expandComputeSubnetworkLogConfig(d.Get("log_config"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
+		} else if v, ok := d.GetOkExists("log_config"); ok || !reflect.DeepEqual(v, logConfigProp) {
 			obj["logConfig"] = logConfigProp
 		}
 
@@ -695,7 +626,7 @@ func resourceComputeSubnetworkImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{region}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -729,10 +660,6 @@ func flattenComputeSubnetworkNetwork(v interface{}, d *schema.ResourceData) inte
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
-}
-
-func flattenComputeSubnetworkEnableFlowLogs(v interface{}, d *schema.ResourceData) interface{} {
-	return v
 }
 
 func flattenComputeSubnetworkFingerprint(v interface{}, d *schema.ResourceData) interface{} {
@@ -818,10 +745,6 @@ func expandComputeSubnetworkNetwork(v interface{}, d TerraformResourceData, conf
 	return f.RelativeLink(), nil
 }
 
-func expandComputeSubnetworkEnableFlowLogs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
 func expandComputeSubnetworkFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -877,21 +800,20 @@ func expandComputeSubnetworkRegion(v interface{}, d TerraformResourceData, confi
 
 func expandComputeSubnetworkLogConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
+	transformed := make(map[string]interface{})
 	if len(l) == 0 || l[0] == nil {
-		return nil, nil
+		// send enable = false to ensure logging is disabled if there is no config
+		transformed["enable"] = false
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})
 
-	v, ok := d.GetOkExists("enable_flow_logs")
-
-	transformed := make(map[string]interface{})
-	if !ok || v.(bool) {
-		transformed["enable"] = true
-		transformed["aggregationInterval"] = original["aggregation_interval"]
-		transformed["flowSampling"] = original["flow_sampling"]
-		transformed["metadata"] = original["metadata"]
-	}
+	// The log_config block is specified, so logging should be enabled
+	transformed["enable"] = true
+	transformed["aggregationInterval"] = original["aggregation_interval"]
+	transformed["flowSampling"] = original["flow_sampling"]
+	transformed["metadata"] = original["metadata"]
 
 	return transformed, nil
 }

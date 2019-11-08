@@ -49,6 +49,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function_http" {
   name                  = "%s-http"
+  runtime               = "nodejs8"
   description           = "test function"
   available_memory_mb   = 128
   source_archive_bucket = "${google_storage_bucket.bucket.name}"

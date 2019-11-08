@@ -16,7 +16,7 @@ Get an active folder within GCP by `display_name` and `parent`.
 ```tf
 data "google_active_folder" "department1" {
   display_name = "Department 1"
-  parent = "organizations/1234567"
+  parent       = "organizations/1234567"
 }
 ```
 

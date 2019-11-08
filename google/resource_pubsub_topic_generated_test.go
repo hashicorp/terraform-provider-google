@@ -94,7 +94,6 @@ resource "google_pubsub_topic" "example" {
       "europe-west3",
     ]
   }
-
 }
 `, context)
 }

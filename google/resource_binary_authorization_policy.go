@@ -225,7 +225,7 @@ func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}")
+	id, err := replaceVars(d, config, "projects/{{project}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -367,7 +367,7 @@ func resourceBinaryAuthorizationPolicyImport(d *schema.ResourceData, meta interf
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}")
+	id, err := replaceVars(d, config, "projects/{{project}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

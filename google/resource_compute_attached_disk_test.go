@@ -14,7 +14,7 @@ func TestAccComputeAttachedDisk_basic(t *testing.T) {
 
 	diskName := acctest.RandomWithPrefix("tf-test-disk")
 	instanceName := acctest.RandomWithPrefix("tf-test-inst")
-	importID := fmt.Sprintf("%s/us-central1-a/%s:%s", getTestProjectFromEnv(), instanceName, diskName)
+	importID := fmt.Sprintf("%s/us-central1-a/%s/%s", getTestProjectFromEnv(), instanceName, diskName)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -46,7 +46,7 @@ func TestAccComputeAttachedDisk_full(t *testing.T) {
 
 	diskName := acctest.RandomWithPrefix("tf-test")
 	instanceName := acctest.RandomWithPrefix("tf-test")
-	importID := fmt.Sprintf("%s/us-central1-a/%s:%s", getTestProjectFromEnv(), instanceName, diskName)
+	importID := fmt.Sprintf("%s/us-central1-a/%s/%s", getTestProjectFromEnv(), instanceName, diskName)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -73,7 +73,7 @@ func TestAccComputeAttachedDisk_region(t *testing.T) {
 
 	diskName := acctest.RandomWithPrefix("tf-test")
 	instanceName := acctest.RandomWithPrefix("tf-test")
-	importID := fmt.Sprintf("%s/us-central1-a/%s:%s", getTestProjectFromEnv(), instanceName, diskName)
+	importID := fmt.Sprintf("%s/us-central1-a/%s/%s", getTestProjectFromEnv(), instanceName, diskName)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

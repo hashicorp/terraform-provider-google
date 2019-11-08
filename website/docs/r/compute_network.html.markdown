@@ -69,16 +69,6 @@ The following arguments are supported:
   An optional description of this resource. The resource must be
   recreated to modify this field.
 
-* `ipv4_range` -
-  (Optional, Deprecated)
-  If this field is specified, a deprecated legacy network is created.
-  You will no longer be able to create a legacy network on Feb 1, 2020.
-  See the [legacy network docs](https://cloud.google.com/vpc/docs/legacy)
-  for more details.
-  The range of internal addresses that are legal on this legacy network.
-  This range is a CIDR specification, for example: `192.168.0.0/16`.
-  The resource must be recreated to modify this field.
-
 * `auto_create_subnetworks` -
   (Optional)
   When set to `true`, the network is created in "auto subnet mode" and

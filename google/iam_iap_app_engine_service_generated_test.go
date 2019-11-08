@@ -127,36 +127,36 @@ resource "google_project" "my_project" {
 }
 
 resource "google_project_service" "project_service" {
-  project = "${google_project.my_project.project_id}"
+  project = google_project.my_project.project_id
   service = "iap.googleapis.com"
 }
 
 resource "google_project_service" "cloudbuild_service" {
-  project = "${google_project_service.project_service.project}"
+  project = google_project_service.project_service.project
   service = "cloudbuild.googleapis.com"
 }
 
 resource "google_app_engine_application" "app" {
-  project     = "${google_project_service.cloudbuild_service.project}"
+  project     = google_project_service.cloudbuild_service.project
   location_id = "us-central"
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = "${google_app_engine_application.app.project}"
+  project = google_app_engine_application.app.project
   name    = "appengine-static-content-%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "object" {
-  name    = "hello-world.zip"
-  bucket  = "${google_storage_bucket.bucket.name}"
-  source  = "./test-fixtures/appengine/hello-world.zip"
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/appengine/hello-world.zip"
 }
 
 resource "google_app_engine_standard_app_version" "version" {
-  project = "${google_app_engine_application.app.project}"
-  version_id = "v2"
-  service = "default"
-  runtime = "nodejs10"
+  project         = google_app_engine_application.app.project
+  version_id      = "v2"
+  service         = "default"
+  runtime         = "nodejs10"
   noop_on_destroy = true
   entrypoint {
     shell = "node ./app.js"
@@ -191,36 +191,36 @@ resource "google_project" "my_project" {
 }
 
 resource "google_project_service" "project_service" {
-  project = "${google_project.my_project.project_id}"
+  project = google_project.my_project.project_id
   service = "iap.googleapis.com"
 }
 
 resource "google_project_service" "cloudbuild_service" {
-  project = "${google_project_service.project_service.project}"
+  project = google_project_service.project_service.project
   service = "cloudbuild.googleapis.com"
 }
 
 resource "google_app_engine_application" "app" {
-  project     = "${google_project_service.cloudbuild_service.project}"
+  project     = google_project_service.cloudbuild_service.project
   location_id = "us-central"
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = "${google_app_engine_application.app.project}"
+  project = google_app_engine_application.app.project
   name    = "appengine-static-content-%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "object" {
-  name    = "hello-world.zip"
-  bucket  = "${google_storage_bucket.bucket.name}"
-  source  = "./test-fixtures/appengine/hello-world.zip"
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/appengine/hello-world.zip"
 }
 
 resource "google_app_engine_standard_app_version" "version" {
-  project = "${google_app_engine_application.app.project}"
-  version_id = "v2"
-  service = "default"
-  runtime = "nodejs10"
+  project         = google_app_engine_application.app.project
+  version_id      = "v2"
+  service         = "default"
+  runtime         = "nodejs10"
   noop_on_destroy = true
   entrypoint {
     shell = "node ./app.js"
@@ -261,36 +261,36 @@ resource "google_project" "my_project" {
 }
 
 resource "google_project_service" "project_service" {
-  project = "${google_project.my_project.project_id}"
+  project = google_project.my_project.project_id
   service = "iap.googleapis.com"
 }
 
 resource "google_project_service" "cloudbuild_service" {
-  project = "${google_project_service.project_service.project}"
+  project = google_project_service.project_service.project
   service = "cloudbuild.googleapis.com"
 }
 
 resource "google_app_engine_application" "app" {
-  project     = "${google_project_service.cloudbuild_service.project}"
+  project     = google_project_service.cloudbuild_service.project
   location_id = "us-central"
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = "${google_app_engine_application.app.project}"
+  project = google_app_engine_application.app.project
   name    = "appengine-static-content-%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "object" {
-  name    = "hello-world.zip"
-  bucket  = "${google_storage_bucket.bucket.name}"
-  source  = "./test-fixtures/appengine/hello-world.zip"
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/appengine/hello-world.zip"
 }
 
 resource "google_app_engine_standard_app_version" "version" {
-  project = "${google_app_engine_application.app.project}"
-  version_id = "v2"
-  service = "default"
-  runtime = "nodejs10"
+  project         = google_app_engine_application.app.project
+  version_id      = "v2"
+  service         = "default"
+  runtime         = "nodejs10"
   noop_on_destroy = true
   entrypoint {
     shell = "node ./app.js"
@@ -325,36 +325,36 @@ resource "google_project" "my_project" {
 }
 
 resource "google_project_service" "project_service" {
-  project = "${google_project.my_project.project_id}"
+  project = google_project.my_project.project_id
   service = "iap.googleapis.com"
 }
 
 resource "google_project_service" "cloudbuild_service" {
-  project = "${google_project_service.project_service.project}"
+  project = google_project_service.project_service.project
   service = "cloudbuild.googleapis.com"
 }
 
 resource "google_app_engine_application" "app" {
-  project     = "${google_project_service.cloudbuild_service.project}"
+  project     = google_project_service.cloudbuild_service.project
   location_id = "us-central"
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = "${google_app_engine_application.app.project}"
+  project = google_app_engine_application.app.project
   name    = "appengine-static-content-%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "object" {
-  name    = "hello-world.zip"
-  bucket  = "${google_storage_bucket.bucket.name}"
-  source  = "./test-fixtures/appengine/hello-world.zip"
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/appengine/hello-world.zip"
 }
 
 resource "google_app_engine_standard_app_version" "version" {
-  project = "${google_app_engine_application.app.project}"
-  version_id = "v2"
-  service = "default"
-  runtime = "nodejs10"
+  project         = google_app_engine_application.app.project
+  version_id      = "v2"
+  service         = "default"
+  runtime         = "nodejs10"
   noop_on_destroy = true
   entrypoint {
     shell = "node ./app.js"

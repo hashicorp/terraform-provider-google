@@ -75,7 +75,7 @@ resource "google_container_cluster" "kubes" {
 
 data "google_container_cluster" "kubes" {
 	name     = "${google_container_cluster.kubes.name}"
-	location = "${google_container_cluster.kubes.zone}"
+	location = "${google_container_cluster.kubes.location}"
 }
 `, acctest.RandString(10))
 }
@@ -90,7 +90,7 @@ resource "google_container_cluster" "kubes" {
 
 data "google_container_cluster" "kubes" {
 	name     = "${google_container_cluster.kubes.name}"
-	location = "${google_container_cluster.kubes.region}"
+	location = "${google_container_cluster.kubes.location}"
 }
 `, acctest.RandString(10))
 }

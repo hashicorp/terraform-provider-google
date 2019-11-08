@@ -62,11 +62,11 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 										Type:     schema.TypeString,
 										Required: true,
 									},
-									"sha1_sum": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
 									"source_url": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"sha1_sum": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
@@ -79,12 +79,12 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"files_count": {
-										Type:     schema.TypeInt,
-										Optional: true,
-									},
 									"source_url": {
 										Type:     schema.TypeString,
+										Required: true,
+									},
+									"files_count": {
+										Type:     schema.TypeInt,
 										Optional: true,
 									},
 								},
@@ -101,7 +101,7 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"shell": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 					},
 				},

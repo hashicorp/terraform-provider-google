@@ -160,7 +160,7 @@ func (u *BinaryAuthorizationAttestorIamUpdater) qualifyAttestorUrl(methodIdentif
 }
 
 func (u *BinaryAuthorizationAttestorIamUpdater) GetResourceId() string {
-	return fmt.Sprintf("%s/%s", u.project, u.attestor)
+	return fmt.Sprintf("projects/%s/attestors/%s", u.project, u.attestor)
 }
 
 func (u *BinaryAuthorizationAttestorIamUpdater) GetMutexKey() string {

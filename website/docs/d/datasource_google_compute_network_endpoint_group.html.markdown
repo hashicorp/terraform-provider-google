@@ -17,12 +17,12 @@ The NEG may be found by providing either a `self_link`, or a `name` and a `zone`
 
 ```hcl
 data "google_compute_network_endpoint_group" "neg1" {
-	name = "k8s1-abcdef01-myns-mysvc-8080-4b6bac43"
-	zone = "us-central1-a"
+  name = "k8s1-abcdef01-myns-mysvc-8080-4b6bac43"
+  zone = "us-central1-a"
 }
 
 data "google_compute_network_endpoint_group" "neg2" {
-	self_link = "https://www.googleapis.com/compute/v1/projects/myproject/zones/us-central1-a/networkEndpointGroups/k8s1-abcdef01-myns-mysvc-8080-4b6bac43"
+  self_link = "https://www.googleapis.com/compute/v1/projects/myproject/zones/us-central1-a/networkEndpointGroups/k8s1-abcdef01-myns-mysvc-8080-4b6bac43"
 }
 ```
 

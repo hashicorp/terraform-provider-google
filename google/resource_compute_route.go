@@ -206,7 +206,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/routes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -356,7 +356,7 @@ func resourceComputeRouteImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/routes/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -457,11 +457,7 @@ func expandComputeRouteTags(v interface{}, d TerraformResourceData, config *Conf
 
 func expandComputeRouteNextHopGateway(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	if v == "default-internet-gateway" {
-		project, err := getProject(d, config)
-		if err != nil {
-			return nil, err
-		}
-		return fmt.Sprintf("projects/%s/global/gateways/default-internet-gateway", project), nil
+		return replaceVars(d, config, "projects/{{project}}/global/gateways/default-internet-gateway")
 	} else {
 		return v, nil
 	}

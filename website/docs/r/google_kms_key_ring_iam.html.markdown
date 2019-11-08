@@ -33,8 +33,8 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_kms_key_ring_iam_policy" "key_ring" {
-	key_ring_id = "your-key-ring-id"
-	policy_data = "${data.google_iam_policy.admin.policy_data}"
+  key_ring_id = "your-key-ring-id"
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 

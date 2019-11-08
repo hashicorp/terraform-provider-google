@@ -36,8 +36,8 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_compute_subnetwork_iam_policy" "subnet" {
-	subnetwork  = "your-subnetwork-id"
-	policy_data = "${data.google_iam_policy.admin.policy_data}"
+  subnetwork  = "your-subnetwork-id"
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 

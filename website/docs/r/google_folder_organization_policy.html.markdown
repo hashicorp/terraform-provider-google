@@ -54,7 +54,7 @@ resource "google_folder_organization_policy" "services_policy" {
   constraint = "serviceuser.services"
 
   list_policy {
-    suggested_values = "compute.googleapis.com"
+    suggested_value = "compute.googleapis.com"
 
     deny {
       values = ["cloudresourcemanager.googleapis.com"]
@@ -108,7 +108,7 @@ The `list_policy` block supports:
 
 * `allow` or `deny` - (Optional) One or the other must be set.
 
-* `suggested_values` - (Optional) The Google Cloud Console will try to default to a configuration that matches the value specified in this field.
+* `suggested_value` - (Optional) The Google Cloud Console will try to default to a configuration that matches the value specified in this field.
 
 * `inherit_from_parent` - (Optional) If set to true, the values from the effective Policy of the parent resource
 are inherited, meaning the values set in this Policy are added to the values inherited up the hierarchy.

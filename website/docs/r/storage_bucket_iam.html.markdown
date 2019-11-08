@@ -23,7 +23,7 @@ Three different resources help you manage your IAM policy for storage bucket. Ea
 ```hcl
 resource "google_storage_bucket_iam_binding" "binding" {
   bucket = "your-bucket-name"
-  role        = "roles/storage.objectViewer"
+  role   = "roles/storage.objectViewer"
 
   members = [
     "user:jane@example.com",
@@ -36,8 +36,8 @@ resource "google_storage_bucket_iam_binding" "binding" {
 ```hcl
 resource "google_storage_bucket_iam_member" "member" {
   bucket = "your-bucket-name"
-  role        = "roles/storage.objectViewer"
-  member      = "user:jane@example.com"
+  role   = "roles/storage.objectViewer"
+  member = "user:jane@example.com"
 }
 ```
 
@@ -54,13 +54,13 @@ data "google_iam_policy" "foo-policy" {
   binding {
     role = "roles/your-role"
 
-    members = [ "group:yourgroup@example.com" ]
+    members = ["group:yourgroup@example.com"]
   }
 }
 
 resource "google_storage_bucket_iam_policy" "member" {
-  bucket = "your-bucket-name"
-  policy_data = "${data.google_iam_policy.foo-policy.policy_data}"
+  bucket      = "your-bucket-name"
+  policy_data = data.google_iam_policy.foo-policy.policy_data
 }
 ```
 

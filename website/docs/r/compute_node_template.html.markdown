@@ -47,9 +47,9 @@ data "google_compute_node_types" "central1a" {
 }
 
 resource "google_compute_node_template" "template" {
-  name = "soletenant-tmpl"
-  region = "us-central1"
-  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+  name      = "soletenant-tmpl"
+  region    = "us-central1"
+  node_type = data.google_compute_node_types.central1a.names[0]
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -67,16 +67,16 @@ provider "google-beta" {
 }
 
 data "google_compute_node_types" "central1a" {
-  provider = "google-beta"
-  zone = "us-central1-a"
+  provider = google-beta
+  zone     = "us-central1-a"
 }
 
 resource "google_compute_node_template" "template" {
-  provider = "google-beta"
+  provider = google-beta
 
-  name = "soletenant-with-licenses"
-  region = "us-central1"
-  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+  name      = "soletenant-with-licenses"
+  region    = "us-central1"
+  node_type = data.google_compute_node_types.central1a.names[0]
 
   node_affinity_labels = {
     foo = "baz"

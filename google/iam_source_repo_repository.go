@@ -160,7 +160,7 @@ func (u *SourceRepoRepositoryIamUpdater) qualifyRepositoryUrl(methodIdentifier s
 }
 
 func (u *SourceRepoRepositoryIamUpdater) GetResourceId() string {
-	return fmt.Sprintf("%s/%s", u.project, u.repository)
+	return fmt.Sprintf("projects/%s/repos/%s", u.project, u.repository)
 }
 
 func (u *SourceRepoRepositoryIamUpdater) GetMutexKey() string {

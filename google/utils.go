@@ -29,6 +29,7 @@ type TerraformResourceData interface {
 
 type TerraformResourceDiff interface {
 	GetChange(string) (interface{}, interface{})
+	Get(string) interface{}
 	Clear(string) error
 }
 
@@ -563,4 +564,18 @@ func calcAddRemove(from []string, to []string) (add, remove []string) {
 		}
 	}
 	return add, remove
+}
+
+// Format all the strings in the list with the list of values
+// The strings in listOfStrings must have the same formats.
+// The values in values must be the correct type and order
+// for the strings' formats.
+func formatStringsInList(listOfStrings []string, values ...interface{}) []string {
+	result := make([]string, 0)
+
+	for _, s := range listOfStrings {
+		result = append(result, fmt.Sprintf(s, values...))
+	}
+
+	return result
 }

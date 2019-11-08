@@ -299,7 +299,7 @@ func resourceMonitoringAlertPolicy() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Deprecated: "labels is removed as it was never used. See user_labels for the correct field",
+				Removed: "labels is removed as it was never used. See user_labels for the correct field",
 			},
 			"project": {
 				Type:     schema.TypeString,

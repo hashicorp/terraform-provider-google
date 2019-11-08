@@ -67,7 +67,7 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
   name          = "test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.custom-test.self_link}"
+  network       = google_compute_network.custom-test.self_link
   secondary_ip_range {
     range_name    = "tf-test-secondary-range-update1"
     ip_cidr_range = "192.168.10.0/24"
@@ -92,7 +92,7 @@ resource "google_compute_subnetwork" "subnet-with-logging" {
   name          = "log-test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.custom-test.self_link}"
+  network       = google_compute_network.custom-test.self_link
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
@@ -116,18 +116,18 @@ resource "google_compute_network" "custom-test" {
 
 ```hcl
 resource "google_compute_subnetwork" "network-for-l7lb" {
-  provider	= "google-beta"
+  provider = google-beta
 
   name          = "l7lb-test-subnetwork"
   ip_cidr_range = "10.0.0.0/22"
   region        = "us-central1"
   purpose       = "INTERNAL_HTTPS_LOAD_BALANCER"
   role          = "ACTIVE"
-  network       = "${google_compute_network.custom-test.self_link}"
+  network       = google_compute_network.custom-test.self_link
 }
 
 resource "google_compute_network" "custom-test" {
-  provider		  = "google-beta"
+  provider = google-beta
 
   name                    = "l7lb-test-network"
   auto_create_subnetworks = false
@@ -170,10 +170,6 @@ The following arguments are supported:
   An optional description of this resource. Provide this property when
   you create the resource. This field can be set only at resource
   creation time.
-
-* `enable_flow_logs` -
-  (Optional, Deprecated)
-  Whether to enable flow logging for this subnetwork.
 
 * `secondary_ip_range` -
   (Optional)
