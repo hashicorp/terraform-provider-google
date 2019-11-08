@@ -14,6 +14,10 @@ func resourceBigtableTable() *schema.Resource {
 		Read:   resourceBigtableTableRead,
 		Delete: resourceBigtableTableDestroy,
 
+		Importer: &schema.ResourceImporter{
+			State: resourceBigtableTableImport,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -181,4 +185,25 @@ func flattenColumnFamily(families []string) []map[string]interface{} {
 	}
 
 	return result
+}
+
+//TODO(rileykarson): Fix the stored import format after rebasing 3.0.0
+func resourceBigtableTableImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/instances/(?P<instance_name>[^/]+)/tables/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<instance_name>[^/]+)/(?P<name>[^/]+)",
+		"(?P<instance_name>[^/]+)/(?P<name>[^/]+)",
+	}, d, config); err != nil {
+		return nil, err
+	}
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }
