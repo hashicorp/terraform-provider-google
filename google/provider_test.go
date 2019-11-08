@@ -203,7 +203,7 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 				Check: func(s *terraform.State) error {
 					// The token creator IAM API call returns success long before the policy is
 					// actually usable. Wait a solid 2 minutes to ensure we can use it.
-					time.Sleep(2 * time.Minute)
+					time.Sleep(5 * time.Minute)
 					return nil
 				},
 			},
