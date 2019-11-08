@@ -55,6 +55,7 @@ resource "google_logging_metric" "logging_metric" {
         value_type = "STRING"
         description = "amount of matter"
     }
+    display_name = "My metric"
   }
   value_extractor = "EXTRACT(jsonPayload.request)"
   label_extractors = { "mass": "EXTRACT(jsonPayload.request)" }
@@ -159,6 +160,12 @@ The `metric_descriptor` block supports:
   example, the appengine.googleapis.com/http/server/response_latencies metric type has a label
   for the HTTP response code, response_code, so you can look at latencies for successful responses
   or just for responses that failed.  Structure is documented below.
+
+* `display_name` -
+  (Optional)
+  A concise name for the metric, which can be displayed in user interfaces. Use sentence case 
+  without an ending period, for example "Request count". This field is optional but it is 
+  recommended to be set for any metrics associated with user-visible concepts, such as Quota.
 
 
 The `labels` block supports:
