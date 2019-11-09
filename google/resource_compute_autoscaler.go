@@ -572,7 +572,7 @@ func expandComputeAutoscalerAutoscalingPolicy(v interface{}, d TerraformResource
 	transformedMinReplicas, err := expandComputeAutoscalerAutoscalingPolicyMinReplicas(original["min_replicas"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMinReplicas); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["minNumReplicas"] = transformedMinReplicas
 	}
 
