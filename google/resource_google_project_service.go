@@ -2,13 +2,12 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/api/googleapi"
-	"google.golang.org/api/serviceusage/v1"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"google.golang.org/api/serviceusage/v1"
 )
 
 var ignoredProjectServices = []string{"dataproc-control.googleapis.com", "source.googleapis.com", "stackdriverprovisioning.googleapis.com"}
@@ -138,11 +137,13 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 	}
 	srv := d.Get("service").(string)
 
-	enabled, err := isServiceEnabled(project, srv, config)
+	servicesRaw, err := BatchRequestReadServices(project, d, config)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Project Service %s", d.Id()))
 	}
-	if enabled {
+	servicesList := servicesRaw.(map[string]struct{})
+
+	if _, ok := servicesList[srv]; ok {
 		d.Set("project", project)
 		d.Set("service", srv)
 		return nil
@@ -182,34 +183,6 @@ func resourceGoogleProjectServiceUpdate(d *schema.ResourceData, meta interface{}
 	// This update method is no-op because the only updatable fields
 	// are state/config-only, i.e. they aren't sent in requests to the API.
 	return nil
-}
-
-// Retrieve enablement state for a given project's service
-func isServiceEnabled(project, serviceName string, config *Config) (bool, error) {
-	// Verify project for services still exists
-	p, err := config.clientResourceManager.Projects.Get(project).Do()
-	if err != nil {
-		return false, err
-	}
-	if p.LifecycleState == "DELETE_REQUESTED" {
-		// Construct a 404 error for handleNotFoundError
-		return false, &googleapi.Error{
-			Code:    404,
-			Message: "Project deletion was requested",
-		}
-	}
-
-	resourceName := fmt.Sprintf("projects/%s/services/%s", project, serviceName)
-	var srv *serviceusage.GoogleApiServiceusageV1Service
-	err = retryTime(func() error {
-		var currErr error
-		srv, currErr = config.clientServiceUsage.Services.Get(resourceName).Do()
-		return currErr
-	}, 10)
-	if err != nil {
-		return false, errwrap.Wrapf(fmt.Sprintf("Failed to list enabled services for project %s: {{err}}", project), err)
-	}
-	return srv.State == "ENABLED", nil
 }
 
 // Disables a project service.

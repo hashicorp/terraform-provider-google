@@ -6,6 +6,8 @@ import (
 	"log"
 	"sync"
 	"time"
+
+	"github.com/hashicorp/errwrap"
 )
 
 const defaultBatchSendIntervalSec = 10
@@ -154,7 +156,8 @@ func (b *RequestBatcher) SendRequestWithTimeout(batchKey string, request *BatchR
 	select {
 	case resp := <-respCh:
 		if resp.err != nil {
-			return nil, fmt.Errorf("Batch %q for request %q returned error: %v", batchKey, request.DebugId, resp.err)
+			// use wrapf so we can potentially extract the original error type
+			return nil, errwrap.Wrapf(fmt.Sprintf("Batch %q for request %q returned error: {{err}}", batchKey, request.DebugId), resp.err)
 		}
 		return resp.body, nil
 	case <-ctx.Done():
