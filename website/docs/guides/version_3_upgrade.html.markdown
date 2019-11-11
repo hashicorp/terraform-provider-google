@@ -51,6 +51,7 @@ so Terraform knows to manage them.
 
 <!-- TOC depthFrom:2 depthTo:2 -->
 - [Resource: `google_container_cluster`](#resource-google_container_cluster)
+- [Resource: `google_project_service`](#resource-google_project_service)
 - [Resource: `google_project_services`](#resource-google_project_services)
 
 <!-- /TOC -->
@@ -287,6 +288,15 @@ of this change, the JSON/state representation of the field has changed,
 introducing an incompatibility for users who specify config in JSON instead of
 HCL or who use `dynamic` blocks. See more details in the [Attributes as Blocks](https://www.terraform.io/docs/configuration/attr-as-blocks.html)
 documentation.
+
+## Resource: `google_project_service`
+
+### `bigquery-json.googleapis.com` service can no longer be specified
+
+`bigquery-json.googleapis.com` is being renamed to `bigquery.googleapis.com` in
+the upstream API. As a result, `bigquery-json.googleapis.com` has been
+disallowed. Instead, please use `bigquery.googleapis.com`. The provider will
+automatically convert between them as the upstream API migration continues.
 
 ## Resource: `google_project_services`
 
