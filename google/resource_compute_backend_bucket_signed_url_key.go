@@ -41,11 +41,14 @@ func resourceComputeBackendBucketSignedUrlKey() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The backend bucket this signed URL key belongs.`,
 			},
 			"key_value": {
-				Type:      schema.TypeString,
-				Required:  true,
-				ForceNew:  true,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `128-bit key value used for signing the URL. The key value must be a
+valid RFC 4648 Section 5 base64url encoded string.`,
 				Sensitive: true,
 			},
 			"name": {
@@ -53,6 +56,7 @@ func resourceComputeBackendBucketSignedUrlKey() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRegexp(`^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$`),
+				Description:  `Name of the signed URL key.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

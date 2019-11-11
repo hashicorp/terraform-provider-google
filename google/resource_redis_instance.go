@@ -45,19 +45,25 @@ func resourceRedisInstance() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"memory_size_gb": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Redis memory size in GiB.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The ID of the instance or a fully qualified identifier for the instance.`,
 			},
 			"alternative_location_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
+				Description: `Only applicable to STANDARD_HA tier which protects the instance
+against zonal failures by provisioning it across two zones.
+If provided, it must be a different zone from the one provided in
+[locationId].`,
 			},
 			"authorized_network": {
 				Type:             schema.TypeString,
@@ -65,67 +71,105 @@ func resourceRedisInstance() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The full name of the Google Compute Engine network to which the
+instance is connected. If left unspecified, the default network
+will be used.`,
 			},
 			"display_name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `An arbitrary and optional user-provided name for the instance.`,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Resource labels to represent user provided metadata.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"location_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
+				Description: `The zone where the instance will be provisioned. If not provided,
+the service will choose a zone for the instance. For STANDARD_HA tier,
+instances will be created across two zones for protection against
+zonal failures. If [alternativeLocationId] is also provided, it must
+be different from [locationId].`,
 			},
 			"redis_configs": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: `Redis configuration parameters, according to http://redis.io/topics/config.
+Please check Memorystore documentation for the list of supported parameters:
+https://cloud.google.com/memorystore/docs/redis/reference/rest/v1/projects.locations.instances#Instance.FIELDS.redis_configs`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"redis_version": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
+				Description: `The version of Redis software. If not provided, latest supported
+version will be used. Currently, the supported values are:
+
+- REDIS_4_0 for Redis 4.0 compatibility
+- REDIS_3_2 for Redis 3.2 compatibility`,
 			},
 			"region": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The name of the Redis region of the instance.`,
 			},
 			"reserved_ip_range": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
+				Description: `The CIDR range of internal addresses that are reserved for this
+instance. If not provided, the service will choose an unused /29
+block, for example, 10.0.0.0/29 or 192.168.0.0/29. Ranges must be
+unique and non-overlapping with existing subnets in an authorized
+network.`,
 			},
 			"tier": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"BASIC", "STANDARD_HA", ""}, false),
-				Default:      "BASIC",
+				Description: `The service tier of the instance. Must be one of these values:
+
+- BASIC: standalone instance
+- STANDARD_HA: highly available primary/replica instances`,
+				Default: "BASIC",
 			},
 			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `The time the instance was created in RFC3339 UTC "Zulu" format,
+accurate to nanoseconds.`,
 			},
 			"current_location_id": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `The current zone where the Redis endpoint is placed.
+For Basic Tier instances, this will always be the same as the
+[locationId] provided by the user at creation time. For Standard Tier
+instances, this can be either [locationId] or [alternativeLocationId]
+and can change after a failover event.`,
 			},
 			"host": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `Hostname or IP address of the exposed Redis endpoint used by clients
+to connect to the service.`,
 			},
 			"port": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The port number of the exposed Redis endpoint.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

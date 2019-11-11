@@ -44,45 +44,69 @@ func resourceBigqueryDataTransferConfig() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"data_source_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The data source id. Cannot be changed once the transfer config is created.`,
 			},
 			"destination_dataset_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The BigQuery target dataset id.`,
 			},
 			"display_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The user specified display name for the transfer config.`,
 			},
 			"params": {
-				Type:     schema.TypeMap,
-				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Required:    true,
+				Description: `These parameters are specific to each data source.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"data_refresh_window_days": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Description: `The number of days to look back to automatically refresh the data.
+For example, if dataRefreshWindowDays = 10, then every day BigQuery
+reingests data for [today-10, today-1], rather than ingesting data for
+just [today-1]. Only valid if the data source supports the feature.
+Set the value to 0 to use the default value.`,
 			},
 			"disabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `When set to true, no runs are scheduled for a given transfer.`,
 			},
 			"location": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Default:  "US",
+				Description: `The geographic location where the transfer config should reside.
+Examples: US, EU, asia-northeast1. The default value is US.`,
+				Default: "US",
 			},
 			"schedule": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: `Data transfer schedule. If the data source does not support a custom
+schedule, this should be empty. If it is empty, the default value for
+the data source will be used. The specified times are in UTC. Examples
+of valid format: 1st,3rd monday of month 15:30, every wed,fri of jan,
+jun 13:15, and first sunday of quarter 00:00. See more explanation
+about the format here:
+https://cloud.google.com/appengine/docs/flexible/python/scheduling-jobs-with-cron-yaml#the_schedule_format
+NOTE: the granularity should be at least 8 hours, or less frequent.`,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `The resource name of the transfer config. Transfer config names have the
+form projects/{projectId}/locations/{location}/transferConfigs/{configId}.
+Where configId is usually a uuid, but this is not required.
+The name is ignored when creating a transfer config.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

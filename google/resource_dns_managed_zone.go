@@ -46,25 +46,30 @@ func resourceDNSManagedZone() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"dns_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The DNS name of this managed zone, for instance "example.com.".`,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `User assigned name for this resource.
+Must be unique within the project.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "Managed by Terraform",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A textual description field. Defaults to 'Managed by Terraform'.`,
+				Default:     "Managed by Terraform",
 			},
 			"dnssec_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `DNSSEC configuration`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"default_key_specs": {
@@ -72,6 +77,9 @@ func resourceDNSManagedZone() *schema.Resource {
 							Computed: true,
 							Optional: true,
 							ForceNew: true,
+							Description: `Specifies parameters that will be used for generating initial DnsKeys
+for this ManagedZone. If you provide a spec for keySigning or zoneSigning,
+you must also provide one for the other.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"algorithm": {
@@ -79,32 +87,42 @@ func resourceDNSManagedZone() *schema.Resource {
 										Optional:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512", ""}, false),
+										Description:  `String mnemonic specifying the DNSSEC algorithm of this key`,
 									},
 									"key_length": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										ForceNew: true,
+										Type:        schema.TypeInt,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Length of the keys in bits`,
 									},
 									"key_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"keySigning", "zoneSigning", ""}, false),
+										Description: `Specifies whether this is a key signing key (KSK) or a zone
+signing key (ZSK). Key signing keys have the Secure Entry
+Point flag set and, when active, will only be used to sign
+resource record sets of type DNSKEY. Zone signing keys do
+not have the Secure Entry Point flag set and will be used
+to sign all other types of resource record sets.`,
 									},
 									"kind": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-										Default:  "dns#dnsKeySpec",
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Identifies what kind of resource this is`,
+										Default:     "dns#dnsKeySpec",
 									},
 								},
 							},
 						},
 						"kind": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Default:  "dns#managedZoneDnsSecConfig",
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Identifies what kind of resource this is`,
+							Default:     "dns#managedZoneDnsSecConfig",
 						},
 						"non_existence": {
 							Type:         schema.TypeString,
@@ -112,31 +130,41 @@ func resourceDNSManagedZone() *schema.Resource {
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"nsec", "nsec3", ""}, false),
+							Description:  `Specifies the mechanism used to provide authenticated denial-of-existence responses.`,
 						},
 						"state": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"off", "on", "transfer", ""}, false),
+							Description:  `Specifies whether DNSSEC is enabled, and what mode it is in`,
 						},
 					},
 				},
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `A set of key/value label pairs to assign to this ManagedZone.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"private_visibility_config": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Description: `For privately visible zones, the set of Virtual Private Cloud
+resources that the zone is visible from.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"networks": {
 							Type:     schema.TypeSet,
 							Optional: true,
-							Elem:     dnsManagedZonePrivateVisibilityConfigNetworksSchema(),
+							Description: `The list of VPC networks that can see this zone. Until the provider updates to use the Terraform 0.12 SDK in a future release, you
+may experience issues with this resource while updating. If you've defined a 'networks' block and
+add another 'networks' block while keeping the old block, Terraform will see an incorrect diff
+and apply an incorrect update to the resource. If you encounter this issue, remove all 'networks'
+blocks in an update and then apply another update adding all of them back simultaneously.`,
+							Elem: dnsManagedZonePrivateVisibilityConfigNetworksSchema(),
 							Set: func(v interface{}) int {
 								if v == nil {
 									return 0
@@ -159,11 +187,16 @@ func resourceDNSManagedZone() *schema.Resource {
 				ForceNew:         true,
 				ValidateFunc:     validation.StringInSlice([]string{"private", "public", ""}, false),
 				DiffSuppressFunc: caseDiffSuppress,
-				Default:          "public",
+				Description: `The zone's visibility: public zones are exposed to the Internet,
+while private zones are visible only to Virtual Private Cloud resources.
+Must be one of: 'public', 'private'.`,
+				Default: "public",
 			},
 			"name_servers": {
 				Type:     schema.TypeList,
 				Computed: true,
+				Description: `Delegate your managed_zone to these virtual name servers;
+defined by the server`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -185,6 +218,9 @@ func dnsManagedZonePrivateVisibilityConfigNetworksSchema() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The fully qualified URL of the VPC network to bind to.
+This should be formatted like
+'https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}'`,
 			},
 		},
 	}

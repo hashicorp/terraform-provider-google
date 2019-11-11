@@ -45,14 +45,18 @@ func resourceSourceRepoRepository() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Resource name of the repository, of the form '{{repo}}'.
+The repo name may contain slashes. eg, 'name/with/slash'`,
 			},
 			"size": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The disk usage of the repo, in bytes.`,
 			},
 			"url": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `URL to clone the repository from Google Cloud Source Repositories.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

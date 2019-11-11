@@ -73,24 +73,34 @@ func resourceBigQueryDataset() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateDatasetId,
+				Description: `A unique ID for this dataset, without the project name. The ID
+must contain only letters (a-z, A-Z), numbers (0-9), or
+underscores (_). The maximum length is 1,024 characters.`,
 			},
 
 			"access": {
-				Type:     schema.TypeSet,
-				Computed: true,
-				Optional: true,
-				Elem:     bigqueryDatasetAccessSchema(),
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Optional:    true,
+				Description: `An array of objects that define dataset access for one or more entities.`,
+				Elem:        bigqueryDatasetAccessSchema(),
 				// Default schema.HashSchema is used.
 			},
 			"default_encryption_configuration": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Description: `The default encryption key for all tables in the dataset. Once this property is set,
+all newly-created partitioned tables in the dataset will have encryption key set to
+this value, unless table creation request (or query) overrides the key.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"kms_key_name": {
 							Type:     schema.TypeString,
 							Required: true,
+							Description: `Describes the Cloud KMS encryption key that will be used to protect destination
+BigQuery table. The BigQuery Service Account associated with your project requires
+access to this encryption key.`,
 						},
 					},
 				},
@@ -98,42 +108,99 @@ func resourceBigQueryDataset() *schema.Resource {
 			"default_partition_expiration_ms": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Description: `The default partition expiration for all partitioned tables in
+the dataset, in milliseconds.
+
+
+Once this property is set, all newly-created partitioned tables in
+the dataset will have an 'expirationMs' property in the 'timePartitioning'
+settings set to this value, and changing the value will only
+affect new tables, not existing ones. The storage in a partition will
+have an expiration time of its partition time plus this value.
+Setting this property overrides the use of 'defaultTableExpirationMs'
+for partitioned tables: only one of 'defaultTableExpirationMs' and
+'defaultPartitionExpirationMs' will be used for any new partitioned
+table. If you provide an explicit 'timePartitioning.expirationMs' when
+creating or updating a partitioned table, that value takes precedence
+over the default partition expiration time indicated by this property.`,
 			},
 			"default_table_expiration_ms": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validateDefaultTableExpirationMs,
+				Description: `The default lifetime of all tables in the dataset, in milliseconds.
+The minimum value is 3600000 milliseconds (one hour).
+
+
+Once this property is set, all newly-created tables in the dataset
+will have an 'expirationTime' property set to the creation time plus
+the value in this property, and changing the value will only affect
+new tables, not existing ones. When the 'expirationTime' for a given
+table is reached, that table will be deleted automatically.
+If a table's 'expirationTime' is modified or removed before the
+table expires, or if you provide an explicit 'expirationTime' when
+creating a table, that value takes precedence over the default
+expiration time indicated by this property.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A user-friendly description of the dataset`,
 			},
 			"friendly_name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A descriptive name for the dataset`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: `The labels associated with this dataset. You can use these to
+organize and group your datasets`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"location": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Default:  "US",
+				Description: `The geographic location where the dataset should reside.
+See [official docs](https://cloud.google.com/bigquery/docs/dataset-locations).
+
+
+There are two types of locations, regional or multi-regional. A regional
+location is a specific geographic place, such as Tokyo, and a multi-regional
+location is a large geographic area, such as the United States, that
+contains at least two geographic places.
+
+
+Possible regional values include: 'asia-east1', 'asia-northeast1',
+'asia-southeast1', 'australia-southeast1', 'europe-north1',
+'europe-west2' and 'us-east4'.
+
+
+Possible multi-regional values: 'EU' and 'US'.
+
+
+The default value is multi-regional location 'US'.
+Changing this forces a new resource to be created.`,
+				Default: "US",
 			},
 			"creation_time": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				Description: `The time when this dataset was created, in milliseconds since the
+epoch.`,
 			},
 			"etag": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `A hash of the resource.`,
 			},
 			"last_modified_time": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				Description: `The date when this dataset or any of its tables was last modified, in
+milliseconds since the epoch.`,
 			},
 			"delete_contents_on_destroy": {
 				Type:     schema.TypeBool,
@@ -160,40 +227,77 @@ func bigqueryDatasetAccessSchema() *schema.Resource {
 			"domain": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: `A domain to grant access to. Any users signed in with the
+domain specified will be granted the specified access`,
 			},
 			"group_by_email": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `An email address of a Google Group to grant access to.`,
 			},
 			"role": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: `Describes the rights granted to the user specified by the other
+member of the access object. Primitive, Predefined and custom
+roles are supported. Predefined roles that have equivalent
+primitive roles are swapped by the API to their Primitive
+counterparts, and will show a diff post-create. See
+[official docs](https://cloud.google.com/bigquery/docs/access-control).`,
 			},
 			"special_group": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: `A special group to grant access to.
+
+
+Possible values include:
+
+
+* 'projectOwners': Owners of the enclosing project.
+
+
+* 'projectReaders': Readers of the enclosing project.
+
+
+* 'projectWriters': Writers of the enclosing project.
+
+
+* 'allAuthenticatedUsers': All authenticated BigQuery users.`,
 			},
 			"user_by_email": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: `An email address of a user to grant access to. For example:
+fred@example.com`,
 			},
 			"view": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Description: `A view from a different dataset to grant access to. Queries
+executed against that view will have read access to tables in
+this dataset. The role field is not required when this field is
+set. If that view is updated by any user, access to the view
+needs to be granted again via an update operation.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"dataset_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The ID of the dataset containing this table.`,
 						},
 						"project_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The ID of the project containing this table.`,
 						},
 						"table_id": {
 							Type:     schema.TypeString,
 							Required: true,
+							Description: `The ID of the table. The ID must contain only letters (a-z,
+A-Z), numbers (0-9), or underscores (_). The maximum length
+is 1,024 characters.`,
 						},
 					},
 				},

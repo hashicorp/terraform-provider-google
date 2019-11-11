@@ -47,48 +47,69 @@ func resourceComputeUrlMap() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The backend service or backend bucket to use when none of the given rules match.`,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Name of the resource. Provided by the client when the resource is
+created. The name must be 1-63 characters long, and comply with
+RFC1035. Specifically, the name must be 1-63 characters long and match
+the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
+first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the last
+character, which cannot be a dash.`,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: `An optional description of this resource. Provide this property when
+you create the resource.`,
 			},
 			"host_rule": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     computeUrlMapHostRuleSchema(),
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: `The list of HostRules to use against the URL.`,
+				Elem:        computeUrlMapHostRuleSchema(),
 				// Default schema.HashSchema is used.
 			},
 			"path_matcher": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The list of named PathMatchers to use against the URL.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"default_service": {
 							Type:             schema.TypeString,
 							Required:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description:      `The backend service or backend bucket to use when none of the given paths match.`,
 						},
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name to which this PathMatcher is referred by the HostRule.`,
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `An optional description of this resource.`,
 						},
 						"path_rule": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The list of path rules.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"paths": {
 										Type:     schema.TypeSet,
 										Required: true,
+										Description: `The list of path patterns to match. Each must start with /
+and the only place a * is allowed is at the end following
+a /. The string fed to the path matcher does not include
+any text after the first ? or #, and those chars are not
+allowed here.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -98,6 +119,7 @@ func resourceComputeUrlMap() *schema.Resource {
 										Type:             schema.TypeString,
 										Required:         true,
 										DiffSuppressFunc: compareSelfLinkOrResourceName,
+										Description:      `The backend service or backend bucket to use if any of the given paths match.`,
 									},
 								},
 							},
@@ -108,39 +130,49 @@ func resourceComputeUrlMap() *schema.Resource {
 			"test": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Description: `The list of expected URL mappings. Requests to update this UrlMap will
+succeed only if all of the test cases pass.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"host": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Host portion of the URL.`,
 						},
 						"path": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Path portion of the URL.`,
 						},
 						"service": {
 							Type:             schema.TypeString,
 							Required:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description:      `The backend service or backend bucket link that should be matched by this test.`,
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Description of this test case.`,
 						},
 					},
 				},
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `Fingerprint of this resource. This field is used internally during
+updates of this resource.`,
 			},
 			"map_id": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The unique identifier for the resource.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -162,6 +194,10 @@ func computeUrlMapHostRuleSchema() *schema.Resource {
 			"hosts": {
 				Type:     schema.TypeSet,
 				Required: true,
+				Description: `The list of host patterns to match. They must be valid
+hostnames, except * will match any string of ([a-z0-9-.]*). In
+that case, * must be the first character and must be followed in
+the pattern by either - or ..`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -170,10 +206,14 @@ func computeUrlMapHostRuleSchema() *schema.Resource {
 			"path_matcher": {
 				Type:     schema.TypeString,
 				Required: true,
+				Description: `The name of the PathMatcher to use to match the path portion of
+the URL if the hostRule matches the URL's host portion.`,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: `An optional description of this HostRule. Provide this property
+when you create the resource.`,
 			},
 		},
 	}

@@ -43,9 +43,12 @@ func resourceComputeSslCertificate() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"certificate": {
-				Type:      schema.TypeString,
-				Required:  true,
-				ForceNew:  true,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `The certificate in PEM format.
+The certificate chain must be no greater than 5 certs long.
+The chain must include at least one intermediate cert.`,
 				Sensitive: true,
 			},
 			"private_key": {
@@ -53,12 +56,14 @@ func resourceComputeSslCertificate() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: sha256DiffSuppress,
+				Description:      `The write-only private key in PEM format.`,
 				Sensitive:        true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An optional description of this resource.`,
 			},
 			"name": {
 				Type:         schema.TypeString,
@@ -66,14 +71,26 @@ func resourceComputeSslCertificate() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateGCPName,
+				Description: `Name of the resource. Provided by the client when the resource is
+created. The name must be 1-63 characters long, and comply with
+RFC1035. Specifically, the name must be 1-63 characters long and match
+the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
+first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the last
+character, which cannot be a dash.
+
+
+These are in the same namespace as the managed SSL certificates.`,
 			},
 			"certificate_id": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The unique identifier for the resource.`,
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"name_prefix": {
 				Type:          schema.TypeString,

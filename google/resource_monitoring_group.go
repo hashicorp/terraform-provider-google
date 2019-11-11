@@ -44,23 +44,35 @@ func resourceMonitoringGroup() *schema.Resource {
 			"display_name": {
 				Type:     schema.TypeString,
 				Required: true,
+				Description: `A user-assigned name for this group, used only for display
+purposes.`,
 			},
 			"filter": {
 				Type:     schema.TypeString,
 				Required: true,
+				Description: `The filter used to determine which monitored resources
+belong to this group.`,
 			},
 			"is_cluster": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Description: `If true, the members of this group are considered to be a
+cluster. The system can perform additional analysis on
+groups that are clusters.`,
 			},
 			"parent_name": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				Description: `The name of the group's parent, if it has one. The format is
+"projects/{project_id_or_number}/groups/{group_id}". For
+groups with no parent, parentName is the empty string, "".`,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `A unique identifier for this group. The format is
+"projects/{project_id_or_number}/groups/{group_id}".`,
 			},
 			"project": {
 				Type:     schema.TypeString,

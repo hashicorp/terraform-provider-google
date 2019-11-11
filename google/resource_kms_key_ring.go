@@ -43,11 +43,14 @@ func resourceKMSKeyRing() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The location for the KeyRing.
+A full list of valid locations can be found by running 'gcloud kms locations list'.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The resource name for the KeyRing.`,
 			},
 			"self_link": {
 				Type:     schema.TypeString,

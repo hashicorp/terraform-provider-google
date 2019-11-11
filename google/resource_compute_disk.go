@@ -248,16 +248,37 @@ func resourceComputeDisk() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Name of the resource. Provided by the client when the resource is
+created. The name must be 1-63 characters long, and comply with
+RFC1035. Specifically, the name must be 1-63 characters long and match
+the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
+first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the last
+character, which cannot be a dash.`,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Description: `An optional description of this resource. Provide this property when
+you create the resource.`,
 			},
 			"disk_encryption_key": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				Description: `Encrypts the disk using a customer-supplied encryption key.
+
+After you encrypt a disk with a customer-supplied key, you must
+provide the same key if you use the disk later (e.g. to create a disk
+snapshot or an image, or to attach the disk to a virtual machine).
+
+Customer-supplied encryption keys do not protect access to metadata of
+the disk.
+
+If you do not provide an encryption key when creating the disk, then
+the disk will be encrypted using an automatically generated key and
+you do not need to provide a key to use the disk later.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -266,15 +287,23 @@ func resourceComputeDisk() *schema.Resource {
 							Optional:         true,
 							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkRelativePaths,
+							Description: `The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
+in the cloud console. In order to use this additional
+IAM permissions need to be set on the Compute Engine Service Agent. See
+https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys`,
 						},
 						"raw_key": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
+							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
+RFC 4648 base64 to either encrypt or decrypt this resource.`,
 						},
 						"sha256": {
 							Type:     schema.TypeString,
 							Computed: true,
+							Description: `The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
+encryption key that protects this resource.`,
 						},
 					},
 				},
@@ -284,33 +313,67 @@ func resourceComputeDisk() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: diskImageDiffSuppress,
+				Description: `The image from which to initialize this disk. This can be
+one of: the image's 'self_link', 'projects/{project}/global/images/{image}',
+'projects/{project}/global/images/family/{family}', 'global/images/{image}',
+'global/images/family/{family}', 'family/{family}', '{project}/{family}',
+'{project}/{image}', '{family}', or '{image}'. If referred by family, the
+images names must include the family name. If they don't, use the
+[google_compute_image data source](/docs/providers/google/d/datasource_compute_image.html).
+For instance, the image 'centos-6-v20180104' includes its family name 'centos-6'.
+These images can be referred by family name here.`,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Labels to apply to this disk.  A list of key->value pairs.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"physical_block_size_bytes": {
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
+				Description: `Physical block size of the persistent disk, in bytes. If not present
+in a request, a default value is used. Currently supported sizes
+are 4096 and 16384, other sizes may be added in the future.
+If an unsupported value is requested, the error message will list
+the supported values for the caller's project.`,
 			},
 			"size": {
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
+				Description: `Size of the persistent disk, specified in GB. You can specify this
+field when creating a persistent disk using the 'image' or
+'snapshot' parameter, or specify it alone to create an empty
+persistent disk.
+
+If you specify this field along with 'image' or 'snapshot',
+the value must not be less than the size of the image
+or the size of the snapshot.`,
 			},
 			"snapshot": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The source snapshot used to create this disk. You can provide this as
+a partial or full URL to the resource. If the snapshot is in another
+project than this disk, you must supply a full URL. For example, the
+following are valid values:
+
+* 'https://www.googleapis.com/compute/v1/projects/project/global/snapshots/snapshot'
+* 'projects/project/global/snapshots/snapshot'
+* 'global/snapshots/snapshot'
+* 'snapshot'`,
 			},
 			"source_image_encryption_key": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				Description: `The customer-supplied encryption key of the source image. Required if
+the source image is protected by a customer-supplied encryption key.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -319,15 +382,23 @@ func resourceComputeDisk() *schema.Resource {
 							Optional:         true,
 							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkRelativePaths,
+							Description: `The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
+in the cloud console. In order to use this additional
+IAM permissions need to be set on the Compute Engine Service Agent. See
+https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys`,
 						},
 						"raw_key": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
+							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
+RFC 4648 base64 to either encrypt or decrypt this resource.`,
 						},
 						"sha256": {
 							Type:     schema.TypeString,
 							Computed: true,
+							Description: `The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
+encryption key that protects this resource.`,
 						},
 					},
 				},
@@ -336,6 +407,9 @@ func resourceComputeDisk() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				Description: `The customer-supplied encryption key of the source snapshot. Required
+if the source snapshot is protected by a customer-supplied encryption
+key.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -344,15 +418,23 @@ func resourceComputeDisk() *schema.Resource {
 							Optional:         true,
 							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkRelativePaths,
+							Description: `The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
+in the cloud console. In order to use this additional
+IAM permissions need to be set on the Compute Engine Service Agent. See
+https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys`,
 						},
 						"raw_key": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
+							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
+RFC 4648 base64 to either encrypt or decrypt this resource.`,
 						},
 						"sha256": {
 							Type:     schema.TypeString,
 							Computed: true,
+							Description: `The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
+encryption key that protects this resource.`,
 						},
 					},
 				},
@@ -362,7 +444,9 @@ func resourceComputeDisk() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Default:          "pd-standard",
+				Description: `URL of the disk type resource describing which disk type to use to
+create the disk. Provide this when creating the disk.`,
+				Default: "pd-standard",
 			},
 			"zone": {
 				Type:             schema.TypeString,
@@ -370,34 +454,53 @@ func resourceComputeDisk() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `A reference to the zone where the disk resides.`,
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"label_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `The fingerprint used for optimistic locking of this resource.  Used
+internally during updates.`,
 			},
 			"last_attach_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Last attach timestamp in RFC3339 text format.`,
 			},
 			"last_detach_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Last detach timestamp in RFC3339 text format.`,
 			},
 			"source_image_id": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `The ID value of the image used to create this disk. This value
+identifies the exact image that was used to create this persistent
+disk. For example, if you created the persistent disk from an image
+that was later deleted and recreated under the same name, the source
+image ID would identify the exact version of the image that was used.`,
 			},
 			"source_snapshot_id": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `The unique ID of the snapshot used to create this disk. This value
+identifies the exact snapshot that was used to create this persistent
+disk. For example, if you created the persistent disk from a snapshot
+that was later deleted and recreated under the same name, the source
+snapshot ID would identify the exact version of the snapshot that was
+used.`,
 			},
 			"users": {
 				Type:     schema.TypeList,
 				Computed: true,
+				Description: `Links to the users of the disk (attached instances) in form:
+project/zones/zone/instances/instance`,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
