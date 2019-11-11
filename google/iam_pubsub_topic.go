@@ -75,8 +75,6 @@ func PubsubTopicIamUpdaterProducer(d *schema.ResourceData, config *Config) (Reso
 	d.Set("project", u.project)
 	d.Set("topic", u.GetResourceId())
 
-	d.SetId(u.GetResourceId())
-
 	return u, nil
 }
 
@@ -105,7 +103,7 @@ func PubsubTopicIdParseFunc(d *schema.ResourceData, config *Config) error {
 		Config:  config,
 	}
 	d.Set("topic", u.GetResourceId())
-	d.SetId(u.GetResourceId())
+
 	return nil
 }
 
@@ -116,8 +114,9 @@ func (u *PubsubTopicIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Po
 	if err != nil {
 		return nil, err
 	}
+	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "GET", project, url, nil)
+	policy, err := sendRequest(u.Config, "GET", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

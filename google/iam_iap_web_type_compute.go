@@ -64,8 +64,6 @@ func IapWebTypeComputeIamUpdaterProducer(d *schema.ResourceData, config *Config)
 
 	d.Set("project", u.project)
 
-	d.SetId(u.GetResourceId())
-
 	return u, nil
 }
 
@@ -93,7 +91,7 @@ func IapWebTypeComputeIdParseFunc(d *schema.ResourceData, config *Config) error 
 		Config:  config,
 	}
 	d.Set("project", u.project)
-	d.SetId(u.GetResourceId())
+
 	return nil
 }
 
@@ -104,8 +102,9 @@ func (u *IapWebTypeComputeIamUpdater) GetResourceIamPolicy() (*cloudresourcemana
 	if err != nil {
 		return nil, err
 	}
+	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "POST", project, url, nil)
+	policy, err := sendRequest(u.Config, "POST", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

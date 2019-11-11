@@ -89,8 +89,6 @@ func CloudFunctionsCloudFunctionIamUpdaterProducer(d *schema.ResourceData, confi
 	d.Set("region", u.region)
 	d.Set("cloud_function", u.GetResourceId())
 
-	d.SetId(u.GetResourceId())
-
 	return u, nil
 }
 
@@ -125,7 +123,7 @@ func CloudFunctionsCloudFunctionIdParseFunc(d *schema.ResourceData, config *Conf
 		Config:        config,
 	}
 	d.Set("cloud_function", u.GetResourceId())
-	d.SetId(u.GetResourceId())
+
 	return nil
 }
 
@@ -136,8 +134,9 @@ func (u *CloudFunctionsCloudFunctionIamUpdater) GetResourceIamPolicy() (*cloudre
 	if err != nil {
 		return nil, err
 	}
+	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "GET", project, url, nil)
+	policy, err := sendRequest(u.Config, "GET", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
