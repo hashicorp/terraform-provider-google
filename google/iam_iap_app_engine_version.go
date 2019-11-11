@@ -99,8 +99,6 @@ func IapAppEngineVersionIamUpdaterProducer(d *schema.ResourceData, config *Confi
 	d.Set("service", u.service)
 	d.Set("version_id", u.GetResourceId())
 
-	d.SetId(u.GetResourceId())
-
 	return u, nil
 }
 
@@ -131,7 +129,7 @@ func IapAppEngineVersionIdParseFunc(d *schema.ResourceData, config *Config) erro
 		Config:    config,
 	}
 	d.Set("version_id", u.GetResourceId())
-	d.SetId(u.GetResourceId())
+
 	return nil
 }
 
@@ -142,8 +140,9 @@ func (u *IapAppEngineVersionIamUpdater) GetResourceIamPolicy() (*cloudresourcema
 	if err != nil {
 		return nil, err
 	}
+	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "POST", project, url, nil)
+	policy, err := sendRequest(u.Config, "POST", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

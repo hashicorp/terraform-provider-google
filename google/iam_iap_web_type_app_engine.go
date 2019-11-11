@@ -89,8 +89,6 @@ func IapWebTypeAppEngineIamUpdaterProducer(d *schema.ResourceData, config *Confi
 	d.Set("project", u.project)
 	d.Set("app_id", u.GetResourceId())
 
-	d.SetId(u.GetResourceId())
-
 	return u, nil
 }
 
@@ -119,7 +117,7 @@ func IapWebTypeAppEngineIdParseFunc(d *schema.ResourceData, config *Config) erro
 		Config:  config,
 	}
 	d.Set("app_id", u.GetResourceId())
-	d.SetId(u.GetResourceId())
+
 	return nil
 }
 
@@ -130,8 +128,9 @@ func (u *IapWebTypeAppEngineIamUpdater) GetResourceIamPolicy() (*cloudresourcema
 	if err != nil {
 		return nil, err
 	}
+	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "POST", project, url, nil)
+	policy, err := sendRequest(u.Config, "POST", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
