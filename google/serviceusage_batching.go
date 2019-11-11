@@ -10,7 +10,6 @@ import (
 
 const (
 	batchKeyTmplServiceUsageEnableServices = "project/%s/services:batchEnable"
-	batchKeyTmplServiceUsageListServices   = "project/%s/services"
 )
 
 // BatchRequestEnableServices can be used to batch requests to enable services
@@ -54,22 +53,6 @@ func BatchRequestEnableServices(services map[string]struct{}, project string, d 
 	return err
 }
 
-func BatchRequestReadServices(project string, d *schema.ResourceData, config *Config) (interface{}, error) {
-	req := &BatchRequest{
-		ResourceName: project,
-		Body:         nil,
-		// Use empty CombineF since the request is exactly the same no matter how many services we read.
-		CombineF: func(body interface{}, toAdd interface{}) (interface{}, error) { return nil, nil },
-		SendF:    sendListServices(config, d.Timeout(schema.TimeoutRead)),
-		DebugId:  fmt.Sprintf("List Project Services %s", project),
-	}
-
-	return config.requestBatcherServiceUsage.SendRequestWithTimeout(
-		fmt.Sprintf(batchKeyTmplServiceUsageListServices, project),
-		req,
-		d.Timeout(schema.TimeoutRead))
-}
-
 func combineServiceUsageServicesBatches(srvsRaw interface{}, toAddRaw interface{}) (interface{}, error) {
 	srvs, ok := srvsRaw.([]string)
 	if !ok {
@@ -90,11 +73,5 @@ func sendBatchFuncEnableServices(config *Config, timeout time.Duration) batcherS
 			return nil, fmt.Errorf("Expected batch body type to be []string, got %v. This is a provider error.", toEnableRaw)
 		}
 		return nil, enableServiceUsageProjectServices(toEnable, project, config, timeout)
-	}
-}
-
-func sendListServices(config *Config, timeout time.Duration) batcherSendFunc {
-	return func(project string, _ interface{}) (interface{}, error) {
-		return listCurrentlyEnabledServices(project, config, timeout)
 	}
 }
