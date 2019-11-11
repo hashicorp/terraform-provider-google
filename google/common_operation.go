@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -104,9 +105,20 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 		if err != nil {
 			// Importantly, this error is in the GET to the operation, and isn't an error
 			// with the resource CRUD request itself.
-			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-				log.Printf("[DEBUG] Dismissed an operation GET as retryable based on error code being 404: %s", err)
-				return op, "done: false", nil
+			notFoundRetryPredicate := func(e error) (bool, string) {
+				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+					return true, "should retry 404s on a GET of an Operation"
+				}
+				return false, ""
+			}
+			predicates := []func(e error) (bool, string){
+				notFoundRetryPredicate,
+			}
+			for _, e := range getAllTypes(err, &googleapi.Error{}, &url.Error{}) {
+				if isRetryableError(e, predicates) {
+					log.Printf("[DEBUG] Dismissed error on GET of operation '%v' retryable: %s", w.OpName(), err)
+					return op, "done: false", nil
+				}
 			}
 
 			return nil, "", fmt.Errorf("error while retrieving operation: %s", err)
