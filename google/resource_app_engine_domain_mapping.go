@@ -59,20 +59,24 @@ func resourceAppEngineDomainMapping() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"domain_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Relative name of the domain serving the application. Example: example.com.`,
 			},
 			"override_strategy": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"STRICT", "OVERRIDE", ""}, false),
-				Default:      "STRICT",
+				Description: `Whether the domain creation should override any existing mappings for this domain.
+By default, overrides are rejected.`,
+				Default: "STRICT",
 			},
 			"ssl_settings": {
 				Type:             schema.TypeList,
 				Optional:         true,
 				DiffSuppressFunc: sslSettingsDiffSuppress,
+				Description:      `SSL configuration for this domain. If unconfigured, this domain will not serve with SSL.`,
 				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -80,40 +84,59 @@ func resourceAppEngineDomainMapping() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 							Optional: true,
+							Description: `ID of the AuthorizedCertificate resource configuring SSL for the application. Clearing this field will
+remove SSL support.
+By default, a managed certificate is automatically created for every domain mapping. To omit SSL support
+or to configure SSL manually, specify 'SslManagementType.MANUAL' on a 'CREATE' or 'UPDATE' request. You must be
+authorized to administer the 'AuthorizedCertificate' resource to manually map it to a DomainMapping resource.
+Example: 12345.`,
 						},
 						"ssl_management_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"AUTOMATIC", "MANUAL", ""}, false),
+							Description: `SSL management type for this domain. If 'AUTOMATIC', a managed certificate is automatically provisioned.
+If 'MANUAL', 'certificateId' must be manually specified in order to configure SSL for this domain.`,
 						},
 						"pending_managed_certificate_id": {
 							Type:     schema.TypeString,
 							Computed: true,
+							Description: `ID of the managed 'AuthorizedCertificate' resource currently being provisioned, if applicable. Until the new
+managed certificate has been successfully provisioned, the previous SSL state will be preserved. Once the
+provisioning process completes, the 'certificateId' field will reflect the new managed certificate and this
+field will be left empty. To remove SSL support while there is still a pending managed certificate, clear the
+'certificateId' field with an update request.`,
 						},
 					},
 				},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Full path to the DomainMapping resource in the API. Example: apps/myapp/domainMapping/example.com.`,
 			},
 			"resource_records": {
 				Type:     schema.TypeList,
 				Computed: true,
+				Description: `The resource records required to configure this domain mapping. These records must be added to the domain's DNS
+configuration in order to serve the application via this domain mapping.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Relative name of the object affected by this record. Only applicable for CNAME records. Example: 'www'.`,
 						},
 						"rrdata": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Data for this record. Values vary by record type, as defined in RFC 1035 (section 5) and RFC 1034 (section 3.6.1).`,
 						},
 						"type": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"A", "AAAA", "CNAME", ""}, false),
+							Description:  `Resource record type. Example: 'AAAA'.`,
 						},
 					},
 				},

@@ -63,6 +63,8 @@ func resourceBinaryAuthorizationPolicy() *schema.Resource {
 			"default_admission_rule": {
 				Type:     schema.TypeList,
 				Required: true,
+				Description: `Default admission rule for a cluster without a per-cluster admission
+rule.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -70,16 +72,27 @@ func resourceBinaryAuthorizationPolicy() *schema.Resource {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ENFORCED_BLOCK_AND_AUDIT_LOG", "DRYRUN_AUDIT_LOG_ONLY"}, false),
+							Description:  `The action when a pod creation is denied by the admission rule.`,
 						},
 						"evaluation_mode": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ALWAYS_ALLOW", "REQUIRE_ATTESTATION", "ALWAYS_DENY"}, false),
+							Description:  `How this admission rule will be evaluated.`,
 						},
 						"require_attestations_by": {
 							Type:             schema.TypeSet,
 							Optional:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description: `The resource names of the attestors that must attest to a
+container image. If the attestor is in a different project from the
+policy, it should be specified in the format 'projects/*/attestors/*'.
+Each attestor must exist before a policy can reference it. To add an
+attestor to a policy the principal issuing the policy change
+request must be able to read the attestor resource.
+
+Note: this field must be non-empty when the evaluation_mode field
+specifies REQUIRE_ATTESTATION, otherwise it must be empty.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -91,11 +104,18 @@ func resourceBinaryAuthorizationPolicy() *schema.Resource {
 			"admission_whitelist_patterns": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Description: `A whitelist of image patterns to exclude from admission rules. If an
+image's name matches a whitelist pattern, the image's admission
+requests will always be permitted regardless of your admission rules.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name_pattern": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Description: `An image name pattern to whitelist, in the form
+'registry/path/to/image'. This supports a trailing * as a
+wildcard, but this is allowed only in text after the registry/
+part.`,
 						},
 					},
 				},
@@ -103,6 +123,16 @@ func resourceBinaryAuthorizationPolicy() *schema.Resource {
 			"cluster_admission_rules": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Description: `Per-cluster admission rules. An admission rule specifies either that
+all container images used in a pod creation request must be attested
+to by one or more attestors, that all pod creations will be allowed,
+or that all pod creations will be denied. There can be at most one
+admission rule per cluster spec.
+
+
+Identifier format: '{{location}}.{{clusterId}}'.
+A location is either a compute zone (e.g. 'us-central1-a') or a region
+(e.g. 'us-central1').`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cluster": {
@@ -113,16 +143,27 @@ func resourceBinaryAuthorizationPolicy() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ENFORCED_BLOCK_AND_AUDIT_LOG", "DRYRUN_AUDIT_LOG_ONLY", ""}, false),
+							Description:  `The action when a pod creation is denied by the admission rule.`,
 						},
 						"evaluation_mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ALWAYS_ALLOW", "REQUIRE_ATTESTATION", "ALWAYS_DENY", ""}, false),
+							Description:  `How this admission rule will be evaluated.`,
 						},
 						"require_attestations_by": {
 							Type:             schema.TypeSet,
 							Optional:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description: `The resource names of the attestors that must attest to a
+container image. If the attestor is in a different project from the
+policy, it should be specified in the format 'projects/*/attestors/*'.
+Each attestor must exist before a policy can reference it. To add an
+attestor to a policy the principal issuing the policy change
+request must be able to read the attestor resource.
+
+Note: this field must be non-empty when the evaluation_mode field
+specifies REQUIRE_ATTESTATION, otherwise it must be empty.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -155,14 +196,18 @@ func resourceBinaryAuthorizationPolicy() *schema.Resource {
 				},
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A descriptive comment.`,
 			},
 			"global_policy_evaluation_mode": {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"ENABLE", "DISABLE", ""}, false),
+				Description: `Controls the evaluation of a Google-maintained global admission policy
+for common system-level images. Images not covered by the global
+policy will be subject to the project admission policy.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

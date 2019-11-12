@@ -46,22 +46,28 @@ func resourceAccessContextManagerAccessPolicy() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The parent of this AccessPolicy in the Cloud Resource Hierarchy.
+Format: organizations/{organization_id}`,
 			},
 			"title": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Human readable title. Does not affect behavior.`,
 			},
 			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Time the AccessPolicy was created in UTC.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Resource name of the AccessPolicy. Format: {policy_id}`,
 			},
 			"update_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Time the AccessPolicy was updated in UTC.`,
 			},
 		},
 	}

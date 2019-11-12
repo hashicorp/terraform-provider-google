@@ -83,34 +83,53 @@ func resourceComputeSubnetwork() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateIpCidrRange,
+				Description: `The range of internal addresses that are owned by this subnetwork.
+Provide this property when you create the subnetwork. For example,
+10.0.0.0/8 or 192.168.0.0/16. Ranges must be unique and
+non-overlapping within a network. Only IPv4 is supported.`,
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateGCPName,
+				Description: `The name of the resource, provided by the client when initially
+creating the resource. The name must be 1-63 characters long, and
+comply with RFC1035. Specifically, the name must be 1-63 characters
+long and match the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which
+means the first character must be a lowercase letter, and all
+following characters must be a dash, lowercase letter, or digit,
+except the last character, which cannot be a dash.`,
 			},
 			"network": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The network this subnet belongs to.
+Only networks that are in the distributed mode can have subnetworks.`,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Description: `An optional description of this resource. Provide this property when
+you create the resource. This field can be set only at resource
+creation time.`,
 			},
 			"enable_flow_logs": {
-				Type:       schema.TypeBool,
-				Computed:   true,
-				Optional:   true,
-				Deprecated: "This field is being removed in favor of log_config. If log_config is present, flow logs are enabled.",
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Optional:    true,
+				Deprecated:  "This field is being removed in favor of log_config. If log_config is present, flow logs are enabled.",
+				Description: `Whether to enable flow logging for this subnetwork.`,
 			},
 			"log_config": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Optional: true,
+				Description: `Denotes the logging options for the subnetwork flow logs. If logging is enabled
+logs will be exported to Stackdriver.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -118,18 +137,32 @@ func resourceComputeSubnetwork() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"INTERVAL_5_SEC", "INTERVAL_30_SEC", "INTERVAL_1_MIN", "INTERVAL_5_MIN", "INTERVAL_10_MIN", "INTERVAL_15_MIN", ""}, false),
-							Default:      "INTERVAL_5_SEC",
+							Description: `Can only be specified if VPC flow logging for this subnetwork is enabled.
+Toggles the aggregation interval for collecting flow logs. Increasing the
+interval time will reduce the amount of generated flow logs for long
+lasting connections. Default is an interval of 5 seconds per connection.
+Possible values are INTERVAL_5_SEC, INTERVAL_30_SEC, INTERVAL_1_MIN,
+INTERVAL_5_MIN, INTERVAL_10_MIN, INTERVAL_15_MIN`,
+							Default: "INTERVAL_5_SEC",
 						},
 						"flow_sampling": {
 							Type:     schema.TypeFloat,
 							Optional: true,
-							Default:  0.5,
+							Description: `Can only be specified if VPC flow logging for this subnetwork is enabled.
+The value of the field must be in [0, 1]. Set the sampling rate of VPC
+flow logs within the subnetwork where 1.0 means all collected logs are
+reported and 0.0 means no logs are reported. Default is 0.5 which means
+half of all collected logs are reported.`,
+							Default: 0.5,
 						},
 						"metadata": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", ""}, false),
-							Default:      "INCLUDE_ALL_METADATA",
+							Description: `Can only be specified if VPC flow logging for this subnetwork is enabled.
+Configures whether metadata fields should be added to the reported VPC
+flow logs. Default is 'INCLUDE_ALL_METADATA'.`,
+							Default: "INCLUDE_ALL_METADATA",
 						},
 					},
 				},
@@ -137,6 +170,8 @@ func resourceComputeSubnetwork() *schema.Resource {
 			"private_ip_google_access": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Description: `When enabled, VMs in this subnetwork without external IP addresses can
+access Google APIs and services by using Private Google Access.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -144,38 +179,59 @@ func resourceComputeSubnetwork() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `URL of the GCP region for this subnetwork.`,
 			},
 			"secondary_ip_range": {
 				Type:       schema.TypeList,
 				Computed:   true,
 				Optional:   true,
 				ConfigMode: schema.SchemaConfigModeAttr,
+				Description: `An array of configurations for secondary IP ranges for VM instances
+contained in this subnetwork. The primary IP of such VM must belong
+to the primary ipCidrRange of the subnetwork. The alias IPs may belong
+to either primary or secondary ranges.
+This field uses attr-as-block mode to avoid breaking
+users during the 0.12 upgrade. See [the Attr-as-Block page](https://www.terraform.io/docs/configuration/attr-as-blocks.html)
+for more details.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ip_cidr_range": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validateIpCidrRange,
+							Description: `The range of IP addresses belonging to this subnetwork secondary
+range. Provide this property when you create the subnetwork.
+Ranges must be unique and non-overlapping with all primary and
+secondary IP ranges within a network. Only IPv4 is supported.`,
 						},
 						"range_name": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validateGCPName,
+							Description: `The name associated with this subnetwork secondary range, used
+when adding an alias IP range to a VM instance. The name must
+be 1-63 characters long, and comply with RFC1035. The name
+must be unique within the subnetwork.`,
 						},
 					},
 				},
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `Fingerprint of this resource. This field is used internally during
+updates of this resource.`,
 			},
 			"gateway_address": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `The gateway address for default routes to reach destination addresses
+outside this subnetwork.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

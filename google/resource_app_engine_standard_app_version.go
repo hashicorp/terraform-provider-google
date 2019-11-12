@@ -44,18 +44,22 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"runtime": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Desired runtime. Example python27.`,
 			},
 			"deployment": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Code and application artifacts that make up this version.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"files": {
 							Type:     schema.TypeSet,
 							Optional: true,
+							Description: `Manifest of the files stored in Google Cloud Storage that are included as part of this version.
+All files must be readable using the credentials supplied with this call.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
@@ -63,29 +67,34 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 										Required: true,
 									},
 									"sha1_sum": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `SHA1 checksum of the file`,
 									},
 									"source_url": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Source URL`,
 									},
 								},
 							},
 						},
 						"zip": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Zip File`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"files_count": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `files count`,
 									},
 									"source_url": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Source URL`,
 									},
 								},
 							},
@@ -94,52 +103,63 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 				},
 			},
 			"entrypoint": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The entrypoint for the application.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"shell": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The format should be a shell command that can be fed to bash -c.`,
 						},
 					},
 				},
 			},
 			"env_variables": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Environment variables available to the application.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"handlers": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Description: `An ordered list of URL-matching patterns that should be applied to incoming requests. 
+The first matching URL handles the request and other request handlers are not attempted.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auth_fail_action": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"AUTH_FAIL_ACTION_UNSPECIFIED", "AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED", ""}, false),
+							Description:  `Actions to take when the user is not logged in.`,
 						},
 						"login": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"LOGIN_UNSPECIFIED", "LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED", ""}, false),
+							Description:  `Methods to restrict access to a URL based on login status.`,
 						},
 						"redirect_http_response_code": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"REDIRECT_HTTP_RESPONSE_CODE_UNSPECIFIED", "REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307", ""}, false),
+							Description:  `Redirect codes.`,
 						},
 						"script": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Description: `Executes a script to handle the requests that match this URL pattern. 
+Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"script_path": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Path to the script from the application root directory.`,
 									},
 								},
 							},
@@ -148,41 +168,53 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"SECURE_UNSPECIFIED", "SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS", ""}, false),
+							Description:  `Security (HTTPS) enforcement for this URL.`,
 						},
 						"static_files": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Files served directly to the user for a given URL, such as images, CSS stylesheets, or JavaScript source files. Static file handlers describe which files in the application directory are static files, and which URLs serve them.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"application_readable": {
-										Type:     schema.TypeBool,
-										Optional: true,
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Whether files should also be uploaded as code data. By default, files declared in static file handlers are uploaded as static data and are only served to end users; they cannot be read by the application. If enabled, uploads are charged against both your code and static data storage resource quotas.`,
 									},
 									"expiration": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Description: `Time a static file served by this handler should be cached by web proxies and browsers.
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example "3.5s".`,
 									},
 									"http_headers": {
 										Type:     schema.TypeMap,
 										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Description: `HTTP headers to use for all responses from these URLs.
+An object containing a list of "key:value" value pairs.".`,
+										Elem: &schema.Schema{Type: schema.TypeString},
 									},
 									"mime_type": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Description: `MIME type used to serve all files served by this handler.
+Defaults to file-specific MIME types, which are derived from each file's filename extension.`,
 									},
 									"path": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Path to the static files matched by the URL pattern, from the application root directory. The path can refer to text matched in groupings in the URL pattern.`,
 									},
 									"require_matching_file": {
-										Type:     schema.TypeBool,
-										Optional: true,
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Whether this handler should match the request if the file referenced by the handler does not exist.`,
 									},
 									"upload_path_regex": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Regular expression that matches the file paths for all files that should be referenced by this handler.`,
 									},
 								},
 							},
@@ -190,6 +222,8 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 						"url_regex": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Description: `URL prefix. Uses regular expression syntax, which means regexp special characters must be escaped, but should not contain groupings. 
+All URLs that begin with this prefix are handled by this handler, using the portion of the URL after the prefix as part of the file path.`,
 						},
 					},
 				},
@@ -197,19 +231,25 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 			"instance_class": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: `Instance class that is used to run this version. Valid values are
+AutomaticScaling F1, F2, F4, F4_1G
+(Only AutomaticScaling is supported at the moment)`,
 			},
 			"libraries": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration for third-party Python runtime libraries that are required by the application.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Name of the library. Example "django".`,
 						},
 						"version": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Version of the library to select, or "latest".`,
 						},
 					},
 				},
@@ -217,24 +257,30 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 			"runtime_api_version": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: `The version of the API in the given runtime environment. 
+Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref`,
 			},
 			"service": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `AppEngine service resource`,
 			},
 			"threadsafe": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether multiple requests can be dispatched to this version at once.`,
 			},
 			"version_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Relative name of the version within the service. For example, 'v1'. Version names can contain only lowercase letters, numbers, or hyphens. Reserved names,"default", "latest", and any name with the prefix "ah-".`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Full path to the Version resource in the API. Example, "v1".`,
 			},
 			"noop_on_destroy": {
 				Type:     schema.TypeBool,

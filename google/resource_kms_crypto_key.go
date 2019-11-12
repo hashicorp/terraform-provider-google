@@ -57,45 +57,60 @@ func resourceKMSCryptoKey() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: kmsCryptoKeyRingsEquivalent,
+				Description: `The KeyRing that this key belongs to.
+Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}''.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The resource name for the CryptoKey.`,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Labels with user-defined metadata to apply to this resource.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"purpose": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"ENCRYPT_DECRYPT", "ASYMMETRIC_SIGN", "ASYMMETRIC_DECRYPT", ""}, false),
-				Default:      "ENCRYPT_DECRYPT",
+				Description: `The immutable purpose of this CryptoKey. See the
+[purpose reference](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKeyPurpose)
+for possible inputs.`,
+				Default: "ENCRYPT_DECRYPT",
 			},
 			"rotation_period": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: orEmpty(validateKmsCryptoKeyRotationPeriod),
+				Description: `Every time this period passes, generate a new CryptoKeyVersion and set it as the primary.
+The first rotation will take place after the specified period. The rotation period has
+the format of a decimal number with up to 9 fractional digits, followed by the
+letter 's' (seconds). It must be greater than a day (ie, 86400).`,
 			},
 			"version_template": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `A template describing settings for new crypto key versions.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"algorithm": {
 							Type:     schema.TypeString,
 							Required: true,
+							Description: `The algorithm to use when creating a version based on this template.
+See the [algorithm reference](https://cloud.google.com/kms/docs/reference/rest/v1/CryptoKeyVersionAlgorithm) for possible inputs.`,
 						},
 						"protection_level": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"SOFTWARE", "HSM", ""}, false),
+							Description:  `The protection level to use when creating a version based on this template.`,
 							Default:      "SOFTWARE",
 						},
 					},

@@ -48,18 +48,27 @@ func resourceAppEngineFirewallRule() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED_ACTION", "ALLOW", "DENY"}, false),
+				Description:  `The action to take if this rule matches.`,
 			},
 			"source_range": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `IP address or range, defined using CIDR notation, of requests that this rule applies to.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `An optional string description of this rule.`,
 			},
 			"priority": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Description: `A positive integer that defines the order of rule evaluation.
+Rules with the lowest priority are evaluated first.
+
+A default rule at priority Int32.MaxValue matches all IPv4 and
+IPv6 traffic when no previous rule matches. Only the action of
+this rule can be modified by the user.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

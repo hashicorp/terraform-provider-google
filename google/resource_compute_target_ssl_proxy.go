@@ -48,15 +48,26 @@ func resourceComputeTargetSslProxy() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `A reference to the BackendService resource.`,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Name of the resource. Provided by the client when the resource is
+created. The name must be 1-63 characters long, and comply with
+RFC1035. Specifically, the name must be 1-63 characters long and match
+the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
+first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the last
+character, which cannot be a dash.`,
 			},
 			"ssl_certificates": {
 				Type:     schema.TypeList,
 				Required: true,
+				Description: `A list of SslCertificate resources that are used to authenticate
+connections between users and the load balancer. Currently, exactly
+one SSL certificate must be specified.`,
 				MaxItems: 1,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
@@ -64,28 +75,36 @@ func resourceComputeTargetSslProxy() *schema.Resource {
 				},
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An optional description of this resource.`,
 			},
 			"proxy_header": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
-				Default:      "NONE",
+				Description: `Specifies the type of proxy header to append before sending data to
+the backend, either NONE or PROXY_V1. The default is NONE.`,
+				Default: "NONE",
 			},
 			"ssl_policy": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `A reference to the SslPolicy resource that will be associated with
+the TargetSslProxy resource. If not set, the TargetSslProxy
+resource will not have any SSL policy configured.`,
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"proxy_id": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The unique identifier for the resource.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

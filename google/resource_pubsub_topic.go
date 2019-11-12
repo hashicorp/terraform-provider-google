@@ -47,27 +47,44 @@ func resourcePubsubTopic() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Name of the topic.`,
 			},
 			"kms_key_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Description: `The resource name of the Cloud KMS CryptoKey to be used to protect access
+to messages published on this topic. Your project's PubSub service account
+('service-{{PROJECT_NUMBER}}@gcp-sa-pubsub.iam.gserviceaccount.com') must have
+'roles/cloudkms.cryptoKeyEncrypterDecrypter' to use this feature.
+
+The expected format is 'projects/*/locations/*/keyRings/*/cryptoKeys/*'`,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `A set of key/value label pairs to assign to this Topic.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"message_storage_policy": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Optional: true,
+				Description: `Policy constraining the set of Google Cloud Platform regions where
+messages published to the topic may be stored. If not present, then no
+constraints are in effect.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"allowed_persistence_regions": {
 							Type:     schema.TypeList,
 							Required: true,
+							Description: `A list of IDs of GCP regions where messages that are published to
+the topic may be persisted in storage. Messages published by
+publishers running in non-allowed GCP regions (or running outside
+of GCP altogether) will be routed for storage in one of the
+allowed regions. An empty list means that no regions are allowed,
+and is not a valid configuration.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},

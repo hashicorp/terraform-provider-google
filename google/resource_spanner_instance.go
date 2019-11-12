@@ -49,10 +49,18 @@ func resourceSpannerInstance() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The name of the instance's configuration (similar but not
+quite the same as a region) which defines defines the geographic placement and
+replication of your databases in this instance. It determines where your data
+is stored. Values are typically of the form 'regional-europe-west1' , 'us-central' etc.
+In order to obtain a valid list please consult the
+[Configuration section of the docs](https://cloud.google.com/spanner/docs/instances).`,
 			},
 			"display_name": {
 				Type:     schema.TypeString,
 				Required: true,
+				Description: `The descriptive name for this instance as it appears in UIs. Must be
+unique per project and between 4 and 30 characters in length.`,
 			},
 			"name": {
 				Type:         schema.TypeString,
@@ -60,20 +68,30 @@ func resourceSpannerInstance() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRegexp(`^[a-z][-a-z0-9]*[a-z0-9]$`),
+				Description: `A unique identifier for the instance, which cannot be changed after
+the instance is created. The name must be between 6 and 30 characters
+in length.
+
+
+If not provided, a random string starting with 'tf-' will be selected.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: `An object containing a list of "key": value pairs.
+Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"num_nodes": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  1,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `The number of nodes allocated to this instance.`,
+				Default:     1,
 			},
 			"state": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Instance status: 'CREATING' or 'READY'.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

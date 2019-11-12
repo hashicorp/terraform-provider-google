@@ -46,46 +46,65 @@ func resourceComputeReservation() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Name of the resource. Provided by the client when the resource is
+created. The name must be 1-63 characters long, and comply with
+RFC1035. Specifically, the name must be 1-63 characters long and match
+the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
+first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the last
+character, which cannot be a dash.`,
 			},
 			"specific_reservation": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Reservation for instances with specific machine shapes.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"count": {
-							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The number of resources that are allocated.`,
 						},
 						"instance_properties": {
-							Type:     schema.TypeList,
-							Required: true,
-							ForceNew: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The instance properties for the reservation.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"machine_type": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `The name of the machine type to reserve.`,
 									},
 									"guest_accelerators": {
-										Type:     schema.TypeList,
-										Optional: true,
-										ForceNew: true,
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Guest accelerator type and count.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"accelerator_count": {
 													Type:     schema.TypeInt,
 													Required: true,
 													ForceNew: true,
+													Description: `The number of the guest accelerator cards exposed to
+this instance.`,
 												},
 												"accelerator_type": {
 													Type:     schema.TypeString,
 													Required: true,
 													ForceNew: true,
+													Description: `The full or partial URL of the accelerator type to
+attach to this instance. For example:
+'projects/my-project/zones/us-central1-c/acceleratorTypes/nvidia-tesla-p100'
+
+If you are creating an instance template, specify only the accelerator name.`,
 												},
 											},
 										},
@@ -94,19 +113,24 @@ func resourceComputeReservation() *schema.Resource {
 										Type:     schema.TypeList,
 										Optional: true,
 										ForceNew: true,
+										Description: `The amount of local ssd to reserve with each instance. This
+reserves disks of type 'local-ssd'.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"disk_size_gb": {
-													Type:     schema.TypeInt,
-													Required: true,
-													ForceNew: true,
+													Type:        schema.TypeInt,
+													Required:    true,
+													ForceNew:    true,
+													Description: `The size of the disk in base-2 GB.`,
 												},
 												"interface": {
 													Type:         schema.TypeString,
 													Optional:     true,
 													ForceNew:     true,
 													ValidateFunc: validation.StringInSlice([]string{"SCSI", "NVME", ""}, false),
-													Default:      "SCSI",
+													Description: `The disk interface to use for attaching this disk, one
+of 'SCSI' or 'NVME'. The default is 'SCSI'.`,
+													Default: "SCSI",
 												},
 											},
 										},
@@ -116,13 +140,18 @@ func resourceComputeReservation() *schema.Resource {
 										Computed: true,
 										Optional: true,
 										ForceNew: true,
+										Description: `The minimum CPU platform for the reservation. For example,
+'"Intel Skylake"'. See
+the CPU platform availability reference](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform#availablezones)
+for information on available CPU platforms.`,
 									},
 								},
 							},
 						},
 						"in_use_count": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `How many instances are in use.`,
 						},
 					},
 				},
@@ -132,29 +161,38 @@ func resourceComputeReservation() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The zone where the reservation is made.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An optional description of this resource.`,
 			},
 			"specific_reservation_required": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
-				Default:  false,
+				Description: `When set to true, only VMs that target this reservation by name can
+consume this reservation. Otherwise, it can be consumed by VMs with
+affinity for any reservation. Defaults to false.`,
+				Default: false,
 			},
 			"commitment": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `Full or partial URL to a parent commitment. This field displays for
+reservations that are tied to a commitment.`,
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The status of the reservation.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

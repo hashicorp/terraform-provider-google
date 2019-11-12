@@ -45,18 +45,37 @@ func resourceContainerAnalysisNote() *schema.Resource {
 			"attestation_authority": {
 				Type:     schema.TypeList,
 				Required: true,
+				Description: `Note kind that represents a logical attestation "role" or "authority".
+For example, an organization might have one AttestationAuthority for
+"QA" and one for "build". This Note is intended to act strictly as a
+grouping mechanism for the attached Occurrences (Attestations). This
+grouping mechanism also provides a security boundary, since IAM ACLs
+gate the ability for a principle to attach an Occurrence to a given
+Note. It also provides a single point of lookup to find all attached
+Attestation Occurrences, even if they don't all live in the same
+project.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"hint": {
 							Type:     schema.TypeList,
 							Required: true,
+							Description: `This submessage provides human-readable hints about the purpose of
+the AttestationAuthority. Because the name of a Note acts as its
+resource reference, it is important to disambiguate the canonical
+name of the Note (which might be a UUID for security purposes)
+from "readable" names more suitable for debug output. Note that
+these hints should NOT be used to look up AttestationAuthorities
+in security sensitive contexts, such as when looking up
+Attestations to verify.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"human_readable_name": {
 										Type:     schema.TypeString,
 										Required: true,
+										Description: `The human readable name of this Attestation Authority, for
+example "qa".`,
 									},
 								},
 							},
@@ -65,9 +84,10 @@ func resourceContainerAnalysisNote() *schema.Resource {
 				},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the note.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
