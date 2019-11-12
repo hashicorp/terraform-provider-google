@@ -91,7 +91,7 @@ func IapWebIdParseFunc(d *schema.ResourceData, config *Config) error {
 		Config:  config,
 	}
 	d.Set("project", u.project)
-
+	d.SetId(u.GetResourceId())
 	return nil
 }
 

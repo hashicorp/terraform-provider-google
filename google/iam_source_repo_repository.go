@@ -103,7 +103,7 @@ func SourceRepoRepositoryIdParseFunc(d *schema.ResourceData, config *Config) err
 		Config:     config,
 	}
 	d.Set("repository", u.GetResourceId())
-
+	d.SetId(u.GetResourceId())
 	return nil
 }
 

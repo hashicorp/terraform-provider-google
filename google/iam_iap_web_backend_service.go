@@ -103,7 +103,7 @@ func IapWebBackendServiceIdParseFunc(d *schema.ResourceData, config *Config) err
 		Config:            config,
 	}
 	d.Set("web_backend_service", u.GetResourceId())
-
+	d.SetId(u.GetResourceId())
 	return nil
 }
 

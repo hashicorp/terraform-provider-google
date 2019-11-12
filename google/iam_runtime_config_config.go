@@ -103,7 +103,7 @@ func RuntimeConfigConfigIdParseFunc(d *schema.ResourceData, config *Config) erro
 		Config:  config,
 	}
 	d.Set("config", u.GetResourceId())
-
+	d.SetId(u.GetResourceId())
 	return nil
 }
 

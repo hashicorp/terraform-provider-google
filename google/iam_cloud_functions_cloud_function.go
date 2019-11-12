@@ -123,7 +123,7 @@ func CloudFunctionsCloudFunctionIdParseFunc(d *schema.ResourceData, config *Conf
 		Config:        config,
 	}
 	d.Set("cloud_function", u.GetResourceId())
-
+	d.SetId(u.GetResourceId())
 	return nil
 }
 

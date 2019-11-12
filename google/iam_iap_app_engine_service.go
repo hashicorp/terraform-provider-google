@@ -116,7 +116,7 @@ func IapAppEngineServiceIdParseFunc(d *schema.ResourceData, config *Config) erro
 		Config:  config,
 	}
 	d.Set("service", u.GetResourceId())
-
+	d.SetId(u.GetResourceId())
 	return nil
 }
 
