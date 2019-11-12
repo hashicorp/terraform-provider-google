@@ -137,14 +137,27 @@ func replaceVars(d TerraformResourceData, config *Config, linkTmpl string) (stri
 }
 
 // This function replaces references to Terraform properties (in the form of {{var}}) with their value in Terraform
-// It also replaces {{project}}, {{region}}, and {{zone}} with their appropriate values
+// It also replaces {{project}}, {{project_id_or_project}}, {{region}}, and {{zone}} with their appropriate values
 // This function supports URL-encoding the result by prepending '%' to the field name e.g. {{%var}}
 func buildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *Config, linkTmpl string) (func(string) string, error) {
-	var project, region, zone string
+	var project, projectID, region, zone string
 	var err error
 
 	if strings.Contains(linkTmpl, "{{project}}") {
 		project, err = getProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if strings.Contains(linkTmpl, "{{project_id_or_project}}") {
+		v, ok := d.GetOkExists("project_id")
+		if ok {
+			projectID, _ = v.(string)
+		}
+		if projectID == "" {
+			project, err = getProject(d, config)
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -167,6 +180,12 @@ func buildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *Co
 	f := func(s string) string {
 		m := re.FindStringSubmatch(s)[1]
 		if m == "project" {
+			return project
+		}
+		if m == "project_id_or_project" {
+			if projectID != "" {
+				return projectID
+			}
 			return project
 		}
 		if m == "region" {
