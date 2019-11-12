@@ -284,8 +284,8 @@ to the datasource. A `region` can have a different set of supported versions tha
     [Google Groups for GKE](https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control#groups-setup-gsuite) feature.
     Structure is documented below.
 
-* `private_cluster_config` - (Optional) A set of options for creating
-    a private cluster. Structure is documented below.
+* `private_cluster_config` - (Optional) Configuration for [private clusters](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters),
+clusters with private nodes. Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -622,20 +622,33 @@ The `pod_security_policy_config` block supports:
 
 The `private_cluster_config` block supports:
 
-* `enable_private_endpoint` (Optional) - Whether the master's internal IP address is used as the cluster endpoint.
+* `enable_private_nodes` (Optional) - Enables the private cluster feature,
+creating a private endpoint on the cluster. In a private cluster, nodes only
+have RFC 1918 private addresses and communicate with the master's private
+endpoint via private networking.
 
-* `enable_private_nodes` (Optional) - Whether nodes have internal IP addresses only. If enabled, all nodes are given only RFC 1918 private
-    addresses and communicate with the master via private networking.
+* `enable_private_endpoint` (Optional) - When `true`, the cluster's private
+endpoint is used as the cluster endpoint and access through the public endpoint
+is disabled. When `false`, either endpoint can be used. This field only applies
+to private clusters, when `enable_private_nodes` is `true`.
 
-* `master_ipv4_cidr_block` (Optional) - The IP range in CIDR notation to use for the hosted master network. This range will be used for
-    assigning internal IP addresses to the master or set of masters, as well as the ILB VIP. This range must not overlap with any other ranges
-    in use within the cluster's network, and it must be a /28 subnet. See [Limitations](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters#limitations) in the GCP docs.
+* `master_ipv4_cidr_block` (Optional) - The IP range in CIDR notation to use for
+the hosted master network. This range will be used for assigning private IP
+addresses to the cluster master(s) and the ILB VIP. This range must not overlap
+with any other ranges in use within the cluster's network, and it must be a /28
+subnet. See [Private Cluster Limitations](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters#limitations)
+for more details. This field only applies to private clusters, when
+`enable_private_nodes` is `true`.
 
 In addition, the `private_cluster_config` allows access to the following read-only fields:
 
 * `private_endpoint` - The internal IP address of this cluster's master endpoint.
 
 * `public_endpoint` - The external IP address of this cluster's master endpoint.
+
+!> The Google provider is unable to validate certain configurations of
+`private_cluster_config` when `enable_private_nodes` is `false`. It's
+recommended that you omit the block entirely if the field is not set to `true`.
 
 The `sandbox_type` block supports:
 
