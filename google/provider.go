@@ -439,8 +439,8 @@ func Provider() terraform.ResourceProvider {
 }
 
 // Generated resources: 81
-// Generated IAM resources: 33
-// Total generated resources: 114
+// Generated IAM resources: 39
+// Total generated resources: 120
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -486,6 +486,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_https_health_check":                resourceComputeHttpsHealthCheck(),
 			"google_compute_health_check":                      resourceComputeHealthCheck(),
 			"google_compute_image":                             resourceComputeImage(),
+			"google_compute_instance_iam_binding":              ResourceIamBinding(ComputeInstanceIamSchema, ComputeInstanceIamUpdaterProducer, ComputeInstanceIdParseFunc),
+			"google_compute_instance_iam_member":               ResourceIamMember(ComputeInstanceIamSchema, ComputeInstanceIamUpdaterProducer, ComputeInstanceIdParseFunc),
+			"google_compute_instance_iam_policy":               ResourceIamPolicy(ComputeInstanceIamSchema, ComputeInstanceIamUpdaterProducer, ComputeInstanceIdParseFunc),
 			"google_compute_interconnect_attachment":           resourceComputeInterconnectAttachment(),
 			"google_compute_network":                           resourceComputeNetwork(),
 			"google_compute_network_endpoint":                  resourceComputeNetworkEndpoint(),
@@ -503,6 +506,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_reservation":                       resourceComputeReservation(),
 			"google_compute_ssl_policy":                        resourceComputeSslPolicy(),
 			"google_compute_subnetwork":                        resourceComputeSubnetwork(),
+			"google_compute_subnetwork_iam_binding":            ResourceIamBinding(ComputeSubnetworkIamSchema, ComputeSubnetworkIamUpdaterProducer, ComputeSubnetworkIdParseFunc),
+			"google_compute_subnetwork_iam_member":             ResourceIamMember(ComputeSubnetworkIamSchema, ComputeSubnetworkIamUpdaterProducer, ComputeSubnetworkIdParseFunc),
+			"google_compute_subnetwork_iam_policy":             ResourceIamPolicy(ComputeSubnetworkIamSchema, ComputeSubnetworkIamUpdaterProducer, ComputeSubnetworkIdParseFunc),
 			"google_compute_target_http_proxy":                 resourceComputeTargetHttpProxy(),
 			"google_compute_target_https_proxy":                resourceComputeTargetHttpsProxy(),
 			"google_compute_target_instance":                   resourceComputeTargetInstance(),
@@ -584,9 +590,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_instance_from_template":        resourceComputeInstanceFromTemplate(),
 			"google_compute_instance_group":                resourceComputeInstanceGroup(),
 			"google_compute_instance_group_manager":        resourceComputeInstanceGroupManager(),
-			"google_compute_instance_iam_binding":          ResourceIamBinding(IamComputeInstanceSchema, NewComputeInstanceIamUpdater, ComputeInstanceIdParseFunc),
-			"google_compute_instance_iam_member":           ResourceIamMember(IamComputeInstanceSchema, NewComputeInstanceIamUpdater, ComputeInstanceIdParseFunc),
-			"google_compute_instance_iam_policy":           ResourceIamPolicy(IamComputeInstanceSchema, NewComputeInstanceIamUpdater, ComputeInstanceIdParseFunc),
 			"google_compute_instance_template":             resourceComputeInstanceTemplate(),
 			"google_compute_network_peering":               resourceComputeNetworkPeering(),
 			"google_compute_project_default_network_tier":  resourceComputeProjectDefaultNetworkTier(),
@@ -598,9 +601,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_security_policy":               resourceComputeSecurityPolicy(),
 			"google_compute_shared_vpc_host_project":       resourceComputeSharedVpcHostProject(),
 			"google_compute_shared_vpc_service_project":    resourceComputeSharedVpcServiceProject(),
-			"google_compute_subnetwork_iam_binding":        ResourceIamBinding(IamComputeSubnetworkSchema, NewComputeSubnetworkIamUpdater, ComputeSubnetworkIdParseFunc),
-			"google_compute_subnetwork_iam_member":         ResourceIamMember(IamComputeSubnetworkSchema, NewComputeSubnetworkIamUpdater, ComputeSubnetworkIdParseFunc),
-			"google_compute_subnetwork_iam_policy":         ResourceIamPolicy(IamComputeSubnetworkSchema, NewComputeSubnetworkIamUpdater, ComputeSubnetworkIdParseFunc),
 			"google_compute_target_pool":                   resourceComputeTargetPool(),
 			"google_container_cluster":                     resourceContainerCluster(),
 			"google_container_node_pool":                   resourceContainerNodePool(),

@@ -106,14 +106,28 @@ exported:
 
 ## Import
 
-Iap webtypecompute IAM resources can be imported using the project, resource identifiers, role and member.
+For all import syntaxes, the "resource in question" can take any of the following forms:
 
+* projects/{{project}}/iap_web/compute
+* {{project}}
+
+Any variables not passed in the import command will be taken from the provider configuration.
+
+Iap webtypecompute IAM resources can be imported using the resource identifiers, role, and member.
+
+IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
+```
+$ terraform import google_iap_web_type_compute_iam_member.editor "projects/{{project}}/iap_web/compute roles/iap.httpsResourceAccessor jane@example.com"
+```
+
+IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
+```
+$ terraform import google_iap_web_type_compute_iam_binding.editor "projects/{{project}}/iap_web/compute roles/iap.httpsResourceAccessor"
+```
+
+IAM policy imports use the identifier of the resource in question, e.g.
 ```
 $ terraform import google_iap_web_type_compute_iam_policy.editor projects/{{project}}/iap_web/compute
-
-$ terraform import google_iap_web_type_compute_iam_binding.editor "projects/{{project}}/iap_web/compute roles/iap.httpsResourceAccessor"
-
-$ terraform import google_iap_web_type_compute_iam_member.editor "projects/{{project}}/iap_web/compute roles/iap.httpsResourceAccessor jane@example.com"
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
