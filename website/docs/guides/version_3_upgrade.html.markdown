@@ -53,6 +53,7 @@ so Terraform knows to manage them.
 - [Resource: `google_container_cluster`](#resource-google_container_cluster)
 - [Resource: `google_project_service`](#resource-google_project_service)
 - [Resource: `google_project_services`](#resource-google_project_services)
+- [Resource: `google_pubsub_subscription`](#resource-google_pubsub_subscription)
 
 <!-- /TOC -->
 
@@ -370,3 +371,10 @@ resource "google_project_service" "project_cloudresourcemanager" {
   disable_on_destroy = false
 }
 ```
+
+## Resource: `google_pubsub_subscription`
+
+### `name` must now be a short name
+
+`name` previously could have been specified by a long name (e.g. `projects/my-project/subscriptions/my-subscription`)
+or a shortname (e.g. `my-subscription`). `name` now must be the shortname.
