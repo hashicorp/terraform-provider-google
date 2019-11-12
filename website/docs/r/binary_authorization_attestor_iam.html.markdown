@@ -110,14 +110,29 @@ exported:
 
 ## Import
 
-BinaryAuthorization attestor IAM resources can be imported using the project, resource identifiers, role and member.
+For all import syntaxes, the "resource in question" can take any of the following forms:
 
+* projects/{{project}}/attestors/{{name}}
+* {{project}}/{{name}}
+* {{name}}
+
+Any variables not passed in the import command will be taken from the provider configuration.
+
+BinaryAuthorization attestor IAM resources can be imported using the resource identifiers, role, and member.
+
+IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
+```
+$ terraform import google_binary_authorization_attestor_iam_member.editor "{{project}}/{{attestor}} roles/viewer jane@example.com"
+```
+
+IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
+```
+$ terraform import google_binary_authorization_attestor_iam_binding.editor "{{project}}/{{attestor}} roles/viewer"
+```
+
+IAM policy imports use the identifier of the resource in question, e.g.
 ```
 $ terraform import google_binary_authorization_attestor_iam_policy.editor {{project}}/{{attestor}}
-
-$ terraform import google_binary_authorization_attestor_iam_binding.editor "{{project}}/{{attestor}} roles/viewer"
-
-$ terraform import google_binary_authorization_attestor_iam_member.editor "{{project}}/{{attestor}} roles/viewer jane@example.com"
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`

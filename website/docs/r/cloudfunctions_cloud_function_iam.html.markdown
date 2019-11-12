@@ -84,7 +84,9 @@ resource "google_cloudfunctions_function_iam_member" "editor" {
 The following arguments are supported:
 
 * `cloud_function` - (Required) Used to find the parent resource to bind the IAM policy to
-* `region` - (Required) The location of this cloud function. Used to find the parent resource to bind the IAM policy to
+* `region` - (Optional) The location of this cloud function. Used to find the parent resource to bind the IAM policy to. If not specified,
+  the value will be parsed from the identifier of the parent resource. If no region is provided in the parent identifier and no
+  region is specified, it is taken from the provider configuration.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.
@@ -114,14 +116,30 @@ exported:
 
 ## Import
 
-CloudFunctions cloudfunction IAM resources can be imported using the project, resource identifiers, role and member.
+For all import syntaxes, the "resource in question" can take any of the following forms:
 
+* projects/{{project}}/locations/{{region}}/functions/{{cloud_function}}
+* {{project}}/{{region}}/{{cloud_function}}
+* {{region}}/{{cloud_function}}
+* {{cloud_function}}
+
+Any variables not passed in the import command will be taken from the provider configuration.
+
+CloudFunctions cloudfunction IAM resources can be imported using the resource identifiers, role, and member.
+
+IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
+```
+$ terraform import google_cloudfunctions_function_iam_member.editor "{{project}}/{{region}}/{{cloud_function}} roles/viewer jane@example.com"
+```
+
+IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
+```
+$ terraform import google_cloudfunctions_function_iam_binding.editor "{{project}}/{{region}}/{{cloud_function}} roles/viewer"
+```
+
+IAM policy imports use the identifier of the resource in question, e.g.
 ```
 $ terraform import google_cloudfunctions_function_iam_policy.editor {{project}}/{{region}}/{{cloud_function}}
-
-$ terraform import google_cloudfunctions_function_iam_binding.editor "{{project}}/{{region}}/{{cloud_function}} roles/viewer"
-
-$ terraform import google_cloudfunctions_function_iam_member.editor "{{project}}/{{region}}/{{cloud_function}} roles/viewer jane@example.com"
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
