@@ -129,7 +129,7 @@ func IapAppEngineVersionIdParseFunc(d *schema.ResourceData, config *Config) erro
 		Config:    config,
 	}
 	d.Set("version_id", u.GetResourceId())
-
+	d.SetId(u.GetResourceId())
 	return nil
 }
 

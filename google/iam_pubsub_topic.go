@@ -103,7 +103,7 @@ func PubsubTopicIdParseFunc(d *schema.ResourceData, config *Config) error {
 		Config:  config,
 	}
 	d.Set("topic", u.GetResourceId())
-
+	d.SetId(u.GetResourceId())
 	return nil
 }
 

@@ -103,7 +103,7 @@ func BinaryAuthorizationAttestorIdParseFunc(d *schema.ResourceData, config *Conf
 		Config:   config,
 	}
 	d.Set("attestor", u.GetResourceId())
-
+	d.SetId(u.GetResourceId())
 	return nil
 }
 
