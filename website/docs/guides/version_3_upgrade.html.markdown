@@ -50,6 +50,9 @@ so Terraform knows to manage them.
 ## Upgrade Topics
 
 <!-- TOC depthFrom:2 depthTo:2 -->
+
+- [Provider](#provider)
+- [Resource: `google_compute_instance_template](#resource-google_compute_instance_template)
 - [Resource: `google_container_cluster`](#resource-google_container_cluster)
 - [Resource: `google_project_service`](#resource-google_project_service)
 - [Resource: `google_project_services`](#resource-google_project_services)
@@ -91,6 +94,77 @@ provider "google" {
   # ... other configuration ...
 
   version = "~> 3.0.0"
+}
+```
+
+## Provider
+
+### `userinfo.email` added to default scopes
+
+`userinfo.email` has been added to the default set of OAuth scopes in the
+provider. This provides the Terraform user specified by `credentials`' (generally
+a service account) email address to GCP APIs in addition to an obfuscated user
+id; particularly, it makes the email of the Terraform user available for some
+Kubernetes and IAP use cases.
+
+If this was previously defined explicitly, the definition can now be removed.
+
+#### Old Config
+
+```hcl
+provider "google" {
+  scopes = [
+    "https://www.googleapis.com/auth/compute",
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/ndev.clouddns.readwrite",
+    "https://www.googleapis.com/auth/devstorage.full_control",
+    "https://www.googleapis.com/auth/userinfo.email",
+  ]
+}
+```
+
+#### New Config
+
+```hcl
+provider "google" {}
+```
+
+## Resource `google_compute_instance_template`
+
+### Disks with invalid scratch disk configurations are now rejected
+
+The instance template API allows specifying invalid configurations in some cases,
+and an error is only returned when attempting to provision them. Terraform will
+now report that some configs that previously appeared valid at plan time are
+now invalid.
+
+A disk with `type` `"SCRATCH"` must have `disk_type` `"local-ssd"`. For example,
+the following is valid:
+
+```hcl
+disk {
+    auto_delete = true
+    type        = "SCRATCH"
+    disk_type   = "local-ssd"
+}
+```
+
+These configs would have been accepted by Terraform previously, but will now
+fail:
+
+```hcl
+disk {
+    source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+    auto_delete  = true
+    type         = "SCRATCH"
+}
+```
+
+```hcl
+disk {
+    source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+    auto_delete  = true
+    disk_type    = "local-ssd"
 }
 ```
 
