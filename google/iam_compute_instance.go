@@ -68,7 +68,7 @@ func ComputeInstanceIamUpdaterProducer(d *schema.ResourceData, config *Config) (
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<instance>[^/]+)"}, d, config, d.Get("instance_name").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance_name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<instance_name>[^/]+)"}, d, config, d.Get("instance_name").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func ComputeInstanceIdParseFunc(d *schema.ResourceData, config *Config) error {
 	}
 	values["zone"] = zone
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<instance>[^/]+)"}, d, config, d.Id())
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance_name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<instance_name>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
