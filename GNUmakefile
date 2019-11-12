@@ -2,6 +2,9 @@ TEST?=$$(go list ./... |grep -v 'vendor')
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=google
 
+GO111MODULE=on
+GOFLAGS=-mod=vendor
+
 default: build
 
 build: fmtcheck
@@ -30,8 +33,8 @@ lint:
 
 tools:
 	@echo "==> installing required tooling..."
-	GO111MODULE=on go install github.com/client9/misspell/cmd/misspell
-	GO111MODULE=on go install github.com/golangci/golangci-lint/cmd/golangci-lint
+	go install github.com/client9/misspell/cmd/misspell
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint
 
 
 test-compile:
