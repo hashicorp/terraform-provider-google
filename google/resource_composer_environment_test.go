@@ -283,13 +283,13 @@ func testAccComposerEnvironmentDestroy(s *terraform.State) error {
 		}
 
 		idTokens := strings.Split(rs.Primary.ID, "/")
-		if len(idTokens) != 3 {
-			return fmt.Errorf("Invalid ID %q, expected format {project}/{region}/{environment}", rs.Primary.ID)
+		if len(idTokens) != 6 {
+			return fmt.Errorf("Invalid ID %q, expected format projects/{project}/regions/{region}/environments/{environment}", rs.Primary.ID)
 		}
 		envName := &composerEnvironmentName{
-			Project:     idTokens[0],
-			Region:      idTokens[1],
-			Environment: idTokens[2],
+			Project:     idTokens[1],
+			Region:      idTokens[3],
+			Environment: idTokens[5],
 		}
 
 		_, err := config.clientComposer.Projects.Locations.Environments.Get(envName.resourceName()).Do()

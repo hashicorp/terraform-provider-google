@@ -381,7 +381,7 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}:{{dataset_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -575,15 +575,15 @@ func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) err
 func resourceBigQueryDatasetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<dataset_id>[^/]+)",
-		"(?P<project>[^/]+):(?P<dataset_id>[^/]+)",
 		"(?P<dataset_id>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}:{{dataset_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

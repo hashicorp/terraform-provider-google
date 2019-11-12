@@ -56,7 +56,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "example-subscription%{random_suffix}"
-  topic = "${google_pubsub_topic.example.name}"
+  topic = google_pubsub_topic.example.name
 
   labels = {
     foo = "bar"
@@ -64,7 +64,7 @@ resource "google_pubsub_subscription" "example" {
 
   # 20 minutes
   message_retention_duration = "1200s"
-  retain_acked_messages = true
+  retain_acked_messages      = true
 
   ack_deadline_seconds = 20
 

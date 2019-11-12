@@ -927,7 +927,9 @@ resource "google_compute_instance" "endpoint-instance" {
 
   network_interface {
     subnetwork = "${google_compute_subnetwork.default.self_link}"
-    access_config { }
+    access_config {
+	    network_tier = "PREMIUM"
+	}
   }
 }
 
@@ -1003,7 +1005,9 @@ resource "google_compute_instance" "endpoint-instance" {
 
   network_interface {
     subnetwork = "${google_compute_subnetwork.default.self_link}"
-    access_config { }
+    access_config {
+      network_tier = "PREMIUM"
+	}
   }
 }
 

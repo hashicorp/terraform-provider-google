@@ -3,21 +3,16 @@ package google
 import (
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
-)
-
-var (
-	regionInstanceGroupManagerIdRegex     = regexp.MustCompile("^" + ProjectRegex + "/[a-z0-9-]+/[a-z0-9-]+$")
-	regionInstanceGroupManagerIdNameRegex = regexp.MustCompile("^[a-z0-9-]+$")
 )
 
 func resourceComputeRegionInstanceGroupManager() *schema.Resource {
@@ -29,6 +24,9 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceRegionInstanceGroupManagerStateImporter,
 		},
+		CustomizeDiff: customdiff.All(
+			resourceComputeInstanceGroupManagerExactlyOneTargetSizeDiff,
+		),
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
 			Update: schema.DefaultTimeout(5 * time.Minute),
@@ -43,18 +41,14 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 			},
 
 			"instance_template": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				Computed:         true,
-				Deprecated:       "This field will be replaced by `version.instance_template` in 3.0.0",
-				ConflictsWith:    []string{"version"},
-				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				Type:     schema.TypeString,
+				Optional: true,
+				Removed:  "This field has been replaced by `version.instance_template` in 3.0.0",
 			},
 
 			"version": {
 				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
+				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -150,10 +144,9 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 			},
 
 			"update_strategy": {
-				Type:          schema.TypeString,
-				Deprecated:    "This field will be replaced by `update_policy` in 3.0.0",
-				Optional:      true,
-				ConflictsWith: []string{"update_policy"},
+				Type:     schema.TypeString,
+				Removed:  "This field is removed.",
+				Optional: true,
 			},
 
 			"target_pools": {
@@ -209,65 +202,6 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
-				},
-			},
-
-			"rolling_update_policy": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Removed:  "This field has been replaced by update_policy.",
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"minimal_action": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"RESTART", "REPLACE"}, false),
-						},
-
-						"type": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"OPPORTUNISTIC", "PROACTIVE"}, false),
-						},
-
-						"max_surge_fixed": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-						},
-
-						"max_surge_percent": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 100),
-						},
-
-						"max_unavailable_fixed": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-						},
-
-						"max_unavailable_percent": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 100),
-						},
-
-						"min_ready_sec": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 3600),
-						},
-						"instance_redistribution_type": {
-							Type:             schema.TypeString,
-							Optional:         true,
-							ValidateFunc:     validation.StringInSlice([]string{"PROACTIVE", "NONE", ""}, false),
-							DiffSuppressFunc: emptyOrDefaultStringSuppress("PROACTIVE"),
-						},
-					},
 				},
 			},
 
@@ -353,7 +287,6 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		Name:                d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		BaseInstanceName:    d.Get("base_instance_name").(string),
-		InstanceTemplate:    d.Get("instance_template").(string),
 		TargetSize:          int64(d.Get("target_size").(int)),
 		NamedPorts:          getNamedPortsBeta(d.Get("named_port").(*schema.Set).List()),
 		TargetPools:         convertStringSet(d.Get("target_pools").(*schema.Set)),
@@ -371,7 +304,11 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		return fmt.Errorf("Error creating RegionInstanceGroupManager: %s", err)
 	}
 
-	d.SetId(regionInstanceGroupManagerId{Project: project, Region: region, Name: manager.Name}.terraformId())
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	// Wait for the operation to complete
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
@@ -387,28 +324,20 @@ type getInstanceManagerFunc func(*schema.ResourceData, interface{}) (*computeBet
 func getRegionalManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
 	config := meta.(*Config)
 
-	regionalID, err := parseRegionInstanceGroupManagerId(d.Id())
+	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
 	}
 
-	if regionalID.Project == "" {
-		regionalID.Project, err = getProject(d, config)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if regionalID.Region == "" {
-		regionalID.Region, err = getRegion(d, config)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	manager, err := config.clientComputeBeta.RegionInstanceGroupManagers.Get(regionalID.Project, regionalID.Region, regionalID.Name).Do()
+	region, err := getRegion(d, config)
 	if err != nil {
-		return nil, handleNotFoundError(err, d, fmt.Sprintf("Region Instance Manager %q", regionalID.Name))
+		return nil, err
+	}
+
+	name := d.Get("name").(string)
+	manager, err := config.clientComputeBeta.RegionInstanceGroupManagers.Get(project, region, name).Do()
+	if err != nil {
+		return nil, handleNotFoundError(err, d, fmt.Sprintf("Region Instance Manager %q", name))
 	}
 
 	return manager, nil
@@ -441,23 +370,16 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 		return nil
 	}
 
-	regionalID, err := parseRegionInstanceGroupManagerId(d.Id())
+	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	if regionalID.Project == "" {
-		regionalID.Project, err = getProject(d, config)
-		if err != nil {
-			return err
-		}
-	}
 
 	d.Set("base_instance_name", manager.BaseInstanceName)
-	d.Set("instance_template", ConvertSelfLinkToV1(manager.InstanceTemplate))
 	d.Set("name", manager.Name)
 	d.Set("region", GetResourceNameFromSelfLink(manager.Region))
 	d.Set("description", manager.Description)
-	d.Set("project", regionalID.Project)
+	d.Set("project", project)
 	d.Set("target_size", manager.TargetSize)
 	if err := d.Set("target_pools", mapStringArr(manager.TargetPools, ConvertSelfLinkToV1)); err != nil {
 		return fmt.Errorf("Error setting target_pools in state: %s", err.Error())
@@ -471,8 +393,6 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 		return err
 	}
 	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
-
-	d.Set("rolling_update_policy", nil)
 
 	if err := d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies)); err != nil {
 		return fmt.Errorf("Error setting auto_healing_policies in state: %s", err.Error())
@@ -595,30 +515,6 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 		d.SetPartial("target_size")
 	}
 
-	if d.HasChange("instance_template") {
-		d.Partial(true)
-		// Build the parameter
-		setInstanceTemplate := &computeBeta.RegionInstanceGroupManagersSetTemplateRequest{
-			InstanceTemplate: d.Get("instance_template").(string),
-		}
-
-		op, err := config.clientComputeBeta.RegionInstanceGroupManagers.SetInstanceTemplate(
-			project, region, d.Get("name").(string), setInstanceTemplate).Do()
-
-		if err != nil {
-			return fmt.Errorf("Error updating RegionInstanceGroupManager: %s", err)
-		}
-
-		// Wait for the operation to complete
-		timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
-		err = computeSharedOperationWaitTime(config.clientCompute, op, project, timeoutInMinutes, "Updating InstanceGroupManager")
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("instance_template")
-	}
-
 	d.Partial(false)
 
 	return resourceComputeRegionInstanceGroupManagerRead(d, meta)
@@ -627,26 +523,19 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	regionalID, err := parseRegionInstanceGroupManagerId(d.Id())
+	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	if regionalID.Project == "" {
-		regionalID.Project, err = getProject(d, config)
-		if err != nil {
-			return err
-		}
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
 	}
 
-	if regionalID.Region == "" {
-		regionalID.Region, err = getRegion(d, config)
-		if err != nil {
-			return err
-		}
-	}
+	name := d.Get("name").(string)
 
-	op, err := config.clientComputeBeta.RegionInstanceGroupManagers.Delete(regionalID.Project, regionalID.Region, regionalID.Name).Do()
+	op, err := config.clientComputeBeta.RegionInstanceGroupManagers.Delete(project, region, name).Do()
 
 	if err != nil {
 		return fmt.Errorf("Error deleting region instance group manager: %s", err)
@@ -654,7 +543,7 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 
 	// Wait for the operation to complete
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
-	err = computeSharedOperationWaitTime(config.clientCompute, op, regionalID.Project, timeoutInMinutes, "Deleting RegionInstanceGroupManager")
+	err = computeSharedOperationWaitTime(config.clientCompute, op, project, timeoutInMinutes, "Deleting RegionInstanceGroupManager")
 	if err != nil {
 		return fmt.Errorf("Error waiting for delete to complete: %s", err)
 	}
@@ -776,40 +665,17 @@ func hashZoneFromSelfLinkOrResourceName(value interface{}) int {
 
 func resourceRegionInstanceGroupManagerStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	d.Set("wait_for_instances", false)
-	regionalID, err := parseRegionInstanceGroupManagerId(d.Id())
-	if err != nil {
+	config := meta.(*Config)
+	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/instanceGroupManagers/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
-	d.Set("project", regionalID.Project)
-	d.Set("region", regionalID.Region)
-	d.Set("name", regionalID.Name)
-	return []*schema.ResourceData{d}, nil
-}
 
-type regionInstanceGroupManagerId struct {
-	Project string
-	Region  string
-	Name    string
-}
-
-func (r regionInstanceGroupManagerId) terraformId() string {
-	return fmt.Sprintf("%s/%s/%s", r.Project, r.Region, r.Name)
-}
-
-func parseRegionInstanceGroupManagerId(id string) (*regionInstanceGroupManagerId, error) {
-	switch {
-	case regionInstanceGroupManagerIdRegex.MatchString(id):
-		parts := strings.Split(id, "/")
-		return &regionInstanceGroupManagerId{
-			Project: parts[0],
-			Region:  parts[1],
-			Name:    parts[2],
-		}, nil
-	case regionInstanceGroupManagerIdNameRegex.MatchString(id):
-		return &regionInstanceGroupManagerId{
-			Name: id,
-		}, nil
-	default:
-		return nil, fmt.Errorf("Invalid region instance group manager specifier. Expecting either {projectId}/{region}/{name} or {name}, where {projectId} and {region} will be derived from the provider.")
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }

@@ -102,6 +102,7 @@ both 13:00-5 and 08:00 are valid.`,
 												},
 											},
 										},
+										ExactlyOneOf: []string{"snapshot_schedule_policy.0.schedule.0.hourly_schedule", "snapshot_schedule_policy.0.schedule.0.daily_schedule", "snapshot_schedule_policy.0.schedule.0.weekly_schedule"},
 									},
 									"hourly_schedule": {
 										Type:        schema.TypeList,
@@ -127,6 +128,7 @@ where HH : [00-23] and MM : [00-00] GMT.`,
 												},
 											},
 										},
+										ExactlyOneOf: []string{"snapshot_schedule_policy.0.schedule.0.hourly_schedule", "snapshot_schedule_policy.0.schedule.0.daily_schedule", "snapshot_schedule_policy.0.schedule.0.weekly_schedule"},
 									},
 									"weekly_schedule": {
 										Type:        schema.TypeList,
@@ -148,6 +150,7 @@ where HH : [00-23] and MM : [00-00] GMT.`,
 												},
 											},
 										},
+										ExactlyOneOf: []string{"snapshot_schedule_policy.0.schedule.0.hourly_schedule", "snapshot_schedule_policy.0.schedule.0.daily_schedule", "snapshot_schedule_policy.0.schedule.0.weekly_schedule"},
 									},
 								},
 							},
@@ -188,17 +191,19 @@ Valid options are KEEP_AUTO_SNAPSHOTS and APPLY_RETENTION_POLICY`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"guest_flush": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										ForceNew:    true,
-										Description: `Whether to perform a 'guest aware' snapshot.`,
+										Type:         schema.TypeBool,
+										Optional:     true,
+										ForceNew:     true,
+										Description:  `Whether to perform a 'guest aware' snapshot.`,
+										AtLeastOneOf: []string{"snapshot_schedule_policy.0.snapshot_properties.0.labels", "snapshot_schedule_policy.0.snapshot_properties.0.storage_locations", "snapshot_schedule_policy.0.snapshot_properties.0.guest_flush"},
 									},
 									"labels": {
-										Type:        schema.TypeMap,
-										Optional:    true,
-										ForceNew:    true,
-										Description: `A set of key-value pairs.`,
-										Elem:        &schema.Schema{Type: schema.TypeString},
+										Type:         schema.TypeMap,
+										Optional:     true,
+										ForceNew:     true,
+										Description:  `A set of key-value pairs.`,
+										Elem:         &schema.Schema{Type: schema.TypeString},
+										AtLeastOneOf: []string{"snapshot_schedule_policy.0.snapshot_properties.0.labels", "snapshot_schedule_policy.0.snapshot_properties.0.storage_locations", "snapshot_schedule_policy.0.snapshot_properties.0.guest_flush"},
 									},
 									"storage_locations": {
 										Type:        schema.TypeSet,
@@ -209,7 +214,8 @@ Valid options are KEEP_AUTO_SNAPSHOTS and APPLY_RETENTION_POLICY`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
+										Set:          schema.HashString,
+										AtLeastOneOf: []string{"snapshot_schedule_policy.0.snapshot_properties.0.labels", "snapshot_schedule_policy.0.snapshot_properties.0.storage_locations", "snapshot_schedule_policy.0.snapshot_properties.0.guest_flush"},
 									},
 								},
 							},
@@ -291,7 +297,7 @@ func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -406,7 +412,7 @@ func resourceComputeResourcePolicyImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

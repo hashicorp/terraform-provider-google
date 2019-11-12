@@ -32,7 +32,7 @@ func testAccDataSourceComputeBackendService_basic(serviceName, checkName string)
 resource "google_compute_backend_service" "foobar" {
   name          = "%s"
   description   = "foobar backend service"
-  health_checks = ["${google_compute_http_health_check.zero.self_link}"]
+  health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
@@ -43,7 +43,7 @@ resource "google_compute_http_health_check" "zero" {
 }
 
 data "google_compute_backend_service" "baz" {
-  name = "${google_compute_backend_service.foobar.name}"
+  name = google_compute_backend_service.foobar.name
 }
 `, serviceName, checkName)
 }

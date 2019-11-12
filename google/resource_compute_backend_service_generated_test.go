@@ -52,7 +52,7 @@ func testAccComputeBackendService_backendServiceBasicExample(context map[string]
 	return Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "backend-service%{random_suffix}"
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  health_checks = [google_compute_http_health_check.default.self_link]
 }
 
 resource "google_compute_http_health_check" "default" {

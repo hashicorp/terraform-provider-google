@@ -18,7 +18,7 @@ Creates a Google Bigtable instance. For more information see
 
 ```hcl
 resource "google_bigtable_instance" "production-instance" {
-  name         = "tf-instance"
+  name = "tf-instance"
 
   cluster {
     cluster_id   = "tf-instance-cluster"

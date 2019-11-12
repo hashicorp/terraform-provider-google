@@ -85,13 +85,6 @@ func resourceStorageBucketObject() *schema.Resource {
 				Computed: true,
 			},
 
-			"predefined_acl": {
-				Type:     schema.TypeString,
-				Removed:  "Please use resource \"storage_object_acl.predefined_acl\" instead.",
-				Optional: true,
-				ForceNew: true,
-			},
-
 			"source": {
 				Type:          schema.TypeString,
 				Optional:      true,

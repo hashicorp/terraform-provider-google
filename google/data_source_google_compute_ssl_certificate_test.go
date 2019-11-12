@@ -34,14 +34,14 @@ func TestAccDataSourceComputeSslCertificate(t *testing.T) {
 func testAccDataSourceComputeSslCertificateConfig() string {
 	return fmt.Sprintf(`
 resource "google_compute_ssl_certificate" "foobar" {
-	name		= "cert-test-%s"
-	description = "really descriptive"
-	private_key = "${file("test-fixtures/ssl_cert/test.key")}"
-	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
+  name        = "cert-test-%s"
+  description = "really descriptive"
+  private_key = file("test-fixtures/ssl_cert/test.key")
+  certificate = file("test-fixtures/ssl_cert/test.crt")
 }
 
 data "google_compute_ssl_certificate" "cert" {
-	name     = "${google_compute_ssl_certificate.foobar.name}"
+  name = google_compute_ssl_certificate.foobar.name
 }
 `, acctest.RandString(10))
 }

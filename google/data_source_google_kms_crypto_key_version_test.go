@@ -41,7 +41,7 @@ func TestAccDataSourceGoogleKmsCryptoKeyVersion_basic(t *testing.T) {
 func testAccDataSourceGoogleKmsCryptoKeyVersion_basic(kmsKey string) string {
 	return fmt.Sprintf(`
 data "google_kms_crypto_key_version" "version" {
-   crypto_key = "%s"
- }
+  crypto_key = "%s"
+}
 `, kmsKey)
 }

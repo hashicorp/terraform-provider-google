@@ -26,13 +26,13 @@ resource "google_compute_global_address" "private_ip_alloc" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = "${google_compute_network.peering_network.self_link}"
+  network       = google_compute_network.peering_network.self_link
 }
 
 resource "google_service_networking_connection" "foobar" {
-  network                 = "${google_compute_network.peering_network.self_link}"
+  network                 = google_compute_network.peering_network.self_link
   service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = ["${google_compute_global_address.private_ip_alloc.name}"]
+  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
 ```
 

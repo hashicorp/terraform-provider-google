@@ -14,21 +14,23 @@ Get TensorFlow versions available for a project. For more information see the [o
 ## Example Usage
 
 ```hcl
-data "google_tpu_tensorflow_versions" "available" { }
+data "google_tpu_tensorflow_versions" "available" {
+}
 ```
 
 ## Example Usage: Configure Basic TPU Node with available version
 
 ```hcl
-data "google_tpu_tensorflow_versions" "available" { }
+data "google_tpu_tensorflow_versions" "available" {
+}
 
 resource "google_tpu_node" "tpu" {
-	name           = "test-tpu"
-	zone           = "us-central1-b"
+  name = "test-tpu"
+  zone = "us-central1-b"
 
-	accelerator_type   = "v3-8"
-	tensorflow_version = "${data.google_tpu_tensorflow_versions.available.versions[0]}"
-	cidr_block         = "10.2.0.0/29"
+  accelerator_type   = "v3-8"
+  tensorflow_version = data.google_tpu_tensorflow_versions.available.versions[0]
+  cidr_block         = "10.2.0.0/29"
 }
 ```
 

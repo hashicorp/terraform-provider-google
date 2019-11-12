@@ -45,11 +45,11 @@ To get more information about Autoscaler, see:
 
 ```hcl
 resource "google_compute_autoscaler" "default" {
-  provider = "google-beta"
+  provider = google-beta
 
   name   = "my-autoscaler"
   zone   = "us-central1-f"
-  target = "${google_compute_instance_group_manager.default.self_link}"
+  target = google_compute_instance_group_manager.default.self_link
 
   autoscaling_policy {
     max_replicas    = 5
@@ -65,7 +65,7 @@ resource "google_compute_autoscaler" "default" {
 }
 
 resource "google_compute_instance_template" "default" {
-  provider = "google-beta"
+  provider = google-beta
 
   name           = "my-instance-template"
   machine_type   = "n1-standard-1"
@@ -74,7 +74,7 @@ resource "google_compute_instance_template" "default" {
   tags = ["foo", "bar"]
 
   disk {
-    source_image = "${data.google_compute_image.debian_9.self_link}"
+    source_image = data.google_compute_image.debian_9.self_link
   }
 
   network_interface {
@@ -91,34 +91,34 @@ resource "google_compute_instance_template" "default" {
 }
 
 resource "google_compute_target_pool" "default" {
-  provider = "google-beta"
+  provider = google-beta
 
   name = "my-target-pool"
 }
 
 resource "google_compute_instance_group_manager" "default" {
-  provider = "google-beta"
+  provider = google-beta
 
   name = "my-igm"
   zone = "us-central1-f"
 
   version {
-    instance_template  = "${google_compute_instance_template.default.self_link}"
-    name               = "primary"
+    instance_template = google_compute_instance_template.default.self_link
+    name              = "primary"
   }
 
-  target_pools       = ["${google_compute_target_pool.default.self_link}"]
+  target_pools       = [google_compute_target_pool.default.self_link]
   base_instance_name = "autoscaler-sample"
 }
 
 data "google_compute_image" "debian_9" {
-  provider = "google-beta"
+  provider = google-beta
 
   family  = "debian-9"
   project = "debian-cloud"
 }
 
-provider "google-beta"{
+provider "google-beta" {
   region = "us-central1"
   zone   = "us-central1-a"
 }
@@ -135,7 +135,7 @@ provider "google-beta"{
 resource "google_compute_autoscaler" "foobar" {
   name   = "my-autoscaler"
   zone   = "us-central1-f"
-  target = "${google_compute_instance_group_manager.foobar.self_link}"
+  target = google_compute_instance_group_manager.foobar.self_link
 
   autoscaling_policy {
     max_replicas    = 5
@@ -156,7 +156,7 @@ resource "google_compute_instance_template" "foobar" {
   tags = ["foo", "bar"]
 
   disk {
-    source_image = "${data.google_compute_image.debian_9.self_link}"
+    source_image = data.google_compute_image.debian_9.self_link
   }
 
   network_interface {
@@ -181,17 +181,17 @@ resource "google_compute_instance_group_manager" "foobar" {
   zone = "us-central1-f"
 
   version {
-    instance_template  = "${google_compute_instance_template.foobar.self_link}"
+    instance_template  = google_compute_instance_template.foobar.self_link
     name               = "primary"
   }
 
-  target_pools       = ["${google_compute_target_pool.foobar.self_link}"]
+  target_pools       = [google_compute_target_pool.foobar.self_link]
   base_instance_name = "foobar"
 }
 
 data "google_compute_image" "debian_9" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 ```
 

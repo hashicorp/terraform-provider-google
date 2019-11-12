@@ -97,13 +97,13 @@ resource "google_app_engine_standard_app_version" "myapp_v2" {
 }
 
 resource "google_storage_bucket" "bucket" {
-	name = "appengine-static-content%{random_suffix}"
+  name = "appengine-static-content%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name   = "hello-world.zip"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "./test-fixtures/appengine/hello-world.zip"
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/appengine/hello-world.zip"
 }
 `, context)
 }

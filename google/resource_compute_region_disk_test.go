@@ -183,19 +183,19 @@ func testAccCheckComputeRegionDiskExists(n string, disk *computeBeta.Disk) resou
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		if rs.Primary.ID == "" {
+		if rs.Primary.Attributes["name"] == "" {
 			return fmt.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientComputeBeta.RegionDisks.Get(
-			p, rs.Primary.Attributes["region"], rs.Primary.ID).Do()
+			p, rs.Primary.Attributes["region"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != rs.Primary.Attributes["name"] {
 			return fmt.Errorf("RegionDisk not found")
 		}
 

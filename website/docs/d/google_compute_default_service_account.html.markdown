@@ -14,11 +14,12 @@ Use this data source to retrieve default service account for this project
 ## Example Usage
 
 ```hcl
-data "google_compute_default_service_account" "default" { }
+data "google_compute_default_service_account" "default" {
+}
 
 output "default_account" {
-  value = "${data.google_compute_default_service_account.default.email}"
-} 
+  value = data.google_compute_default_service_account.default.email
+}
 ```
 
 ## Argument Reference

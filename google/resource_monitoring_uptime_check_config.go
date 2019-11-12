@@ -62,7 +62,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"content": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Required:    true,
 							Description: `String or regex content to match (max 1024 bytes)`,
 						},
 					},
@@ -84,13 +84,13 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"password": {
 										Type:        schema.TypeString,
-										Optional:    true,
+										Required:    true,
 										Description: `The password to authenticate.`,
 										Sensitive:   true,
 									},
 									"username": {
 										Type:        schema.TypeString,
-										Optional:    true,
+										Required:    true,
 										Description: `The username to authenticate.`,
 									},
 								},
@@ -125,8 +125,9 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Description: `If true, use HTTPS instead of HTTP to run the check.`,
 						},
 						"validate_ssl": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Boolean specifying whether to include SSL certificate validation as a part of the Uptime check. Only applies to checks where monitoredResource is set to uptime_url. If useSsl is false, setting validateSsl to true has no effect.`,
 						},
 					},
 				},
@@ -178,6 +179,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 							Description:      `The group of resources being monitored. Should be the 'name' of a group`,
+							AtLeastOneOf:     []string{"resource_group.0.resource_type", "resource_group.0.group_id"},
 						},
 						"resource_type": {
 							Type:         schema.TypeString,
@@ -185,6 +187,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER", ""}, false),
 							Description:  `The resource type of the group members.`,
+							AtLeastOneOf: []string{"resource_group.0.resource_type", "resource_group.0.group_id"},
 						},
 					},
 				},
@@ -225,42 +228,40 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Description: `The id of the uptime check`,
 			},
 			"is_internal": {
-				Type:       schema.TypeBool,
-				Optional:   true,
-				Computed:   true,
-				Deprecated: "This field never worked, and will be removed in 3.0.0.",
+				Type:     schema.TypeBool,
+				Optional: true,
+				Removed:  "This field never worked, and will be removed in 3.0.0.",
 			},
 			"internal_checkers": {
-				Type:       schema.TypeList,
-				Optional:   true,
-				Computed:   true,
-				Deprecated: "This field never worked, and will be removed in 3.0.0.",
+				Type:     schema.TypeList,
+				Optional: true,
+				Removed:  "This field never worked, and will be removed in 3.0.0.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"display_name": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"gcp_zone": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"name": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"network": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"peer_project_id": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 					},
 				},
@@ -384,18 +385,6 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 	res, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringUptimeCheckConfig %q", d.Id()))
-	}
-
-	res, err = resourceMonitoringUptimeCheckConfigDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
-
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing MonitoringUptimeCheckConfig because it no longer exists.")
-		d.SetId("")
-		return nil
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -1027,9 +1016,4 @@ func expandMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d T
 		m[k] = val.(string)
 	}
 	return m, nil
-}
-
-func resourceMonitoringUptimeCheckConfigDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	d.Set("internal_checkers", nil)
-	return res, nil
 }

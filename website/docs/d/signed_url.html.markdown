@@ -22,15 +22,15 @@ data "google_storage_object_signed_url" "artifact" {
 }
 
 resource "google_compute_instance" "vm" {
-    name = "vm"
+  name = "vm"
 
-    provisioner "remote-exec" {
-        inline = [
-                "wget '${data.google_storage_object_signed_url.artifact.signed_url}' -O install_file.bin",
-                "chmod +x install_file.bin",
-                "./install_file.bin"
-                ]
-     }
+  provisioner "remote-exec" {
+    inline = [
+      "wget '${data.google_storage_object_signed_url.artifact.signed_url}' -O install_file.bin",
+      "chmod +x install_file.bin",
+      "./install_file.bin",
+    ]
+  }
 }
 ```
 
@@ -43,7 +43,7 @@ data "google_storage_object_signed_url" "get_url" {
   content_md5  = "pRviqwS4c4OTJRTe03FD1w=="
   content_type = "text/plain"
   duration     = "2d"
-  credentials  = "${file("path/to/credentials.json")}"
+  credentials  = file("path/to/credentials.json")
 
   extension_headers = {
     x-goog-if-generation-match = 1

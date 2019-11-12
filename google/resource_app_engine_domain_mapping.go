@@ -80,6 +80,13 @@ By default, overrides are rejected.`,
 				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"ssl_management_type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"AUTOMATIC", "MANUAL"}, false),
+							Description: `SSL management type for this domain. If 'AUTOMATIC', a managed certificate is automatically provisioned.
+If 'MANUAL', 'certificateId' must be manually specified in order to configure SSL for this domain.`,
+						},
 						"certificate_id": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -90,13 +97,6 @@ By default, a managed certificate is automatically created for every domain mapp
 or to configure SSL manually, specify 'SslManagementType.MANUAL' on a 'CREATE' or 'UPDATE' request. You must be
 authorized to administer the 'AuthorizedCertificate' resource to manually map it to a DomainMapping resource.
 Example: 12345.`,
-						},
-						"ssl_management_type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"AUTOMATIC", "MANUAL", ""}, false),
-							Description: `SSL management type for this domain. If 'AUTOMATIC', a managed certificate is automatically provisioned.
-If 'MANUAL', 'certificateId' must be manually specified in order to configure SSL for this domain.`,
 						},
 						"pending_managed_certificate_id": {
 							Type:     schema.TypeString,
@@ -184,7 +184,7 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{domain_name}}")
+	id, err := replaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -346,13 +346,15 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 func resourceAppEngineDomainMappingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
+		"apps/(?P<project>[^/]+)/domainMappings/(?P<domain_name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<domain_name>[^/]+)",
 		"(?P<domain_name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{domain_name}}")
+	id, err := replaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

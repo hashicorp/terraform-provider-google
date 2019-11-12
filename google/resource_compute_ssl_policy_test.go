@@ -177,7 +177,7 @@ func testAccCheckComputeSslPolicyExists(n string, sslPolicy *compute.SslPolicy) 
 			return fmt.Errorf("Error Reading SSL Policy %s: %s", name, err)
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != name {
 			return fmt.Errorf("SSL Policy not found")
 		}
 

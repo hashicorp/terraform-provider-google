@@ -65,10 +65,11 @@ For INTERNAL_SELF_MANAGED load balancing, only HTTP and HTTPS targets
 are valid.`,
 			},
 			"ip_address": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateIpAddress,
 				Description: `The IP address that this forwarding rule is serving on behalf of.
 
 Addresses are restricted based on the forwarding rule's load balancing
@@ -88,15 +89,11 @@ forwarding rule. By default, if this field is empty, an ephemeral
 internal IP address will be automatically allocated from the IP range
 of the subnet or network configured for this forwarding rule.
 
-~> **NOTE** The address should be specified as a literal IP address,
-e.g. '100.1.2.3' to avoid a permanent diff, as the server returns the
-IP address regardless of the input value.
-
-The server accepts a literal IP address or a URL reference to an existing
-Address resource. The following examples are all valid but only the first
-will prevent a permadiff. If you are using 'google_compute_address' or
-similar, interpolate using '.address' instead of '.self_link' or similar
-to prevent a diff on re-apply.`,
+An address must be specified by a literal IP address. ~> **NOTE**: While
+the API allows you to specify various resource paths for an address resource
+instead, Terraform requires this to specifically be an IP address to
+avoid needing to fetching the IP address from resource paths on refresh
+or unnecessary diffs.`,
 			},
 			"ip_protocol": {
 				Type:             schema.TypeString,
@@ -321,7 +318,7 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/forwardingRules/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -504,7 +501,7 @@ func resourceComputeGlobalForwardingRuleImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/forwardingRules/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

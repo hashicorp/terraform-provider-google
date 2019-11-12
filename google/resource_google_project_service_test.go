@@ -142,7 +142,7 @@ func TestAccProjectService_renamedService(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectService_single("bigquery-json.googleapis.com", pid, pname, org),
+				Config: testAccProjectService_single("bigquery.googleapis.com", pid, pname, org),
 			},
 			{
 				ResourceName:            "google_project_service.test",

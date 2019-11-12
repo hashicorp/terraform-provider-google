@@ -85,7 +85,7 @@ func resourceComputeRouterPeer() *schema.Resource {
 						},
 						"range": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 					},
 				},

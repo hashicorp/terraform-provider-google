@@ -218,7 +218,7 @@ func resourceBinaryAuthorizationAttestorCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/attestors/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -359,7 +359,7 @@ func resourceBinaryAuthorizationAttestorImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/attestors/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

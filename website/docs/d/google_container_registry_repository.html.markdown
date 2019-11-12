@@ -16,10 +16,11 @@ The URLs are computed entirely offline - as long as the project exists, they wil
 ## Example Usage
 
 ```hcl
-data "google_container_registry_repository" "foo" {}
+data "google_container_registry_repository" "foo" {
+}
 
 output "gcr_location" {
-    value = "${data.google_container_registry_repository.foo.repository_url}"
+  value = data.google_container_registry_repository.foo.repository_url
 }
 ```
 

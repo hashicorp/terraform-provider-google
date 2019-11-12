@@ -175,18 +175,21 @@ consecutive successes. The default value is 2.`,
 							Description: `The value of the host header in the HTTP2 health check request.
 If left empty (default value), the public IP on behalf of which this health
 check is performed will be used.`,
+							AtLeastOneOf: []string{"http2_health_check.0.host", "http2_health_check.0.request_path", "http2_health_check.0.response", "http2_health_check.0.port", "http2_health_check.0.port_name", "http2_health_check.0.proxy_header", "http2_health_check.0.port_specification"},
 						},
 						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Description: `The TCP port number for the HTTP2 health check request.
 The default value is 443.`,
+							AtLeastOneOf: []string{"http2_health_check.0.host", "http2_health_check.0.request_path", "http2_health_check.0.response", "http2_health_check.0.port", "http2_health_check.0.port_name", "http2_health_check.0.proxy_header", "http2_health_check.0.port_specification"},
 						},
 						"port_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `Port name as defined in InstanceGroup#NamedPort#name. If both port and
 port_name are defined, port takes precedence.`,
+							AtLeastOneOf: []string{"http2_health_check.0.host", "http2_health_check.0.request_path", "http2_health_check.0.response", "http2_health_check.0.port", "http2_health_check.0.port_name", "http2_health_check.0.proxy_header", "http2_health_check.0.port_specification"},
 						},
 						"port_specification": {
 							Type:         schema.TypeString,
@@ -206,6 +209,7 @@ following values:
 
 If not specified, HTTP2 health check follows behavior specified in 'port' and
 'portName' fields.`,
+							AtLeastOneOf: []string{"http2_health_check.0.host", "http2_health_check.0.request_path", "http2_health_check.0.response", "http2_health_check.0.port", "http2_health_check.0.port_name", "http2_health_check.0.proxy_header", "http2_health_check.0.port_specification"},
 						},
 						"proxy_header": {
 							Type:         schema.TypeString,
@@ -213,14 +217,16 @@ If not specified, HTTP2 health check follows behavior specified in 'port' and
 							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
 							Description: `Specifies the type of proxy header to append before sending data to the
 backend, either NONE or PROXY_V1. The default is NONE.`,
-							Default: "NONE",
+							Default:      "NONE",
+							AtLeastOneOf: []string{"http2_health_check.0.host", "http2_health_check.0.request_path", "http2_health_check.0.response", "http2_health_check.0.port", "http2_health_check.0.port_name", "http2_health_check.0.proxy_header", "http2_health_check.0.port_specification"},
 						},
 						"request_path": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `The request path of the HTTP2 health check request.
 The default value is /.`,
-							Default: "/",
+							Default:      "/",
+							AtLeastOneOf: []string{"http2_health_check.0.host", "http2_health_check.0.request_path", "http2_health_check.0.response", "http2_health_check.0.port", "http2_health_check.0.port_name", "http2_health_check.0.proxy_header", "http2_health_check.0.port_specification"},
 						},
 						"response": {
 							Type:     schema.TypeString,
@@ -228,6 +234,7 @@ The default value is /.`,
 							Description: `The bytes to match against the beginning of the response data. If left empty
 (the default value), any response will indicate health. The response data
 can only be ASCII.`,
+							AtLeastOneOf: []string{"http2_health_check.0.host", "http2_health_check.0.request_path", "http2_health_check.0.response", "http2_health_check.0.port", "http2_health_check.0.port_name", "http2_health_check.0.proxy_header", "http2_health_check.0.port_specification"},
 						},
 					},
 				},
@@ -247,18 +254,21 @@ can only be ASCII.`,
 							Description: `The value of the host header in the HTTP health check request.
 If left empty (default value), the public IP on behalf of which this health
 check is performed will be used.`,
+							AtLeastOneOf: []string{"http_health_check.0.host", "http_health_check.0.request_path", "http_health_check.0.response", "http_health_check.0.port", "http_health_check.0.port_name", "http_health_check.0.proxy_header", "http_health_check.0.port_specification"},
 						},
 						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Description: `The TCP port number for the HTTP health check request.
 The default value is 80.`,
+							AtLeastOneOf: []string{"http_health_check.0.host", "http_health_check.0.request_path", "http_health_check.0.response", "http_health_check.0.port", "http_health_check.0.port_name", "http_health_check.0.proxy_header", "http_health_check.0.port_specification"},
 						},
 						"port_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `Port name as defined in InstanceGroup#NamedPort#name. If both port and
 port_name are defined, port takes precedence.`,
+							AtLeastOneOf: []string{"http_health_check.0.host", "http_health_check.0.request_path", "http_health_check.0.response", "http_health_check.0.port", "http_health_check.0.port_name", "http_health_check.0.proxy_header", "http_health_check.0.port_specification"},
 						},
 						"port_specification": {
 							Type:         schema.TypeString,
@@ -278,6 +288,7 @@ following values:
 
 If not specified, HTTP health check follows behavior specified in 'port' and
 'portName' fields.`,
+							AtLeastOneOf: []string{"http_health_check.0.host", "http_health_check.0.request_path", "http_health_check.0.response", "http_health_check.0.port", "http_health_check.0.port_name", "http_health_check.0.proxy_header", "http_health_check.0.port_specification"},
 						},
 						"proxy_header": {
 							Type:         schema.TypeString,
@@ -285,14 +296,16 @@ If not specified, HTTP health check follows behavior specified in 'port' and
 							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
 							Description: `Specifies the type of proxy header to append before sending data to the
 backend, either NONE or PROXY_V1. The default is NONE.`,
-							Default: "NONE",
+							Default:      "NONE",
+							AtLeastOneOf: []string{"http_health_check.0.host", "http_health_check.0.request_path", "http_health_check.0.response", "http_health_check.0.port", "http_health_check.0.port_name", "http_health_check.0.proxy_header", "http_health_check.0.port_specification"},
 						},
 						"request_path": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `The request path of the HTTP health check request.
 The default value is /.`,
-							Default: "/",
+							Default:      "/",
+							AtLeastOneOf: []string{"http_health_check.0.host", "http_health_check.0.request_path", "http_health_check.0.response", "http_health_check.0.port", "http_health_check.0.port_name", "http_health_check.0.proxy_header", "http_health_check.0.port_specification"},
 						},
 						"response": {
 							Type:     schema.TypeString,
@@ -300,6 +313,7 @@ The default value is /.`,
 							Description: `The bytes to match against the beginning of the response data. If left empty
 (the default value), any response will indicate health. The response data
 can only be ASCII.`,
+							AtLeastOneOf: []string{"http_health_check.0.host", "http_health_check.0.request_path", "http_health_check.0.response", "http_health_check.0.port", "http_health_check.0.port_name", "http_health_check.0.proxy_header", "http_health_check.0.port_specification"},
 						},
 					},
 				},
@@ -319,18 +333,21 @@ can only be ASCII.`,
 							Description: `The value of the host header in the HTTPS health check request.
 If left empty (default value), the public IP on behalf of which this health
 check is performed will be used.`,
+							AtLeastOneOf: []string{"https_health_check.0.host", "https_health_check.0.request_path", "https_health_check.0.response", "https_health_check.0.port", "https_health_check.0.port_name", "https_health_check.0.proxy_header", "https_health_check.0.port_specification"},
 						},
 						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Description: `The TCP port number for the HTTPS health check request.
 The default value is 443.`,
+							AtLeastOneOf: []string{"https_health_check.0.host", "https_health_check.0.request_path", "https_health_check.0.response", "https_health_check.0.port", "https_health_check.0.port_name", "https_health_check.0.proxy_header", "https_health_check.0.port_specification"},
 						},
 						"port_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `Port name as defined in InstanceGroup#NamedPort#name. If both port and
 port_name are defined, port takes precedence.`,
+							AtLeastOneOf: []string{"https_health_check.0.host", "https_health_check.0.request_path", "https_health_check.0.response", "https_health_check.0.port", "https_health_check.0.port_name", "https_health_check.0.proxy_header", "https_health_check.0.port_specification"},
 						},
 						"port_specification": {
 							Type:         schema.TypeString,
@@ -350,6 +367,7 @@ following values:
 
 If not specified, HTTPS health check follows behavior specified in 'port' and
 'portName' fields.`,
+							AtLeastOneOf: []string{"https_health_check.0.host", "https_health_check.0.request_path", "https_health_check.0.response", "https_health_check.0.port", "https_health_check.0.port_name", "https_health_check.0.proxy_header", "https_health_check.0.port_specification"},
 						},
 						"proxy_header": {
 							Type:         schema.TypeString,
@@ -357,14 +375,16 @@ If not specified, HTTPS health check follows behavior specified in 'port' and
 							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
 							Description: `Specifies the type of proxy header to append before sending data to the
 backend, either NONE or PROXY_V1. The default is NONE.`,
-							Default: "NONE",
+							Default:      "NONE",
+							AtLeastOneOf: []string{"https_health_check.0.host", "https_health_check.0.request_path", "https_health_check.0.response", "https_health_check.0.port", "https_health_check.0.port_name", "https_health_check.0.proxy_header", "https_health_check.0.port_specification"},
 						},
 						"request_path": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `The request path of the HTTPS health check request.
 The default value is /.`,
-							Default: "/",
+							Default:      "/",
+							AtLeastOneOf: []string{"https_health_check.0.host", "https_health_check.0.request_path", "https_health_check.0.response", "https_health_check.0.port", "https_health_check.0.port_name", "https_health_check.0.proxy_header", "https_health_check.0.port_specification"},
 						},
 						"response": {
 							Type:     schema.TypeString,
@@ -372,6 +392,7 @@ The default value is /.`,
 							Description: `The bytes to match against the beginning of the response data. If left empty
 (the default value), any response will indicate health. The response data
 can only be ASCII.`,
+							AtLeastOneOf: []string{"https_health_check.0.host", "https_health_check.0.request_path", "https_health_check.0.response", "https_health_check.0.port", "https_health_check.0.port_name", "https_health_check.0.proxy_header", "https_health_check.0.port_specification"},
 						},
 					},
 				},
@@ -390,12 +411,14 @@ can only be ASCII.`,
 							Optional: true,
 							Description: `The TCP port number for the SSL health check request.
 The default value is 443.`,
+							AtLeastOneOf: []string{"ssl_health_check.0.request", "ssl_health_check.0.response", "ssl_health_check.0.port", "ssl_health_check.0.port_name", "ssl_health_check.0.proxy_header", "ssl_health_check.0.port_specification"},
 						},
 						"port_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `Port name as defined in InstanceGroup#NamedPort#name. If both port and
 port_name are defined, port takes precedence.`,
+							AtLeastOneOf: []string{"ssl_health_check.0.request", "ssl_health_check.0.response", "ssl_health_check.0.port", "ssl_health_check.0.port_name", "ssl_health_check.0.proxy_header", "ssl_health_check.0.port_specification"},
 						},
 						"port_specification": {
 							Type:         schema.TypeString,
@@ -415,6 +438,7 @@ following values:
 
 If not specified, SSL health check follows behavior specified in 'port' and
 'portName' fields.`,
+							AtLeastOneOf: []string{"ssl_health_check.0.request", "ssl_health_check.0.response", "ssl_health_check.0.port", "ssl_health_check.0.port_name", "ssl_health_check.0.proxy_header", "ssl_health_check.0.port_specification"},
 						},
 						"proxy_header": {
 							Type:         schema.TypeString,
@@ -422,7 +446,8 @@ If not specified, SSL health check follows behavior specified in 'port' and
 							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
 							Description: `Specifies the type of proxy header to append before sending data to the
 backend, either NONE or PROXY_V1. The default is NONE.`,
-							Default: "NONE",
+							Default:      "NONE",
+							AtLeastOneOf: []string{"ssl_health_check.0.request", "ssl_health_check.0.response", "ssl_health_check.0.port", "ssl_health_check.0.port_name", "ssl_health_check.0.proxy_header", "ssl_health_check.0.port_specification"},
 						},
 						"request": {
 							Type:     schema.TypeString,
@@ -431,6 +456,7 @@ backend, either NONE or PROXY_V1. The default is NONE.`,
 established (default value is empty). If both request and response are
 empty, the connection establishment alone will indicate health. The request
 data can only be ASCII.`,
+							AtLeastOneOf: []string{"ssl_health_check.0.request", "ssl_health_check.0.response", "ssl_health_check.0.port", "ssl_health_check.0.port_name", "ssl_health_check.0.proxy_header", "ssl_health_check.0.port_specification"},
 						},
 						"response": {
 							Type:     schema.TypeString,
@@ -438,6 +464,7 @@ data can only be ASCII.`,
 							Description: `The bytes to match against the beginning of the response data. If left empty
 (the default value), any response will indicate health. The response data
 can only be ASCII.`,
+							AtLeastOneOf: []string{"ssl_health_check.0.request", "ssl_health_check.0.response", "ssl_health_check.0.port", "ssl_health_check.0.port_name", "ssl_health_check.0.proxy_header", "ssl_health_check.0.port_specification"},
 						},
 					},
 				},
@@ -456,12 +483,14 @@ can only be ASCII.`,
 							Optional: true,
 							Description: `The TCP port number for the TCP health check request.
 The default value is 443.`,
+							AtLeastOneOf: []string{"tcp_health_check.0.request", "tcp_health_check.0.response", "tcp_health_check.0.port", "tcp_health_check.0.port_name", "tcp_health_check.0.proxy_header", "tcp_health_check.0.port_specification"},
 						},
 						"port_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `Port name as defined in InstanceGroup#NamedPort#name. If both port and
 port_name are defined, port takes precedence.`,
+							AtLeastOneOf: []string{"tcp_health_check.0.request", "tcp_health_check.0.response", "tcp_health_check.0.port", "tcp_health_check.0.port_name", "tcp_health_check.0.proxy_header", "tcp_health_check.0.port_specification"},
 						},
 						"port_specification": {
 							Type:         schema.TypeString,
@@ -481,6 +510,7 @@ following values:
 
 If not specified, TCP health check follows behavior specified in 'port' and
 'portName' fields.`,
+							AtLeastOneOf: []string{"tcp_health_check.0.request", "tcp_health_check.0.response", "tcp_health_check.0.port", "tcp_health_check.0.port_name", "tcp_health_check.0.proxy_header", "tcp_health_check.0.port_specification"},
 						},
 						"proxy_header": {
 							Type:         schema.TypeString,
@@ -488,7 +518,8 @@ If not specified, TCP health check follows behavior specified in 'port' and
 							ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
 							Description: `Specifies the type of proxy header to append before sending data to the
 backend, either NONE or PROXY_V1. The default is NONE.`,
-							Default: "NONE",
+							Default:      "NONE",
+							AtLeastOneOf: []string{"tcp_health_check.0.request", "tcp_health_check.0.response", "tcp_health_check.0.port", "tcp_health_check.0.port_name", "tcp_health_check.0.proxy_header", "tcp_health_check.0.port_specification"},
 						},
 						"request": {
 							Type:     schema.TypeString,
@@ -497,6 +528,7 @@ backend, either NONE or PROXY_V1. The default is NONE.`,
 established (default value is empty). If both request and response are
 empty, the connection establishment alone will indicate health. The request
 data can only be ASCII.`,
+							AtLeastOneOf: []string{"tcp_health_check.0.request", "tcp_health_check.0.response", "tcp_health_check.0.port", "tcp_health_check.0.port_name", "tcp_health_check.0.proxy_header", "tcp_health_check.0.port_specification"},
 						},
 						"response": {
 							Type:     schema.TypeString,
@@ -504,6 +536,7 @@ data can only be ASCII.`,
 							Description: `The bytes to match against the beginning of the response data. If left empty
 (the default value), any response will indicate health. The response data
 can only be ASCII.`,
+							AtLeastOneOf: []string{"tcp_health_check.0.request", "tcp_health_check.0.response", "tcp_health_check.0.port", "tcp_health_check.0.port_name", "tcp_health_check.0.proxy_header", "tcp_health_check.0.port_specification"},
 						},
 					},
 				},
@@ -640,7 +673,7 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -894,7 +927,7 @@ func resourceComputeHealthCheckImport(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

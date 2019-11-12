@@ -43,7 +43,7 @@ To get more information about Index, see:
 
 ```hcl
 resource "google_firestore_index" "my-index" {
-  project    = "my-project-name"
+  project = "my-project-name"
 
   collection = "chatrooms"
 

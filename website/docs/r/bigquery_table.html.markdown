@@ -30,7 +30,7 @@ resource "google_bigquery_dataset" "default" {
 }
 
 resource "google_bigquery_table" "default" {
-  dataset_id = "${google_bigquery_dataset.default.dataset_id}"
+  dataset_id = google_bigquery_dataset.default.dataset_id
   table_id   = "bar"
 
   time_partitioning {
@@ -57,10 +57,11 @@ resource "google_bigquery_table" "default" {
   }
 ]
 EOF
+
 }
 
 resource "google_bigquery_table" "sheet" {
-  dataset_id = "${google_bigquery_dataset.default.dataset_id}"
+  dataset_id = google_bigquery_dataset.default.dataset_id
   table_id   = "sheet"
 
   external_data_configuration {

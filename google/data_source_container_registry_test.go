@@ -67,26 +67,29 @@ func TestDataSourceGoogleContainerRegistryImage(t *testing.T) {
 
 const testAccCheckGoogleContainerRegistryImage_basic = `
 data "google_container_registry_image" "test" {
-	project = "foo"
-	region = "bar"
-	name = "baz"
+  project = "foo"
+  region  = "bar"
+  name    = "baz"
 }
+
 data "google_container_registry_image" "test2" {
-	project = "foo"
-	region = "bar"
-	name = "baz"
-	tag = "qux"
+  project = "foo"
+  region  = "bar"
+  name    = "baz"
+  tag     = "qux"
 }
+
 data "google_container_registry_image" "test3" {
-	project = "foo"
-	region = "bar"
-	name = "baz"
-	digest = "1234"
+  project = "foo"
+  region  = "bar"
+  name    = "baz"
+  digest  = "1234"
 }
+
 data "google_container_registry_image" "testScoped" {
-	project = "example.com:foo"
-	region = "bar"
-	name = "baz"
-	tag = "qux"
+  project = "example.com:foo"
+  region  = "bar"
+  name    = "baz"
+  tag     = "qux"
 }
 `

@@ -161,11 +161,11 @@ func testAccCheckDataSourceComputeAddressDestroy(resource_name string) resource.
 func testAccDataSourceComputeAddressConfig(rsName, dsName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_address" "%s" {
-	name = "address-test"
+  name = "address-test"
 }
 
 data "google_compute_address" "%s" {
-	name = "${google_compute_address.%s.name}"
+  name = google_compute_address.%s.name
 }
 `, rsName, dsName, rsName)
 }

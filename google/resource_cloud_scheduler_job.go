@@ -140,6 +140,7 @@ No spaces are allowed, and the maximum length allowed is 2083 characters`,
 										ForceNew: true,
 										Description: `App instance.
 By default, the job is sent to an instance which is available when the job is attempted.`,
+										AtLeastOneOf: []string{"app_engine_http_target.0.app_engine_routing.0.service", "app_engine_http_target.0.app_engine_routing.0.version", "app_engine_http_target.0.app_engine_routing.0.instance"},
 									},
 									"service": {
 										Type:     schema.TypeString,
@@ -147,6 +148,7 @@ By default, the job is sent to an instance which is available when the job is at
 										ForceNew: true,
 										Description: `App service.
 By default, the job is sent to the service which is the default service when the job is attempted.`,
+										AtLeastOneOf: []string{"app_engine_http_target.0.app_engine_routing.0.service", "app_engine_http_target.0.app_engine_routing.0.version", "app_engine_http_target.0.app_engine_routing.0.instance"},
 									},
 									"version": {
 										Type:     schema.TypeString,
@@ -154,6 +156,7 @@ By default, the job is sent to the service which is the default service when the
 										ForceNew: true,
 										Description: `App version.
 By default, the job is sent to the version which is the default version when the job is attempted.`,
+										AtLeastOneOf: []string{"app_engine_http_target.0.app_engine_routing.0.service", "app_engine_http_target.0.app_engine_routing.0.version", "app_engine_http_target.0.app_engine_routing.0.instance"},
 									},
 								},
 							},
@@ -242,19 +245,19 @@ This type of authorization should be used when sending requests to a GCP endpoin
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"service_account_email": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `Service account email to be used for generating OAuth token.
+The service account must be within the same project as the job.`,
+									},
 									"scope": {
 										Type:     schema.TypeString,
 										Optional: true,
 										ForceNew: true,
 										Description: `OAuth scope to be used for generating OAuth access token. If not specified,
 "https://www.googleapis.com/auth/cloud-platform" will be used.`,
-									},
-									"service_account_email": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-										Description: `Service account email to be used for generating OAuth token.
-The service account must be within the same project as the job.`,
 									},
 								},
 							},
@@ -269,19 +272,19 @@ This type of authorization should be used when sending requests to third party e
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"service_account_email": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `Service account email to be used for generating OAuth token.
+The service account must be within the same project as the job.`,
+									},
 									"audience": {
 										Type:     schema.TypeString,
 										Optional: true,
 										ForceNew: true,
 										Description: `Audience to be used when generating OIDC token. If not specified,
 the URI specified in target will be used.`,
-									},
-									"service_account_email": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-										Description: `Service account email to be used for generating OAuth token.
-The service account must be within the same project as the job.`,
 									},
 								},
 							},
@@ -343,6 +346,7 @@ then it will be retried with exponential backoff according to the settings`,
 							ForceNew: true,
 							Description: `The maximum amount of time to wait before retrying a job after it fails.
 A duration in seconds with up to nine fractional digits, terminated by 's'.`,
+							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
 						},
 						"max_doublings": {
 							Type:     schema.TypeInt,
@@ -352,6 +356,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 A job's retry interval starts at minBackoffDuration, 
 then doubles maxDoublings times, then increases linearly, 
 and finally retries retries at intervals of maxBackoffDuration up to retryCount times.`,
+							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
 						},
 						"max_retry_duration": {
 							Type:     schema.TypeString,
@@ -360,6 +365,7 @@ and finally retries retries at intervals of maxBackoffDuration up to retryCount 
 							Description: `The time limit for retrying a failed job, measured from time when an execution was first attempted. 
 If specified with retryCount, the job will be retried until both limits are reached.
 A duration in seconds with up to nine fractional digits, terminated by 's'.`,
+							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
 						},
 						"min_backoff_duration": {
 							Type:     schema.TypeString,
@@ -367,6 +373,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 							ForceNew: true,
 							Description: `The minimum amount of time to wait before retrying a job after it fails.
 A duration in seconds with up to nine fractional digits, terminated by 's'.`,
+							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
 						},
 						"retry_count": {
 							Type:     schema.TypeInt,
@@ -375,6 +382,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 							Description: `The number of attempts that the system will make to run a 
 job using the exponential backoff procedure described by maxDoublings.
 Values greater than 5 and negative values are not allowed.`,
+							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
 						},
 					},
 				},
@@ -472,7 +480,7 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -577,7 +585,7 @@ func resourceCloudSchedulerJobImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -871,25 +879,7 @@ func flattenCloudSchedulerJobHttpTargetOidcTokenAudience(v interface{}, d *schem
 }
 
 func expandCloudSchedulerJobName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	var jobName string
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
-	}
-
-	region, err := getRegion(d, config)
-	if err != nil {
-		return nil, err
-	}
-
-	if v, ok := d.GetOk("name"); ok {
-		jobName = fmt.Sprintf("projects/%s/locations/%s/jobs/%s", project, region, v.(string))
-	} else {
-		err := fmt.Errorf("The name is missing for the job cannot be empty")
-		return nil, err
-	}
-
-	return jobName, nil
+	return replaceVars(d, config, "projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 }
 
 func expandCloudSchedulerJobDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
