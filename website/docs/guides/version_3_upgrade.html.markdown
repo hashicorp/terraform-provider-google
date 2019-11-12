@@ -54,6 +54,7 @@ so Terraform knows to manage them.
 - [Resource: `google_project_service`](#resource-google_project_service)
 - [Resource: `google_project_services`](#resource-google_project_services)
 - [Resource: `google_pubsub_subscription`](#resource-google_pubsub_subscription)
+- [Resource: `google_cloudiot_registry`](#resource-google_cloudiot_registry)
 
 <!-- /TOC -->
 
@@ -378,3 +379,40 @@ resource "google_project_service" "project_cloudresourcemanager" {
 
 `name` previously could have been specified by a long name (e.g. `projects/my-project/subscriptions/my-subscription`)
 or a shortname (e.g. `my-subscription`). `name` now must be the shortname.
+
+
+## Resource: `google_cloudiot_registry`
+
+### Replace singular event notification config field with plural `event_notification_configs`
+
+Use the plural field `event_notification_configs` instead of
+`event_notification_config`, which has now been removed.
+Since the Cloud IoT API now accept multiple event notification configs for a
+registry, the singular field no longer exists on the API resource and has been
+removed from Terraform to prevent conflicts.
+
+
+#### Old Config
+
+```hcl
+resource "google_cloudiot_registry" "myregistry" {
+  name = "%s"
+
+  event_notification_config {
+    pubsub_topic_name = "${google_pubsub_topic.event-topic.id}"
+  }
+}
+
+```
+
+#### New Config
+
+```hcl
+resource "google_cloudiot_registry" "myregistry" {
+  name = "%s"
+
+  event_notification_configs {
+    pubsub_topic_name = "${google_pubsub_topic.event-topic.id}"
+  }
+}
+```
