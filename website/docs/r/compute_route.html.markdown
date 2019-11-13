@@ -42,7 +42,8 @@ Engine-operated gateway. Packets that do not match any route in the
 sending virtual machine's routing table will be dropped.
 
 A Route resource must have exactly one specification of either
-nextHopGateway, nextHopInstance, nextHopIp, or nextHopVpnTunnel.
+nextHopGateway, nextHopInstance, nextHopIp, nextHopVpnTunnel, or
+nextHopIlb.
 
 
 To get more information about Route, see:
@@ -63,7 +64,7 @@ To get more information about Route, see:
 resource "google_compute_route" "default" {
   name        = "network-route"
   dest_range  = "15.0.0.0/24"
-  network     = "${google_compute_network.default.name}"
+  network     = google_compute_network.default.name
   next_hop_ip = "10.132.1.5"
   priority    = 100
 }
@@ -82,21 +83,21 @@ resource "google_compute_network" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = "google-beta"
+  provider                = google-beta
   name                    = "compute-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = "google-beta"
+  provider      = google-beta
   name          = "compute-subnet"
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-central1"
-  network       = "${google_compute_network.default.self_link}"
+  network       = google_compute_network.default.self_link
 }
 
 resource "google_compute_health_check" "hc" {
-  provider           = "google-beta"
+  provider           = google-beta
   name               = "proxy-health-check"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -107,30 +108,30 @@ resource "google_compute_health_check" "hc" {
 }
 
 resource "google_compute_region_backend_service" "backend" {
-  provider              = "google-beta"
-  name                  = "compute-backend"
-  region                = "us-central1"
-  health_checks         = ["${google_compute_health_check.hc.self_link}"]
+  provider      = google-beta
+  name          = "compute-backend"
+  region        = "us-central1"
+  health_checks = [google_compute_health_check.hc.self_link]
 }
 
 resource "google_compute_forwarding_rule" "default" {
-  provider              = "google-beta"
-  name                  = "compute-forwarding-rule"
-  region                = "us-central1"
+  provider = google-beta
+  name     = "compute-forwarding-rule"
+  region   = "us-central1"
 
   load_balancing_scheme = "INTERNAL"
-  backend_service       = "${google_compute_region_backend_service.backend.self_link}"
+  backend_service       = google_compute_region_backend_service.backend.self_link
   all_ports             = true
-  network               = "${google_compute_network.default.name}"
-  subnetwork            = "${google_compute_subnetwork.default.name}"
+  network               = google_compute_network.default.name
+  subnetwork            = google_compute_subnetwork.default.name
 }
 
 resource "google_compute_route" "route-ilb-beta" {
-  provider     = "google-beta"
+  provider     = google-beta
   name         = "route-ilb-beta"
   dest_range   = "0.0.0.0/0"
-  network      = "${google_compute_network.default.name}"
-  next_hop_ilb = "${google_compute_forwarding_rule.default.self_link}"
+  network      = google_compute_network.default.name
+  next_hop_ilb = google_compute_forwarding_rule.default.self_link
   priority     = 2000
 }
 ```

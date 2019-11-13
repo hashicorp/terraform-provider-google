@@ -246,6 +246,7 @@ resource "google_compute_instance_template" "foobar" {
 		disk_type = "local-ssd"
 		type = "SCRATCH"
 		interface = "NVME"
+		disk_size_gb = 375
 	}
 
 	network_interface {
@@ -447,6 +448,8 @@ resource "google_compute_instance_template" "template" {
 
 	disk {
 		type = "SCRATCH"
+		disk_type = "local-ssd"
+		disk_size_gb = 375
 		interface = "SCSI"
 		auto_delete = true
 		boot = false

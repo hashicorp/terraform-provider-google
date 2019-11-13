@@ -32,7 +32,8 @@ func resourceStorageBucket() *schema.Resource {
 			State: resourceStorageBucketStateImporter,
 		},
 		CustomizeDiff: customdiff.All(
-			customdiff.ForceNewIfChange("retention_policy.0.is_locked", isPolicyLocked)),
+			customdiff.ForceNewIfChange("retention_policy.0.is_locked", isPolicyLocked),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -80,13 +81,6 @@ func resourceStorageBucket() *schema.Resource {
 				StateFunc: func(s interface{}) string {
 					return strings.ToUpper(s.(string))
 				},
-			},
-
-			"predefined_acl": {
-				Type:     schema.TypeString,
-				Removed:  "Please use resource \"storage_bucket_acl.predefined_acl\" instead.",
-				Optional: true,
-				ForceNew: true,
 			},
 
 			"project": {
@@ -154,10 +148,9 @@ func resourceStorageBucket() *schema.Resource {
 										Optional: true,
 									},
 									"is_live": {
-										Type:       schema.TypeBool,
-										Optional:   true,
-										Computed:   true,
-										Deprecated: "Please use `with_state` instead",
+										Type:     schema.TypeBool,
+										Optional: true,
+										Removed:  "Please use `with_state` instead",
 									},
 									"with_state": {
 										Type:         schema.TypeString,
@@ -190,8 +183,7 @@ func resourceStorageBucket() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"enabled": {
 							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Required: true,
 						},
 					},
 				},
@@ -204,12 +196,14 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"main_page_suffix": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: []string{"website.0.not_found_page", "website.0.main_page_suffix"},
 						},
 						"not_found_page": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: []string{"website.0.main_page_suffix", "website.0.not_found_page"},
 						},
 					},
 				},
@@ -886,10 +880,8 @@ func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleC
 	} else {
 		if *condition.IsLive {
 			ruleCondition["with_state"] = "LIVE"
-			ruleCondition["is_live"] = true
 		} else {
 			ruleCondition["with_state"] = "ARCHIVED"
-			ruleCondition["is_live"] = false
 		}
 	}
 	return ruleCondition
@@ -1052,18 +1044,9 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 			transformed.IsLive = googleapi.Bool(true)
 		case "ARCHIVED":
 			transformed.IsLive = googleapi.Bool(false)
-		case "ANY":
+		case "ANY", "":
 			// This is unnecessary, but set explicitly to nil for readability.
 			transformed.IsLive = nil
-		case "":
-			// Support deprecated `is_live` behavior
-			// is_live was always read (ok always true)
-			// so it can only support LIVE/ARCHIVED.
-			// TODO: When removing is_live, combine this case with case "ANY"
-			if v, ok := condition["is_live"]; ok {
-				log.Printf("[WARN] using deprecated field `is_live` because with_state is empty")
-				transformed.IsLive = googleapi.Bool(v.(bool))
-			}
 		default:
 			return nil, fmt.Errorf("unexpected value %q for condition.with_state", withStateV.(string))
 		}
@@ -1119,32 +1102,8 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
 
-	// Note that we are keeping the boolean notation from when is_live was
-	// the only field (i.e. not deprecated) in order to prevent a diff from
-	// hash key.
-	// There are three possible states for the actual condition
-	// and correspond to the following hash codes:
-	//
-	// 1. LIVE only: "true-"
-	//    Applies for one of:
-	//      with_state = "" && is_live = true
-	//      with_state = "LIVE"
-	//
-	// 2. ARCHIVED only: "false-"
-	//    Applies for one of:
-	//      with_state = "" && is_live = false
-	//      with_state = "ARCHIVED"
-	//
-	// 3. ANY (i.e. LIVE and ARCHIVED): ""
-	//    Applies for one of:
-	//      with_state = "ANY"
-
 	withStateV, withStateOk := m["with_state"]
-	if !withStateOk || withStateV.(string) == "" {
-		if isLiveV, ok := m["is_live"]; ok {
-			buf.WriteString(fmt.Sprintf("%t-", isLiveV.(bool)))
-		}
-	} else if withStateOk {
+	if withStateOk {
 		switch withStateV.(string) {
 		case "LIVE":
 			buf.WriteString(fmt.Sprintf("%t-", true))

@@ -35,6 +35,14 @@ var composerEnvironmentReservedEnvVar = map[string]struct{}{
 	"SQL_USER":         {},
 }
 
+var composerSoftwareConfigKeys = []string{
+	"config.0.software_config.0.airflow_config_overrides",
+	"config.0.software_config.0.pypi_packages",
+	"config.0.software_config.0.env_variables",
+	"config.0.software_config.0.image_version",
+	"config.0.software_config.0.python_version",
+}
+
 func resourceComposerEnvironment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComposerEnvironmentCreate,
@@ -161,8 +169,7 @@ func resourceComposerEnvironment() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"use_ip_aliases": {
 													Type:     schema.TypeBool,
-													Optional: true,
-													Default:  true,
+													Required: true,
 													ForceNew: true,
 												},
 												"cluster_secondary_range_name": {
@@ -205,19 +212,22 @@ func resourceComposerEnvironment() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"airflow_config_overrides": {
-										Type:     schema.TypeMap,
-										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Type:         schema.TypeMap,
+										Optional:     true,
+										AtLeastOneOf: composerSoftwareConfigKeys,
+										Elem:         &schema.Schema{Type: schema.TypeString},
 									},
 									"pypi_packages": {
 										Type:         schema.TypeMap,
 										Optional:     true,
+										AtLeastOneOf: composerSoftwareConfigKeys,
 										Elem:         &schema.Schema{Type: schema.TypeString},
 										ValidateFunc: validateComposerEnvironmentPypiPackages,
 									},
 									"env_variables": {
 										Type:         schema.TypeMap,
 										Optional:     true,
+										AtLeastOneOf: composerSoftwareConfigKeys,
 										Elem:         &schema.Schema{Type: schema.TypeString},
 										ValidateFunc: validateComposerEnvironmentEnvVariables,
 									},
@@ -225,14 +235,16 @@ func resourceComposerEnvironment() *schema.Resource {
 										Type:             schema.TypeString,
 										Computed:         true,
 										Optional:         true,
+										AtLeastOneOf:     composerSoftwareConfigKeys,
 										ValidateFunc:     validateRegexp(composerEnvironmentVersionRegexp),
 										DiffSuppressFunc: composerImageVersionDiffSuppress,
 									},
 									"python_version": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Type:         schema.TypeString,
+										Optional:     true,
+										AtLeastOneOf: composerSoftwareConfigKeys,
+										Computed:     true,
+										ForceNew:     true,
 									},
 								},
 							},
@@ -247,9 +259,8 @@ func resourceComposerEnvironment() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"enable_private_endpoint": {
 										Type:     schema.TypeBool,
-										Optional: true,
+										Required: true,
 										ForceNew: true,
-										Default:  true,
 									},
 									"master_ipv4_cidr_block": {
 										Type:     schema.TypeString,
@@ -313,7 +324,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/environments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -574,7 +585,7 @@ func resourceComposerEnvironmentImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/environments/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

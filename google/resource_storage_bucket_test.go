@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"regexp"
+	"strings"
 	"testing"
 	"time"
 
@@ -166,30 +168,11 @@ func TestAccStorageBucket_lifecycleRuleStateLive(t *testing.T) {
 		CheckDestroy: testAccStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageBucket_lifecycleRule_IsLiveTrue(bucketName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckStorageBucketExists(
-						"google_storage_bucket.bucket", bucketName, &bucket),
-					testAccCheckStorageBucketLifecycleConditionState(googleapi.Bool(true), &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", attrPrefix+"is_live", "true"),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", attrPrefix+"with_state", "LIVE"),
-				),
-			},
-			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: testAccStorageBucket_lifecycleRule_withStateLive(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
 					testAccCheckStorageBucketLifecycleConditionState(googleapi.Bool(true), &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", attrPrefix+"is_live", "true"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", attrPrefix+"with_state", "LIVE"),
 				),
@@ -226,28 +209,7 @@ func TestAccStorageBucket_lifecycleRuleStateArchived(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
-					testAccCheckStorageBucketLifecycleConditionState(googleapi.Bool(false), &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", attrPrefix+"is_live", "false"),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", attrPrefix+"with_state", "ARCHIVED"),
-				),
-			},
-			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccStorageBucket_lifecycleRule_isLiveFalse(bucketName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckStorageBucketExists(
-						"google_storage_bucket.bucket", bucketName, &bucket),
-					testAccCheckStorageBucketLifecycleConditionState(googleapi.Bool(false), &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", attrPrefix+"is_live", "false"),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", attrPrefix+"with_state", "ARCHIVED"),
+					testAccCheckStorageBucketLifecycleConditionState(nil, &bucket),
 				),
 			},
 			{
@@ -261,8 +223,6 @@ func TestAccStorageBucket_lifecycleRuleStateArchived(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						"google_storage_bucket.bucket", bucketName, &bucket),
 					testAccCheckStorageBucketLifecycleConditionState(googleapi.Bool(false), &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", attrPrefix+"is_live", "false"),
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", attrPrefix+"with_state", "ARCHIVED"),
 				),
@@ -870,11 +830,27 @@ func TestAccStorageBucket_website(t *testing.T) {
 
 	bucketSuffix := acctest.RandomWithPrefix("tf-website-test")
 
+	websiteKeys := []string{"website.0.main_page_suffix", "website.0.not_found_page"}
+	errMsg := fmt.Sprintf("one of `%s` must be specified", strings.Join(websiteKeys, ","))
+	fullErr := fmt.Sprintf("config is invalid: 2 problems:\n\n- \"%s\": %s\n- \"%s\": %s", websiteKeys[0], errMsg, websiteKeys[1], errMsg)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccStorageBucketDestroy,
 		Steps: []resource.TestStep{
+			{
+				Config:      testAccStorageBucket_websiteNoAttributes(bucketSuffix),
+				ExpectError: regexp.MustCompile(fullErr),
+			},
+			{
+				Config: testAccStorageBucket_websiteOneAttribute(bucketSuffix),
+			},
+			{
+				ResourceName:      "google_storage_bucket.website",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			{
 				Config: testAccStorageBucket_website(bucketSuffix),
 			},
@@ -1302,24 +1278,6 @@ resource "google_storage_bucket" "bucket" {
 `, bucketName)
 }
 
-func testAccStorageBucket_lifecycleRule_isLiveFalse(bucketName string) string {
-	return fmt.Sprintf(`
-resource "google_storage_bucket" "bucket" {
-  name          = "%s"
-  lifecycle_rule {
-    action {
-      type = "Delete"
-    }
-
-    condition {
-      age = 10
-      is_live = false
-    }
-  }
-}
-`, bucketName)
-}
-
 func testAccStorageBucket_lifecycleRule_withStateArchived(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
@@ -1332,24 +1290,6 @@ resource "google_storage_bucket" "bucket" {
     condition {
       age = 10
       with_state = "ARCHIVED"
-    }
-  }
-}
-`, bucketName)
-}
-
-func testAccStorageBucket_lifecycleRule_IsLiveTrue(bucketName string) string {
-	return fmt.Sprintf(`
-resource "google_storage_bucket" "bucket" {
-  name          = "%s"
-  lifecycle_rule {
-    action {
-      type = "Delete"
-    }
-
-    condition {
-      age = 10
-      is_live = true
     }
   }
 }
@@ -1421,17 +1361,14 @@ resource "google_project" "acceptance" {
 	billing_account = "%{billing_account}"
 }
 
-resource "google_project_services" "acceptance" {
+resource "google_project_service" "acceptance" {
 	project = "${google_project.acceptance.project_id}"
-
-	services = [
-	  "cloudkms.googleapis.com",
-	]
+	service = "cloudkms.googleapis.com"
 }
 
 resource "google_kms_key_ring" "key_ring" {
 	name     = "tf-test-%{random_suffix}"
-	project  = "${google_project_services.acceptance.project}"
+	project  = "${google_project_service.acceptance.project}"
 	location = "us"
 }
 
@@ -1499,5 +1436,31 @@ resource "google_storage_bucket" "bucket" {
       retention_period = 10
     }
 }
+`, bucketName)
+}
+
+func testAccStorageBucket_websiteNoAttributes(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "website" {
+	name     = "%s.gcp.tfacc.hashicorptest.com"
+	location = "US"
+	storage_class = "MULTI_REGIONAL"
+
+	website {}
+  }
+`, bucketName)
+}
+
+func testAccStorageBucket_websiteOneAttribute(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "website" {
+	name     = "%s.gcp.tfacc.hashicorptest.com"
+	location = "US"
+	storage_class = "MULTI_REGIONAL"
+
+	website {
+	  main_page_suffix = "index.html"
+	}
+  }
 `, bucketName)
 }

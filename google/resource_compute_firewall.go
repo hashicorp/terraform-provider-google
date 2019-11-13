@@ -102,18 +102,18 @@ character, which cannot be a dash.`,
 				Description: `The list of ALLOW rules specified by this firewall. Each rule
 specifies a protocol and port-range tuple that describes a permitted
 connection.`,
-				Elem:          computeFirewallAllowSchema(),
-				Set:           resourceComputeFirewallRuleHash,
-				ConflictsWith: []string{"deny"},
+				Elem:         computeFirewallAllowSchema(),
+				Set:          resourceComputeFirewallRuleHash,
+				ExactlyOneOf: []string{"allow", "deny"},
 			},
 			"deny": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Description: `The list of DENY rules specified by this firewall. Each rule specifies
 a protocol and port-range tuple that describes a denied connection.`,
-				Elem:          computeFirewallDenySchema(),
-				Set:           resourceComputeFirewallRuleHash,
-				ConflictsWith: []string{"allow"},
+				Elem:         computeFirewallDenySchema(),
+				Set:          resourceComputeFirewallRuleHash,
+				ExactlyOneOf: []string{"allow", "deny"},
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -435,7 +435,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -696,7 +696,7 @@ func resourceComputeFirewallImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

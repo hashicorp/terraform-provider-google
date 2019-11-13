@@ -442,12 +442,12 @@ func testAccCheckComputeDiskExists(n, p string, disk *compute.Disk) resource.Tes
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Disks.Get(
-			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			p, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != rs.Primary.Attributes["name"] {
 			return fmt.Errorf("Disk not found")
 		}
 

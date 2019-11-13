@@ -242,13 +242,6 @@ resource "google_compute_address" "default" {
 // which causes the create to fail unless user_project_override is set to true.
 func testAccProviderUserProjectOverride(pid, name, org, billing, sa string) string {
 	return fmt.Sprintf(`
-provider "google" {
-  scopes = [
-    "https://www.googleapis.com/auth/cloud-platform",
-    "https://www.googleapis.com/auth/userinfo.email",
-  ]
-}
-
 resource "google_project" "project-1" {
 	project_id      = "%s"
 	name            = "%s"

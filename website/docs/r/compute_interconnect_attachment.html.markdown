@@ -34,12 +34,12 @@ information, see Creating VLAN Attachments.
 resource "google_compute_interconnect_attachment" "on_prem" {
   name         = "on-prem-attachment"
   interconnect = "my-interconnect-id"
-  router       = "${google_compute_router.foobar.self_link}"
+  router       = google_compute_router.foobar.self_link
 }
 
 resource "google_compute_router" "foobar" {
   name    = "router"
-  network = "${google_compute_network.foobar.name}"
+  network = google_compute_network.foobar.name
 }
 ```
 

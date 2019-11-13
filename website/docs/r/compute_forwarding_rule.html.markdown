@@ -44,7 +44,7 @@ To get more information about ForwardingRule, see:
 ```hcl
 resource "google_compute_forwarding_rule" "default" {
   name       = "website-forwarding-rule"
-  target     = "${google_compute_target_pool.default.self_link}"
+  target     = google_compute_target_pool.default.self_link
   port_range = "80"
 }
 
@@ -63,20 +63,20 @@ resource "google_compute_target_pool" "default" {
 ```hcl
 // Forwarding rule for Internal Load Balancing
 resource "google_compute_forwarding_rule" "default" {
-  name                  = "website-forwarding-rule"
-  region                = "us-central1"
+  name   = "website-forwarding-rule"
+  region = "us-central1"
 
   load_balancing_scheme = "INTERNAL"
-  backend_service       = "${google_compute_region_backend_service.backend.self_link}"
+  backend_service       = google_compute_region_backend_service.backend.self_link
   all_ports             = true
-  network               = "${google_compute_network.default.name}"
-  subnetwork            = "${google_compute_subnetwork.default.name}"
+  network               = google_compute_network.default.name
+  subnetwork            = google_compute_subnetwork.default.name
 }
 
 resource "google_compute_region_backend_service" "backend" {
-  name                  = "website-backend"
-  region                = "us-central1"
-  health_checks         = ["${google_compute_health_check.hc.self_link}"]
+  name          = "website-backend"
+  region        = "us-central1"
+  health_checks = [google_compute_health_check.hc.self_link]
 }
 
 resource "google_compute_health_check" "hc" {
@@ -90,7 +90,7 @@ resource "google_compute_health_check" "hc" {
 }
 
 resource "google_compute_network" "default" {
-  name = "website-net"
+  name                    = "website-net"
   auto_create_subnetworks = false
 }
 
@@ -98,7 +98,7 @@ resource "google_compute_subnetwork" "default" {
   name          = "website-net"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.default.self_link}"
+  network       = google_compute_network.default.self_link
 }
 ```
 
@@ -143,14 +143,11 @@ The following arguments are supported:
   forwarding rule. By default, if this field is empty, an ephemeral
   internal IP address will be automatically allocated from the IP range
   of the subnet or network configured for this forwarding rule.
-  ~> **NOTE** The address should be specified as a literal IP address,
-  e.g. `100.1.2.3` to avoid a permanent diff, as the server returns the
-  IP address regardless of the input value.
-  The server accepts a literal IP address or a URL reference to an existing
-  Address resource. The following examples are all valid but only the first
-  will prevent a permadiff. If you are using `google_compute_address` or
-  similar, interpolate using `.address` instead of `.self_link` or similar
-  to prevent a diff on re-apply.
+  An address must be specified by a literal IP address. ~> **NOTE**: While
+  the API allows you to specify various resource paths for an address resource
+  instead, Terraform requires this to specifically be an IP address to
+  avoid needing to fetching the IP address from resource paths on refresh
+  or unnecessary diffs.
 
 * `ip_protocol` -
   (Optional)
@@ -163,10 +160,6 @@ The following arguments are supported:
   (Optional)
   A BackendService to receive the matched traffic. This is used only
   for INTERNAL load balancing.
-
-* `ip_version` -
-  (Optional, Deprecated)
-  ipVersion is not a valid field for regional forwarding rules.
 
 * `load_balancing_scheme` -
   (Optional)

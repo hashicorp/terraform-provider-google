@@ -43,8 +43,8 @@ func resourceFolderOrgPolicyImporter(d *schema.ResourceData, meta interface{}) (
 	config := meta.(*Config)
 
 	if err := parseImportId([]string{
-		"folders/(?P<folder>[^/]+):constraints/(?P<constraint>[^/]+)",
-		"(?P<folder>[^/]+):(?P<constraint>[^/]+)"},
+		"folders/(?P<folder>[^/]+)/constraints/(?P<constraint>[^/]+)",
+		"(?P<folder>[^/]+)/(?P<constraint>[^/]+)"},
 		d, config); err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func resourceFolderOrgPolicyImporter(d *schema.ResourceData, meta interface{}) (
 }
 
 func resourceGoogleFolderOrganizationPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	d.SetId(fmt.Sprintf("%s:%s", d.Get("folder"), d.Get("constraint")))
+	d.SetId(fmt.Sprintf("%s/%s", d.Get("folder"), d.Get("constraint")))
 
 	if isOrganizationPolicyUnset(d) {
 		return resourceGoogleFolderOrganizationPolicyDelete(d, meta)

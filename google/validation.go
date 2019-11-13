@@ -232,6 +232,14 @@ func validateNonNegativeDuration() schema.SchemaValidateFunc {
 	}
 }
 
+func validateIpAddress(i interface{}, val string) ([]string, []error) {
+	ip := net.ParseIP(i.(string))
+	if ip == nil {
+		return nil, []error{fmt.Errorf("could not parse %q to IP address", val)}
+	}
+	return nil, nil
+}
+
 // StringNotInSlice returns a SchemaValidateFunc which tests if the provided value
 // is of type string and that it matches none of the element in the invalid slice.
 // if ignorecase is true, case is ignored.

@@ -35,17 +35,17 @@ resource "google_folder" "orgpolicy" {
 }
 
 resource "google_folder_organization_policy" "resource" {
-    folder     = "${google_folder.orgpolicy.name}"
-    constraint = "serviceuser.services"
+  folder     = google_folder.orgpolicy.name
+  constraint = "serviceuser.services"
 
-    restore_policy {
-        default = true
-    }
+  restore_policy {
+    default = true
+  }
 }
 
 data "google_folder_organization_policy" "data" {
-  folder     = "${google_folder_organization_policy.resource.folder}"
+  folder     = google_folder_organization_policy.resource.folder
   constraint = "serviceuser.services"
 }
-	`, folder, "organizations/"+org)
+`, folder, "organizations/"+org)
 }

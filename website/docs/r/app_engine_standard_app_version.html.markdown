@@ -87,13 +87,13 @@ resource "google_app_engine_standard_app_version" "myapp_v2" {
 }
 
 resource "google_storage_bucket" "bucket" {
-	name = "appengine-static-content"
+  name = "appengine-static-content"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name   = "hello-world.zip"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "./test-fixtures/appengine/hello-world.zip"
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/appengine/hello-world.zip"
 }
 ```
 
@@ -196,7 +196,7 @@ The `handlers` block supports:
 The `script` block supports:
 
 * `script_path` -
-  (Optional)
+  (Required)
   Path to the script from the application root directory.
 
 The `static_files` block supports:
@@ -257,7 +257,7 @@ The `deployment` block supports:
 The `zip` block supports:
 
 * `source_url` -
-  (Optional)
+  (Required)
   Source URL
 
 * `files_count` -
@@ -273,13 +273,13 @@ The `files` block supports:
   SHA1 checksum of the file
 
 * `source_url` -
-  (Optional)
+  (Required)
   Source URL
 
 The `entrypoint` block supports:
 
 * `shell` -
-  (Optional)
+  (Required)
   The format should be a shell command that can be fed to bash -c.
 
 ## Attributes Reference

@@ -210,7 +210,7 @@ resource "google_compute_instance" "test" {
 
   boot_disk {
     initialize_params {
-      image = "${data.google_compute_image.my_image.self_link}"
+      image = data.google_compute_image.my_image.self_link
     }
   }
 
@@ -225,16 +225,16 @@ resource "google_compute_instance" "test" {
 
 resource "google_compute_instance_group" "test" {
   name = "tf-test-%s"
-  zone = "${google_compute_instance.test.zone}"
+  zone = google_compute_instance.test.zone
 
   instances = [
-    "${google_compute_instance.test.self_link}",
+    google_compute_instance.test.self_link,
   ]
 }
 
 data "google_compute_instance_group" "test" {
-  name = "${google_compute_instance_group.test.name}"
-  zone = "${google_compute_instance_group.test.zone}"
+  name = google_compute_instance_group.test.name
+  zone = google_compute_instance_group.test.zone
 }
 `, acctest.RandString(10), acctest.RandString(10))
 }
@@ -253,7 +253,7 @@ resource "google_compute_instance" "test" {
 
   boot_disk {
     initialize_params {
-      image = "${data.google_compute_image.my_image.self_link}"
+      image = data.google_compute_image.my_image.self_link
     }
   }
 
@@ -268,7 +268,7 @@ resource "google_compute_instance" "test" {
 
 resource "google_compute_instance_group" "test" {
   name = "tf-test-%s"
-  zone = "${google_compute_instance.test.zone}"
+  zone = google_compute_instance.test.zone
 
   named_port {
     name = "http"
@@ -281,13 +281,13 @@ resource "google_compute_instance_group" "test" {
   }
 
   instances = [
-    "${google_compute_instance.test.self_link}",
+    google_compute_instance.test.self_link,
   ]
 }
 
 data "google_compute_instance_group" "test" {
-  name = "${google_compute_instance_group.test.name}"
-  zone = "${google_compute_instance_group.test.zone}"
+  name = google_compute_instance_group.test.name
+  zone = google_compute_instance_group.test.zone
 }
 `, acctest.RandString(10), acctest.RandString(10))
 }
@@ -300,13 +300,13 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "igm-basic" {
-  name = "%s"
+  name         = "%s"
   machine_type = "n1-standard-1"
 
   disk {
-    source_image = "${data.google_compute_image.my_image.self_link}"
-    auto_delete = true
-    boot = true
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
   }
 
   network_interface {
@@ -315,17 +315,17 @@ resource "google_compute_instance_template" "igm-basic" {
 }
 
 resource "google_compute_instance_group_manager" "igm" {
-  name = "%s"
-  instance_template = "${google_compute_instance_template.igm-basic.self_link}"
+  name              = "%s"
+  instance_template = google_compute_instance_template.igm-basic.self_link
   base_instance_name = "igm"
-  zone = "us-central1-a"
-  target_size = 10
+  zone               = "us-central1-a"
+  target_size        = 10
 
   wait_for_instances = true
 }
 
 data "google_compute_instance_group" "test" {
-  self_link = "${google_compute_instance_group_manager.igm.instance_group}"
+  self_link = google_compute_instance_group_manager.igm.instance_group
 }
 `, acctest.RandomWithPrefix("test-igm"), acctest.RandomWithPrefix("test-igm"))
 }

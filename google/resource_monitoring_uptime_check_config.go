@@ -62,7 +62,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"content": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Required:    true,
 							Description: `String or regex content to match (max 1024 bytes)`,
 						},
 					},
@@ -84,45 +84,51 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"password": {
 										Type:        schema.TypeString,
-										Optional:    true,
+										Required:    true,
 										Description: `The password to authenticate.`,
 										Sensitive:   true,
 									},
 									"username": {
 										Type:        schema.TypeString,
-										Optional:    true,
+										Required:    true,
 										Description: `The username to authenticate.`,
 									},
 								},
 							},
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"headers": {
-							Type:        schema.TypeMap,
-							Optional:    true,
-							Description: `The list of headers to send as part of the uptime check request. If two headers have the same key and different values, they should be entered as a single header, with the value being a comma-separated list of all the desired values as described at https://www.w3.org/Protocols/rfc2616/rfc2616.txt (page 31). Entering two separate headers with the same key in a Create call will cause the first to be overwritten by the second. The maximum number of headers allowed is 100.`,
-							Elem:        &schema.Schema{Type: schema.TypeString},
+							Type:         schema.TypeMap,
+							Optional:     true,
+							Description:  `The list of headers to send as part of the uptime check request. If two headers have the same key and different values, they should be entered as a single header, with the value being a comma-separated list of all the desired values as described at https://www.w3.org/Protocols/rfc2616/rfc2616.txt (page 31). Entering two separate headers with the same key in a Create call will cause the first to be overwritten by the second. The maximum number of headers allowed is 100.`,
+							Elem:         &schema.Schema{Type: schema.TypeString},
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"mask_headers": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `Boolean specifying whether to encrypt the header information. Encryption should be specified for any headers related to authentication that you do not wish to be seen when retrieving the configuration. The server will be responsible for encrypting the headers. On Get/List calls, if mask_headers is set to True then the headers will be obscured with ******.`,
+							Type:         schema.TypeBool,
+							Optional:     true,
+							Description:  `Boolean specifying whether to encrypt the header information. Encryption should be specified for any headers related to authentication that you do not wish to be seen when retrieving the configuration. The server will be responsible for encrypting the headers. On Get/List calls, if mask_headers is set to True then the headers will be obscured with ******.`,
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"path": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. Optional (defaults to "/").`,
-							Default:     "/",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. Optional (defaults to "/").`,
+							Default:      "/",
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"port": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Optional:    true,
-							Description: `The port to the page to run the check against. Will be combined with host (specified within the MonitoredResource) and path to construct the full URL. Optional (defaults to 80 without SSL, or 443 with SSL).`,
+							Type:         schema.TypeInt,
+							Computed:     true,
+							Optional:     true,
+							Description:  `The port to the page to run the check against. Will be combined with host (specified within the MonitoredResource) and path to construct the full URL. Optional (defaults to 80 without SSL, or 443 with SSL).`,
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"use_ssl": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `If true, use HTTPS instead of HTTP to run the check.`,
+							Type:         schema.TypeBool,
+							Optional:     true,
+							Description:  `If true, use HTTPS instead of HTTP to run the check.`,
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"validate_ssl": {
 							Type:        schema.TypeBool,
@@ -131,7 +137,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 						},
 					},
 				},
-				ConflictsWith: []string{"tcp_check"},
+				ExactlyOneOf: []string{"http_check", "tcp_check"},
 			},
 			"monitored_resource": {
 				Type:        schema.TypeList,
@@ -156,7 +162,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 						},
 					},
 				},
-				ConflictsWith: []string{"resource_group"},
+				ExactlyOneOf: []string{"monitored_resource", "resource_group"},
 			},
 			"period": {
 				Type:        schema.TypeString,
@@ -179,6 +185,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 							Description:      `The group of resources being monitored. Should be the 'name' of a group`,
+							AtLeastOneOf:     []string{"resource_group.0.resource_type", "resource_group.0.group_id"},
 						},
 						"resource_type": {
 							Type:         schema.TypeString,
@@ -186,10 +193,11 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER", ""}, false),
 							Description:  `The resource type of the group members.`,
+							AtLeastOneOf: []string{"resource_group.0.resource_type", "resource_group.0.group_id"},
 						},
 					},
 				},
-				ConflictsWith: []string{"monitored_resource"},
+				ExactlyOneOf: []string{"monitored_resource", "resource_group"},
 			},
 			"selected_regions": {
 				Type:        schema.TypeList,
@@ -213,7 +221,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 						},
 					},
 				},
-				ConflictsWith: []string{"http_check"},
+				ExactlyOneOf: []string{"http_check", "tcp_check"},
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -226,42 +234,40 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Description: `The id of the uptime check`,
 			},
 			"is_internal": {
-				Type:       schema.TypeBool,
-				Optional:   true,
-				Computed:   true,
-				Deprecated: "This field never worked, and will be removed in 3.0.0.",
+				Type:     schema.TypeBool,
+				Optional: true,
+				Removed:  "This field never worked, and will be removed in 3.0.0.",
 			},
 			"internal_checkers": {
-				Type:       schema.TypeList,
-				Optional:   true,
-				Computed:   true,
-				Deprecated: "This field never worked, and will be removed in 3.0.0.",
+				Type:     schema.TypeList,
+				Optional: true,
+				Removed:  "This field never worked, and will be removed in 3.0.0.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"display_name": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"gcp_zone": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"name": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"network": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"peer_project_id": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 					},
 				},
@@ -385,18 +391,6 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 	res, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringUptimeCheckConfig %q", d.Id()))
-	}
-
-	res, err = resourceMonitoringUptimeCheckConfigDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
-
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing MonitoringUptimeCheckConfig because it no longer exists.")
-		d.SetId("")
-		return nil
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -1028,9 +1022,4 @@ func expandMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d T
 		m[k] = val.(string)
 	}
 	return m, nil
-}
-
-func resourceMonitoringUptimeCheckConfigDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	d.Set("internal_checkers", nil)
-	return res, nil
 }

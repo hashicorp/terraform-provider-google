@@ -10,11 +10,14 @@ import (
 	"google.golang.org/api/serviceusage/v1"
 )
 
-var ignoredProjectServices = []string{"dataproc-control.googleapis.com", "source.googleapis.com", "stackdriverprovisioning.googleapis.com"}
-
 // These services can only be enabled as a side-effect of enabling other services,
 // so don't bother storing them in the config or using them for diffing.
+var ignoredProjectServices = []string{"dataproc-control.googleapis.com", "source.googleapis.com", "stackdriverprovisioning.googleapis.com"}
 var ignoredProjectServicesSet = golangSetFromStringSlice(ignoredProjectServices)
+
+// Services that can't be user-specified but are otherwise valid. Renamed
+// services should be added to this set during major releases.
+var bannedProjectServices = []string{"bigquery-json.googleapis.com"}
 
 // Service Renames
 // we expect when a service is renamed:
@@ -41,7 +44,7 @@ var ignoredProjectServicesSet = golangSetFromStringSlice(ignoredProjectServices)
 // upon removal, we should disallow the old name from being used even if it's
 // not gone from the underlying API yet
 var renamedServices = map[string]string{
-	"bigquery-json.googleapis.com": "bigquery.googleapis.com", // DEPRECATED FOR 3.0.0
+	"bigquery-json.googleapis.com": "bigquery.googleapis.com", // DEPRECATED FOR 4.0.0. Originally for 3.0.0, but the migration did not happen server-side yet.
 }
 
 // renamedServices in reverse (new -> old)
@@ -49,6 +52,8 @@ var renamedServicesByNewServiceNames = reverseStringMap(renamedServices)
 
 // renamedServices expressed as both old -> new and new -> old
 var renamedServicesByOldAndNewServiceNames = mergeStringMaps(renamedServices, renamedServicesByNewServiceNames)
+
+const maxServiceUsageBatchSize = 20
 
 func resourceGoogleProjectService() *schema.Resource {
 	return &schema.Resource{
@@ -73,7 +78,7 @@ func resourceGoogleProjectService() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: StringNotInSlice(ignoredProjectServices, false),
+				ValidateFunc: StringNotInSlice(append(ignoredProjectServices, bannedProjectServices...), false),
 			},
 			"project": {
 				Type:     schema.TypeString,

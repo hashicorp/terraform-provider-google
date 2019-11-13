@@ -111,7 +111,7 @@ requests will always be permitted regardless of your admission rules.`,
 					Schema: map[string]*schema.Schema{
 						"name_pattern": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 							Description: `An image name pattern to whitelist, in the form
 'registry/path/to/image'. This supports a trailing * as a
 wildcard, but this is allowed only in text after the registry/
@@ -141,14 +141,14 @@ A location is either a compute zone (e.g. 'us-central1-a') or a region
 						},
 						"enforcement_mode": {
 							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ENFORCED_BLOCK_AND_AUDIT_LOG", "DRYRUN_AUDIT_LOG_ONLY", ""}, false),
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"ENFORCED_BLOCK_AND_AUDIT_LOG", "DRYRUN_AUDIT_LOG_ONLY"}, false),
 							Description:  `The action when a pod creation is denied by the admission rule.`,
 						},
 						"evaluation_mode": {
 							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ALWAYS_ALLOW", "REQUIRE_ATTESTATION", "ALWAYS_DENY", ""}, false),
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"ALWAYS_ALLOW", "REQUIRE_ATTESTATION", "ALWAYS_DENY"}, false),
 							Description:  `How this admission rule will be evaluated.`,
 						},
 						"require_attestations_by": {
@@ -270,7 +270,7 @@ func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}")
+	id, err := replaceVars(d, config, "projects/{{project}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -412,7 +412,7 @@ func resourceBinaryAuthorizationPolicyImport(d *schema.ResourceData, meta interf
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}")
+	id, err := replaceVars(d, config, "projects/{{project}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

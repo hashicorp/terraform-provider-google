@@ -154,6 +154,6 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 	d.Set("project", project)
 	d.Set("zone", GetResourceNameFromSelfLink(instance.Zone))
 	d.Set("name", instance.Name)
-	d.SetId(ConvertSelfLinkToV1(instance.SelfLink))
+	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, instance.Zone, instance.Name))
 	return nil
 }

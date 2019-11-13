@@ -41,13 +41,12 @@ func resourceComputeNetworkPeering() *schema.Resource {
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
 			},
 			// The API only accepts true as a value for exchange_subnet_routes or auto_create_routes (of which only one can be set in a valid request).
-			// Also, you can't set auto_create_routes if you use the networkPeering object. auto_create_routes is also deprecated
+			// Also, you can't set auto_create_routes if you use the networkPeering object. auto_create_routes is also removed
 			"auto_create_routes": {
-				Type:       schema.TypeBool,
-				Optional:   true,
-				Deprecated: "auto_create_routes has been deprecated because it's redundant and not user-configurable. It can safely be removed from your config",
-				ForceNew:   true,
-				Default:    true,
+				Type:     schema.TypeBool,
+				Optional: true,
+				Removed:  "auto_create_routes has been removed because it's redundant and not user-configurable. It can safely be removed from your config",
+				ForceNew: true,
 			},
 			"state": {
 				Type:     schema.TypeString,

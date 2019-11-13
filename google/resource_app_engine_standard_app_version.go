@@ -66,18 +66,19 @@ All files must be readable using the credentials supplied with this call.`,
 										Type:     schema.TypeString,
 										Required: true,
 									},
+									"source_url": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Source URL`,
+									},
 									"sha1_sum": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: `SHA1 checksum of the file`,
 									},
-									"source_url": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Source URL`,
-									},
 								},
 							},
+							AtLeastOneOf: []string{"deployment.0.zip", "deployment.0.files"},
 						},
 						"zip": {
 							Type:        schema.TypeList,
@@ -86,18 +87,19 @@ All files must be readable using the credentials supplied with this call.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"source_url": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Source URL`,
+									},
 									"files_count": {
 										Type:        schema.TypeInt,
 										Optional:    true,
 										Description: `files count`,
 									},
-									"source_url": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Source URL`,
-									},
 								},
 							},
+							AtLeastOneOf: []string{"deployment.0.zip", "deployment.0.files"},
 						},
 					},
 				},
@@ -111,7 +113,7 @@ All files must be readable using the credentials supplied with this call.`,
 					Schema: map[string]*schema.Schema{
 						"shell": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Required:    true,
 							Description: `The format should be a shell command that can be fed to bash -c.`,
 						},
 					},
@@ -158,7 +160,7 @@ Only the auto value is supported for Node.js in the App Engine standard environm
 								Schema: map[string]*schema.Schema{
 									"script_path": {
 										Type:        schema.TypeString,
-										Optional:    true,
+										Required:    true,
 										Description: `Path to the script from the application root directory.`,
 									},
 								},

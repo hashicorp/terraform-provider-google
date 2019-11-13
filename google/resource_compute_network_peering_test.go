@@ -119,7 +119,6 @@ func testAccComputeNetworkPeering_basic() string {
 		network = "${google_compute_network.network2.self_link}"
 		peer_network = "${google_compute_network.network1.self_link}"
 		name = "peering-test-2-%s"
-		auto_create_routes = true
 		`
 
 	s = s + `}`

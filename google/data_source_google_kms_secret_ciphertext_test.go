@@ -111,8 +111,8 @@ func testAccDecryptSecretDataWithCryptoKey(s *terraform.State, cryptoKeyId *kmsC
 func testGoogleKmsSecretCiphertext_datasource(cryptoKeyTerraformId, plaintext string) string {
 	return fmt.Sprintf(`
 data "google_kms_secret_ciphertext" "acceptance" {
-	crypto_key = "%s"
-	plaintext = "%s"
+  crypto_key = "%s"
+  plaintext  = "%s"
 }
-	`, cryptoKeyTerraformId, plaintext)
+`, cryptoKeyTerraformId, plaintext)
 }

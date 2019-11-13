@@ -88,50 +88,50 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 func testAccDataSourceComputeInstanceConfig(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance" "foo" {
-	name           = "%s"
-	machine_type   = "n1-standard-1"
-	zone           = "us-central1-a"
-	can_ip_forward = false
-	tags           = ["foo", "bar"]
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  zone           = "us-central1-a"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
 
-	boot_disk {
-		initialize_params{
-			image = "debian-8-jessie-v20160803"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
+    }
+  }
 
-	scratch_disk {
-	}
+  scratch_disk {
+  }
 
-	network_interface {
-		network = "default"
+  network_interface {
+    network = "default"
 
-    	access_config {
-      		// Ephemeral IP
-    	}
-	}
+    access_config {
+      // Ephemeral IP
+    }
+  }
 
-	metadata = {
-		foo = "bar"
-		baz = "qux"
-        startup-script = "echo Hello"
-	}
+  metadata = {
+    foo            = "bar"
+    baz            = "qux"
+    startup-script = "echo Hello"
+  }
 
-	labels = {
-		my_key       = "my_value"
-		my_other_key = "my_other_value"
-	}
+  labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
 
-	enable_display = true
+  enable_display = true
 }
 
 data "google_compute_instance" "bar" {
-	name = "${google_compute_instance.foo.name}"
-	zone = "us-central1-a"
+  name = google_compute_instance.foo.name
+  zone = "us-central1-a"
 }
 
 data "google_compute_instance" "baz" {
-	self_link = "${google_compute_instance.foo.self_link}"
+  self_link = google_compute_instance.foo.self_link
 }
 `, instanceName)
 }

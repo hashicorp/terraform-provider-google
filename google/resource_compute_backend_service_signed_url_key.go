@@ -114,7 +114,7 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/backendServices/{{backend_service}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

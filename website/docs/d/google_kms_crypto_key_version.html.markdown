@@ -26,11 +26,11 @@ data "google_kms_key_ring" "my_key_ring" {
 
 data "google_kms_crypto_key" "my_crypto_key" {
   name     = "my-crypto-key"
-  key_ring = "${data.google_kms_key_ring.my_key_ring.self_link}"
+  key_ring = data.google_kms_key_ring.my_key_ring.self_link
 }
 
 data "google_kms_crypto_key_version" "my_crypto_key_version" {
-  crypto_key = "${data.google_kms_key.my_key.self_link}"
+  crypto_key = data.google_kms_key.my_key.self_link
 }
 ```
 

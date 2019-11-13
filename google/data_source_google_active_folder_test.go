@@ -82,13 +82,14 @@ func testAccDataSourceGoogleActiveFolderCheck(data_source_name string, resource_
 func testAccDataSourceGoogleActiveFolderConfig(parent string, displayName string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "foobar" {
-  parent = "%s"
+  parent       = "%s"
   display_name = "%s"
 }
 
 data "google_active_folder" "my_folder" {
-  parent = "${google_folder.foobar.parent}"
-  display_name = "${google_folder.foobar.display_name}"
+  parent       = google_folder.foobar.parent
+  display_name = google_folder.foobar.display_name
 }
+
 `, parent, displayName)
 }

@@ -54,8 +54,8 @@ func testAccComputeSslCertificate_sslCertificateBasicExample(context map[string]
 resource "google_compute_ssl_certificate" "default" {
   name_prefix = "my-certificate-"
   description = "a description"
-  private_key = "${file("test-fixtures/ssl_cert/test.key")}"
-  certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
+  private_key = file("test-fixtures/ssl_cert/test.key")
+  certificate = file("test-fixtures/ssl_cert/test.crt")
 
   lifecycle {
     create_before_destroy = true
@@ -95,9 +95,9 @@ func testAccComputeSslCertificate_sslCertificateRandomProviderExample(context ma
 resource "google_compute_ssl_certificate" "default" {
   # The name will contain 8 random hex digits,
   # e.g. "my-certificate-48ab27cd2a"
-  name        = "${random_id.certificate.hex}"
-  private_key = "${file("test-fixtures/ssl_cert/test.key")}"
-  certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
+  name        = random_id.certificate.hex
+  private_key = file("test-fixtures/ssl_cert/test.key")
+  certificate = file("test-fixtures/ssl_cert/test.crt")
 
   lifecycle {
     create_before_destroy = true
@@ -110,8 +110,8 @@ resource "random_id" "certificate" {
 
   # For security, do not expose raw certificate values in the output
   keepers = {
-    private_key = "${base64sha256(file("test-fixtures/ssl_cert/test.key"))}"
-    certificate = "${base64sha256(file("test-fixtures/ssl_cert/test.crt"))}"
+    private_key = filebase64sha256("test-fixtures/ssl_cert/test.key")
+    certificate = filebase64sha256("test-fixtures/ssl_cert/test.crt")
   }
 }
 `, context)
@@ -156,8 +156,8 @@ func testAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(contex
 
 resource "google_compute_ssl_certificate" "default" {
   name_prefix = "my-certificate-"
-  private_key = "${file("test-fixtures/ssl_cert/test.key")}"
-  certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
+  private_key = file("test-fixtures/ssl_cert/test.key")
+  certificate = file("test-fixtures/ssl_cert/test.crt")
 
   lifecycle {
     create_before_destroy = true
@@ -166,15 +166,15 @@ resource "google_compute_ssl_certificate" "default" {
 
 resource "google_compute_target_https_proxy" "default" {
   name             = "test-proxy%{random_suffix}"
-  url_map          = "${google_compute_url_map.default.self_link}"
-  ssl_certificates = ["${google_compute_ssl_certificate.default.self_link}"]
+  url_map          = google_compute_url_map.default.self_link
+  ssl_certificates = [google_compute_ssl_certificate.default.self_link]
 }
 
 resource "google_compute_url_map" "default" {
   name        = "url-map%{random_suffix}"
   description = "a description"
 
-  default_service = "${google_compute_backend_service.default.self_link}"
+  default_service = google_compute_backend_service.default.self_link
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -183,11 +183,11 @@ resource "google_compute_url_map" "default" {
 
   path_matcher {
     name            = "allpaths"
-    default_service = "${google_compute_backend_service.default.self_link}"
+    default_service = google_compute_backend_service.default.self_link
 
     path_rule {
       paths   = ["/*"]
-      service = "${google_compute_backend_service.default.self_link}"
+      service = google_compute_backend_service.default.self_link
     }
   }
 }
@@ -198,7 +198,7 @@ resource "google_compute_backend_service" "default" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  health_checks = [google_compute_http_health_check.default.self_link]
 }
 
 resource "google_compute_http_health_check" "default" {

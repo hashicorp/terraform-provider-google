@@ -55,7 +55,7 @@ resource "google_compute_reservation" "gce_reservation" {
     count = 1
     instance_properties {
       min_cpu_platform = "Intel Cascade Lake"
-      machine_type = "n2-standard-2"
+      machine_type     = "n2-standard-2"
     }
   }
 }

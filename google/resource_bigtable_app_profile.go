@@ -73,7 +73,7 @@ func resourceBigtableAppProfile() *schema.Resource {
 				Description: `If true, read/write requests are routed to the nearest cluster in the instance, and will fail over to the nearest cluster that is available
 in the event of transient errors or delays. Clusters in a region are considered equidistant. Choosing this option sacrifices read-your-writes
 consistency to improve availability.`,
-				ConflictsWith: []string{"single_cluster_routing"},
+				ExactlyOneOf: []string{"single_cluster_routing", "multi_cluster_routing_use_any"},
 			},
 			"single_cluster_routing": {
 				Type:        schema.TypeList,
@@ -83,20 +83,20 @@ consistency to improve availability.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"cluster_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The cluster to which read/write requests should be routed.`,
+						},
 						"allow_transactional_writes": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Description: `If true, CheckAndMutateRow and ReadModifyWriteRow requests are allowed by this app profile.
 It is unsafe to send these requests to the same table/row/column in multiple clusters.`,
 						},
-						"cluster_id": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `The cluster to which read/write requests should be routed.`,
-						},
 					},
 				},
-				ConflictsWith: []string{"multi_cluster_routing_use_any"},
+				ExactlyOneOf: []string{"single_cluster_routing", "multi_cluster_routing_use_any"},
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -152,7 +152,7 @@ func resourceBigtableAppProfileCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{instance}}/{{app_profile_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -278,7 +278,7 @@ func resourceBigtableAppProfileImport(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{instance}}/{{app_profile_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

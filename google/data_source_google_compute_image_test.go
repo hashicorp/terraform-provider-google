@@ -87,19 +87,22 @@ func testAccDataSourceCustomImageConfig(family, name string) string {
 resource "google_compute_image" "image" {
   family      = "%s"
   name        = "%s"
-  source_disk = "${google_compute_disk.disk.self_link}"
+  source_disk = google_compute_disk.disk.self_link
 }
+
 resource "google_compute_disk" "disk" {
   name = "%s-disk"
   zone = "us-central1-b"
 }
+
 data "google_compute_image" "from_name" {
-  project = "${google_compute_image.image.project}"
-  name    = "${google_compute_image.image.name}"
+  project = google_compute_image.image.project
+  name    = google_compute_image.image.name
 }
+
 data "google_compute_image" "from_family" {
-  project = "${google_compute_image.image.project}"
-  family  = "${google_compute_image.image.family}"
+  project = google_compute_image.image.project
+  family  = google_compute_image.image.family
 }
 `, family, name, name)
 }

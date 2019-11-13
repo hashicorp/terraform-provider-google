@@ -14,10 +14,11 @@ Use this data source to retrieve Storage Transfer service account for this proje
 ## Example Usage
 
 ```hcl
-data "google_storage_transfer_project_service_account" "default" { }
+data "google_storage_transfer_project_service_account" "default" {
+}
 
 output "default_account" {
-  value = "${data.google_storage_transfer_project_service_account.default.email}"
+  value = data.google_storage_transfer_project_service_account.default.email
 }
 ```
 
