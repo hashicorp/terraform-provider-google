@@ -50,11 +50,13 @@ so Terraform knows to manage them.
 ## Upgrade Topics
 
 <!-- TOC depthFrom:2 depthTo:2 -->
+- [Resource: `google_cloudiot_registry`](#resource-google_cloudiot_registry)
+- [Resource: `google_compute_forwarding_rule`](#resource-google_compute_forwarding_rule)
+- [Resource: `google_compute_global_forwarding_rule`](#resource-google_global_compute_forwarding_rule)
 - [Resource: `google_container_cluster`](#resource-google_container_cluster)
 - [Resource: `google_project_service`](#resource-google_project_service)
 - [Resource: `google_project_services`](#resource-google_project_services)
 - [Resource: `google_pubsub_subscription`](#resource-google_pubsub_subscription)
-- [Resource: `google_cloudiot_registry`](#resource-google_cloudiot_registry)
 
 <!-- /TOC -->
 
@@ -396,10 +398,10 @@ removed from Terraform to prevent conflicts.
 
 ```hcl
 resource "google_cloudiot_registry" "myregistry" {
-  name = "%s"
+  name = "my-registry"
 
   event_notification_config {
-    pubsub_topic_name = "${google_pubsub_topic.event-topic.id}"
+    pubsub_topic_name = $google_pubsub_topic.event-topic.id
   }
 }
 
@@ -409,10 +411,61 @@ resource "google_cloudiot_registry" "myregistry" {
 
 ```hcl
 resource "google_cloudiot_registry" "myregistry" {
-  name = "%s"
+  name = "my-registry"
 
   event_notification_configs {
-    pubsub_topic_name = "${google_pubsub_topic.event-topic.id}"
+    pubsub_topic_name = $google_pubsub_topic.event-topic.id
   }
 }
 ```
+
+## Resource: `google_compute_forwarding_rule`
+
+### `ip_address` is now strictly validated to enforce literal IP address format
+
+Previously documentation suggested Terraform could use the same range of valid
+IP Address formats for `ip_address` as accepted by the API (e.g. named addresses
+or URLs to GCP Address resources). However, the server returns only literal IP
+addresses and thus caused diffs on re-apply (i.e. a permadiff). We amended
+documenation to say Terraform only accepts literal IP addresses.
+
+This is now strictly validated. While this shouldn't have a large breaking
+impact as users would have already run into permadiff issues on re-apply,
+there might be validation errors for existing configs. The solution is be to
+replace other address formats with the IP address, either manually or by
+interpolating values from a `google_compute_address` resource.
+
+#### Old Config (that would have permadiff)
+
+```hcl
+resource "google_compute_address" "my-addr" {
+  name = "my-addr"
+}
+
+resource "google_compute_forwarding_rule" "frule" {
+  name = "my-forwarding-rule"
+
+  address = $google_compute_address.my-addr.self_link
+}
+```
+
+#### New Config
+
+```hcl
+resource "google_compute_address" "my-addr" {
+  name = "my-addr"
+}
+
+resource "google_compute_forwarding_rule" "frule" {
+  name = "my-forwarding-rule"
+
+  address = $google_compute_address.my-addr.address
+}
+```
+
+
+## Resource: `google_compute_global_forwarding_rule`
+
+### `ip_address` is now validated to enforce literal IP address format
+
+See [`google_compute_forwarding_rule`][#resource-google_compute_forwarding_rule].
