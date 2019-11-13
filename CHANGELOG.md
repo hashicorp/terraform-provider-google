@@ -1,32 +1,16 @@
 ## 2.20.0 (Unreleased)
 
-NOTES:
-* project: (terraform-google-conversion only) extract project_id as asset path. ([#4799](https://github.com/terraform-providers/terraform-provider-google/pull/4799))
-
-BREAKING CHANGES:
-* `google_compute_instance_iam_*` resources now support IAM Conditions (beta provider only). If any conditions had been created out of band before this release, take extra care to ensure they are present in your Terraform config so the provider doesn't try to create new bindings with no conditions. Terraform will show a diff that it is adding the condition to the resource, which is safe to apply. ([#4866](https://github.com/terraform-providers/terraform-provider-google/pull/4866))
-* `google_iap_app_engine_version_iam_*` resources now support IAM Conditions (beta provider only). If any conditions had been created out of band before this release, take extra care to ensure they are present in your Terraform config so the provider doesn't try to create new bindings with no conditions. Terraform will show a diff that it is adding the condition to the resource, which is safe to apply. ([#4852](https://github.com/terraform-providers/terraform-provider-google/pull/4852))
-* `google_iap_web_backend_service_iam_*` resources now support IAM Conditions (beta provider only). If any conditions had been created out of band before this release, take extra care to ensure they are present in your Terraform config so the provider doesn't try to create new bindings with no conditions. Terraform will show a diff that it is adding the condition to the resource, which is safe to apply. ([#4852](https://github.com/terraform-providers/terraform-provider-google/pull/4852))
-* `google_project_iam_*` resources now support IAM Conditions. If any conditions had been created out of band before this release, take extra care to ensure they are present in your Terraform config so the provider doesn't try to create new bindings with no conditions. Terraform will show a diff that it is adding the condition to the resource, which is safe to apply. ([#4798](https://github.com/terraform-providers/terraform-provider-google/pull/4798))
-
-FEATURES:
-* **New Resource:** `google_data_fusion_instance` ([#4831](https://github.com/terraform-providers/terraform-provider-google/pull/4831))
-
 IMPROVEMENTS:
 * bigtable: added import support to `google_bigtable_table` ([#4849](https://github.com/terraform-providers/terraform-provider-google/pull/4849))
 * compute: added support for L7 ILB to `google_compute_region_backend_service` (in beta). ([#4772](https://github.com/terraform-providers/terraform-provider-google/pull/4772))
-* iap: added support for IAM Conditions to the `google_compute_instance_iam_*` resources (beta provider only) ([#4866](https://github.com/terraform-providers/terraform-provider-google/pull/4866))
-* iap: added support for IAM Conditions to the `google_iap_app_engine_version_iam_*` resources (beta provider only) ([#4852](https://github.com/terraform-providers/terraform-provider-google/pull/4852))
-* iap: added support for IAM Conditions to the `google_iap_web_backend_service_iam_*` resources (beta provider only) ([#4852](https://github.com/terraform-providers/terraform-provider-google/pull/4852))
 * logging: added `display_name` field to `google_logging_metric` resource ([#4839](https://github.com/terraform-providers/terraform-provider-google/pull/4839))
 * monitoring: Added `validate_ssl` to `google_monitoring_uptime_check_config` ([#4637](https://github.com/terraform-providers/terraform-provider-google/pull/4637))
 * project: added batching functionality to `google_project_service` read calls, so fewer API requests are made ([#4854](https://github.com/terraform-providers/terraform-provider-google/pull/4854))
-* resourcemanager: added support for IAM Conditions to the `google_project_iam_*` resources (beta provider only) ([#4798](https://github.com/terraform-providers/terraform-provider-google/pull/4798))
 * storage: added `notification_id` field to `google_storage_notification` ([#4879](https://github.com/terraform-providers/terraform-provider-google/pull/4879))
 
 BUG FIXES:
 * compute: fixed issue where setting a 0 for `min_replicas` in `google_compute_autoscaler` and `google_compute_region_autoscaler` would set that field to its server-side default instead of 0. ([#4851](https://github.com/terraform-providers/terraform-provider-google/pull/4851))
-* compute: marked `google_service_account.description` as ForceNew. ([#4870](https://github.com/terraform-providers/terraform-provider-google/pull/4870))
+* compute: the `description` field of `google_service_account` now recreates the resource to correct diffs ([#4870](https://github.com/terraform-providers/terraform-provider-google/pull/4870))
 * dns: fixed crash when `network` blocks are defined without `network_url`s ([#4840](https://github.com/terraform-providers/terraform-provider-google/pull/4840))
 * logging: fixed issue where logging exclusion resources silently failed when being mutated in parallel ([#4814](https://github.com/terraform-providers/terraform-provider-google/pull/4814))
 
