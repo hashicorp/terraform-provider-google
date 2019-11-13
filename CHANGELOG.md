@@ -14,8 +14,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * compute: fixed issue where setting a 0 for `min_replicas` in `google_compute_autoscaler` and `google_compute_region_autoscaler` would set that field to its server-side default instead of 0. ([#4851](https://github.com/terraform-providers/terraform-provider-google/pull/4851))
-* compute: the `description` field of `google_service_account` now recreates the resource to correct diffs ([#4870](https://github.com/terraform-providers/terraform-provider-google/pull/4870))
 * dns: fixed crash when `network` blocks are defined without `network_url`s ([#4840](https://github.com/terraform-providers/terraform-provider-google/pull/4840))
+* google: used the correct update method for google_service_account.description ([#4870](https://github.com/terraform-providers/terraform-provider-google/pull/4870))
 * logging: fixed issue where logging exclusion resources silently failed when being mutated in parallel ([#4814](https://github.com/terraform-providers/terraform-provider-google/pull/4814))
 
 ## 2.19.0 (November 05, 2019)
