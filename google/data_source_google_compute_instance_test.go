@@ -101,6 +101,7 @@ resource "google_compute_instance" "foo" {
   }
 
   scratch_disk {
+	interface = "SCSI"
   }
 
   network_interface {
