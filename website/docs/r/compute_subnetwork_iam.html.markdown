@@ -130,17 +130,17 @@ Compute subnetwork IAM resources can be imported using the resource identifiers,
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_compute_subnetwork_iam_member.editor "{{region}}/{{subnetwork}} roles/compute.networkUser jane@example.com"
+$ terraform import google_compute_subnetwork_iam_member.editor "projects/{{project}}/regions/{{region}}/subnetworks/{{subnetwork}} roles/compute.networkUser jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
 ```
-$ terraform import google_compute_subnetwork_iam_binding.editor "{{region}}/{{subnetwork}} roles/compute.networkUser"
+$ terraform import google_compute_subnetwork_iam_binding.editor "projects/{{project}}/regions/{{region}}/subnetworks/{{subnetwork}} roles/compute.networkUser"
 ```
 
 IAM policy imports use the identifier of the resource in question, e.g.
 ```
-$ terraform import google_compute_subnetwork_iam_policy.editor {{region}}/{{subnetwork}}
+$ terraform import google_compute_subnetwork_iam_policy.editor projects/{{project}}/regions/{{region}}/subnetworks/{{subnetwork}}
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
