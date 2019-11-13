@@ -175,6 +175,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_CLOUD_SCHEDULER_CUSTOM_ENDPOINT",
 				}, CloudSchedulerDefaultBasePath),
 			},
+			"cloud_tasks_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_CLOUD_TASKS_CUSTOM_ENDPOINT",
+				}, CloudTasksDefaultBasePath),
+			},
 			"compute_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -438,9 +446,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 81
+// Generated resources: 82
 // Generated IAM resources: 39
-// Total generated resources: 120
+// Total generated resources: 121
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -469,6 +477,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloudfunctions_function_iam_member":        ResourceIamMember(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
 			"google_cloudfunctions_function_iam_policy":        ResourceIamPolicy(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
 			"google_cloud_scheduler_job":                       resourceCloudSchedulerJob(),
+			"google_cloud_tasks_queue":                         resourceCloudTasksQueue(),
 			"google_compute_address":                           resourceComputeAddress(),
 			"google_compute_autoscaler":                        resourceComputeAutoscaler(),
 			"google_compute_backend_bucket":                    resourceComputeBackendBucket(),
@@ -725,6 +734,7 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	config.CloudBuildBasePath = d.Get("cloud_build_custom_endpoint").(string)
 	config.CloudFunctionsBasePath = d.Get("cloud_functions_custom_endpoint").(string)
 	config.CloudSchedulerBasePath = d.Get("cloud_scheduler_custom_endpoint").(string)
+	config.CloudTasksBasePath = d.Get("cloud_tasks_custom_endpoint").(string)
 	config.ComputeBasePath = d.Get("compute_custom_endpoint").(string)
 	config.ContainerAnalysisBasePath = d.Get("container_analysis_custom_endpoint").(string)
 	config.DataprocBasePath = d.Get("dataproc_custom_endpoint").(string)
