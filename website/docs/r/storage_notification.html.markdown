@@ -25,6 +25,7 @@ for an example of enabling notifications by granting the correct IAM permission.
 
 ```hcl
 resource "google_storage_notification" "notification" {
+	notification_id	  = "1"
 	bucket            = "${google_storage_bucket.bucket.name}"
 	payload_format    = "JSON_API_V1"
 	topic             = "${google_pubsub_topic.topic.name}"
@@ -81,6 +82,8 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
+
+* `notification_id` - The ID of the created notification.
 
 * `self_link` - The URI of the created resource.
 
