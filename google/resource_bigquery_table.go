@@ -163,15 +163,16 @@ func resourceBigQueryTable() *schema.Resource {
 									// Range: [Optional] Range of a sheet to query from. Only used when non-empty.
 									// Typical format: !:
 									"range": {
-										Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:         schema.TypeString,
+										Optional:     true,
+										AtLeastOneOf: []string{"external_data_configuration.0.google_sheets_options.0.range"},
 									},
 									// SkipLeadingRows: [Optional] The number of rows at the top
 									// of the sheet that BigQuery will skip when reading the data.
 									"skip_leading_rows": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:         schema.TypeInt,
+										Optional:     true,
+										AtLeastOneOf: []string{"external_data_configuration.0.google_sheets_options.0.skip_leading_rows"},
 									},
 								},
 							},
@@ -476,7 +477,7 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf("[INFO] BigQuery table %s has been created", res.Id)
 
-	d.SetId(fmt.Sprintf("%s:%s.%s", res.TableReference.ProjectId, res.TableReference.DatasetId, res.TableReference.TableId))
+	d.SetId(fmt.Sprintf("projects/%s/datasets/%s/tables/%s", res.TableReference.ProjectId, res.TableReference.DatasetId, res.TableReference.TableId))
 
 	return resourceBigQueryTableRead(d, meta)
 }
@@ -844,12 +845,11 @@ type bigQueryTableId struct {
 }
 
 func parseBigQueryTableId(id string) (*bigQueryTableId, error) {
-	// Expected format is "PROJECT:DATASET.TABLE", but the project can itself have . and : in it.
-	// Those characters are not valid dataset or table components, so just split on the last two.
-	matchRegex := regexp.MustCompile("^(.+):([^:.]+)\\.([^:.]+)$")
+	// Expected format is "projects/{{project}}/datasets/{{dataset}}/tables/{{table}}"
+	matchRegex := regexp.MustCompile("^projects/(.+)/datasets/(.+)/tables/(.+)$")
 	subMatches := matchRegex.FindStringSubmatch(id)
 	if subMatches == nil {
-		return nil, fmt.Errorf("Invalid BigQuery table specifier. Expecting {project}:{dataset-id}.{table-id}, got %s", id)
+		return nil, fmt.Errorf("Invalid BigQuery table specifier. Expecting projects/{{project}}/datasets/{{dataset}}/tables/{{table}}, got %s", id)
 	}
 	return &bigQueryTableId{
 		Project:   subMatches[1],

@@ -43,21 +43,19 @@ func (s *cloudFunctionId) locationId() string {
 	return fmt.Sprintf("projects/%s/locations/%s", s.Project, s.Region)
 }
 
-func (s *cloudFunctionId) terraformId() string {
-	return fmt.Sprintf("%s/%s/%s", s.Project, s.Region, s.Name)
-}
-
-func parseCloudFunctionId(id string, config *Config) (*cloudFunctionId, error) {
-	if parts := strings.Split(id, "/"); len(parts) == 3 {
-		return &cloudFunctionId{
-			Project: parts[0],
-			Region:  parts[1],
-			Name:    parts[2],
-		}, nil
+func parseCloudFunctionId(d *schema.ResourceData, config *Config) (*cloudFunctionId, error) {
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
+		"(?P<name>[^/]+)",
+	}, d, config); err != nil {
+		return nil, err
 	}
-
-	return nil, fmt.Errorf("Invalid CloudFunction id format, expecting " +
-		"`{projectId}/{regionId}/{cloudFunctionName}`")
+	return &cloudFunctionId{
+		Project: d.Get("project").(string),
+		Region:  d.Get("region").(string),
+		Name:    d.Get("name").(string),
+	}, nil
 }
 
 func joinMapKeys(mapToJoin *map[int]bool) string {
@@ -190,8 +188,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 
 			"runtime": {
 				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "nodejs6",
+				Required: true,
 			},
 
 			"service_account_email": {
@@ -212,27 +209,10 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Optional: true,
 			},
 
-			"trigger_bucket": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				Removed:       "This field is removed. Use `event_trigger` instead.",
-				ConflictsWith: []string{"trigger_http", "trigger_topic"},
-			},
-
 			"trigger_http": {
-				Type:          schema.TypeBool,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"trigger_bucket", "trigger_topic"},
-			},
-
-			"trigger_topic": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				Removed:       "This field is removed. Use `event_trigger` instead.",
-				ConflictsWith: []string{"trigger_http", "trigger_bucket"},
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
 			},
 
 			"event_trigger": {
@@ -389,7 +369,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Name of function should be unique
-	d.SetId(cloudFuncId.terraformId())
+	d.SetId(cloudFuncId.cloudFunctionId())
 
 	err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Creating CloudFunctions Function",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
@@ -403,7 +383,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	cloudFuncId, err := parseCloudFunctionId(d.Id(), config)
+	cloudFuncId, err := parseCloudFunctionId(d, config)
 	if err != nil {
 		return err
 	}
@@ -464,7 +444,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	cloudFuncId, err := parseCloudFunctionId(d.Id(), config)
+	cloudFuncId, err := parseCloudFunctionId(d, config)
 	if err != nil {
 		return err
 	}
@@ -553,7 +533,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	cloudFuncId, err := parseCloudFunctionId(d.Id(), config)
+	cloudFuncId, err := parseCloudFunctionId(d, config)
 	if err != nil {
 		return err
 	}

@@ -318,8 +318,8 @@ func testAccCheckComputeSubnetworkExists(n string, subnetwork *compute.Subnetwor
 		}
 
 		config := testAccProvider.Meta().(*Config)
-
-		region, subnet_name := splitSubnetID(rs.Primary.ID)
+		region := rs.Primary.Attributes["region"]
+		subnet_name := rs.Primary.Attributes["name"]
 
 		found, err := config.clientCompute.Subnetworks.Get(
 			config.Project, region, subnet_name).Do()
@@ -549,7 +549,6 @@ resource "google_compute_subnetwork" "network-with-flow-logs" {
 	ip_cidr_range = "10.0.0.0/16"
 	region = "us-central1"
 	network = "${google_compute_network.custom-test.self_link}"
-	enable_flow_logs = true
 	log_config {
 		aggregation_interval = "INTERVAL_5_SEC"
 		flow_sampling        = 0.5
@@ -571,7 +570,6 @@ resource "google_compute_subnetwork" "network-with-flow-logs" {
 	ip_cidr_range = "10.0.0.0/16"
 	region = "us-central1"
 	network = "${google_compute_network.custom-test.self_link}"
-	enable_flow_logs = true
 	log_config {
 		aggregation_interval = "INTERVAL_30_SEC"
 		flow_sampling        = 0.8
@@ -593,7 +591,6 @@ resource "google_compute_subnetwork" "network-with-flow-logs" {
 	ip_cidr_range = "10.0.0.0/16"
 	region = "us-central1"
 	network = "${google_compute_network.custom-test.self_link}"
-	enable_flow_logs = false
 }
 `, cnName, subnetworkName)
 }
@@ -610,7 +607,6 @@ resource "google_compute_subnetwork" "network-with-flow-logs" {
 	ip_cidr_range = "10.0.0.0/16"
 	region = "us-central1"
 	network = "${google_compute_network.custom-test.self_link}"
-	enable_flow_logs = true
 	log_config {
 		aggregation_interval = "INTERVAL_30_SEC"
 		flow_sampling        = 0.6
@@ -653,7 +649,6 @@ resource "google_compute_subnetwork" "network-with-flow-logs" {
 	ip_cidr_range = "10.0.0.0/16"
 	region = "us-central1"
 	network = "${google_compute_network.custom-test.self_link}"
-	enable_flow_logs = true
 	log_config {
 		aggregation_interval = "INTERVAL_30_SEC"
 		flow_sampling        = 0.8

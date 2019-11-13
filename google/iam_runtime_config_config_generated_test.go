@@ -111,8 +111,8 @@ func TestAccRuntimeConfigConfigIamPolicyGenerated(t *testing.T) {
 func testAccRuntimeConfigConfigIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_runtimeconfig_config" "config" {
- 	name = "my-config%{random_suffix}"
- 	description = "Runtime configuration values for my service"
+  name        = "my-config%{random_suffix}"
+  description = "Runtime configuration values for my service"
 }
 
 resource "google_runtimeconfig_config_iam_member" "foo" {
@@ -127,8 +127,8 @@ resource "google_runtimeconfig_config_iam_member" "foo" {
 func testAccRuntimeConfigConfigIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_runtimeconfig_config" "config" {
- 	name = "my-config%{random_suffix}"
- 	description = "Runtime configuration values for my service"
+  name        = "my-config%{random_suffix}"
+  description = "Runtime configuration values for my service"
 }
 
 data "google_iam_policy" "foo" {
@@ -149,8 +149,8 @@ resource "google_runtimeconfig_config_iam_policy" "foo" {
 func testAccRuntimeConfigConfigIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_runtimeconfig_config" "config" {
- 	name = "my-config%{random_suffix}"
- 	description = "Runtime configuration values for my service"
+  name        = "my-config%{random_suffix}"
+  description = "Runtime configuration values for my service"
 }
 
 resource "google_runtimeconfig_config_iam_binding" "foo" {
@@ -165,8 +165,8 @@ resource "google_runtimeconfig_config_iam_binding" "foo" {
 func testAccRuntimeConfigConfigIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_runtimeconfig_config" "config" {
- 	name = "my-config%{random_suffix}"
- 	description = "Runtime configuration values for my service"
+  name        = "my-config%{random_suffix}"
+  description = "Runtime configuration values for my service"
 }
 
 resource "google_runtimeconfig_config_iam_binding" "foo" {

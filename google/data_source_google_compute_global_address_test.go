@@ -77,11 +77,11 @@ func testAccDataSourceComputeGlobalAddressCheck(data_source_name string, resourc
 func testAccDataSourceComputeGlobalAddressConfig(rsName, dsName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_global_address" "%s" {
-	name = "address-test"
+  name = "address-test"
 }
 
 data "google_compute_global_address" "%s" {
-	name = "${google_compute_global_address.%s.name}"
+  name = google_compute_global_address.%s.name
 }
 `, rsName, dsName, rsName)
 }

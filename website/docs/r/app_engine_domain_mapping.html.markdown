@@ -42,7 +42,7 @@ To get more information about DomainMapping, see:
 ```hcl
 resource "google_app_engine_domain_mapping" "domain_mapping" {
   domain_name = "dm-test-.gcp.tfacc.hashicorptest.com"
-  
+
   ssl_settings {
     ssl_management_type = "AUTOMATIC"
   }
@@ -87,7 +87,7 @@ The `ssl_settings` block supports:
   Example: 12345.
 
 * `ssl_management_type` -
-  (Optional)
+  (Required)
   SSL management type for this domain. If `AUTOMATIC`, a managed certificate is automatically provisioned.
   If `MANUAL`, `certificateId` must be manually specified in order to configure SSL for this domain.
 
@@ -139,6 +139,8 @@ This resource provides the following
 DomainMapping can be imported using any of these accepted formats:
 
 ```
+$ terraform import google_app_engine_domain_mapping.default apps/{{project}}/domainMappings/{{domain_name}}
+$ terraform import google_app_engine_domain_mapping.default {{project}}/{{domain_name}}
 $ terraform import google_app_engine_domain_mapping.default {{domain_name}}
 ```
 

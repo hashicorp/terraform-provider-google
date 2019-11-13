@@ -224,6 +224,16 @@ milliseconds since the epoch.`,
 func bigqueryDatasetAccessSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"role": {
+				Type:     schema.TypeString,
+				Required: true,
+				Description: `Describes the rights granted to the user specified by the other
+member of the access object. Primitive, Predefined and custom
+roles are supported. Predefined roles that have equivalent
+primitive roles are swapped by the API to their Primitive
+counterparts, and will show a diff post-create. See
+[official docs](https://cloud.google.com/bigquery/docs/access-control).`,
+			},
 			"domain": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -234,16 +244,6 @@ domain specified will be granted the specified access`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `An email address of a Google Group to grant access to.`,
-			},
-			"role": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: `Describes the rights granted to the user specified by the other
-member of the access object. Primitive, Predefined and custom
-roles are supported. Predefined roles that have equivalent
-primitive roles are swapped by the API to their Primitive
-counterparts, and will show a diff post-create. See
-[official docs](https://cloud.google.com/bigquery/docs/access-control).`,
 			},
 			"special_group": {
 				Type:     schema.TypeString,
@@ -381,7 +381,7 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}:{{dataset_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -575,15 +575,15 @@ func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) err
 func resourceBigQueryDatasetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<dataset_id>[^/]+)",
-		"(?P<project>[^/]+):(?P<dataset_id>[^/]+)",
 		"(?P<dataset_id>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}:{{dataset_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

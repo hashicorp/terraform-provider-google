@@ -38,9 +38,9 @@ To get more information about AccessLevel, see:
 
 ```hcl
 resource "google_access_context_manager_access_level" "access-level" {
-  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
-  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/chromeos_no_lock"
-  title       = "chromeos_no_lock"
+  parent = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name   = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/chromeos_no_lock"
+  title  = "chromeos_no_lock"
   basic {
     conditions {
       device_policy {
@@ -184,7 +184,7 @@ The `os_constraints` block supports:
   Format: "major.minor.patch" such as "10.5.301", "9.2.1".
 
 * `os_type` -
-  (Optional)
+  (Required)
   The operating system type of the device.
 
 

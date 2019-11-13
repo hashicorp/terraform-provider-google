@@ -19,7 +19,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 		Update: resourceComputeSecurityPolicyUpdate,
 		Delete: resourceComputeSecurityPolicyDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceSecurityPolicyStateImporter,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -148,7 +148,11 @@ func resourceComputeSecurityPolicyCreate(d *schema.ResourceData, meta interface{
 		return errwrap.Wrapf("Error creating SecurityPolicy: {{err}}", err)
 	}
 
-	d.SetId(securityPolicy.Name)
+	id, err := replaceVars(d, config, "projects/{{project}}/global/securityPolicies/{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutCreate).Minutes()), fmt.Sprintf("Creating SecurityPolicy %q", sp))
 	if err != nil {
@@ -166,7 +170,8 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	securityPolicy, err := config.clientComputeBeta.SecurityPolicies.Get(project, d.Id()).Do()
+	sp := d.Get("name").(string)
+	securityPolicy, err := config.clientComputeBeta.SecurityPolicies.Get(project, sp).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SecurityPolicy %q", d.Id()))
 	}
@@ -191,7 +196,7 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	sp := d.Id()
+	sp := d.Get("name").(string)
 
 	if d.HasChange("description") {
 		securityPolicy := &compute.SecurityPolicy{
@@ -282,7 +287,7 @@ func resourceComputeSecurityPolicyDelete(d *schema.ResourceData, meta interface{
 	}
 
 	// Delete the SecurityPolicy
-	op, err := config.clientComputeBeta.SecurityPolicies.Delete(project, d.Id()).Do()
+	op, err := config.clientComputeBeta.SecurityPolicies.Delete(project, d.Get("name").(string)).Do()
 	if err != nil {
 		return errwrap.Wrapf("Error deleting SecurityPolicy: {{err}}", err)
 	}
@@ -362,4 +367,20 @@ func flattenSecurityPolicyRules(rules []*compute.SecurityPolicyRule) []map[strin
 		rulesSchema = append(rulesSchema, data)
 	}
 	return rulesSchema
+}
+
+func resourceSecurityPolicyStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/global/securityPolicies/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
+		return nil, err
+	}
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "projects/{{project}}/global/securityPolicies/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }

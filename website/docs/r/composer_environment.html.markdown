@@ -50,27 +50,27 @@ on the IAM policy binding (see `google_project_iam_member` below).
 
 ```hcl
 resource "google_composer_environment" "test" {
-  name = "%s"
+  name   = "%s"
   region = "us-central1"
   config {
     node_count = 4
 
     node_config {
-      zone = "us-central1-a"
+      zone         = "us-central1-a"
       machine_type = "n1-standard-1"
 
-      network = "${google_compute_network.test.self_link}"
-      subnetwork =  "${google_compute_subnetwork.test.self_link}"
+      network    = google_compute_network.test.self_link
+      subnetwork = google_compute_subnetwork.test.self_link
 
-      service_account = "${google_service_account.test.name}"
+      service_account = google_service_account.test.name
     }
   }
 
-  depends_on = ["google_project_iam_member.composer-worker"]
+  depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_compute_network" "test" {
-  name          = "composer-test-network"
+  name                    = "composer-test-network"
   auto_create_subnetworks = false
 }
 
@@ -78,7 +78,7 @@ resource "google_compute_subnetwork" "test" {
   name          = "composer-test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.test.self_link}"
+  network       = google_compute_network.test.self_link
 }
 
 resource "google_service_account" "test" {
@@ -87,15 +87,15 @@ resource "google_service_account" "test" {
 }
 
 resource "google_project_iam_member" "composer-worker" {
-  role    = "roles/composer.worker"
-  member  = "serviceAccount:${google_service_account.test.email}"
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
 }
 ```
 
 ### With Software (Airflow) Config
 ```hcl
 resource "google_composer_environment" "test" {
-  name = "%s"
+  name   = "%s"
   region = "us-central1"
 
   config {
@@ -110,7 +110,7 @@ resource "google_composer_environment" "test" {
       }
 
       env_variables = {
-         FOO = "bar"
+        FOO = "bar"
       }
     }
   }

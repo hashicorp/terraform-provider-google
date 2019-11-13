@@ -52,7 +52,7 @@ func testAccComputeFirewall_firewallBasicExample(context map[string]interface{})
 	return Nprintf(`
 resource "google_compute_firewall" "default" {
   name    = "test-firewall%{random_suffix}"
-  network = "${google_compute_network.default.name}"
+  network = google_compute_network.default.name
 
   allow {
     protocol = "icmp"

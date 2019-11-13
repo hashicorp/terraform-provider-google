@@ -51,11 +51,6 @@ func resourceGoogleServiceAccount() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"policy_data": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Removed:  "Use the 'google_service_account_iam_policy' resource to define policies for a service account",
-			},
 		},
 	}
 }

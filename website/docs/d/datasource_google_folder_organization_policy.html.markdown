@@ -22,7 +22,7 @@ data "google_folder_organization_policy" "policy" {
 }
 
 output "version" {
-  value = "${data.google_folder_organization_policy.policy.version}"
+  value = data.google_folder_organization_policy.policy.version
 }
 ```
 

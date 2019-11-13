@@ -51,8 +51,8 @@ func TestAccDNSManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
 func testAccDNSManagedZone_dnsManagedZoneBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_dns_managed_zone" "example-zone" {
-  name = "example-zone"
-  dns_name = "example-${random_id.rnd.hex}.com."
+  name        = "example-zone"
+  dns_name    = "example-${random_id.rnd.hex}.com."
   description = "Example DNS zone"
   labels = {
     foo = "bar"
@@ -92,8 +92,8 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateExample(t *testing.T) {
 func testAccDNSManagedZone_dnsManagedZonePrivateExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_dns_managed_zone" "private-zone" {
-  name = "private-zone%{random_suffix}"
-  dns_name = "private.example.com."
+  name        = "private-zone%{random_suffix}"
+  dns_name    = "private.example.com."
   description = "Example private DNS zone"
   labels = {
     foo = "bar"
@@ -103,21 +103,21 @@ resource "google_dns_managed_zone" "private-zone" {
 
   private_visibility_config {
     networks {
-      network_url =  "${google_compute_network.network-1.self_link}"
+      network_url = google_compute_network.network-1.self_link
     }
     networks {
-      network_url =  "${google_compute_network.network-2.self_link}"
+      network_url = google_compute_network.network-2.self_link
     }
   }
 }
 
 resource "google_compute_network" "network-1" {
-  name = "network-1%{random_suffix}"
+  name                    = "network-1%{random_suffix}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "network-2" {
-  name = "network-2%{random_suffix}"
+  name                    = "network-2%{random_suffix}"
   auto_create_subnetworks = false
 }
 `, context)

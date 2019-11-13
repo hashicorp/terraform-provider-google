@@ -21,7 +21,7 @@ provider "google-beta" {
 }
 
 data "google_compute_resource_policy" "daily" {
-  provider = "google-beta"
+  provider = google-beta
   name     = "daily"
   region   = "us-central1"
 }

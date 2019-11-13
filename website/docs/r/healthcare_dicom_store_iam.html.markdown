@@ -36,8 +36,8 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_healthcare_dicom_store_iam_policy" "dicom_store" {
-	dicom_store_id = "your-dicom-store-id"
-	policy_data = "${data.google_iam_policy.admin.policy_data}"
+  dicom_store_id = "your-dicom-store-id"
+  policy_data    = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -46,7 +46,7 @@ resource "google_healthcare_dicom_store_iam_policy" "dicom_store" {
 ```hcl
 resource "google_healthcare_dicom_store_iam_binding" "dicom_store" {
   dicom_store_id = "your-dicom-store-id"
-  role        = "roles/editor"
+  role           = "roles/editor"
 
   members = [
     "user:jane@example.com",
@@ -59,8 +59,8 @@ resource "google_healthcare_dicom_store_iam_binding" "dicom_store" {
 ```hcl
 resource "google_healthcare_dicom_store_iam_member" "dicom_store" {
   dicom_store_id = "your-dicom-store-id"
-  role        = "roles/editor"
-  member      = "user:jane@example.com"
+  role           = "roles/editor"
+  member         = "user:jane@example.com"
 }
 ```
 

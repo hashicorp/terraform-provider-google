@@ -27,8 +27,9 @@ resource "random_id" "db_name_suffix" {
 }
 
 resource "google_sql_database_instance" "master" {
-  name = "master-instance-${random_id.db_name_suffix.hex}"
+  name             = "master-instance-${random_id.db_name_suffix.hex}"
   database_version = "MYSQL_5_6"
+
   # First-generation instance regions are not the conventional
   # Google Compute Engine regions. See argument reference below.
   region = "us-central"
@@ -43,9 +44,9 @@ resource "google_sql_database_instance" "master" {
 
 ```hcl
 resource "google_sql_database_instance" "master" {
-  name = "master-instance"
+  name             = "master-instance"
   database_version = "POSTGRES_9_6"
-  region = "us-central1"
+  region           = "us-central1"
 
   settings {
     # Second-generation instance tiers are based on the machine
@@ -78,40 +79,42 @@ resource "google_compute_instance" "apps" {
   }
 }
 
-data "null_data_source" "auth_netw_postgres_allowed_1" {
-  count = "${length(google_compute_instance.apps.*.self_link)}"
-
-  inputs = {
-    name  = "apps-${count.index + 1}"
-    value = "${element(google_compute_instance.apps.*.network_interface.0.access_config.0.nat_ip, count.index)}"
-  }
-}
-
-data "null_data_source" "auth_netw_postgres_allowed_2" {
-  count = 2
-
-  inputs = {
-    name  = "onprem-${count.index + 1}"
-    value = "${element(list("192.168.1.2", "192.168.2.3"), count.index)}"
-  }
-}
-
 resource "random_id" "db_name_suffix" {
   byte_length = 4
 }
 
+locals {
+  onprem = ["192.168.1.2", "192.168.2.3"]
+}
+
 resource "google_sql_database_instance" "postgres" {
-  name = "postgres-instance-${random_id.db_name_suffix.hex}"
+  name             = "postgres-instance-${random_id.db_name_suffix.hex}"
   database_version = "POSTGRES_9_6"
 
   settings {
     tier = "db-f1-micro"
 
     ip_configuration {
-      authorized_networks = [
-        "${data.null_data_source.auth_netw_postgres_allowed_1.*.outputs}",
-        "${data.null_data_source.auth_netw_postgres_allowed_2.*.outputs}",
-      ]
+
+      dynamic "authorized_networks" {
+        for_each = google_compute_instance.apps
+        iterator = apps
+
+        content {
+          name  = apps.value.name
+          value = apps.value.network_interface.0.access_config.0.nat_ip
+        }
+      }
+
+      dynamic "authorized_networks" {
+        for_each = local.onprem
+        iterator = onprem
+
+        content {
+          name  = "onprem-${onprem.key}"
+          value = onprem.value
+        }
+      }
     }
   }
 }
@@ -122,27 +125,27 @@ resource "google_sql_database_instance" "postgres" {
 
 ```hcl
 resource "google_compute_network" "private_network" {
-  provider = "google-beta"
+  provider = google-beta
 
-  name       = "private-network"
+  name = "private-network"
 }
 
 resource "google_compute_global_address" "private_ip_address" {
-  provider = "google-beta"
+  provider = google-beta
 
   name          = "private-ip-address"
   purpose       = "VPC_PEERING"
-  address_type = "INTERNAL"
+  address_type  = "INTERNAL"
   prefix_length = 16
-  network       = "${google_compute_network.private_network.self_link}"
+  network       = google_compute_network.private_network.self_link
 }
 
 resource "google_service_networking_connection" "private_vpc_connection" {
-  provider = "google-beta"
+  provider = google-beta
 
-  network       = "${google_compute_network.private_network.self_link}"
-  service       = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = ["${google_compute_global_address.private_ip_address.name}"]
+  network                 = google_compute_network.private_network.self_link
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
 }
 
 resource "random_id" "db_name_suffix" {
@@ -150,25 +153,23 @@ resource "random_id" "db_name_suffix" {
 }
 
 resource "google_sql_database_instance" "instance" {
-  provider = "google-beta"
+  provider = google-beta
 
-  name = "private-instance-${random_id.db_name_suffix.hex}"
+  name   = "private-instance-${random_id.db_name_suffix.hex}"
   region = "us-central1"
 
-  depends_on = [
-    "google_service_networking_connection.private_vpc_connection"
-  ]
+  depends_on = [google_service_networking_connection.private_vpc_connection]
 
   settings {
     tier = "db-f1-micro"
     ip_configuration {
-      ipv4_enabled = false
-      private_network = "${google_compute_network.private_network.self_link}"
+      ipv4_enabled    = false
+      private_network = google_compute_network.private_network.self_link
     }
   }
 }
 
-provider "google-beta"{
+provider "google-beta" {
   region = "us-central1"
   zone   = "us-central1-a"
 }

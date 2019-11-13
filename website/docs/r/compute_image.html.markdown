@@ -155,7 +155,7 @@ The following arguments are supported:
 The `guest_os_features` block supports:
 
 * `type` -
-  (Optional)
+  (Required)
   The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.
 
 The `raw_disk` block supports:

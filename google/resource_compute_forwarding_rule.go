@@ -57,10 +57,11 @@ characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.`,
 			},
 			"ip_address": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateIpAddress,
 				Description: `The IP address that this forwarding rule is serving on behalf of.
 
 Addresses are restricted based on the forwarding rule's load balancing
@@ -80,15 +81,11 @@ forwarding rule. By default, if this field is empty, an ephemeral
 internal IP address will be automatically allocated from the IP range
 of the subnet or network configured for this forwarding rule.
 
-~> **NOTE** The address should be specified as a literal IP address,
-e.g. '100.1.2.3' to avoid a permanent diff, as the server returns the
-IP address regardless of the input value.
-
-The server accepts a literal IP address or a URL reference to an existing
-Address resource. The following examples are all valid but only the first
-will prevent a permadiff. If you are using 'google_compute_address' or
-similar, interpolate using '.address' instead of '.self_link' or similar
-to prevent a diff on re-apply.`,
+An address must be specified by a literal IP address. ~> **NOTE**: While
+the API allows you to specify various resource paths for an address resource
+instead, Terraform requires this to specifically be an IP address to
+avoid needing to fetching the IP address from resource paths on refresh
+or unnecessary diffs.`,
 			},
 			"ip_protocol": {
 				Type:             schema.TypeString,
@@ -127,14 +124,6 @@ for INTERNAL load balancing.`,
 				ForceNew: true,
 				Description: `An optional description of this resource. Provide this property when
 you create the resource.`,
-			},
-			"ip_version": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Deprecated:   "ipVersion is not used for regional forwarding rules. Please remove this field if you are using it.",
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
-				Description:  `ipVersion is not a valid field for regional forwarding rules.`,
 			},
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
@@ -276,6 +265,11 @@ object.`,
 				Description: `The internal fully qualified service name for this Forwarding Rule.
 This field is only used for INTERNAL load balancing.`,
 			},
+			"ip_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Removed:  "ipVersion is not used for regional forwarding rules. Please remove this field if you are using it.",
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -317,12 +311,6 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("backend_service"); !isEmptyValue(reflect.ValueOf(backendServiceProp)) && (ok || !reflect.DeepEqual(v, backendServiceProp)) {
 		obj["backendService"] = backendServiceProp
-	}
-	ipVersionProp, err := expandComputeForwardingRuleIpVersion(d.Get("ip_version"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("ip_version"); !isEmptyValue(reflect.ValueOf(ipVersionProp)) && (ok || !reflect.DeepEqual(v, ipVersionProp)) {
-		obj["ipVersion"] = ipVersionProp
 	}
 	loadBalancingSchemeProp, err := expandComputeForwardingRuleLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
 	if err != nil {
@@ -407,7 +395,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -468,9 +456,6 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("backend_service", flattenComputeForwardingRuleBackendService(res["backendService"], d)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("ip_version", flattenComputeForwardingRuleIpVersion(res["ipVersion"], d)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("load_balancing_scheme", flattenComputeForwardingRuleLoadBalancingScheme(res["loadBalancingScheme"], d)); err != nil {
@@ -618,7 +603,7 @@ func resourceComputeForwardingRuleImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -648,10 +633,6 @@ func flattenComputeForwardingRuleBackendService(v interface{}, d *schema.Resourc
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
-}
-
-func flattenComputeForwardingRuleIpVersion(v interface{}, d *schema.ResourceData) interface{} {
-	return v
 }
 
 func flattenComputeForwardingRuleLoadBalancingScheme(v interface{}, d *schema.ResourceData) interface{} {
@@ -760,10 +741,6 @@ func expandComputeForwardingRuleBackendService(v interface{}, d TerraformResourc
 		return nil, err
 	}
 	return url + v.(string), nil
-}
-
-func expandComputeForwardingRuleIpVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandComputeForwardingRuleLoadBalancingScheme(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

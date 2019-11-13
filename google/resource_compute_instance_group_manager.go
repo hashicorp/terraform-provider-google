@@ -40,15 +40,13 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				Computed:         true,
-				Deprecated:       "This field will be replaced by `version.instance_template` in 3.0.0",
-				ConflictsWith:    []string{"version"},
+				Removed:          "This field has been replaced by `version.instance_template`",
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
 			},
 
 			"version": {
 				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
+				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -145,21 +143,10 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			},
 
 			"update_strategy": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Default:       "REPLACE",
-				Deprecated:    "This field will be replaced by `update_policy` in 3.0.0",
-				ConflictsWith: []string{"update_policy"},
-				ValidateFunc:  validation.StringInSlice([]string{"RESTART", "NONE", "ROLLING_UPDATE", "REPLACE"}, false),
-				DiffSuppressFunc: func(key, old, new string, d *schema.ResourceData) bool {
-					if old == "REPLACE" && new == "RESTART" {
-						return true
-					}
-					if old == "RESTART" && new == "REPLACE" {
-						return true
-					}
-					return false
-				},
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "REPLACE",
+				Removed:  "This field has been replaced by `update_policy`",
 			},
 
 			"target_pools": {
@@ -198,58 +185,6 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				},
 			},
 
-			"rolling_update_policy": {
-				Computed: true,
-				Type:     schema.TypeList,
-				Removed:  "This field has been replaced by update_policy.",
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"minimal_action": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"RESTART", "REPLACE"}, false),
-						},
-
-						"type": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"OPPORTUNISTIC", "PROACTIVE"}, false),
-						},
-
-						"max_surge_fixed": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-						},
-
-						"max_surge_percent": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 100),
-						},
-
-						"max_unavailable_fixed": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-						},
-
-						"max_unavailable_percent": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 100),
-						},
-
-						"min_ready_sec": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 3600),
-						},
-					},
-				},
-			},
 			"update_policy": {
 				Computed: true,
 				Type:     schema.TypeList,
@@ -359,7 +294,6 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		Name:                d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		BaseInstanceName:    d.Get("base_instance_name").(string),
-		InstanceTemplate:    d.Get("instance_template").(string),
 		TargetSize:          int64(d.Get("target_size").(int)),
 		NamedPorts:          getNamedPortsBeta(d.Get("named_port").(*schema.Set).List()),
 		TargetPools:         convertStringSet(d.Get("target_pools").(*schema.Set)),
@@ -379,7 +313,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	}
 
 	// It probably maybe worked, so store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{zone}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -434,9 +368,6 @@ func flattenFixedOrPercent(fixedOrPercent *computeBeta.FixedOrPercent) []map[str
 
 func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
-		return nil, err
-	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -480,7 +411,6 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	}
 
 	d.Set("base_instance_name", manager.BaseInstanceName)
-	d.Set("instance_template", ConvertSelfLinkToV1(manager.InstanceTemplate))
 	d.Set("name", manager.Name)
 	d.Set("zone", GetResourceNameFromSelfLink(manager.Zone))
 	d.Set("description", manager.Description)
@@ -495,14 +425,6 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	d.Set("fingerprint", manager.Fingerprint)
 	d.Set("instance_group", ConvertSelfLinkToV1(manager.InstanceGroup))
 	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
-
-	update_strategy, ok := d.GetOk("update_strategy")
-	if !ok {
-		update_strategy = "REPLACE"
-	}
-	d.Set("update_strategy", update_strategy.(string))
-
-	d.Set("rolling_update_policy", nil)
 
 	if err = d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies)); err != nil {
 		return fmt.Errorf("Error setting auto_healing_policies in state: %s", err.Error())
@@ -530,48 +452,8 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	return nil
 }
 
-// Updates an instance group manager by applying the update strategy (REPLACE, RESTART)
-// and rolling update policy (PROACTIVE, OPPORTUNISTIC). Updates performed by API
-// are OPPORTUNISTIC by default.
-func performZoneUpdate(d *schema.ResourceData, config *Config, id string, updateStrategy string, project string, zone string) error {
-	if updateStrategy == "RESTART" || updateStrategy == "REPLACE" {
-		managedInstances, err := config.clientComputeBeta.InstanceGroupManagers.ListManagedInstances(project, zone, id).Do()
-		if err != nil {
-			return fmt.Errorf("Error getting instance group managers instances: %s", err)
-		}
-
-		managedInstanceCount := len(managedInstances.ManagedInstances)
-		instances := make([]string, managedInstanceCount)
-		for i, v := range managedInstances.ManagedInstances {
-			instances[i] = v.Instance
-		}
-
-		recreateInstances := &computeBeta.InstanceGroupManagersRecreateInstancesRequest{
-			Instances: instances,
-		}
-
-		op, err := config.clientComputeBeta.InstanceGroupManagers.RecreateInstances(project, zone, id, recreateInstances).Do()
-		if err != nil {
-			return fmt.Errorf("Error restarting instance group managers instances: %s", err)
-		}
-
-		// Wait for the operation to complete
-		timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
-		err = computeSharedOperationWaitTime(config.clientCompute, op, project, timeoutInMinutes, "Restarting InstanceGroupManagers instances")
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	if err := parseImportId([]string{"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
-		return err
-	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -671,37 +553,6 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		d.SetPartial("target_size")
 	}
 
-	// If instance_template changes then update
-	if d.HasChange("instance_template") {
-		d.Partial(true)
-
-		name := d.Get("name").(string)
-		// Build the parameter
-		setInstanceTemplate := &computeBeta.InstanceGroupManagersSetInstanceTemplateRequest{
-			InstanceTemplate: d.Get("instance_template").(string),
-		}
-
-		op, err := config.clientComputeBeta.InstanceGroupManagers.SetInstanceTemplate(project, zone, name, setInstanceTemplate).Do()
-
-		if err != nil {
-			return fmt.Errorf("Error updating InstanceGroupManager: %s", err)
-		}
-
-		// Wait for the operation to complete
-		timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
-		err = computeSharedOperationWaitTime(config.clientCompute, op, project, timeoutInMinutes, "Updating InstanceGroupManager")
-		if err != nil {
-			return err
-		}
-
-		updateStrategy := d.Get("update_strategy").(string)
-		err = performZoneUpdate(d, config, name, updateStrategy, project, zone)
-		if err != nil {
-			return err
-		}
-		d.SetPartial("instance_template")
-	}
-
 	d.Partial(false)
 
 	return resourceComputeInstanceGroupManagerRead(d, meta)
@@ -710,9 +561,6 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	if err := parseImportId([]string{"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
-		return err
-	}
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -899,12 +747,12 @@ func flattenUpdatePolicy(updatePolicy *computeBeta.InstanceGroupManagerUpdatePol
 func resourceInstanceGroupManagerStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	d.Set("wait_for_instances", false)
 	config := meta.(*Config)
-	if err := parseImportId([]string{"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
+	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instanceGroupManagers/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{zone}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

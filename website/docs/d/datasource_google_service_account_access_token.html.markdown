@@ -35,30 +35,31 @@ Once the IAM permissions are set, you can apply the new token to a provider boot
 In the example below, `google_project` will run as `service_B`.
 
 ```hcl
-provider "google" {}
+provider "google" {
+}
 
 data "google_client_config" "default" {
-  provider = "google"
+  provider = google
 }
 
 data "google_service_account_access_token" "default" {
- provider = "google"
- target_service_account = "service_B@projectB.iam.gserviceaccount.com"
- scopes = ["userinfo-email", "cloud-platform"]
- lifetime = "300s"
+  provider               = google
+  target_service_account = "service_B@projectB.iam.gserviceaccount.com"
+  scopes                 = ["userinfo-email", "cloud-platform"]
+  lifetime               = "300s"
 }
 
 provider "google" {
-   alias  = "impersonated"
-   access_token = "${data.google_service_account_access_token.default.access_token}"
+  alias        = "impersonated"
+  access_token = data.google_service_account_access_token.default.access_token
 }
 
 data "google_client_openid_userinfo" "me" {
-  provider = "google.impersonated"
+  provider = google.impersonated
 }
 
 output "target-email" {
-  value = "${data.google_client_openid_userinfo.me.email}"
+  value = data.google_client_openid_userinfo.me.email
 }
 ```
 

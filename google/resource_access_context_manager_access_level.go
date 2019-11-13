@@ -111,18 +111,18 @@ An empty list allows all statuses.`,
 An empty list allows all types and all versions.`,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
+															"os_type": {
+																Type:         schema.TypeString,
+																Required:     true,
+																ValidateFunc: validation.StringInSlice([]string{"OS_UNSPECIFIED", "DESKTOP_MAC", "DESKTOP_WINDOWS", "DESKTOP_LINUX", "DESKTOP_CHROME_OS"}, false),
+																Description:  `The operating system type of the device.`,
+															},
 															"minimum_version": {
 																Type:     schema.TypeString,
 																Optional: true,
 																Description: `The minimum allowed OS version. If not set, any version
 of this OS satisfies the constraint.
 Format: "major.minor.patch" such as "10.5.301", "9.2.1".`,
-															},
-															"os_type": {
-																Type:         schema.TypeString,
-																Optional:     true,
-																ValidateFunc: validation.StringInSlice([]string{"OS_UNSPECIFIED", "DESKTOP_MAC", "DESKTOP_WINDOWS", "DESKTOP_LINUX", "DESKTOP_CHROME_OS", ""}, false),
-																Description:  `The operating system type of the device.`,
 															},
 														},
 													},

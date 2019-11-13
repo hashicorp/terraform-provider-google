@@ -36,21 +36,21 @@ App profile is a configuration object describing how Cloud Bigtable should treat
 
 ```hcl
 resource "google_bigtable_instance" "instance" {
-	name = "tf-test-instance-"
-	cluster {
-		cluster_id   = "tf-test-instance-"
-		zone         = "us-central1-b"
-		num_nodes    = 3
-		storage_type = "HDD"
-	}
+  name = "tf-test-instance-"
+  cluster {
+    cluster_id   = "tf-test-instance-"
+    zone         = "us-central1-b"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
 }
 
 resource "google_bigtable_app_profile" "ap" {
-	instance = google_bigtable_instance.instance.name
-	app_profile_id = "tf-test-profile-"
+  instance       = google_bigtable_instance.instance.name
+  app_profile_id = "tf-test-profile-"
 
-	multi_cluster_routing_use_any = true
-	ignore_warnings = true
+  multi_cluster_routing_use_any = true
+  ignore_warnings               = true
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -63,25 +63,25 @@ resource "google_bigtable_app_profile" "ap" {
 
 ```hcl
 resource "google_bigtable_instance" "instance" {
-	name = "tf-test-instance-"
-	cluster {
-		cluster_id   = "tf-test-instance-"
-		zone         = "us-central1-b"
-		num_nodes    = 3
-		storage_type = "HDD"
-	}
+  name = "tf-test-instance-"
+  cluster {
+    cluster_id   = "tf-test-instance-"
+    zone         = "us-central1-b"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
 }
 
 resource "google_bigtable_app_profile" "ap" {
-	instance = google_bigtable_instance.instance.name
-	app_profile_id = "tf-test-profile-"
+  instance       = google_bigtable_instance.instance.name
+  app_profile_id = "tf-test-profile-"
 
-	single_cluster_routing {
-		cluster_id = "tf-test-instance-"
-		allow_transactional_writes = true
-	}
+  single_cluster_routing {
+    cluster_id                 = "tf-test-instance-"
+    allow_transactional_writes = true
+  }
 
-	ignore_warnings = true
+  ignore_warnings = true
 }
 ```
 
@@ -127,7 +127,7 @@ The following arguments are supported:
 The `single_cluster_routing` block supports:
 
 * `cluster_id` -
-  (Optional)
+  (Required)
   The cluster to which read/write requests should be routed.
 
 * `allow_transactional_writes` -

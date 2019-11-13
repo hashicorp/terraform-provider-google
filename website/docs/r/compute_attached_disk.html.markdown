@@ -28,15 +28,14 @@ To get more information about attaching disks, see:
 ## Example Usage
 ```hcl
 resource "google_compute_attached_disk" "default" {
-  disk = "${google_compute_disk.default.self_link}"
-  instance = "${google_compute_instance.default.self_link}"
+  disk     = google_compute_disk.default.self_link
+  instance = google_compute_instance.default.self_link
 }
 
 resource "google_compute_instance" "default" {
   name         = "attached-disk-instance"
   machine_type = "n1-standard-1"
   zone         = "us-west1-a"
-
 
   boot_disk {
     initialize_params {
@@ -49,7 +48,7 @@ resource "google_compute_instance" "default" {
   }
 
   lifecycle {
-    ignore_changes = ["attached_disk"]
+    ignore_changes = [attached_disk]
   }
 }
 ```
@@ -118,6 +117,6 @@ This resource provides the following
 Attached Disk can be imported the following ways:
 
 ```
-$ terraform import google_compute_disk.default projects/{{project}}/zones/{{zone}}/disks/{{instance.name}}:{{disk.name}}
-$ terraform import google_compute_disk.default {{project}}/{{zone}}/{{instance.name}}:{{disk.name}}
+$ terraform import google_compute_disk.default projects/{{project}}/zones/{{zone}}/instances/{{instance.name}}/{{disk.name}}
+$ terraform import google_compute_disk.default {{project}}/{{zone}}/{{instance.name}}/{{disk.name}}
 ```

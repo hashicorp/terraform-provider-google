@@ -61,6 +61,6 @@ func dataSourceGoogleComputeNetworkRead(d *schema.ResourceData, meta interface{}
 	d.Set("self_link", network.SelfLink)
 	d.Set("description", network.Description)
 	d.Set("subnetworks_self_links", network.Subnetworks)
-	d.SetId(network.Name)
+	d.SetId(fmt.Sprintf("projects/%s/global/networks/%s", project, network.Name))
 	return nil
 }

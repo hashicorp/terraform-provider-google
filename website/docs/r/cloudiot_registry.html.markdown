@@ -29,11 +29,11 @@ resource "google_cloudiot_registry" "default-registry" {
   name = "default-registry"
 
   event_notification_configs {
-    pubsub_topic_name = "${google_pubsub_topic.default-telemetry.id}"
+    pubsub_topic_name = google_pubsub_topic.default-telemetry.id
   }
 
   state_notification_config = {
-    pubsub_topic_name = "${google_pubsub_topic.default-devicestatus.id}"
+    pubsub_topic_name = google_pubsub_topic.default-devicestatus.id
   }
 
   http_config = {
@@ -47,7 +47,7 @@ resource "google_cloudiot_registry" "default-registry" {
   credentials {
     public_key_certificate = {
       format      = "X509_CERTIFICATE_PEM"
-      certificate = "${file("rsa_cert.pem")}"
+      certificate = file("rsa_cert.pem")
     }
   }
 }
@@ -65,8 +65,6 @@ The following arguments are supported:
 * `project` - (Optional) The project in which the resource belongs. If it is not provided, the provider project is used.
 
 * `region` - (Optional) The Region in which the created address should reside. If it is not provided, the provider region is used.
-
-* `event_notification_config` - (Deprecated) Use `event_notification_configs` instead.
 
 * `event_notification_configs` - (Optional) List of configurations for event notification, such as
 PubSub topics to publish device events to. Structure is documented below.

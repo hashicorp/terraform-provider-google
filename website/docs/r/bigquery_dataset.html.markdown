@@ -68,13 +68,13 @@ resource "google_bigquery_dataset" "dataset" {
   default_table_expiration_ms = 3600000
 
   default_encryption_configuration {
-    kms_key_name = "${google_kms_crypto_key.crypto_key.self_link}"
+    kms_key_name = google_kms_crypto_key.crypto_key.self_link
   }
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
   name     = "example-key"
-  key_ring = "${google_kms_key_ring.key_ring.self_link}"
+  key_ring = google_kms_key_ring.key_ring.self_link
 }
 
 resource "google_kms_key_ring" "key_ring" {
@@ -191,7 +191,7 @@ The `access` block supports:
   An email address of a Google Group to grant access to.
 
 * `role` -
-  (Optional)
+  (Required)
   Describes the rights granted to the user specified by the other
   member of the access object. Primitive, Predefined and custom
   roles are supported. Predefined roles that have equivalent
@@ -283,8 +283,8 @@ This resource provides the following
 Dataset can be imported using any of these accepted formats:
 
 ```
+$ terraform import google_bigquery_dataset.default projects/{{project}}/datasets/{{dataset_id}}
 $ terraform import google_bigquery_dataset.default {{project}}/{{dataset_id}}
-$ terraform import google_bigquery_dataset.default {{project}}:{{dataset_id}}
 $ terraform import google_bigquery_dataset.default {{dataset_id}}
 ```
 

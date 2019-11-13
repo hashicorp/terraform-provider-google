@@ -233,6 +233,7 @@ var defaultClientScopes = []string{
 	"https://www.googleapis.com/auth/cloud-platform",
 	"https://www.googleapis.com/auth/ndev.clouddns.readwrite",
 	"https://www.googleapis.com/auth/devstorage.full_control",
+	"https://www.googleapis.com/auth/userinfo.email",
 }
 
 func (c *Config) LoadAndValidate() error {

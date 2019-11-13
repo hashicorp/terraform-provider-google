@@ -631,13 +631,15 @@ limited to 512 Unicode characters.`,
 The content may not exceed 8,192 Unicode characters and may not
 exceed more than 10,240 bytes when encoded in UTF-8 format,
 whichever is smaller.`,
+							AtLeastOneOf: []string{"documentation.0.content", "documentation.0.mime_type"},
 						},
 						"mime_type": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `The format of the content field. Presently, only the value
 "text/markdown" is supported.`,
-							Default: "text/markdown",
+							Default:      "text/markdown",
+							AtLeastOneOf: []string{"documentation.0.content", "documentation.0.mime_type"},
 						},
 					},
 				},
@@ -706,7 +708,7 @@ Its syntax is: projects/[PROJECT_ID]/alertPolicies/[ALERT_POLICY_ID]`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Deprecated: "labels is removed as it was never used. See user_labels for the correct field",
+				Removed: "labels is removed as it was never used. See user_labels for the correct field",
 			},
 			"project": {
 				Type:     schema.TypeString,

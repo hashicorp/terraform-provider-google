@@ -21,7 +21,7 @@ data "google_projects" "my-org-projects" {
 }
 
 data "google_project" "deletion-candidate" {
-   project_id = "${data.google_projects.my-org-projects.projects.0.project_id}"
+  project_id = data.google_projects.my-org-projects.projects[0].project_id
 }
 ```
 

@@ -18,58 +18,58 @@ Manages a job resource within a Dataproc cluster within GCE. For more informatio
 
 ```hcl
 resource "google_dataproc_cluster" "mycluster" {
-    name   = "dproc-cluster-unique-name"
-    region = "us-central1"
+  name   = "dproc-cluster-unique-name"
+  region = "us-central1"
 }
 
 # Submit an example spark job to a dataproc cluster
 resource "google_dataproc_job" "spark" {
-    region       = "${google_dataproc_cluster.mycluster.region}"
-    force_delete = true
-    placement {
-        cluster_name = "${google_dataproc_cluster.mycluster.name}"
+  region       = google_dataproc_cluster.mycluster.region
+  force_delete = true
+  placement {
+    cluster_name = google_dataproc_cluster.mycluster.name
+  }
+
+  spark_config {
+    main_class    = "org.apache.spark.examples.SparkPi"
+    jar_file_uris = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
+    args          = ["1000"]
+
+    properties = {
+      "spark.logConf" = "true"
     }
 
-    spark_config {
-        main_class    = "org.apache.spark.examples.SparkPi"
-        jar_file_uris = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
-        args          = ["1000"]
-        
-        properties    = {
-            "spark.logConf" = "true"
-        }
-        
-        logging_config {
-            driver_log_levels = {
-                "root" = "INFO"
-            }
-        }
+    logging_config {
+      driver_log_levels = {
+        "root" = "INFO"
+      }
     }
+  }
 }
 
 # Submit an example pyspark job to a dataproc cluster
 resource "google_dataproc_job" "pyspark" {
-    region       = "${google_dataproc_cluster.mycluster.region}"
-    force_delete = true
-    placement {
-        cluster_name = "${google_dataproc_cluster.mycluster.name}"
-    }
+  region       = google_dataproc_cluster.mycluster.region
+  force_delete = true
+  placement {
+    cluster_name = google_dataproc_cluster.mycluster.name
+  }
 
-    pyspark_config {
-        main_python_file_uri = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
-        properties = {
-            "spark.logConf" = "true"
-        }
+  pyspark_config {
+    main_python_file_uri = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
+    properties = {
+      "spark.logConf" = "true"
     }
+  }
 }
 
 # Check out current state of the jobs
 output "spark_status" {
-    value = "${google_dataproc_job.spark.status.0.state}"
+  value = google_dataproc_job.spark.status[0].state
 }
 
 output "pyspark_status" {
-    value = "${google_dataproc_job.pyspark.status.0.state}"
+  value = google_dataproc_job.pyspark.status[0].state
 }
 ```
 
@@ -112,17 +112,15 @@ The `pyspark_config` block supports:
 Submitting a pyspark job to the cluster. Below is an example configuration:
 
 ```hcl
-
 # Submit a pyspark job to the cluster
 resource "google_dataproc_job" "pyspark" {
-    ...
-
-    pyspark_config {
-        main_python_file_uri = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
-        properties = {
-            "spark.logConf" = "true"
-        }
+  ...
+  pyspark_config {
+    main_python_file_uri = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
+    properties = {
+      "spark.logConf" = "true"
     }
+  }
 }
 ```
 
@@ -152,26 +150,24 @@ are generally applicable:
 The `spark_config` block supports:
 
 ```hcl
-
 # Submit a spark job to the cluster
 resource "google_dataproc_job" "spark" {
-    ...
+  ...
+  spark_config {
+    main_class    = "org.apache.spark.examples.SparkPi"
+    jar_file_uris = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
+    args          = ["1000"]
 
-    spark_config {
-        main_class    = "org.apache.spark.examples.SparkPi"
-        jar_file_uris = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
-        args          = ["1000"]
-        
-        properties    = {
-            "spark.logConf" = "true"
-        }
-        
-        logging_config {
-            driver_log_levels = {
-                "root" = "INFO"
-            }
-        }
+    properties = {
+      "spark.logConf" = "true"
     }
+
+    logging_config {
+      driver_log_levels = {
+        "root" = "INFO"
+      }
+    }
+  }
 }
 ```
 
@@ -197,19 +193,17 @@ resource "google_dataproc_job" "spark" {
 The `hadoop_config` block supports:
 
 ```hcl
-
 # Submit a hadoop job to the cluster
 resource "google_dataproc_job" "hadoop" {
-    ...
-
-    hadoop_config {
-        main_jar_file_uri =  "file:///usr/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar"
-        args              = [
-            "wordcount",
-            "file:///usr/lib/spark/NOTICE",
-            "gs://${google_dataproc_cluster.basic.cluster_config.0.bucket}/hadoopjob_output"
-        ]
-    }
+  ...
+  hadoop_config {
+    main_jar_file_uri = "file:///usr/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar"
+    args = [
+      "wordcount",
+      "file:///usr/lib/spark/NOTICE",
+      "gs://${google_dataproc_cluster.basic.cluster_config[0].bucket}/hadoopjob_output",
+    ]
+  }
 }
 ```
 
@@ -232,18 +226,16 @@ resource "google_dataproc_job" "hadoop" {
 The `hive_config` block supports:
 
 ```hcl
-
 # Submit a hive job to the cluster
 resource "google_dataproc_job" "hive" {
-    ...
-
-    hive_config {
-        query_list = [
-            "DROP TABLE IF EXISTS dprocjob_test",
-            "CREATE EXTERNAL TABLE dprocjob_test(bar int) LOCATION 'gs://${google_dataproc_cluster.basic.cluster_config.0.bucket}/hive_dprocjob_test/'",
-            "SELECT * FROM dprocjob_test WHERE bar > 2",
-        ]
-    }
+  ...
+  hive_config {
+    query_list = [
+      "DROP TABLE IF EXISTS dprocjob_test",
+      "CREATE EXTERNAL TABLE dprocjob_test(bar int) LOCATION 'gs://${google_dataproc_cluster.basic.cluster_config[0].bucket}/hive_dprocjob_test/'",
+      "SELECT * FROM dprocjob_test WHERE bar > 2",
+    ]
+  }
 }
 ```
 
@@ -264,20 +256,18 @@ resource "google_dataproc_job" "hive" {
 The `pig_config` block supports:
 
 ```hcl
-
 # Submit a pig job to the cluster
 resource "google_dataproc_job" "pig" {
-    ...
-
-    pig_config {
-        query_list = [
-            "LNS = LOAD 'file:///usr/lib/pig/LICENSE.txt ' AS (line)",
-            "WORDS = FOREACH LNS GENERATE FLATTEN(TOKENIZE(line)) AS word",
-            "GROUPS = GROUP WORDS BY word",
-            "WORD_COUNTS = FOREACH GROUPS GENERATE group, COUNT(WORDS)",
-            "DUMP WORD_COUNTS"
-        ]
-    }
+  ...
+  pig_config {
+    query_list = [
+      "LNS = LOAD 'file:///usr/lib/pig/LICENSE.txt ' AS (line)",
+      "WORDS = FOREACH LNS GENERATE FLATTEN(TOKENIZE(line)) AS word",
+      "GROUPS = GROUP WORDS BY word",
+      "WORD_COUNTS = FOREACH GROUPS GENERATE group, COUNT(WORDS)",
+      "DUMP WORD_COUNTS",
+    ]
+  }
 }
 ```
 
@@ -301,18 +291,16 @@ resource "google_dataproc_job" "pig" {
 The `sparksql_config` block supports:
 
 ```hcl
-
 # Submit a spark SQL job to the cluster
 resource "google_dataproc_job" "sparksql" {
-    ...
-
-    sparksql_config {
-        query_list = [
-            "DROP TABLE IF EXISTS dprocjob_test",
-            "CREATE TABLE dprocjob_test(bar int)",
-            "SELECT * FROM dprocjob_test WHERE bar > 2",
-        ]
-    }
+  ...
+  sparksql_config {
+    query_list = [
+      "DROP TABLE IF EXISTS dprocjob_test",
+      "CREATE TABLE dprocjob_test(bar int)",
+      "SELECT * FROM dprocjob_test WHERE bar > 2",
+    ]
+  }
 }
 ```
 

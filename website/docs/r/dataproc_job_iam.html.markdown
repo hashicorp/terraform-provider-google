@@ -24,7 +24,7 @@ Three different resources help you manage IAM policies on dataproc jobs. Each of
 ```hcl
 data "google_iam_policy" "admin" {
   binding {
-    role    = "roles/editor"
+    role = "roles/editor"
     members = [
       "user:jane@example.com",
     ]
@@ -32,10 +32,10 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_dataproc_job_iam_policy" "editor" {
-  project      = "your-project"
-  region       = "your-region"
-  job_id       = "your-dataproc-job"
-  policy_data  = "${data.google_iam_policy.admin.policy_data}"
+  project     = "your-project"
+  region      = "your-region"
+  job_id      = "your-dataproc-job"
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -43,9 +43,9 @@ resource "google_dataproc_job_iam_policy" "editor" {
 
 ```hcl
 resource "google_dataproc_job_iam_binding" "editor" {
-  job_id       = "your-dataproc-job"
-  role         = "roles/editor"
-  members      = [
+  job_id = "your-dataproc-job"
+  role   = "roles/editor"
+  members = [
     "user:jane@example.com",
   ]
 }
@@ -55,9 +55,9 @@ resource "google_dataproc_job_iam_binding" "editor" {
 
 ```hcl
 resource "google_dataproc_job_iam_member" "editor" {
-  job_id       = "your-dataproc-job"
-  role         = "roles/editor"
-  member       = "user:jane@example.com"
+  job_id = "your-dataproc-job"
+  role   = "roles/editor"
+  member = "user:jane@example.com"
 }
 ```
 

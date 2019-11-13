@@ -117,19 +117,19 @@ func TestAccIapWebTypeAppEngineIamPolicyGenerated(t *testing.T) {
 func testAccIapWebTypeAppEngineIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "my_project" {
-	name       = "%{project_id}"
-	project_id = "%{project_id}"
-	org_id     = "%{org_id}"
+  name       = "%{project_id}"
+  project_id = "%{project_id}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.my_project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.my_project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_app_engine_application" "app" {
-	project     = "${google_project_service.project_service.project}"
-	location_id = "us-central"
+  project     = google_project_service.project_service.project
+  location_id = "us-central"
 }
 
 resource "google_iap_web_type_app_engine_iam_member" "foo" {
@@ -144,19 +144,19 @@ resource "google_iap_web_type_app_engine_iam_member" "foo" {
 func testAccIapWebTypeAppEngineIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "my_project" {
-	name       = "%{project_id}"
-	project_id = "%{project_id}"
-	org_id     = "%{org_id}"
+  name       = "%{project_id}"
+  project_id = "%{project_id}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.my_project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.my_project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_app_engine_application" "app" {
-	project     = "${google_project_service.project_service.project}"
-	location_id = "us-central"
+  project     = google_project_service.project_service.project
+  location_id = "us-central"
 }
 
 data "google_iam_policy" "foo" {
@@ -177,19 +177,19 @@ resource "google_iap_web_type_app_engine_iam_policy" "foo" {
 func testAccIapWebTypeAppEngineIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "my_project" {
-	name       = "%{project_id}"
-	project_id = "%{project_id}"
-	org_id     = "%{org_id}"
+  name       = "%{project_id}"
+  project_id = "%{project_id}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.my_project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.my_project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_app_engine_application" "app" {
-	project     = "${google_project_service.project_service.project}"
-	location_id = "us-central"
+  project     = google_project_service.project_service.project
+  location_id = "us-central"
 }
 
 resource "google_iap_web_type_app_engine_iam_binding" "foo" {
@@ -204,19 +204,19 @@ resource "google_iap_web_type_app_engine_iam_binding" "foo" {
 func testAccIapWebTypeAppEngineIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "my_project" {
-	name       = "%{project_id}"
-	project_id = "%{project_id}"
-	org_id     = "%{org_id}"
+  name       = "%{project_id}"
+  project_id = "%{project_id}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.my_project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.my_project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_app_engine_application" "app" {
-	project     = "${google_project_service.project_service.project}"
-	location_id = "us-central"
+  project     = google_project_service.project_service.project
+  location_id = "us-central"
 }
 
 resource "google_iap_web_type_app_engine_iam_binding" "foo" {

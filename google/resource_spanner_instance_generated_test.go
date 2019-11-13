@@ -51,9 +51,9 @@ func TestAccSpannerInstance_spannerInstanceBasicExample(t *testing.T) {
 func testAccSpannerInstance_spannerInstanceBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_spanner_instance" "example" {
-  config        = "regional-us-central1"
-  display_name  = "Test Spanner Instance"
-  num_nodes     = 2
+  config       = "regional-us-central1"
+  display_name = "Test Spanner Instance"
+  num_nodes    = 2
   labels = {
     "foo" = "bar"
   }

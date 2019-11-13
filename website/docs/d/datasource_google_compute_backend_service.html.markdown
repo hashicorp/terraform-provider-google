@@ -22,7 +22,7 @@ data "google_compute_backend_service" "baz" {
 
 resource "google_compute_backend_service" "default" {
   name          = "backend-service"
-  health_checks = ["${tolist(data.google_compute_backend_service.baz.health_checks)[0]}"]
+  health_checks = [tolist(data.google_compute_backend_service.baz.health_checks)[0]]
 }
 ```
 
