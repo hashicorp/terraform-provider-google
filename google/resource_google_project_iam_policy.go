@@ -22,9 +22,10 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"project": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareProjectName,
 			},
 			"policy_data": {
 				Type:             schema.TypeString,
@@ -39,9 +40,14 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 	}
 }
 
+func compareProjectName(_, old, new string, _ *schema.ResourceData) bool {
+	// We can either get "projects/project-id" or "project-id", so strip any prefixes
+	return GetResourceNameFromSelfLink(old) == GetResourceNameFromSelfLink(new)
+}
+
 func resourceGoogleProjectIamPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	project := d.Get("project").(string)
+	project := GetResourceNameFromSelfLink(d.Get("project").(string))
 
 	mutexKey := getProjectIamPolicyMutexKey(project)
 	mutexKV.Lock(mutexKey)
@@ -65,7 +71,7 @@ func resourceGoogleProjectIamPolicyCreate(d *schema.ResourceData, meta interface
 
 func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	project := d.Get("project").(string)
+	project := GetResourceNameFromSelfLink(d.Get("project").(string))
 
 	policy, err := getProjectIamPolicy(project, config)
 	if err != nil {
@@ -85,7 +91,7 @@ func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}
 
 func resourceGoogleProjectIamPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	project := d.Get("project").(string)
+	project := GetResourceNameFromSelfLink(d.Get("project").(string))
 
 	mutexKey := getProjectIamPolicyMutexKey(project)
 	mutexKV.Lock(mutexKey)
@@ -109,7 +115,7 @@ func resourceGoogleProjectIamPolicyUpdate(d *schema.ResourceData, meta interface
 func resourceGoogleProjectIamPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG]: Deleting google_project_iam_policy")
 	config := meta.(*Config)
-	project := d.Get("project").(string)
+	project := GetResourceNameFromSelfLink(d.Get("project").(string))
 
 	mutexKey := getProjectIamPolicyMutexKey(project)
 	mutexKV.Lock(mutexKey)
