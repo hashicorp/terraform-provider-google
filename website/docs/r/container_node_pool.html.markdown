@@ -171,8 +171,8 @@ The `management` block supports:
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - (Default `30 minutes`) Used for adding node pools
-- `update` - (Default `10 minutes`) Used for updates to node pools
-- `delete` - (Default `10 minutes`) Used for removing node pools.
+- `update` - (Default `30 minutes`) Used for updates to node pools
+- `delete` - (Default `30 minutes`) Used for removing node pools.
 
 ## Import
 

@@ -712,9 +712,9 @@ exported:
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 30 minutes.
+- `create` - Default is 40 minutes.
 - `update` - Default is 60 minutes.
-- `delete` - Default is 30 minutes.
+- `delete` - Default is 40 minutes.
 
 ## Import
 
