@@ -316,7 +316,10 @@ resource "google_compute_instance_template" "igm-basic" {
 
 resource "google_compute_instance_group_manager" "igm" {
   name              = "%s"
-  instance_template = google_compute_instance_template.igm-basic.self_link
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "primary"
+  }
   base_instance_name = "igm"
   zone               = "us-central1-a"
   target_size        = 10
