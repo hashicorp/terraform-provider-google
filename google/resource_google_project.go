@@ -535,6 +535,9 @@ func doEnableServicesRequest(services []string, project string, config *Config, 
 }
 
 // Retrieve a project's services from the API
+// if a service has been renamed, this function will list both the old and new
+// forms of the service. LIST responses are expected to return only the old or
+// new form, but we'll always return both.
 func listCurrentlyEnabledServices(project string, config *Config, timeout time.Duration) (map[string]struct{}, error) {
 	// Verify project for services still exists
 	p, err := config.clientResourceManager.Projects.Get(project).Do()
@@ -559,10 +562,19 @@ func listCurrentlyEnabledServices(project string, config *Config, timeout time.D
 			Filter("state:ENABLED").
 			Pages(ctx, func(r *serviceusage.ListServicesResponse) error {
 				for _, v := range r.Services {
-					// services are returned as "projects/PROJECT/services/NAME"
+					// services are returned as "projects/{{project}}/services/{{name}}"
 					name := GetResourceNameFromSelfLink(v.Name)
+
+					// if name not in ignoredProjectServicesSet
 					if _, ok := ignoredProjectServicesSet[name]; !ok {
 						apiServices[name] = struct{}{}
+
+						// if a service has been renamed, set both. We'll deal
+						// with setting the right values later.
+						if v, ok := renamedServicesByOldAndNewServiceNames[name]; ok {
+							log.Printf("[DEBUG] Adding service alias for %s to enabled services: %s", name, v)
+							apiServices[v] = struct{}{}
+						}
 					}
 				}
 				return nil
