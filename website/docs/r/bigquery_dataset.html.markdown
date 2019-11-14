@@ -191,7 +191,7 @@ The `access` block supports:
   An email address of a Google Group to grant access to.
 
 * `role` -
-  (Required)
+  (Optional)
   Describes the rights granted to the user specified by the other
   member of the access object. Primitive, Predefined and custom
   roles are supported. Predefined roles that have equivalent

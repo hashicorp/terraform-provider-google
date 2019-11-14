@@ -224,16 +224,6 @@ milliseconds since the epoch.`,
 func bigqueryDatasetAccessSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"role": {
-				Type:     schema.TypeString,
-				Required: true,
-				Description: `Describes the rights granted to the user specified by the other
-member of the access object. Primitive, Predefined and custom
-roles are supported. Predefined roles that have equivalent
-primitive roles are swapped by the API to their Primitive
-counterparts, and will show a diff post-create. See
-[official docs](https://cloud.google.com/bigquery/docs/access-control).`,
-			},
 			"domain": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -244,6 +234,16 @@ domain specified will be granted the specified access`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `An email address of a Google Group to grant access to.`,
+			},
+			"role": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Describes the rights granted to the user specified by the other
+member of the access object. Primitive, Predefined and custom
+roles are supported. Predefined roles that have equivalent
+primitive roles are swapped by the API to their Primitive
+counterparts, and will show a diff post-create. See
+[official docs](https://cloud.google.com/bigquery/docs/access-control).`,
 			},
 			"special_group": {
 				Type:     schema.TypeString,

@@ -60,7 +60,6 @@ so Terraform knows to manage them.
 - [Resource: `google_app_engine_application`](#resource-google_app_engine_application)
 - [Resource: `google_app_engine_domain_mapping`](#resource-google_app_engine_domain_mapping)
 - [Resource: `google_app_engine_standard_app_version`](#resource-google_app_engine_standard_app_version)
-- [Resource: `google_bigquery_dataset`](#resource-google_bigquery_dataset)
 - [Resource: `google_bigquery_table`](#resource-google_bigquery_table)
 - [Resource: `google_bigtable_app_profile`](#resource-google_bigtable_app_profile)
 - [Resource: `google_binary_authorization_policy`](#resource-google_binary_authorization_policy)
@@ -253,13 +252,6 @@ required on the `handlers.script` block.
 
 In an attempt to avoid allowing empty blocks in config files, `shell` is now
 required on the `deployment.files` and `deployment.zip` blocks.
-
-## Resource: `google_bigquery_dataset`
-
-### `role` is now required on `google_bigquery_dataset.access`
-
-In an attempt to avoid allowing empty blocks in config files, `role` is now
-required on the `access` block.
 
 ## Resource: `google_bigquery_table`
 
