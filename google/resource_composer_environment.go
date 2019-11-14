@@ -35,13 +35,22 @@ var composerEnvironmentReservedEnvVar = map[string]struct{}{
 	"SQL_USER":         {},
 }
 
-var composerSoftwareConfigKeys = []string{
-	"config.0.software_config.0.airflow_config_overrides",
-	"config.0.software_config.0.pypi_packages",
-	"config.0.software_config.0.env_variables",
-	"config.0.software_config.0.image_version",
-	"config.0.software_config.0.python_version",
-}
+var (
+	composerSoftwareConfigKeys = []string{
+		"config.0.software_config.0.airflow_config_overrides",
+		"config.0.software_config.0.pypi_packages",
+		"config.0.software_config.0.env_variables",
+		"config.0.software_config.0.image_version",
+		"config.0.software_config.0.python_version",
+	}
+
+	composerConfigKeys = []string{
+		"config.0.node_count",
+		"config.0.node_config",
+		"config.0.software_config",
+		"config.0.private_environment_config",
+	}
+)
 
 func resourceComposerEnvironment() *schema.Resource {
 	return &schema.Resource{
@@ -90,13 +99,15 @@ func resourceComposerEnvironment() *schema.Resource {
 							Type:         schema.TypeInt,
 							Computed:     true,
 							Optional:     true,
+							AtLeastOneOf: composerConfigKeys,
 							ValidateFunc: validation.IntAtLeast(3),
 						},
 						"node_config": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Optional: true,
-							MaxItems: 1,
+							Type:         schema.TypeList,
+							Computed:     true,
+							Optional:     true,
+							AtLeastOneOf: composerConfigKeys,
+							MaxItems:     1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"zone": {
@@ -205,10 +216,11 @@ func resourceComposerEnvironment() *schema.Resource {
 							},
 						},
 						"software_config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							MaxItems: 1,
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: composerConfigKeys,
+							MaxItems:     1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"airflow_config_overrides": {
@@ -250,21 +262,31 @@ func resourceComposerEnvironment() *schema.Resource {
 							},
 						},
 						"private_environment_config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							MaxItems: 1,
-							ForceNew: true,
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: composerConfigKeys,
+							MaxItems:     1,
+							ForceNew:     true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enable_private_endpoint": {
 										Type:     schema.TypeBool,
-										Required: true,
+										Optional: true,
+										Default:  true,
+										AtLeastOneOf: []string{
+											"config.0.private_environment_config.0.enable_private_endpoint",
+											"config.0.private_environment_config.0.master_ipv4_cidr_block",
+										},
 										ForceNew: true,
 									},
 									"master_ipv4_cidr_block": {
 										Type:     schema.TypeString,
 										Optional: true,
+										AtLeastOneOf: []string{
+											"config.0.private_environment_config.0.enable_private_endpoint",
+											"config.0.private_environment_config.0.master_ipv4_cidr_block",
+										},
 										ForceNew: true,
 										Default:  "172.16.0.0/28",
 									},

@@ -38,10 +38,10 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"allow": {
-					Type:          schema.TypeList,
-					Optional:      true,
-					MaxItems:      1,
-					ConflictsWith: []string{"list_policy.0.deny"},
+					Type:         schema.TypeList,
+					Optional:     true,
+					MaxItems:     1,
+					ExactlyOneOf: []string{"list_policy.0.allow", "list_policy.0.deny"},
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"all": {
@@ -61,10 +61,10 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 					},
 				},
 				"deny": {
-					Type:          schema.TypeList,
-					Optional:      true,
-					MaxItems:      1,
-					ConflictsWith: []string{"list_policy.0.allow"},
+					Type:         schema.TypeList,
+					Optional:     true,
+					MaxItems:     1,
+					ExactlyOneOf: []string{"list_policy.0.allow", "list_policy.0.deny"},
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"all": {

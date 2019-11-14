@@ -105,7 +105,7 @@ output "pyspark_status" {
 
 * `labels` - (Optional) The list of labels (key/value pairs) to add to the job.
 
-* `scheduling.max_failures_per_hour` - (Optional) Maximum number of times per hour a driver may be restarted as a result of driver terminating with non-zero code before job is reported failed.
+* `scheduling.max_failures_per_hour` - (Required) Maximum number of times per hour a driver may be restarted as a result of driver terminating with non-zero code before job is reported failed.
 
 The `pyspark_config` block supports:
 
@@ -145,7 +145,7 @@ are generally applicable:
 
 * `properties` - (Optional) A mapping of property names to values, used to configure PySpark. Properties that conflict with values set by the Cloud Dataproc API may be overwritten. Can include properties set in `/etc/spark/conf/spark-defaults.conf` and classes in user code.
 
-* `logging_config.driver_log_levels`- (Optional) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
+* `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 The `spark_config` block supports:
 
@@ -187,7 +187,7 @@ resource "google_dataproc_job" "spark" {
 
 * `properties` - (Optional) A mapping of property names to values, used to configure Spark. Properties that conflict with values set by the Cloud Dataproc API may be overwritten. Can include properties set in `/etc/spark/conf/spark-defaults.conf` and classes in user code.
 
-* `logging_config.driver_log_levels`- (Optional) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
+* `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 
 The `hadoop_config` block supports:
@@ -221,7 +221,7 @@ resource "google_dataproc_job" "hadoop" {
 
 * `properties` - (Optional) A mapping of property names to values, used to configure Hadoop. Properties that conflict with values set by the Cloud Dataproc API may be overwritten. Can include properties set in `/etc/hadoop/conf/*-site` and classes in user code..
 
-* `logging_config.driver_log_levels`- (Optional) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
+* `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 The `hive_config` block supports:
 
@@ -285,7 +285,7 @@ resource "google_dataproc_job" "pig" {
 
 * `jar_file_uris` - (Optional) HCFS URIs of jar files to add to the CLASSPATH of the Pig Client and Hadoop MapReduce (MR) tasks. Can contain Pig UDFs.
 
-* `logging_config.driver_log_levels`- (Optional) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
+* `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 
 The `sparksql_config` block supports:
@@ -316,7 +316,7 @@ resource "google_dataproc_job" "sparksql" {
 
 * `jar_file_uris` - (Optional) HCFS URIs of jar files to be added to the Spark CLASSPATH.
 
-* `logging_config.driver_log_levels`- (Optional) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
+* `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 
 ## Attributes Reference

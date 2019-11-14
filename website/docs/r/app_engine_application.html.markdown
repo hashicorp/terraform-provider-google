@@ -48,7 +48,7 @@ The following arguments are supported:
 
 * `feature_settings` - (Optional) A block of optional settings to configure specific App Engine features:
 
-  * `split_health_checks` - (Optional) Set to false to use the legacy health check instead of the readiness
+  * `split_health_checks` - (Required) Set to false to use the legacy health check instead of the readiness
     and liveness checks.
 
 ## Attributes Reference

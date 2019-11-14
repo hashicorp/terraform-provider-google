@@ -396,7 +396,7 @@ In an attempt to avoid allowing empty blocks in config files, at least one of `s
 
 ## Resource: `google_composer_environment`
 
-### At least one of `airflow_config_overrides`, `pypi_packages`, `env_variables`, `image_version`, or `python_version` are now required on `google_composer_environment.config.software_config`
+### At least one of `airflow_config_overrides`, `pypi_packages`, `env_variables`, `image_version`, or `python_version` is now required on `google_composer_environment.config.software_config`
 
 In an attempt to avoid allowing empty blocks in config files, at least one of `airflow_config_overrides`,
 `pypi_packages`, `env_variables`, `image_version`, or `python_version` is now required on the
@@ -407,10 +407,14 @@ In an attempt to avoid allowing empty blocks in config files, at least one of `a
 Previously the default value of `use_ip_aliases` was `true`. In an attempt to avoid allowing empty blocks
 in config files, `use_ip_aliases` is now required on the `ip_allocation_policy` block.
 
-### `enable_private_endpoint` is now required on block `google_composer_environment.private_environment_config`
+### At least one of `enable_private_endpoint` or `master_ipv4_cidr_block` is now required on `google_composer_environment.config.private_environment_config`
 
-Previously the default value of `enable_private_endpoint` was `true`. In an attempt to avoid allowing empty blocks
-in config files, `enable_private_endpoint` is now required on the `private_environment_config` block.
+In an attempt to avoid allowing empty blocks in config files, at least one of `enable_private_endpoint` or `master_ipv4_cidr_block` is now required on the
+`config.private_environment_config` block.
+
+### At least one of `node_count`, `node_config`, `software_config` or `private_environment_config` required on `google_composer_environment.config`
+
+In an attempt to avoid allowing empty blocks in config files, at least one of `node_count`, `node_config`, `software_config` or `private_environment_config` is now required on the `config` block.
 
 ## Resource: `google_compute_backend_bucket`
 
@@ -562,7 +566,7 @@ In an attempt to avoid allowing empty blocks in config files, at least one of `a
 `disk_encryption_key_raw`, `kms_key_self_link`, `initialize_params`, `mode` or `source` is now required on the
 `boot_disk` block.
 
-### At least one of `size`, `type`, `image`, or `labels` are now required on `google_compute_instance.boot_disk.initialize_params`
+### At least one of `size`, `type`, `image`, or `labels` is now required on `google_compute_instance.boot_disk.initialize_params`
 
 In an attempt to avoid allowing empty blocks in config files, at least one of `size`, `type`, `image`, or `labels`
 is now required on the `initialize_params` block.
@@ -1041,12 +1045,16 @@ required on the `master_authorized_networks_config` block.
 In an attempt to avoid allowing empty blocks in config files, `disabled` is now
 required on the different `google_container_cluster.addons_config` blocks.
 
+### Exactly one of `daily_maintenance_window` or `recurring_window` is now required on `google_container_cluster.maintenance_policy`
+
+In an attempt to avoid allowing empty blocks in config files, exactly one of `daily_maintenance_window` or `recurring_window` is now required on the
+`maintenance_policy` block.
+
 ### At least one of `http_load_balancing`, `horizontal_pod_autoscaling` , `network_policy_config`, `cloudrun_config`, or `istio_config` is now required on `google_container_cluster.addons_config`
 
 In an attempt to avoid allowing empty blocks in config files, at least one of `http_load_balancing`,
 `horizontal_pod_autoscaling` , `network_policy_config`, `cloudrun_config`, or `istio_config` is now required on the
 `addons_config` block.
-
 
 ### At least one of `username`, `password` or `client_certificate_config` is now required on `google_container_cluster.master_auth`
 
@@ -1340,6 +1348,11 @@ required on the `http_check.auth_info` block.
 
 In attempt to be more consistent with the API, exactly one of `list_policy`, `boolean_policy`,
 or `restore_policy` is now required on `google_organization_policy`.
+
+### Exactly one of `allow` or `deny` is now required on `google_organization_policy.list_policy`
+
+In an attempt to avoid allowing empty blocks in config files, exactly one of `allow` or `deny` is now
+required on the `list_policy` block.
 
 ### Exactly one of `all` or `values` is now required on `google_organization_policy.list_policy.allow` and `google_organization_policy.list_policy.deny`
 
