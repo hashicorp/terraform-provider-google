@@ -44,6 +44,7 @@ func resourceFolderOrgPolicyImporter(d *schema.ResourceData, meta interface{}) (
 
 	if err := parseImportId([]string{
 		"folders/(?P<folder>[^/]+)/constraints/(?P<constraint>[^/]+)",
+		"folders/(?P<folder>[^/]+)/(?P<constraint>[^/]+)",
 		"(?P<folder>[^/]+)/(?P<constraint>[^/]+)"},
 		d, config); err != nil {
 		return nil, err
