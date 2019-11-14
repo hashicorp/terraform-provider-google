@@ -36,12 +36,6 @@ var (
 		"boot_disk.0.initialize_params.0.labels",
 	}
 
-	accessConfigKeys = []string{
-		"network_interface.%d.access_config.%d.nat_ip",
-		"network_interface.%d.access_config.%d.network_tier",
-		"network_interface.%d.access_config.%d.public_ptr_domain_name",
-	}
-
 	schedulingKeys = []string{
 		"scheduling.0.on_host_maintenance",
 		"scheduling.0.automatic_restart",
