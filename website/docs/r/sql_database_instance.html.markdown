@@ -250,9 +250,9 @@ The required `settings` block supports:
 
 The optional `settings.database_flags` sublist supports:
 
-* `name` - (Optional) Name of the flag.
+* `name` - (Required) Name of the flag.
 
-* `value` - (Optional) Value of the flag.
+* `value` - (Required) Value of the flag.
 
 The optional `settings.backup_configuration` subblock supports:
 
@@ -287,7 +287,7 @@ The optional `settings.ip_configuration.authorized_networks[]` sublist supports:
 
 * `name` - (Optional) A name for this whitelist entry.
 
-* `value` - (Optional) A CIDR notation IPv4 or IPv6 address that is allowed to
+* `value` - (Required) A CIDR notation IPv4 or IPv6 address that is allowed to
     access this instance. Must be set even if other two attributes are not for
     the whitelist to become active.
 

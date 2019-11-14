@@ -172,6 +172,9 @@ The `cluster_config` block supports:
 * `software_config` (Optional) The config settings for software inside the cluster.
    Structure defined below.
 
+* `autoscaling_config` (Optional)  The autoscaling policy config associated with the cluster.
+   Structure defined below.
+
 * `initialization_action` (Optional) Commands to execute on each node after config is completed.
    You can specify multiple versions of these. Structure defined below.
 
@@ -421,6 +424,27 @@ cluster_config {
    used to modify various aspects of the common configuration files used when creating
    a cluster. For a list of valid properties please see
   [Cluster properties](https://cloud.google.com/dataproc/docs/concepts/cluster-properties)
+
+- - -
+
+The `cluster_config.autoscaling_config` block supports:
+
+```hcl
+cluster_config {
+  # Override or set some custom properties
+  autoscaling_config {
+    policy_uri = "projects/projectId/locations/region/autoscalingPolicies/policyId"
+  }
+}
+```
+
+* `policy_uri` - (Required) The autoscaling policy used by the cluster.
+
+Only resource names including projectid and location (region) are valid. Examples:
+
+`https://www.googleapis.com/compute/v1/projects/[projectId]/locations/[dataproc_region]/autoscalingPolicies/[policy_id]`
+`projects/[projectId]/locations/[dataproc_region]/autoscalingPolicies/[policy_id]`
+Note that the policy must be in the same project and Cloud Dataproc region.
 
 - - -
 

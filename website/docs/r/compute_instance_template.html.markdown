@@ -300,7 +300,7 @@ The `disk` block supports:
 
 The `disk_encryption_key` block supports:
 
-* `kms_key_self_link` - (Optional) The self link of the encryption key that is stored in Google Cloud KMS
+* `kms_key_self_link` - (Required) The self link of the encryption key that is stored in Google Cloud KMS
 
 The `network_interface` block supports:
 

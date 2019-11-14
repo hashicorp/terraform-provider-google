@@ -104,7 +104,7 @@ The `condition` block supports the following elements, and requires at least one
 
 The `versioning` block supports:
 
-* `enabled` - (Optional) While set to `true`, versioning is fully enabled for this bucket.
+* `enabled` - (Required) While set to `true`, versioning is fully enabled for this bucket.
 
 The `website` block supports:
 

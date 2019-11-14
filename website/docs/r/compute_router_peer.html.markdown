@@ -85,7 +85,7 @@ The `advertised_ip_ranges` block supports:
   (Optional) User-specified description for the IP range.
 
 * `range` -
-  (Optional) The IP range to advertise. The value must be a CIDR-formatted string.
+  (Required) The IP range to advertise. The value must be a CIDR-formatted string.
 
 
 ## Attributes Reference
