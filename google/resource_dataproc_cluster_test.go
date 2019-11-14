@@ -816,7 +816,9 @@ resource "google_dataproc_cluster" "basic" {
 	region                = "global"
 
 	cluster_config {
-		gce_cluster_config { }
+		gce_cluster_config {
+			network = "default"
+		}
 	}
 }
 `, rnd)
