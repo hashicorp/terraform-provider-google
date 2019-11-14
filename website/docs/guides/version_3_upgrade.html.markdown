@@ -97,6 +97,7 @@ so Terraform knows to manage them.
 - [Resource: `google_dataproc_job`](#resource-google_dataproc_job)
 - [Resource: `google_dns_managed_zone`](#resource-google_dns_managed_zone)
 - [Resource: `google_dns_policy`](#resource-google_dns_policy)
+- [Resource: `google_folder_organization_policy`](#resource-google_folder_organization_policy)
 - [Resource: `google_healthcare_hl7_v2_store`](#resource-google_healthcare_hl7_v2_store)
 - [Resource: `google_logging_metric`](#resource-google_logging_metric)
 - [Resource: `google_mlengine_model`](#resource-google_mlengine_model)
@@ -104,6 +105,7 @@ so Terraform knows to manage them.
 - [Resource: `google_monitoring_uptime_check_config`](#resource-google_monitoring_uptime_check_config)
 - [Resource: `google_organization_policy`](#resource-google_organization_policy)
 - [Resource: `google_project_iam_audit_config`](#resource-google_project_iam_audit_config)
+- [Resource: `google_project_organization_policy`](#resource-google_project_organization_policy)
 - [Resource: `google_project_service`](#resource-google_project_service)
 - [Resource: `google_project_services`](#resource-google_project_services)
 - [Resource: `google_pubsub_subscription`](#resource-google_pubsub_subscription)
@@ -1259,6 +1261,18 @@ required on the `alternative_name_server_config` block.
 In an attempt to avoid allowing empty blocks in config files, `ipv4_address` is now
 required on the `alternative_name_server_config.target_name_servers` block.
 
+## Resource: `google_folder_organization_policy`
+
+### Exactly one of `allow` or `deny` is now required on `google_folder_organization_policy.list_policy`
+
+In an attempt to avoid allowing empty blocks in config files, exactly one of `allow` or `deny` is now
+required on the `list_policy` block.
+
+### Exactly one of `all` or `values` is now required on `google_folder_organization_policy.list_policy.allow` and `google_folder_organization_policy.list_policy.deny`
+
+In an attempt to avoid allowing empty blocks in config files, exactly one of `all` or `values` is now
+required on the `list_policy.allow` and `list_policy.deny` blocks.
+
 ## Resource: `google_healthcare_hl7_v2_store`
 
 ### At least one of `allow_null_header ` or `segment_terminator` is now required on `google_healthcare_hl7_v2_store.parser_config`
@@ -1359,17 +1373,24 @@ required on the `list_policy` block.
 In an attempt to avoid allowing empty blocks in config files, exactly one of `all` or `values` is now
 required on the `list_policy.allow` and `list_policy.deny` blocks.
 
-### `inherit_from_parent` is now required on block `google_organization_policy.list_policy`
-
-In an attempt to avoid allowing empty blocks in config files, `inherit_from_parent` is now
-required on the `list_policy` block.
-
 ## Resource: `google_project_iam_audit_config`
 
 ### Audit configs are now authoritative on create
 
 Audit configs are now authoritative on create, rather than merging with existing configs on create.
 Writing an audit config resource will now overwrite any existing audit configs on the given project.
+
+## Resource: `google_project_organization_policy`
+
+### Exactly one of `allow` or `deny` is now required on `google_project_organization_policy.list_policy`
+
+In an attempt to avoid allowing empty blocks in config files, exactly one of `allow` or `deny` is now
+required on the `list_policy` block.
+
+### Exactly one of `all` or `values` is now required on `google_project_organization_policy.list_policy.allow` and `google_project_organization_policy.list_policy.deny`
+
+In an attempt to avoid allowing empty blocks in config files, exactly one of `all` or `values` is now
+required on the `list_policy.allow` and `list_policy.deny` blocks.
 
 ## Resource: `google_project_service`
 
