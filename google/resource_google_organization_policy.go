@@ -10,6 +10,10 @@ import (
 )
 
 var schemaOrganizationPolicy = map[string]*schema.Schema{
+	// Although the API suggests that boolean_policy, list_policy, or restore_policy must be set,
+	// Organization policies can be "inherited from parent" in the UI, and this is the default
+	// state of the resource without any policy set.
+	// See https://github.com/terraform-providers/terraform-provider-google/issues/3607
 	"constraint": {
 		Type:             schema.TypeString,
 		Required:         true,
@@ -17,10 +21,9 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 	"boolean_policy": {
-		Type:         schema.TypeList,
-		Optional:     true,
-		MaxItems:     1,
-		ExactlyOneOf: []string{"list_policy", "boolean_policy", "restore_policy"},
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"enforced": {
@@ -31,10 +34,9 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		},
 	},
 	"list_policy": {
-		Type:         schema.TypeList,
-		Optional:     true,
-		MaxItems:     1,
-		ExactlyOneOf: []string{"list_policy", "boolean_policy", "restore_policy"},
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"allow": {
@@ -109,10 +111,9 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		Computed: true,
 	},
 	"restore_policy": {
-		Type:         schema.TypeList,
-		Optional:     true,
-		MaxItems:     1,
-		ExactlyOneOf: []string{"restore_policy", "boolean_policy", "list_policy"},
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"default": {
