@@ -22,9 +22,10 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"project": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareProjectName,
 			},
 			"policy_data": {
 				Type:             schema.TypeString,
@@ -35,28 +36,18 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"authoritative": {
-				Removed:  "The authoritative field was removed. To ignore changes not managed by Terraform, use google_project_iam_binding and google_project_iam_member instead. See https://www.terraform.io/docs/providers/google/r/google_project_iam.html for more information.",
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"restore_policy": {
-				Removed:  "This field was removed alongside the authoritative field. To ignore changes not managed by Terraform, use google_project_iam_binding and google_project_iam_member instead. See https://www.terraform.io/docs/providers/google/r/google_project_iam.html for more information.",
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"disable_project": {
-				Removed:  "This field was removed alongside the authoritative field. Use lifecycle.prevent_destroy instead.",
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
 		},
 	}
 }
 
+func compareProjectName(_, old, new string, _ *schema.ResourceData) bool {
+	// We can either get "projects/project-id" or "project-id", so strip any prefixes
+	return GetResourceNameFromSelfLink(old) == GetResourceNameFromSelfLink(new)
+}
+
 func resourceGoogleProjectIamPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	project := d.Get("project").(string)
+	project := GetResourceNameFromSelfLink(d.Get("project").(string))
 
 	mutexKey := getProjectIamPolicyMutexKey(project)
 	mutexKV.Lock(mutexKey)
@@ -80,7 +71,7 @@ func resourceGoogleProjectIamPolicyCreate(d *schema.ResourceData, meta interface
 
 func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	project := d.Get("project").(string)
+	project := GetResourceNameFromSelfLink(d.Get("project").(string))
 
 	policy, err := getProjectIamPolicy(project, config)
 	if err != nil {
@@ -100,7 +91,7 @@ func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}
 
 func resourceGoogleProjectIamPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	project := d.Get("project").(string)
+	project := GetResourceNameFromSelfLink(d.Get("project").(string))
 
 	mutexKey := getProjectIamPolicyMutexKey(project)
 	mutexKV.Lock(mutexKey)
@@ -124,7 +115,7 @@ func resourceGoogleProjectIamPolicyUpdate(d *schema.ResourceData, meta interface
 func resourceGoogleProjectIamPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG]: Deleting google_project_iam_policy")
 	config := meta.(*Config)
-	project := d.Get("project").(string)
+	project := GetResourceNameFromSelfLink(d.Get("project").(string))
 
 	mutexKey := getProjectIamPolicyMutexKey(project)
 	mutexKV.Lock(mutexKey)

@@ -38,16 +38,16 @@ Google's cloud.
 
 ```hcl
 resource "google_sql_database" "database" {
-	name = "my-database"
-	instance = "${google_sql_database_instance.instance.name}"
+  name     = "my-database"
+  instance = google_sql_database_instance.instance.name
 }
 
 resource "google_sql_database_instance" "instance" {
-	name = "my-database-instance"
-	region = "us-central"
-	settings {
-		tier = "D0"
-	}
+  name   = "my-database-instance"
+  region = "us-central"
+  settings {
+    tier = "D0"
+  }
 }
 ```
 
@@ -109,7 +109,6 @@ $ terraform import google_sql_database.default projects/{{project}}/instances/{{
 $ terraform import google_sql_database.default instances/{{instance}}/databases/{{name}}
 $ terraform import google_sql_database.default {{project}}/{{instance}}/{{name}}
 $ terraform import google_sql_database.default {{instance}}/{{name}}
-$ terraform import google_sql_database.default {{instance}}:{{name}}
 $ terraform import google_sql_database.default {{name}}
 ```
 

@@ -18,16 +18,19 @@ Creates a Google Cloud Bigtable table inside an instance. For more information s
 
 ```hcl
 resource "google_bigtable_instance" "instance" {
-  name         = "tf-instance"
-  cluster_id   = "tf-instance-cluster"
-  zone         = "us-central1-b"
-  num_nodes    = 3
-  storage_type = "HDD"
+  name = "tf-instance"
+
+  cluster {
+    cluster_id   = "tf-instance-cluster"
+    zone         = "us-central1-b"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
 }
 
 resource "google_bigtable_table" "table" {
   name          = "tf-table"
-  instance_name = "${google_bigtable_instance.instance.name}"
+  instance_name = google_bigtable_instance.instance.name
   split_keys    = ["a", "b", "c"]
 }
 ```

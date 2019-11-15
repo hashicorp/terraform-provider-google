@@ -73,6 +73,6 @@ func dataSourceGoogleComputeVpnGatewayRead(d *schema.ResourceData, meta interfac
 	d.Set("self_link", gateway.SelfLink)
 	d.Set("description", gateway.Description)
 	d.Set("project", project)
-	d.SetId(gateway.Name)
+	d.SetId(fmt.Sprintf("projects/%s/regions/%s/targetVpnGateways/%s", project, region, name))
 	return nil
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/encryption"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/api/iam/v1"
@@ -31,10 +30,10 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"KEY_ALG_UNSPECIFIED", "KEY_ALG_RSA_1024", "KEY_ALG_RSA_2048"}, false),
 			},
 			"pgp_key": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				ForceNew:   true,
-				Deprecated: "The pgp_key field has been deprecated and support for encrypting values in state will be removed in version 3.0.0. See https://www.terraform.io/docs/extend/best-practices/sensitive-state.html for more information.",
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Removed:  "The pgp_key field has been removed. See https://www.terraform.io/docs/extend/best-practices/sensitive-state.html for more information.",
 			},
 			"private_key_type": {
 				Type:         schema.TypeString,
@@ -77,10 +76,12 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 			"private_key_encrypted": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Removed:  "The private_key_encrypted field has been removed. See https://www.terraform.io/docs/extend/best-practices/sensitive-state.html for more information.",
 			},
 			"private_key_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Removed:  "The private_key_fingerprint field has been removed. See https://www.terraform.io/docs/extend/best-practices/sensitive-state.html for more information.",
 			},
 		},
 	}
@@ -108,22 +109,7 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 	// Data only available on create.
 	d.Set("valid_after", sak.ValidAfterTime)
 	d.Set("valid_before", sak.ValidBeforeTime)
-	if v, ok := d.GetOk("pgp_key"); ok {
-		encryptionKey, err := encryption.RetrieveGPGKey(v.(string))
-		if err != nil {
-			return err
-		}
-
-		fingerprint, encrypted, err := encryption.EncryptValue(encryptionKey, sak.PrivateKeyData, "Google Service Account Key")
-		if err != nil {
-			return err
-		}
-
-		d.Set("private_key_encrypted", encrypted)
-		d.Set("private_key_fingerprint", fingerprint)
-	} else {
-		d.Set("private_key", sak.PrivateKeyData)
-	}
+	d.Set("private_key", sak.PrivateKeyData)
 
 	err = serviceAccountKeyWaitTime(config.clientIAM.Projects.ServiceAccounts.Keys, d.Id(), d.Get("public_key_type").(string), "Creating Service account key", 4)
 	if err != nil {

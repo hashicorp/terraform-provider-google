@@ -20,18 +20,18 @@ granted to the credentials used with Terraform.
 
 ```hcl
 resource "google_logging_folder_exclusion" "my-exclusion" {
-    name        = "my-instance-debug-exclusion"
-    folder      = "${google_folder.my-folder.name}"
+  name   = "my-instance-debug-exclusion"
+  folder = google_folder.my-folder.name
 
-    description = "Exclude GCE instance debug logs"
+  description = "Exclude GCE instance debug logs"
 
-    # Exclude all DEBUG or lower severity messages relating to instances
-    filter      = "resource.type = gce_instance AND severity <= DEBUG"
+  # Exclude all DEBUG or lower severity messages relating to instances
+  filter = "resource.type = gce_instance AND severity <= DEBUG"
 }
 
 resource "google_folder" "my-folder" {
-    display_name = "My folder"
-    parent       = "organizations/123456"
+  display_name = "My folder"
+  parent       = "organizations/123456"
 }
 ```
 

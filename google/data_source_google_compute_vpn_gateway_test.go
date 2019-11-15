@@ -70,12 +70,13 @@ func testAccDataSourceGoogleVpnGatewayCheck(data_source_name string, resource_na
 func testAccDataSourceGoogleVpnGatewayConfig(name string) string {
 	return fmt.Sprintf(`
 resource "google_compute_vpn_gateway" "foobar" {
-	name = "%s"
-	description = "my-description"
-	network = "default"
+  name        = "%s"
+  description = "my-description"
+  network     = "default"
 }
 
 data "google_compute_vpn_gateway" "my_vpn_gateway" {
-	name = "${google_compute_vpn_gateway.foobar.name}"
-}`, name)
+  name = google_compute_vpn_gateway.foobar.name
+}
+`, name)
 }

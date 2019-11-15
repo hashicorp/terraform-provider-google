@@ -89,7 +89,7 @@ func testAccCheckComputeTargetPoolDestroy(s *terraform.State) error {
 		}
 
 		_, err := config.clientCompute.TargetPools.Get(
-			config.Project, config.Region, rs.Primary.ID).Do()
+			config.Project, config.Region, rs.Primary.Attributes["name"]).Do()
 		if err == nil {
 			return fmt.Errorf("TargetPool still exists")
 		}
@@ -112,12 +112,12 @@ func testAccCheckComputeTargetPoolExists(n string) resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.TargetPools.Get(
-			config.Project, config.Region, rs.Primary.ID).Do()
+			config.Project, config.Region, rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != rs.Primary.Attributes["name"] {
 			return fmt.Errorf("TargetPool not found")
 		}
 
@@ -139,7 +139,7 @@ func testAccCheckComputeTargetPoolHealthCheck(targetPool, healthCheck string) re
 
 		hcLink := healthCheckRes.Primary.Attributes["self_link"]
 		if targetPoolRes.Primary.Attributes["health_checks.0"] != hcLink {
-			return fmt.Errorf("Health check not set up. Expected %q", hcLink)
+			return fmt.Errorf("Health check not set up. Expected %q to equal %q", targetPoolRes.Primary.Attributes["health_checks.0"], hcLink)
 		}
 
 		return nil

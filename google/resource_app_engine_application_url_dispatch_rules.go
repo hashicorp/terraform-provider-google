@@ -43,22 +43,29 @@ func resourceAppEngineApplicationUrlDispatchRules() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"dispatch_rules": {
-				Type:     schema.TypeList,
-				Required: true,
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: `Rules to match an HTTP request and dispatch that request to a service.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"path": {
 							Type:     schema.TypeString,
 							Required: true,
+							Description: `Pathname within the host. Must start with a "/". A single "*" can be included at the end of the path.
+The sum of the lengths of the domain and path may not exceed 100 characters.`,
 						},
 						"service": {
 							Type:     schema.TypeString,
 							Required: true,
+							Description: `Pathname within the host. Must start with a "/". A single "*" can be included at the end of the path.
+The sum of the lengths of the domain and path may not exceed 100 characters.`,
 						},
 						"domain": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default:  "*",
+							Description: `Domain name to match against. The wildcard "*" is supported if specified before a period: "*.".
+Defaults to matching all domains: "*".`,
+							Default: "*",
 						},
 					},
 				},

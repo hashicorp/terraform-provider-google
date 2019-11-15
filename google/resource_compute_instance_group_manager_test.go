@@ -128,28 +128,6 @@ func TestAccInstanceGroupManager_updateLifecycle(t *testing.T) {
 	})
 }
 
-func TestAccInstanceGroupManager_updateStrategy(t *testing.T) {
-	t.Parallel()
-
-	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccInstanceGroupManager_updateStrategy(igm),
-			},
-			{
-				ResourceName:      "google_compute_instance_group_manager.igm-update-strategy",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccInstanceGroupManager_updatePolicy(t *testing.T) {
 	t.Parallel()
 
@@ -277,33 +255,6 @@ func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 				ResourceName:      "google_compute_instance_group_manager.igm-basic",
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccInstanceGroupManager_upgradeInstanceTemplate(t *testing.T) {
-	t.Parallel()
-
-	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccInstanceGroupManager_upgradeInstanceTemplate1(igm),
-			},
-			{
-				ResourceName:      "google_compute_instance_group_manager.igm-instance-template-upgrade",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config:             testAccInstanceGroupManager_upgradeInstanceTemplate2(igm),
-				PlanOnly:           true,
-				ExpectNonEmptyPlan: false,
 			},
 		},
 	})
@@ -625,52 +576,6 @@ func testAccInstanceGroupManager_updateLifecycle(tag, igm string) string {
 			port = 8080
 		}
 	}`, tag, igm)
-}
-
-func testAccInstanceGroupManager_updateStrategy(igm string) string {
-	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
-
-	resource "google_compute_instance_template" "igm-update-strategy" {
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		tags = ["terraform-testing"]
-
-		disk {
-			source_image = "${data.google_compute_image.my_image.self_link}"
-			auto_delete = true
-			boot = true
-		}
-
-		network_interface {
-			network = "default"
-		}
-
-		service_account {
-			scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-		}
-
-		lifecycle {
-			create_before_destroy = true
-		}
-	}
-
-	resource "google_compute_instance_group_manager" "igm-update-strategy" {
-		description = "Terraform test instance group manager"
-		name = "%s"
-		instance_template = "${google_compute_instance_template.igm-update-strategy.self_link}"
-		base_instance_name = "igm-update-strategy"
-		zone = "us-central1-c"
-		target_size = 2
-		update_strategy = "REPLACE"
-		named_port {
-			name = "customhttp"
-			port = 8080
-		}
-	}`, igm)
 }
 
 func testAccInstanceGroupManager_rollingUpdatePolicy(igm string) string {
@@ -1102,91 +1007,4 @@ resource "google_compute_instance_group_manager" "igm-basic" {
 	}
 }
 	`, primaryTemplate, canaryTemplate, igm)
-}
-func testAccInstanceGroupManager_upgradeInstanceTemplate1(igm string) string {
-	return fmt.Sprintf(`
-data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
-}
-
-resource "google_compute_instance_template" "igm-instance-template-upgrade" {
-	machine_type   = "n1-standard-1"
-	can_ip_forward = false
-	tags           = ["terraform-testing"]
-
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete  = true
-		boot         = true
-	}
-
-	network_interface {
-		network = "default"
-	}
-
-	lifecycle {
-		create_before_destroy = true
-	}
-}
-
-resource "google_compute_instance_group_manager" "igm-instance-template-upgrade" {
-	description                = "Terraform test instance group manager"
-	name                       = "%s"
-
-	instance_template = "${google_compute_instance_template.igm-instance-template-upgrade.self_link}"
-
-	target_size                = 3
-	base_instance_name         = "igm-instance-template-upgrade"
-
-	named_port {
-		name = "customhttp"
-		port = 8080
-	}
-}`, igm)
-}
-
-func testAccInstanceGroupManager_upgradeInstanceTemplate2(igm string) string {
-	return fmt.Sprintf(`
-data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
-}
-
-resource "google_compute_instance_template" "igm-instance-template-upgrade" {
-	machine_type   = "n1-standard-1"
-	can_ip_forward = false
-	tags           = ["terraform-testing"]
-
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete  = true
-		boot         = true
-	}
-
-	network_interface {
-		network = "default"
-	}
-
-	lifecycle {
-		create_before_destroy = true
-	}
-}
-
-resource "google_compute_instance_group_manager" "igm-instance-template-upgrade" {
-	description                = "Terraform test instance group manager"
-	name                       = "%s"
-
-	version {
-		instance_template = "${google_compute_instance_template.igm-instance-template-upgrade.self_link}"
-	}
-
-	target_size                = 3
-	base_instance_name         = "igm-instance-template-upgrade"
-
-	named_port {
-		name = "customhttp"
-		port = 8080
-	}
-}`, igm)
 }

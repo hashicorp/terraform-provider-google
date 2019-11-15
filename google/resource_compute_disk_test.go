@@ -442,12 +442,12 @@ func testAccCheckComputeDiskExists(n, p string, disk *compute.Disk) resource.Tes
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Disks.Get(
-			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			p, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != rs.Primary.Attributes["name"] {
 			return fmt.Errorf("Disk not found")
 		}
 
@@ -689,7 +689,15 @@ resource "google_compute_instance_template" "template" {
 resource "google_compute_instance_group_manager" "manager" {
   name               = "%s"
   base_instance_name = "disk-igm"
-  instance_template  = "${google_compute_instance_template.template.self_link}"
+  version {
+    instance_template  = "${google_compute_instance_template.template.self_link}"
+    name               = "primary"
+  }
+  update_policy {
+    minimal_action        = "RESTART"
+    type                  = "PROACTIVE"
+    max_unavailable_fixed = 1
+  }
   zone               = "us-central1-a"
   target_size        = 1
 

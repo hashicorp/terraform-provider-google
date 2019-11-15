@@ -66,31 +66,6 @@ func TestAccComputeNetwork_customSubnet(t *testing.T) {
 	})
 }
 
-func TestAccComputeNetwork_legacyNetwork(t *testing.T) {
-	t.Parallel()
-
-	var network compute.Network
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeNetworkDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeNetwork_legacyNetwork(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeNetworkExists("google_compute_network.default", &network),
-					resource.TestCheckResourceAttrSet("google_compute_network.default", "ipv4_range"),
-				),
-			},
-			{
-				ResourceName:      "google_compute_network.default",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccComputeNetwork_routingModeAndUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -172,19 +147,19 @@ func testAccCheckComputeNetworkExists(n string, network *compute.Network) resour
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		if rs.Primary.ID == "" {
+		if rs.Primary.Attributes["name"] == "" {
 			return fmt.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Networks.Get(
-			config.Project, rs.Primary.ID).Do()
+			config.Project, rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != rs.Primary.Attributes["name"] {
 			return fmt.Errorf("Network not found")
 		}
 
@@ -272,15 +247,6 @@ func testAccComputeNetwork_basic() string {
 resource "google_compute_network" "bar" {
 	name = "network-test-%s"
 	auto_create_subnetworks = true
-}`, acctest.RandString(10))
-}
-
-func testAccComputeNetwork_legacyNetwork() string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "default" {
-	name = "network-test-%s"
-	auto_create_subnetworks = false
-    ipv4_range = "10.0.0.0/16"
 }`, acctest.RandString(10))
 }
 

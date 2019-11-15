@@ -54,14 +54,15 @@ func testAccCheckComputeTargetHttpProxyExists(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		name := rs.Primary.Attributes["name"]
 
 		found, err := config.clientCompute.TargetHttpProxies.Get(
-			config.Project, rs.Primary.ID).Do()
+			config.Project, name).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != name {
 			return fmt.Errorf("TargetHttpProxy not found")
 		}
 

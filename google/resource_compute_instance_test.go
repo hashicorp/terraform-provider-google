@@ -1236,7 +1236,7 @@ func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFu
 
 		config := testAccProvider.Meta().(*Config)
 
-		op, err := config.clientCompute.Instances.Stop(config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+		op, err := config.clientCompute.Instances.Stop(config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return fmt.Errorf("Could not stop instance: %s", err)
 		}
@@ -1250,7 +1250,7 @@ func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFu
 		}
 
 		op, err = config.clientCompute.Instances.SetMachineType(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID, &machineType).Do()
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"], &machineType).Do()
 		if err != nil {
 			return fmt.Errorf("Could not change machine type: %s", err)
 		}
@@ -1271,7 +1271,7 @@ func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 		}
 
 		_, err := config.clientCompute.Instances.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err == nil {
 			return fmt.Errorf("Instance still exists")
 		}
@@ -1309,12 +1309,12 @@ func testAccCheckComputeInstanceExistsInProject(n, p string, instance *compute.I
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Instances.Get(
-			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			p, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != rs.Primary.Attributes["name"] {
 			return fmt.Errorf("Instance not found")
 		}
 
@@ -1338,12 +1338,12 @@ func testAccCheckComputeBetaInstanceExistsInProject(n, p string, instance *compu
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientComputeBeta.Instances.Get(
-			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			p, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != rs.Primary.Attributes["name"] {
 			return fmt.Errorf("Instance not found")
 		}
 

@@ -26,7 +26,7 @@ resource "google_project" "my_project" {
 }
 
 resource "google_app_engine_application" "app" {
-  project     = "${google_project.my_project.project_id}"
+  project     = google_project.my_project.project_id
   location_id = "us-central"
 }
 ```
@@ -48,7 +48,7 @@ The following arguments are supported:
 
 * `feature_settings` - (Optional) A block of optional settings to configure specific App Engine features:
 
-  * `split_health_checks` - (Optional) Set to false to use the legacy health check instead of the readiness
+  * `split_health_checks` - (Required) Set to false to use the legacy health check instead of the readiness
     and liveness checks.
 
 ## Attributes Reference

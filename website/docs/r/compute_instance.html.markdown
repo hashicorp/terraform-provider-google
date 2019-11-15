@@ -33,6 +33,7 @@ resource "google_compute_instance" "default" {
 
   // Local SSD disk
   scratch_disk {
+    interface = "SCSI"
   }
 
   network_interface {
@@ -193,8 +194,7 @@ The `initialize_params` block supports:
 
 The `scratch_disk` block supports:
 
-* `interface` - (Optional) The disk interface to use for attaching this disk; either SCSI or NVME.
-    Defaults to SCSI.
+* `interface` - (Required) The disk interface to use for attaching this disk; either SCSI or NVME.
 
 The `attached_disk` block supports:
 

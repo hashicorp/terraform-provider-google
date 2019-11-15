@@ -106,8 +106,10 @@ exported:
 
 ## Import
 
-Security policies can be imported using the `name`, e.g.
+Security policies can be imported using any of the following formats
 
 ```
-$ terraform import google_compute_security_policy.policy my-policy
+$ terraform import google_compute_security_policy.policy projects/{{project}}/global/securityPolicies/{{name}}
+$ terraform import google_compute_security_policy.policy {{project}}/{{name}}
+$ terraform import google_compute_security_policy.policy {{name}}
 ```

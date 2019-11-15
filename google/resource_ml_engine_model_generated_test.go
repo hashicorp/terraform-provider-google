@@ -51,9 +51,9 @@ func TestAccMLEngineModel_mlModelBasicExample(t *testing.T) {
 func testAccMLEngineModel_mlModelBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_ml_engine_model" "default" {
-  name = "default%{random_suffix}"
+  name        = "default%{random_suffix}"
   description = "My model"
-  regions = ["us-central1"]
+  regions     = ["us-central1"]
 }
 `, context)
 }
@@ -85,13 +85,13 @@ func TestAccMLEngineModel_mlModelFullExample(t *testing.T) {
 func testAccMLEngineModel_mlModelFullExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_ml_engine_model" "default" {
-  name = "default%{random_suffix}"
+  name        = "default%{random_suffix}"
   description = "My model"
-  regions = ["us-central1"]
-  labels  = {
+  regions     = ["us-central1"]
+  labels = {
     my_model = "foo"
   }
-  online_prediction_logging = true
+  online_prediction_logging         = true
   online_prediction_console_logging = true
 }
 `, context)

@@ -25,8 +25,8 @@ safe to have multiple resources with the same backing bucket.
 
 ```hcl
 resource "google_project_usage_export_bucket" "usage_export" {
-  project      = "development-project"
-  bucket_name  = "usage-tracking-bucket"
+  project     = "development-project"
+  bucket_name = "usage-tracking-bucket"
 }
 ```
 

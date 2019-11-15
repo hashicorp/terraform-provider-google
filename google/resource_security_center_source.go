@@ -47,20 +47,30 @@ func resourceSecurityCenterSource() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateRegexp(`[\p{L}\p{N}]({\p{L}\p{N}_- ]{0,30}[\p{L}\p{N}])?`),
+				Description: `The source’s display name. A source’s display name must be unique
+amongst its siblings, for example, two sources with the same parent
+can't share the same display name. The display name must start and end
+with a letter or digit, may contain letters, digits, spaces, hyphens,
+and underscores, and can be no longer than 32 characters.`,
 			},
 			"organization": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The organization whose Cloud Security Command Center the Source
+lives in.`,
 			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 1024),
+				Description:  `The description of the source (max of 1024 characters).`,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `The resource name of this source, in the format
+'organizations/{{organization}}/sources/{{source}}'.`,
 			},
 		},
 	}

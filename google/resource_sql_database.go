@@ -46,21 +46,35 @@ func resourceSQLDatabase() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The name of the Cloud SQL instance. This does not include the project
+ID.`,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The name of the database in the Cloud SQL instance.
+This does not include the project ID or instance name.`,
 			},
 			"charset": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
+				Description: `The charset value. See MySQL's
+[Supported Character Sets and Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
+and Postgres' [Character Set Support](https://www.postgresql.org/docs/9.6/static/multibyte.html)
+for more details and supported values. Postgres databases only support
+a value of 'UTF8' at creation time.`,
 			},
 			"collation": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
+				Description: `The collation value. See MySQL's
+[Supported Character Sets and Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
+and Postgres' [Collation Support](https://www.postgresql.org/docs/9.6/static/collation.html)
+for more details and supported values. Postgres databases only support
+a value of 'en_US.UTF8' at creation time.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -128,7 +142,7 @@ func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{instance}}:{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -318,14 +332,13 @@ func resourceSQLDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*sch
 		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
 		"(?P<instance>[^/]+)/(?P<name>[^/]+)",
-		"(?P<instance>[^/]+):(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{instance}}:{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

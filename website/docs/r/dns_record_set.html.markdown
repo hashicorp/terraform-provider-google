@@ -24,9 +24,9 @@ resource "google_dns_record_set" "frontend" {
   type = "A"
   ttl  = 300
 
-  managed_zone = "${google_dns_managed_zone.prod.name}"
+  managed_zone = google_dns_managed_zone.prod.name
 
-  rrdatas = ["${google_compute_instance.frontend.network_interface.0.access_config.0.nat_ip}"]
+  rrdatas = [google_compute_instance.frontend.network_interface[0].access_config[0].nat_ip]
 }
 
 resource "google_compute_instance" "frontend" {
@@ -41,8 +41,9 @@ resource "google_compute_instance" "frontend" {
   }
 
   network_interface {
-    network       = "default"
-    access_config = {}
+    network = "default"
+    access_config {
+    }
   }
 }
 
@@ -56,10 +57,10 @@ resource "google_dns_managed_zone" "prod" {
 
 ```hcl
 resource "google_dns_record_set" "a" {
-  name = "backend.${google_dns_managed_zone.prod.dns_name}"
-  managed_zone = "${google_dns_managed_zone.prod.name}"
-  type = "A"
-  ttl  = 300
+  name         = "backend.${google_dns_managed_zone.prod.dns_name}"
+  managed_zone = google_dns_managed_zone.prod.name
+  type         = "A"
+  ttl          = 300
 
   rrdatas = ["8.8.8.8"]
 }
@@ -74,17 +75,17 @@ resource "google_dns_managed_zone" "prod" {
 
 ```hcl
 resource "google_dns_record_set" "mx" {
-  name = "${google_dns_managed_zone.prod.dns_name}"
-  managed_zone = "${google_dns_managed_zone.prod.name}"
-  type = "MX"
-  ttl  = 3600
+  name         = google_dns_managed_zone.prod.dns_name
+  managed_zone = google_dns_managed_zone.prod.name
+  type         = "MX"
+  ttl          = 3600
 
   rrdatas = [
     "1 aspmx.l.google.com.",
     "5 alt1.aspmx.l.google.com.",
     "5 alt2.aspmx.l.google.com.",
     "10 alt3.aspmx.l.google.com.",
-    "10 alt4.aspmx.l.google.com."
+    "10 alt4.aspmx.l.google.com.",
   ]
 }
 
@@ -100,10 +101,10 @@ Quotes (`""`) must be added around your `rrdatas` for a SPF record. Otherwise `r
 
 ```hcl
 resource "google_dns_record_set" "spf" {
-  name = "frontend.${google_dns_managed_zone.prod.dns_name}"
-  managed_zone = "${google_dns_managed_zone.prod.name}"
-  type = "TXT"
-  ttl  = 300
+  name         = "frontend.${google_dns_managed_zone.prod.dns_name}"
+  managed_zone = google_dns_managed_zone.prod.name
+  type         = "TXT"
+  ttl          = 300
 
   rrdatas = ["\"v=spf1 ip4:111.111.111.111 include:backoff.email-example.com -all\""]
 }
@@ -120,16 +121,16 @@ resource "google_dns_managed_zone" "prod" {
 
 ```hcl
 resource "google_dns_record_set" "cname" {
-  name = "frontend.${google_dns_managed_zone.prod.dns_name}"
-  managed_zone = "${google_dns_managed_zone.prod.name}"
-  type = "CNAME"
-  ttl  = 300
-  rrdatas = ["frontend.mydomain.com."]
+  name         = "frontend.${google_dns_managed_zone.prod.dns_name}"
+  managed_zone = google_dns_managed_zone.prod.name
+  type         = "CNAME"
+  ttl          = 300
+  rrdatas      = ["frontend.mydomain.com."]
 }
 
 resource "google_dns_managed_zone" "prod" {
-  name        = "prod-zone"
-  dns_name    = "prod.mydomain.com."
+  name     = "prod-zone"
+  dns_name = "prod.mydomain.com."
 }
 ```
 

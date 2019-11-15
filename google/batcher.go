@@ -125,7 +125,7 @@ func (b *RequestBatcher) stop() {
 // may choose to use a key with method if needed to diff GET/read and
 // POST/create)
 //
-// As an example, for google_project_service and google_project_services, the
+// As an example, for google_project_service, the
 // batcher is called to batch services.batchEnable() calls for a project
 // $PROJECT. The calling code uses the template
 // "serviceusage:projects/$PROJECT/services:batchEnable", which mirrors the HTTP request:

@@ -50,7 +50,7 @@ To get more information about BackendBucket, see:
 resource "google_compute_backend_bucket" "image_backend" {
   name        = "image-backend-bucket"
   description = "Contains beautiful images"
-  bucket_name = "${google_storage_bucket.image_bucket.name}"
+  bucket_name = google_storage_bucket.image_bucket.name
   enable_cdn  = true
 }
 
@@ -103,9 +103,9 @@ The following arguments are supported:
 The `cdn_policy` block supports:
 
 * `signed_url_cache_max_age_sec` -
-  (Optional)
+  (Required)
   Maximum number of seconds the response to a signed URL request will
-  be considered fresh. Defaults to 1hr (3600s). After this time period,
+  be considered fresh. After this time period,
   the response will be revalidated before being served.
   When serving responses to signed URL requests,
   Cloud CDN will internally behave as though

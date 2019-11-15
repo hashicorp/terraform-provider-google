@@ -226,42 +226,42 @@ data "google_storage_object_signed_url" "blerg" {
 func testAccTestGoogleStorageObjectSignedURL(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "story" {
   name   = "path/to/file"
-  bucket = "${google_storage_bucket.bucket.name}"
+  bucket = google_storage_bucket.bucket.name
 
   content = "once upon a time..."
 }
 
 data "google_storage_object_signed_url" "story_url" {
-  bucket = "${google_storage_bucket.bucket.name}"
-  path   = "${google_storage_bucket_object.story.name}"
-
+  bucket = google_storage_bucket.bucket.name
+  path   = google_storage_bucket_object.story.name
 }
 
 data "google_storage_object_signed_url" "story_url_w_headers" {
-  bucket = "${google_storage_bucket.bucket.name}"
-  path   = "${google_storage_bucket_object.story.name}"
+  bucket = google_storage_bucket.bucket.name
+  path   = google_storage_bucket_object.story.name
   extension_headers = {
-  	x-goog-test = "foo"
-  	x-goog-if-generation-match = 1
+    x-goog-test                = "foo"
+    x-goog-if-generation-match = 1
   }
 }
 
 data "google_storage_object_signed_url" "story_url_w_content_type" {
-  bucket = "${google_storage_bucket.bucket.name}"
-  path   = "${google_storage_bucket_object.story.name}"
+  bucket = google_storage_bucket.bucket.name
+  path   = google_storage_bucket_object.story.name
 
   content_type = "text/plain"
 }
 
 data "google_storage_object_signed_url" "story_url_w_md5" {
-  bucket = "${google_storage_bucket.bucket.name}"
-  path   = "${google_storage_bucket_object.story.name}"
+  bucket = google_storage_bucket.bucket.name
+  path   = google_storage_bucket_object.story.name
 
-  content_md5 = "${google_storage_bucket_object.story.md5hash}"
-}`, bucketName)
+  content_md5 = google_storage_bucket_object.story.md5hash
+}
+`, bucketName)
 }

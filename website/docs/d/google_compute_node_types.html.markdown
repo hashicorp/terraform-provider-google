@@ -23,7 +23,7 @@ data "google_compute_node_types" "central1b" {
 resource "google_compute_node_template" "tmpl" {
   name      = "terraform-test-tmpl"
   region    = "us-central1"
-  node_type = "${data.google_compute_node_types.types.names[0]}"
+  node_type = data.google_compute_node_types.types.names[0]
 }
 ```
 

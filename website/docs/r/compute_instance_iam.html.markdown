@@ -129,17 +129,17 @@ Compute instance IAM resources can be imported using the resource identifiers, r
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_compute_instance_iam_member.editor "{{instance}} roles/compute.osLogin jane@example.com"
+$ terraform import google_compute_instance_iam_member.editor "projects/{{project}}/zones/{{zone}}/instances/{{instance}} roles/compute.osLogin jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
 ```
-$ terraform import google_compute_instance_iam_binding.editor "{{instance}} roles/compute.osLogin"
+$ terraform import google_compute_instance_iam_binding.editor "projects/{{project}}/zones/{{zone}}/instances/{{instance}} roles/compute.osLogin"
 ```
 
 IAM policy imports use the identifier of the resource in question, e.g.
 ```
-$ terraform import google_compute_instance_iam_policy.editor {{instance}}
+$ terraform import google_compute_instance_iam_policy.editor projects/{{project}}/zones/{{zone}}/instances/{{instance}}
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`

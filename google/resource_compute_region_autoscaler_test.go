@@ -76,7 +76,10 @@ resource "google_compute_target_pool" "foobar" {
 resource "google_compute_region_instance_group_manager" "foobar" {
 	description = "Terraform test instance group manager"
 	name = "%s"
-	instance_template = "${google_compute_instance_template.foobar.self_link}"
+	version {
+		instance_template = "${google_compute_instance_template.foobar.self_link}"
+		name = "primary"
+	}
 	target_pools = ["${google_compute_target_pool.foobar.self_link}"]
 	base_instance_name = "foobar"
 	region = "us-central1"
@@ -137,7 +140,10 @@ resource "google_compute_target_pool" "foobar" {
 resource "google_compute_region_instance_group_manager" "foobar" {
 	description = "Terraform test instance group manager"
 	name = "%s"
-	instance_template = "${google_compute_instance_template.foobar.self_link}"
+	version {
+		instance_template = "${google_compute_instance_template.foobar.self_link}"
+		name = "primary"
+	}
 	target_pools = ["${google_compute_target_pool.foobar.self_link}"]
 	base_instance_name = "foobar"
 	region = "us-central1"

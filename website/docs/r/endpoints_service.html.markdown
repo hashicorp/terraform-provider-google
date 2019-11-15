@@ -17,14 +17,14 @@ This resource creates and rolls out a Cloud Endpoints service using OpenAPI or g
 resource "google_endpoints_service" "openapi_service" {
   service_name   = "api-name.endpoints.project-id.cloud.goog"
   project        = "project-id"
-  openapi_config = "${file("openapi_spec.yml")}"
+  openapi_config = file("openapi_spec.yml")
 }
 
 resource "google_endpoints_service" "grpc_service" {
   service_name         = "api-name.endpoints.project-id.cloud.goog"
   project              = "project-id"
-  grpc_config          = "${file("service_spec.yml")}"
-  protoc_output_base64 = "${base64encode(file("compiled_descriptor_file.pb"))}"
+  grpc_config          = file("service_spec.yml")
+  protoc_output_base64 = base64encode(file("compiled_descriptor_file.pb"))
 }
 ```
 

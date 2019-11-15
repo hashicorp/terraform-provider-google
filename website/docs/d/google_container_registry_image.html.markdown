@@ -17,11 +17,11 @@ The URLs are computed entirely offline - as long as the project exists, they wil
 
 ```hcl
 data "google_container_registry_image" "debian" {
-    name = "debian"
+  name = "debian"
 }
 
 output "gcr_location" {
-    value = "${data.google_container_registry_image.debian.image_url}"
+  value = data.google_container_registry_image.debian.image_url
 }
 ```
 

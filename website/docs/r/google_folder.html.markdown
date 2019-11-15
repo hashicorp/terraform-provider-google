@@ -29,13 +29,13 @@ doc for more information.
 # Top-level folder under an organization.
 resource "google_folder" "department1" {
   display_name = "Department 1"
-  parent     = "organizations/1234567"
+  parent       = "organizations/1234567"
 }
 
 # Folder nested under another folder.
 resource "google_folder" "team-abc" {
   display_name = "Team ABC"
-  parent     = "${google_folder.department1.name}"
+  parent       = google_folder.department1.name
 }
 ```
 

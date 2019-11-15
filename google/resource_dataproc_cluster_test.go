@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -623,8 +624,10 @@ func testAccCheckDataprocClusterDestroy() resource.TestCheckFunc {
 				return err
 			}
 
+			parts := strings.Split(rs.Primary.ID, "/")
+			clusterId := parts[len(parts)-1]
 			_, err = config.clientDataprocBeta.Projects.Regions.Clusters.Get(
-				project, attributes["region"], rs.Primary.ID).Do()
+				project, attributes["region"], clusterId).Do()
 
 			if err != nil {
 				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
@@ -779,14 +782,16 @@ func testAccCheckDataprocClusterExists(n string, cluster *dataproc.Cluster) reso
 			return err
 		}
 
+		parts := strings.Split(rs.Primary.ID, "/")
+		clusterId := parts[len(parts)-1]
 		found, err := config.clientDataprocBeta.Projects.Regions.Clusters.Get(
-			project, rs.Primary.Attributes["region"], rs.Primary.ID).Do()
+			project, rs.Primary.Attributes["region"], clusterId).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.ClusterName != rs.Primary.ID {
-			return fmt.Errorf("Dataproc cluster %s not found, found %s instead", rs.Primary.ID, cluster.ClusterName)
+		if found.ClusterName != clusterId {
+			return fmt.Errorf("Dataproc cluster %s not found, found %s instead", clusterId, cluster.ClusterName)
 		}
 
 		*cluster = *found
@@ -811,7 +816,9 @@ resource "google_dataproc_cluster" "basic" {
 	region                = "global"
 
 	cluster_config {
-		gce_cluster_config { }
+		gce_cluster_config {
+			network = "default"
+		}
 	}
 }
 `, rnd)

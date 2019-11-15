@@ -28,8 +28,6 @@ func TestAccBigtableTable_basic(t *testing.T) {
 				ResourceName:      "google_bigtable_table.table",
 				ImportState:       true,
 				ImportStateVerify: true,
-				//TODO(rileykarson): Remove ImportStateId when id format is fixed in 3.0.0
-				ImportStateId: fmt.Sprintf("%s/%s", instanceName, tableName),
 			},
 		},
 	})
@@ -54,7 +52,6 @@ func TestAccBigtableTable_splitKeys(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"split_keys"},
-				ImportStateId:           fmt.Sprintf("%s/%s", instanceName, tableName),
 			},
 		},
 	})
@@ -79,7 +76,6 @@ func TestAccBigtableTable_family(t *testing.T) {
 				ResourceName:      "google_bigtable_table.table",
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateId:     fmt.Sprintf("%s/%s", instanceName, tableName),
 			},
 		},
 	})
@@ -104,7 +100,6 @@ func TestAccBigtableTable_familyMany(t *testing.T) {
 				ResourceName:      "google_bigtable_table.table",
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateId:     fmt.Sprintf("%s/%s", instanceName, tableName),
 			},
 		},
 	})

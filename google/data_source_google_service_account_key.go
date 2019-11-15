@@ -36,12 +36,6 @@ func dataSourceGoogleServiceAccountKey() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"service_account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Removed:  "Please use name to specify full service account key path projects/{project}/serviceAccounts/{serviceAccount}/keys/{keyId}",
-			},
 		},
 	}
 }

@@ -54,7 +54,7 @@ resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
 
-  default_service = "${google_compute_backend_service.home.self_link}"
+  default_service = google_compute_backend_service.home.self_link
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -63,26 +63,26 @@ resource "google_compute_url_map" "urlmap" {
 
   path_matcher {
     name            = "allpaths"
-    default_service = "${google_compute_backend_service.home.self_link}"
+    default_service = google_compute_backend_service.home.self_link
 
     path_rule {
       paths   = ["/home"]
-      service = "${google_compute_backend_service.home.self_link}"
+      service = google_compute_backend_service.home.self_link
     }
 
     path_rule {
       paths   = ["/login"]
-      service = "${google_compute_backend_service.login.self_link}"
+      service = google_compute_backend_service.login.self_link
     }
 
     path_rule {
       paths   = ["/static"]
-      service = "${google_compute_backend_bucket.static.self_link}"
+      service = google_compute_backend_bucket.static.self_link
     }
   }
 
   test {
-    service = "${google_compute_backend_service.home.self_link}"
+    service = google_compute_backend_service.home.self_link
     host    = "hi.com"
     path    = "/home"
   }
@@ -94,7 +94,7 @@ resource "google_compute_backend_service" "login" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  health_checks = [google_compute_http_health_check.default.self_link]
 }
 
 resource "google_compute_backend_service" "home" {
@@ -103,7 +103,7 @@ resource "google_compute_backend_service" "home" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  health_checks = [google_compute_http_health_check.default.self_link]
 }
 
 resource "google_compute_http_health_check" "default" {
@@ -115,7 +115,7 @@ resource "google_compute_http_health_check" "default" {
 
 resource "google_compute_backend_bucket" "static" {
   name        = "static-asset-backend-bucket%{random_suffix}"
-  bucket_name = "${google_storage_bucket.static.name}"
+  bucket_name = google_storage_bucket.static.name
   enable_cdn  = true
 }
 

@@ -129,53 +129,77 @@ func resourceComputeRouterNat() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRFC1035Name(2, 63),
+				Description: `Name of the NAT service. The name must be 1-63 characters long and
+comply with RFC1035.`,
 			},
 			"nat_ip_allocate_option": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"MANUAL_ONLY", "AUTO_ONLY"}, false),
+				Description: `How external IPs should be allocated for this NAT. Valid values are
+'AUTO_ONLY' for only allowing NAT IPs allocated by Google Cloud
+Platform, or 'MANUAL_ONLY' for only user-allocated NAT IP addresses.`,
 			},
 			"router": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The name of the Cloud Router in which this NAT will be configured.`,
 			},
 			"source_subnetwork_ip_ranges_to_nat": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"ALL_SUBNETWORKS_ALL_IP_RANGES", "ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES", "LIST_OF_SUBNETWORKS"}, false),
+				Description: `How NAT should be configured per Subnetwork.
+If 'ALL_SUBNETWORKS_ALL_IP_RANGES', all of the
+IP ranges in every Subnetwork are allowed to Nat.
+If 'ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES', all of the primary IP
+ranges in every Subnetwork are allowed to Nat.
+'LIST_OF_SUBNETWORKS': A list of Subnetworks are allowed to Nat
+(specified in the field subnetwork below). Note that if this field
+contains ALL_SUBNETWORKS_ALL_IP_RANGES or
+ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES, then there should not be any
+other RouterNat section in any Router for this network in this region.`,
 			},
 			"icmp_idle_timeout_sec": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  30,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `Timeout (in seconds) for ICMP connections. Defaults to 30s if not set.`,
+				Default:     30,
 			},
 			"log_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration for logging on NAT`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enable": {
-							Type:     schema.TypeBool,
-							Required: true,
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `Indicates whether or not to export logs.`,
 						},
 						"filter": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"}, false),
+							Description: `Specifies the desired filtering of logs on this NAT. Valid
+values are: '"ERRORS_ONLY"', '"TRANSLATIONS_ONLY"', '"ALL"'`,
 						},
 					},
 				},
 			},
 			"min_ports_per_vm": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `Minimum number of ports allocated to a VM from this NAT.`,
 			},
 			"nat_ips": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Description: `Self-links of NAT IPs. Only valid if natIpAllocateOption
+is set to MANUAL_ONLY.`,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
@@ -188,27 +212,35 @@ func resourceComputeRouterNat() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Region where the router and NAT reside.`,
 			},
 			"subnetwork": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Elem:     computeRouterNatSubnetworkSchema(),
-				Set:      computeRouterNatSubnetworkHash,
+				Description: `One or more subnetwork NAT configurations. Only used if
+'source_subnetwork_ip_ranges_to_nat' is set to 'LIST_OF_SUBNETWORKS'`,
+				Elem: computeRouterNatSubnetworkSchema(),
+				Set:  computeRouterNatSubnetworkHash,
 			},
 			"tcp_established_idle_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  1200,
+				Description: `Timeout (in seconds) for TCP established connections.
+Defaults to 1200s if not set.`,
+				Default: 1200,
 			},
 			"tcp_transitory_idle_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  30,
+				Description: `Timeout (in seconds) for TCP transitory connections.
+Defaults to 30s if not set.`,
+				Default: 30,
 			},
 			"udp_idle_timeout_sec": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  30,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `Timeout (in seconds) for UDP connections. Defaults to 30s if not set.`,
+				Default:     30,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -227,10 +259,15 @@ func computeRouterNatSubnetworkSchema() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Self-link of subnetwork to NAT`,
 			},
 			"source_ip_ranges_to_nat": {
 				Type:     schema.TypeSet,
 				Required: true,
+				Description: `List of options for which source IPs in the subnetwork
+should have NAT enabled. Supported values include:
+'ALL_IP_RANGES', 'LIST_OF_SECONDARY_IP_RANGES',
+'PRIMARY_IP_RANGE'.`,
 				MinItems: 1,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -240,6 +277,10 @@ func computeRouterNatSubnetworkSchema() *schema.Resource {
 			"secondary_ip_range_names": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Description: `List of the secondary ranges of the subnetwork that are allowed
+to use NAT. This can be populated only if
+'LIST_OF_SECONDARY_IP_RANGES' is one of the values in
+sourceIpRangesToNat`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

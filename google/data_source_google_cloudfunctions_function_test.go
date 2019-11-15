@@ -43,23 +43,24 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_storage_bucket_object" "archive" {
   name   = "index.zip"
-  bucket = "${google_storage_bucket.bucket.name}"
+  bucket = google_storage_bucket.bucket.name
   source = "%s"
 }
 
 resource "google_cloudfunctions_function" "function_http" {
   name                  = "%s-http"
+  runtime               = "nodejs8"
   description           = "test function"
   available_memory_mb   = 128
-  source_archive_bucket = "${google_storage_bucket.bucket.name}"
-  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  source_archive_bucket = google_storage_bucket.bucket.name
+  source_archive_object = google_storage_bucket_object.archive.name
   trigger_http          = true
   timeout               = 61
   entry_point           = "helloGET"
 }
 
 data "google_cloudfunctions_function" "function_http" {
-  name = "${google_cloudfunctions_function.function_http.name}"
+  name = google_cloudfunctions_function.function_http.name
 }
 `, bucketName, zipFilePath, functionName)
 }

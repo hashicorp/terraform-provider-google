@@ -47,45 +47,89 @@ func resourceComputeRegionAutoscaler() *schema.Resource {
 			"autoscaling_policy": {
 				Type:     schema.TypeList,
 				Required: true,
+				Description: `The configuration parameters for the autoscaling algorithm. You can
+define one or more of the policies for an autoscaler: cpuUtilization,
+customMetricUtilizations, and loadBalancingUtilization.
+
+If none of these are specified, the default will be to autoscale based
+on cpuUtilization to 0.6 or 60%.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"max_replicas": {
 							Type:     schema.TypeInt,
 							Required: true,
+							Description: `The maximum number of instances that the autoscaler can scale up
+to. This is required when creating or updating an autoscaler. The
+maximum number of replicas should not be lower than minimal number
+of replicas.`,
 						},
 						"min_replicas": {
 							Type:     schema.TypeInt,
 							Required: true,
+							Description: `The minimum number of replicas that the autoscaler can scale down
+to. This cannot be less than 0. If not provided, autoscaler will
+choose a default value depending on maximum number of instances
+allowed.`,
 						},
 						"cooldown_period": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  60,
+							Description: `The number of seconds that the autoscaler should wait before it
+starts collecting information from a new instance. This prevents
+the autoscaler from collecting information when the instance is
+initializing, during which the collected usage would not be
+reliable. The default time autoscaler waits is 60 seconds.
+
+Virtual machine initialization times might vary because of
+numerous factors. We recommend that you test how long an
+instance may take to initialize. To do this, create an instance
+and time the startup process.`,
+							Default: 60,
 						},
 						"cpu_utilization": {
 							Type:     schema.TypeList,
 							Computed: true,
 							Optional: true,
+							Description: `Defines the CPU utilization policy that allows the autoscaler to
+scale based on the average CPU utilization of a managed instance
+group.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"target": {
 										Type:     schema.TypeFloat,
 										Required: true,
+										Description: `The target CPU utilization that the autoscaler should maintain.
+Must be a float value in the range (0, 1]. If not specified, the
+default is 0.6.
+
+If the CPU level is below the target utilization, the autoscaler
+scales down the number of instances until it reaches the minimum
+number of instances you specified or until the average CPU of
+your instances reaches the target utilization.
+
+If the average CPU is above the target utilization, the autoscaler
+scales up until it reaches the maximum number of instances you
+specified or until the average utilization reaches the target
+utilization.`,
 									},
 								},
 							},
 						},
 						"load_balancing_utilization": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configuration parameters of autoscaling based on a load balancer.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"target": {
 										Type:     schema.TypeFloat,
 										Required: true,
+										Description: `Fraction of backend capacity utilization (set in HTTP(s) load
+balancing configuration) that autoscaler should maintain. Must
+be a positive float value. If not defined, the default is 0.8.`,
 									},
 								},
 							},
@@ -93,20 +137,39 @@ func resourceComputeRegionAutoscaler() *schema.Resource {
 						"metric": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Description: `Defines the CPU utilization policy that allows the autoscaler to
+scale based on the average CPU utilization of a managed instance
+group.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
 										Type:     schema.TypeString,
 										Required: true,
+										Description: `The identifier (type) of the Stackdriver Monitoring metric.
+The metric cannot have negative values.
+
+The metric must have a value type of INT64 or DOUBLE.`,
 									},
 									"target": {
 										Type:     schema.TypeFloat,
 										Optional: true,
+										Description: `The target value of the metric that autoscaler should
+maintain. This must be a positive value. A utilization
+metric scales number of virtual machines handling requests
+to increase or decrease proportionally to the metric.
+
+For example, a good metric to use as a utilizationTarget is
+www.googleapis.com/compute/instance/network/received_bytes_count.
+The autoscaler will work to keep this value constant for each
+of the instances.`,
 									},
 									"type": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										ValidateFunc: validation.StringInSlice([]string{"GAUGE", "DELTA_PER_SECOND", "DELTA_PER_MINUTE", ""}, false),
+										Description: `Defines how target utilization value is expressed for a
+Stackdriver Monitoring metric. Either GAUGE, DELTA_PER_SECOND,
+or DELTA_PER_MINUTE.`,
 									},
 								},
 							},
@@ -119,15 +182,22 @@ func resourceComputeRegionAutoscaler() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateGCPName,
+				Description: `Name of the resource. The name must be 1-63 characters long and match
+the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
+first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the last
+character, which cannot be a dash.`,
 			},
 			"target": {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `URL of the managed instance group that this autoscaler will scale.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `An optional description of this resource.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -135,10 +205,12 @@ func resourceComputeRegionAutoscaler() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `URL of the region where the instance group resides.`,
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -205,7 +277,7 @@ func resourceComputeRegionAutoscalerCreate(d *schema.ResourceData, meta interfac
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{region}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -398,7 +470,7 @@ func resourceComputeRegionAutoscalerImport(d *schema.ResourceData, meta interfac
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{region}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

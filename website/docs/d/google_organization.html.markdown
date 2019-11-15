@@ -18,7 +18,7 @@ data "google_organization" "org" {
 
 resource "google_folder" "sales" {
   display_name = "Sales"
-  parent       = "${data.google_organization.org.name}"
+  parent       = data.google_organization.org.name
 }
 ```
 

@@ -107,19 +107,19 @@ func testAccCheckComputeImageExists(n string, image *compute.Image) resource.Tes
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+		if rs.Primary.Attributes["name"] == "" {
+			return fmt.Errorf("No name is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Images.Get(
-			config.Project, rs.Primary.ID).Do()
+			config.Project, rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != rs.Primary.Attributes["name"] {
 			return fmt.Errorf("Image not found")
 		}
 

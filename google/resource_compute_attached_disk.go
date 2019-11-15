@@ -100,7 +100,7 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	d.SetId(fmt.Sprintf("%s:%s", zv.Name, diskName))
+	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s/%s", zv.Project, zv.Zone, zv.Name, diskName))
 
 	waitErr := computeSharedOperationWaitTime(config.clientCompute, op, zv.Project,
 		int(d.Timeout(schema.TimeoutCreate).Minutes()), "disk to attach")
@@ -196,22 +196,17 @@ func resourceAttachedDiskImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	config := meta.(*Config)
 
 	err := parseImportId(
-		[]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/[^/]+",
-			"(?P<project>[^/]+)/(?P<zone>[^/]+)/[^/]+"}, d, config)
+		[]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)/(?P<disk>[^/]+)",
+			"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance>[^/]+)/(?P<disk>[^/]+)"}, d, config)
 	if err != nil {
 		return nil, err
 	}
 
-	// In all acceptable id formats the actual id will be the last in the path
-	id := GetResourceNameFromSelfLink(d.Id())
-	d.SetId(id)
-
-	IDParts := strings.Split(d.Id(), ":")
-	if len(IDParts) != 2 {
-		return nil, fmt.Errorf("unable to determine attached disk id - id should be '{google_compute_instance.name}:{google_compute_disk.name}'")
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instances/{{instance}}/{{disk}}")
+	if err != nil {
+		return nil, err
 	}
-	d.Set("instance", IDParts[0])
-	d.Set("disk", IDParts[1])
+	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
 }

@@ -18,11 +18,11 @@ data "google_composer_image_versions" "all" {
 }
 
 resource "google_composer_environment" "test" {
-  name           = "test-env"
-  region         = "us-central1"
+  name   = "test-env"
+  region = "us-central1"
   config {
     software_config {
-      image_version  = "${data.google_composer_image_versions.all.image_versions.0.image_version_id}"
+      image_version = data.google_composer_image_versions.all.image_versions[0].image_version_id
     }
   }
 }

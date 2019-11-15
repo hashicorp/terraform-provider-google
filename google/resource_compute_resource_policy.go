@@ -46,6 +46,13 @@ func resourceComputeResourcePolicy() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The name of the resource, provided by the client when initially creating
+the resource. The resource name must be 1-63 characters long, and comply
+with RFC1035. Specifically, the name must be 1-63 characters long and
+match the regular expression '[a-z]([-a-z0-9]*[a-z0-9])'? which means the
+first character must be a lowercase letter, and all following characters
+must be a dash, lowercase letter, or digit, except the last character,
+which cannot be a dash.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -53,132 +60,162 @@ func resourceComputeResourcePolicy() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Region where resource policy resides.`,
 			},
 			"snapshot_schedule_policy": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Policy for creating snapshots of persistent disks.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"schedule": {
-							Type:     schema.TypeList,
-							Required: true,
-							ForceNew: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Contains one of an 'hourlySchedule', 'dailySchedule', or 'weeklySchedule'.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"daily_schedule": {
-										Type:     schema.TypeList,
-										Optional: true,
-										ForceNew: true,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The policy will execute every nth day at the specified time.`,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"days_in_cycle": {
-													Type:     schema.TypeInt,
-													Required: true,
-													ForceNew: true,
+													Type:        schema.TypeInt,
+													Required:    true,
+													ForceNew:    true,
+													Description: `The number of days between snapshots.`,
 												},
 												"start_time": {
 													Type:     schema.TypeString,
 													Required: true,
 													ForceNew: true,
+													Description: `This must be in UTC format that resolves to one of
+00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example,
+both 13:00-5 and 08:00 are valid.`,
 												},
 											},
 										},
+										ExactlyOneOf: []string{"snapshot_schedule_policy.0.schedule.0.hourly_schedule", "snapshot_schedule_policy.0.schedule.0.daily_schedule", "snapshot_schedule_policy.0.schedule.0.weekly_schedule"},
 									},
 									"hourly_schedule": {
-										Type:     schema.TypeList,
-										Optional: true,
-										ForceNew: true,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The policy will execute every nth hour starting at the specified time.`,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"hours_in_cycle": {
-													Type:     schema.TypeInt,
-													Required: true,
-													ForceNew: true,
+													Type:        schema.TypeInt,
+													Required:    true,
+													ForceNew:    true,
+													Description: `The number of hours between snapshots.`,
 												},
 												"start_time": {
 													Type:     schema.TypeString,
 													Required: true,
 													ForceNew: true,
+													Description: `Time within the window to start the operations.
+It must be in format "HH:MM",
+where HH : [00-23] and MM : [00-00] GMT.`,
 												},
 											},
 										},
+										ExactlyOneOf: []string{"snapshot_schedule_policy.0.schedule.0.hourly_schedule", "snapshot_schedule_policy.0.schedule.0.daily_schedule", "snapshot_schedule_policy.0.schedule.0.weekly_schedule"},
 									},
 									"weekly_schedule": {
-										Type:     schema.TypeList,
-										Optional: true,
-										ForceNew: true,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Allows specifying a snapshot time for each day of the week.`,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"day_of_weeks": {
-													Type:     schema.TypeSet,
-													Required: true,
-													ForceNew: true,
-													MinItems: 1,
-													MaxItems: 7,
-													Elem:     computeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeksSchema(),
+													Type:        schema.TypeSet,
+													Required:    true,
+													ForceNew:    true,
+													Description: `May contain up to seven (one for each day of the week) snapshot times.`,
+													MinItems:    1,
+													MaxItems:    7,
+													Elem:        computeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeksSchema(),
 													// Default schema.HashSchema is used.
 												},
 											},
 										},
+										ExactlyOneOf: []string{"snapshot_schedule_policy.0.schedule.0.hourly_schedule", "snapshot_schedule_policy.0.schedule.0.daily_schedule", "snapshot_schedule_policy.0.schedule.0.weekly_schedule"},
 									},
 								},
 							},
 						},
 						"retention_policy": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Retention policy applied to snapshots created by this resource policy.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"max_retention_days": {
-										Type:     schema.TypeInt,
-										Required: true,
-										ForceNew: true,
+										Type:        schema.TypeInt,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Maximum age of the snapshot that is allowed to be kept.`,
 									},
 									"on_source_disk_delete": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"KEEP_AUTO_SNAPSHOTS", "APPLY_RETENTION_POLICY", ""}, false),
-										Default:      "KEEP_AUTO_SNAPSHOTS",
+										Description: `Specifies the behavior to apply to scheduled snapshots when
+the source disk is deleted.
+Valid options are KEEP_AUTO_SNAPSHOTS and APPLY_RETENTION_POLICY`,
+										Default: "KEEP_AUTO_SNAPSHOTS",
 									},
 								},
 							},
 						},
 						"snapshot_properties": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Properties with which the snapshots are created, such as labels.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"guest_flush": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										ForceNew: true,
+										Type:         schema.TypeBool,
+										Optional:     true,
+										ForceNew:     true,
+										Description:  `Whether to perform a 'guest aware' snapshot.`,
+										AtLeastOneOf: []string{"snapshot_schedule_policy.0.snapshot_properties.0.labels", "snapshot_schedule_policy.0.snapshot_properties.0.storage_locations", "snapshot_schedule_policy.0.snapshot_properties.0.guest_flush"},
 									},
 									"labels": {
-										Type:     schema.TypeMap,
-										Optional: true,
-										ForceNew: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Type:         schema.TypeMap,
+										Optional:     true,
+										ForceNew:     true,
+										Description:  `A set of key-value pairs.`,
+										Elem:         &schema.Schema{Type: schema.TypeString},
+										AtLeastOneOf: []string{"snapshot_schedule_policy.0.snapshot_properties.0.labels", "snapshot_schedule_policy.0.snapshot_properties.0.storage_locations", "snapshot_schedule_policy.0.snapshot_properties.0.guest_flush"},
 									},
 									"storage_locations": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										ForceNew: true,
-										MaxItems: 1,
+										Type:        schema.TypeSet,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `GCS bucket location in which to store the snapshot (regional or multi-regional).`,
+										MaxItems:    1,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
+										Set:          schema.HashString,
+										AtLeastOneOf: []string{"snapshot_schedule_policy.0.snapshot_properties.0.labels", "snapshot_schedule_policy.0.snapshot_properties.0.storage_locations", "snapshot_schedule_policy.0.snapshot_properties.0.guest_flush"},
 									},
 								},
 							},
@@ -208,11 +245,14 @@ func computeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeks
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}, false),
+				Description:  `The day of the week to create the snapshot. e.g. MONDAY`,
 			},
 			"start_time": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Time within the window to start the operations.
+It must be in format "HH:MM", where HH : [00-23] and MM : [00-00] GMT.`,
 			},
 		},
 	}
@@ -257,7 +297,7 @@ func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -372,7 +412,7 @@ func resourceComputeResourcePolicyImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

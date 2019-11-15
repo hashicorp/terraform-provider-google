@@ -165,6 +165,11 @@ func resourceComputeBackendService() *schema.Resource {
 			"health_checks": {
 				Type:     schema.TypeSet,
 				Required: true,
+				Description: `The set of URLs to the HttpHealthCheck or HttpsHealthCheck resource
+for health checking this BackendService. Currently at most one health
+check can be specified, and a health check is required.
+
+For internal load balancing, a URL to a HealthCheck resource must be specified instead.`,
 				MinItems: 1,
 				MaxItems: 1,
 				Elem: &schema.Schema{
@@ -176,65 +181,119 @@ func resourceComputeBackendService() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Name of the resource. Provided by the client when the resource is
+created. The name must be 1-63 characters long, and comply with
+RFC1035. Specifically, the name must be 1-63 characters long and match
+the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
+first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the last
+character, which cannot be a dash.`,
 			},
 			"affinity_cookie_ttl_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Description: `Lifetime of cookies in seconds if session_affinity is
+GENERATED_COOKIE. If set to 0, the cookie is non-persistent and lasts
+only until the end of the browser session (or equivalent). The
+maximum allowed value for TTL is one day.
+
+When the load balancing scheme is INTERNAL, this field is not used.`,
 			},
 			"backend": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     computeBackendServiceBackendSchema(),
-				Set:      resourceGoogleComputeBackendServiceBackendHash,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: `The set of backends that serve this BackendService.`,
+				Elem:        computeBackendServiceBackendSchema(),
+				Set:         resourceGoogleComputeBackendServiceBackendHash,
 			},
 			"cdn_policy": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Cloud CDN configuration for this BackendService.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cache_key_policy": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The CacheKeyPolicy for this CdnPolicy.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"include_host": {
-										Type:     schema.TypeBool,
-										Optional: true,
+										Type:         schema.TypeBool,
+										Optional:     true,
+										Description:  `If true requests to different hosts will be cached separately.`,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
 									},
 									"include_protocol": {
-										Type:     schema.TypeBool,
-										Optional: true,
+										Type:         schema.TypeBool,
+										Optional:     true,
+										Description:  `If true, http and https requests will be cached separately.`,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
 									},
 									"include_query_string": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Description: `If true, include query string parameters in the cache key
+according to query_string_whitelist and
+query_string_blacklist. If neither is set, the entire query
+string will be included.
+
+If false, the query string will be excluded from the cache
+key entirely.`,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
 									},
 									"query_string_blacklist": {
 										Type:     schema.TypeSet,
 										Optional: true,
+										Description: `Names of query string parameters to exclude in cache keys.
+
+All other parameters will be included. Either specify
+query_string_whitelist or query_string_blacklist, not both.
+'&' and '=' will be percent encoded and not treated as
+delimiters.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
+										Set:          schema.HashString,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
 									},
 									"query_string_whitelist": {
 										Type:     schema.TypeSet,
 										Optional: true,
+										Description: `Names of query string parameters to include in cache keys.
+
+All other parameters will be excluded. Either specify
+query_string_whitelist or query_string_blacklist, not both.
+'&' and '=' will be percent encoded and not treated as
+delimiters.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
+										Set:          schema.HashString,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
 									},
 								},
 							},
+							AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy", "cdn_policy.0.signed_url_cache_max_age_sec"},
 						},
 						"signed_url_cache_max_age_sec": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  3600,
+							Description: `Maximum number of seconds the response to a signed URL request
+will be considered fresh, defaults to 1hr (3600s). After this
+time period, the response will be revalidated before
+being served.
+
+When serving responses to signed URL requests, Cloud CDN will
+internally behave as though all responses from this backend had a
+"Cache-Control: public, max-age=[TTL]" header, regardless of any
+existing Cache-Control header. The actual headers served in
+responses will not be altered.`,
+							Default:      3600,
+							AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy", "cdn_policy.0.signed_url_cache_max_age_sec"},
 						},
 					},
 				},
@@ -242,36 +301,44 @@ func resourceComputeBackendService() *schema.Resource {
 			"connection_draining_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  300,
+				Description: `Time for which instance will be drained (not accept new
+connections, but still work to finish started).`,
+				Default: 300,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `An optional description of this resource.`,
 			},
 			"enable_cdn": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If true, enable Cloud CDN for this BackendService.`,
 			},
 			"iap": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Settings for enabling Cloud Identity Aware Proxy`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"oauth2_client_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `OAuth2 Client ID for IAP`,
 						},
 						"oauth2_client_secret": {
-							Type:      schema.TypeString,
-							Required:  true,
-							Sensitive: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `OAuth2 Client Secret for IAP`,
+							Sensitive:   true,
 						},
 						"oauth2_client_secret_sha256": {
-							Type:      schema.TypeString,
-							Computed:  true,
-							Sensitive: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `OAuth2 Client Secret SHA-256 for IAP`,
+							Sensitive:   true,
 						},
 					},
 				},
@@ -281,42 +348,61 @@ func resourceComputeBackendService() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "INTERNAL_SELF_MANAGED", ""}, false),
-				Default:      "EXTERNAL",
+				Description: `Indicates whether the backend service will be used with internal or
+external load balancing. A backend service created for one type of
+load balancing cannot be used with the other. Must be 'EXTERNAL' or
+'INTERNAL_SELF_MANAGED' for a global backend service. Defaults to 'EXTERNAL'.`,
+				Default: "EXTERNAL",
 			},
 			"port_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
+				Description: `Name of backend port. The same name should appear in the instance
+groups referenced by this service. Required when the load balancing
+scheme is EXTERNAL.`,
 			},
 			"protocol": {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS", "HTTP2", "TCP", "SSL", ""}, false),
+				Description: `The protocol this BackendService uses to communicate with backends.
+Possible values are HTTP, HTTPS, HTTP2, TCP, and SSL. The default is
+HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
+types and may result in errors if used with the GA API.`,
 			},
 			"security_policy": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The security policy associated with this backend service.`,
 			},
 			"session_affinity": {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", ""}, false),
+				Description: `Type of session affinity to use. The default is NONE. Session affinity is
+not applicable if the protocol is UDP.`,
 			},
 			"timeout_sec": {
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
+				Description: `How many seconds to wait for the backend before considering it a
+failed request. Default is 30 seconds. Valid range is [1, 86400].`,
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `Fingerprint of this resource. A hash of the contents stored in this
+object. This field is used in optimistic locking.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -335,54 +421,122 @@ func resourceComputeBackendService() *schema.Resource {
 func computeBackendServiceBackendSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"group": {
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				Description: `The fully-qualified URL of an Instance Group or Network Endpoint
+Group resource. In case of instance group this defines the list
+of instances that serve traffic. Member virtual machine
+instances from each instance group must live in the same zone as
+the instance group itself. No two backends in a backend service
+are allowed to use same Instance Group resource.
+
+For Network Endpoint Groups this defines list of endpoints. All
+endpoints of Network Endpoint Group must be hosted on instances
+located in the same zone as the Network Endpoint Group.
+
+Backend services cannot mix Instance Group and
+Network Endpoint Group backends.
+
+Note that you must specify an Instance Group or Network Endpoint
+Group resource using the fully-qualified URL, rather than a
+partial URL.`,
+			},
 			"balancing_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"UTILIZATION", "RATE", "CONNECTION", ""}, false),
-				Default:      "UTILIZATION",
+				Description: `Specifies the balancing mode for this backend.
+
+For global HTTP(S) or TCP/SSL load balancing, the default is
+UTILIZATION. Valid values are UTILIZATION, RATE (for HTTP(S))
+and CONNECTION (for TCP/SSL).`,
+				Default: "UTILIZATION",
 			},
 			"capacity_scaler": {
 				Type:     schema.TypeFloat,
 				Optional: true,
-				Default:  1.0,
+				Description: `A multiplier applied to the group's maximum servicing capacity
+(based on UTILIZATION, RATE or CONNECTION).
+
+Default value is 1, which means the group will serve up to 100%
+of its configured capacity (depending on balancingMode). A
+setting of 0 means the group is completely drained, offering
+0% of its available Capacity. Valid range is [0.0,1.0].`,
+				Default: 1.0,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-			},
-			"group": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				Description: `An optional description of this resource.
+Provide this property when you create the resource.`,
 			},
 			"max_connections": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Description: `The max number of simultaneous connections for the group. Can
+be used with either CONNECTION or UTILIZATION balancing modes.
+
+For CONNECTION mode, either maxConnections or one
+of maxConnectionsPerInstance or maxConnectionsPerEndpoint,
+as appropriate for group type, must be set.`,
 			},
 			"max_connections_per_endpoint": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Description: `The max number of simultaneous connections that a single backend
+network endpoint can handle. This is used to calculate the
+capacity of the group. Can be used in either CONNECTION or
+UTILIZATION balancing modes.
+
+For CONNECTION mode, either
+maxConnections or maxConnectionsPerEndpoint must be set.`,
 			},
 			"max_connections_per_instance": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Description: `The max number of simultaneous connections that a single
+backend instance can handle. This is used to calculate the
+capacity of the group. Can be used in either CONNECTION or
+UTILIZATION balancing modes.
+
+For CONNECTION mode, either maxConnections or
+maxConnectionsPerInstance must be set.`,
 			},
 			"max_rate": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Description: `The max requests per second (RPS) of the group.
+
+Can be used with either RATE or UTILIZATION balancing modes,
+but required if RATE mode. For RATE mode, either maxRate or one
+of maxRatePerInstance or maxRatePerEndpoint, as appropriate for
+group type, must be set.`,
 			},
 			"max_rate_per_endpoint": {
 				Type:     schema.TypeFloat,
 				Optional: true,
+				Description: `The max requests per second (RPS) that a single backend network
+endpoint can handle. This is used to calculate the capacity of
+the group. Can be used in either balancing mode. For RATE mode,
+either maxRate or maxRatePerEndpoint must be set.`,
 			},
 			"max_rate_per_instance": {
 				Type:     schema.TypeFloat,
 				Optional: true,
+				Description: `The max requests per second (RPS) that a single backend
+instance can handle. This is used to calculate the capacity of
+the group. Can be used in either balancing mode. For RATE mode,
+either maxRate or maxRatePerInstance must be set.`,
 			},
 			"max_utilization": {
 				Type:     schema.TypeFloat,
 				Optional: true,
-				Default:  0.8,
+				Description: `Used when balancingMode is UTILIZATION. This ratio defines the
+CPU utilization target for the group. The default is 0.8. Valid
+range is [0.0, 1.0].`,
+				Default: 0.8,
 			},
 		},
 	}
@@ -510,7 +664,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/backendServices/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -862,7 +1016,7 @@ func resourceComputeBackendServiceImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/backendServices/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

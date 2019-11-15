@@ -41,47 +41,62 @@ func resourceComputeNodeTemplate() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An optional textual description of the resource.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Name of the resource.`,
 			},
 			"node_affinity_labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: `Labels to use for node affinity, which will be used in
+instance scheduling.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"node_type": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Node type to use for nodes group that are created from this template.
+Only one of nodeTypeFlexibility and nodeType can be specified.`,
 				ConflictsWith: []string{"node_type_flexibility"},
 			},
 			"node_type_flexibility": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				Description: `Flexible properties for the desired node type. Node groups that
+use this node template will create nodes of a type that matches
+these properties. Only one of nodeTypeFlexibility and nodeType can
+be specified.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cpus": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							Description:  `Number of virtual CPUs to use.`,
+							AtLeastOneOf: []string{"node_type_flexibility.0.cpus", "node_type_flexibility.0.memory"},
 						},
 						"memory": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							Description:  `Physical memory available to the node, defined in MB.`,
+							AtLeastOneOf: []string{"node_type_flexibility.0.cpus", "node_type_flexibility.0.memory"},
 						},
 						"local_ssd": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Use local SSD`,
 						},
 					},
 				},
@@ -93,10 +108,13 @@ func resourceComputeNodeTemplate() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `Region where nodes using the node template will be created.
+If it is not provided, the provider region is used.`,
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -169,7 +187,7 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -296,7 +314,7 @@ func resourceComputeNodeTemplateImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -57,7 +57,7 @@ resource "google_storage_bucket_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-	name = "static-content-bucket%{random_suffix}"
+  name = "static-content-bucket%{random_suffix}"
 }
 `, context)
 }

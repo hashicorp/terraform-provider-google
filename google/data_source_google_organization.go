@@ -76,7 +76,7 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("one of domain or organization must be set")
 	}
 
-	d.SetId(GetResourceNameFromSelfLink(organization.Name))
+	d.SetId(organization.Name)
 	d.Set("name", organization.Name)
 	d.Set("domain", organization.DisplayName)
 	d.Set("create_time", organization.CreationTime)

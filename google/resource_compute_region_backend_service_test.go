@@ -165,6 +165,7 @@ resource "google_compute_health_check" "zero" {
     timeout_sec = 1
 
     tcp_health_check {
+      port = 443
     }
 }
 
@@ -174,6 +175,7 @@ resource "google_compute_health_check" "one" {
     timeout_sec = 30
 
     tcp_health_check {
+      port = 443
     }
 }
 `, serviceName, checkOne, checkTwo)
@@ -203,7 +205,10 @@ resource "google_compute_region_backend_service" "lipsum" {
 
 resource "google_compute_instance_group_manager" "foobar" {
   name               = "%s"
-  instance_template  = "${google_compute_instance_template.foobar.self_link}"
+  version {
+    instance_template  = "${google_compute_instance_template.foobar.self_link}"
+    name               = "primary"
+  }
   base_instance_name = "foobar"
   zone               = "us-central1-f"
   target_size        = 1
@@ -230,7 +235,7 @@ resource "google_compute_health_check" "default" {
   timeout_sec        = 1
 
   tcp_health_check {
-
+    port = 443
   }
 }
 `, serviceName, timeout, igName, itName, checkName)

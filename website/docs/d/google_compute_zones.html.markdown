@@ -12,16 +12,17 @@ description: |-
 Provides access to available Google Compute zones in a region for a given project.
 See more about [regions and zones](https://cloud.google.com/compute/docs/regions-zones/regions-zones) in the upstream docs.
 
-```
-data "google_compute_zones" "available" {}
+```hcl
+data "google_compute_zones" "available" {
+}
 
 resource "google_compute_instance_group_manager" "foo" {
-  count = "${length(data.google_compute_zones.available.names)}"
+  count = length(data.google_compute_zones.available.names)
 
   name               = "terraform-test-${count.index}"
-  instance_template  = "${google_compute_instance_template.foobar.self_link}"
+  instance_template  = google_compute_instance_template.foobar.self_link
   base_instance_name = "foobar-${count.index}"
-  zone               = "${data.google_compute_zones.available.names[count.index]}"
+  zone               = data.google_compute_zones.available.names[count.index]
   target_size        = 1
 }
 ```
