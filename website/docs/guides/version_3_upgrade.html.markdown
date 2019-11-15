@@ -1358,11 +1358,6 @@ required on the `http_check.auth_info` block.
 
 ## Resource: `google_organization_policy`
 
-### Exactly one of `list_policy`, `boolean_policy`, or `restore_policy` is now required on `google_organization_policy`
-
-In attempt to be more consistent with the API, exactly one of `list_policy`, `boolean_policy`,
-or `restore_policy` is now required on `google_organization_policy`.
-
 ### Exactly one of `allow` or `deny` is now required on `google_organization_policy.list_policy`
 
 In an attempt to avoid allowing empty blocks in config files, exactly one of `allow` or `deny` is now
