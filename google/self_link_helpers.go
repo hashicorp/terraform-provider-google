@@ -143,6 +143,14 @@ func GetLocationalResourcePropertiesFromSelfLinkString(selfLink string) (string,
 	}
 
 	s := strings.Split(parsed.Path, "/")
+
+	// This is a pretty bad way to tell if this is a self link, but stops us
+	// from accessing an index out of bounds and causing a panic. generally, we
+	// expect bad values to be partial URIs and names, so this will catch them
+	if len(s) < 9 {
+		return "", "", "", fmt.Errorf("value %s was not a self link", selfLink)
+	}
+
 	return s[4], s[6], s[8], nil
 }
 
