@@ -20,6 +20,23 @@ such as deprecation notices, can always be found in the CHANGELOG of the
 affected providers. [google](https://github.com/terraform-providers/terraform-provider-google/blob/master/CHANGELOG.md)
 [google-beta](https://github.com/terraform-providers/terraform-provider-google-beta/blob/master/CHANGELOG.md)
 
+## What is `3.0.0-beta.1`?
+
+With `3.0.0`, we introduced a prerelease window for our major provider releases.
+`3.0.0-beta.1` contains all of the changes in `3.0.0`, and allows you to test it
+prior to the full upgrade. Currently `3.0.0` is not expected to contain new
+features not available in `3.0.0-beta.1`, only bugfixes for issues we're made
+aware of before `3.0.0`'s release. Using `3.0.0-beta.1` in production is not
+recommended.
+
+```hcl
+provider "google" {
+  # ... other configuration ...
+
+  version = "~> 3.0.0-beta.1"
+}
+```
+
 ## I accidentally upgraded to 3.0.0, how do I downgrade to `2.X`?
 
 If you've inadvertently upgraded to `3.0.0`, first see the
