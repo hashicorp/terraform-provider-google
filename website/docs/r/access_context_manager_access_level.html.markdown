@@ -174,6 +174,14 @@ The `device_policy` block supports:
   A list of allowed OS versions.
   An empty list allows all types and all versions.  Structure is documented below.
 
+* `require_admin_approval` -
+  (Optional)
+  Whether the device needs to be approved by the customer admin.
+
+* `require_corp_owned` -
+  (Optional)
+  Whether the device needs to be corp owned.
+
 
 The `os_constraints` block supports:
 
