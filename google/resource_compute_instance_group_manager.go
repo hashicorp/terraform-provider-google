@@ -144,8 +144,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 
 			"update_strategy": {
 				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "REPLACE",
+				Computed: true,
 				Removed:  "This field has been replaced by `update_policy`",
 			},
 
