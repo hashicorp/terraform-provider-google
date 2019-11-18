@@ -23,7 +23,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeRouter() *schema.Resource {
@@ -224,14 +223,8 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating Router",
+		config, res, project, "Creating Router",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -332,14 +325,8 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error updating Router %q: %s", d.Id(), err)
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Updating Router",
+		config, res, project, "Updating Router",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -377,14 +364,8 @@ func resourceComputeRouterDelete(d *schema.ResourceData, meta interface{}) error
 		return handleNotFoundError(err, d, "Router")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting Router",
+		config, res, project, "Deleting Router",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

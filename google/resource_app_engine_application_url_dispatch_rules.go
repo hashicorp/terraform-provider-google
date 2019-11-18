@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/api/appengine/v1"
 )
 
 func resourceAppEngineApplicationUrlDispatchRules() *schema.Resource {
@@ -120,14 +119,8 @@ func resourceAppEngineApplicationUrlDispatchRulesCreate(d *schema.ResourceData, 
 	}
 	d.SetId(id)
 
-	op := &appengine.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := appEngineOperationWaitTime(
-		config.clientAppEngine, op, project, "Creating ApplicationUrlDispatchRules",
+		config, res, project, "Creating ApplicationUrlDispatchRules",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -204,14 +197,8 @@ func resourceAppEngineApplicationUrlDispatchRulesUpdate(d *schema.ResourceData, 
 		return fmt.Errorf("Error updating ApplicationUrlDispatchRules %q: %s", d.Id(), err)
 	}
 
-	op := &appengine.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = appEngineOperationWaitTime(
-		config.clientAppEngine, op, project, "Updating ApplicationUrlDispatchRules",
+		config, res, project, "Updating ApplicationUrlDispatchRules",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -249,14 +236,8 @@ func resourceAppEngineApplicationUrlDispatchRulesDelete(d *schema.ResourceData, 
 		return handleNotFoundError(err, d, "ApplicationUrlDispatchRules")
 	}
 
-	op := &appengine.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = appEngineOperationWaitTime(
-		config.clientAppEngine, op, project, "Deleting ApplicationUrlDispatchRules",
+		config, res, project, "Deleting ApplicationUrlDispatchRules",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

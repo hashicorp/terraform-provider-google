@@ -101,7 +101,7 @@ func testSweepDatabases(region string) error {
 				return fmt.Errorf("error, failed to stop replica instance (%s) for instance (%s): %s", replicaName, d.Name, err)
 			}
 
-			err = sqlAdminOperationWait(config.clientSqlAdmin, op, config.Project, "Stop Replica")
+			err = sqlAdminOperationWait(config, op, config.Project, "Stop Replica")
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("Replication operation not found")
@@ -131,7 +131,7 @@ func testSweepDatabases(region string) error {
 				return fmt.Errorf("Error, failed to delete instance %s: %s", db, err)
 			}
 
-			err = sqlAdminOperationWait(config.clientSqlAdmin, op, config.Project, "Delete Instance")
+			err = sqlAdminOperationWait(config, op, config.Project, "Delete Instance")
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("SQL instance not found")
@@ -261,7 +261,7 @@ func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 						t.Errorf("Error while inserting root@%% user: %s", err)
 						return
 					}
-					err = sqlAdminOperationWait(config.clientSqlAdmin, op, config.Project, "Waiting for user to insert")
+					err = sqlAdminOperationWait(config, op, config.Project, "Waiting for user to insert")
 					if err != nil {
 						t.Errorf("Error while waiting for user insert operation to complete: %s", err.Error())
 					}

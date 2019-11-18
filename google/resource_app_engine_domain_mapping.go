@@ -23,7 +23,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/appengine/v1"
 )
 
 func sslSettingsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
@@ -190,14 +189,8 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
-	op := &appengine.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := appEngineOperationWaitTime(
-		config.clientAppEngine, op, project, "Creating DomainMapping",
+		config, res, project, "Creating DomainMapping",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -287,14 +280,8 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error updating DomainMapping %q: %s", d.Id(), err)
 	}
 
-	op := &appengine.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = appEngineOperationWaitTime(
-		config.clientAppEngine, op, project, "Updating DomainMapping",
+		config, res, project, "Updating DomainMapping",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -325,14 +312,8 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 		return handleNotFoundError(err, d, "DomainMapping")
 	}
 
-	op := &appengine.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = appEngineOperationWaitTime(
-		config.clientAppEngine, op, project, "Deleting DomainMapping",
+		config, res, project, "Deleting DomainMapping",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

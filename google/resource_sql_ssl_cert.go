@@ -98,7 +98,7 @@ func resourceSqlSslCertCreate(d *schema.ResourceData, meta interface{}) error {
 			"ssl cert %s into instance %s: %s", commonName, instance, err)
 	}
 
-	err = sqlAdminOperationWait(config.clientSqlAdmin, resp.Operation, project, "Create Ssl Cert")
+	err = sqlAdminOperationWait(config, resp.Operation, project, "Create Ssl Cert")
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for creation of %q "+
 			"in %q: %s", commonName, instance, err)
@@ -174,7 +174,7 @@ func resourceSqlSslCertDelete(d *schema.ResourceData, meta interface{}) error {
 			instance, err)
 	}
 
-	err = sqlAdminOperationWait(config.clientSqlAdmin, op, project, "Delete Ssl Cert")
+	err = sqlAdminOperationWait(config, op, project, "Delete Ssl Cert")
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for deletion of ssl cert %q "+

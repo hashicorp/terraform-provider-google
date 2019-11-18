@@ -22,7 +22,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v1"
 )
 
 func sslPolicyCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
@@ -219,14 +218,8 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating SslPolicy",
+		config, res, project, "Creating SslPolicy",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -337,14 +330,8 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error updating SslPolicy %q: %s", d.Id(), err)
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Updating SslPolicy",
+		config, res, project, "Updating SslPolicy",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -375,14 +362,8 @@ func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, "SslPolicy")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting SslPolicy",
+		config, res, project, "Deleting SslPolicy",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

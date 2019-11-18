@@ -24,7 +24,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"google.golang.org/api/compute/v1"
 )
 
 func migrateStateNoop(v int, is *terraform.InstanceState, meta interface{}) (*terraform.InstanceState, error) {
@@ -378,14 +377,8 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating RegionBackendService",
+		config, res, project, "Creating RegionBackendService",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -558,14 +551,8 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error updating RegionBackendService %q: %s", d.Id(), err)
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Updating RegionBackendService",
+		config, res, project, "Updating RegionBackendService",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -596,14 +583,8 @@ func resourceComputeRegionBackendServiceDelete(d *schema.ResourceData, meta inte
 		return handleNotFoundError(err, d, "RegionBackendService")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting RegionBackendService",
+		config, res, project, "Deleting RegionBackendService",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

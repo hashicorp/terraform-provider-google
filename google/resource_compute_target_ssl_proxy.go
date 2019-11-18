@@ -23,7 +23,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeTargetSslProxy() *schema.Resource {
@@ -183,14 +182,8 @@ func resourceComputeTargetSslProxyCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating TargetSslProxy",
+		config, res, project, "Creating TargetSslProxy",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -285,16 +278,9 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error updating TargetSslProxy %q: %s", d.Id(), err)
 		}
 
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
 		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating TargetSslProxy",
+			config, res, project, "Updating TargetSslProxy",
 			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
 		if err != nil {
 			return err
 		}
@@ -320,16 +306,9 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error updating TargetSslProxy %q: %s", d.Id(), err)
 		}
 
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
 		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating TargetSslProxy",
+			config, res, project, "Updating TargetSslProxy",
 			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
 		if err != nil {
 			return err
 		}
@@ -355,16 +334,9 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error updating TargetSslProxy %q: %s", d.Id(), err)
 		}
 
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
 		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating TargetSslProxy",
+			config, res, project, "Updating TargetSslProxy",
 			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
 		if err != nil {
 			return err
 		}
@@ -390,16 +362,9 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error updating TargetSslProxy %q: %s", d.Id(), err)
 		}
 
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
 		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating TargetSslProxy",
+			config, res, project, "Updating TargetSslProxy",
 			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
 		if err != nil {
 			return err
 		}
@@ -433,14 +398,8 @@ func resourceComputeTargetSslProxyDelete(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, "TargetSslProxy")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting TargetSslProxy",
+		config, res, project, "Deleting TargetSslProxy",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

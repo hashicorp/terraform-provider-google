@@ -22,7 +22,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/appengine/v1"
 )
 
 func resourceAppEngineStandardAppVersion() *schema.Resource {
@@ -398,14 +397,8 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	op := &appengine.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := appEngineOperationWaitTime(
-		config.clientAppEngine, op, project, "Creating StandardAppVersion",
+		config, res, project, "Creating StandardAppVersion",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -559,14 +552,8 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error updating StandardAppVersion %q: %s", d.Id(), err)
 	}
 
-	op := &appengine.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = appEngineOperationWaitTime(
-		config.clientAppEngine, op, project, "Updating StandardAppVersion",
+		config, res, project, "Updating StandardAppVersion",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -607,13 +594,8 @@ func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta inte
 		if err != nil {
 			return handleNotFoundError(err, d, "Service")
 		}
-		op := &appengine.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
 		err = appEngineOperationWaitTime(
-			config.clientAppEngine, op, project, "Deleting Service",
+			config, res, project, "Deleting Service",
 			int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 		if err != nil {
@@ -632,13 +614,8 @@ func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta inte
 		if err != nil {
 			return handleNotFoundError(err, d, "StandardAppVersion")
 		}
-		op := &appengine.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
 		err = appEngineOperationWaitTime(
-			config.clientAppEngine, op, project, "Deleting StandardAppVersion",
+			config, res, project, "Deleting StandardAppVersion",
 			int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 		if err != nil {

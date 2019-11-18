@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeRoute() *schema.Resource {
@@ -252,14 +251,8 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating Route",
+		config, res, project, "Creating Route",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -367,14 +360,8 @@ func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error 
 		return handleNotFoundError(err, d, "Route")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting Route",
+		config, res, project, "Deleting Route",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

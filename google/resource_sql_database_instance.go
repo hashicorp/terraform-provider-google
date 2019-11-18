@@ -582,7 +582,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	err = sqlAdminOperationWaitTime(config.clientSqlAdmin, op, project, "Create Instance", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	err = sqlAdminOperationWaitTime(config, op, project, "Create Instance", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if err != nil {
 		d.SetId("")
 		return err
@@ -609,7 +609,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 				err = retry(func() error {
 					op, err = config.clientSqlAdmin.Users.Delete(project, instance.Name, u.Host, u.Name).Do()
 					if err == nil {
-						err = sqlAdminOperationWaitTime(config.clientSqlAdmin, op, project, "Delete default root User", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+						err = sqlAdminOperationWaitTime(config, op, project, "Delete default root User", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 					}
 					return err
 				})
@@ -870,7 +870,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
 	}
 
-	err = sqlAdminOperationWaitTime(config.clientSqlAdmin, op, project, "Update Instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+	err = sqlAdminOperationWaitTime(config, op, project, "Update Instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 	if err != nil {
 		return err
 	}
@@ -902,7 +902,7 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error, failed to delete instance %s: %s", d.Get("name").(string), err)
 	}
 
-	err = sqlAdminOperationWaitTime(config.clientSqlAdmin, op, project, "Delete Instance", int(d.Timeout(schema.TimeoutDelete).Minutes()))
+	err = sqlAdminOperationWaitTime(config, op, project, "Delete Instance", int(d.Timeout(schema.TimeoutDelete).Minutes()))
 	if err != nil {
 		return err
 	}

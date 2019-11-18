@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeBackendBucket() *schema.Resource {
@@ -171,14 +170,8 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating BackendBucket",
+		config, res, project, "Creating BackendBucket",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -290,14 +283,8 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error updating BackendBucket %q: %s", d.Id(), err)
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Updating BackendBucket",
+		config, res, project, "Updating BackendBucket",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -328,14 +315,8 @@ func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}
 		return handleNotFoundError(err, d, "BackendBucket")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting BackendBucket",
+		config, res, project, "Deleting BackendBucket",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

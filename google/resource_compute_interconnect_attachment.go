@@ -23,7 +23,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeInterconnectAttachment() *schema.Resource {
@@ -315,14 +314,8 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating InterconnectAttachment",
+		config, res, project, "Creating InterconnectAttachment",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -442,14 +435,8 @@ func resourceComputeInterconnectAttachmentDelete(d *schema.ResourceData, meta in
 		return handleNotFoundError(err, d, "InterconnectAttachment")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting InterconnectAttachment",
+		config, res, project, "Deleting InterconnectAttachment",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
