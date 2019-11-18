@@ -38,7 +38,7 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 
 			"instance_template": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 				Removed:  "This field has been replaced by `version.instance_template` in 3.0.0",
 			},
 
