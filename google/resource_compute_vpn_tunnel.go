@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/api/compute/v1"
 )
 
 // validatePeerAddr returns false if a tunnel's peer_ip property
@@ -365,14 +364,8 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating VpnTunnel",
+		config, res, project, "Creating VpnTunnel",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -474,14 +467,8 @@ func resourceComputeVpnTunnelDelete(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, "VpnTunnel")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting VpnTunnel",
+		config, res, project, "Deleting VpnTunnel",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

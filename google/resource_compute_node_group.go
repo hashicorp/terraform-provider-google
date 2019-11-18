@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeNodeGroup() *schema.Resource {
@@ -151,14 +150,8 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating NodeGroup",
+		config, res, project, "Creating NodeGroup",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -247,16 +240,9 @@ func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Error updating NodeGroup %q: %s", d.Id(), err)
 		}
 
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
 		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating NodeGroup",
+			config, res, project, "Updating NodeGroup",
 			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
 		if err != nil {
 			return err
 		}
@@ -290,14 +276,8 @@ func resourceComputeNodeGroupDelete(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, "NodeGroup")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting NodeGroup",
+		config, res, project, "Deleting NodeGroup",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

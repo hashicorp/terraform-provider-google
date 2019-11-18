@@ -23,7 +23,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeTargetInstance() *schema.Resource {
@@ -165,14 +164,8 @@ func resourceComputeTargetInstanceCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating TargetInstance",
+		config, res, project, "Creating TargetInstance",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -253,14 +246,8 @@ func resourceComputeTargetInstanceDelete(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, "TargetInstance")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting TargetInstance",
+		config, res, project, "Deleting TargetInstance",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

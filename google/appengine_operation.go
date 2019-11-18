@@ -28,13 +28,19 @@ func (w *AppEngineOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Apps.Operations.Get(w.AppId, matches[1]).Do()
 }
 
-func appEngineOperationWait(client *appengine.APIService, op *appengine.Operation, appId, activity string) error {
-	return appEngineOperationWaitTime(client, op, appId, activity, 4)
+func appEngineOperationWait(config *Config, res interface{}, appId, activity string) error {
+	return appEngineOperationWaitTime(config, res, appId, activity, 4)
 }
 
-func appEngineOperationWaitTime(client *appengine.APIService, op *appengine.Operation, appId, activity string, timeoutMinutes int) error {
+func appEngineOperationWaitTime(config *Config, res interface{}, appId, activity string, timeoutMinutes int) error {
+	op := &appengine.Operation{}
+	err := Convert(res, op)
+	if err != nil {
+		return err
+	}
+
 	w := &AppEngineOperationWaiter{
-		Service: client,
+		Service: config.clientAppEngine,
 		AppId:   appId,
 	}
 

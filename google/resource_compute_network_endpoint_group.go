@@ -23,7 +23,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeNetworkEndpointGroup() *schema.Resource {
@@ -189,14 +188,8 @@ func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating NetworkEndpointGroup",
+		config, res, project, "Creating NetworkEndpointGroup",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -283,14 +276,8 @@ func resourceComputeNetworkEndpointGroupDelete(d *schema.ResourceData, meta inte
 		return handleNotFoundError(err, d, "NetworkEndpointGroup")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting NetworkEndpointGroup",
+		config, res, project, "Deleting NetworkEndpointGroup",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

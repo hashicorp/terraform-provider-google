@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeSnapshot() *schema.Resource {
@@ -262,14 +261,8 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating Snapshot",
+		config, res, project, "Creating Snapshot",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -391,16 +384,9 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating Snapshot %q: %s", d.Id(), err)
 		}
 
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
 		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating Snapshot",
+			config, res, project, "Updating Snapshot",
 			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
 		if err != nil {
 			return err
 		}
@@ -435,14 +421,8 @@ func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) err
 		return handleNotFoundError(err, d, "Snapshot")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting Snapshot",
+		config, res, project, "Deleting Snapshot",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

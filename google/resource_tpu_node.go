@@ -372,7 +372,6 @@ func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 		err = tpuOperationWaitTime(
 			config, res, project, "Updating Node",
 			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
 		if err != nil {
 			return err
 		}

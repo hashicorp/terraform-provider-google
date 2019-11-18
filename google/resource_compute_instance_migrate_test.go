@@ -107,7 +107,7 @@ func TestAccComputeInstanceMigrateState(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
+	waitErr := computeOperationWait(config, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -180,7 +180,7 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
+	waitErr := computeOperationWait(config, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -248,7 +248,7 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
+	waitErr := computeOperationWait(config, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -301,7 +301,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating disk: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "disk to create")
+	waitErr := computeOperationWait(config, op, config.Project, "disk to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -333,7 +333,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr = computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
+	waitErr = computeOperationWait(config, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -382,7 +382,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 	if err != nil {
 		t.Fatalf("Error creating disk: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "disk to create")
+	waitErr := computeOperationWait(config, op, config.Project, "disk to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -414,7 +414,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr = computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
+	waitErr = computeOperationWait(config, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -483,7 +483,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
+	waitErr := computeOperationWait(config, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -552,7 +552,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
+	waitErr := computeOperationWait(config, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -623,7 +623,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
+	waitErr := computeOperationWait(config, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -696,7 +696,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
+	waitErr := computeOperationWait(config, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -764,7 +764,7 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
+	waitErr := computeOperationWait(config, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -829,7 +829,7 @@ func TestAccComputeInstanceMigrateState_v4FixScratchDisk(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := computeSharedOperationWait(config.clientCompute, op, config.Project, "instance to create")
+	waitErr := computeOperationWait(config, op, config.Project, "instance to create")
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -908,7 +908,7 @@ func cleanUpInstance(config *Config, instanceName, zone string) {
 	}
 
 	// Wait for the operation to complete
-	opErr := computeOperationWait(config.clientCompute, op, config.Project, "instance to delete")
+	opErr := computeOperationWait(config, op, config.Project, "instance to delete")
 	if opErr != nil {
 		log.Printf("[WARNING] Error deleting instance %q, dangling resources may exist: %s", instanceName, opErr)
 	}
@@ -922,7 +922,7 @@ func cleanUpDisk(config *Config, diskName, zone string) {
 	}
 
 	// Wait for the operation to complete
-	opErr := computeOperationWait(config.clientCompute, op, config.Project, "disk to delete")
+	opErr := computeOperationWait(config, op, config.Project, "disk to delete")
 	if opErr != nil {
 		log.Printf("[WARNING] Error deleting disk %q, dangling resources may exist: %s", diskName, opErr)
 	}

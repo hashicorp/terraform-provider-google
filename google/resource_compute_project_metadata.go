@@ -120,7 +120,7 @@ func resourceComputeProjectMetadataSet(projectID string, config *Config, md *com
 		}
 
 		log.Printf("[DEBUG] SetCommonMetadata: %d (%s)", op.Id, op.SelfLink)
-		return computeOperationWait(config.clientCompute, op, project.Name, "SetCommonMetadata")
+		return computeOperationWait(config, op, project.Name, "SetCommonMetadata")
 	}
 
 	err := MetadataRetryWrapper(createMD)
