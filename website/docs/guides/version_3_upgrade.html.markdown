@@ -367,7 +367,7 @@ resource "google_cloudiot_registry" "myregistry" {
   name = "%s"
 
   event_notification_config {
-    pubsub_topic_name = "${google_pubsub_topic.event-topic.id}"
+    pubsub_topic_name = google_pubsub_topic.event-topic.id
   }
 }
 
@@ -380,7 +380,7 @@ resource "google_cloudiot_registry" "myregistry" {
   name = "%s"
 
   event_notification_configs {
-    pubsub_topic_name = "${google_pubsub_topic.event-topic.id}"
+    pubsub_topic_name = google_pubsub_topic.event-topic.id
   }
 }
 ```
@@ -619,7 +619,7 @@ resource "google_compute_instance_group_manager" "my_igm" {
     zone               = "us-central1-c"
     base_instance_name = "igm"
 
-    instance_template = "${google_compute_instance_template.my_tmpl.self_link}"
+    instance_template = google_compute_instance_template.my_tmpl.self_link
 }
 ```
 
@@ -633,7 +633,7 @@ resource "google_compute_instance_group_manager" "my_igm" {
 
     version {
         name = "prod"
-        instance_template = "${google_compute_instance_template.my_tmpl.self_link}"
+        instance_template = google_compute_instance_template.my_tmpl.self_link
     }
 }
 ```
@@ -885,7 +885,7 @@ resource "google_compute_subnetwork" "subnet-with-logging" {
   name          = "log-test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.custom-test.self_link}"
+  network       = google_compute_network.custom-test.self_link
 
   enable_flow_logs = true
 }
@@ -899,7 +899,7 @@ resource "google_compute_subnetwork" "subnet-with-logging" {
   name          = "log-test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.custom-test.self_link}"
+  network       = google_compute_network.custom-test.self_link
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
@@ -1014,7 +1014,7 @@ resource "google_compute_network" "container_network" {
 resource "google_container_cluster" "primary" {
   name       = "my-cluster"
   location   = "us-central1"
-  network    = "${google_compute_network.container_network.name}"
+  network    = google_compute_network.container_network.name
 
   initial_node_count = 1
 
@@ -1041,14 +1041,14 @@ resource "google_compute_subnetwork" "container_subnetwork" {
   description   = "auto-created subnetwork for cluster \"my-cluster\""
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.container_network.self_link}"
+  network       = google_compute_network.container_network.self_link
 }
 
 resource "google_container_cluster" "primary" {
   name       = "my-cluster"
   location   = "us-central1"
-  network    = "${google_compute_network.container_network.name}"
-  subnetwork = "${google_compute_subnetwork.container_subnetwork.name}"
+  network    = google_compute_network.container_network.name
+  subnetwork = google_compute_subnetwork.container_subnetwork.name
 
   initial_node_count = 1
 
