@@ -16,8 +16,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
 )
@@ -734,7 +734,7 @@ func flattenCors(corsRules []*storage.BucketCors) []map[string]interface{} {
 
 func expandBucketEncryption(configured interface{}) *storage.BucketEncryption {
 	encs := configured.([]interface{})
-	if encs == nil || encs[0] == nil {
+	if encs == nil || len(encs) == 0 || encs[0] == nil {
 		return nil
 	}
 	enc := encs[0].(map[string]interface{})
@@ -764,6 +764,10 @@ func flattenBucketEncryption(enc *storage.BucketEncryption) []map[string]interfa
 
 func expandBucketLogging(configured interface{}) *storage.BucketLogging {
 	loggings := configured.([]interface{})
+	if len(loggings) == 0 {
+		return nil
+	}
+
 	logging := loggings[0].(map[string]interface{})
 
 	bucketLogging := &storage.BucketLogging{
@@ -820,6 +824,10 @@ func flattenBucketRetentionPolicy(bucketRetentionPolicy *storage.BucketRetention
 
 func expandBucketVersioning(configured interface{}) *storage.BucketVersioning {
 	versionings := configured.([]interface{})
+	if len(versionings) == 0 {
+		return nil
+	}
+
 	versioning := versionings[0].(map[string]interface{})
 
 	bucketVersioning := &storage.BucketVersioning{}
