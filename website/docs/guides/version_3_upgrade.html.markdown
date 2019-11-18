@@ -641,10 +641,44 @@ resource "google_compute_instance_group_manager" "my_igm" {
 ### `update_strategy` has been replaced by `update_policy`
 
 To allow much greater control over the updates happening to instance groups
-`update_strategy` has been replaced by `update_policy`. The previous
-functionality to determine if instance should be replaced or restarted can be
-achieved using `update_policy.minimal_action`. For more details see the
+`update_strategy` has been replaced by `update_policy`. The functionality controlled by `update_strategy` is now controlled by a combination of `update_policy.type` and `update_policy.minimal_action`. `update_strategy = NONE` can be achieved with `type = OPPORTUNISTIC`. The previous values of `RESTART` and `REPLACE` were both `PROACTIVE` types implicitly previously but can now be controlled explicitly.
+
+For more details see the
 [official guide](https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups).
+
+### Old Config
+
+```hcl
+resource "google_compute_instance_group_manager" "my_igm" {
+    name               = "my-igm"
+    zone               = "us-central1-c"
+    base_instance_name = "igm"
+
+    instance_template = "${google_compute_instance_template.my_tmpl.self_link}"
+
+    update_strategy   = "NONE"
+}
+```
+
+### New Config
+
+```hcl
+resource "google_compute_instance_group_manager" "my_igm" {
+    name               = "my-igm"
+    zone               = "us-central1-c"
+    base_instance_name = "igm"
+
+    version {
+        name = "prod"
+        instance_template = "${google_compute_instance_template.my_tmpl.self_link}"
+    }
+
+    update_policy {
+      minimal_action = "RESTART"
+      type           = "OPPORTUNISTIC"
+    }
+}
+```
 
 ## Resource: `google_compute_instance_template`
 
