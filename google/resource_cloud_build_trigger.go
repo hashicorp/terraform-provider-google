@@ -43,62 +43,6 @@ func resourceCloudBuildTrigger() *schema.Resource {
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
-			"trigger_template": {
-				Type:     schema.TypeList,
-				Required: true,
-				Description: `Template describing the types of source changes to trigger a build.
-
-Branch and tag names in trigger templates are interpreted as regular
-expressions. Any branch or tag change that matches that regular
-expression will trigger a build.`,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"branch_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `Name of the branch to build. Exactly one a of branch name, tag, or commit SHA must be provided.
-This field is a regular expression.`,
-							ExactlyOneOf: []string{"trigger_template.0.branch_name", "trigger_template.0.tag_name", "trigger_template.0.commit_sha"},
-						},
-						"commit_sha": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Description:  `Explicit commit SHA to build. Exactly one of a branch name, tag, or commit SHA must be provided.`,
-							ExactlyOneOf: []string{"trigger_template.0.branch_name", "trigger_template.0.tag_name", "trigger_template.0.commit_sha"},
-						},
-						"dir": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `Directory, relative to the source root, in which to run the build.
-
-This must be a relative path. If a step's dir is specified and
-is an absolute path, this value is ignored for that step's
-execution.`,
-						},
-						"project_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-							Optional: true,
-							Description: `ID of the project that owns the Cloud Source Repository. If
-omitted, the project ID requesting the build is assumed.`,
-						},
-						"repo_name": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Name of the Cloud Source Repository. If omitted, the name "default" is assumed.`,
-							Default:     "default",
-						},
-						"tag_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `Name of the tag to build. Exactly one of a branch name, tag, or commit SHA must be provided.
-This field is a regular expression.`,
-							ExactlyOneOf: []string{"trigger_template.0.branch_name", "trigger_template.0.tag_name", "trigger_template.0.commit_sha"},
-						},
-					},
-				},
-			},
 			"build": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -341,6 +285,64 @@ a build.`,
 				Optional:    true,
 				Description: `Substitutions data for Build resource.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"trigger_template": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Template describing the types of source changes to trigger a build.
+
+Branch and tag names in trigger templates are interpreted as regular
+expressions. Any branch or tag change that matches that regular
+expression will trigger a build.
+
+One of 'trigger_template' or 'github' must be provided.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"branch_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Name of the branch to build. Exactly one a of branch name, tag, or commit SHA must be provided.
+This field is a regular expression.`,
+							ExactlyOneOf: []string{"trigger_template.0.branch_name", "trigger_template.0.tag_name", "trigger_template.0.commit_sha"},
+						},
+						"commit_sha": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Explicit commit SHA to build. Exactly one of a branch name, tag, or commit SHA must be provided.`,
+							ExactlyOneOf: []string{"trigger_template.0.branch_name", "trigger_template.0.tag_name", "trigger_template.0.commit_sha"},
+						},
+						"dir": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Directory, relative to the source root, in which to run the build.
+
+This must be a relative path. If a step's dir is specified and
+is an absolute path, this value is ignored for that step's
+execution.`,
+						},
+						"project_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							Description: `ID of the project that owns the Cloud Source Repository. If
+omitted, the project ID requesting the build is assumed.`,
+						},
+						"repo_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Name of the Cloud Source Repository. If omitted, the name "default" is assumed.`,
+							Default:     "default",
+						},
+						"tag_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Name of the tag to build. Exactly one of a branch name, tag, or commit SHA must be provided.
+This field is a regular expression.`,
+							ExactlyOneOf: []string{"trigger_template.0.branch_name", "trigger_template.0.tag_name", "trigger_template.0.commit_sha"},
+						},
+					},
+				},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
