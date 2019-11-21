@@ -99,27 +99,27 @@ func testAccCheckComputeNetworkPeeringAutoCreateRoutes(v bool, peering *computeB
 
 func testAccComputeNetworkPeering_basic() string {
 	s := `
-	resource "google_compute_network" "network1" {
-		name = "network-test-1-%s"
-		auto_create_subnetworks = false
-	}
+resource "google_compute_network" "network1" {
+  name                    = "network-test-1-%s"
+  auto_create_subnetworks = false
+}
 
-	resource "google_compute_network" "network2" {
-		name = "network-test-2-%s"
-		auto_create_subnetworks = false
-	}
+resource "google_compute_network" "network2" {
+  name                    = "network-test-2-%s"
+  auto_create_subnetworks = false
+}
 
-	resource "google_compute_network_peering" "foo" {
-		name = "peering-test-1-%s"
-		network = "${google_compute_network.network1.self_link}"
-		peer_network = "${google_compute_network.network2.self_link}"
-	}
+resource "google_compute_network_peering" "foo" {
+  name         = "peering-test-1-%s"
+  network      = google_compute_network.network1.self_link
+  peer_network = google_compute_network.network2.self_link
+}
 
-	resource "google_compute_network_peering" "bar" {
-		network = "${google_compute_network.network2.self_link}"
-		peer_network = "${google_compute_network.network1.self_link}"
-		name = "peering-test-2-%s"
-		`
+resource "google_compute_network_peering" "bar" {
+  network      = google_compute_network.network2.self_link
+  peer_network = google_compute_network.network1.self_link
+  name         = "peering-test-2-%s"
+`
 
 	s = s + `}`
 	return fmt.Sprintf(s, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))

@@ -109,16 +109,16 @@ func testAccCheckLoggingProjectSinkDestroy(s *terraform.State) error {
 func testAccLoggingProjectSink_basic(name, project, bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_logging_project_sink" "basic" {
-	name        = "%s"
-	project     = "%s"
-	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  name        = "%s"
+  project     = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 
-	unique_writer_identity = false
+  unique_writer_identity = false
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
+  name = "%s"
 }
 `, name, project, project, bucketName)
 }
@@ -126,15 +126,15 @@ resource "google_storage_bucket" "log-bucket" {
 func testAccLoggingProjectSink_uniqueWriter(name, bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_logging_project_sink" "unique_writer" {
-	name        = "%s"
-	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  name        = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 
-	unique_writer_identity = true
+  unique_writer_identity = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
+  name = "%s"
 }
 `, name, getTestProjectFromEnv(), bucketName)
 }
@@ -142,15 +142,15 @@ resource "google_storage_bucket" "log-bucket" {
 func testAccLoggingProjectSink_uniqueWriterUpdated(name, bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_logging_project_sink" "unique_writer" {
-	name        = "%s"
-	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=WARNING"
+  name        = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=WARNING"
 
-	unique_writer_identity = true
+  unique_writer_identity = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
+  name = "%s"
 }
 `, name, getTestProjectFromEnv(), bucketName)
 }
@@ -158,22 +158,23 @@ resource "google_storage_bucket" "log-bucket" {
 func testAccLoggingProjectSink_heredoc(name, project, bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_logging_project_sink" "heredoc" {
-	name        = "%s"
-	project     = "%s"
-	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  name        = "%s"
+  project     = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 
-	filter = <<EOS
+  filter = <<EOS
 
 	logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
 AND severity>=ERROR
 
-	EOS
 
-	unique_writer_identity = false
+EOS
+
+  unique_writer_identity = false
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
+  name = "%s"
 }
 `, name, project, project, bucketName)
 }

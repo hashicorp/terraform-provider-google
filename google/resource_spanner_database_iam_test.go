@@ -129,16 +129,16 @@ resource "google_spanner_instance" "instance" {
 }
 
 resource "google_spanner_database" "database" {
-  instance = "${google_spanner_instance.instance.name}"
+  instance = google_spanner_instance.instance.name
   name     = "%s"
 }
 
 resource "google_spanner_database_iam_binding" "foo" {
-  project     = "${google_spanner_database.database.project}"
-  database    = "${google_spanner_database.database.name}"
-  instance    = "${google_spanner_database.database.instance}"
-  role        = "%s"
-  members     = ["serviceAccount:${google_service_account.test_account.email}"]
+  project  = google_spanner_database.database.project
+  database = google_spanner_database.database.name
+  instance = google_spanner_database.database.instance
+  role     = "%s"
+  members  = ["serviceAccount:${google_service_account.test_account.email}"]
 }
 `, account, instance, instance, database, roleId)
 }
@@ -163,18 +163,18 @@ resource "google_spanner_instance" "instance" {
 }
 
 resource "google_spanner_database" "database" {
-  instance = "${google_spanner_instance.instance.name}"
+  instance = google_spanner_instance.instance.name
   name     = "%s"
 }
 
 resource "google_spanner_database_iam_binding" "foo" {
-  project      = "${google_spanner_database.database.project}"
-  database     = "${google_spanner_database.database.name}"
-  instance     = "${google_spanner_database.database.instance}"
-  role         = "%s"
-  members      = [
+  project  = google_spanner_database.database.project
+  database = google_spanner_database.database.name
+  instance = google_spanner_database.database.instance
+  role     = "%s"
+  members = [
     "serviceAccount:${google_service_account.test_account.email}",
-    "serviceAccount:${google_service_account.test_account_2.email}"
+    "serviceAccount:${google_service_account.test_account_2.email}",
   ]
 }
 `, account, account, instance, instance, database, roleId)
@@ -195,16 +195,16 @@ resource "google_spanner_instance" "instance" {
 }
 
 resource "google_spanner_database" "database" {
-  instance = "${google_spanner_instance.instance.name}"
+  instance = google_spanner_instance.instance.name
   name     = "%s"
 }
 
 resource "google_spanner_database_iam_member" "foo" {
-  project     = "${google_spanner_database.database.project}"
-  database    = "${google_spanner_database.database.name}"
-  instance    = "${google_spanner_database.database.instance}"
-  role        = "%s"
-  member      = "serviceAccount:${google_service_account.test_account.email}"
+  project  = google_spanner_database.database.project
+  database = google_spanner_database.database.name
+  instance = google_spanner_database.database.instance
+  role     = "%s"
+  member   = "serviceAccount:${google_service_account.test_account.email}"
 }
 `, account, instance, instance, database, roleId)
 }
@@ -224,23 +224,23 @@ resource "google_spanner_instance" "instance" {
 }
 
 resource "google_spanner_database" "database" {
-  instance = "${google_spanner_instance.instance.name}"
+  instance = google_spanner_instance.instance.name
   name     = "%s"
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%s"
+  binding {
+    role = "%s"
 
-		members = ["serviceAccount:${google_service_account.test_account.email}"]
-	}
+    members = ["serviceAccount:${google_service_account.test_account.email}"]
+  }
 }
 
 resource "google_spanner_database_iam_policy" "foo" {
-  project     = "${google_spanner_database.database.project}"
-  database    = "${google_spanner_database.database.name}"
-  instance    = "${google_spanner_database.database.instance}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project     = google_spanner_database.database.project
+  database    = google_spanner_database.database.name
+  instance    = google_spanner_database.database.instance
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, account, instance, instance, database, roleId)
 }

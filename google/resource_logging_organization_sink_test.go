@@ -188,51 +188,55 @@ func testAccCheckLoggingOrganizationSink(sink *logging.LogSink, n string) resour
 func testAccLoggingOrganizationSink_basic(sinkName, bucketName, orgId string) string {
 	return fmt.Sprintf(`
 resource "google_logging_organization_sink" "basic" {
-	name             = "%s"
-	org_id           = "%s"
-	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
-	include_children = true
+  name             = "%s"
+  org_id           = "%s"
+  destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
-}`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
+  name = "%s"
+}
+`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingOrganizationSink_update(sinkName, bucketName, orgId string) string {
 	return fmt.Sprintf(`
 resource "google_logging_organization_sink" "update" {
-	name             = "%s"
-	org_id           = "%s"
-	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
-	include_children = false
+  name             = "%s"
+  org_id           = "%s"
+  destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = false
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name     = "%s"
-}`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
+  name = "%s"
+}
+`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingOrganizationSink_heredoc(sinkName, bucketName, orgId string) string {
 	return fmt.Sprintf(`
 resource "google_logging_organization_sink" "heredoc" {
-	name             = "%s"
-	org_id           = "%s"
-	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter           = <<EOS
+  name        = "%s"
+  org_id      = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = <<EOS
 
 	logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
 AND severity>=ERROR
 
 
 
-  EOS
-	include_children = true
+EOS
+
+  include_children = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
-}`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
+  name = "%s"
+}
+`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
 }

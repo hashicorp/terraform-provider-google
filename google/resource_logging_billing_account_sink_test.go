@@ -176,48 +176,51 @@ func testAccCheckLoggingBillingAccountSink(sink *logging.LogSink, n string) reso
 func testAccLoggingBillingAccountSink_basic(name, bucketName, billingAccount string) string {
 	return fmt.Sprintf(`
 resource "google_logging_billing_account_sink" "basic" {
-	name = "%s"
-	billing_account = "%s"
-	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  name            = "%s"
+  billing_account = "%s"
+  destination     = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter          = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name     = "%s"
-}`, name, billingAccount, getTestProjectFromEnv(), bucketName)
+  name = "%s"
+}
+`, name, billingAccount, getTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingBillingAccountSink_update(name, bucketName, billingAccount string) string {
 	return fmt.Sprintf(`
 resource "google_logging_billing_account_sink" "update" {
-	name = "%s"
-	billing_account = "%s"
-	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  name            = "%s"
+  billing_account = "%s"
+  destination     = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter          = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name     = "%s"
-}`, name, billingAccount, getTestProjectFromEnv(), bucketName)
+  name = "%s"
+}
+`, name, billingAccount, getTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingBillingAccountSink_heredoc(name, bucketName, billingAccount string) string {
 	return fmt.Sprintf(`
 resource "google_logging_billing_account_sink" "heredoc" {
-	name = "%s"
-	billing_account = "%s"
-	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter = <<EOS
+  name            = "%s"
+  billing_account = "%s"
+  destination     = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter          = <<EOS
 
 	logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
 AND severity>=ERROR
 
 
+EOS
 
-  EOS
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name     = "%s"
-}`, name, billingAccount, getTestProjectFromEnv(), bucketName)
+  name = "%s"
+}
+`, name, billingAccount, getTestProjectFromEnv(), bucketName)
 }

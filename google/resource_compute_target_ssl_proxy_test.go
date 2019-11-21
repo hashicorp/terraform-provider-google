@@ -81,40 +81,40 @@ func testAccCheckComputeTargetSslProxy(n, proxyHeader, sslCert string) resource.
 func testAccComputeTargetSslProxy_basic1(target, sslPolicy, sslCert, backend, hc string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_ssl_proxy" "foobar" {
-	description = "Resource created for Terraform acceptance testing"
-	name = "%s"
-	backend_service = "${google_compute_backend_service.foo.self_link}"
-	ssl_certificates = ["${google_compute_ssl_certificate.foo.self_link}"]
-	proxy_header = "NONE"
-	ssl_policy = "${google_compute_ssl_policy.foo.self_link}"
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  backend_service  = google_compute_backend_service.foo.self_link
+  ssl_certificates = [google_compute_ssl_certificate.foo.self_link]
+  proxy_header     = "NONE"
+  ssl_policy       = google_compute_ssl_policy.foo.self_link
 }
 
 resource "google_compute_ssl_policy" "foo" {
-	name            = "%s"
-	description     = "Resource created for Terraform acceptance testing"
-	min_tls_version = "TLS_1_2"
-	profile         = "MODERN"
+  name            = "%s"
+  description     = "Resource created for Terraform acceptance testing"
+  min_tls_version = "TLS_1_2"
+  profile         = "MODERN"
 }
 
 resource "google_compute_ssl_certificate" "foo" {
-	name = "%s"
-	private_key = "${file("test-fixtures/ssl_cert/test.key")}"
-	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
+  name        = "%s"
+  private_key = file("test-fixtures/ssl_cert/test.key")
+  certificate = file("test-fixtures/ssl_cert/test.crt")
 }
 
 resource "google_compute_backend_service" "foo" {
-	name = "%s"
-	protocol    = "SSL"
-	health_checks = ["${google_compute_health_check.zero.self_link}"]
+  name          = "%s"
+  protocol      = "SSL"
+  health_checks = [google_compute_health_check.zero.self_link]
 }
 
 resource "google_compute_health_check" "zero" {
-	name = "%s"
-	check_interval_sec = 1
-	timeout_sec = 1
-	tcp_health_check {
-		port = "443"
-	}
+  name               = "%s"
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "443"
+  }
 }
 `, target, sslPolicy, sslCert, backend, hc)
 }
@@ -122,51 +122,51 @@ resource "google_compute_health_check" "zero" {
 func testAccComputeTargetSslProxy_basic2(target, sslPolicy, sslCert1, sslCert2, backend1, backend2, hc string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_ssl_proxy" "foobar" {
-	description = "Resource created for Terraform acceptance testing"
-	name = "%s"
-	backend_service = "${google_compute_backend_service.bar.self_link}"
-	ssl_certificates = ["${google_compute_ssl_certificate.bar.name}"]
-	proxy_header = "PROXY_V1"
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  backend_service  = google_compute_backend_service.bar.self_link
+  ssl_certificates = [google_compute_ssl_certificate.bar.name]
+  proxy_header     = "PROXY_V1"
 }
 
 resource "google_compute_ssl_policy" "foo" {
-	name            = "%s"
-	description     = "Resource created for Terraform acceptance testing"
-	min_tls_version = "TLS_1_2"
-	profile         = "MODERN"
+  name            = "%s"
+  description     = "Resource created for Terraform acceptance testing"
+  min_tls_version = "TLS_1_2"
+  profile         = "MODERN"
 }
 
 resource "google_compute_ssl_certificate" "foo" {
-	name = "%s"
-	private_key = "${file("test-fixtures/ssl_cert/test.key")}"
-	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
+  name        = "%s"
+  private_key = file("test-fixtures/ssl_cert/test.key")
+  certificate = file("test-fixtures/ssl_cert/test.crt")
 }
 
 resource "google_compute_ssl_certificate" "bar" {
-	name = "%s"
-	private_key = "${file("test-fixtures/ssl_cert/test.key")}"
-	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
+  name        = "%s"
+  private_key = file("test-fixtures/ssl_cert/test.key")
+  certificate = file("test-fixtures/ssl_cert/test.crt")
 }
 
 resource "google_compute_backend_service" "foo" {
-	name = "%s"
-	protocol    = "SSL"
-	health_checks = ["${google_compute_health_check.zero.self_link}"]
+  name          = "%s"
+  protocol      = "SSL"
+  health_checks = [google_compute_health_check.zero.self_link]
 }
 
 resource "google_compute_backend_service" "bar" {
-	name = "%s"
-	protocol    = "SSL"
-	health_checks = ["${google_compute_health_check.zero.self_link}"]
+  name          = "%s"
+  protocol      = "SSL"
+  health_checks = [google_compute_health_check.zero.self_link]
 }
 
 resource "google_compute_health_check" "zero" {
-	name = "%s"
-	check_interval_sec = 1
-	timeout_sec = 1
-	tcp_health_check {
-		port = "443"
-	}
+  name               = "%s"
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "443"
+  }
 }
 `, target, sslPolicy, sslCert1, sslCert2, backend1, backend2, hc)
 }

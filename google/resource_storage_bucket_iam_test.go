@@ -138,101 +138,95 @@ func testAccCheckGoogleStorageBucketIam(bucket, role string, members []string) r
 func testAccStorageBucketIamPolicy_update(bucket, account, serviceAcct string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_service_account" "test-account-1" {
-	account_id   = "%s-1"
-	display_name = "Storage Bucket Iam Testing Account"
+  account_id   = "%s-1"
+  display_name = "Storage Bucket Iam Testing Account"
 }
 
 resource "google_service_account" "test-account-2" {
-	account_id   = "%s-2"
-	display_name = "Storage Bucket Iam Testing Account"
+  account_id   = "%s-2"
+  display_name = "Storage Bucket Iam Testing Account"
 }
 
-
 data "google_iam_policy" "foo-policy" {
-	binding {
-		role = "roles/storage.objectViewer"
+  binding {
+    role = "roles/storage.objectViewer"
 
-		members = [
-			"serviceAccount:${google_service_account.test-account-1.email}",
-			"serviceAccount:${google_service_account.test-account-2.email}",
-		]
-	}
+    members = [
+      "serviceAccount:${google_service_account.test-account-1.email}",
+      "serviceAccount:${google_service_account.test-account-2.email}",
+    ]
+  }
 
-	binding {
-		role = "roles/storage.admin"
-		members = [
-			"serviceAccount:%s",
-		]
-	}
+  binding {
+    role = "roles/storage.admin"
+    members = [
+      "serviceAccount:%s",
+    ]
+  }
 }
 
 resource "google_storage_bucket_iam_policy" "bucket-binding" {
-	bucket      = "${google_storage_bucket.bucket.name}"
-	policy_data = "${data.google_iam_policy.foo-policy.policy_data}"
+  bucket      = google_storage_bucket.bucket.name
+  policy_data = data.google_iam_policy.foo-policy.policy_data
 }
-
 `, bucket, account, account, serviceAcct)
 }
 
 func testAccStorageBucketIamPolicy_basic(bucket, account, serviceAcct string) string {
 	return fmt.Sprintf(`
-
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_service_account" "test-account-1" {
-	account_id   = "%s-1"
-	display_name = "Storage Bucket Iam Testing Account"
+  account_id   = "%s-1"
+  display_name = "Storage Bucket Iam Testing Account"
 }
 
-
 data "google_iam_policy" "foo-policy" {
-	binding {
-		role = "roles/storage.objectViewer"
-		members = [
-			"serviceAccount:${google_service_account.test-account-1.email}",
-		]
-	}
+  binding {
+    role = "roles/storage.objectViewer"
+    members = [
+      "serviceAccount:${google_service_account.test-account-1.email}",
+    ]
+  }
 
-	binding {
-		role = "roles/storage.admin"
-		members = [
-			"serviceAccount:%s",
-		]
-	}
+  binding {
+    role = "roles/storage.admin"
+    members = [
+      "serviceAccount:%s",
+    ]
+  }
 }
 
 resource "google_storage_bucket_iam_policy" "bucket-binding" {
-	bucket      = "${google_storage_bucket.bucket.name}"
-	policy_data = "${data.google_iam_policy.foo-policy.policy_data}"
+  bucket      = google_storage_bucket.bucket.name
+  policy_data = data.google_iam_policy.foo-policy.policy_data
 }
-
-
 `, bucket, account, serviceAcct)
 }
 
 func testAccStorageBucketIamBinding_basic(bucket, account, role string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_service_account" "test-account-1" {
-	account_id   = "%s-1"
-	display_name = "Storage Bucket Iam Testing Account"
+  account_id   = "%s-1"
+  display_name = "Storage Bucket Iam Testing Account"
 }
 
 resource "google_storage_bucket_iam_binding" "foo" {
-	bucket = "${google_storage_bucket.bucket.name}"
-	role = "%s"
-	members = [
-		"serviceAccount:${google_service_account.test-account-1.email}",
-	]
+  bucket = google_storage_bucket.bucket.name
+  role   = "%s"
+  members = [
+    "serviceAccount:${google_service_account.test-account-1.email}",
+  ]
 }
 `, bucket, account, role)
 }
@@ -240,26 +234,26 @@ resource "google_storage_bucket_iam_binding" "foo" {
 func testAccStorageBucketIamBinding_update(bucket, account, role string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_service_account" "test-account-1" {
-	account_id   = "%s-1"
-	display_name = "Storage Bucket Iam Testing Account"
+  account_id   = "%s-1"
+  display_name = "Storage Bucket Iam Testing Account"
 }
 
 resource "google_service_account" "test-account-2" {
-	account_id   = "%s-2"
-	display_name = "Storage Bucket Iam Testing Account"
+  account_id   = "%s-2"
+  display_name = "Storage Bucket Iam Testing Account"
 }
 
 resource "google_storage_bucket_iam_binding" "foo" {
-	bucket = "${google_storage_bucket.bucket.name}"
-	role = "%s"
-	members = [
-		"serviceAccount:${google_service_account.test-account-1.email}",
-		"serviceAccount:${google_service_account.test-account-2.email}",
-	]
+  bucket = google_storage_bucket.bucket.name
+  role   = "%s"
+  members = [
+    "serviceAccount:${google_service_account.test-account-1.email}",
+    "serviceAccount:${google_service_account.test-account-2.email}",
+  ]
 }
 `, bucket, account, account, role)
 }
@@ -267,18 +261,18 @@ resource "google_storage_bucket_iam_binding" "foo" {
 func testAccStorageBucketIamMember_basic(bucket, account, role string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_service_account" "test-account-1" {
-	account_id   = "%s-1"
-	display_name = "Storage Bucket Iam Testing Account"
+  account_id   = "%s-1"
+  display_name = "Storage Bucket Iam Testing Account"
 }
 
 resource "google_storage_bucket_iam_member" "foo" {
-	bucket = "${google_storage_bucket.bucket.name}"
-	role = "%s"
-	member = "serviceAccount:${google_service_account.test-account-1.email}"
+  bucket = google_storage_bucket.bucket.name
+  role   = "%s"
+  member = "serviceAccount:${google_service_account.test-account-1.email}"
 }
 `, bucket, account, role)
 }

@@ -96,65 +96,69 @@ func testAccCheckComputeSharedVpcServiceProject(hostProject, serviceProject stri
 func testAccComputeSharedVpc_basic(hostProject, serviceProject, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "host" {
-	project_id      = "%s"
-	name            = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project" "service" {
-	project_id      = "%s"
-	name            = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project_service" "host" {
-	project = "${google_project.host.project_id}"
-	service = "compute.googleapis.com"
+  project = google_project.host.project_id
+  service = "compute.googleapis.com"
 }
 
 resource "google_project_service" "service" {
-	project = "${google_project.service.project_id}"
-	service = "compute.googleapis.com"
+  project = google_project.service.project_id
+  service = "compute.googleapis.com"
 }
 
 resource "google_compute_shared_vpc_host_project" "host" {
-	project    = "${google_project.host.project_id}"
-	depends_on = ["google_project_service.host"]
+  project    = google_project.host.project_id
+  depends_on = [google_project_service.host]
 }
 
 resource "google_compute_shared_vpc_service_project" "service" {
-	host_project    = "${google_project.host.project_id}"
-	service_project = "${google_project.service.project_id}"
-	depends_on      = ["google_compute_shared_vpc_host_project.host", "google_project_service.service"]
-}`, hostProject, hostProject, org, billing, serviceProject, serviceProject, org, billing)
+  host_project    = google_project.host.project_id
+  service_project = google_project.service.project_id
+  depends_on = [
+    google_compute_shared_vpc_host_project.host,
+    google_project_service.service,
+  ]
+}
+`, hostProject, hostProject, org, billing, serviceProject, serviceProject, org, billing)
 }
 
 func testAccComputeSharedVpc_disabled(hostProject, serviceProject, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "host" {
-	project_id      = "%s"
-	name            = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project" "service" {
-	project_id      = "%s"
-	name            = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project_service" "host" {
-	project = "${google_project.host.project_id}"
-	service = "compute.googleapis.com"
+  project = google_project.host.project_id
+  service = "compute.googleapis.com"
 }
 
 resource "google_project_service" "service" {
-	project  = "${google_project.service.project_id}"
-	service = "compute.googleapis.com"
+  project = google_project.service.project_id
+  service = "compute.googleapis.com"
 }
 `, hostProject, hostProject, org, billing, serviceProject, serviceProject, org, billing)
 }

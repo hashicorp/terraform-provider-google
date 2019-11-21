@@ -222,66 +222,70 @@ func testAccCheckLoggingFolderSink(sink *logging.LogSink, n string) resource.Tes
 func testAccLoggingFolderSink_basic(sinkName, bucketName, folderName, folderParent string) string {
 	return fmt.Sprintf(`
 resource "google_logging_folder_sink" "basic" {
-	name             = "%s"
-	folder           = "${element(split("/", google_folder.my-folder.name), 1)}"
-	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
-	include_children = true
+  name             = "%s"
+  folder           = element(split("/", google_folder.my-folder.name), 1)
+  destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_folder" "my-folder" {
-	display_name = "%s"
-    parent       = "%s"
-}`, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
+  display_name = "%s"
+  parent       = "%s"
+}
+`, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
 }
 
 func testAccLoggingFolderSink_withFullFolderPath(sinkName, bucketName, folderName, folderParent string) string {
 	return fmt.Sprintf(`
 resource "google_logging_folder_sink" "basic" {
-	name             = "%s"
-	folder           = "${google_folder.my-folder.name}"
-	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
-	include_children = false
+  name             = "%s"
+  folder           = google_folder.my-folder.name
+  destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = false
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_folder" "my-folder" {
-	display_name = "%s"
-    parent       = "%s"
-}`, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
+  display_name = "%s"
+  parent       = "%s"
+}
+`, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
 }
 
 func testAccLoggingFolderSink_heredoc(sinkName, bucketName, folderName, folderParent string) string {
 	return fmt.Sprintf(`
 resource "google_logging_folder_sink" "heredoc" {
-	name             = "%s"
-	folder           = "${element(split("/", google_folder.my-folder.name), 1)}"
-	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter           = <<EOS
+  name        = "%s"
+  folder      = element(split("/", google_folder.my-folder.name), 1)
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = <<EOS
 
 	logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
 AND severity>=ERROR
 
 
 
-  EOS
-	include_children = true
+EOS
+
+  include_children = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_folder" "my-folder" {
-	display_name = "%s"
-    parent       = "%s"
-}`, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
+  display_name = "%s"
+  parent       = "%s"
+}
+`, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
 }

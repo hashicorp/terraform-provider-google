@@ -279,732 +279,747 @@ func testAccCheckInstanceGroupManagerDestroy(s *terraform.State) error {
 
 func testAccInstanceGroupManager_basic(template, target, igm1, igm2 string) string {
 	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
 
-	resource "google_compute_instance_template" "igm-basic" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		tags = ["foo", "bar"]
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
 
-		disk {
-			source_image = "${data.google_compute_image.my_image.self_link}"
-			auto_delete = true
-			boot = true
-		}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
 
-		network_interface {
-			network = "default"
-		}
+  network_interface {
+    network = "default"
+  }
 
-		service_account {
-			scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-		}
-	}
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
 
-	resource "google_compute_target_pool" "igm-basic" {
-		description = "Resource created for Terraform acceptance testing"
-		name = "%s"
-		session_affinity = "CLIENT_IP_PROTO"
-	}
+resource "google_compute_target_pool" "igm-basic" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
 
-	resource "google_compute_instance_group_manager" "igm-basic" {
-		description = "Terraform test instance group manager"
-		name = "%s"
+resource "google_compute_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
 
-		version {
-			name = "prod"
-			instance_template = "${google_compute_instance_template.igm-basic.self_link}"
-		}
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.igm-basic.self_link
+  }
 
-		target_pools = ["${google_compute_target_pool.igm-basic.self_link}"]
-		base_instance_name = "igm-basic"
-		zone = "us-central1-c"
-		target_size = 2
-	}
+  target_pools       = [google_compute_target_pool.igm-basic.self_link]
+  base_instance_name = "igm-basic"
+  zone               = "us-central1-c"
+  target_size        = 2
+}
 
-	resource "google_compute_instance_group_manager" "igm-no-tp" {
-		description = "Terraform test instance group manager"
-		name = "%s"
+resource "google_compute_instance_group_manager" "igm-no-tp" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
 
-		version {
-			name = "prod"
-			instance_template = "${google_compute_instance_template.igm-basic.self_link}"
-		}
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.igm-basic.self_link
+  }
 
-		base_instance_name = "igm-no-tp"
-		zone = "us-central1-c"
-		target_size = 2
-	}
-	`, template, target, igm1, igm2)
+  base_instance_name = "igm-no-tp"
+  zone               = "us-central1-c"
+  target_size        = 2
+}
+`, template, target, igm1, igm2)
 }
 
 func testAccInstanceGroupManager_targetSizeZero(template, igm string) string {
 	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
 
-	resource "google_compute_instance_template" "igm-basic" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		tags = ["foo", "bar"]
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
 
-		disk {
-			source_image = "${data.google_compute_image.my_image.self_link}"
-			auto_delete = true
-			boot = true
-		}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
 
-		network_interface {
-			network = "default"
-		}
+  network_interface {
+    network = "default"
+  }
 
-		service_account {
-			scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-		}
-	}
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
 
-	resource "google_compute_instance_group_manager" "igm-basic" {
-		description = "Terraform test instance group manager"
-		name = "%s"
+resource "google_compute_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
 
-		version {
-			name = "prod"
-			instance_template = "${google_compute_instance_template.igm-basic.self_link}"
-		}
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.igm-basic.self_link
+  }
 
-		base_instance_name = "igm-basic"
-		zone = "us-central1-c"
-	}
-	`, template, igm)
+  base_instance_name = "igm-basic"
+  zone               = "us-central1-c"
+}
+`, template, igm)
 }
 
 func testAccInstanceGroupManager_update(template, target, igm string) string {
 	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
 
-	resource "google_compute_instance_template" "igm-update" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		tags = ["foo", "bar"]
+resource "google_compute_instance_template" "igm-update" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
 
-		disk {
-			source_image = "${data.google_compute_image.my_image.self_link}"
-			auto_delete = true
-			boot = true
-		}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
 
-		network_interface {
-			network = "default"
-		}
+  network_interface {
+    network = "default"
+  }
 
-		service_account {
-			scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-		}
-	}
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
 
-	resource "google_compute_target_pool" "igm-update" {
-		description = "Resource created for Terraform acceptance testing"
-		name = "%s"
-		session_affinity = "CLIENT_IP_PROTO"
-	}
+resource "google_compute_target_pool" "igm-update" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
 
-	resource "google_compute_instance_group_manager" "igm-update" {
-		description = "Terraform test instance group manager"
-		name = "%s"
+resource "google_compute_instance_group_manager" "igm-update" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
 
-		version {
-			name = "prod"
-			instance_template = "${google_compute_instance_template.igm-update.self_link}"
-		}
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.igm-update.self_link
+  }
 
-		target_pools = ["${google_compute_target_pool.igm-update.self_link}"]
-		base_instance_name = "igm-update"
-		zone = "us-central1-c"
-		target_size = 2
-		named_port {
-			name = "customhttp"
-			port = 8080
-		}
-	}`, template, target, igm)
+  target_pools       = [google_compute_target_pool.igm-update.self_link]
+  base_instance_name = "igm-update"
+  zone               = "us-central1-c"
+  target_size        = 2
+  named_port {
+    name = "customhttp"
+    port = 8080
+  }
+}
+`, template, target, igm)
 }
 
 // Change IGM's instance template and target size
 func testAccInstanceGroupManager_update2(template1, target1, target2, template2, igm string) string {
 	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
 
-	resource "google_compute_instance_template" "igm-update" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		tags = ["foo", "bar"]
+resource "google_compute_instance_template" "igm-update" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
 
-		disk {
-			source_image = "${data.google_compute_image.my_image.self_link}"
-			auto_delete = true
-			boot = true
-		}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
 
-		network_interface {
-			network = "default"
-		}
+  network_interface {
+    network = "default"
+  }
 
-		service_account {
-			scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-		}
-	}
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
 
-	resource "google_compute_target_pool" "igm-update" {
-		description = "Resource created for Terraform acceptance testing"
-		name = "%s"
-		session_affinity = "CLIENT_IP_PROTO"
-	}
+resource "google_compute_target_pool" "igm-update" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
 
-	resource "google_compute_target_pool" "igm-update2" {
-		description = "Resource created for Terraform acceptance testing"
-		name = "%s"
-		session_affinity = "CLIENT_IP_PROTO"
-	}
+resource "google_compute_target_pool" "igm-update2" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
 
-	resource "google_compute_instance_template" "igm-update2" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		tags = ["foo", "bar"]
+resource "google_compute_instance_template" "igm-update2" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
 
-		disk {
-			source_image = "${data.google_compute_image.my_image.self_link}"
-			auto_delete = true
-			boot = true
-		}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
 
-		network_interface {
-			network = "default"
-		}
+  network_interface {
+    network = "default"
+  }
 
-		service_account {
-			scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-		}
-	}
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
 
-	resource "google_compute_instance_group_manager" "igm-update" {
-		description = "Terraform test instance group manager"
-		name = "%s"
+resource "google_compute_instance_group_manager" "igm-update" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
 
-		version {
-			name = "prod"
-			instance_template = "${google_compute_instance_template.igm-update2.self_link}"
-		}
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.igm-update2.self_link
+  }
 
-		target_pools = [
-			"${google_compute_target_pool.igm-update.self_link}",
-			"${google_compute_target_pool.igm-update2.self_link}",
-		]
-		base_instance_name = "igm-update"
-		zone = "us-central1-c"
-		target_size = 3
-		named_port {
-			name = "customhttp"
-			port = 8080
-		}
-		named_port {
-			name = "customhttps"
-			port = 8443
-		}
-	}`, template1, target1, target2, template2, igm)
+  target_pools = [
+    google_compute_target_pool.igm-update.self_link,
+    google_compute_target_pool.igm-update2.self_link,
+  ]
+  base_instance_name = "igm-update"
+  zone               = "us-central1-c"
+  target_size        = 3
+  named_port {
+    name = "customhttp"
+    port = 8080
+  }
+  named_port {
+    name = "customhttps"
+    port = 8443
+  }
+}
+`, template1, target1, target2, template2, igm)
 }
 
 func testAccInstanceGroupManager_updateLifecycle(tag, igm string) string {
 	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
 
-	resource "google_compute_instance_template" "igm-update" {
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		tags = ["%s"]
+resource "google_compute_instance_template" "igm-update" {
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["%s"]
 
-		disk {
-			source_image = "${data.google_compute_image.my_image.self_link}"
-			auto_delete = true
-			boot = true
-		}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
 
-		network_interface {
-			network = "default"
-		}
+  network_interface {
+    network = "default"
+  }
 
-		service_account {
-			scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-		}
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
 
-		lifecycle {
-			create_before_destroy = true
-		}
-	}
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 
-	resource "google_compute_instance_group_manager" "igm-update" {
-		description = "Terraform test instance group manager"
-		name = "%s"
+resource "google_compute_instance_group_manager" "igm-update" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
 
-		version {
-			name = "prod"
-			instance_template = "${google_compute_instance_template.igm-update.self_link}"
-		}
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.igm-update.self_link
+  }
 
-		base_instance_name = "igm-update"
-		zone = "us-central1-c"
-		target_size = 2
-		named_port {
-			name = "customhttp"
-			port = 8080
-		}
-	}`, tag, igm)
+  base_instance_name = "igm-update"
+  zone               = "us-central1-c"
+  target_size        = 2
+  named_port {
+    name = "customhttp"
+    port = 8080
+  }
+}
+`, tag, igm)
 }
 
 func testAccInstanceGroupManager_rollingUpdatePolicy(igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "igm-rolling-update-policy" {
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	tags = ["terraform-testing"]
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["terraform-testing"]
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	service_account {
-		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-	}
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
 
-	lifecycle {
-		create_before_destroy = true
-	}
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
-	description = "Terraform test instance group manager"
-	name = "%s"
-	version {
-		name = "prod"
-		instance_template = "${google_compute_instance_template.igm-rolling-update-policy.self_link}"
-	}
-	base_instance_name = "igm-rolling-update-policy"
-	zone = "us-central1-c"
-	target_size = 3
-	update_policy {
-		type = "PROACTIVE"
-		minimal_action = "REPLACE"
-		max_surge_percent = 50
-		max_unavailable_percent = 50
-		min_ready_sec = 20
-	}
-	named_port {
-		name = "customhttp"
-		port = 8080
-	}
-}`, igm)
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.igm-rolling-update-policy.self_link
+  }
+  base_instance_name = "igm-rolling-update-policy"
+  zone               = "us-central1-c"
+  target_size        = 3
+  update_policy {
+    type                    = "PROACTIVE"
+    minimal_action          = "REPLACE"
+    max_surge_percent       = 50
+    max_unavailable_percent = 50
+    min_ready_sec           = 20
+  }
+  named_port {
+    name = "customhttp"
+    port = 8080
+  }
+}
+`, igm)
 }
 
 func testAccInstanceGroupManager_rollingUpdatePolicy2(igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "igm-rolling-update-policy" {
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	tags = ["terraform-testing"]
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["terraform-testing"]
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	lifecycle {
-		create_before_destroy = true
-	}
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
-	description = "Terraform test instance group manager"
-	name = "%s"
-	version {
-		name = "prod2"
-		instance_template = "${google_compute_instance_template.igm-rolling-update-policy.self_link}"
-	}
-	base_instance_name = "igm-rolling-update-policy"
-	zone = "us-central1-c"
-	target_size = 3
-	update_policy {
-		type = "PROACTIVE"
-		minimal_action = "REPLACE"
-		max_surge_fixed = 2
-		max_unavailable_fixed = 2
-		min_ready_sec = 20
-	}
-	named_port {
-		name = "customhttp"
-		port = 8080
-	}
-}`, igm)
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    name              = "prod2"
+    instance_template = google_compute_instance_template.igm-rolling-update-policy.self_link
+  }
+  base_instance_name = "igm-rolling-update-policy"
+  zone               = "us-central1-c"
+  target_size        = 3
+  update_policy {
+    type                  = "PROACTIVE"
+    minimal_action        = "REPLACE"
+    max_surge_fixed       = 2
+    max_unavailable_fixed = 2
+    min_ready_sec         = 20
+  }
+  named_port {
+    name = "customhttp"
+    port = 8080
+  }
+}
+`, igm)
 }
 
 func testAccInstanceGroupManager_rollingUpdatePolicy3(igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
+
 resource "google_compute_instance_template" "igm-rolling-update-policy" {
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	tags = ["terraform-testing"]
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		boot = true
-	}
-	network_interface {
-		network = "default"
-	}
-	lifecycle {
-		create_before_destroy = true
-	}
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["terraform-testing"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+  network_interface {
+    network = "default"
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
 }
+
 resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
-	description = "Terraform test instance group manager"
-	name = "%s"
-	version {
-		name = "prod2"
-		instance_template = "${google_compute_instance_template.igm-rolling-update-policy.self_link}"
-	}
-	base_instance_name = "igm-rolling-update-policy"
-	zone = "us-central1-c"
-	target_size = 3
-	update_policy {
-		type = "PROACTIVE"
-		minimal_action = "REPLACE"
-		max_surge_fixed = 0
-		max_unavailable_fixed = 2
-		min_ready_sec = 20
-	}
-	named_port {
-		name = "customhttp"
-		port = 8080
-	}
-}`, igm)
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    name              = "prod2"
+    instance_template = google_compute_instance_template.igm-rolling-update-policy.self_link
+  }
+  base_instance_name = "igm-rolling-update-policy"
+  zone               = "us-central1-c"
+  target_size        = 3
+  update_policy {
+    type                  = "PROACTIVE"
+    minimal_action        = "REPLACE"
+    max_surge_fixed       = 0
+    max_unavailable_fixed = 2
+    min_ready_sec         = 20
+  }
+  named_port {
+    name = "customhttp"
+    port = 8080
+  }
+}
+`, igm)
 }
 
 func testAccInstanceGroupManager_rollingUpdatePolicy4(igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
+
 resource "google_compute_instance_template" "igm-rolling-update-policy" {
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	tags = ["terraform-testing"]
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		boot = true
-	}
-	network_interface {
-		network = "default"
-	}
-	lifecycle {
-		create_before_destroy = true
-	}
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["terraform-testing"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+  network_interface {
+    network = "default"
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
 }
+
 resource "google_compute_instance_group_manager" "igm-rolling-update-policy" {
-	description = "Terraform test instance group manager"
-	name = "%s"
-	version {
-		name = "prod2"
-		instance_template = "${google_compute_instance_template.igm-rolling-update-policy.self_link}"
-	}
-	base_instance_name = "igm-rolling-update-policy"
-	zone = "us-central1-c"
-	target_size = 3
-	update_policy {
-		type = "PROACTIVE"
-		minimal_action = "REPLACE"
-		max_surge_fixed = 2
-		max_unavailable_fixed = 0
-		min_ready_sec = 20
-	}
-	named_port {
-		name = "customhttp"
-		port = 8080
-	}
-}`, igm)
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    name              = "prod2"
+    instance_template = google_compute_instance_template.igm-rolling-update-policy.self_link
+  }
+  base_instance_name = "igm-rolling-update-policy"
+  zone               = "us-central1-c"
+  target_size        = 3
+  update_policy {
+    type                  = "PROACTIVE"
+    minimal_action        = "REPLACE"
+    max_surge_fixed       = 2
+    max_unavailable_fixed = 0
+    min_ready_sec         = 20
+  }
+  named_port {
+    name = "customhttp"
+    port = 8080
+  }
+}
+`, igm)
 }
 
 func testAccInstanceGroupManager_separateRegions(igm1, igm2 string) string {
 	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
 
-	resource "google_compute_instance_template" "igm-basic" {
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		tags = ["foo", "bar"]
+resource "google_compute_instance_template" "igm-basic" {
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
 
-		disk {
-			source_image = "${data.google_compute_image.my_image.self_link}"
-			auto_delete = true
-			boot = true
-		}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
 
-		network_interface {
-			network = "default"
-		}
+  network_interface {
+    network = "default"
+  }
 
-		service_account {
-			scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-		}
-	}
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
 
-	resource "google_compute_instance_group_manager" "igm-basic" {
-		description = "Terraform test instance group manager"
-		name = "%s"
+resource "google_compute_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
 
-		version {
-			instance_template = "${google_compute_instance_template.igm-basic.self_link}"
-			name = "prod"
-		}
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "prod"
+  }
 
-		base_instance_name = "igm-basic"
-		zone = "us-central1-c"
-		target_size = 2
-	}
+  base_instance_name = "igm-basic"
+  zone               = "us-central1-c"
+  target_size        = 2
+}
 
-	resource "google_compute_instance_group_manager" "igm-basic-2" {
-		description = "Terraform test instance group manager"
-		name = "%s"
+resource "google_compute_instance_group_manager" "igm-basic-2" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
 
-		version {
-			name = "prod"
-			instance_template = "${google_compute_instance_template.igm-basic.self_link}"
-		}
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.igm-basic.self_link
+  }
 
-		base_instance_name = "igm-basic-2"
-		zone = "us-west1-b"
-		target_size = 2
-	}
-	`, igm1, igm2)
+  base_instance_name = "igm-basic-2"
+  zone               = "us-west1-b"
+  target_size        = 2
+}
+`, igm1, igm2)
 }
 
 func testAccInstanceGroupManager_autoHealingPolicies(template, target, igm, hck string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "igm-basic" {
-	name = "%s"
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	tags = ["foo", "bar"]
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		boot = true
-	}
-	network_interface {
-		network = "default"
-	}
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+  network_interface {
+    network = "default"
+  }
 
-	service_account {
-		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-	}
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
 }
 
 resource "google_compute_target_pool" "igm-basic" {
-	description = "Resource created for Terraform acceptance testing"
-	name = "%s"
-	session_affinity = "CLIENT_IP_PROTO"
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
 }
 
 resource "google_compute_instance_group_manager" "igm-basic" {
-	description = "Terraform test instance group manager"
-	name = "%s"
-	version {
-		instance_template = "${google_compute_instance_template.igm-basic.self_link}"
-		name = "prod"
-	}
-	target_pools = ["${google_compute_target_pool.igm-basic.self_link}"]
-	base_instance_name = "igm-basic"
-	zone = "us-central1-c"
-	target_size = 2
-	auto_healing_policies {
-		health_check = "${google_compute_http_health_check.zero.self_link}"
-		initial_delay_sec = "10"
-	}
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "prod"
+  }
+  target_pools       = [google_compute_target_pool.igm-basic.self_link]
+  base_instance_name = "igm-basic"
+  zone               = "us-central1-c"
+  target_size        = 2
+  auto_healing_policies {
+    health_check      = google_compute_http_health_check.zero.self_link
+    initial_delay_sec = "10"
+  }
 }
 
 resource "google_compute_http_health_check" "zero" {
-	name               = "%s"
-	request_path       = "/"
-	check_interval_sec = 1
-	timeout_sec        = 1
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
 }
-	`, template, target, igm, hck)
+`, template, target, igm, hck)
 }
 
 func testAccInstanceGroupManager_autoHealingPoliciesRemoved(template, target, igm, hck string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
-resource "google_compute_instance_template" "igm-basic" {
-	name = "%s"
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	tags = ["foo", "bar"]
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		boot = true
-	}
-	network_interface {
-		network = "default"
-	}
 
-	service_account {
-		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-	}
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
 }
+
 resource "google_compute_target_pool" "igm-basic" {
-	description = "Resource created for Terraform acceptance testing"
-	name = "%s"
-	session_affinity = "CLIENT_IP_PROTO"
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
 }
+
 resource "google_compute_instance_group_manager" "igm-basic" {
-	description = "Terraform test instance group manager"
-	name = "%s"
-	version {
-		instance_template = "${google_compute_instance_template.igm-basic.self_link}"
-		name = "prod"
-	}
-	target_pools = ["${google_compute_target_pool.igm-basic.self_link}"]
-	base_instance_name = "igm-basic"
-	zone = "us-central1-c"
-	target_size = 2
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "prod"
+  }
+  target_pools       = [google_compute_target_pool.igm-basic.self_link]
+  base_instance_name = "igm-basic"
+  zone               = "us-central1-c"
+  target_size        = 2
 }
+
 resource "google_compute_http_health_check" "zero" {
-	name               = "%s"
-	request_path       = "/"
-	check_interval_sec = 1
-	timeout_sec        = 1
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
 }
-	`, template, target, igm, hck)
+`, template, target, igm, hck)
 }
 
 func testAccInstanceGroupManager_versions(primaryTemplate string, canaryTemplate string, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "igm-primary" {
-	name = "%s"
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	tags = ["foo", "bar"]
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		boot = true
-	}
-	network_interface {
-		network = "default"
-	}
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+  network_interface {
+    network = "default"
+  }
 
-	service_account {
-		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-	}
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
 }
 
 resource "google_compute_instance_template" "igm-canary" {
-	name = "%s"
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	tags = ["foo", "bar"]
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		boot = true
-	}
-	network_interface {
-		network = "default"
-	}
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+  network_interface {
+    network = "default"
+  }
 
-	service_account {
-		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-	}
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
 }
 
 resource "google_compute_instance_group_manager" "igm-basic" {
-	description = "Terraform test instance group manager"
-	name = "%s"
-	base_instance_name = "igm-basic"
-	zone = "us-central1-c"
-	target_size = 2
+  description        = "Terraform test instance group manager"
+  name               = "%s"
+  base_instance_name = "igm-basic"
+  zone               = "us-central1-c"
+  target_size        = 2
 
-	version {
-		name = "primary"
-		instance_template = "${google_compute_instance_template.igm-primary.self_link}"
-	}
+  version {
+    name              = "primary"
+    instance_template = google_compute_instance_template.igm-primary.self_link
+  }
 
-	version {
-		name = "canary"
-		instance_template = "${google_compute_instance_template.igm-canary.self_link}"
-		target_size {
-			fixed = 1
-		}
-	}
+  version {
+    name              = "canary"
+    instance_template = google_compute_instance_template.igm-canary.self_link
+    target_size {
+      fixed = 1
+    }
+  }
 }
-	`, primaryTemplate, canaryTemplate, igm)
+`, primaryTemplate, canaryTemplate, igm)
 }

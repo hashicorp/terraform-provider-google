@@ -89,7 +89,7 @@ func TestAccCloudBuildTrigger_fullStep(t *testing.T) {
 func testAccCloudBuildTrigger_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
-  name = "%s"
+  name        = "%s"
   description = "acceptance test build trigger"
   trigger_template {
     branch_name = "master"
@@ -97,7 +97,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   }
   build {
     images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
-    tags = ["team-a", "service-b"]
+    tags   = ["team-a", "service-b"]
     step {
       name = "gcr.io/cloud-builders/gsutil"
       args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
@@ -105,7 +105,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     step {
       name = "gcr.io/cloud-builders/go"
       args = ["build", "my_package"]
-      env = ["env1=two"]
+      env  = ["env1=two"]
     }
     step {
       name = "gcr.io/cloud-builders/docker"
@@ -113,14 +113,14 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     }
   }
 }
-  `, name)
+`, name)
 }
 
 func testAccCloudBuildTrigger_basicDisabled(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
-  disabled = true
-  name = "%s"
+  disabled    = true
+  name        = "%s"
   description = "acceptance test build trigger"
   trigger_template {
     branch_name = "master"
@@ -128,7 +128,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   }
   build {
     images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
-    tags = ["team-a", "service-b"]
+    tags   = ["team-a", "service-b"]
     step {
       name = "gcr.io/cloud-builders/gsutil"
       args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
@@ -136,7 +136,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     step {
       name = "gcr.io/cloud-builders/go"
       args = ["build", "my_package"]
-      env = ["env1=two"]
+      env  = ["env1=two"]
     }
     step {
       name = "gcr.io/cloud-builders/docker"
@@ -144,7 +144,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     }
   }
 }
-  `, name)
+`, name)
 }
 
 func testAccCloudBuildTrigger_fullStep() string {
@@ -157,34 +157,34 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   }
   build {
     images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
-    tags = ["team-a", "service-b"]
+    tags   = ["team-a", "service-b"]
     step {
-      name = "gcr.io/cloud-builders/go"
-      args = ["build", "my_package"]
-      env = ["env1=two"]
-      dir = "directory"
-      id = "12345"
+      name       = "gcr.io/cloud-builders/go"
+      args       = ["build", "my_package"]
+      env        = ["env1=two"]
+      dir        = "directory"
+      id         = "12345"
       secret_env = ["fooo"]
-      timeout = "100s"
-      wait_for = ["something"]
+      timeout    = "100s"
+      wait_for   = ["something"]
     }
   }
 }
-  `)
+`)
 }
 
 func testAccCloudBuildTrigger_updated(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
   description = "acceptance test build trigger updated"
-  name = "%s"
+  name        = "%s"
   trigger_template {
     branch_name = "master-updated"
     repo_name   = "some-repo-updated"
   }
   build {
     images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA"]
-    tags = ["team-a", "service-b", "updated"]
+    tags   = ["team-a", "service-b", "updated"]
     step {
       name = "gcr.io/cloud-builders/gsutil"
       args = ["cp", "gs://mybucket/remotefile.zip", "localfile-updated.zip"]
@@ -203,5 +203,5 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     }
   }
 }
-  `, name)
+`, name)
 }

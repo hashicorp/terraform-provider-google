@@ -1158,703 +1158,724 @@ func testAccCheckComputeInstanceTemplateLacksShieldedVmConfig(instanceTemplate *
 func testAccComputeInstanceTemplate_basic() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	tags = ["foo", "bar"]
+  name           = "instancet-test-%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	scheduling {
-		preemptible = false
-		automatic_restart = true
-	}
+  scheduling {
+    preemptible       = false
+    automatic_restart = true
+  }
 
-	metadata = {
-		foo = "bar"
-	}
+  metadata = {
+    foo = "bar"
+  }
 
-	service_account {
-		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-	}
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
 
-    labels = {
-        my_label = "foobar"
-    }
-}`, acctest.RandString(10))
+  labels = {
+    my_label = "foobar"
+  }
+}
+`, acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_imageShorthand() string {
 	return fmt.Sprintf(`
 resource "google_compute_image" "foobar" {
-	name = "test-%s"
-	description = "description-test"
-	family = "family-test"
-	raw_disk {
-	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
-	}
-	labels = {
-		my-label = "my-label-value"
-		empty-label = ""
-	}
-	timeouts {
-		create = "5m"
-	}
+  name        = "test-%s"
+  description = "description-test"
+  family      = "family-test"
+  raw_disk {
+    source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+  }
+  labels = {
+    my-label    = "my-label-value"
+    empty-label = ""
+  }
+  timeouts {
+    create = "5m"
+  }
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	tags = ["foo", "bar"]
+  name           = "instancet-test-%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
 
-	disk {
-		source_image = "${google_compute_image.foobar.name}"
-		auto_delete = true
-		boot = true
-	}
+  disk {
+    source_image = google_compute_image.foobar.name
+    auto_delete  = true
+    boot         = true
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	scheduling {
-		preemptible = false
-		automatic_restart = true
-	}
+  scheduling {
+    preemptible       = false
+    automatic_restart = true
+  }
 
-	metadata = {
-		foo = "bar"
-	}
+  metadata = {
+    foo = "bar"
+  }
 
-	service_account {
-		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-	}
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
 
-    labels = {
-        my_label = "foobar"
-    }
-}`, acctest.RandString(10), acctest.RandString(10))
+  labels = {
+    my_label = "foobar"
+  }
+}
+`, acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_preemptible() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	tags = ["foo", "bar"]
+  name           = "instancet-test-%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	scheduling {
-		preemptible = true
-		automatic_restart = false
-	}
+  scheduling {
+    preemptible       = true
+    automatic_restart = false
+  }
 
-	metadata = {
-		foo = "bar"
-	}
+  metadata = {
+    foo = "bar"
+  }
 
-	service_account {
-		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-	}
-}`, acctest.RandString(10))
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+`, acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_ip() string {
 	return fmt.Sprintf(`
 resource "google_compute_address" "foo" {
-	name = "instancet-test-%s"
+  name = "instancet-test-%s"
 }
 
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
-	tags = ["foo", "bar"]
+  name         = "instancet-test-%s"
+  machine_type = "n1-standard-1"
+  tags         = ["foo", "bar"]
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+  }
 
-	network_interface {
-		network = "default"
-		access_config {
-			nat_ip = "${google_compute_address.foo.address}"
-		}
-	}
+  network_interface {
+    network = "default"
+    access_config {
+      nat_ip = google_compute_address.foo.address
+    }
+  }
 
-	metadata = {
-		foo = "bar"
-	}
-}`, acctest.RandString(10), acctest.RandString(10))
+  metadata = {
+    foo = "bar"
+  }
+}
+`, acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_networkTier() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
+  name         = "instancet-test-%s"
+  machine_type = "n1-standard-1"
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+  }
 
-	network_interface {
-		network = "default"
-		access_config {
-			network_tier = "STANDARD"
-		}
-	}
-}`, acctest.RandString(10))
+  network_interface {
+    network = "default"
+    access_config {
+      network_tier = "STANDARD"
+    }
+  }
+}
+`, acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_networkIP(networkIP string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
-	tags = ["foo", "bar"]
+  name         = "instancet-test-%s"
+  machine_type = "n1-standard-1"
+  tags         = ["foo", "bar"]
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+  }
 
-	network_interface {
-		network    = "default"
-		network_ip = "%s"
-	}
+  network_interface {
+    network    = "default"
+    network_ip = "%s"
+  }
 
-	metadata = {
-		foo = "bar"
-	}
-}`, acctest.RandString(10), networkIP)
+  metadata = {
+    foo = "bar"
+  }
+}
+`, acctest.RandString(10), networkIP)
 }
 
 func testAccComputeInstanceTemplate_networkIPAddress(ipAddress string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
-	tags = ["foo", "bar"]
+  name         = "instancet-test-%s"
+  machine_type = "n1-standard-1"
+  tags         = ["foo", "bar"]
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+  }
 
-	network_interface {
-		network    = "default"
-		network_ip    = "%s"
-	}
+  network_interface {
+    network    = "default"
+    network_ip = "%s"
+  }
 
-	metadata = {
-		foo = "bar"
-	}
-}`, acctest.RandString(10), ipAddress)
+  metadata = {
+    foo = "bar"
+  }
+}
+`, acctest.RandString(10), ipAddress)
 }
 
 func testAccComputeInstanceTemplate_disks() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
-	name = "instancet-test-%s"
-	image = "${data.google_compute_image.my_image.self_link}"
-	size = 10
-	type = "pd-ssd"
-	zone = "us-central1-a"
+  name  = "instancet-test-%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
+  name         = "instancet-test-%s"
+  machine_type = "n1-standard-1"
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		disk_size_gb = 100
-		boot = true
-		labels = {
-			foo = "bar"
-		}
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 100
+    boot         = true
+    labels = {
+      foo = "bar"
+    }
+  }
 
-	disk {
-		source = "${google_compute_disk.foobar.name}"
-		auto_delete = false
-		boot = false
-	}
+  disk {
+    source      = google_compute_disk.foobar.name
+    auto_delete = false
+    boot        = false
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	metadata = {
-		foo = "bar"
-	}
-}`, acctest.RandString(10), acctest.RandString(10))
+  metadata = {
+    foo = "bar"
+  }
+}
+`, acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_disksInvalid() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
-	name = "instancet-test-%s"
-	image = "${data.google_compute_image.my_image.self_link}"
-	size = 10
-	type = "pd-ssd"
-	zone = "us-central1-a"
+  name  = "instancet-test-%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
+  name         = "instancet-test-%s"
+  machine_type = "n1-standard-1"
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		disk_size_gb = 100
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 100
+    boot         = true
+  }
 
-	disk {
-		source = "${google_compute_disk.foobar.name}"
-		disk_size_gb = 50
-		auto_delete = false
-		boot = false
-	}
+  disk {
+    source       = google_compute_disk.foobar.name
+    disk_size_gb = 50
+    auto_delete  = false
+    boot         = false
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	metadata = {
-		foo = "bar"
-	}
-}`, acctest.RandString(10), acctest.RandString(10))
+  metadata = {
+    foo = "bar"
+  }
+}
+`, acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_regionDisks() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_region_disk" "foobar" {
-	name = "instancet-test-%s"
-	size = 10
-	type = "pd-ssd"
-	region = "us-central1"
-	replica_zones = ["us-central1-a", "us-central1-f"]
+  name          = "instancet-test-%s"
+  size          = 10
+  type          = "pd-ssd"
+  region        = "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-f"]
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
+  name         = "instancet-test-%s"
+  machine_type = "n1-standard-1"
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		disk_size_gb = 100
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 100
+    boot         = true
+  }
 
-	disk {
-		source = "${google_compute_region_disk.foobar.name}"
-		auto_delete = false
-		boot = false
-	}
+  disk {
+    source      = google_compute_region_disk.foobar.name
+    auto_delete = false
+    boot        = false
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	metadata = {
-		foo = "bar"
-	}
-}`, acctest.RandString(10), acctest.RandString(10))
+  metadata = {
+    foo = "bar"
+  }
+}
+`, acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_subnet_auto(network string) string {
 	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
 
-	resource "google_compute_network" "auto-network" {
-		name = "%s"
-		auto_create_subnetworks = true
-	}
+resource "google_compute_network" "auto-network" {
+  name                    = "%s"
+  auto_create_subnetworks = true
+}
 
-	resource "google_compute_instance_template" "foobar" {
-		name = "instance-tpl-%s"
-		machine_type = "n1-standard-1"
+resource "google_compute_instance_template" "foobar" {
+  name         = "instance-tpl-%s"
+  machine_type = "n1-standard-1"
 
-		disk {
-			source_image = "${data.google_compute_image.my_image.self_link}"
-			auto_delete = true
-			disk_size_gb = 10
-			boot = true
-		}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 10
+    boot         = true
+  }
 
-		network_interface {
-			network = "${google_compute_network.auto-network.name}"
-		}
+  network_interface {
+    network = google_compute_network.auto-network.name
+  }
 
-		metadata = {
-			foo = "bar"
-		}
-	}`, network, acctest.RandString(10))
+  metadata = {
+    foo = "bar"
+  }
+}
+`, network, acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_subnet_custom() string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "network" {
-	name = "network-%s"
-	auto_create_subnetworks = false
+  name                    = "network-%s"
+  auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-	name = "subnetwork-%s"
-	ip_cidr_range = "10.0.0.0/24"
-	region = "us-central1"
-	network = "${google_compute_network.network.self_link}"
+  name          = "subnetwork-%s"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.network.self_link
 }
 
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instance-test-%s"
-	machine_type = "n1-standard-1"
-	region = "us-central1"
+  name         = "instance-test-%s"
+  machine_type = "n1-standard-1"
+  region       = "us-central1"
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		disk_size_gb = 10
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 10
+    boot         = true
+  }
 
-	network_interface {
-		subnetwork = "${google_compute_subnetwork.subnetwork.name}"
-	}
+  network_interface {
+    subnetwork = google_compute_subnetwork.subnetwork.name
+  }
 
-	metadata = {
-		foo = "bar"
-	}
-}`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+  metadata = {
+    foo = "bar"
+  }
+}
+`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_subnet_xpn(org, billingId, projectName string) string {
 	return fmt.Sprintf(`
-	resource "google_project" "host_project" {
-		name = "Test Project XPN Host"
-		project_id = "%s-host"
-		org_id = "%s"
-		billing_account = "%s"
-	}
+resource "google_project" "host_project" {
+  name            = "Test Project XPN Host"
+  project_id      = "%s-host"
+  org_id          = "%s"
+  billing_account = "%s"
+}
 
-	resource "google_project_service" "host_project" {
-		project = "${google_project.host_project.project_id}"
-		service = "compute.googleapis.com"
-	}
+resource "google_project_service" "host_project" {
+  project = google_project.host_project.project_id
+  service = "compute.googleapis.com"
+}
 
-	resource "google_compute_shared_vpc_host_project" "host_project" {
-		project = "${google_project_service.host_project.project}"
-	}
+resource "google_compute_shared_vpc_host_project" "host_project" {
+  project = google_project_service.host_project.project
+}
 
-	resource "google_project" "service_project" {
-		name = "Test Project XPN Service"
-		project_id = "%s-service"
-		org_id = "%s"
-		billing_account = "%s"
-	}
+resource "google_project" "service_project" {
+  name            = "Test Project XPN Service"
+  project_id      = "%s-service"
+  org_id          = "%s"
+  billing_account = "%s"
+}
 
-	resource "google_project_service" "service_project" {
-		project = "${google_project.service_project.project_id}"
-		service = "compute.googleapis.com"
-	}
+resource "google_project_service" "service_project" {
+  project = google_project.service_project.project_id
+  service = "compute.googleapis.com"
+}
 
-	resource "google_compute_shared_vpc_service_project" "service_project" {
-		host_project = "${google_compute_shared_vpc_host_project.host_project.project}"
-		service_project = "${google_project_service.service_project.project}"
-	}
+resource "google_compute_shared_vpc_service_project" "service_project" {
+  host_project    = google_compute_shared_vpc_host_project.host_project.project
+  service_project = google_project_service.service_project.project
+}
 
-	resource "google_compute_network" "network" {
-		name = "network-%s"
-		auto_create_subnetworks = false
-		project = "${google_compute_shared_vpc_host_project.host_project.project}"
-	}
+resource "google_compute_network" "network" {
+  name                    = "network-%s"
+  auto_create_subnetworks = false
+  project                 = google_compute_shared_vpc_host_project.host_project.project
+}
 
-	resource "google_compute_subnetwork" "subnetwork" {
-		name = "subnetwork-%s"
-		ip_cidr_range = "10.0.0.0/24"
-		region = "us-central1"
-		network = "${google_compute_network.network.self_link}"
-		project = "${google_compute_shared_vpc_host_project.host_project.project}"
-	}
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "subnetwork-%s"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.network.self_link
+  project       = google_compute_shared_vpc_host_project.host_project.project
+}
 
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
 
-	resource "google_compute_instance_template" "foobar" {
-		name = "instance-test-%s"
-		machine_type = "n1-standard-1"
-		region = "us-central1"
+resource "google_compute_instance_template" "foobar" {
+  name         = "instance-test-%s"
+  machine_type = "n1-standard-1"
+  region       = "us-central1"
 
-		disk {
-			source_image = "${data.google_compute_image.my_image.self_link}"
-			auto_delete = true
-			disk_size_gb = 10
-			boot = true
-		}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 10
+    boot         = true
+  }
 
-		network_interface {
-			subnetwork = "${google_compute_subnetwork.subnetwork.name}"
-			subnetwork_project = "${google_compute_subnetwork.subnetwork.project}"
-		}
+  network_interface {
+    subnetwork         = google_compute_subnetwork.subnetwork.name
+    subnetwork_project = google_compute_subnetwork.subnetwork.project
+  }
 
-		metadata = {
-			foo = "bar"
-		}
-		project = "${google_compute_shared_vpc_service_project.service_project.service_project}"
-	}`, projectName, org, billingId, projectName, org, billingId, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+  metadata = {
+    foo = "bar"
+  }
+  project = google_compute_shared_vpc_service_project.service_project.service_project
+}
+`, projectName, org, billingId, projectName, org, billingId, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_startup_script() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instance-test-%s"
-	machine_type = "n1-standard-1"
+  name         = "instance-test-%s"
+  machine_type = "n1-standard-1"
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		disk_size_gb = 10
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 10
+    boot         = true
+  }
 
-	metadata = {
-		foo = "bar"
-	}
+  metadata = {
+    foo = "bar"
+  }
 
-	network_interface{
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	metadata_startup_script = "echo 'Hello'"
-}`, acctest.RandString(10))
+  metadata_startup_script = "echo 'Hello'"
+}
+`, acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_primaryAliasIpRange(i string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instance-test-%s"
-	machine_type = "n1-standard-1"
+  name         = "instance-test-%s"
+  machine_type = "n1-standard-1"
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		disk_size_gb = 10
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 10
+    boot         = true
+  }
 
-	metadata = {
-		foo = "bar"
-	}
+  metadata = {
+    foo = "bar"
+  }
 
-	network_interface{
-		network = "default"
-		alias_ip_range {
-			ip_cidr_range = "/24"
-		}
-	}
-}`, i)
+  network_interface {
+    network = "default"
+    alias_ip_range {
+      ip_cidr_range = "/24"
+    }
+  }
+}
+`, i)
 }
 
 func testAccComputeInstanceTemplate_secondaryAliasIpRange(i string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "inst-test-network" {
-	name = "inst-test-network-%s"
+  name = "inst-test-network-%s"
 }
+
 resource "google_compute_subnetwork" "inst-test-subnetwork" {
-	name          = "inst-test-subnetwork-%s"
-	ip_cidr_range = "10.0.0.0/16"
-	region        = "us-east1"
-	network       = "${google_compute_network.inst-test-network.self_link}"
-	secondary_ip_range {
-		range_name = "inst-test-secondary"
-		ip_cidr_range = "172.16.0.0/20"
-	}
+  name          = "inst-test-subnetwork-%s"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-east1"
+  network       = google_compute_network.inst-test-network.self_link
+  secondary_ip_range {
+    range_name    = "inst-test-secondary"
+    ip_cidr_range = "172.16.0.0/20"
+  }
 }
+
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
+
 resource "google_compute_instance_template" "foobar" {
-	name = "instance-test-%s"
-	machine_type = "n1-standard-1"
+  name         = "instance-test-%s"
+  machine_type = "n1-standard-1"
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		disk_size_gb = 10
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 10
+    boot         = true
+  }
 
-	metadata = {
-		foo = "bar"
-	}
+  metadata = {
+    foo = "bar"
+  }
 
-  	network_interface {
-		subnetwork = "${google_compute_subnetwork.inst-test-subnetwork.self_link}"
+  network_interface {
+    subnetwork = google_compute_subnetwork.inst-test-subnetwork.self_link
 
-		// Note that unlike compute instances, instance templates seem to be
-		// only able to specify the netmask here. Trying a full CIDR string
-		// results in:
-		// Invalid value for field 'resource.properties.networkInterfaces[0].aliasIpRanges[0].ipCidrRange':
-		// '172.16.0.0/24'. Alias IP CIDR range must be a valid netmask starting with '/' (e.g. '/24')
-		alias_ip_range {
-			subnetwork_range_name = "${google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range.0.range_name}"
-			ip_cidr_range = "/24"
-		}
-	}
-}`, i, i, i)
+    // Note that unlike compute instances, instance templates seem to be
+    // only able to specify the netmask here. Trying a full CIDR string
+    // results in:
+    // Invalid value for field 'resource.properties.networkInterfaces[0].aliasIpRanges[0].ipCidrRange':
+    // '172.16.0.0/24'. Alias IP CIDR range must be a valid netmask starting with '/' (e.g. '/24')
+    alias_ip_range {
+      subnetwork_range_name = google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range[0].range_name
+      ip_cidr_range         = "/24"
+    }
+  }
+}
+`, i, i, i)
 }
 
 func testAccComputeInstanceTemplate_guestAccelerator(i string, count uint8) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instance-test-%s"
-	machine_type = "n1-standard-1"
+  name         = "instance-test-%s"
+  machine_type = "n1-standard-1"
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		disk_size_gb = 10
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 10
+    boot         = true
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	scheduling {
-		# Instances with guest accelerators do not support live migration.
-		on_host_maintenance = "TERMINATE"
-	}
+  scheduling {
+    # Instances with guest accelerators do not support live migration.
+    on_host_maintenance = "TERMINATE"
+  }
 
-	guest_accelerator {
-		count = %d
-		type = "nvidia-tesla-k80"
-	}
-}`, i, count)
+  guest_accelerator {
+    count = %d
+    type  = "nvidia-tesla-k80"
+  }
+}
+`, i, count)
 }
 
 func testAccComputeInstanceTemplate_minCpuPlatform(i string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instance-test-%s"
-	machine_type = "n1-standard-1"
+  name         = "instance-test-%s"
+  machine_type = "n1-standard-1"
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		disk_size_gb = 10
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 10
+    boot         = true
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	scheduling {
-		# Instances with guest accelerators do not support live migration.
-		on_host_maintenance = "TERMINATE"
-	}
+  scheduling {
+    # Instances with guest accelerators do not support live migration.
+    on_host_maintenance = "TERMINATE"
+  }
 
-	min_cpu_platform = "%s"
-}`, i, DEFAULT_MIN_CPU_TEST_VALUE)
+  min_cpu_platform = "%s"
+}
+`, i, DEFAULT_MIN_CPU_TEST_VALUE)
 }
 
 func testAccComputeInstanceTemplate_encryptionKMS(kmsLink string) string {
@@ -1865,118 +1886,123 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
+  name           = "instancet-test-%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		disk_encryption_key {
-			kms_key_self_link = "%s"
-		}
-	}
-
-	network_interface {
-		network = "default"
-	}
-
-	service_account {
-		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-	}
-
-    labels = {
-        my_label = "foobar"
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    disk_encryption_key {
+      kms_key_self_link = "%s"
     }
-}`, acctest.RandString(10), kmsLink)
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+
+  labels = {
+    my_label = "foobar"
+  }
+}
+`, acctest.RandString(10), kmsLink)
 }
 
 func testAccComputeInstanceTemplate_soleTenantInstanceTemplate() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
+  name         = "instancet-test-%s"
+  machine_type = "n1-standard-1"
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	scheduling {
-		preemptible = false
-		automatic_restart = true
-		node_affinities {
-      		key = "tfacc"
-      		operator = "IN"
-      		values = ["testinstancetemplate"]
-        }
-	}
+  scheduling {
+    preemptible       = false
+    automatic_restart = true
+    node_affinities {
+      key      = "tfacc"
+      operator = "IN"
+      values   = ["testinstancetemplate"]
+    }
+  }
 
-	service_account {
-		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-	}
-}`, acctest.RandString(10))
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+`, acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_shieldedVmConfig(enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "centos-7"
-	project = "gce-uefi-images"
+  family  = "centos-7"
+  project = "gce-uefi-images"
 }
 
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
+  name           = "instancet-test-%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
 
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		boot = true
-	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	shielded_instance_config {
-		enable_secure_boot          = %t
-		enable_vtpm                 = %t
-		enable_integrity_monitoring = %t
-	}
-}`, acctest.RandString(10), enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
+  shielded_instance_config {
+    enable_secure_boot          = %t
+    enable_vtpm                 = %t
+    enable_integrity_monitoring = %t
+  }
+}
+`, acctest.RandString(10), enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
 }
 
 func testAccComputeInstanceTemplate_enableDisplay() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "centos-7"
-	project = "gce-uefi-images"
+  family  = "centos-7"
+  project = "gce-uefi-images"
 }
+
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	disk {
-		source_image = "${data.google_compute_image.my_image.self_link}"
-		auto_delete = true
-		boot = true
-	}
-	network_interface {
-		network = "default"
-	}
-	enable_display = true
-}`, acctest.RandString(10))
+  name           = "instancet-test-%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+  network_interface {
+    network = "default"
+  }
+  enable_display = true
+}
+`, acctest.RandString(10))
 }
 
 func testAccComputeInstanceTemplate_invalidDiskType() string {
@@ -1988,27 +2014,28 @@ func testAccComputeInstanceTemplate_invalidDiskType() string {
 # 	project = "gce-uefi-images"
 # }
 resource "google_compute_instance_template" "foobar" {
-	name = "instancet-test-%s"
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	disk {
-		source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
-		auto_delete = true
-		boot = true
-	}
-	disk {
-		auto_delete = true
-		disk_size_gb = 375
-		type = "SCRATCH"
-		disk_type = "local-ssd"
-	}
-	disk {
-		source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
-		auto_delete = true
-		type = "SCRATCH"
-	}
-	network_interface {
-		network = "default"
-	}
-}`, acctest.RandString(10))
+  name           = "instancet-test-%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  disk {
+    source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+    auto_delete  = true
+    boot         = true
+  }
+  disk {
+    auto_delete  = true
+    disk_size_gb = 375
+    type         = "SCRATCH"
+    disk_type    = "local-ssd"
+  }
+  disk {
+    source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+    auto_delete  = true
+    type         = "SCRATCH"
+  }
+  network_interface {
+    network = "default"
+  }
+}
+`, acctest.RandString(10))
 }

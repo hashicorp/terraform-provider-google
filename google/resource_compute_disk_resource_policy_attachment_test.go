@@ -44,37 +44,38 @@ func TestAccComputeDiskResourcePolicyAttachment_basic(t *testing.T) {
 func testAccComputeDiskResourcePolicyAttachment_basic(diskName, policyName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
-	name = "%s"
-	image = "${data.google_compute_image.my_image.self_link}"
-	size = 50
-	type = "pd-ssd"
-	zone = "us-central1-a"
-	labels = {
-		my-label = "my-label-value"
-	}
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 50
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+  labels = {
+    my-label = "my-label-value"
+  }
 }
 
 resource "google_compute_resource_policy" "foobar" {
-	name = "%s"
-	region = "us-central1"
-	snapshot_schedule_policy {
-		schedule {
-			daily_schedule {
-				days_in_cycle = 1
-				start_time = "04:00"
-			}
-		}
-	}
+  name = "%s"
+  region = "us-central1"
+  snapshot_schedule_policy {
+    schedule {
+      daily_schedule {
+        days_in_cycle = 1
+        start_time = "04:00"
+      }
+    }
+  }
 }
 
 resource "google_compute_disk_resource_policy_attachment" "foobar" {
-	name = google_compute_resource_policy.foobar.name
+  name = google_compute_resource_policy.foobar.name
   disk = google_compute_disk.foobar.name
-	zone = "us-central1-a"
-}`, diskName, policyName)
+  zone = "us-central1-a"
+}
+`, diskName, policyName)
 }

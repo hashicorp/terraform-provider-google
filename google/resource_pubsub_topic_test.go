@@ -66,10 +66,10 @@ func TestAccPubsubTopic_cmek(t *testing.T) {
 func testAccPubsubTopic_update(topic, key, value string) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "foo" {
-	name = "%s"
-	labels = {
-		%s = "%s"
-	}
+  name = "%s"
+  labels = {
+    %s = "%s"
+  }
 }
 `, topic, key, value)
 }
@@ -77,16 +77,16 @@ resource "google_pubsub_topic" "foo" {
 func testAccPubsubTopic_updateWithRegion(topic, key, value, region string) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "foo" {
-	name = "%s"
-	labels = {
-		%s = "%s"
-	}
+  name = "%s"
+  labels = {
+    %s = "%s"
+  }
 
-	message_storage_policy {
-		allowed_persistence_regions = [
-		  "%s",
-		]
-	}
+  message_storage_policy {
+    allowed_persistence_regions = [
+      "%s",
+    ]
+  }
 }
 `, topic, key, value, region)
 }
@@ -98,14 +98,14 @@ data "google_project" "project" {
 }
 
 resource "google_project_iam_member" "kms-project-binding" {
-  project = "${data.google_project.project.project_id}"
+  project = data.google_project.project.project_id
   role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
 }
 
 resource "google_pubsub_topic" "topic" {
   name         = "%s"
-  project      = "${google_project_iam_member.kms-project-binding.project}"
+  project      = google_project_iam_member.kms-project-binding.project
   kms_key_name = "%s"
 }
 `, pid, topicName, kmsKey)

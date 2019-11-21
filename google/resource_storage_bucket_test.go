@@ -1057,7 +1057,7 @@ func testAccStorageBucketDestroy(s *terraform.State) error {
 func testAccStorageBucket_basic(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 `, bucketName)
 }
@@ -1065,8 +1065,8 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_requesterPays(bucketName string, pays bool) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	requester_pays = %t
+  name           = "%s"
+  requester_pays = %t
 }
 `, bucketName, pays)
 }
@@ -1074,8 +1074,8 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_lowercaseLocation(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	location = "eu"
+  name     = "%s"
+  location = "eu"
 }
 `, bucketName)
 }
@@ -1083,9 +1083,9 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_customAttributes(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	location = "EU"
-	force_destroy = "true"
+  name          = "%s"
+  location      = "EU"
+  force_destroy = "true"
 }
 `, bucketName)
 }
@@ -1093,17 +1093,17 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_customAttributes_withLifecycle1(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	location = "EU"
-	force_destroy = "true"
-	lifecycle_rule {
-		action {
-			type = "Delete"
-		}
-		condition {
-			age = 10
-		}
-	}
+  name          = "%s"
+  location      = "EU"
+  force_destroy = "true"
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      age = 10
+    }
+  }
 }
 `, bucketName)
 }
@@ -1111,27 +1111,27 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_customAttributes_withLifecycle2(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	location = "EU"
-	force_destroy = "true"
-	lifecycle_rule {
-		action {
-			type = "SetStorageClass"
-			storage_class = "NEARLINE"
-		}
-		condition {
-			age = 2
-		}
-	}
-	lifecycle_rule {
-		action {
-			type = "Delete"
-		}
-		condition {
-			age = 10
-			num_newer_versions = 2
-		}
-	}
+  name          = "%s"
+  location      = "EU"
+  force_destroy = "true"
+  lifecycle_rule {
+    action {
+      type          = "SetStorageClass"
+      storage_class = "NEARLINE"
+    }
+    condition {
+      age = 2
+    }
+  }
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      age                = 10
+      num_newer_versions = 2
+    }
+  }
 }
 `, bucketName)
 }
@@ -1144,8 +1144,8 @@ func testAccStorageBucket_storageClass(bucketName, storageClass, location string
 	}
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	storage_class = "%s"%s
+  name          = "%s"
+  storage_class = "%s"%s
 }
 `, bucketName, storageClass, locationBlock)
 }
@@ -1153,20 +1153,20 @@ resource "google_storage_bucket" "bucket" {
 func testGoogleStorageBucketsCors(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	cors {
-	  origin = ["abc", "def"]
-	  method = ["a1a"]
-	  response_header = ["123", "456", "789"]
-	  max_age_seconds = 10
-	}
+  name = "%s"
+  cors {
+    origin          = ["abc", "def"]
+    method          = ["a1a"]
+    response_header = ["123", "456", "789"]
+    max_age_seconds = 10
+  }
 
-	cors {
-	  origin = ["ghi", "jkl"]
-	  method = ["z9z"]
-	  response_header = ["000"]
-	  max_age_seconds = 5
-	}
+  cors {
+    origin          = ["ghi", "jkl"]
+    method          = ["z9z"]
+    response_header = ["000"]
+    max_age_seconds = 5
+  }
 }
 `, bucketName)
 }
@@ -1174,11 +1174,11 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_forceDestroyWithVersioning(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	force_destroy = "true"
-	versioning {
-	  enabled = "true"
-	}
+  name          = "%s"
+  force_destroy = "true"
+  versioning {
+    enabled = "true"
+  }
 }
 `, bucketName)
 }
@@ -1186,10 +1186,10 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_versioning(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	versioning {
-	  enabled = "true"
-	}
+  name = "%s"
+  versioning {
+    enabled = "true"
+  }
 }
 `, bucketName)
 }
@@ -1197,10 +1197,10 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_logging(bucketName string, logBucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	logging {
-		log_bucket = "%s"
-	}
+  name = "%s"
+  logging {
+    log_bucket = "%s"
+  }
 }
 `, bucketName, logBucketName)
 }
@@ -1208,11 +1208,11 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_loggingWithPrefix(bucketName string, logBucketName string, prefix string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	logging {
-		log_bucket = "%s"
-		log_object_prefix = "%s"
-	}
+  name = "%s"
+  logging {
+    log_bucket        = "%s"
+    log_object_prefix = "%s"
+  }
 }
 `, bucketName, logBucketName, prefix)
 }
@@ -1220,43 +1220,43 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_lifecycleRulesMultiple(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	lifecycle_rule {
-		action {
-			type = "SetStorageClass"
-			storage_class = "NEARLINE"
-		}
-		condition {
-			matches_storage_class = ["COLDLINE"]
-			age = 2
-		}
-  	}
-	lifecycle_rule {
-		action {
-			type = "Delete"
-		}
-		condition {
-			age = 10
-		}
-	}
-	lifecycle_rule {
-		action {
-			type = "SetStorageClass"
-			storage_class = "NEARLINE"
-		}
-		condition {
-			created_before = "2019-01-01"
-		}
-	}
-	lifecycle_rule {
-		action {
-			type = "SetStorageClass"
-			storage_class = "NEARLINE"
-		}
-		condition {
-			num_newer_versions = 10
-		}
-	}
+  name = "%s"
+  lifecycle_rule {
+    action {
+      type          = "SetStorageClass"
+      storage_class = "NEARLINE"
+    }
+    condition {
+      matches_storage_class = ["COLDLINE"]
+      age                   = 2
+    }
+  }
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      age = 10
+    }
+  }
+  lifecycle_rule {
+    action {
+      type          = "SetStorageClass"
+      storage_class = "NEARLINE"
+    }
+    condition {
+      created_before = "2019-01-01"
+    }
+  }
+  lifecycle_rule {
+    action {
+      type          = "SetStorageClass"
+      storage_class = "NEARLINE"
+    }
+    condition {
+      num_newer_versions = 10
+    }
+  }
 }
 `, bucketName)
 }
@@ -1264,7 +1264,7 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_lifecycleRule_emptyArchived(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "%s"
+  name = "%s"
   lifecycle_rule {
     action {
       type = "Delete"
@@ -1281,14 +1281,14 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_lifecycleRule_withStateArchived(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "%s"
+  name = "%s"
   lifecycle_rule {
     action {
       type = "Delete"
     }
 
     condition {
-      age = 10
+      age        = 10
       with_state = "ARCHIVED"
     }
   }
@@ -1299,14 +1299,14 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_lifecycleRule_withStateLive(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "%s"
+  name = "%s"
   lifecycle_rule {
     action {
       type = "Delete"
     }
 
     condition {
-      age = 10
+      age        = 10
       with_state = "LIVE"
     }
   }
@@ -1317,14 +1317,14 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_lifecycleRule_withStateAny(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name          = "%s"
+  name = "%s"
   lifecycle_rule {
     action {
       type = "Delete"
     }
 
     condition {
-      age = 10
+      age        = 10
       with_state = "ANY"
     }
   }
@@ -1335,10 +1335,10 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_labels(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	labels = {
-		my-label = "my-label-value"
-	}
+  name = "%s"
+  labels = {
+    my-label = "my-label-value"
+  }
 }
 `, bucketName)
 }
@@ -1346,8 +1346,8 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_bucketPolicyOnly(bucketName string, enabled bool) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	bucket_policy_only = %t
+  name               = "%s"
+  bucket_policy_only = %t
 }
 `, bucketName, enabled)
 }
@@ -1355,46 +1355,46 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_encryption(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "acceptance" {
-	name            = "terraform-%{random_suffix}"
-	project_id      = "terraform-%{random_suffix}"
-	org_id          = "%{organization}"
-	billing_account = "%{billing_account}"
+  name            = "terraform-%{random_suffix}"
+  project_id      = "terraform-%{random_suffix}"
+  org_id          = "%{organization}"
+  billing_account = "%{billing_account}"
 }
 
 resource "google_project_service" "acceptance" {
-	project = "${google_project.acceptance.project_id}"
-	service = "cloudkms.googleapis.com"
+  project = google_project.acceptance.project_id
+  service = "cloudkms.googleapis.com"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	name     = "tf-test-%{random_suffix}"
-	project  = "${google_project_service.acceptance.project}"
-	location = "us"
+  name     = "tf-test-%{random_suffix}"
+  project  = google_project_service.acceptance.project
+  location = "us"
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-	name            = "tf-test-%{random_suffix}"
-	key_ring        = "${google_kms_key_ring.key_ring.id}"
-	rotation_period = "1000000s"
+  name            = "tf-test-%{random_suffix}"
+  key_ring        = google_kms_key_ring.key_ring.id
+  rotation_period = "1000000s"
 }
 
 resource "google_storage_bucket" "bucket" {
-	name = "tf-test-crypto-bucket-%{random_int}"
-	encryption {
-		default_kms_key_name = "${google_kms_crypto_key.crypto_key.self_link}"
-	}
+  name = "tf-test-crypto-bucket-%{random_int}"
+  encryption {
+    default_kms_key_name = google_kms_crypto_key.crypto_key.self_link
+  }
 }
-	`, context)
+`, context)
 }
 
 func testAccStorageBucket_updateLabels(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
-	labels = {
-		my-label    = "my-updated-label-value"
-		a-new-label = "a-new-label-value"
-	}
+  name = "%s"
+  labels = {
+    my-label    = "my-updated-label-value"
+    a-new-label = "a-new-label-value"
+  }
 }
 `, bucketName)
 }
@@ -1402,26 +1402,26 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_website(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "website" {
-	name     = "%s.gcp.tfacc.hashicorptest.com"
-	location = "US"
-	storage_class = "MULTI_REGIONAL"
+  name          = "%s.gcp.tfacc.hashicorptest.com"
+  location      = "US"
+  storage_class = "MULTI_REGIONAL"
 
-	website {
-	  main_page_suffix = "index.html"
-	  not_found_page   = "404.html"
-	}
+  website {
+    main_page_suffix = "index.html"
+    not_found_page   = "404.html"
   }
+}
 `, bucketName)
 }
 
 func testAccStorageBucket_retentionPolicy(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-    name = "%s"
+  name = "%s"
 
-    retention_policy {
-      retention_period = 10
-    }
+  retention_policy {
+    retention_period = 10
+  }
 }
 `, bucketName)
 }
@@ -1429,12 +1429,12 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_lockedRetentionPolicy(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-    name = "%s"
+  name = "%s"
 
-    retention_policy {
-      is_locked = true
-      retention_period = 10
-    }
+  retention_policy {
+    is_locked        = true
+    retention_period = 10
+  }
 }
 `, bucketName)
 }
@@ -1442,25 +1442,26 @@ resource "google_storage_bucket" "bucket" {
 func testAccStorageBucket_websiteNoAttributes(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "website" {
-	name     = "%s.gcp.tfacc.hashicorptest.com"
-	location = "US"
-	storage_class = "MULTI_REGIONAL"
+  name          = "%s.gcp.tfacc.hashicorptest.com"
+  location      = "US"
+  storage_class = "MULTI_REGIONAL"
 
-	website {}
+  website {
   }
+}
 `, bucketName)
 }
 
 func testAccStorageBucket_websiteOneAttribute(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "website" {
-	name     = "%s.gcp.tfacc.hashicorptest.com"
-	location = "US"
-	storage_class = "MULTI_REGIONAL"
+  name          = "%s.gcp.tfacc.hashicorptest.com"
+  location      = "US"
+  storage_class = "MULTI_REGIONAL"
 
-	website {
-	  main_page_suffix = "index.html"
-	}
+  website {
+    main_page_suffix = "index.html"
   }
+}
 `, bucketName)
 }

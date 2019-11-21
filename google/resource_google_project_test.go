@@ -309,28 +309,30 @@ func testAccCheckGoogleProjectHasNoLabels(r, pid string) resource.TestCheckFunc 
 func testAccProject_createWithoutOrg(pid, name string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-}`, pid, name)
+  project_id = "%s"
+  name       = "%s"
+}
+`, pid, name)
 }
 
 func testAccProject_createBilling(pid, name, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
-    billing_account = "%s"
-}`, pid, name, org, billing)
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
+}
+`, pid, name, org, billing)
 }
 
 func testAccProject_labels(pid, name, org string, labels map[string]string) string {
 	r := fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name       = "%s"
-    org_id     = "%s"
-	labels = {`, pid, name, org)
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
+  labels = {`, pid, name, org)
 
 	l := ""
 	for key, value := range labels {
@@ -347,9 +349,10 @@ resource "google_project" "acceptance" {
   project_id          = "%s"
   name                = "%s"
   org_id              = "%s"
-  billing_account     = "%s"  # requires billing to enable compute API
+  billing_account     = "%s" # requires billing to enable compute API
   auto_create_network = false
-}`, pid, name, org, billing)
+}
+`, pid, name, org, billing)
 }
 
 func testAccProject_parentFolder(pid, projectName, folderName, org string) string {
@@ -357,16 +360,16 @@ func testAccProject_parentFolder(pid, projectName, folderName, org string) strin
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
+
   # ensures we can set both org_id and folder_id as long as only one is not empty.
-  org_id     = ""                            
-  folder_id  = "${google_folder.folder1.id}"
+  org_id    = ""
+  folder_id = google_folder.folder1.id
 }
 
 resource "google_folder" "folder1" {
   display_name = "%s"
   parent       = "organizations/%s"
 }
-
 `, pid, projectName, folderName, org)
 }
 

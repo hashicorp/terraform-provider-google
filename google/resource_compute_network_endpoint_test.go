@@ -80,12 +80,12 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 func testAccComputeNetworkEndpoint_networkEndpointsBasic(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network_endpoint" "default" {
- zone                   = "us-central1-a"
- network_endpoint_group = "${google_compute_network_endpoint_group.neg.name}"
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
 
- instance    = "${google_compute_instance.default.name}"
- ip_address  = "${google_compute_instance.default.network_interface.0.network_ip}"
- port        = "${google_compute_network_endpoint_group.neg.default_port}"
+  instance   = google_compute_instance.default.name
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  port       = google_compute_network_endpoint_group.neg.default_port
 }
 `, context) + testAccComputeNetworkEndpoint_noNetworkEndpoints(context)
 }
@@ -93,88 +93,89 @@ resource "google_compute_network_endpoint" "default" {
 func testAccComputeNetworkEndpoint_networkEndpointsModified(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network_endpoint" "default" {
- zone                   = "us-central1-a"
- network_endpoint_group = "${google_compute_network_endpoint_group.neg.name}"
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
 
- instance    = "${google_compute_instance.default.name}"
- ip_address  = "${google_compute_instance.default.network_interface.0.network_ip}"
- port        = "%{modified_port}"
-}`, context) + testAccComputeNetworkEndpoint_noNetworkEndpoints(context)
+  instance   = google_compute_instance.default.name
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  port       = "%{modified_port}"
+}
+`, context) + testAccComputeNetworkEndpoint_noNetworkEndpoints(context)
 }
 
 func testAccComputeNetworkEndpoint_networkEndpointsAdditional(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network_endpoint" "default" {
- zone                   = "us-central1-a"
- network_endpoint_group = "${google_compute_network_endpoint_group.neg.name}"
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
 
- instance    = "${google_compute_instance.default.name}"
- ip_address  = "${google_compute_instance.default.network_interface.0.network_ip}"
- port        = "%{modified_port}"
+  instance   = google_compute_instance.default.name
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  port       = "%{modified_port}"
 }
 
 resource "google_compute_network_endpoint" "add1" {
- zone                   = "us-central1-a"
- network_endpoint_group = "${google_compute_network_endpoint_group.neg.name}"
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
 
- instance    = "${google_compute_instance.default.name}"
- ip_address  = "${google_compute_instance.default.network_interface.0.network_ip}"
- port        = "%{add1_port}"
+  instance   = google_compute_instance.default.name
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  port       = "%{add1_port}"
 }
 
 resource "google_compute_network_endpoint" "add2" {
- zone                   = "us-central1-a"
- network_endpoint_group = "${google_compute_network_endpoint_group.neg.name}"
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
 
- instance    = "${google_compute_instance.default.name}"
- ip_address  = "${google_compute_instance.default.network_interface.0.network_ip}"
- port        = "%{add2_port}"
+  instance   = google_compute_instance.default.name
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  port       = "%{add2_port}"
 }
-
 `, context) + testAccComputeNetworkEndpoint_noNetworkEndpoints(context)
 }
 
 func testAccComputeNetworkEndpoint_noNetworkEndpoints(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
- name         = "neg-%{random_suffix}"
- zone         = "us-central1-a"
- network      = "${google_compute_network.default.self_link}"
- subnetwork   = "${google_compute_subnetwork.default.self_link}"
- default_port = "%{default_port}"
+  name         = "neg-%{random_suffix}"
+  zone         = "us-central1-a"
+  network      = google_compute_network.default.self_link
+  subnetwork   = google_compute_subnetwork.default.self_link
+  default_port = "%{default_port}"
 }
 
 resource "google_compute_network" "default" {
- name = "neg-network-%{random_suffix}"
- auto_create_subnetworks = false
+  name                    = "neg-network-%{random_suffix}"
+  auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
- name          = "neg-subnetwork-%{random_suffix}"
- ip_cidr_range = "10.0.0.0/16"
- region        = "us-central1"
- network       = "${google_compute_network.default.self_link}"
+  name          = "neg-subnetwork-%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.self_link
 }
 
 resource "google_compute_instance" "default" {
- name         =  "neg-instance1-%{random_suffix}"
- machine_type = "n1-standard-1"
+  name         = "neg-instance1-%{random_suffix}"
+  machine_type = "n1-standard-1"
 
- boot_disk {
-   initialize_params{
-     image = "${data.google_compute_image.my_image.self_link}"
-   }
- }
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
 
- network_interface {
-   subnetwork = "${google_compute_subnetwork.default.self_link}"
-   access_config { }
- }
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.self_link
+    access_config {
+    }
+  }
 }
 
 data "google_compute_image" "my_image" {
- family  = "debian-9"
- project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 `, context)
 }

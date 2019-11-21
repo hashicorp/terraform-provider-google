@@ -31,19 +31,21 @@ func TestAccDataSourceComputeRouter(t *testing.T) {
 func testAccDataSourceComputeRouterConfig(name string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-    name    = "%s"
-    auto_create_subnetworks = false
+  name                    = "%s"
+  auto_create_subnetworks = false
 }
+
 resource "google_compute_router" "foobar" {
-    name    = "%s"
-    network = "${google_compute_network.foobar.name}"
-    bgp {
-        asn = 64514
-    }
+  name    = "%s"
+  network = google_compute_network.foobar.name
+  bgp {
+    asn = 64514
+  }
 }
+
 data "google_compute_router" "myrouter" {
-    name    = "${google_compute_router.foobar.name}"
-	network	= "${google_compute_network.foobar.name}"
+  name    = google_compute_router.foobar.name
+  network = google_compute_network.foobar.name
 }
 `, name, name)
 }

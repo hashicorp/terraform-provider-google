@@ -70,7 +70,7 @@ resource "google_project" "project" {
 }
 
 resource "google_project_service" "binauthz" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
   service = "binaryauthorization.googleapis.com"
 }
 `, pid, pname, org, billing)
@@ -87,23 +87,23 @@ resource "google_project" "project" {
 }
 
 resource "google_project_service" "binauthz" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
   service = "binaryauthorization.googleapis.com"
 }
 
 resource "google_binary_authorization_policy" "policy" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
 
   admission_whitelist_patterns {
-    name_pattern= "gcr.io/google_containers/*"
+    name_pattern = "gcr.io/google_containers/*"
   }
 
   default_admission_rule {
-    evaluation_mode = "ALWAYS_DENY"
+    evaluation_mode  = "ALWAYS_DENY"
     enforcement_mode = "ENFORCED_BLOCK_AND_AUDIT_LOG"
   }
 
-  depends_on = ["google_project_service.binauthz"]
+  depends_on = [google_project_service.binauthz]
 }
 `, pid, pname, org, billing)
 }

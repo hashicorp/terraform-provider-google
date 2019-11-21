@@ -125,41 +125,41 @@ func testAccCheckComputeUrlMapExists(n string) resource.TestCheckFunc {
 func testAccComputeUrlMap_basic1(bsName, hcName, umName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-	name          = "urlmap-test-%s"
-	health_checks = ["${google_compute_http_health_check.zero.self_link}"]
+  name          = "urlmap-test-%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-	name               = "urlmap-test-%s"
-	request_path       = "/"
-	check_interval_sec = 1
-	timeout_sec        = 1
+  name               = "urlmap-test-%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-	name            = "urlmap-test-%s"
-	default_service = "${google_compute_backend_service.foobar.self_link}"
+  name            = "urlmap-test-%s"
+  default_service = google_compute_backend_service.foobar.self_link
 
-	host_rule {
-		hosts        = ["mysite.com", "myothersite.com"]
-		path_matcher = "boop"
-	}
+  host_rule {
+    hosts        = ["mysite.com", "myothersite.com"]
+    path_matcher = "boop"
+  }
 
-	path_matcher {
-		default_service = "${google_compute_backend_service.foobar.self_link}"
-		name            = "boop"
+  path_matcher {
+    default_service = google_compute_backend_service.foobar.self_link
+    name            = "boop"
 
-		path_rule {
-			paths   = ["/*"]
-			service = "${google_compute_backend_service.foobar.self_link}"
-		}
-	}
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.foobar.self_link
+    }
+  }
 
-	test {
-		host    = "mysite.com"
-		path    = "/*"
-		service = "${google_compute_backend_service.foobar.self_link}"
-	}
+  test {
+    host    = "mysite.com"
+    path    = "/*"
+    service = google_compute_backend_service.foobar.self_link
+  }
 }
 `, bsName, hcName, umName)
 }
@@ -167,41 +167,41 @@ resource "google_compute_url_map" "foobar" {
 func testAccComputeUrlMap_basic2(bsName, hcName, umName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-	name          = "urlmap-test-%s"
-	health_checks = ["${google_compute_http_health_check.zero.self_link}"]
+  name          = "urlmap-test-%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-	name               = "urlmap-test-%s"
-	request_path       = "/"
-	check_interval_sec = 1
-	timeout_sec        = 1
+  name               = "urlmap-test-%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-	name            = "urlmap-test-%s"
-	default_service = "${google_compute_backend_service.foobar.self_link}"
+  name            = "urlmap-test-%s"
+  default_service = google_compute_backend_service.foobar.self_link
 
-	host_rule {
-		hosts        = ["mysite.com", "myothersite.com"]
-		path_matcher = "blip"
-	}
+  host_rule {
+    hosts        = ["mysite.com", "myothersite.com"]
+    path_matcher = "blip"
+  }
 
-	path_matcher {
-		default_service = "${google_compute_backend_service.foobar.self_link}"
-		name            = "blip"
+  path_matcher {
+    default_service = google_compute_backend_service.foobar.self_link
+    name            = "blip"
 
-		path_rule {
-			paths   = ["/*", "/home"]
-			service = "${google_compute_backend_service.foobar.self_link}"
-		}
-	}
+    path_rule {
+      paths   = ["/*", "/home"]
+      service = google_compute_backend_service.foobar.self_link
+    }
+  }
 
-	test {
-		host    = "mysite.com"
-		path    = "/test"
-		service = "${google_compute_backend_service.foobar.self_link}"
-	}
+  test {
+    host    = "mysite.com"
+    path    = "/test"
+    service = google_compute_backend_service.foobar.self_link
+  }
 }
 `, bsName, hcName, umName)
 }
@@ -209,50 +209,50 @@ resource "google_compute_url_map" "foobar" {
 func testAccComputeUrlMap_advanced1() string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-	name          = "urlmap-test-%s"
-	health_checks = ["${google_compute_http_health_check.zero.self_link}"]
+  name          = "urlmap-test-%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-	name               = "urlmap-test-%s"
-	request_path       = "/"
-	check_interval_sec = 1
-	timeout_sec        = 1
+  name               = "urlmap-test-%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-	name            = "urlmap-test-%s"
-	default_service = "${google_compute_backend_service.foobar.self_link}"
+  name            = "urlmap-test-%s"
+  default_service = google_compute_backend_service.foobar.self_link
 
-	host_rule {
-		hosts        = ["mysite.com", "myothersite.com"]
-		path_matcher = "blop"
-	}
+  host_rule {
+    hosts        = ["mysite.com", "myothersite.com"]
+    path_matcher = "blop"
+  }
 
-	host_rule {
-		hosts        = ["myfavoritesite.com"]
-		path_matcher = "blip"
-	}
+  host_rule {
+    hosts        = ["myfavoritesite.com"]
+    path_matcher = "blip"
+  }
 
-	path_matcher {
-		default_service = "${google_compute_backend_service.foobar.self_link}"
-		name            = "blop"
+  path_matcher {
+    default_service = google_compute_backend_service.foobar.self_link
+    name            = "blop"
 
-		path_rule {
-			paths   = ["/*", "/home"]
-			service = "${google_compute_backend_service.foobar.self_link}"
-		}
-	}
+    path_rule {
+      paths   = ["/*", "/home"]
+      service = google_compute_backend_service.foobar.self_link
+    }
+  }
 
-	path_matcher {
-		default_service = "${google_compute_backend_service.foobar.self_link}"
-		name            = "blip"
+  path_matcher {
+    default_service = google_compute_backend_service.foobar.self_link
+    name            = "blip"
 
-		path_rule {
-			paths   = ["/*", "/home"]
-			service = "${google_compute_backend_service.foobar.self_link}"
-		}
-	}
+    path_rule {
+      paths   = ["/*", "/home"]
+      service = google_compute_backend_service.foobar.self_link
+    }
+  }
 }
 `, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
 }
@@ -260,70 +260,70 @@ resource "google_compute_url_map" "foobar" {
 func testAccComputeUrlMap_advanced2() string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-	name          = "urlmap-test-%s"
-	health_checks = ["${google_compute_http_health_check.zero.self_link}"]
+  name          = "urlmap-test-%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-	name               = "urlmap-test-%s"
-	request_path       = "/"
-	check_interval_sec = 1
-	timeout_sec        = 1
+  name               = "urlmap-test-%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-	name            = "urlmap-test-%s"
-	default_service = "${google_compute_backend_service.foobar.self_link}"
+  name            = "urlmap-test-%s"
+  default_service = google_compute_backend_service.foobar.self_link
 
-	host_rule {
-		hosts        = ["mysite.com", "myothersite.com"]
-		path_matcher = "blep"
-	}
+  host_rule {
+    hosts        = ["mysite.com", "myothersite.com"]
+    path_matcher = "blep"
+  }
 
-	host_rule {
-		hosts        = ["myfavoritesite.com"]
-		path_matcher = "blip"
-	}
+  host_rule {
+    hosts        = ["myfavoritesite.com"]
+    path_matcher = "blip"
+  }
 
-	host_rule {
-		hosts        = ["myleastfavoritesite.com"]
-		path_matcher = "blub"
-	}
+  host_rule {
+    hosts        = ["myleastfavoritesite.com"]
+    path_matcher = "blub"
+  }
 
-	path_matcher {
-		default_service = "${google_compute_backend_service.foobar.self_link}"
-		name            = "blep"
+  path_matcher {
+    default_service = google_compute_backend_service.foobar.self_link
+    name            = "blep"
 
-		path_rule {
-			paths   = ["/home"]
-			service = "${google_compute_backend_service.foobar.self_link}"
-		}
+    path_rule {
+      paths   = ["/home"]
+      service = google_compute_backend_service.foobar.self_link
+    }
 
-		path_rule {
-			paths   = ["/login"]
-			service = "${google_compute_backend_service.foobar.self_link}"
-		}
-	}
+    path_rule {
+      paths   = ["/login"]
+      service = google_compute_backend_service.foobar.self_link
+    }
+  }
 
-	path_matcher {
-		default_service = "${google_compute_backend_service.foobar.self_link}"
-		name            = "blub"
+  path_matcher {
+    default_service = google_compute_backend_service.foobar.self_link
+    name            = "blub"
 
-		path_rule {
-			paths   = ["/*", "/blub"]
-			service = "${google_compute_backend_service.foobar.self_link}"
-		}
-	}
+    path_rule {
+      paths   = ["/*", "/blub"]
+      service = google_compute_backend_service.foobar.self_link
+    }
+  }
 
-	path_matcher {
-		default_service = "${google_compute_backend_service.foobar.self_link}"
-		name            = "blip"
+  path_matcher {
+    default_service = google_compute_backend_service.foobar.self_link
+    name            = "blip"
 
-		path_rule {
-			paths   = ["/*", "/home"]
-			service = "${google_compute_backend_service.foobar.self_link}"
-		}
-	}
+    path_rule {
+      paths   = ["/*", "/home"]
+      service = google_compute_backend_service.foobar.self_link
+    }
+  }
 }
 `, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
 }
@@ -331,36 +331,36 @@ resource "google_compute_url_map" "foobar" {
 func testAccComputeUrlMap_noPathRules(bsName, hcName, umName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-	name          = "urlmap-test-%s"
-	health_checks = ["${google_compute_http_health_check.zero.self_link}"]
+  name          = "urlmap-test-%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-	name               = "urlmap-test-%s"
-	request_path       = "/"
-	check_interval_sec = 1
-	timeout_sec        = 1
+  name               = "urlmap-test-%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-	name            = "urlmap-test-%s"
-	default_service = "${google_compute_backend_service.foobar.self_link}"
+  name            = "urlmap-test-%s"
+  default_service = google_compute_backend_service.foobar.self_link
 
-	host_rule {
-		hosts        = ["mysite.com", "myothersite.com"]
-		path_matcher = "boop"
-	}
+  host_rule {
+    hosts        = ["mysite.com", "myothersite.com"]
+    path_matcher = "boop"
+  }
 
-	path_matcher {
-		default_service = "${google_compute_backend_service.foobar.self_link}"
-		name            = "boop"
-	}
+  path_matcher {
+    default_service = google_compute_backend_service.foobar.self_link
+    name            = "boop"
+  }
 
-	test {
-		host    = "mysite.com"
-		path    = "/*"
-		service = "${google_compute_backend_service.foobar.self_link}"
-	}
+  test {
+    host    = "mysite.com"
+    path    = "/*"
+    service = google_compute_backend_service.foobar.self_link
+  }
 }
 `, bsName, hcName, umName)
 }

@@ -34,5 +34,5 @@ func testAccSourceRepoRepository_basic(repositoryName string) string {
 resource "google_sourcerepo_repository" "acceptance" {
   name = "%s"
 }
-	`, repositoryName)
+`, repositoryName)
 }

@@ -164,31 +164,33 @@ func testCheckAttachedDiskContainsManyDisks(instanceName string, count int) reso
 func testAttachedDiskResourceAttachment() string {
 	return fmt.Sprintf(`
 resource "google_compute_attached_disk" "test" {
-  disk     = "${google_compute_disk.test1.self_link}"
-  instance = "${google_compute_instance.test.self_link}"
-}`)
+  disk     = google_compute_disk.test1.self_link
+  instance = google_compute_instance.test.self_link
+}
+`)
 }
 
 func testAttachedDiskResourceAttachmentFull() string {
 	return fmt.Sprintf(`
 resource "google_compute_attached_disk" "test" {
-  disk        = "${google_compute_disk.test1.self_link}"
-  instance    = "${google_compute_instance.test.self_link}"
+  disk        = google_compute_disk.test1.self_link
+  instance    = google_compute_instance.test.self_link
   mode        = "READ_ONLY"
   device_name = "test-device-name"
-}`)
+}
+`)
 }
 
 func testAttachedDiskResource_region(diskName, instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_attached_disk" "test" {
-  disk        = "${google_compute_region_disk.region.self_link}"
-  instance    = "${google_compute_instance.test.self_link}"
+  disk     = google_compute_region_disk.region.self_link
+  instance = google_compute_instance.test.self_link
 }
 
 resource "google_compute_region_disk" "region" {
-  name = "%s"
-	region = "us-central1"
+  name          = "%s"
+  region        = "us-central1"
   replica_zones = ["us-central1-b", "us-central1-a"]
 }
 
@@ -198,9 +200,7 @@ resource "google_compute_instance" "test" {
   zone         = "us-central1-a"
 
   lifecycle {
-    ignore_changes = [
-      "attached_disk",
-    ]
+    ignore_changes = [attached_disk]
   }
 
   boot_disk {
@@ -212,7 +212,8 @@ resource "google_compute_instance" "test" {
   network_interface {
     network = "default"
   }
-}`, diskName, instanceName)
+}
+`, diskName, instanceName)
 }
 
 func testAttachedDiskResource(diskName, instanceName string) string {
@@ -229,9 +230,7 @@ resource "google_compute_instance" "test" {
   zone         = "us-central1-a"
 
   lifecycle {
-    ignore_changes = [
-      "attached_disk",
-    ]
+    ignore_changes = [attached_disk]
   }
 
   boot_disk {
@@ -243,7 +242,8 @@ resource "google_compute_instance" "test" {
   network_interface {
     network = "default"
   }
-}`, diskName, instanceName)
+}
+`, diskName, instanceName)
 }
 
 func testAttachedDiskResourceCount(diskPrefix, instanceName string, count int) string {
@@ -261,9 +261,7 @@ resource "google_compute_instance" "test" {
   zone         = "us-central1-a"
 
   lifecycle {
-    ignore_changes = [
-      "attached_disk",
-    ]
+    ignore_changes = [attached_disk]
   }
 
   boot_disk {
@@ -279,7 +277,8 @@ resource "google_compute_instance" "test" {
 
 resource "google_compute_attached_disk" "test" {
   count    = length(google_compute_disk.many)
-  disk     = "${google_compute_disk.many.*.self_link[count.index]}"
-  instance = "${google_compute_instance.test.self_link}"
-}`, diskPrefix, count, instanceName)
+  disk     = google_compute_disk.many[count.index].self_link
+  instance = google_compute_instance.test.self_link
+}
+`, diskPrefix, count, instanceName)
 }

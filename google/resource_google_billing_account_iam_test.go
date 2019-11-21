@@ -132,9 +132,9 @@ resource "google_service_account" "test-account" {
 }
 
 resource "google_billing_account_iam_binding" "foo" {
-  billing_account_id  = "%s"
-  role                = "%s"
-  members             = ["serviceAccount:${google_service_account.test-account.email}"]
+  billing_account_id = "%s"
+  role               = "%s"
+  members            = ["serviceAccount:${google_service_account.test-account.email}"]
 }
 `, account, billingAccountId, role)
 }
@@ -152,11 +152,11 @@ resource "google_service_account" "test-account-2" {
 }
 
 resource "google_billing_account_iam_binding" "foo" {
-  billing_account_id  = "%s"
-  role                = "%s"
-  members             = [
+  billing_account_id = "%s"
+  role               = "%s"
+  members = [
     "serviceAccount:${google_service_account.test-account.email}",
-    "serviceAccount:${google_service_account.test-account-2.email}"
+    "serviceAccount:${google_service_account.test-account-2.email}",
   ]
 }
 `, account, account, billingAccountId, role)

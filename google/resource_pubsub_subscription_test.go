@@ -120,26 +120,27 @@ func TestAccPubsubSubscription_push(t *testing.T) {
 func testAccPubsubSubscription_emptyTTL(topic, subscription string) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "foo" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_pubsub_subscription" "foo" {
-	name                 = "%s"
-	topic                = "${google_pubsub_topic.foo.id}"
+  name  = "%s"
+  topic = google_pubsub_topic.foo.id
 
-	message_retention_duration = "1200s"
-	retain_acked_messages = true
-	ack_deadline_seconds = 20
-	expiration_policy {
-		ttl = ""
-	}
+  message_retention_duration = "1200s"
+  retain_acked_messages      = true
+  ack_deadline_seconds       = 20
+  expiration_policy {
+    ttl = ""
+  }
 }
 `, topic, subscription)
 }
 
 func testAccPubsubSubscription_push(topicFoo string, subscription string) string {
 	return fmt.Sprintf(`
-data "google_project" "project" {}
+data "google_project" "project" {
+}
 
 resource "google_service_account" "pub_sub_service_account" {
   account_id = "my-super-service"
@@ -156,17 +157,17 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_pubsub_topic" "foo" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_pubsub_subscription" "foo" {
   name                 = "%s"
-  topic                = "${google_pubsub_topic.foo.name}"
+  topic                = google_pubsub_topic.foo.name
   ack_deadline_seconds = 10
   push_config {
     push_endpoint = "https://${data.google_project.project.project_id}.appspot.com"
     oidc_token {
-      service_account_email = "${google_service_account.pub_sub_service_account.email}"
+      service_account_email = google_service_account.pub_sub_service_account.email
     }
   }
 }
@@ -176,16 +177,16 @@ resource "google_pubsub_subscription" "foo" {
 func testAccPubsubSubscription_basic(topic, subscription, label string, deadline int) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "foo" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_pubsub_subscription" "foo" {
-	name                 = "%s"
-	topic                = "${google_pubsub_topic.foo.id}"
-	labels = {
-		foo = "%s"
-	}
-	ack_deadline_seconds = %d
+  name  = "%s"
+  topic = google_pubsub_topic.foo.id
+  labels = {
+    foo = "%s"
+  }
+  ack_deadline_seconds = %d
 }
 `, topic, subscription, label, deadline)
 }
