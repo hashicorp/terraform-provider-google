@@ -1088,11 +1088,6 @@ dashboards.
 In an attempt to avoid allowing empty blocks in config files, `channel` is now
 required on the `release_channel` block.
 
-### `cidr_blocks` is now required on block `google_container_cluster.master_authorized_networks_config`
-
-In an attempt to avoid allowing empty blocks in config files, `cidr_blocks` is now
-required on the `master_authorized_networks_config` block.
-
 ### The `disabled` field is now required on the `addons_config` blocks for `http_load_balancing`, `horizontal_pod_autoscaling`, `istio_config`, `cloudrun_config` and `network_policy_config`.
 
 In an attempt to avoid allowing empty blocks in config files, `disabled` is now
