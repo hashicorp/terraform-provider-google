@@ -179,8 +179,9 @@ func testAccCheckCloudIoTRegistryDestroy(s *terraform.State) error {
 func testAccCloudIoTRegistry_basic(registryName string) string {
 	return fmt.Sprintf(`
 resource "google_cloudiot_registry" "foobar" {
-	name = "%s"
-}`, registryName)
+  name = "%s"
+}
+`, registryName)
 }
 
 func testAccCloudIoTRegistry_extended(registryName string) string {
@@ -199,16 +200,16 @@ resource "google_pubsub_topic" "default-telemetry" {
 }
 
 resource "google_cloudiot_registry" "foobar" {
-  depends_on = ["google_project_iam_binding.cloud-iot-iam-binding"]
+  depends_on = [google_project_iam_binding.cloud-iot-iam-binding]
 
   name = "%s"
 
   event_notification_configs {
-    pubsub_topic_name = "${google_pubsub_topic.default-devicestatus.id}"
+    pubsub_topic_name = google_pubsub_topic.default-devicestatus.id
   }
 
   state_notification_config = {
-    pubsub_topic_name = "${google_pubsub_topic.default-telemetry.id}"
+    pubsub_topic_name = google_pubsub_topic.default-telemetry.id
   }
 
   http_config = {
@@ -218,13 +219,13 @@ resource "google_cloudiot_registry" "foobar" {
   mqtt_config = {
     mqtt_enabled_state = "MQTT_DISABLED"
   }
-	
+
   log_level = "INFO"
 
   credentials {
     public_key_certificate = {
       format      = "X509_CERTIFICATE_PEM"
-      certificate = "${file("test-fixtures/rsa_cert.pem")}"
+      certificate = file("test-fixtures/rsa_cert.pem")
     }
   }
 }
@@ -243,13 +244,13 @@ resource "google_pubsub_topic" "event-topic-1" {
 }
 
 resource "google_cloudiot_registry" "foobar" {
-  depends_on = ["google_project_iam_binding.cloud-iot-iam-binding"]
+  depends_on = [google_project_iam_binding.cloud-iot-iam-binding]
 
   name = "%s"
 
   event_notification_configs {
-    pubsub_topic_name = "${google_pubsub_topic.event-topic-1.id}"
-	subfolder_matches = ""
+    pubsub_topic_name = google_pubsub_topic.event-topic-1.id
+    subfolder_matches = ""
   }
 }
 `, topic, registryName)
@@ -271,18 +272,18 @@ resource "google_pubsub_topic" "event-topic-2" {
 }
 
 resource "google_cloudiot_registry" "foobar" {
-  depends_on = ["google_project_iam_binding.cloud-iot-iam-binding"]
+  depends_on = [google_project_iam_binding.cloud-iot-iam-binding]
 
   name = "%s"
 
   event_notification_configs {
-    pubsub_topic_name = "${google_pubsub_topic.event-topic-1.id}"
-	subfolder_matches = "test"
+    pubsub_topic_name = google_pubsub_topic.event-topic-1.id
+    subfolder_matches = "test"
   }
 
   event_notification_configs {
-    pubsub_topic_name = "${google_pubsub_topic.event-topic-2.id}"
-	subfolder_matches = ""
+    pubsub_topic_name = google_pubsub_topic.event-topic-2.id
+    subfolder_matches = ""
   }
 }
 `, topic, topic, registryName)

@@ -63,30 +63,30 @@ resource "google_service_account" "test_account" {
 }
 
 resource "google_compute_network" "network" {
-  name = "%s"
+  name                    = "%s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  name = "%s"
-  region = "%s"
+  name          = "%s"
+  region        = "%s"
   ip_cidr_range = "10.1.0.0/16"
-  network = "${google_compute_network.network.name}"
+  network       = google_compute_network.network.name
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%s"
+  binding {
+    role = "%s"
 
-		members = ["serviceAccount:${google_service_account.test_account.email}"]
-	}
+    members = ["serviceAccount:${google_service_account.test_account.email}"]
+  }
 }
 
 resource "google_compute_subnetwork_iam_policy" "foo" {
-  project     = "${google_compute_subnetwork.subnetwork.project}"
-  region      = "${google_compute_subnetwork.subnetwork.region}"
-  subnetwork  = "${google_compute_subnetwork.subnetwork.name}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project     = google_compute_subnetwork.subnetwork.project
+  region      = google_compute_subnetwork.subnetwork.region
+  subnetwork  = google_compute_subnetwork.subnetwork.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, account, subnetworkName, subnetworkName, region, roleId)
 }

@@ -65,9 +65,9 @@ func testAccCheckComputeSslCertificateExists(n string) resource.TestCheckFunc {
 func testAccComputeSslCertificate_no_name() string {
 	return fmt.Sprintf(`
 resource "google_compute_ssl_certificate" "foobar" {
-	description = "really descriptive"
-	private_key = "${file("test-fixtures/ssl_cert/test.key")}"
-	certificate = "${file("test-fixtures/ssl_cert/test.crt")}"
+  description = "really descriptive"
+  private_key = file("test-fixtures/ssl_cert/test.key")
+  certificate = file("test-fixtures/ssl_cert/test.crt")
 }
 `)
 }

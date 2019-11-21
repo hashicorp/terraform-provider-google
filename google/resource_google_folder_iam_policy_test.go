@@ -104,19 +104,19 @@ func testAccFolderIamPolicy_basic(folder, parent, role, member string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "permissiontest" {
   display_name = "%s"
-  parent = "%s"
+  parent       = "%s"
 }
 
 data "google_iam_policy" "test" {
   binding {
-    role = "%s"
+    role    = "%s"
     members = ["%s"]
   }
 }
 
 resource "google_folder_iam_policy" "test" {
-  folder = "${google_folder.permissiontest.name}"
-  policy_data = "${data.google_iam_policy.test.policy_data}"
+  folder      = google_folder.permissiontest.name
+  policy_data = data.google_iam_policy.test.policy_data
 }
 `, folder, parent, role, member)
 }
@@ -125,24 +125,24 @@ func testAccFolderIamPolicy_basic2(folder, parent, role, member, role2, member2 
 	return fmt.Sprintf(`
 resource "google_folder" "permissiontest" {
   display_name = "%s"
-  parent = "%s"
+  parent       = "%s"
 }
 
 data "google_iam_policy" "test" {
   binding {
-    role = "%s"
+    role    = "%s"
     members = ["%s"]
   }
 
   binding {
-    role = "%s"
+    role    = "%s"
     members = ["%s"]
   }
 }
 
 resource "google_folder_iam_policy" "test" {
-  folder = "${google_folder.permissiontest.name}"
-  policy_data = "${data.google_iam_policy.test.policy_data}"
+  folder      = google_folder.permissiontest.name
+  policy_data = data.google_iam_policy.test.policy_data
 }
 `, folder, parent, role, member, role2, member2)
 }
@@ -151,18 +151,18 @@ func testAccFolderIamPolicy_auditConfigs(folder, parent, role, member string) st
 	return fmt.Sprintf(`
 resource "google_folder" "permissiontest" {
   display_name = "%s"
-  parent = "%s"
+  parent       = "%s"
 }
 
 data "google_iam_policy" "test" {
   binding {
-    role = "%s"
+    role    = "%s"
     members = ["%s"]
   }
   audit_config {
     service = "cloudkms.googleapis.com"
     audit_log_configs {
-      log_type = "DATA_READ"
+      log_type         = "DATA_READ"
       exempted_members = ["%s"]
     }
 
@@ -173,7 +173,7 @@ data "google_iam_policy" "test" {
   audit_config {
     service = "cloudsql.googleapis.com"
     audit_log_configs {
-      log_type = "DATA_READ"
+      log_type         = "DATA_READ"
       exempted_members = ["%s"]
     }
 
@@ -184,8 +184,8 @@ data "google_iam_policy" "test" {
 }
 
 resource "google_folder_iam_policy" "test" {
-  folder = "${google_folder.permissiontest.name}"
-  policy_data = "${data.google_iam_policy.test.policy_data}"
+  folder      = google_folder.permissiontest.name
+  policy_data = data.google_iam_policy.test.policy_data
 }
 `, folder, parent, role, member, member, member)
 }

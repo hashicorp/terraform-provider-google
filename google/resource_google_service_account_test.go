@@ -95,9 +95,9 @@ func testAccStoreServiceAccountUniqueId(uniqueId *string) resource.TestCheckFunc
 func testAccServiceAccountBasic(account, name, desc string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "acceptance" {
-    account_id = "%v"
-    display_name = "%v"
-    description = "%v"
+  account_id   = "%v"
+  display_name = "%v"
+  description  = "%v"
 }
 `, account, name, desc)
 }
@@ -105,10 +105,10 @@ resource "google_service_account" "acceptance" {
 func testAccServiceAccountWithProject(project, account, name string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "acceptance" {
-    project = "%v"
-    account_id = "%v"
-    display_name = "%v"
-    description = "foo"
+  project      = "%v"
+  account_id   = "%v"
+  display_name = "%v"
+  description  = "foo"
 }
 `, project, account, name)
 }

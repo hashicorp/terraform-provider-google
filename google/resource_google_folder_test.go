@@ -149,7 +149,7 @@ func testAccFolder_basic(folder, parent string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "folder1" {
   display_name = "%s"
-  parent = "%s"
+  parent       = "%s"
 }
 `, folder, parent)
 }
@@ -158,12 +158,12 @@ func testAccFolder_move(folder1, folder2, parent string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "folder1" {
   display_name = "%s"
-  parent = "${google_folder.folder2.name}"
+  parent       = google_folder.folder2.name
 }
 
 resource "google_folder" "folder2" {
   display_name = "%s"
-  parent = "%s"
+  parent       = "%s"
 }
 `, folder1, folder2, parent)
 }

@@ -182,31 +182,31 @@ func testAccSqlDatabaseDestroy(s *terraform.State) error {
 
 var testGoogleSqlDatabase_basic = `
 resource "google_sql_database_instance" "instance" {
-	name = "%s"
-	region = "us-central"
-	settings {
-		tier = "D0"
-	}
+  name   = "%s"
+  region = "us-central"
+  settings {
+    tier = "D0"
+  }
 }
 
 resource "google_sql_database" "database" {
-	name = "%s"
-	instance = "${google_sql_database_instance.instance.name}"
+  name     = "%s"
+  instance = google_sql_database_instance.instance.name
 }
 `
 var testGoogleSqlDatabase_latin1 = `
 resource "google_sql_database_instance" "instance" {
-	name = "%s"
-	region = "us-central"
-	settings {
-		tier = "D0"
-	}
+  name   = "%s"
+  region = "us-central"
+  settings {
+    tier = "D0"
+  }
 }
 
 resource "google_sql_database" "database" {
-	name = "%s"
-	instance = "${google_sql_database_instance.instance.name}"
-	charset = "latin1"
-	collation = "latin1_swedish_ci"
+  name      = "%s"
+  instance  = google_sql_database_instance.instance.name
+  charset   = "latin1"
+  collation = "latin1_swedish_ci"
 }
 `

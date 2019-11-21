@@ -158,29 +158,32 @@ func testAccCheckLoggingProjectExclusionDestroy(s *terraform.State) error {
 func testAccLoggingProjectExclusion_basicCfg(name string) string {
 	return fmt.Sprintf(`
 resource "google_logging_project_exclusion" "basic" {
-	name = "%s"
-	description = "Basic Project Logging Exclusion"
-	filter = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
-}`, name, getTestProjectFromEnv())
+  name        = "%s"
+  description = "Basic Project Logging Exclusion"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+}
+`, name, getTestProjectFromEnv())
 }
 
 func testAccLoggingProjectExclusion_basicUpdated(name string) string {
 	return fmt.Sprintf(`
 resource "google_logging_project_exclusion" "basic" {
-	name = "%s"
-	description = "Basic Project Logging Exclusion"
-	filter = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=INFO"
-}`, name, getTestProjectFromEnv())
+  name        = "%s"
+  description = "Basic Project Logging Exclusion"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=INFO"
+}
+`, name, getTestProjectFromEnv())
 }
 
 func testAccLoggingProjectExclusion_basicDisabled(name string) string {
 	return fmt.Sprintf(`
 resource "google_logging_project_exclusion" "basic" {
-	name = "%s"
-	description = ""
-	filter = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
-	disabled = true
-}`, name, getTestProjectFromEnv())
+  name        = "%s"
+  description = ""
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  disabled    = true
+}
+`, name, getTestProjectFromEnv())
 }
 
 func testAccLoggingProjectExclusion_multipleCfg() string {

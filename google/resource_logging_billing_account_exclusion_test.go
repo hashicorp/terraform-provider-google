@@ -136,10 +136,10 @@ func testAccCheckLoggingBillingAccountExclusionDestroy(s *terraform.State) error
 func testAccLoggingBillingAccountExclusion_basicCfg(exclusionName, description, billingAccount string) string {
 	return fmt.Sprintf(`
 resource "google_logging_billing_account_exclusion" "basic" {
-	name             = "%s"
-	billing_account  = "%s"
-	description      = "%s"
-	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  name            = "%s"
+  billing_account = "%s"
+  description     = "%s"
+  filter          = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
 `, exclusionName, billingAccount, description, getTestProjectFromEnv())
 }

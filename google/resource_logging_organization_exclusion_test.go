@@ -136,10 +136,10 @@ func testAccCheckLoggingOrganizationExclusionDestroy(s *terraform.State) error {
 func testAccLoggingOrganizationExclusion_basicCfg(exclusionName, description, orgId string) string {
 	return fmt.Sprintf(`
 resource "google_logging_organization_exclusion" "basic" {
-	name             = "%s"
-	org_id           = "%s"
-	description      = "%s"
-	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  name        = "%s"
+  org_id      = "%s"
+  description = "%s"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
 `, exclusionName, orgId, description, getTestProjectFromEnv())
 }

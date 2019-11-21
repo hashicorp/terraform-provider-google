@@ -61,7 +61,7 @@ func TestAccComputeTargetPool_update(t *testing.T) {
 			{
 				// Add the two instances to the pool
 				Config: testAccComputeTargetPool_update(tpname,
-					`"${google_compute_instance.foo.self_link}", "${google_compute_instance.bar.self_link}"`,
+					`google_compute_instance.foo.self_link, google_compute_instance.bar.self_link`,
 					name1, name2),
 			},
 			{
@@ -72,7 +72,7 @@ func TestAccComputeTargetPool_update(t *testing.T) {
 			{
 				// Reversing the order of instances or changing import format shouldn't matter
 				Config: testAccComputeTargetPool_update(tpname,
-					fmt.Sprintf(`"${google_compute_instance.bar.self_link}", "us-central1-a/%s"`, name1),
+					fmt.Sprintf(`google_compute_instance.bar.self_link, "us-central1-a/%s"`, name1),
 					name1, name2),
 				PlanOnly: true,
 			},
@@ -149,62 +149,63 @@ func testAccCheckComputeTargetPoolHealthCheck(targetPool, healthCheck string) re
 func testAccComputeTargetPool_basic() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_http_health_check" "foobar" {
-	name = "healthcheck-test-%s"
-	host = "example.com"
+  name = "healthcheck-test-%s"
+  host = "example.com"
 }
 
 resource "google_compute_instance" "foobar" {
-	name         = "inst-tp-test-%s"
-	machine_type = "n1-standard-1"
-	zone         = "us-central1-a"
+  name         = "inst-tp-test-%s"
+  machine_type = "n1-standard-1"
+  zone         = "us-central1-a"
 
-	boot_disk {
-		initialize_params{
-			image = "${data.google_compute_image.my_image.self_link}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 }
 
 resource "google_compute_target_pool" "foo" {
-	description = "Resource created for Terraform acceptance testing"
-	instances = ["${google_compute_instance.foobar.self_link}", "us-central1-b/bar"]
-	name = "tpool-test-%s"
-	session_affinity = "CLIENT_IP_PROTO"
-	health_checks = [
-		"${google_compute_http_health_check.foobar.name}"
-	]
+  description      = "Resource created for Terraform acceptance testing"
+  instances        = [google_compute_instance.foobar.self_link, "us-central1-b/bar"]
+  name             = "tpool-test-%s"
+  session_affinity = "CLIENT_IP_PROTO"
+  health_checks = [
+    google_compute_http_health_check.foobar.name,
+  ]
 }
 
 resource "google_compute_target_pool" "bar" {
-	description = "Resource created for Terraform acceptance testing"
-	name = "tpool-test-%s"
-	health_checks = [
-		"${google_compute_http_health_check.foobar.self_link}"
-	]
-}`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+  description = "Resource created for Terraform acceptance testing"
+  name        = "tpool-test-%s"
+  health_checks = [
+    google_compute_http_health_check.foobar.self_link,
+  ]
+}
+`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
 }
 
 func testAccComputeTargetPool_update(tpname, instances, name1, name2 string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_pool" "foo" {
-	description = "Resource created for Terraform acceptance testing"
-	name = "tpool-test-%s"
-	instances = [%s]
+  description = "Resource created for Terraform acceptance testing"
+  name        = "tpool-test-%s"
+  instances   = [%s]
 }
 
 resource "google_compute_instance" "foo" {
-	name         = "%s"
-	machine_type = "n1-standard-1"
-	zone         = "us-central1-a"
+  name         = "%s"
+  machine_type = "n1-standard-1"
+  zone         = "us-central1-a"
 
   boot_disk {
     initialize_params {
@@ -212,15 +213,15 @@ resource "google_compute_instance" "foo" {
     }
   }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 }
 
 resource "google_compute_instance" "bar" {
-	name         = "%s"
-	machine_type = "n1-standard-1"
-	zone         = "us-central1-a"
+  name         = "%s"
+  machine_type = "n1-standard-1"
+  zone         = "us-central1-a"
 
   boot_disk {
     initialize_params {
@@ -228,9 +229,9 @@ resource "google_compute_instance" "bar" {
     }
   }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 }
 `, tpname, instances, name1, name2)
 }

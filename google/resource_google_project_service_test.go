@@ -191,15 +191,14 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_service" "test" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
 }
 
 resource "google_project_service" "test2" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
 }
-
 `, pid, name, org, services[0], services[1])
 }
 
@@ -213,12 +212,12 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_service" "test" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
 }
 
 resource "google_project_service" "test2" {
-  project                    = "${google_project.acceptance.project_id}"
+  project                    = google_project.acceptance.project_id
   service                    = "%s"
   disable_dependent_services = %s
 }
@@ -235,7 +234,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_service" "test" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
 }
 `, pid, name, org, billing, services[0])
@@ -250,14 +249,14 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_service" "test" {
-  project = "${google_project.acceptance.project_id}"
-  service = "%s"
+  project            = google_project.acceptance.project_id
+  service            = "%s"
   disable_on_destroy = false
 }
 
 resource "google_project_service" "test2" {
-  project = "${google_project.acceptance.project_id}"
-  service = "%s"
+  project            = google_project.acceptance.project_id
+  service            = "%s"
   disable_on_destroy = false
 }
 `, pid, name, org, services[0], services[1])
@@ -274,11 +273,11 @@ resource "google_project" "acceptance" {
 // by passing through locals, we break the dependency chain
 // see terraform-provider-google#1292
 locals {
-  project_id = "${google_project.acceptance.project_id}"
+  project_id = google_project.acceptance.project_id
 }
 
 resource "google_project_service" "test" {
-  project = "${local.project_id}"
+  project = local.project_id
   service = "%s"
 }
 `, pid, name, org, service)
@@ -302,11 +301,10 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_service" "test" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
 
   disable_dependent_services = true
 }
-
 `, pid, name, org, service)
 }

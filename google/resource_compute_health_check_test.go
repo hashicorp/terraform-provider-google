@@ -157,15 +157,15 @@ func TestAccComputeHealthCheck_tcpAndSsl_shouldFail(t *testing.T) {
 func testAccComputeHealthCheck_tcp(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
-	check_interval_sec = 3
-	description = "Resource created for Terraform acceptance testing"
-	healthy_threshold = 3
-	name = "health-test-%s"
-	timeout_sec = 2
-	unhealthy_threshold = 3
-	tcp_health_check {
-		port = 443
-	}
+  check_interval_sec  = 3
+  description         = "Resource created for Terraform acceptance testing"
+  healthy_threshold   = 3
+  name                = "health-test-%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 3
+  tcp_health_check {
+    port = 443
+  }
 }
 `, hckName)
 }
@@ -173,15 +173,15 @@ resource "google_compute_health_check" "foobar" {
 func testAccComputeHealthCheck_tcp_update(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
-	check_interval_sec = 3
-	description = "Resource updated for Terraform acceptance testing"
-	healthy_threshold = 10
-	name = "health-test-%s"
-	timeout_sec = 2
-	unhealthy_threshold = 10
-	tcp_health_check {
-		port = "8080"
-	}
+  check_interval_sec  = 3
+  description         = "Resource updated for Terraform acceptance testing"
+  healthy_threshold   = 10
+  name                = "health-test-%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 10
+  tcp_health_check {
+    port = "8080"
+  }
 }
 `, hckName)
 }
@@ -189,15 +189,15 @@ resource "google_compute_health_check" "foobar" {
 func testAccComputeHealthCheck_ssl(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
-	check_interval_sec = 3
-	description = "Resource created for Terraform acceptance testing"
-	healthy_threshold = 3
-	name = "health-test-%s"
-	timeout_sec = 2
-	unhealthy_threshold = 3
-	ssl_health_check {
-		port = "443"
-	}
+  check_interval_sec  = 3
+  description         = "Resource created for Terraform acceptance testing"
+  healthy_threshold   = 3
+  name                = "health-test-%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 3
+  ssl_health_check {
+    port = "443"
+  }
 }
 `, hckName)
 }
@@ -205,16 +205,16 @@ resource "google_compute_health_check" "foobar" {
 func testAccComputeHealthCheck_ssl_fixed_port(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
-	check_interval_sec = 3
-	description = "Resource created for Terraform acceptance testing"
-	healthy_threshold = 3
-	name = "health-test-%s"
-	timeout_sec = 2
-	unhealthy_threshold = 3
-	ssl_health_check {
-		port = "443"
-		port_specification = "USE_FIXED_PORT"
-	}
+  check_interval_sec  = 3
+  description         = "Resource created for Terraform acceptance testing"
+  healthy_threshold   = 3
+  name                = "health-test-%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 3
+  ssl_health_check {
+    port               = "443"
+    port_specification = "USE_FIXED_PORT"
+  }
 }
 `, hckName)
 }
@@ -222,15 +222,15 @@ resource "google_compute_health_check" "foobar" {
 func testAccComputeHealthCheck_http(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
-	check_interval_sec = 3
-	description = "Resource created for Terraform acceptance testing"
-	healthy_threshold = 3
-	name = "health-test-%s"
-	timeout_sec = 2
-	unhealthy_threshold = 3
-	http_health_check {
-		port = "80"
-	}
+  check_interval_sec  = 3
+  description         = "Resource created for Terraform acceptance testing"
+  healthy_threshold   = 3
+  name                = "health-test-%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 3
+  http_health_check {
+    port = "80"
+  }
 }
 `, hckName)
 }
@@ -238,15 +238,15 @@ resource "google_compute_health_check" "foobar" {
 func testAccComputeHealthCheck_http_port_spec(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
-	check_interval_sec = 3
-	description = "Resource created for Terraform acceptance testing"
-	healthy_threshold = 3
-	name = "health-test-%s"
-	timeout_sec = 2
-	unhealthy_threshold = 3
-	http_health_check {
-		port_specification = "USE_NAMED_PORT"
-	}
+  check_interval_sec  = 3
+  description         = "Resource created for Terraform acceptance testing"
+  healthy_threshold   = 3
+  name                = "health-test-%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 3
+  http_health_check {
+    port_specification = "USE_NAMED_PORT"
+  }
 }
 `, hckName)
 }
@@ -254,16 +254,16 @@ resource "google_compute_health_check" "foobar" {
 func testAccComputeHealthCheck_http_named_port(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
-	check_interval_sec = 3
-	description = "Resource created for Terraform acceptance testing"
-	healthy_threshold = 3
-	name = "health-test-%s"
-	timeout_sec = 2
-	unhealthy_threshold = 3
-	http_health_check {
-		port_name = "http"
-		port_specification = "USE_NAMED_PORT"
-	}
+  check_interval_sec  = 3
+  description         = "Resource created for Terraform acceptance testing"
+  healthy_threshold   = 3
+  name                = "health-test-%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 3
+  http_health_check {
+    port_name          = "http"
+    port_specification = "USE_NAMED_PORT"
+  }
 }
 `, hckName)
 }
@@ -271,15 +271,15 @@ resource "google_compute_health_check" "foobar" {
 func testAccComputeHealthCheck_https(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
-	check_interval_sec = 3
-	description = "Resource created for Terraform acceptance testing"
-	healthy_threshold = 3
-	name = "health-test-%s"
-	timeout_sec = 2
-	unhealthy_threshold = 3
-	https_health_check {
-		port = "443"
-	}
+  check_interval_sec  = 3
+  description         = "Resource created for Terraform acceptance testing"
+  healthy_threshold   = 3
+  name                = "health-test-%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 3
+  https_health_check {
+    port = "443"
+  }
 }
 `, hckName)
 }
@@ -287,15 +287,15 @@ resource "google_compute_health_check" "foobar" {
 func testAccComputeHealthCheck_https_serving_port(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
-	check_interval_sec = 3
-	description = "Resource created for Terraform acceptance testing"
-	healthy_threshold = 3
-	name = "health-test-%s"
-	timeout_sec = 2
-	unhealthy_threshold = 3
-	https_health_check {
-		port_specification = "USE_SERVING_PORT"
-	}
+  check_interval_sec  = 3
+  description         = "Resource created for Terraform acceptance testing"
+  healthy_threshold   = 3
+  name                = "health-test-%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 3
+  https_health_check {
+    port_specification = "USE_SERVING_PORT"
+  }
 }
 `, hckName)
 }
@@ -303,15 +303,15 @@ resource "google_compute_health_check" "foobar" {
 func testAccComputeHealthCheck_http2(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
-	check_interval_sec = 3
-	description = "Resource created for Terraform acceptance testing"
-	healthy_threshold = 3
-	name = "health-test-%s"
-	timeout_sec = 2
-	unhealthy_threshold = 3
-	http2_health_check {
-		port = "443"
-	}
+  check_interval_sec  = 3
+  description         = "Resource created for Terraform acceptance testing"
+  healthy_threshold   = 3
+  name                = "health-test-%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 3
+  http2_health_check {
+    port = "443"
+  }
 }
 `, hckName)
 }
@@ -319,19 +319,19 @@ resource "google_compute_health_check" "foobar" {
 func testAccComputeHealthCheck_tcpAndSsl_shouldFail(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_health_check" "foobar" {
-	check_interval_sec = 3
-	description = "Resource created for Terraform acceptance testing"
-	healthy_threshold = 3
-	name = "health-test-%s"
-	timeout_sec = 2
-	unhealthy_threshold = 3
+  check_interval_sec  = 3
+  description         = "Resource created for Terraform acceptance testing"
+  healthy_threshold   = 3
+  name                = "health-test-%s"
+  timeout_sec         = 2
+  unhealthy_threshold = 3
 
-	tcp_health_check {
-		port = 443
-	}
-	ssl_health_check {
-		port = 443
-	}
+  tcp_health_check {
+    port = 443
+  }
+  ssl_health_check {
+    port = 443
+  }
 }
 `, hckName)
 }

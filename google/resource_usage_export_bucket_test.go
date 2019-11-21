@@ -34,26 +34,26 @@ func TestAccComputeResourceUsageExportBucket(t *testing.T) {
 func testAccResourceUsageExportBucket(baseProject, org, billingId string) string {
 	return fmt.Sprintf(`
 resource "google_project" "base" {
-	project_id      = "%s"
-	name            = "Export Bucket Base"
-	org_id          = "%s"
-	billing_account = "%s"
+  project_id      = "%s"
+  name            = "Export Bucket Base"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project_service" "service" {
-	project = "${google_project.base.project_id}"
-	service = "compute.googleapis.com"
+  project = google_project.base.project_id
+  service = "compute.googleapis.com"
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "b-${google_project.base.project_id}"
-	project = "${google_project_service.service.project}"
+  name    = "b-${google_project.base.project_id}"
+  project = google_project_service.service.project
 }
 
 resource "google_project_usage_export_bucket" "ueb" {
-  project = "${google_project.base.project_id}"
-  bucket_name = "${google_storage_bucket.bucket.name}"
-	prefix = "foobar"
+  project     = google_project.base.project_id
+  bucket_name = google_storage_bucket.bucket.name
+  prefix      = "foobar"
 }
 `, baseProject, org, billingId)
 }

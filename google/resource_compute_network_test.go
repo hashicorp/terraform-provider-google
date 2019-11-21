@@ -245,32 +245,36 @@ func testAccCheckComputeNetworkHasRoutingMode(n string, network *compute.Network
 func testAccComputeNetwork_basic() string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "bar" {
-	name = "network-test-%s"
-	auto_create_subnetworks = true
-}`, acctest.RandString(10))
+  name                    = "network-test-%s"
+  auto_create_subnetworks = true
+}
+`, acctest.RandString(10))
 }
 
 func testAccComputeNetwork_custom_subnet() string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "baz" {
-	name = "network-test-%s"
-	auto_create_subnetworks = false
-}`, acctest.RandString(10))
+  name                    = "network-test-%s"
+  auto_create_subnetworks = false
+}
+`, acctest.RandString(10))
 }
 
 func testAccComputeNetwork_routing_mode(network, routingMode string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "acc_network_routing_mode" {
-	name         = "network-test-%s"
-	routing_mode = "%s"
-}`, network, routingMode)
+  name         = "network-test-%s"
+  routing_mode = "%s"
+}
+`, network, routingMode)
 }
 
 func testAccComputeNetwork_deleteDefaultRoute() string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "bar" {
-	name = "network-test-%s"
-	delete_default_routes_on_create = true
-	auto_create_subnetworks = false
-}`, acctest.RandString(10))
+  name                            = "network-test-%s"
+  delete_default_routes_on_create = true
+  auto_create_subnetworks         = false
+}
+`, acctest.RandString(10))
 }

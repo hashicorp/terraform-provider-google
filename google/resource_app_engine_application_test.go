@@ -53,11 +53,12 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_app_engine_application" "acceptance" {
-  project         = "${google_project.acceptance.project_id}"
-  auth_domain     = "hashicorptest.com"
-  location_id     = "us-central"
-  serving_status  = "SERVING"
-}`, pid, pid, org)
+  project        = google_project.acceptance.project_id
+  auth_domain    = "hashicorptest.com"
+  location_id    = "us-central"
+  serving_status = "SERVING"
+}
+`, pid, pid, org)
 }
 
 func testAccAppEngineApplication_update(pid, org string) string {
@@ -69,9 +70,10 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_app_engine_application" "acceptance" {
-  project         = "${google_project.acceptance.project_id}"
-  auth_domain     = "tf-test.club"
-  location_id     = "us-central"
-  serving_status  = "USER_DISABLED"
-}`, pid, pid, org)
+  project        = google_project.acceptance.project_id
+  auth_domain    = "tf-test.club"
+  location_id    = "us-central"
+  serving_status = "USER_DISABLED"
+}
+`, pid, pid, org)
 }

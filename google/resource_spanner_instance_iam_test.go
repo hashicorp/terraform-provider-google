@@ -122,10 +122,10 @@ resource "google_spanner_instance" "instance" {
 }
 
 resource "google_spanner_instance_iam_binding" "foo" {
-  project     = "${google_spanner_instance.instance.project}"
-  instance    = "${google_spanner_instance.instance.name}"
-  role        = "%s"
-  members     = ["serviceAccount:${google_service_account.test_account.email}"]
+  project  = google_spanner_instance.instance.project
+  instance = google_spanner_instance.instance.name
+  role     = "%s"
+  members  = ["serviceAccount:${google_service_account.test_account.email}"]
 }
 `, account, instance, instance, roleId)
 }
@@ -150,12 +150,12 @@ resource "google_spanner_instance" "instance" {
 }
 
 resource "google_spanner_instance_iam_binding" "foo" {
-  project      = "${google_spanner_instance.instance.project}"
-  instance     = "${google_spanner_instance.instance.name}"
-  role         = "%s"
-  members      = [
+  project  = google_spanner_instance.instance.project
+  instance = google_spanner_instance.instance.name
+  role     = "%s"
+  members = [
     "serviceAccount:${google_service_account.test_account.email}",
-    "serviceAccount:${google_service_account.test_account_2.email}"
+    "serviceAccount:${google_service_account.test_account_2.email}",
   ]
 }
 `, account, account, instance, instance, roleId)
@@ -176,10 +176,10 @@ resource "google_spanner_instance" "instance" {
 }
 
 resource "google_spanner_instance_iam_member" "foo" {
-  project     = "${google_spanner_instance.instance.project}"
-  instance    = "${google_spanner_instance.instance.name}"
-  role        = "%s"
-  member      = "serviceAccount:${google_service_account.test_account.email}"
+  project  = google_spanner_instance.instance.project
+  instance = google_spanner_instance.instance.name
+  role     = "%s"
+  member   = "serviceAccount:${google_service_account.test_account.email}"
 }
 `, account, instance, instance, roleId)
 }
@@ -199,17 +199,17 @@ resource "google_spanner_instance" "instance" {
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%s"
+  binding {
+    role = "%s"
 
-		members = ["serviceAccount:${google_service_account.test_account.email}"]
-	}
+    members = ["serviceAccount:${google_service_account.test_account.email}"]
+  }
 }
 
 resource "google_spanner_instance_iam_policy" "foo" {
-  project     = "${google_spanner_instance.instance.project}"
-  instance = "${google_spanner_instance.instance.name}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project     = google_spanner_instance.instance.project
+  instance    = google_spanner_instance.instance.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, account, instance, instance, roleId)
 }

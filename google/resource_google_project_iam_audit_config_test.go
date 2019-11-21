@@ -304,13 +304,13 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_audit_config" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
     log_type = "DATA_READ"
     exempted_members = [
       "user:paddy@hashicorp.com",
-      "user:paddy@carvers.co"
+      "user:paddy@carvers.co",
     ]
   }
 }
@@ -326,19 +326,19 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_audit_config" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
-    log_type = "DATA_READ" 
+    log_type = "DATA_READ"
     exempted_members = [
       "user:paddy@hashicorp.com",
-      "user:paddy@carvers.co"
+      "user:paddy@carvers.co",
     ]
   }
 }
 
 resource "google_project_iam_audit_config" "multiple" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
     log_type = "DATA_WRITE"
@@ -356,13 +356,13 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_audit_config" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
     log_type = "DATA_WRITE"
     exempted_members = [
       "user:admin@hashicorptest.com",
-      "user:paddy@carvers.co"
+      "user:paddy@carvers.co",
     ]
   }
 }
@@ -378,7 +378,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_audit_config" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
     log_type = "DATA_READ"
@@ -406,7 +406,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_audit_config" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
     log_type = "DATA_READ"%s
@@ -424,7 +424,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_audit_config" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
     log_type = "%s"

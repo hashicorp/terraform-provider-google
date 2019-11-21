@@ -134,9 +134,9 @@ func TestAccComputeRegionBackendService_withConnectionDrainingAndUpdate(t *testi
 func testAccComputeRegionBackendService_basic(serviceName, checkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_backend_service" "foobar" {
-  name                  = "%s"
-  health_checks         = ["${google_compute_health_check.zero.self_link}"]
-  region                = "us-central1"
+  name          = "%s"
+  health_checks = [google_compute_health_check.zero.self_link]
+  region        = "us-central1"
 }
 
 resource "google_compute_health_check" "zero" {
@@ -154,29 +154,29 @@ resource "google_compute_health_check" "zero" {
 func testAccComputeRegionBackendService_basicModified(serviceName, checkOne, checkTwo string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_backend_service" "foobar" {
-    name = "%s"
-    health_checks = ["${google_compute_health_check.one.self_link}"]
-    region = "us-central1"
+  name          = "%s"
+  health_checks = [google_compute_health_check.one.self_link]
+  region        = "us-central1"
 }
 
 resource "google_compute_health_check" "zero" {
-    name = "%s"
-    check_interval_sec = 1
-    timeout_sec = 1
+  name               = "%s"
+  check_interval_sec = 1
+  timeout_sec        = 1
 
-    tcp_health_check {
-      port = 443
-    }
+  tcp_health_check {
+    port = 443
+  }
 }
 
 resource "google_compute_health_check" "one" {
-    name = "%s"
-    check_interval_sec = 30
-    timeout_sec = 30
+  name               = "%s"
+  check_interval_sec = 30
+  timeout_sec        = 30
 
-    tcp_health_check {
-      port = 443
-    }
+  tcp_health_check {
+    port = 443
+  }
 }
 `, serviceName, checkOne, checkTwo)
 }
@@ -197,17 +197,17 @@ resource "google_compute_region_backend_service" "lipsum" {
   timeout_sec = %v
 
   backend {
-    group = "${google_compute_instance_group_manager.foobar.instance_group}"
+    group    = google_compute_instance_group_manager.foobar.instance_group
   }
 
-  health_checks = ["${google_compute_health_check.default.self_link}"]
+  health_checks = [google_compute_health_check.default.self_link]
 }
 
 resource "google_compute_instance_group_manager" "foobar" {
-  name               = "%s"
+  name = "%s"
   version {
-    instance_template  = "${google_compute_instance_template.foobar.self_link}"
-    name               = "primary"
+    instance_template = google_compute_instance_template.foobar.self_link
+    name              = "primary"
   }
   base_instance_name = "foobar"
   zone               = "us-central1-f"
@@ -223,7 +223,7 @@ resource "google_compute_instance_template" "foobar" {
   }
 
   disk {
-    source_image = "${data.google_compute_image.my_image.self_link}"
+    source_image = data.google_compute_image.my_image.self_link
     auto_delete  = true
     boot         = true
   }
@@ -244,9 +244,9 @@ resource "google_compute_health_check" "default" {
 func testAccComputeRegionBackendService_withConnectionDraining(serviceName, checkName string, drainingTimeout int64) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_backend_service" "foobar" {
-  name                  = "%s"
-  health_checks         = ["${google_compute_health_check.zero.self_link}"]
-  region                = "us-central1"
+  name                            = "%s"
+  health_checks                   = [google_compute_health_check.zero.self_link]
+  region                          = "us-central1"
   connection_draining_timeout_sec = %v
 }
 

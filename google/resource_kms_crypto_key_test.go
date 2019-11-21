@@ -365,138 +365,138 @@ func testAccCheckGoogleKmsCryptoKeyRotationDisabled(projectId, location, keyRing
 func testGoogleKmsCryptoKey_basic(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-	name            = "%s"
-	project_id      = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
+  name            = "%s"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project_service" "acceptance" {
-	project = "${google_project.acceptance.project_id}"
-	service = "cloudkms.googleapis.com"
+  project = google_project.acceptance.project_id
+  service = "cloudkms.googleapis.com"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project_service.acceptance.project}"
-	name     = "%s"
-	location = "us-central1"
+  project  = google_project_service.acceptance.project
+  name     = "%s"
+  location = "us-central1"
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-	name            = "%s"
-	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
-	labels = {
-		key = "value"
-	}
+  name     = "%s"
+  key_ring = google_kms_key_ring.key_ring.self_link
+  labels = {
+    key = "value"
+  }
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
+`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
 }
 
 func testGoogleKmsCryptoKey_rotation(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, rotationPeriod string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-	name            = "%s"
-	project_id      = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
+  name            = "%s"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project_service" "acceptance" {
-	project = "${google_project.acceptance.project_id}"
-	service = "cloudkms.googleapis.com"
+  project = google_project.acceptance.project_id
+  service = "cloudkms.googleapis.com"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project_service.acceptance.project}"
-	name     = "%s"
-	location = "us-central1"
+  project  = google_project_service.acceptance.project
+  name     = "%s"
+  location = "us-central1"
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-	name            = "%s"
-	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
-	rotation_period = "%s"
+  name            = "%s"
+  key_ring        = google_kms_key_ring.key_ring.self_link
+  rotation_period = "%s"
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, rotationPeriod)
+`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, rotationPeriod)
 }
 
 func testGoogleKmsCryptoKey_rotationRemoved(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-	name            = "%s"
-	project_id      = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
+  name            = "%s"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project_service" "acceptance" {
-	project = "${google_project.acceptance.project_id}"
-	service = "cloudkms.googleapis.com"
+  project = google_project.acceptance.project_id
+  service = "cloudkms.googleapis.com"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project_service.acceptance.project}"
-	name     = "%s"
-	location = "us-central1"
+  project  = google_project_service.acceptance.project
+  name     = "%s"
+  location = "us-central1"
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-	name            = "%s"
-	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
+  name     = "%s"
+  key_ring = google_kms_key_ring.key_ring.self_link
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
+`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
 }
 
 func testGoogleKmsCryptoKey_template(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, algorithm string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-	name            = "%s"
-	project_id      = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
+  name            = "%s"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project_service" "acceptance" {
-	project = "${google_project.acceptance.project_id}"
-	service = "cloudkms.googleapis.com"
+  project = google_project.acceptance.project_id
+  service = "cloudkms.googleapis.com"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project_service.acceptance.project}"
-	name     = "%s"
-	location = "us-central1"
+  project  = google_project_service.acceptance.project
+  name     = "%s"
+  location = "us-central1"
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-	name            = "%s"
-	key_ring        = "${google_kms_key_ring.key_ring.self_link}"
-	purpose  = "ASYMMETRIC_SIGN"
+  name     = "%s"
+  key_ring = google_kms_key_ring.key_ring.self_link
+  purpose  = "ASYMMETRIC_SIGN"
 
-	version_template {
-		algorithm = "%s"
-	}
+  version_template {
+    algorithm = "%s"
+  }
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, algorithm)
+`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, algorithm)
 }
 
 func testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-	name            = "%s"
-	project_id      = "%s"
-	org_id          = "%s"
-	billing_account = "%s"
+  name            = "%s"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project_service" "acceptance" {
-	project = "${google_project.acceptance.project_id}"
-	service = "cloudkms.googleapis.com"
+  project = google_project.acceptance.project_id
+  service = "cloudkms.googleapis.com"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project_service.acceptance.project}"
-	name     = "%s"
-	location = "us-central1"
+  project  = google_project_service.acceptance.project
+  name     = "%s"
+  location = "us-central1"
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName)
+`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName)
 }

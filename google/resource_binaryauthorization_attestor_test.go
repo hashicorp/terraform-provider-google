@@ -124,7 +124,7 @@ resource "google_container_analysis_note" "note" {
 resource "google_binary_authorization_attestor" "attestor" {
   name = "tf-test-%s"
   attestation_authority_note {
-    note_reference = "${google_container_analysis_note.note.name}"
+    note_reference = google_container_analysis_note.note.name
   }
 }
 `, name, name)
@@ -142,14 +142,15 @@ resource "google_container_analysis_note" "note" {
 }
 
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "tf-test-%s"
+  name        = "tf-test-%s"
   description = "my description"
   attestation_authority_note {
-    note_reference = "${google_container_analysis_note.note.name}"
+    note_reference = google_container_analysis_note.note.name
     public_keys {
       ascii_armored_pgp_public_key = <<EOF
 %s
 EOF
+
       comment = "this key has a comment"
     }
   }
@@ -178,7 +179,8 @@ qoIRW6y0+UlAc+MbqfL0ziHDOAmcqz1GnROg
 =6Bvm`
 
 func testAccBinaryAuthorizationAttestorKms(attestorName, kmsKey string) string {
-	return fmt.Sprintf(`data "google_kms_crypto_key_version" "version" {
+	return fmt.Sprintf(`
+data "google_kms_crypto_key_version" "version" {
   crypto_key = "%s"
 }
 
@@ -194,14 +196,15 @@ resource "google_container_analysis_note" "note" {
 resource "google_binary_authorization_attestor" "attestor" {
   name = "%s"
   attestation_authority_note {
-    note_reference = "${google_container_analysis_note.note.name}"
+    note_reference = google_container_analysis_note.note.name
     public_keys {
-      id = "${data.google_kms_crypto_key_version.version.id}"
+      id = data.google_kms_crypto_key_version.version.id
       pkix_public_key {
-        public_key_pem     = "${data.google_kms_crypto_key_version.version.public_key[0].pem}"
-        signature_algorithm = "${data.google_kms_crypto_key_version.version.public_key[0].algorithm}"
+        public_key_pem      = data.google_kms_crypto_key_version.version.public_key[0].pem
+        signature_algorithm = data.google_kms_crypto_key_version.version.public_key[0].algorithm
       }
     }
   }
-}`, kmsKey, attestorName, attestorName)
+}
+`, kmsKey, attestorName, attestorName)
 }

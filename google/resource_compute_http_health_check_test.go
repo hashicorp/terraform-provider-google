@@ -104,9 +104,9 @@ func testAccCheckComputeHttpHealthCheckThresholds(healthy, unhealthy int64, heal
 func testAccComputeHttpHealthCheck_update1(hhckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_http_health_check" "foobar" {
-	name = "%s"
-	description = "Resource created for Terraform acceptance testing"
-	request_path = "/not_default"
+  name         = "%s"
+  description  = "Resource created for Terraform acceptance testing"
+  request_path = "/not_default"
 }
 `, hhckName)
 }
@@ -114,10 +114,10 @@ resource "google_compute_http_health_check" "foobar" {
 func testAccComputeHttpHealthCheck_update2(hhckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_http_health_check" "foobar" {
-	name = "%s"
-	description = "Resource updated for Terraform acceptance testing"
-	healthy_threshold = 10
-	unhealthy_threshold = 10
+  name                = "%s"
+  description         = "Resource updated for Terraform acceptance testing"
+  healthy_threshold   = 10
+  unhealthy_threshold = 10
 }
 `, hhckName)
 }

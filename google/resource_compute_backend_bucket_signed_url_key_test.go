@@ -36,13 +36,13 @@ func testAccComputeBackendBucketSignedUrlKey_basic(context map[string]interface{
 resource "google_compute_backend_bucket_signed_url_key" "backend_key" {
   name           = "test-key-%{random_suffix}"
   key_value      = "iAmAFakeKeyRandomBytes=="
-  backend_bucket = "${google_compute_backend_bucket.test_backend.name}"
+  backend_bucket = google_compute_backend_bucket.test_backend.name
 }
 
 resource "google_compute_backend_bucket" "test_backend" {
   name        = "test-signed-backend-bucket-%{random_suffix}"
   description = "Contains beautiful images"
-  bucket_name = "${google_storage_bucket.bucket.name}"
+  bucket_name = google_storage_bucket.bucket.name
   enable_cdn  = true
 }
 

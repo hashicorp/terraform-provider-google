@@ -132,46 +132,46 @@ func testAccSqlUserDestroy(s *terraform.State) error {
 
 func testGoogleSqlUser_mysql(instance, password string) string {
 	return fmt.Sprintf(`
-	resource "google_sql_database_instance" "instance" {
-		name = "%s"
-		region = "us-central"
-		settings {
-			tier = "D0"
-		}
-	}
+resource "google_sql_database_instance" "instance" {
+  name   = "%s"
+  region = "us-central"
+  settings {
+    tier = "D0"
+  }
+}
 
-	resource "google_sql_user" "user1" {
-		name = "admin"
-		instance = "${google_sql_database_instance.instance.name}"
-		host = "google.com"
-		password = "%s"
-	}
+resource "google_sql_user" "user1" {
+  name     = "admin"
+  instance = google_sql_database_instance.instance.name
+  host     = "google.com"
+  password = "%s"
+}
 
-	resource "google_sql_user" "user2" {
-		name = "admin"
-		instance = "${google_sql_database_instance.instance.name}"
-		host = "gmail.com"
-		password = "hunter2"
-	}
-	`, instance, password)
+resource "google_sql_user" "user2" {
+  name     = "admin"
+  instance = google_sql_database_instance.instance.name
+  host     = "gmail.com"
+  password = "hunter2"
+}
+`, instance, password)
 }
 
 func testGoogleSqlUser_postgres(instance, password string) string {
 	return fmt.Sprintf(`
-	resource "google_sql_database_instance" "instance" {
-		name = "%s"
-		region = "us-central1"
-		database_version = "POSTGRES_9_6"
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  region           = "us-central1"
+  database_version = "POSTGRES_9_6"
 
-		settings {
-			tier = "db-f1-micro"
-		}
-	}
+  settings {
+    tier = "db-f1-micro"
+  }
+}
 
-	resource "google_sql_user" "user" {
-		name = "admin"
-		instance = "${google_sql_database_instance.instance.name}"
-		password = "%s"
-	}
-	`, instance, password)
+resource "google_sql_user" "user" {
+  name     = "admin"
+  instance = google_sql_database_instance.instance.name
+  password = "%s"
+}
+`, instance, password)
 }
