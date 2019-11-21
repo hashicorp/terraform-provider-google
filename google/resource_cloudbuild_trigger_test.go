@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -32,6 +33,42 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 				ResourceName:      "google_cloudbuild_trigger.build_trigger",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccCloudBuildTrigger_customizeDiffTimeoutSum(t *testing.T) {
+	t.Parallel()
+
+	name := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccCloudBuildTrigger_customizeDiffTimeoutSum(name),
+				ExpectError: regexp.MustCompile("cannot be greater than build timeout"),
+			},
+		},
+	})
+}
+
+func TestAccCloudBuildTrigger_customizeDiffTimeoutFormat(t *testing.T) {
+	t.Parallel()
+
+	name := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccCloudBuildTrigger_customizeDiffTimeoutFormat(name),
+				ExpectError: regexp.MustCompile("Error parsing build timeout"),
 			},
 		},
 	})
@@ -98,18 +135,22 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   build {
     images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
     tags   = ["team-a", "service-b"]
+    timeout = "1800s"
     step {
       name = "gcr.io/cloud-builders/gsutil"
       args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      timeout = "300s"
     }
     step {
       name = "gcr.io/cloud-builders/go"
       args = ["build", "my_package"]
       env  = ["env1=two"]
+      timeout = "300s"
     }
     step {
       name = "gcr.io/cloud-builders/docker"
       args = ["build", "-t", "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA", "-f", "Dockerfile", "."]
+      timeout = "300s"
     }
   }
 }
@@ -185,21 +226,83 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   build {
     images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA"]
     tags   = ["team-a", "service-b", "updated"]
+    timeout = "2100s"
     step {
       name = "gcr.io/cloud-builders/gsutil"
       args = ["cp", "gs://mybucket/remotefile.zip", "localfile-updated.zip"]
+      timeout = "300s"
     }
     step {
       name = "gcr.io/cloud-builders/go"
       args = ["build", "my_package_updated"]
+      timeout = "300s"
     }
     step {
       name = "gcr.io/cloud-builders/docker"
       args = ["build", "-t", "gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA", "-f", "Dockerfile", "."]
+      timeout = "300s"
     }
     step {
       name = "gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA"
       args = ["test"]
+      timeout = "300s"
+    }
+  }
+}
+  `, name)
+}
+
+func testAccCloudBuildTrigger_customizeDiffTimeoutSum(name string) string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name = "%s"
+  description = "acceptance test build trigger"
+  trigger_template {
+    branch_name = "master"
+    repo_name   = "some-repo"
+  }
+  build {
+    images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+    tags = ["team-a", "service-b"]
+    timeout = "900s"
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      timeout = "500s"
+    }
+    step {
+      name = "gcr.io/cloud-builders/go"
+      args = ["build", "my_package"]
+      env = ["env1=two"]
+      timeout = "500s"
+    }
+    step {
+      name = "gcr.io/cloud-builders/docker"
+      args = ["build", "-t", "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA", "-f", "Dockerfile", "."]
+      timeout = "500s"
+    }
+  }
+}
+  `, name)
+}
+
+func testAccCloudBuildTrigger_customizeDiffTimeoutFormat(name string) string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name = "%s"
+  description = "acceptance test build trigger"
+  trigger_template {
+    branch_name = "master"
+    repo_name   = "some-repo"
+  }
+  build {
+    images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+    tags = ["team-a", "service-b"]
+    timeout = "1200"
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      timeout = "500s"
     }
   }
 }

@@ -167,6 +167,14 @@ The `build` block supports:
   The digests of the pushed images will be stored in the Build resource's results field.
   If any of the images fail to be pushed, the build status is marked FAILURE.
 
+* `timeout` -
+  (Optional)
+  Amount of time that this build should be allowed to run, to second granularity. 
+  If this amount of time elapses, work on the build will cease and the build status will be TIMEOUT.
+  This timeout must be equal to or greater than the sum of the timeouts for build steps within the build.
+  The expected format is the number of seconds followed by s.
+  Default time is ten minutes (600s).
+
 * `step` -
   (Required)
   The operations to be performed on the workspace.  Structure is documented below.
