@@ -48,6 +48,7 @@ resource "google_bigtable_gc_policy" "policy" {
 ```
 
 Multiple conditions is also supported. `UNION` when any of its sub-policies apply (OR). `INTERSECTION` when all its sub-policies apply (AND)
+
 ```hcl
 resource "google_bigtable_gc_policy" "policy" {
   instance_name = google_bigtable_instance.instance.name
@@ -70,11 +71,11 @@ resource "google_bigtable_gc_policy" "policy" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of the table.
+* `table` - (Required) The name of the table.
 
 * `instance_name` - (Required) The name of the Bigtable instance.
 
-* `family` - (Required) The name of the column family.
+* `column_family` - (Required) The name of the column family.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it is not provided, the provider project is used.
 
