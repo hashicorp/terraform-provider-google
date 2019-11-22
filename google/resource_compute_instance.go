@@ -406,6 +406,7 @@ func resourceComputeInstance() *schema.Resource {
 			"min_cpu_platform": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"project": {
