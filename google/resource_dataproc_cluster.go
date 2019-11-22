@@ -251,6 +251,7 @@ func resourceDataprocCluster() *schema.Resource {
 									// API does not honour this if set ...
 									// It always uses whatever is specified for the worker_config
 									// "machine_type": { ... }
+									// "min_cpu_platform": { ... }
 									"disk_config": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -403,6 +404,7 @@ func instanceConfigSchema(parent string) *schema.Schema {
 		"cluster_config.0." + parent + ".0.num_instances",
 		"cluster_config.0." + parent + ".0.image_uri",
 		"cluster_config.0." + parent + ".0.machine_type",
+		"cluster_config.0." + parent + ".0.min_cpu_platform",
 		"cluster_config.0." + parent + ".0.disk_config",
 		"cluster_config.0." + parent + ".0.accelerators",
 	}
@@ -438,6 +440,13 @@ func instanceConfigSchema(parent string) *schema.Schema {
 					ForceNew:     true,
 				},
 
+				"min_cpu_platform": {
+					Type:         schema.TypeString,
+					Optional:     true,
+					Computed:     true,
+					AtLeastOneOf: instanceConfigKeys,
+					ForceNew:     true,
+				},
 				"disk_config": {
 					Type:         schema.TypeList,
 					Optional:     true,
@@ -771,6 +780,9 @@ func expandInstanceGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGro
 	if v, ok := cfg["machine_type"]; ok {
 		icg.MachineTypeUri = GetResourceNameFromSelfLink(v.(string))
 	}
+	if v, ok := cfg["min_cpu_platform"]; ok {
+		icg.MinCpuPlatform = v.(string)
+	}
 	if v, ok := cfg["image_uri"]; ok {
 		icg.ImageUri = v.(string)
 	}
@@ -1045,6 +1057,7 @@ func flattenInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGr
 	if icg != nil {
 		data["num_instances"] = icg.NumInstances
 		data["machine_type"] = GetResourceNameFromSelfLink(icg.MachineTypeUri)
+		data["min_cpu_platform"] = icg.MinCpuPlatform
 		data["image_uri"] = icg.ImageUri
 		data["instance_names"] = icg.InstanceNames
 		if icg.DiskConfig != nil {

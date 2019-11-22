@@ -736,6 +736,7 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 			{"cluster_config.0.master_config.0.disk_config.0.boot_disk_type", "pd-ssd", cluster.Config.MasterConfig.DiskConfig.BootDiskType},
 			{"cluster_config.0.master_config.0.machine_type", "n1-standard-1", GetResourceNameFromSelfLink(cluster.Config.MasterConfig.MachineTypeUri)},
 			{"cluster_config.0.master_config.0.instance_names.#", "3", strconv.Itoa(len(cluster.Config.MasterConfig.InstanceNames))},
+			{"cluster_config.0.master_config.0.min_cpu_platform", "Intel Skylake", cluster.Config.MasterConfig.MinCpuPlatform},
 
 			{"cluster_config.0.worker_config.0.num_instances", "3", strconv.Itoa(int(cluster.Config.WorkerConfig.NumInstances))},
 			{"cluster_config.0.worker_config.0.disk_config.0.boot_disk_size_gb", "16", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb))},
@@ -743,6 +744,7 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 			{"cluster_config.0.worker_config.0.disk_config.0.boot_disk_type", "pd-standard", cluster.Config.WorkerConfig.DiskConfig.BootDiskType},
 			{"cluster_config.0.worker_config.0.machine_type", "n1-standard-1", GetResourceNameFromSelfLink(cluster.Config.WorkerConfig.MachineTypeUri)},
 			{"cluster_config.0.worker_config.0.instance_names.#", "3", strconv.Itoa(len(cluster.Config.WorkerConfig.InstanceNames))},
+			{"cluster_config.0.worker_config.0.min_cpu_platform", "Intel Broadwell", cluster.Config.WorkerConfig.MinCpuPlatform},
 
 			{"cluster_config.0.preemptible_worker_config.0.num_instances", "1", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.NumInstances))},
 			{"cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_size_gb", "17", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb))},
@@ -980,6 +982,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
         boot_disk_type    = "pd-ssd"
         boot_disk_size_gb = 15
       }
+      min_cpu_platform = "Intel Skylake"
     }
 
     worker_config {
@@ -991,6 +994,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
         num_local_ssds    = 1
       }
 
+      min_cpu_platform = "Intel Broadwell"
     }
 
     preemptible_worker_config {
