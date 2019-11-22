@@ -85,7 +85,7 @@ func TestAccMonitoringGroup_monitoringGroupSubgroupExample(t *testing.T) {
 func testAccMonitoringGroup_monitoringGroupSubgroupExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_monitoring_group" "parent" {
-  display_name = "tf-test MonitoringSubGroup%{random_suffix}"
+  display_name = "tf-test MonitoringParentGroup%{random_suffix}"
   filter       = "resource.metadata.region=\"europe-west2\""
 }
 
