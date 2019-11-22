@@ -258,7 +258,7 @@ region are guaranteed to support the same version.
     [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
     Structure is documented below.
 
-* `authenticator_groups_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for the
+* `authenticator_groups_config` - (Optional) Configuration for the
     [Google Groups for GKE](https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control#groups-setup-gsuite) feature.
     Structure is documented below.
 

@@ -290,6 +290,23 @@ func resourceContainerCluster() *schema.Resource {
 				Default:  false,
 			},
 
+			"authenticator_groups_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"security_group": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
 			"initial_node_count": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -817,6 +834,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.NodeConfig = expandNodeConfig(v)
 	}
 
+	if v, ok := d.GetOk("authenticator_groups_config"); ok {
+		cluster.AuthenticatorGroupsConfig = expandAuthenticatorGroupsConfig(v)
+	}
+
 	if v, ok := d.GetOk("private_cluster_config"); ok {
 		cluster.PrivateClusterConfig = expandPrivateClusterConfig(v)
 	}
@@ -946,6 +967,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("network", cluster.NetworkConfig.Network)
 	d.Set("subnetwork", cluster.NetworkConfig.Subnetwork)
 	if err := d.Set("cluster_autoscaling", nil); err != nil {
+		return err
+	}
+	if err := d.Set("authenticator_groups_config", flattenAuthenticatorGroupsConfig(cluster.AuthenticatorGroupsConfig)); err != nil {
 		return err
 	}
 	if cluster.DefaultMaxPodsConstraint != nil {
@@ -1667,6 +1691,20 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 	return nil
 }
 
+func expandAuthenticatorGroupsConfig(configured interface{}) *containerBeta.AuthenticatorGroupsConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+	result := &containerBeta.AuthenticatorGroupsConfig{}
+	config := l[0].(map[string]interface{})
+	if securityGroup, ok := config["security_group"]; ok {
+		result.Enabled = true
+		result.SecurityGroup = securityGroup.(string)
+	}
+	return result
+}
+
 func expandMasterAuth(configured interface{}) *containerBeta.MasterAuth {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -1823,6 +1861,17 @@ func flattenClusterNodePools(d *schema.ResourceData, config *Config, c []*contai
 	}
 
 	return nodePools, nil
+}
+
+func flattenAuthenticatorGroupsConfig(c *containerBeta.AuthenticatorGroupsConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"security_group": c.SecurityGroup,
+		},
+	}
 }
 
 func flattenPrivateClusterConfig(c *containerBeta.PrivateClusterConfig) []map[string]interface{} {
