@@ -177,7 +177,11 @@ func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
 func clearCryptoKeyVersions(cryptoKeyId *kmsCryptoKeyId, config *Config) error {
 	versionsClient := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions
 
-	versionsResponse, err := versionsClient.List(cryptoKeyId.cryptoKeyId()).Do()
+	listCall := versionsClient.List(cryptoKeyId.cryptoKeyId())
+	if config.UserProjectOverride {
+		listCall.Header().Set("X-Goog-User-Project", cryptoKeyId.KeyRingId.Project)
+	}
+	versionsResponse, err := listCall.Do()
 
 	if err != nil {
 		return err
@@ -185,7 +189,11 @@ func clearCryptoKeyVersions(cryptoKeyId *kmsCryptoKeyId, config *Config) error {
 
 	for _, version := range versionsResponse.CryptoKeyVersions {
 		request := &cloudkms.DestroyCryptoKeyVersionRequest{}
-		_, err = versionsClient.Destroy(version.Name, request).Do()
+		destroyCall := versionsClient.Destroy(version.Name, request)
+		if config.UserProjectOverride {
+			destroyCall.Header().Set("X-Goog-User-Project", cryptoKeyId.KeyRingId.Project)
+		}
+		_, err = destroyCall.Do()
 
 		if err != nil {
 			return err
@@ -197,10 +205,14 @@ func clearCryptoKeyVersions(cryptoKeyId *kmsCryptoKeyId, config *Config) error {
 
 func disableCryptoKeyRotation(cryptoKeyId *kmsCryptoKeyId, config *Config) error {
 	keyClient := config.clientKms.Projects.Locations.KeyRings.CryptoKeys
-	_, err := keyClient.Patch(cryptoKeyId.cryptoKeyId(), &cloudkms.CryptoKey{
+	patchCall := keyClient.Patch(cryptoKeyId.cryptoKeyId(), &cloudkms.CryptoKey{
 		NullFields: []string{"rotationPeriod", "nextRotationTime"},
 	}).
-		UpdateMask("rotationPeriod,nextRotationTime").Do()
+		UpdateMask("rotationPeriod,nextRotationTime")
+	if config.UserProjectOverride {
+		patchCall.Header().Set("X-Goog-User-Project", cryptoKeyId.KeyRingId.Project)
+	}
+	_, err := patchCall.Do()
 
 	return err
 }
