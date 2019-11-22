@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -22,6 +24,7 @@ var iamBindingSchema = map[string]*schema.Schema{
 		Elem: &schema.Schema{
 			Type:             schema.TypeString,
 			DiffSuppressFunc: caseDiffSuppress,
+			ValidateFunc:     validation.StringDoesNotMatch(regexp.MustCompile("^deleted:"), "Terraform does not support IAM bindings for deleted principals"),
 		},
 		Set: func(v interface{}) int {
 			return schema.HashString(strings.ToLower(v.(string)))
