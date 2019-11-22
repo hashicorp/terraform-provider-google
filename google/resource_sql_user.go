@@ -79,8 +79,13 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 
 	mutexKV.Lock(instanceMutexKey(project, instance))
 	defer mutexKV.Unlock(instanceMutexKey(project, instance))
-	op, err := config.clientSqlAdmin.Users.Insert(project, instance,
-		user).Do()
+	var op *sqladmin.Operation
+	insertFunc := func() error {
+		op, err = config.clientSqlAdmin.Users.Insert(project, instance,
+			user).Do()
+		return err
+	}
+	err = retryTimeDuration(insertFunc, d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		return fmt.Errorf("Error, failed to insert "+
@@ -172,8 +177,13 @@ func resourceSqlUserUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		mutexKV.Lock(instanceMutexKey(project, instance))
 		defer mutexKV.Unlock(instanceMutexKey(project, instance))
-		op, err := config.clientSqlAdmin.Users.Update(project, instance, name,
-			user).Host(host).Do()
+		var op *sqladmin.Operation
+		retryFunc := func() error {
+			op, err = config.clientSqlAdmin.Users.Update(project, instance, name,
+				user).Host(host).Do()
+			return err
+		}
+		err = retryTimeDuration(retryFunc, d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
 			return fmt.Errorf("Error, failed to update"+
