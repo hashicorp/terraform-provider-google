@@ -178,12 +178,12 @@ func resourceSqlUserUpdate(d *schema.ResourceData, meta interface{}) error {
 		mutexKV.Lock(instanceMutexKey(project, instance))
 		defer mutexKV.Unlock(instanceMutexKey(project, instance))
 		var op *sqladmin.Operation
-		retryFunc := func() error {
+		updateFunc := func() error {
 			op, err = config.clientSqlAdmin.Users.Update(project, instance, name,
 				user).Host(host).Do()
 			return err
 		}
-		err = retryTimeDuration(retryFunc, d.Timeout(schema.TimeoutUpdate))
+		err = retryTimeDuration(updateFunc, d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
 			return fmt.Errorf("Error, failed to update"+
