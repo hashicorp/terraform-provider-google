@@ -50,6 +50,7 @@ var (
 		"cluster_config.0.software_config",
 		"cluster_config.0.initialization_action",
 		"cluster_config.0.encryption_config",
+		"cluster_config.0.autoscaling_config",
 	}
 )
 
@@ -391,6 +392,20 @@ func resourceDataprocCluster() *schema.Resource {
 								},
 							},
 						},
+						"autoscaling_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							MaxItems:     1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"policy_uri": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -616,6 +631,10 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 		conf.EncryptionConfig = expandEncryptionConfig(cfg)
 	}
 
+	if cfg, ok := configOptions(d, "cluster_config.0.autoscaling_config"); ok {
+		conf.AutoscalingConfig = expandAutoscalingConfig(cfg)
+	}
+
 	if cfg, ok := configOptions(d, "cluster_config.0.master_config"); ok {
 		log.Println("[INFO] got master_config")
 		conf.MasterConfig = expandInstanceGroupConfig(cfg)
@@ -714,6 +733,14 @@ func expandEncryptionConfig(cfg map[string]interface{}) *dataproc.EncryptionConf
 	conf := &dataproc.EncryptionConfig{}
 	if v, ok := cfg["kms_key_name"]; ok {
 		conf.GcePdKmsKeyName = v.(string)
+	}
+	return conf
+}
+
+func expandAutoscalingConfig(cfg map[string]interface{}) *dataproc.AutoscalingConfig {
+	conf := &dataproc.AutoscalingConfig{}
+	if v, ok := cfg["policy_uri"]; ok {
+		conf.PolicyUri = v.(string)
 	}
 	return conf
 }
@@ -927,6 +954,7 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 		"worker_config":             flattenInstanceGroupConfig(d, cfg.WorkerConfig),
 		"preemptible_worker_config": flattenPreemptibleInstanceGroupConfig(d, cfg.SecondaryWorkerConfig),
 		"encryption_config":         flattenEncryptionConfig(d, cfg.EncryptionConfig),
+		"autoscaling_config":        flattenAutoscalingConfig(d, cfg.AutoscalingConfig),
 	}
 
 	if len(cfg.InitializationActions) > 0 {
@@ -957,6 +985,18 @@ func flattenEncryptionConfig(d *schema.ResourceData, ec *dataproc.EncryptionConf
 
 	data := map[string]interface{}{
 		"kms_key_name": ec.GcePdKmsKeyName,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenAutoscalingConfig(d *schema.ResourceData, ec *dataproc.AutoscalingConfig) []map[string]interface{} {
+	if ec == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"policy_uri": ec.PolicyUri,
 	}
 
 	return []map[string]interface{}{data}
