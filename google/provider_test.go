@@ -424,6 +424,12 @@ resource "google_project_iam_member" "project-2-kms" {
 	member  = "serviceAccount:${google_service_account.project-1.email}"
 }
 
+resource "google_project_iam_member" "project-2-kms-encrypt" {
+	project = google_project.project-2.project_id
+	role    = "roles/cloudkms.cryptoKeyEncrypter"
+	member  = "serviceAccount:${google_service_account.project-1.email}"
+}
+
 data "google_client_openid_userinfo" "me" {}
 
 // Enable the test runner to get an access token on behalf of
@@ -456,6 +462,12 @@ resource "google_kms_crypto_key" "project-2-key" {
 	provider = google.project-1-token
 	name     = "%s"
 	key_ring = google_kms_key_ring.project-2-keyring.self_link
+}
+
+data "google_kms_secret_ciphertext" "project-2-ciphertext" {
+	provider   = google.project-1-token
+	crypto_key = google_kms_crypto_key.project-2-key.self_link
+	plaintext  = "my-secret"
 }
 `, testAccProviderIndirectUserProjectOverride_step3(pid, name, org, billing, sa, override), pid, pid)
 }
