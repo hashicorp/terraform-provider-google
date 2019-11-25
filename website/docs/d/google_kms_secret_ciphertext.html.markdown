@@ -97,3 +97,7 @@ The following arguments are supported:
 The following attribute is exported:
 
 * `ciphertext` - Contains the result of encrypting the provided plaintext, encoded in base64.
+
+## User Project Overrides
+
+This data source supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).
