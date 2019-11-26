@@ -650,6 +650,7 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `
+
 var testGoogleSqlDatabaseInstance_basic3 = `
 resource "google_sql_database_instance" "instance" {
   name   = "%s"
