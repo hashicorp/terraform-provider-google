@@ -656,6 +656,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_organization_iam_custom_role":          resourceGoogleOrganizationIamCustomRole(),
 			"google_organization_iam_member":               ResourceIamMember(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
 			"google_organization_iam_policy":               ResourceIamPolicy(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
+			"google_organization_iam_audit_config":         ResourceIamAuditConfig(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
 			"google_organization_policy":                   resourceGoogleOrganizationPolicy(),
 			"google_project":                               resourceGoogleProject(),
 			"google_project_iam_policy":                    resourceGoogleProjectIamPolicy(),
