@@ -132,6 +132,25 @@ func TestReplaceVars(t *testing.T) {
 			},
 			Expected: "projects/project1/zones/zone1/instances/instance1",
 		},
+		"zonal schema recursive replacement": {
+			Template: "projects/{{project}}/zones/{{zone}}/instances/{{name}}",
+			SchemaValues: map[string]interface{}{
+				"project":   "project1",
+				"zone":      "wrapper{{innerzone}}wrapper",
+				"name":      "instance1",
+				"innerzone": "inner",
+			},
+			Expected: "projects/project1/zones/wrapperinnerwrapper/instances/instance1",
+		},
+		"base path recursive replacement": {
+			Template: "{{CloudRunBasePath}}namespaces/{{project}}/services",
+			Config: &Config{
+				Project:          "default-project",
+				Region:           "default-region",
+				CloudRunBasePath: "https://{{region}}-run.googleapis.com/",
+			},
+			Expected: "https://default-region-run.googleapis.com/namespaces/default-project/services",
+		},
 	}
 
 	for tn, tc := range cases {
