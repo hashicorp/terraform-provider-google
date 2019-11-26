@@ -38,9 +38,9 @@ func resourceComputeProjectMetadataItem() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(5 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
+			Create: schema.DefaultTimeout(7 * time.Minute),
+			Update: schema.DefaultTimeout(7 * time.Minute),
+			Delete: schema.DefaultTimeout(7 * time.Minute),
 		},
 	}
 }
