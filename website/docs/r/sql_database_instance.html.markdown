@@ -192,9 +192,10 @@ The following arguments are supported:
 
 - - -
 
-* `database_version` - (Optional, Default: `MYSQL_5_6`) The MySQL or PostgreSQL version to
+* `database_version` - (Optional, Default: `MYSQL_5_6`) The MySQL, PostgreSQL or MS SQL Server (beta) version to
     use. Can be `MYSQL_5_6`, `MYSQL_5_7`, `POSTGRES_9_6` or `POSTGRES_11` (beta) for second-generation
     instances, or `MYSQL_5_5` or `MYSQL_5_6` for first-generation instances.
+    MS SQL Server supported versions: `SQLSERVER_2017_STANDARD`, `SQLSERVER_2017_ENTERPRISE`, `SQLSERVER_2017_EXPRESS`, `SQLSERVER_2017_WEB`, `SQLSERVER_ENTERPRISE_2016`.
     See [Second Generation Capabilities](https://cloud.google.com/sql/docs/1st-2nd-gen-differences)
     for more information.
 
@@ -212,6 +213,8 @@ The following arguments are supported:
 
 * `replica_configuration` - (Optional) The configuration for replication. The
     configuration is detailed below.
+    
+* `root_password` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Initial root password. Required for MS SQL Server, ignored by MySQL and PostgreSQL.
 
 The required `settings` block supports:
 
