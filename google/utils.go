@@ -565,3 +565,13 @@ func calcAddRemove(from []string, to []string) (add, remove []string) {
 	}
 	return add, remove
 }
+
+func stringInSlice(arr []string, str string) bool {
+	for _, i := range arr {
+		if i == str {
+			return true
+		}
+	}
+
+	return false
+}

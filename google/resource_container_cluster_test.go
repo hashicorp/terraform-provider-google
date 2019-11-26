@@ -955,6 +955,78 @@ func TestAccContainerCluster_withIPAllocationPolicy_specificSizes(t *testing.T) 
 	})
 }
 
+func TestAccContainerCluster_nodeAutoprovisioning(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_autoprovisioning(clusterName, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning",
+						"cluster_autoscaling.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autoprovisioning",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerCluster_autoprovisioning(clusterName, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning",
+						"cluster_autoscaling.0.enabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autoprovisioning",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_nodeAutoprovisioningDefaults(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_autoprovisioningDefaults(clusterName, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning",
+						"cluster_autoscaling.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autoprovisioning",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config:             testAccContainerCluster_autoprovisioningDefaults(clusterName, true),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
 	t.Parallel()
 
@@ -1907,6 +1979,87 @@ resource "google_container_cluster" "with_node_pool" {
   }
 }
 `, cluster, nodePool)
+}
+
+func testAccContainerCluster_autoprovisioning(cluster string, autoprovisioning bool) string {
+	config := fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_autoprovisioning" {
+  name               = "%s"
+  location           = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  initial_node_count = 1
+`, cluster)
+	if autoprovisioning {
+		config += `
+  cluster_autoscaling {
+    enabled = true
+    resource_limits {
+      resource_type = "cpu"
+      maximum       = 2
+    }
+    resource_limits {
+      resource_type = "memory"
+      maximum       = 2048
+    }
+  }`
+	} else {
+		config += `
+  cluster_autoscaling {
+    enabled = false
+  }`
+	}
+	config += `
+}`
+	return config
+}
+
+func testAccContainerCluster_autoprovisioningDefaults(cluster string, monitoringWrite bool) string {
+	config := fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_autoprovisioning" {
+  name               = "%s"
+  location           = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  initial_node_count = 1
+
+  logging_service    = "none"
+  monitoring_service = "none"
+
+  cluster_autoscaling {
+    enabled = true
+    resource_limits {
+      resource_type = "cpu"
+      maximum       = 2
+    }
+    resource_limits {
+      resource_type = "memory"
+      maximum       = 2048
+    }
+
+    auto_provisioning_defaults {
+      oauth_scopes = [
+        "https://www.googleapis.com/auth/pubsub",
+        "https://www.googleapis.com/auth/devstorage.read_only",`,
+		cluster)
+
+	if monitoringWrite {
+		config += `
+        "https://www.googleapis.com/auth/monitoring.write",
+`
+	}
+	config += `
+      ]
+    }
+  }
+}`
+	return config
 }
 
 func testAccContainerCluster_withNodePoolAutoscaling(cluster, np string) string {

@@ -120,7 +120,8 @@ var schemaNodeConfig = &schema.Schema{
 						return canonicalizeServiceScope(v.(string))
 					},
 				},
-				Set: stringScopeHashcode,
+				DiffSuppressFunc: containerClusterAddedScopesSuppress,
+				Set:              stringScopeHashcode,
 			},
 
 			"preemptible": {
