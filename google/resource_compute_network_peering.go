@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	computeBeta "google.golang.org/api/compute/v0.beta"
@@ -18,6 +19,9 @@ func resourceComputeNetworkPeering() *schema.Resource {
 		Create: resourceComputeNetworkPeeringCreate,
 		Read:   resourceComputeNetworkPeeringRead,
 		Delete: resourceComputeNetworkPeeringDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceComputeNetworkPeeringImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -180,4 +184,26 @@ func getNetworkPeeringLockName(networkName, peerNetworkName string) string {
 	sort.Strings(networks)
 
 	return fmt.Sprintf("network_peering/%s/%s", networks[0], networks[1])
+}
+
+func resourceComputeNetworkPeeringImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	splits := strings.Split(d.Id(), "/")
+	if len(splits) != 3 {
+		return nil, fmt.Errorf("Error parsing network peering import format, expected: {project}/{network}/{name}")
+	}
+
+	// Build the template for the network self_link
+	urlTemplate, err := replaceVars(d, config, "{{ComputeBasePath}}projects/%s/global/networks/%s")
+	if err != nil {
+		return nil, err
+	}
+	d.Set("network", ConvertSelfLinkToV1(fmt.Sprintf(urlTemplate, splits[0], splits[1])))
+	d.Set("name", splits[2])
+
+	// Replace import id for the resource id
+	id := fmt.Sprintf("%s/%s", splits[1], splits[2])
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }
