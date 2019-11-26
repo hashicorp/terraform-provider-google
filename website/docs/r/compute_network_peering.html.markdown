@@ -71,3 +71,11 @@ exported:
 `ACTIVE` when there's a matching configuration in the peer network.
 
 * `state_details` - Details about the current state of the peering.
+
+## Import
+
+VPC network peerings can be imported using the name and project of the primary network the peering exists in and the name of the network peering
+
+```
+$ terraform import google_compute_network_peering.peering_network project-name/network-name/peering-name
+```
