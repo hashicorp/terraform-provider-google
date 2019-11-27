@@ -287,14 +287,14 @@ func resourceComputeUrlMapCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
-	waitErr := computeOperationWaitTime(
+	err = computeOperationWaitTime(
 		config, res, project, "Creating UrlMap",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create UrlMap: %s", waitErr)
+		return fmt.Errorf("Error waiting to create UrlMap: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating UrlMap %q: %#v", d.Id(), res)

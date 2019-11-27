@@ -261,14 +261,14 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	waitErr := computeOperationWaitTime(
+	err = computeOperationWaitTime(
 		config, res, project, "Creating Snapshot",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Snapshot: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Snapshot: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Snapshot %q: %#v", d.Id(), res)

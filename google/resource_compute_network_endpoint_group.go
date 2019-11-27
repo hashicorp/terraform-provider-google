@@ -188,14 +188,14 @@ func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	waitErr := computeOperationWaitTime(
+	err = computeOperationWaitTime(
 		config, res, project, "Creating NetworkEndpointGroup",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create NetworkEndpointGroup: %s", waitErr)
+		return fmt.Errorf("Error waiting to create NetworkEndpointGroup: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating NetworkEndpointGroup %q: %#v", d.Id(), res)

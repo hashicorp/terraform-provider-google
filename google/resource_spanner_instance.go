@@ -165,14 +165,14 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	waitErr := spannerOperationWaitTime(
+	err = spannerOperationWaitTime(
 		config, res, project, "Creating Instance",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Instance: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Instance: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)

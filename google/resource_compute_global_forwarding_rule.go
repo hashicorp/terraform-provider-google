@@ -323,14 +323,14 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	waitErr := computeOperationWaitTime(
+	err = computeOperationWaitTime(
 		config, res, project, "Creating GlobalForwardingRule",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create GlobalForwardingRule: %s", waitErr)
+		return fmt.Errorf("Error waiting to create GlobalForwardingRule: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating GlobalForwardingRule %q: %#v", d.Id(), res)
