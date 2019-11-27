@@ -87,7 +87,7 @@ func (s *kmsCryptoKeyId) terraformId() string {
 
 func validateKmsCryptoKeyRotationPeriod(value interface{}, _ string) (ws []string, errors []error) {
 	period := value.(string)
-	pattern := regexp.MustCompile("^([0-9.]*\\d)s$")
+	pattern := regexp.MustCompile(`^([0-9.]*\\d)s$`)
 	match := pattern.FindStringSubmatch(period)
 
 	if len(match) == 0 {

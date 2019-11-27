@@ -1706,7 +1706,7 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 	if cluster != nil && cluster.MaintenancePolicy != nil {
 		resourceVersion = cluster.MaintenancePolicy.ResourceVersion
 	}
-	exclusions := make(map[string]containerBeta.TimeWindow, 0)
+	exclusions := make(map[string]containerBeta.TimeWindow)
 	if cluster != nil && cluster.MaintenancePolicy != nil && cluster.MaintenancePolicy.Window != nil {
 		exclusions = cluster.MaintenancePolicy.Window.MaintenanceExclusions
 	}
@@ -1993,7 +1993,7 @@ func flattenPrivateClusterConfig(c *containerBeta.PrivateClusterConfig) []map[st
 
 func flattenIPAllocationPolicy(c *containerBeta.Cluster, d *schema.ResourceData, config *Config) []map[string]interface{} {
 	// If IP aliasing isn't enabled, none of the values in this block can be set.
-	if c == nil || c.IpAllocationPolicy == nil || c.IpAllocationPolicy.UseIpAliases == false {
+	if c == nil || c.IpAllocationPolicy == nil || !c.IpAllocationPolicy.UseIpAliases {
 		return nil
 	}
 
@@ -2224,7 +2224,7 @@ func containerClusterPrivateClusterConfigCustomDiff(d *schema.ResourceDiff, meta
 		return nil
 	}
 	config := pccList[0].(map[string]interface{})
-	if config["enable_private_nodes"].(bool) == true {
+	if config["enable_private_nodes"].(bool) {
 		block := config["master_ipv4_cidr_block"]
 
 		// We can only apply this validation if we know the final value of the field, and we may

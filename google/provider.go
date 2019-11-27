@@ -722,7 +722,7 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 
 	scopes := d.Get("scopes").([]interface{})
 	if len(scopes) > 0 {
-		config.Scopes = make([]string, len(scopes), len(scopes))
+		config.Scopes = make([]string, len(scopes))
 	}
 	for i, scope := range scopes {
 		config.Scopes[i] = scope.(string)
