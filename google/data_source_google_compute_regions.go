@@ -64,7 +64,7 @@ func dataSourceGoogleComputeRegionsRead(d *schema.ResourceData, meta interface{}
 }
 
 func flattenRegions(regions []*compute.Region) []string {
-	result := make([]string, len(regions), len(regions))
+	result := make([]string, len(regions))
 	for i, region := range regions {
 		result[i] = region.Name
 	}

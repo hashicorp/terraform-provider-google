@@ -763,9 +763,9 @@ func flattenCloudSchedulerJobAppEngineHttpTargetHeaders(v interface{}, d *schema
 			delete(headers, "Content-Type")
 		}
 	}
+	r := regexp.MustCompile(`(X-Google-|X-AppEngine-|Content-Length).*`)
 	for key := range headers {
-		match, _ := regexp.MatchString("(X-Google-|X-AppEngine-|Content-Length).*", key)
-		if match {
+		if r.MatchString(key) {
 			delete(headers, key)
 		}
 	}
@@ -823,9 +823,9 @@ func flattenCloudSchedulerJobHttpTargetHeaders(v interface{}, d *schema.Resource
 			delete(headers, "Content-Type")
 		}
 	}
+	r := regexp.MustCompile(`(X-Google-|X-AppEngine-|Content-Length).*`)
 	for key := range headers {
-		match, _ := regexp.MatchString("(X-Google-|X-AppEngine-|Content-Length).*", key)
-		if match {
+		if r.MatchString(key) {
 			delete(headers, key)
 		}
 	}

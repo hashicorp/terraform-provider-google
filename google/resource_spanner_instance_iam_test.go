@@ -96,10 +96,10 @@ func TestAccSpannerInstanceIamPolicy(t *testing.T) {
 			// Test a few import formats
 			{
 				ResourceName: "google_spanner_instance_iam_policy.foo",
-				ImportStateId: fmt.Sprintf("%s", spannerInstanceId{
+				ImportStateId: spannerInstanceId{
 					Instance: instance,
 					Project:  project,
-				}.terraformId()),
+				}.terraformId(),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

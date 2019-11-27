@@ -102,7 +102,7 @@ func TestComputeInstanceGroupMigrateState_empty(t *testing.T) {
 
 		// should handle non-nil but empty
 		is = &terraform.InstanceState{}
-		is, err = resourceComputeInstanceGroupMigrateState(tc.StateVersion, is, meta)
+		_, err = resourceComputeInstanceGroupMigrateState(tc.StateVersion, is, meta)
 
 		if err != nil {
 			t.Fatalf("bad %s, err: %#v", tn, err)
