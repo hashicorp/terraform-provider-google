@@ -132,6 +132,12 @@ The following arguments are supported:
   not enforced and the network behaves as if it did not exist. If this
   is unspecified, the firewall rule will be enabled.
 
+* `enable_logging` -
+  (Optional)
+  This field denotes whether to enable logging for a particular
+  firewall rule. If logging is enabled, logs will be exported to
+  Stackdriver.
+
 * `priority` -
   (Optional)
   Priority for this rule. This is an integer between 0 and 65535, both
