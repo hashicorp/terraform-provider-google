@@ -629,14 +629,14 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
-	waitErr := computeOperationWaitTime(
+	err = computeOperationWaitTime(
 		config, res, project, "Creating Disk",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Disk: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Disk: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Disk %q: %#v", d.Id(), res)

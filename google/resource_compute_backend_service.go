@@ -670,14 +670,14 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	waitErr := computeOperationWaitTime(
+	err = computeOperationWaitTime(
 		config, res, project, "Creating BackendService",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create BackendService: %s", waitErr)
+		return fmt.Errorf("Error waiting to create BackendService: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating BackendService %q: %#v", d.Id(), res)

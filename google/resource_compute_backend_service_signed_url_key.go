@@ -119,14 +119,14 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
-	waitErr := computeOperationWaitTime(
+	err = computeOperationWaitTime(
 		config, res, project, "Creating BackendServiceSignedUrlKey",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create BackendServiceSignedUrlKey: %s", waitErr)
+		return fmt.Errorf("Error waiting to create BackendServiceSignedUrlKey: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating BackendServiceSignedUrlKey %q: %#v", d.Id(), res)

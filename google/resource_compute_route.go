@@ -251,14 +251,14 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.SetId(id)
 
-	waitErr := computeOperationWaitTime(
+	err = computeOperationWaitTime(
 		config, res, project, "Creating Route",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Route: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Route: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Route %q: %#v", d.Id(), res)

@@ -279,14 +279,14 @@ func resourceAccessContextManagerAccessLevelCreate(d *schema.ResourceData, meta 
 	}
 	d.SetId(id)
 
-	waitErr := accessContextManagerOperationWaitTime(
+	err = accessContextManagerOperationWaitTime(
 		config, res, "Creating AccessLevel",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create AccessLevel: %s", waitErr)
+		return fmt.Errorf("Error waiting to create AccessLevel: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating AccessLevel %q: %#v", d.Id(), res)

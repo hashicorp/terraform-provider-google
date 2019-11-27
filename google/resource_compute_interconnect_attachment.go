@@ -314,14 +314,14 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
-	waitErr := computeOperationWaitTime(
+	err = computeOperationWaitTime(
 		config, res, project, "Creating InterconnectAttachment",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create InterconnectAttachment: %s", waitErr)
+		return fmt.Errorf("Error waiting to create InterconnectAttachment: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating InterconnectAttachment %q: %#v", d.Id(), res)
