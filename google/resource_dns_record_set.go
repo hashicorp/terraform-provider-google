@@ -221,7 +221,7 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] DNS Record delete request: %#v", chg)
 	chg, err = config.clientDns.Changes.Create(project, zone, chg).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting DNS RecordSet: %s", err)
+		return handleNotFoundError(err, d, "google_dns_record_set")
 	}
 
 	w := &DnsChangeWaiter{
