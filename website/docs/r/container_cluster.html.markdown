@@ -610,6 +610,8 @@ for more details. This field only applies to private clusters, when
 
 In addition, the `private_cluster_config` allows access to the following read-only fields:
 
+* `peering_name` - The name of the peering between this cluster and the Google owned VPC.
+
 * `private_endpoint` - The internal IP address of this cluster's master endpoint.
 
 * `public_endpoint` - The external IP address of this cluster's master endpoint.

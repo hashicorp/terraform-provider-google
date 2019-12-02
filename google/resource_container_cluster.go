@@ -668,6 +668,7 @@ func resourceContainerCluster() *schema.Resource {
 							ForceNew:     true,
 							ValidateFunc: orEmpty(validation.CIDRNetwork(28, 28)),
 						},
+
 						"private_endpoint": {
 							Type:     schema.TypeString,
 							Computed: true,
