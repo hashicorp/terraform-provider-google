@@ -694,6 +694,20 @@ func resourceContainerCluster() *schema.Resource {
 				Computed: true,
 			},
 
+			"vertical_pod_autoscaling": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+					},
+				},
+			},
+
 			"enable_intranode_visibility": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -875,6 +889,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.PrivateClusterConfig = expandPrivateClusterConfig(v)
 	}
 
+	if v, ok := d.GetOk("vertical_pod_autoscaling"); ok {
+		cluster.VerticalPodAutoscaling = expandVerticalPodAutoscaling(v)
+	}
+
 	req := &containerBeta.CreateClusterRequest{
 		Cluster: cluster,
 	}
@@ -1036,6 +1054,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	if err := d.Set("instance_group_urls", igUrls); err != nil {
+		return err
+	}
+
+	if err := d.Set("vertical_pod_autoscaling", flattenVerticalPodAutoscaling(cluster.VerticalPodAutoscaling)); err != nil {
 		return err
 	}
 
@@ -1449,6 +1471,26 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 		log.Printf("[INFO] GKE cluster %s: master auth has been updated", d.Id())
 		d.SetPartial("master_auth")
+	}
+
+	if d.HasChange("vertical_pod_autoscaling") {
+		if ac, ok := d.GetOk("vertical_pod_autoscaling"); ok {
+			req := &containerBeta.UpdateClusterRequest{
+				Update: &containerBeta.ClusterUpdate{
+					DesiredVerticalPodAutoscaling: expandVerticalPodAutoscaling(ac),
+				},
+			}
+
+			updateF := updateFunc(req, "updating GKE cluster vertical pod autoscaling")
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] GKE cluster %s vertical pod autoscaling has been updated", d.Id())
+
+			d.SetPartial("vertical_pod_autoscaling")
+		}
 	}
 
 	if d.HasChange("resource_labels") {
@@ -1889,6 +1931,17 @@ func expandPrivateClusterConfig(configured interface{}) *containerBeta.PrivateCl
 	}
 }
 
+func expandVerticalPodAutoscaling(configured interface{}) *containerBeta.VerticalPodAutoscaling {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &containerBeta.VerticalPodAutoscaling{
+		Enabled: config["enabled"].(bool),
+	}
+}
+
 func expandPodSecurityPolicyConfig(configured interface{}) *containerBeta.PodSecurityPolicyConfig {
 	// Removing lists is hard - the element count (#) will have a diff from nil -> computed
 	// If we set this to empty on Read, it will be stable.
@@ -1988,6 +2041,17 @@ func flattenPrivateClusterConfig(c *containerBeta.PrivateClusterConfig) []map[st
 			"master_ipv4_cidr_block":  c.MasterIpv4CidrBlock,
 			"private_endpoint":        c.PrivateEndpoint,
 			"public_endpoint":         c.PublicEndpoint,
+		},
+	}
+}
+
+func flattenVerticalPodAutoscaling(c *containerBeta.VerticalPodAutoscaling) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"enabled": c.Enabled,
 		},
 	}
 }
