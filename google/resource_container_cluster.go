@@ -2172,6 +2172,9 @@ func cidrOrSizeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 // removable by disabling those features.
 func containerClusterAddedScopesSuppress(k, old, new string, d *schema.ResourceData) bool {
 	o, n := d.GetChange("cluster_autoscaling.0.auto_provisioning_defaults.0.oauth_scopes")
+	if o == nil || n == nil {
+		return false
+	}
 
 	addedScopes := []string{
 		"https://www.googleapis.com/auth/monitoring.write",
