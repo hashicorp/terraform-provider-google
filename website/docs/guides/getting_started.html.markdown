@@ -158,7 +158,7 @@ file. Name it something you can remember, and store it somewhere secure on your
 machine.
 
 You supply the key to Terraform using the environment variable
-`GOOGLE_CLOUD_KEYFILE_JSON`, setting the value to the location of the file.
+`GOOGLE_APPLICATION_CREDENTIALS`, setting the value to the location of the file.
 
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS={{path}}
