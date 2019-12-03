@@ -164,14 +164,14 @@ function tpgpatch2 {
 With those functions defined:
 
 1. Check out both the provider and MM repo to `master`, committing/stashing any local changes
-1. Run `git checkout -b {{branch}}` to create a branch for your upstreaming PR
+1. In the MM repo, run `git checkout -b {{branch}}` to create a branch for your upstreaming PR
 1. Click the clipboard button next to the `author:branch` indicator on the PR to copy it.
 1. Run `tpgpatch1 author:branch` from the provider repo
-1. Run `tpgpatch2 author:branch` from the MM repo
+1. Run `tpgpatch2` from the MM repo
 1. Remove the patch files from the provider repo
 
 At this point, you should be checked out to a branch with the changes to handwritten files included in the MM repo. For
-generated and most compiled filed, you'll need to perform the upstreaming manually. Following getting your local branch
+generated files and most compiled files, you'll need to perform the upstreaming manually. After getting your local branch
 ready:
 
 1. Open a PR in MM
