@@ -125,3 +125,59 @@ ln -s $GOPATH/bin/terraform-provider-google-beta ~/.terraform.d/plugins/terrafor
 When reviewing/merging code, roughly follow the guidelines set in the
 [Maintainer's Etiquette](https://github.com/hashicorp/terraform/blob/master/docs/maintainer-etiquette.md)
 guide. One caveat is that they're fairly old and apply primarily to HashiCorp employees, but the general guidance about merging / changelogs is still relevant.
+
+## Upstreaming community PRs to Magic Modules
+
+Community contributors can contribute directly to [Magic Modules](https://github.com/googleCloudPlatform/magic-modules/), or
+they can contribute directly to this repo. When a community member makes a contribution, we review the change locally and
+"upstream" it by copying it to MM.
+
+When contributors update handwritten files, we've got a couple bash fns to make the process simpler. Define the following in
+your `.bashrc` or `.bash_profile`.
+
+```bash
+function tpgpatch1 {
+  pr_username=$(echo $1 | cut -d ':' -f1)
+  feature_branch=$(echo $1 | cut -d ':' -f2)
+  git remote add $pr_username git@github.com:$pr_username/${PWD##*/}
+  git fetch $pr_username
+  git checkout $pr_username/$feature_branch
+  git format-patch $(git merge-base HEAD master)
+}
+ 
+function tpgpatch2 {
+  for patch in $GOPATH/src/github.com/terraform-providers/terraform-provider-google*/*.patch; do
+    echo "checking ${patch}"
+        if git apply --stat $patch | grep "google/"; then
+                git am -3 -i $patch -p2 --directory=third_party/terraform/resources/ --include="*.go"
+        fi
+        if git apply --stat $patch | grep "google-beta/"; then
+                git am -3 -i $patch -p2 --directory=third_party/terraform/resources/ --include="*.go"
+        fi
+        if git apply --stat $patch | grep "markdown"; then
+                git am -3 -i $patch --directory=third_party/terraform/ --include="*website/*"
+        fi
+  done
+}
+```
+
+With those functions defined:
+
+1. Check out both the provider and MM repo to `master`, committing/stashing any local changes
+1. In the MM repo, run `git checkout -b {{branch}}` to create a branch for your upstreaming PR
+1. Click the clipboard button next to the `author:branch` indicator on the PR to copy it.
+1. Run `tpgpatch1 author:branch` from the provider repo
+1. Run `tpgpatch2` from the MM repo
+1. Remove the patch files from the provider repo
+
+At this point, you should be checked out to a branch with the changes to handwritten files included in the MM repo. For
+generated files and most compiled files, you'll need to perform the upstreaming manually. After getting your local branch
+ready:
+
+1. Open a PR in MM
+1. Assign a reviewer- generally they'll rubberstamp the change, since it's already been approved
+    * You can ignore CLA notices for `third_party`-only changes, it's not subject to it.
+1. Once approved, merge downstreams.
+    * Instead of the repo's downstream, merge the original PR if it's identical. Close the downstream instead of merging.
+    If you do so, make sure to add a changelog block or `changelog: no-release-note` to the original PR.
+1. Merge the MM PR using `merge-prs`
