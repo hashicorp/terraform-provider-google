@@ -166,12 +166,14 @@ If empty, all IP addresses are allowed.`,
 									"members": {
 										Type:     schema.TypeList,
 										Optional: true,
-										Description: `An allowed list of members (users, groups, service accounts).
+										Description: `An allowed list of members (users, service accounts).
+Using groups is not supported yet.
+
 The signed-in user originating the request must be a part of one
 of the provided members. If not specified, a request may come
 from any user (logged in/not logged in, not present in any
 groups, etc.).
-Formats: 'user:{emailid}', 'group:{emailid}', 'serviceAccount:{emailid}'`,
+Formats: 'user:{emailid}', 'serviceAccount:{emailid}'`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
