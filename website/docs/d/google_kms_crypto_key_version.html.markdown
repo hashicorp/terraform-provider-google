@@ -7,7 +7,7 @@ description: |-
  Provides access to KMS key version data with Google Cloud KMS.
 ---
 
-# google\_kms\_crypto\_key
+# google\_kms\_crypto\_key\_version
 
 Provides access to a Google Cloud Platform KMS CryptoKeyVersion. For more information see
 [the official documentation](https://cloud.google.com/kms/docs/object-hierarchy#key_version)
