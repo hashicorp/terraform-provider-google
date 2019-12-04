@@ -1,4 +1,4 @@
-## 3.0.1 (Unreleased)
+## 3.1.0 (Unreleased)
 
 BREAKING CHANGES:
 * compute: field `peer_ip_address` in `google_compute_router_peer` is now required, to match the API behavior. ([#4923](https://github.com/terraform-providers/terraform-provider-google/pull/4923))
