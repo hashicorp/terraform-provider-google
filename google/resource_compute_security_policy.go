@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v0.beta"
+	compute "google.golang.org/api/compute/v0.beta"
 )
 
 func resourceComputeSecurityPolicy() *schema.Resource {
@@ -73,7 +73,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"config": {
 										Type:     schema.TypeList,
-										Required: true,
+										Optional: true,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -90,7 +90,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 
 									"versioned_expr": {
 										Type:         schema.TypeString,
-										Required:     true,
+										Optional:     true,
 										ValidateFunc: validation.StringInSlice([]string{"SRC_IPS_V1"}, false),
 									},
 								},
@@ -352,21 +352,37 @@ func flattenSecurityPolicyRules(rules []*compute.SecurityPolicyRule) []map[strin
 			"priority":    rule.Priority,
 			"action":      rule.Action,
 			"preview":     rule.Preview,
-			"match": []map[string]interface{}{
-				{
-					"versioned_expr": rule.Match.VersionedExpr,
-					"config": []map[string]interface{}{
-						{
-							"src_ip_ranges": schema.NewSet(schema.HashString, convertStringArrToInterface(rule.Match.Config.SrcIpRanges)),
-						},
-					},
-				},
-			},
+			"match":       flattenMatch(rule.Match),
 		}
 
 		rulesSchema = append(rulesSchema, data)
 	}
 	return rulesSchema
+}
+
+func flattenMatch(match *compute.SecurityPolicyRuleMatcher) []map[string]interface{} {
+	if match == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"versioned_expr": match.VersionedExpr,
+		"config":         flattenMatchConfig(match.Config),
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenMatchConfig(conf *compute.SecurityPolicyRuleMatcherConfig) []map[string]interface{} {
+	if conf == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"src_ip_ranges": schema.NewSet(schema.HashString, convertStringArrToInterface(conf.SrcIpRanges)),
+	}
+
+	return []map[string]interface{}{data}
 }
 
 func resourceSecurityPolicyStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

@@ -83,17 +83,28 @@ The `rule` block supports:
 
 The `match` block supports:
 
-* `config` - (Required) The configuration options available when specifying `versioned_expr`.
+* `config` - (Optional) The configuration options available when specifying `versioned_expr`.
+    This field must be specified if `versioned_expr` is specified and cannot be specified if `versioned_expr` is not specified.
     Structure is documented below.
 
-* `versioned_expr` - (Required) Predefined rule expression. Available options:
+* `versioned_expr` - (Optional) Predefined rule expression. If this field is specified, `config` must also be specified.
+    Available options:
     * SRC_IPS_V1: Must specify the corresponding `src_ip_ranges` field in `config`.
+
+* `expr` - (Optional) User defined CEVAL expression. A CEVAL expression is used to specify match criteria
+    such as origin.ip, source.region_code and contents in the request header.
+    Structure is documented below.
 
 The `config` block supports:
 
 * `src_ip_ranges` - (Required) Set of IP addresses or ranges (IPV4 or IPV6) in CIDR notation
     to match against inbound traffic. There is a limit of 5 IP ranges per rule. A value of '\*' matches all IPs
     (can be used to override the default behavior).
+
+The `expr` block supports:
+
+* `expression` - (Required) Textual representation of an expression in Common Expression Language syntax.
+    The application context of the containing message determines which well-known feature set of CEL is supported.
 
 ## Attributes Reference
 
