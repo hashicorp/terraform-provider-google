@@ -94,7 +94,7 @@ func testAccComputeTargetHttpsProxyHasSslCertificate(cert string, proxy *compute
 		certUrl := fmt.Sprintf(canonicalSslCertificateTemplate, config.Project, cert)
 
 		for _, sslCertificate := range proxy.SslCertificates {
-			if sslCertificate == certUrl {
+			if ConvertSelfLinkToV1(sslCertificate) == certUrl {
 				return nil
 			}
 		}
