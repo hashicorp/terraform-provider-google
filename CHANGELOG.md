@@ -10,7 +10,7 @@ BREAKING CHANGES:
 BUG FIXES:
 * compute: fixed a bug in `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` that created an artificial diff when removing a now-removed field from a config [GH-4929]
 * dns: Fixed bug causing `google_dns_managed_zone` datasource to always return a 404 [GH-4940]
-* service_networking: `google_service_networking_connection` uses patch instead of create even when creating. Fixes error when using multiple connections [GH-4646]
+* service_networking: fixed "An unknown error occurred" bug when creating multiple google_service_networking_connection resources in parallel [GH-4646]
 
 ## 3.0.0-beta.1 (November 15, 2019)
 
