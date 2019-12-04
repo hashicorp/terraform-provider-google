@@ -4,6 +4,8 @@ NOTES:
 
 These are the changes between 3.0.0-beta.1 and the 3.0.0 final release. For changes since 2.20.0, see also the 3.0.0-beta.1 changelog entry below.
 
+**Please see [the 3.0.0 upgrade guide](https://www.terraform.io/docs/providers/google/guides/version_3_upgrade.html) for upgrade guidance.**
+
 BREAKING CHANGES:
 * cloudrun: updated `cloud_run_service` to v1. Significant updates have been made to the resource including a breaking schema change. [GH-4972]
 
