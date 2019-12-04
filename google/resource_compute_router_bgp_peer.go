@@ -143,6 +143,13 @@ CIDR-formatted string.`,
 Where there is more than one matching route of maximum
 length, the routes with the lowest priority value win.`,
 			},
+			"ip_address": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `IP address of the interface inside Google Cloud Platform.
+Only IPv4 is supported.`,
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -151,12 +158,6 @@ length, the routes with the lowest priority value win.`,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description: `Region where the router and BgpPeer reside.
 If it is not provided, the provider region is used.`,
-			},
-			"ip_address": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Description: `IP address of the interface inside Google Cloud Platform.
-Only IPv4 is supported.`,
 			},
 			"management_type": {
 				Type:     schema.TypeString,
@@ -197,6 +198,12 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("interface"); !isEmptyValue(reflect.ValueOf(interfaceNameProp)) && (ok || !reflect.DeepEqual(v, interfaceNameProp)) {
 		obj["interfaceName"] = interfaceNameProp
+	}
+	ipAddressProp, err := expandComputeRouterBgpPeerIpAddress(d.Get("ip_address"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ip_address"); !isEmptyValue(reflect.ValueOf(ipAddressProp)) && (ok || !reflect.DeepEqual(v, ipAddressProp)) {
+		obj["ipAddress"] = ipAddressProp
 	}
 	peerIpAddressProp, err := expandComputeRouterBgpPeerPeerIpAddress(d.Get("peer_ip_address"), d, config)
 	if err != nil {
@@ -554,6 +561,10 @@ func expandComputeRouterBgpPeerName(v interface{}, d TerraformResourceData, conf
 }
 
 func expandComputeRouterBgpPeerInterface(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRouterBgpPeerIpAddress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

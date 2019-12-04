@@ -86,6 +86,11 @@ The following arguments are supported:
 - - -
 
 
+* `ip_address` -
+  (Optional)
+  IP address of the interface inside Google Cloud Platform.
+  Only IPv4 is supported.
+
 * `advertised_route_priority` -
   (Optional)
   The priority of routes advertised to this BGP peer.
@@ -142,10 +147,6 @@ The `advertised_ip_ranges` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-
-* `ip_address` -
-  IP address of the interface inside Google Cloud Platform.
-  Only IPv4 is supported.
 
 * `management_type` -
   The resource that configures and manages this BGP peer.
