@@ -247,7 +247,7 @@ resource "google_organization_iam_audit_config" "acceptance" {
   audit_log_config {
     log_type = "DATA_READ"
     exempted_members = [
-		  "user:paddy@hashicorp.com",
+      "user:paddy@hashicorp.com",
       "user:paddy@carvers.co",
     ]
   }
@@ -263,7 +263,7 @@ resource "google_organization_iam_audit_config" "acceptance" {
   audit_log_config {
     log_type = "DATA_READ"
     exempted_members = [
-		  "user:paddy@hashicorp.com",
+      "user:paddy@hashicorp.com",
       "user:paddy@carvers.co",
     ]
   }
