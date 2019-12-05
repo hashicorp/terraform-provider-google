@@ -132,12 +132,12 @@ $ terraform import google_cloud_run_service_iam_member.editor "locations/{{locat
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
 ```
-$ terraform import google_cloud_run_service_iam_binding.editor "locations/{{location}}/namespaces/{{project}}/services/{{service}} roles/viewer"
+$ terraform import google_cloud_run_service_iam_binding.editor "projects/{{project}}/locations/{{location}}/services/{{service}} roles/viewer"
 ```
 
 IAM policy imports use the identifier of the resource in question, e.g.
 ```
-$ terraform import google_cloud_run_service_iam_policy.editor locations/{{location}}/namespaces/{{project}}/services/{{service}}
+$ terraform import google_cloud_run_service_iam_policy.editor projects/{{project}}/locations/{{location}}/services/{{service}}
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
