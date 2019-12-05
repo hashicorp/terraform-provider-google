@@ -56,52 +56,6 @@ resource "google_sourcerepo_repository" "my-repo" {
 `, context)
 }
 
-func TestAccSourceRepoRepository_sourcerepoRepositoryFullExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
-	}
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSourceRepoRepository_sourcerepoRepositoryFullExample(context),
-			},
-			{
-				ResourceName:      "google_sourcerepo_repository.my-repo",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func testAccSourceRepoRepository_sourcerepoRepositoryFullExample(context map[string]interface{}) string {
-	return Nprintf(`
-resource "google_service_account" "test-account" {
-  account_id   = "my-account%{random_suffix}"
-  display_name = "Test Service Account"
-}
-
-resource "google_pubsub_topic" "topic" {
-  name     = "my-topic%{random_suffix}"
-}
-
-resource "google_sourcerepo_repository" "my-repo" {
-  name = "my-repository%{random_suffix}"
-  pubsub_configs {
-      topic = google_pubsub_topic.topic.id
-      message_format = "JSON"
-      service_account_email = google_service_account.test-account.email
-  }
-}
-`, context)
-}
-
 func testAccCheckSourceRepoRepositoryDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_sourcerepo_repository" {
