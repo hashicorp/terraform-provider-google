@@ -592,7 +592,7 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudRunBasePath}}serving.knative.dev/v1/namespaces/{{project}}/services")
+	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services")
 	if err != nil {
 		return err
 	}
@@ -614,7 +614,7 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	waitURL, err := replaceVars(d, config, "{{CloudRunBasePath}}serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
+	waitURL, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -635,7 +635,7 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{CloudRunBasePath}}serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
+	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -712,7 +712,7 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudRunBasePath}}serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
+	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -724,7 +724,7 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error updating Service %q: %s", d.Id(), err)
 	}
 
-	waitURL, err := replaceVars(d, config, "{{CloudRunBasePath}}serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
+	waitURL, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -748,7 +748,7 @@ func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudRunBasePath}}serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
+	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return err
 	}

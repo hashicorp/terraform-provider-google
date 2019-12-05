@@ -86,7 +86,7 @@ func testAccCheckCloudRunServiceDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(config, rs, "{{CloudRunBasePath}}serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 		if err != nil {
 			return err
 		}

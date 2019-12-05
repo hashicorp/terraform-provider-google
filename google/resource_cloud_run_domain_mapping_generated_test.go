@@ -96,7 +96,7 @@ func testAccCheckCloudRunDomainMappingDestroy(s *terraform.State) error {
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(config, rs, "{{CloudRunBasePath}}domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
+		url, err := replaceVarsForTest(config, rs, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
 		if err != nil {
 			return err
 		}
