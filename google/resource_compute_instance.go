@@ -753,6 +753,54 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 	}, nil
 }
 
+func getAllStatusExcept(exceptedStatus string) []string {
+	allStatus := []string{
+		"PROVISIONING",
+		"REPAIRING",
+		"RUNNING",
+		"STAGING",
+		"STOPPED",
+		"STOPPING",
+		"SUSPENDED",
+		"SUSPENDING",
+		"TERMINATED",
+	}
+	for i, status := range allStatus {
+		if exceptedStatus == status {
+			return append(allStatus[:i], allStatus[i+1:]...)
+		}
+	}
+	return nil
+}
+
+func waitUntilInstanceHaveTheExpectedStatus(config *Config, d *schema.ResourceData) error {
+	expectedStatus := d.Get("status").(string)
+	stateRefreshFunc := func() (interface{}, string, error) {
+		instance, err := getInstance(config, d)
+		if err != nil || instance == nil {
+			log.Printf("Error on InstanceStateRefresh: %s", err)
+			return nil, "", err
+		}
+		return instance.Id, instance.Status, nil
+	}
+	stateChangeConf := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    getAllStatusExcept(expectedStatus),
+		Refresh:    stateRefreshFunc,
+		Target:     []string{expectedStatus},
+		Timeout:    120 * time.Second,
+		MinTimeout: 5 * time.Second,
+	}
+	_, err := stateChangeConf.WaitForState()
+
+	if err != nil {
+		return fmt.Errorf(
+			"Error waiting for instance to reach status %s: %s", expectedStatus, err)
+	}
+
+	return nil
+}
+
 func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -796,6 +844,11 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		// The resource didn't actually create
 		d.SetId("")
 		return waitErr
+	}
+
+	err = waitUntilInstanceHaveTheExpectedStatus(config, d)
+	if err != nil {
+		return fmt.Errorf("Error waiting for status: %s", err)
 	}
 
 	return resourceComputeInstanceRead(d, meta)
@@ -981,60 +1034,8 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("name", instance.Name)
 	d.Set("description", instance.Description)
 	d.Set("hostname", instance.Hostname)
-	err = waitUntilInstanceHaveTheExpectedStatus(config, d)
-	if err != nil {
-		return fmt.Errorf("Error waiting for status: %s", err)
-	}
 	d.Set("status", instance.Status)
 	d.SetId(instance.Name)
-
-	return nil
-}
-
-func getAllStatusExcept(exceptedStatus string) []string {
-	allStatus := []string{
-		"PROVISIONING",
-		"REPAIRING",
-		"RUNNING",
-		"STAGING",
-		"STOPPED",
-		"STOPPING",
-		"SUSPENDED",
-		"SUSPENDING",
-		"TERMINATED",
-	}
-	for i, status := range allStatus {
-		if exceptedStatus == status {
-			return append(allStatus[:i], allStatus[i+1:]...)
-		}
-	}
-	return nil
-}
-
-func waitUntilInstanceHaveTheExpectedStatus(config *Config, d *schema.ResourceData) error {
-	expectedStatus := d.Get("status").(string)
-	stateRefreshFunc := func() (interface{}, string, error) {
-		instance, err := getInstance(config, d)
-		if err != nil || instance == nil {
-			log.Printf("Error on InstanceStateRefresh: %s", err)
-			return nil, "", err
-		}
-		return instance.Id, instance.Status, nil
-	}
-	stateChangeConf := resource.StateChangeConf{
-		Delay:      5 * time.Second,
-		Pending:    getAllStatusExcept(expectedStatus),
-		Refresh:    stateRefreshFunc,
-		Target:     []string{expectedStatus},
-		Timeout:    120 * time.Second,
-		MinTimeout: 5 * time.Second,
-	}
-	_, err := stateChangeConf.WaitForState()
-
-	if err != nil {
-		return fmt.Errorf(
-			"Error waiting for instance to reach status %s: %s", expectedStatus, err)
-	}
 
 	return nil
 }
