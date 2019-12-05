@@ -111,8 +111,8 @@ The following arguments are supported:
 * `ssl_certificates` -
   (Required)
   A list of SslCertificate resources that are used to authenticate
-  connections between users and the load balancer. Currently, exactly
-  one SSL certificate must be specified.
+  connections between users and the load balancer. At least one SSL
+  certificate must be specified.
 
 * `url_map` -
   (Required)
