@@ -21,16 +21,17 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
-var IapAppEngineServiceIamSchema = map[string]*schema.Schema{
+var CloudRunServiceIamSchema = map[string]*schema.Schema{
 	"project": {
 		Type:     schema.TypeString,
 		Computed: true,
 		Optional: true,
 		ForceNew: true,
 	},
-	"app_id": {
+	"location": {
 		Type:     schema.TypeString,
-		Required: true,
+		Computed: true,
+		Optional: true,
 		ForceNew: true,
 	},
 	"service": {
@@ -41,15 +42,15 @@ var IapAppEngineServiceIamSchema = map[string]*schema.Schema{
 	},
 }
 
-type IapAppEngineServiceIamUpdater struct {
-	project string
-	appId   string
-	service string
-	d       *schema.ResourceData
-	Config  *Config
+type CloudRunServiceIamUpdater struct {
+	project  string
+	location string
+	service  string
+	d        *schema.ResourceData
+	Config   *Config
 }
 
-func IapAppEngineServiceIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func CloudRunServiceIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, err := getProject(d, config)
@@ -57,16 +58,17 @@ func IapAppEngineServiceIamUpdaterProducer(d *schema.ResourceData, config *Confi
 		return nil, err
 	}
 	values["project"] = project
-	if v, ok := d.GetOk("app_id"); ok {
-		values["appId"] = v.(string)
+	location, err := getLocation(d, config)
+	if err != nil {
+		return nil, err
 	}
-
+	values["location"] = location
 	if v, ok := d.GetOk("service"); ok {
 		values["service"] = v.(string)
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Get("service").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<service>[^/]+)", "(?P<location>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Get("service").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -75,22 +77,22 @@ func IapAppEngineServiceIamUpdaterProducer(d *schema.ResourceData, config *Confi
 		values[k] = v
 	}
 
-	u := &IapAppEngineServiceIamUpdater{
-		project: values["project"],
-		appId:   values["appId"],
-		service: values["service"],
-		d:       d,
-		Config:  config,
+	u := &CloudRunServiceIamUpdater{
+		project:  values["project"],
+		location: values["location"],
+		service:  values["service"],
+		d:        d,
+		Config:   config,
 	}
 
 	d.Set("project", u.project)
-	d.Set("app_id", u.appId)
+	d.Set("location", u.location)
 	d.Set("service", u.GetResourceId())
 
 	return u, nil
 }
 
-func IapAppEngineServiceIdParseFunc(d *schema.ResourceData, config *Config) error {
+func CloudRunServiceIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
 	project, err := getProject(d, config)
@@ -98,8 +100,13 @@ func IapAppEngineServiceIdParseFunc(d *schema.ResourceData, config *Config) erro
 		return err
 	}
 	values["project"] = project
+	location, err := getLocation(d, config)
+	if err != nil {
+		return err
+	}
+	values["location"] = location
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Id())
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<service>[^/]+)", "(?P<location>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
@@ -108,20 +115,20 @@ func IapAppEngineServiceIdParseFunc(d *schema.ResourceData, config *Config) erro
 		values[k] = v
 	}
 
-	u := &IapAppEngineServiceIamUpdater{
-		project: values["project"],
-		appId:   values["appId"],
-		service: values["service"],
-		d:       d,
-		Config:  config,
+	u := &CloudRunServiceIamUpdater{
+		project:  values["project"],
+		location: values["location"],
+		service:  values["service"],
+		d:        d,
+		Config:   config,
 	}
 	d.Set("service", u.GetResourceId())
 	d.SetId(u.GetResourceId())
 	return nil
 }
 
-func (u *IapAppEngineServiceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url, err := u.qualifyAppEngineServiceUrl("getIamPolicy")
+func (u *CloudRunServiceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
+	url, err := u.qualifyServiceUrl("getIamPolicy")
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +139,7 @@ func (u *IapAppEngineServiceIamUpdater) GetResourceIamPolicy() (*cloudresourcema
 	}
 	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "POST", project, url, obj)
+	policy, err := sendRequest(u.Config, "GET", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -146,7 +153,7 @@ func (u *IapAppEngineServiceIamUpdater) GetResourceIamPolicy() (*cloudresourcema
 	return out, nil
 }
 
-func (u *IapAppEngineServiceIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
+func (u *CloudRunServiceIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
 	json, err := ConvertToMap(policy)
 	if err != nil {
 		return err
@@ -155,7 +162,7 @@ func (u *IapAppEngineServiceIamUpdater) SetResourceIamPolicy(policy *cloudresour
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url, err := u.qualifyAppEngineServiceUrl("setIamPolicy")
+	url, err := u.qualifyServiceUrl("setIamPolicy")
 	if err != nil {
 		return err
 	}
@@ -173,8 +180,8 @@ func (u *IapAppEngineServiceIamUpdater) SetResourceIamPolicy(policy *cloudresour
 	return nil
 }
 
-func (u *IapAppEngineServiceIamUpdater) qualifyAppEngineServiceUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s", u.project, u.appId, u.service), methodIdentifier)
+func (u *CloudRunServiceIamUpdater) qualifyServiceUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{CloudRunBasePath}}%s:%s", fmt.Sprintf("v1/projects/%s/locations/%s/services/%s", u.project, u.location, u.service), methodIdentifier)
 	url, err := replaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
@@ -182,14 +189,14 @@ func (u *IapAppEngineServiceIamUpdater) qualifyAppEngineServiceUrl(methodIdentif
 	return url, nil
 }
 
-func (u *IapAppEngineServiceIamUpdater) GetResourceId() string {
-	return fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s", u.project, u.appId, u.service)
+func (u *CloudRunServiceIamUpdater) GetResourceId() string {
+	return fmt.Sprintf("v1/projects/%s/locations/%s/services/%s", u.project, u.location, u.service)
 }
 
-func (u *IapAppEngineServiceIamUpdater) GetMutexKey() string {
-	return fmt.Sprintf("iam-iap-appengineservice-%s", u.GetResourceId())
+func (u *CloudRunServiceIamUpdater) GetMutexKey() string {
+	return fmt.Sprintf("iam-cloudrun-service-%s", u.GetResourceId())
 }
 
-func (u *IapAppEngineServiceIamUpdater) DescribeResource() string {
-	return fmt.Sprintf("iap appengineservice %q", u.GetResourceId())
+func (u *CloudRunServiceIamUpdater) DescribeResource() string {
+	return fmt.Sprintf("cloudrun service %q", u.GetResourceId())
 }

@@ -108,7 +108,10 @@ func BinaryAuthorizationAttestorIdParseFunc(d *schema.ResourceData, config *Conf
 }
 
 func (u *BinaryAuthorizationAttestorIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyAttestorUrl("getIamPolicy")
+	url, err := u.qualifyAttestorUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
@@ -139,7 +142,10 @@ func (u *BinaryAuthorizationAttestorIamUpdater) SetResourceIamPolicy(policy *clo
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyAttestorUrl("setIamPolicy")
+	url, err := u.qualifyAttestorUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
@@ -154,8 +160,13 @@ func (u *BinaryAuthorizationAttestorIamUpdater) SetResourceIamPolicy(policy *clo
 	return nil
 }
 
-func (u *BinaryAuthorizationAttestorIamUpdater) qualifyAttestorUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://binaryauthorization.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/attestors/%s", u.project, u.attestor), methodIdentifier)
+func (u *BinaryAuthorizationAttestorIamUpdater) qualifyAttestorUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{BinaryAuthorizationBasePath}}%s:%s", fmt.Sprintf("projects/%s/attestors/%s", u.project, u.attestor), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *BinaryAuthorizationAttestorIamUpdater) GetResourceId() string {

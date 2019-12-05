@@ -454,8 +454,8 @@ func Provider() terraform.ResourceProvider {
 }
 
 // Generated resources: 86
-// Generated IAM resources: 39
-// Total generated resources: 125
+// Generated IAM resources: 42
+// Total generated resources: 128
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -485,6 +485,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloudfunctions_function_iam_policy":        ResourceIamPolicy(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
 			"google_cloud_run_domain_mapping":                  resourceCloudRunDomainMapping(),
 			"google_cloud_run_service":                         resourceCloudRunService(),
+			"google_cloud_run_service_iam_binding":             ResourceIamBinding(CloudRunServiceIamSchema, CloudRunServiceIamUpdaterProducer, CloudRunServiceIdParseFunc),
+			"google_cloud_run_service_iam_member":              ResourceIamMember(CloudRunServiceIamSchema, CloudRunServiceIamUpdaterProducer, CloudRunServiceIdParseFunc),
+			"google_cloud_run_service_iam_policy":              ResourceIamPolicy(CloudRunServiceIamSchema, CloudRunServiceIamUpdaterProducer, CloudRunServiceIdParseFunc),
 			"google_cloud_scheduler_job":                       resourceCloudSchedulerJob(),
 			"google_cloud_tasks_queue":                         resourceCloudTasksQueue(),
 			"google_compute_address":                           resourceComputeAddress(),
