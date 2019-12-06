@@ -119,10 +119,10 @@ resource "google_pubsub_topic" "example" {
 }
 
 resource "google_pubsub_topic_iam_member" "foo" {
-	project = "${google_pubsub_topic.example.project}"
-	topic = "${google_pubsub_topic.example.name}"
-	role = "%{role}"
-	member = "user:admin@hashicorptest.com"
+  project = "${google_pubsub_topic.example.project}"
+  topic = "${google_pubsub_topic.example.name}"
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -138,16 +138,16 @@ resource "google_pubsub_topic" "example" {
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%{role}"
-		members = ["user:admin@hashicorptest.com"]
-	}
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+  }
 }
 
 resource "google_pubsub_topic_iam_policy" "foo" {
-	project = "${google_pubsub_topic.example.project}"
-	topic = "${google_pubsub_topic.example.name}"
-	policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = "${google_pubsub_topic.example.project}"
+  topic = "${google_pubsub_topic.example.name}"
+  policy_data = "${data.google_iam_policy.foo.policy_data}"
 }
 `, context)
 }
@@ -163,10 +163,10 @@ resource "google_pubsub_topic" "example" {
 }
 
 resource "google_pubsub_topic_iam_binding" "foo" {
-	project = "${google_pubsub_topic.example.project}"
-	topic = "${google_pubsub_topic.example.name}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com"]
+  project = "${google_pubsub_topic.example.project}"
+  topic = "${google_pubsub_topic.example.name}"
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -182,10 +182,10 @@ resource "google_pubsub_topic" "example" {
 }
 
 resource "google_pubsub_topic_iam_binding" "foo" {
-	project = "${google_pubsub_topic.example.project}"
-	topic = "${google_pubsub_topic.example.name}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  project = "${google_pubsub_topic.example.project}"
+  topic = "${google_pubsub_topic.example.name}"
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }

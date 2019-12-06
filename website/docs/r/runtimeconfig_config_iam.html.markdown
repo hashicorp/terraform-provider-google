@@ -37,18 +37,18 @@ Three different resources help you manage your IAM policy for RuntimeConfig Conf
 
 ```hcl
 data "google_iam_policy" "admin" {
-	binding {
-		role = "roles/viewer"
-		members = [
-			"user:jane@example.com",
-		]
-	}
+  binding {
+    role = "roles/viewer"
+    members = [
+      "user:jane@example.com",
+    ]
+  }
 }
 
 resource "google_runtimeconfig_config_iam_policy" "editor" {
-	project = "${google_runtimeconfig_config.config.project}"
-	config = "${google_runtimeconfig_config.config.name}"
-	policy_data = "${data.google_iam_policy.admin.policy_data}"
+  project = "${google_runtimeconfig_config.config.project}"
+  config = "${google_runtimeconfig_config.config.name}"
+  policy_data = "${data.google_iam_policy.admin.policy_data}"
 }
 ```
 
@@ -56,12 +56,12 @@ resource "google_runtimeconfig_config_iam_policy" "editor" {
 
 ```hcl
 resource "google_runtimeconfig_config_iam_binding" "editor" {
-	project = "${google_runtimeconfig_config.config.project}"
-	config = "${google_runtimeconfig_config.config.name}"
-	role = "roles/viewer"
-	members = [
-		"user:jane@example.com",
-	]
+  project = "${google_runtimeconfig_config.config.project}"
+  config = "${google_runtimeconfig_config.config.name}"
+  role = "roles/viewer"
+  members = [
+    "user:jane@example.com",
+  ]
 }
 ```
 
@@ -69,10 +69,10 @@ resource "google_runtimeconfig_config_iam_binding" "editor" {
 
 ```hcl
 resource "google_runtimeconfig_config_iam_member" "editor" {
-	project = "${google_runtimeconfig_config.config.project}"
-	config = "${google_runtimeconfig_config.config.name}"
-	role = "roles/viewer"
-	member = "user:jane@example.com"
+  project = "${google_runtimeconfig_config.config.project}"
+  config = "${google_runtimeconfig_config.config.name}"
+  role = "roles/viewer"
+  member = "user:jane@example.com"
 }
 ```
 
