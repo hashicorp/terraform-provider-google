@@ -116,10 +116,10 @@ resource "google_runtimeconfig_config" "config" {
 }
 
 resource "google_runtimeconfig_config_iam_member" "foo" {
-  project = "${google_runtimeconfig_config.config.project}"
-  config = "${google_runtimeconfig_config.config.name}"
-  role = "%{role}"
-  member = "user:admin@hashicorptest.com"
+	project = "${google_runtimeconfig_config.config.project}"
+	config = "${google_runtimeconfig_config.config.name}"
+	role = "%{role}"
+	member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -132,16 +132,16 @@ resource "google_runtimeconfig_config" "config" {
 }
 
 data "google_iam_policy" "foo" {
-  binding {
-    role = "%{role}"
-    members = ["user:admin@hashicorptest.com"]
-  }
+	binding {
+		role = "%{role}"
+		members = ["user:admin@hashicorptest.com"]
+	}
 }
 
 resource "google_runtimeconfig_config_iam_policy" "foo" {
-  project = "${google_runtimeconfig_config.config.project}"
-  config = "${google_runtimeconfig_config.config.name}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+	project = "${google_runtimeconfig_config.config.project}"
+	config = "${google_runtimeconfig_config.config.name}"
+	policy_data = "${data.google_iam_policy.foo.policy_data}"
 }
 `, context)
 }
@@ -154,10 +154,10 @@ resource "google_runtimeconfig_config" "config" {
 }
 
 resource "google_runtimeconfig_config_iam_binding" "foo" {
-  project = "${google_runtimeconfig_config.config.project}"
-  config = "${google_runtimeconfig_config.config.name}"
-  role = "%{role}"
-  members = ["user:admin@hashicorptest.com"]
+	project = "${google_runtimeconfig_config.config.project}"
+	config = "${google_runtimeconfig_config.config.name}"
+	role = "%{role}"
+	members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -170,10 +170,10 @@ resource "google_runtimeconfig_config" "config" {
 }
 
 resource "google_runtimeconfig_config_iam_binding" "foo" {
-  project = "${google_runtimeconfig_config.config.project}"
-  config = "${google_runtimeconfig_config.config.name}"
-  role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+	project = "${google_runtimeconfig_config.config.project}"
+	config = "${google_runtimeconfig_config.config.name}"
+	role = "%{role}"
+	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }

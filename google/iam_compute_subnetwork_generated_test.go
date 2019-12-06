@@ -127,11 +127,11 @@ resource "google_compute_network" "custom-test" {
 }
 
 resource "google_compute_subnetwork_iam_member" "foo" {
-  project = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.project}"
-  region = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.region}"
-  subnetwork = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.name}"
-  role = "%{role}"
-  member = "user:admin@hashicorptest.com"
+	project = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.project}"
+	region = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.region}"
+	subnetwork = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.name}"
+	role = "%{role}"
+	member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -155,17 +155,17 @@ resource "google_compute_network" "custom-test" {
 }
 
 data "google_iam_policy" "foo" {
-  binding {
-    role = "%{role}"
-    members = ["user:admin@hashicorptest.com"]
-  }
+	binding {
+		role = "%{role}"
+		members = ["user:admin@hashicorptest.com"]
+	}
 }
 
 resource "google_compute_subnetwork_iam_policy" "foo" {
-  project = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.project}"
-  region = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.region}"
-  subnetwork = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.name}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+	project = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.project}"
+	region = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.region}"
+	subnetwork = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.name}"
+	policy_data = "${data.google_iam_policy.foo.policy_data}"
 }
 `, context)
 }
@@ -189,11 +189,11 @@ resource "google_compute_network" "custom-test" {
 }
 
 resource "google_compute_subnetwork_iam_binding" "foo" {
-  project = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.project}"
-  region = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.region}"
-  subnetwork = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.name}"
-  role = "%{role}"
-  members = ["user:admin@hashicorptest.com"]
+	project = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.project}"
+	region = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.region}"
+	subnetwork = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.name}"
+	role = "%{role}"
+	members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -217,11 +217,11 @@ resource "google_compute_network" "custom-test" {
 }
 
 resource "google_compute_subnetwork_iam_binding" "foo" {
-  project = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.project}"
-  region = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.region}"
-  subnetwork = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.name}"
-  role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+	project = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.project}"
+	region = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.region}"
+	subnetwork = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.name}"
+	role = "%{role}"
+	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }
