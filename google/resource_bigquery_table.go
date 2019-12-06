@@ -309,6 +309,19 @@ func resourceBigQueryTable() *schema.Resource {
 				MaxItems: 4,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"encryption_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 
 			// CreationTime: [Output-only] The time when this table was created, in
 			// milliseconds since the epoch.
@@ -417,6 +430,12 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 
 	if v, ok := d.GetOk("friendly_name"); ok {
 		table.FriendlyName = v.(string)
+	}
+
+	if v, ok := d.GetOk("encryption_configuration.0.kms_key_name"); ok {
+		table.EncryptionConfiguration = &bigquery.EncryptionConfiguration{
+			KmsKeyName: v.(string),
+		}
 	}
 
 	if v, ok := d.GetOk("labels"); ok {
@@ -533,6 +552,11 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 
 	if res.Clustering != nil {
 		d.Set("clustering", res.Clustering.Fields)
+	}
+	if res.EncryptionConfiguration != nil {
+		if err := d.Set("encryption_configuration", flattenEncryptionConfiguration(res.EncryptionConfiguration)); err != nil {
+			return err
+		}
 	}
 
 	if res.Schema != nil {
@@ -809,6 +833,10 @@ func expandTimePartitioning(configured interface{}) *bigquery.TimePartitioning {
 	}
 
 	return tp
+}
+
+func flattenEncryptionConfiguration(ec *bigquery.EncryptionConfiguration) []map[string]interface{} {
+	return []map[string]interface{}{{"kms_key_name": ec.KmsKeyName}}
 }
 
 func flattenTimePartitioning(tp *bigquery.TimePartitioning) []map[string]interface{} {

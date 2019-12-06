@@ -384,6 +384,7 @@ func Provider() terraform.ResourceProvider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"google_active_folder":                            dataSourceGoogleActiveFolder(),
 			"google_billing_account":                          dataSourceGoogleBillingAccount(),
+			"google_bigquery_default_service_account":         dataSourceGoogleBigqueryDefaultServiceAccount(),
 			"google_client_config":                            dataSourceGoogleClientConfig(),
 			"google_client_openid_userinfo":                   dataSourceGoogleClientOpenIDUserinfo(),
 			"google_cloudfunctions_function":                  dataSourceGoogleCloudFunctionsFunction(),
