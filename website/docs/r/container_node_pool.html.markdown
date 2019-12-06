@@ -144,6 +144,10 @@ cluster.
 * `project` - (Optional) The ID of the project in which to create the node pool. If blank,
     the provider-configured project will be used.
 
+* `upgrade_settings` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Specify node upgrade settings to change how many nodes GKE attempts to
+    upgrade at once. The number of nodes upgraded simultaneously is the sum of `max_surge` and `max_unavailable`.
+    The maximum number of nodes upgraded simultaneously is limited to 20.
+
 * `version` - (Optional) The Kubernetes version for the nodes in this pool. Note that if this field
     and `auto_upgrade` are both specified, they will fight each other for what the node version should
     be, so setting both is highly discouraged. While a fuzzy version can be specified, it's
@@ -163,6 +167,18 @@ The `management` block supports:
 * `auto_repair` - (Optional) Whether the nodes will be automatically repaired.
 
 * `auto_upgrade` - (Optional) Whether the nodes will be automatically upgraded.
+
+The `upgrade_settings` block supports:
+
+* `max_surge` - (Required) The number of additional nodes that can be added to the node pool during
+    an upgrade. Increasing `max_surge` raises the number of nodes that can be upgraded simultaneously.
+    Can be set to 0 or greater.
+
+* `max_unavailable` - (Required) The number of nodes that can be simultaneously unavailable during
+    an upgrade. Increasing `max_unavailable` raises the number of nodes that can be upgraded in
+    parallel. Can be set to 0 or greater.
+
+`max_surge` and `max_unavailable` must not be negative and at least one of them must be greater than zero.
 
 <a id="timeouts"></a>
 ## Timeouts

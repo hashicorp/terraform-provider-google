@@ -210,8 +210,9 @@ func TestProjectRegex(t *testing.T) {
 		{"", false},
 		{"example_", false},
 	}
+	r := regexp.MustCompile("^" + ProjectRegex + "$")
 	for _, test := range tests {
-		if got, err := regexp.MatchString("^"+ProjectRegex+"$", test.project); err != nil || got != test.want {
+		if got := r.MatchString(test.project); got != test.want {
 			t.Errorf("got %t, want %t for project %v", got, test.want, test.project)
 		}
 	}

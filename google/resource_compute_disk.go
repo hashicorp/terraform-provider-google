@@ -215,11 +215,7 @@ func suppressWindowsFamilyDiff(imageName, familyName string) bool {
 	updatedFamilyString := strings.Replace(familyName, "windows-", "windows-server-", 1)
 	updatedImageName := strings.Replace(imageName, "-dc-", "-", 1)
 
-	if strings.Contains(updatedImageName, updatedFamilyString) {
-		return true
-	}
-
-	return false
+	return strings.Contains(updatedImageName, updatedFamilyString)
 }
 
 func resourceComputeDisk() *schema.Resource {
@@ -297,6 +293,7 @@ https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_
 							ForceNew: true,
 							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
 RFC 4648 base64 to either encrypt or decrypt this resource.`,
+							Sensitive: true,
 						},
 						"sha256": {
 							Type:     schema.TypeString,
@@ -629,14 +626,14 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
-	waitErr := computeOperationWaitTime(
+	err = computeOperationWaitTime(
 		config, res, project, "Creating Disk",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Disk: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Disk: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Disk %q: %#v", d.Id(), res)

@@ -86,7 +86,7 @@ func dataSourceGoogleComputeZonesRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func flattenZones(zones []*compute.Zone) []string {
-	result := make([]string, len(zones), len(zones))
+	result := make([]string, len(zones))
 	for i, zone := range zones {
 		result[i] = zone.Name
 	}

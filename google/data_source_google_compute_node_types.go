@@ -62,7 +62,7 @@ func dataSourceGoogleComputeNodeTypesRead(d *schema.ResourceData, meta interface
 }
 
 func flattenComputeNodeTypes(nodeTypes []*compute.NodeType) []string {
-	result := make([]string, len(nodeTypes), len(nodeTypes))
+	result := make([]string, len(nodeTypes))
 	for i, nodeType := range nodeTypes {
 		result[i] = nodeType.Name
 	}

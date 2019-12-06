@@ -668,6 +668,7 @@ func resourceContainerCluster() *schema.Resource {
 							ForceNew:     true,
 							ValidateFunc: orEmpty(validation.CIDRNetwork(28, 28)),
 						},
+
 						"private_endpoint": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -691,6 +692,20 @@ func resourceContainerCluster() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
+			},
+
+			"vertical_pod_autoscaling": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+					},
+				},
 			},
 
 			"enable_intranode_visibility": {
@@ -874,6 +889,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.PrivateClusterConfig = expandPrivateClusterConfig(v)
 	}
 
+	if v, ok := d.GetOk("vertical_pod_autoscaling"); ok {
+		cluster.VerticalPodAutoscaling = expandVerticalPodAutoscaling(v)
+	}
+
 	req := &containerBeta.CreateClusterRequest{
 		Cluster: cluster,
 	}
@@ -1035,6 +1054,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	if err := d.Set("instance_group_urls", igUrls); err != nil {
+		return err
+	}
+
+	if err := d.Set("vertical_pod_autoscaling", flattenVerticalPodAutoscaling(cluster.VerticalPodAutoscaling)); err != nil {
 		return err
 	}
 
@@ -1450,6 +1473,26 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		d.SetPartial("master_auth")
 	}
 
+	if d.HasChange("vertical_pod_autoscaling") {
+		if ac, ok := d.GetOk("vertical_pod_autoscaling"); ok {
+			req := &containerBeta.UpdateClusterRequest{
+				Update: &containerBeta.ClusterUpdate{
+					DesiredVerticalPodAutoscaling: expandVerticalPodAutoscaling(ac),
+				},
+			}
+
+			updateF := updateFunc(req, "updating GKE cluster vertical pod autoscaling")
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] GKE cluster %s vertical pod autoscaling has been updated", d.Id())
+
+			d.SetPartial("vertical_pod_autoscaling")
+		}
+	}
+
 	if d.HasChange("resource_labels") {
 		resourceLabels := d.Get("resource_labels").(map[string]interface{})
 		req := &containerBeta.SetLabelsRequest{
@@ -1706,7 +1749,7 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 	if cluster != nil && cluster.MaintenancePolicy != nil {
 		resourceVersion = cluster.MaintenancePolicy.ResourceVersion
 	}
-	exclusions := make(map[string]containerBeta.TimeWindow, 0)
+	exclusions := make(map[string]containerBeta.TimeWindow)
 	if cluster != nil && cluster.MaintenancePolicy != nil && cluster.MaintenancePolicy.Window != nil {
 		exclusions = cluster.MaintenancePolicy.Window.MaintenanceExclusions
 	}
@@ -1888,6 +1931,17 @@ func expandPrivateClusterConfig(configured interface{}) *containerBeta.PrivateCl
 	}
 }
 
+func expandVerticalPodAutoscaling(configured interface{}) *containerBeta.VerticalPodAutoscaling {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &containerBeta.VerticalPodAutoscaling{
+		Enabled: config["enabled"].(bool),
+	}
+}
+
 func expandPodSecurityPolicyConfig(configured interface{}) *containerBeta.PodSecurityPolicyConfig {
 	// Removing lists is hard - the element count (#) will have a diff from nil -> computed
 	// If we set this to empty on Read, it will be stable.
@@ -1991,9 +2045,20 @@ func flattenPrivateClusterConfig(c *containerBeta.PrivateClusterConfig) []map[st
 	}
 }
 
+func flattenVerticalPodAutoscaling(c *containerBeta.VerticalPodAutoscaling) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"enabled": c.Enabled,
+		},
+	}
+}
+
 func flattenIPAllocationPolicy(c *containerBeta.Cluster, d *schema.ResourceData, config *Config) []map[string]interface{} {
 	// If IP aliasing isn't enabled, none of the values in this block can be set.
-	if c == nil || c.IpAllocationPolicy == nil || c.IpAllocationPolicy.UseIpAliases == false {
+	if c == nil || c.IpAllocationPolicy == nil || !c.IpAllocationPolicy.UseIpAliases {
 		return nil
 	}
 
@@ -2171,6 +2236,9 @@ func cidrOrSizeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 // removable by disabling those features.
 func containerClusterAddedScopesSuppress(k, old, new string, d *schema.ResourceData) bool {
 	o, n := d.GetChange("cluster_autoscaling.0.auto_provisioning_defaults.0.oauth_scopes")
+	if o == nil || n == nil {
+		return false
+	}
 
 	addedScopes := []string{
 		"https://www.googleapis.com/auth/monitoring.write",
@@ -2224,7 +2292,7 @@ func containerClusterPrivateClusterConfigCustomDiff(d *schema.ResourceDiff, meta
 		return nil
 	}
 	config := pccList[0].(map[string]interface{})
-	if config["enable_private_nodes"].(bool) == true {
+	if config["enable_private_nodes"].(bool) {
 		block := config["master_ipv4_cidr_block"]
 
 		// We can only apply this validation if we know the final value of the field, and we may

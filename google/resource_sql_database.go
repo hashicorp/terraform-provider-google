@@ -147,14 +147,14 @@ func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
-	waitErr := sqlAdminOperationWaitTime(
+	err = sqlAdminOperationWaitTime(
 		config, res, project, "Creating Database",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Database: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Database: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)

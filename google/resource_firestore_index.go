@@ -173,14 +173,14 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	waitErr := firestoreOperationWaitTime(
+	err = firestoreOperationWaitTime(
 		config, res, project, "Creating Index",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Index: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Index: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Index %q: %#v", d.Id(), res)
@@ -281,7 +281,7 @@ func resourceFirestoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*
 		)
 	}
 
-	d.Set("project", fmt.Sprintf("%s", stringParts[1]))
+	d.Set("project", stringParts[1])
 	return []*schema.ResourceData{d}, nil
 }
 

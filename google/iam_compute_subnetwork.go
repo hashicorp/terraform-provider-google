@@ -128,7 +128,10 @@ func ComputeSubnetworkIdParseFunc(d *schema.ResourceData, config *Config) error 
 }
 
 func (u *ComputeSubnetworkIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifySubnetworkUrl("getIamPolicy")
+	url, err := u.qualifySubnetworkUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
@@ -159,7 +162,10 @@ func (u *ComputeSubnetworkIamUpdater) SetResourceIamPolicy(policy *cloudresource
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifySubnetworkUrl("setIamPolicy")
+	url, err := u.qualifySubnetworkUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
@@ -174,8 +180,13 @@ func (u *ComputeSubnetworkIamUpdater) SetResourceIamPolicy(policy *cloudresource
 	return nil
 }
 
-func (u *ComputeSubnetworkIamUpdater) qualifySubnetworkUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://www.googleapis.com/compute/v1/%s/%s", fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", u.project, u.region, u.subnetwork), methodIdentifier)
+func (u *ComputeSubnetworkIamUpdater) qualifySubnetworkUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{ComputeBasePath}}%s/%s", fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", u.project, u.region, u.subnetwork), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *ComputeSubnetworkIamUpdater) GetResourceId() string {

@@ -1273,6 +1273,10 @@ resource "google_container_cluster" "primary" {
     created-by = "terraform"
   }
 
+  vertical_pod_autoscaling {
+    enabled = true
+  }
+
 }
 `, name)
 }
@@ -1300,6 +1304,10 @@ resource "google_container_cluster" "primary" {
   resource_labels = {
     created-by = "terraform-update"
     new-label  = "update"
+  }
+
+  vertical_pod_autoscaling {
+    enabled = true
   }
 
 }

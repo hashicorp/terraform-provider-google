@@ -262,7 +262,7 @@ func TestAccComputeBackendService_withSecurityPolicy(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeBackendService_withSecurityPolicy(serviceName, checkName, polName, ""),
+				Config: testAccComputeBackendService_withSecurityPolicy(serviceName, checkName, polName, "\"\""),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.foobar",
@@ -774,7 +774,7 @@ func testAccComputeBackendService_withSecurityPolicy(serviceName, checkName, pol
 resource "google_compute_backend_service" "foobar" {
   name            = "%s"
   health_checks   = [google_compute_http_health_check.zero.self_link]
-  security_policy = "%s"
+  security_policy = %s
 }
 
 resource "google_compute_http_health_check" "zero" {

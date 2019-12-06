@@ -128,7 +128,10 @@ func CloudFunctionsCloudFunctionIdParseFunc(d *schema.ResourceData, config *Conf
 }
 
 func (u *CloudFunctionsCloudFunctionIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyCloudFunctionUrl("getIamPolicy")
+	url, err := u.qualifyCloudFunctionUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
@@ -159,7 +162,10 @@ func (u *CloudFunctionsCloudFunctionIamUpdater) SetResourceIamPolicy(policy *clo
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyCloudFunctionUrl("setIamPolicy")
+	url, err := u.qualifyCloudFunctionUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
@@ -174,8 +180,13 @@ func (u *CloudFunctionsCloudFunctionIamUpdater) SetResourceIamPolicy(policy *clo
 	return nil
 }
 
-func (u *CloudFunctionsCloudFunctionIamUpdater) qualifyCloudFunctionUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://cloudfunctions.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/locations/%s/functions/%s", u.project, u.region, u.cloudFunction), methodIdentifier)
+func (u *CloudFunctionsCloudFunctionIamUpdater) qualifyCloudFunctionUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{CloudFunctionsBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/functions/%s", u.project, u.region, u.cloudFunction), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *CloudFunctionsCloudFunctionIamUpdater) GetResourceId() string {

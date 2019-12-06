@@ -223,7 +223,7 @@ func resourceSecurityCenterSourceImport(d *schema.ResourceData, meta interface{}
 		)
 	}
 
-	d.Set("organization", fmt.Sprintf("%s", stringParts[1]))
+	d.Set("organization", stringParts[1])
 	return []*schema.ResourceData{d}, nil
 }
 

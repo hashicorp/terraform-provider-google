@@ -84,6 +84,7 @@ so Terraform knows to manage them.
 - [Resource: `google_cloudfunctions_function`](#resource-google_cloudfunctions_function)
 - [Resource: `google_cloudiot_registry`](#resource-google_cloudiot_registry)
 - [Resource: `google_cloudscheduler_job`](#resource-google_cloudscheduler_job)
+- [Resource: `google_cloud_run_service`](#resource-google_cloud_run_service)
 - [Resource: `google_composer_environment`](#resource-google_composer_environment)
 - [Resource: `google_compute_backend_bucket`](#resource-google_compute_backend_bucket)
 - [Resource: `google_compute_backend_service`](#resource-google_compute_backend_service)
@@ -389,6 +390,50 @@ resource "google_cloudiot_registry" "myregistry" {
 
 In an attempt to avoid allowing empty blocks in config files, `public_key_certificate` is now
 required on the `credentials` block.
+
+## Resource: `google_cloud_run_service`
+
+Google Cloud Run Service is being released at v1 and there are breaking schema changes that have arisen from changing the underlying API. These breaking changes only affect the Beta version of the resource as it was not previously available in the GA provider.
+
+To support partial rollouts of different revisions, the `spec` block is now nested under `template` and a second `metadata` block has been added alongside `spec`. Now users can make a change and, using a named revision, they can control the rollout of that revision with a higher granularity.
+
+#### Old Config
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  spec {
+    containers {
+      image = "gcr.io/cloudrun/hello"
+      args  = ["arrg2", "pirate"]
+    }
+    container_concurrency = 10
+  }
+}
+```
+
+#### New Config
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+        args  = ["arrg2", "pirate"]
+      }
+      container_concurrency = 10
+    }
+
+    metadata {
+      annotations = {
+        "autoscaling.knative.dev/maxScale"      = "1000"
+        "run.googleapis.com/client-name"        = "cloud-console"
+      }
+      name = "revision-name"
+    }
+  }
+}
+```
 
 ## Resource: `google_cloudscheduler_job`
 

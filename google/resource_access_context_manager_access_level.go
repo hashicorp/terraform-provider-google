@@ -166,12 +166,14 @@ If empty, all IP addresses are allowed.`,
 									"members": {
 										Type:     schema.TypeList,
 										Optional: true,
-										Description: `An allowed list of members (users, groups, service accounts).
+										Description: `An allowed list of members (users, service accounts).
+Using groups is not supported yet.
+
 The signed-in user originating the request must be a part of one
 of the provided members. If not specified, a request may come
 from any user (logged in/not logged in, not present in any
 groups, etc.).
-Formats: 'user:{emailid}', 'group:{emailid}', 'serviceAccount:{emailid}'`,
+Formats: 'user:{emailid}', 'serviceAccount:{emailid}'`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -279,14 +281,14 @@ func resourceAccessContextManagerAccessLevelCreate(d *schema.ResourceData, meta 
 	}
 	d.SetId(id)
 
-	waitErr := accessContextManagerOperationWaitTime(
+	err = accessContextManagerOperationWaitTime(
 		config, res, "Creating AccessLevel",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create AccessLevel: %s", waitErr)
+		return fmt.Errorf("Error waiting to create AccessLevel: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating AccessLevel %q: %#v", d.Id(), res)

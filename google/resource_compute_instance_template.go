@@ -857,7 +857,7 @@ func reorderDisks(configDisks []interface{}, apiDisks []map[string]interface{}) 
 		return apiDisks
 	}
 
-	result := make([]map[string]interface{}, len(apiDisks), len(apiDisks))
+	result := make([]map[string]interface{}, len(apiDisks))
 
 	/*
 		Disks aren't necessarily returned from the API in the same order they were sent, so gather

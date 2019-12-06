@@ -397,14 +397,14 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	waitErr := appEngineOperationWaitTime(
+	err = appEngineOperationWaitTime(
 		config, res, project, "Creating StandardAppVersion",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create StandardAppVersion: %s", waitErr)
+		return fmt.Errorf("Error waiting to create StandardAppVersion: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating StandardAppVersion %q: %#v", d.Id(), res)

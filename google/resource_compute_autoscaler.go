@@ -282,14 +282,14 @@ func resourceComputeAutoscalerCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
-	waitErr := computeOperationWaitTime(
+	err = computeOperationWaitTime(
 		config, res, project, "Creating Autoscaler",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Autoscaler: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Autoscaler: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Autoscaler %q: %#v", d.Id(), res)

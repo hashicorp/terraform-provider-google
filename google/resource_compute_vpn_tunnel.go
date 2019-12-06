@@ -364,14 +364,14 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
-	waitErr := computeOperationWaitTime(
+	err = computeOperationWaitTime(
 		config, res, project, "Creating VpnTunnel",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create VpnTunnel: %s", waitErr)
+		return fmt.Errorf("Error waiting to create VpnTunnel: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating VpnTunnel %q: %#v", d.Id(), res)

@@ -122,7 +122,7 @@ func canonicalizeInstanceRef(instanceRef string) string {
 
 // Healthchecks need to exist before being referred to from the target pool.
 func convertHealthChecks(healthChecks []interface{}, d *schema.ResourceData, config *Config) ([]string, error) {
-	if healthChecks == nil || len(healthChecks) == 0 {
+	if len(healthChecks) == 0 {
 		return []string{}, nil
 	}
 
