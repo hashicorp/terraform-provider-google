@@ -117,10 +117,6 @@ resource "google_cloud_run_service" "default" {
   name     = "tftest-cloudrun%{random_suffix}"
   location = "us-central1"
 
-  metadata {
-    namespace = ""
-  }
-
   template {
     spec {
       containers {
@@ -150,10 +146,6 @@ func testAccCloudRunServiceIamPolicy_basicGenerated(context map[string]interface
 resource "google_cloud_run_service" "default" {
   name     = "tftest-cloudrun%{random_suffix}"
   location = "us-central1"
-
-  metadata {
-    namespace = ""
-  }
 
   template {
     spec {
@@ -191,10 +183,6 @@ resource "google_cloud_run_service" "default" {
   name     = "tftest-cloudrun%{random_suffix}"
   location = "us-central1"
 
-  metadata {
-    namespace = ""
-  }
-
   template {
     spec {
       containers {
@@ -224,10 +212,6 @@ func testAccCloudRunServiceIamBinding_updateGenerated(context map[string]interfa
 resource "google_cloud_run_service" "default" {
   name     = "tftest-cloudrun%{random_suffix}"
   location = "us-central1"
-
-  metadata {
-    namespace = ""
-  }
 
   template {
     spec {

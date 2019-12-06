@@ -55,10 +55,6 @@ resource "google_cloud_run_service" "default" {
   name     = "tftest-cloudrun%{random_suffix}"
   location = "us-central1"
 
-  metadata {
-    namespace = ""
-  }
-
   template {
     spec {
       containers {
@@ -105,10 +101,6 @@ func testAccCloudRunService_cloudRunServiceSqlExample(context map[string]interfa
 resource "google_cloud_run_service" "default" {
   name     = "tftest-cloudrun%{random_suffix}"
   location = "us-central1"
-
-  metadata {
-    namespace = "%{project}"
-  }
 
   template {
     spec {
@@ -167,10 +159,6 @@ func testAccCloudRunService_cloudRunServiceNoauthExample(context map[string]inte
 resource "google_cloud_run_service" "default" {
   name     = "tftest-cloudrun%{random_suffix}"
   location = "us-central1"
-
-  metadata {
-    namespace = "%{project}"
-  }
 
   template {
     spec {

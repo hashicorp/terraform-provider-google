@@ -57,10 +57,6 @@ resource "google_cloud_run_service" "default" {
   name     = "tftest-cloudrun"
   location = "us-central1"
 
-  metadata {
-    namespace = ""
-  }
-
   template {
     spec {
       containers {
@@ -87,10 +83,6 @@ resource "google_cloud_run_service" "default" {
 resource "google_cloud_run_service" "default" {
   name     = "tftest-cloudrun"
   location = "us-central1"
-
-  metadata {
-    namespace = "my-project-name"
-  }
 
   template {
     spec {
@@ -130,10 +122,6 @@ resource "google_cloud_run_service" "default" {
   name     = "tftest-cloudrun"
   location = "us-central1"
 
-  metadata {
-    namespace = "my-project-name"
-  }
-
   template {
     spec {
       containers {
@@ -172,11 +160,6 @@ The following arguments are supported:
   Is required when creating resources. Name is primarily intended
   for creation idempotence and configuration definition. Cannot be updated.
   More info: http://kubernetes.io/docs/user-guide/identifiers#names
-
-* `metadata` -
-  (Required)
-  Metadata associated with this Service, including name, namespace, labels,
-  and annotations.  Structure is documented below.
 
 * `location` -
   (Required)
@@ -250,7 +233,7 @@ The `metadata` block supports:
 * `namespace` -
   (Optional)
   In Cloud Run the namespace must be equal to either the
-  project ID or project number.
+  project ID or project number. It will default to the resource's project.
 
 * `annotations` -
   (Optional)
@@ -441,6 +424,35 @@ The `resources` block supports:
   The values of the map is string form of the 'quantity' k8s type:
   https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
 
+- - -
+
+
+* `traffic` -
+  (Optional)
+  Traffic specifies how to distribute traffic over a collection of Knative Revisions
+  and Configurations  Structure is documented below.
+
+* `template` -
+  (Optional)
+  template holds the latest specification for the Revision to
+  be stamped out. The template references the container image, and may also
+  include labels and annotations that should be attached to the Revision.
+  To correlate a Revision, and/or to force a Revision to be created when the
+  spec doesn't otherwise change, a nonce label may be provided in the
+  template metadata. For more details, see:
+  https://github.com/knative/serving/blob/master/docs/client-conventions.md#associate-modifications-with-revisions
+  Cloud Run does not currently support referencing a build that is
+  responsible for materializing the container image from source.  Structure is documented below.
+
+* `metadata` -
+  (Optional)
+  Metadata associated with this Service, including name, namespace, labels,
+  and annotations.  Structure is documented below.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
 The `metadata` block supports:
 
 * `labels` -
@@ -480,30 +492,6 @@ The `metadata` block supports:
   Annotations is a key value map stored with a resource that
   may be set by external tools to store and retrieve arbitrary metadata. More
   info: http://kubernetes.io/docs/user-guide/annotations
-
-- - -
-
-
-* `traffic` -
-  (Optional)
-  Traffic specifies how to distribute traffic over a collection of Knative Revisions
-  and Configurations  Structure is documented below.
-
-* `template` -
-  (Optional)
-  template holds the latest specification for the Revision to
-  be stamped out. The template references the container image, and may also
-  include labels and annotations that should be attached to the Revision.
-  To correlate a Revision, and/or to force a Revision to be created when the
-  spec doesn't otherwise change, a nonce label may be provided in the
-  template metadata. For more details, see:
-  https://github.com/knative/serving/blob/master/docs/client-conventions.md#associate-modifications-with-revisions
-  Cloud Run does not currently support referencing a build that is
-  responsible for materializing the container image from source.  Structure is documented below.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 
