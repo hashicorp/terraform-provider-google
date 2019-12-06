@@ -18,13 +18,12 @@ creation. If using these resources in the same config, you can add a
 
 ## Example Usage
 
-This snippet creates a service account, then gives it objectViewer
-permission in a project.
+This snippet creates a service account in a project.
 
 ```hcl
-resource "google_service_account" "object_viewer" {
-  account_id   = "object-viewer"
-  display_name = "Object viewer"
+resource "google_service_account" "service_account" {
+  account_id   = "service_account_id"
+  display_name = "Service Account"
 }
 ```
 
