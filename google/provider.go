@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -99,6 +100,11 @@ func Provider() terraform.ResourceProvider {
 
 			"user_project_override": {
 				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
+			"request_timeout": {
+				Type:     schema.TypeString,
 				Optional: true,
 			},
 
@@ -716,6 +722,13 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 		terraformVersion:    terraformVersion,
 	}
 
+	if v, ok := d.GetOk("request_timeout"); ok {
+		var err error
+		config.RequestTimeout, err = time.ParseDuration(v.(string))
+		if err != nil {
+			return nil, err
+		}
+	}
 	// Add credential source
 	if v, ok := d.GetOk("access_token"); ok {
 		config.AccessToken = v.(string)

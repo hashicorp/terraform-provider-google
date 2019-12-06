@@ -63,6 +63,7 @@ type Config struct {
 	Scopes              []string
 	BatchingConfig      *batchingConfig
 	UserProjectOverride bool
+	RequestTimeout      time.Duration
 
 	client           *http.Client
 	terraformVersion string
@@ -253,10 +254,8 @@ func (c *Config) LoadAndValidate() error {
 
 	client := oauth2.NewClient(context.Background(), tokenSource)
 	client.Transport = logging.NewTransport("Google", client.Transport)
-	// Each individual request should return within 30s - timeouts will be retried.
-	// This is a timeout for, e.g. a single GET request of an operation - not a
-	// timeout for the maximum amount of time a logical request can take.
-	client.Timeout, _ = time.ParseDuration("30s")
+	// This timeout is a timeout per HTTP request, not per logical operation.
+	client.Timeout = c.synchronousTimeout()
 
 	tfUserAgent := httpclient.TerraformUserAgent(c.terraformVersion)
 	providerVersion := fmt.Sprintf("terraform-provider-google/%s", version.ProviderVersion)
@@ -621,6 +620,13 @@ func expandProviderBatchingConfig(v interface{}) (*batchingConfig, error) {
 	}
 
 	return config, nil
+}
+
+func (c *Config) synchronousTimeout() time.Duration {
+	if c.RequestTimeout == 0 {
+		return 30 * time.Second
+	}
+	return c.RequestTimeout
 }
 
 func (c *Config) getTokenSource(clientScopes []string) (oauth2.TokenSource, error) {
