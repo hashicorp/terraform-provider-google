@@ -58,7 +58,7 @@ resource "google_cloud_run_service" "default" {
   location = "us-central1"
 
   metadata {
-    namespace = "my-project-name"
+    namespace = ""
   }
 
   template {
@@ -73,6 +73,91 @@ resource "google_cloud_run_service" "default" {
     percent         = 100
     latest_revision = true
   }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_sql&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloud Run Service Sql
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  name     = "tftest-cloudrun"
+  location = "us-central1"
+
+  metadata {
+    namespace = "my-project-name"
+  }
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+
+    metadata {
+      annotations = {
+        "autoscaling.knative.dev/maxScale"      = "1000"
+        "run.googleapis.com/cloudsql-instances" = "my-project-name:us-central1:${google_sql_database_instance.instance.name}"
+        "run.googleapis.com/client-name"        = "cloud-console"
+      }
+    }
+  }
+}
+
+resource "google_sql_database_instance" "instance" {
+  name   = "cloudrun-sql"
+  region = "us-east1"
+  settings {
+    tier = "D0"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_noauth&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloud Run Service Noauth
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  name     = "tftest-cloudrun"
+  location = "us-central1"
+
+  metadata {
+    namespace = "my-project-name"
+  }
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+  }
+}
+
+data "google_iam_policy" "noauth" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      "allUsers",
+    ]
+  }
+}
+
+resource "google_cloud_run_service_iam_policy" "noauth" {
+  location    = google_cloud_run_service.default.location
+  project     = google_cloud_run_service.default.project
+  service     = google_cloud_run_service.default.name
+
+  policy_data = data.google_iam_policy.noauth.policy_data
 }
 ```
 

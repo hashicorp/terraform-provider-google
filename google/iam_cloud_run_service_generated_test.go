@@ -28,7 +28,7 @@ func TestAccCloudRunServiceIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(10),
 		"role":          "roles/viewer",
-		"namespace":     getTestProjectFromEnv(),
+		"project":       getTestProjectFromEnv(),
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -64,7 +64,7 @@ func TestAccCloudRunServiceIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(10),
 		"role":          "roles/viewer",
-		"namespace":     getTestProjectFromEnv(),
+		"project":       getTestProjectFromEnv(),
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -91,7 +91,7 @@ func TestAccCloudRunServiceIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(10),
 		"role":          "roles/viewer",
-		"namespace":     getTestProjectFromEnv(),
+		"project":       getTestProjectFromEnv(),
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -118,7 +118,7 @@ resource "google_cloud_run_service" "default" {
   location = "us-central1"
 
   metadata {
-    namespace = "%{namespace}"
+    namespace = ""
   }
 
   template {
@@ -152,7 +152,7 @@ resource "google_cloud_run_service" "default" {
   location = "us-central1"
 
   metadata {
-    namespace = "%{namespace}"
+    namespace = ""
   }
 
   template {
@@ -192,7 +192,7 @@ resource "google_cloud_run_service" "default" {
   location = "us-central1"
 
   metadata {
-    namespace = "%{namespace}"
+    namespace = ""
   }
 
   template {
@@ -226,7 +226,7 @@ resource "google_cloud_run_service" "default" {
   location = "us-central1"
 
   metadata {
-    namespace = "%{namespace}"
+    namespace = ""
   }
 
   template {
