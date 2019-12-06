@@ -271,6 +271,201 @@ resource "google_compute_health_check" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=url_map_traffic_director_path&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Traffic Director Path
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  name        = "urlmap"
+  description = "a description"
+  default_service = "${google_compute_backend_service.home.self_link}"
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name = "allpaths"
+    default_service = "${google_compute_backend_service.home.self_link}"
+
+    path_rule {
+      paths   = ["/home"]
+      route_action {
+        cors_policy {
+          allow_credentials = true
+          allow_headers = ["Allowed content"]
+          allow_methods = ["GET"]
+          allow_origin_regexes = ["abc.*"]
+          allow_origins = ["Allowed origin"]
+          expose_headers = ["Exposed header"]
+          max_age = 30
+          disabled = false
+        }
+        fault_injection_policy {
+          abort {
+            http_status = 234
+            percentage = 5.6
+          }
+          delay {
+            fixed_delay {
+              seconds = 0
+              nanos = 50000
+            }
+            percentage = 7.8
+          }
+        }
+        request_mirror_policy {
+          backend_service = "${google_compute_backend_service.home.self_link}"
+        }
+        retry_policy {
+          num_retries = 4
+          per_try_timeout {
+            seconds = 30
+          }
+          retry_conditions = ["5xx", "deadline-exceeded"]
+        }
+        timeout {
+          seconds = 20
+          nanos = 750000000
+        }
+        url_rewrite {
+          host_rewrite = "A replacement header"
+          path_prefix_rewrite = "A replacement path"
+        }
+        weighted_backend_services {
+          backend_service = "${google_compute_backend_service.home.self_link}"
+          weight = 400
+          header_action {
+            request_headers_to_remove = ["RemoveMe"]
+            request_headers_to_add {
+              header_name = "AddMe"
+              header_value = "MyValue"
+              replace = true
+            }
+            response_headers_to_remove = ["RemoveMe"]
+            response_headers_to_add {
+              header_name = "AddMe"
+              header_value = "MyValue"
+              replace = false
+            }
+          }
+        }
+      }
+    }
+  }
+
+  test {
+    service = "${google_compute_backend_service.home.self_link}"
+    host    = "hi.com"
+    path    = "/home"
+  }
+}
+
+resource "google_compute_backend_service" "home" {
+  name        = "home"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = ["${google_compute_health_check.default.self_link}"]
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=url_map_traffic_director_path_partial&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Traffic Director Path Partial
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  name        = "urlmap"
+  description = "a description"
+  default_service = "${google_compute_backend_service.home.self_link}"
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name = "allpaths"
+    default_service = "${google_compute_backend_service.home.self_link}"
+
+    path_rule {
+      paths   = ["/home"]
+      route_action {
+        cors_policy {
+          allow_credentials = true
+          allow_headers = ["Allowed content"]
+          allow_methods = ["GET"]
+          allow_origin_regexes = ["abc.*"]
+          allow_origins = ["Allowed origin"]
+          expose_headers = ["Exposed header"]
+          max_age = 30
+          disabled = false
+        }
+        weighted_backend_services {
+          backend_service = "${google_compute_backend_service.home.self_link}"
+          weight = 400
+          header_action {
+            request_headers_to_remove = ["RemoveMe"]
+            request_headers_to_add {
+              header_name = "AddMe"
+              header_value = "MyValue"
+              replace = true
+            }
+            response_headers_to_remove = ["RemoveMe"]
+            response_headers_to_add {
+              header_name = "AddMe"
+              header_value = "MyValue"
+              replace = false
+            }
+          }
+        }
+      }
+    }
+  }
+
+  test {
+    service = "${google_compute_backend_service.home.self_link}"
+    host    = "hi.com"
+    path    = "/home"
+  }
+}
+
+resource "google_compute_backend_service" "home" {
+  name        = "home"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = ["${google_compute_health_check.default.self_link}"]
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
 
 ## Argument Reference
 
@@ -406,10 +601,6 @@ The `path_matcher` block supports:
   An optional description of this resource. Provide this property when you create
   the resource.
 
-* `path_rule` -
-  (Optional)
-  The list of path rules.  Structure is documented below.
-
 * `header_action` -
   (Optional)
   Specifies changes to request and response headers that need to take effect for
@@ -420,6 +611,15 @@ The `path_matcher` block supports:
   (Required)
   The name to which this PathMatcher is referred by the HostRule.
 
+* `path_rule` -
+  (Optional)
+  The list of path rules. Use this list instead of routeRules when routing based
+  on simple path matching is all that's required. The order by which path rules
+  are specified does not matter. Matches are always done on the longest-path-first
+  basis. For example: a pathRule with a path /a/b/c/* will match before /a/b/*
+  irrespective of the order in which those paths appear in this list. Within a
+  given pathMatcher, only one of pathRules or routeRules must be set.  Structure is documented below.
+
 * `route_rules` -
   (Optional)
   The list of ordered HTTP route rules. Use this list instead of pathRules when
@@ -429,20 +629,6 @@ The `path_matcher` block supports:
   routeRules must be set. routeRules are not supported in UrlMaps intended for
   External load balancers.  Structure is documented below.
 
-
-The `path_rule` block supports:
-
-* `paths` -
-  (Required)
-  The list of path patterns to match. Each must start with /
-  and the only place a * is allowed is at the end following
-  a /. The string fed to the path matcher does not include
-  any text after the first ? or #, and those chars are not
-  allowed here.
-
-* `service` -
-  (Required)
-  The backend service or backend bucket to use if any of the given paths match.
 
 The `header_action` block supports:
 
@@ -497,6 +683,380 @@ The `response_headers_to_add` block supports:
   If false, headerValue is appended to any values that already exist for the
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
+
+The `path_rule` block supports:
+
+* `service` -
+  (Optional)
+  The backend service or backend bucket to use if any of the given paths match.
+
+* `paths` -
+  (Required)
+  The list of path patterns to match. Each must start with / and the only place a
+  * is allowed is at the end following a /. The string fed to the path matcher
+  does not include any text after the first ? or #, and those chars are not
+  allowed here.
+
+* `route_action` -
+  (Optional)
+  In response to a matching path, the load balancer performs advanced routing
+  actions like URL rewrites, header transformations, etc. prior to forwarding the
+  request to the selected backend. If routeAction specifies any
+  weightedBackendServices, service must not be set. Conversely if service is set,
+  routeAction cannot contain any  weightedBackendServices. Only one of routeAction
+  or urlRedirect must be set.  Structure is documented below.
+
+* `url_redirect` -
+  (Optional)
+  When a path pattern is matched, the request is redirected to a URL specified by
+  urlRedirect. If urlRedirect is specified, service or routeAction must not be
+  set.  Structure is documented below.
+
+
+The `route_action` block supports:
+
+* `cors_policy` -
+  (Optional)
+  The specification for allowing client side cross-origin requests. Please see W3C
+  Recommendation for Cross Origin Resource Sharing  Structure is documented below.
+
+* `fault_injection_policy` -
+  (Optional)
+  The specification for fault injection introduced into traffic to test the
+  resiliency of clients to backend service failure. As part of fault injection,
+  when clients send requests to a backend service, delays can be introduced by
+  Loadbalancer on a percentage of requests before sending those request to the
+  backend service. Similarly requests from clients can be aborted by the
+  Loadbalancer for a percentage of requests. timeout and retry_policy will be
+  ignored by clients that are configured with a fault_injection_policy.  Structure is documented below.
+
+* `request_mirror_policy` -
+  (Optional)
+  Specifies the policy on how requests intended for the route's backends are
+  shadowed to a separate mirrored backend service. Loadbalancer does not wait for
+  responses from the shadow service. Prior to sending traffic to the shadow
+  service, the host / authority header is suffixed with -shadow.  Structure is documented below.
+
+* `retry_policy` -
+  (Optional)
+  Specifies the retry policy associated with this route.  Structure is documented below.
+
+* `timeout` -
+  (Optional)
+  Specifies the timeout for the selected route. Timeout is computed from the time
+  the request is has been fully processed (i.e. end-of-stream) up until the
+  response has been completely processed. Timeout includes all retries. If not
+  specified, the default value is 15 seconds.  Structure is documented below.
+
+* `url_rewrite` -
+  (Optional)
+  The spec to modify the URL of the request, prior to forwarding the request to
+  the matched service  Structure is documented below.
+
+* `weighted_backend_services` -
+  (Optional)
+  A list of weighted backend services to send traffic to when a route match
+  occurs. The weights determine the fraction of traffic that flows to their
+  corresponding backend service. If all traffic needs to go to a single backend
+  service, there must be one  weightedBackendService with weight set to a non 0
+  number. Once a backendService is identified and before forwarding the request to
+  the backend service, advanced routing actions like Url rewrites and header
+  transformations are applied depending on additional settings specified in this
+  HttpRouteAction.  Structure is documented below.
+
+
+The `cors_policy` block supports:
+
+* `allow_credentials` -
+  (Optional)
+  In response to a preflight request, setting this to true indicates that the
+  actual request can include user credentials. This translates to the Access-
+  Control-Allow-Credentials header. Defaults to false.
+
+* `allow_headers` -
+  (Optional)
+  Specifies the content for the Access-Control-Allow-Headers header.
+
+* `allow_methods` -
+  (Optional)
+  Specifies the content for the Access-Control-Allow-Methods header.
+
+* `allow_origin_regexes` -
+  (Optional)
+  Specifies the regualar expression patterns that match allowed origins. For
+  regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
+  An origin is allowed if it matches either allow_origins or allow_origin_regex.
+
+* `allow_origins` -
+  (Optional)
+  Specifies the list of origins that will be allowed to do CORS requests. An
+  origin is allowed if it matches either allow_origins or allow_origin_regex.
+
+* `disabled` -
+  (Required)
+  If true, specifies the CORS policy is disabled.
+
+* `expose_headers` -
+  (Optional)
+  Specifies the content for the Access-Control-Expose-Headers header.
+
+* `max_age` -
+  (Optional)
+  Specifies how long the results of a preflight request can be cached. This
+  translates to the content for the Access-Control-Max-Age header.
+
+The `fault_injection_policy` block supports:
+
+* `abort` -
+  (Optional)
+  The specification for how client requests are aborted as part of fault
+  injection.  Structure is documented below.
+
+* `delay` -
+  (Optional)
+  The specification for how client requests are delayed as part of fault
+  injection, before being sent to a backend service.  Structure is documented below.
+
+
+The `abort` block supports:
+
+* `http_status` -
+  (Required)
+  The HTTP status code used to abort the request. The value must be between 200
+  and 599 inclusive.
+
+* `percentage` -
+  (Required)
+  The percentage of traffic (connections/operations/requests) which will be
+  aborted as part of fault injection. The value must be between 0.0 and 100.0
+  inclusive.
+
+The `delay` block supports:
+
+* `fixed_delay` -
+  (Required)
+  Specifies the value of the fixed delay interval.  Structure is documented below.
+
+* `percentage` -
+  (Required)
+  The percentage of traffic (connections/operations/requests) on which delay will
+  be introduced as part of fault injection. The value must be between 0.0 and
+  100.0 inclusive.
+
+
+The `fixed_delay` block supports:
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution. Durations
+  less than one second are represented with a 0 `seconds` field and a positive
+  `nanos` field. Must be from 0 to 999,999,999 inclusive.
+
+* `seconds` -
+  (Required)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+  inclusive.
+
+The `request_mirror_policy` block supports:
+
+* `backend_service` -
+  (Required)
+  The BackendService resource being mirrored to.
+
+The `retry_policy` block supports:
+
+* `num_retries` -
+  (Optional)
+  Specifies the allowed number retries. This number must be > 0.
+
+* `per_try_timeout` -
+  (Optional)
+  Specifies a non-zero timeout per retry attempt.  Structure is documented below.
+
+* `retry_conditions` -
+  (Optional)
+  Specfies one or more conditions when this retry rule applies. Valid values are:
+  - 5xx: Loadbalancer will attempt a retry if the backend service responds with
+  any 5xx response code, or if the backend service does not respond at all,
+  example: disconnects, reset, read timeout, connection failure, and refused
+  streams.
+  - gateway-error: Similar to 5xx, but only applies to response codes
+  502, 503 or 504.
+  - connect-failure: Loadbalancer will retry on failures
+  connecting to backend services, for example due to connection timeouts.
+  - retriable-4xx: Loadbalancer will retry for retriable 4xx response codes.
+  Currently the only retriable error supported is 409.
+  - refused-stream: Loadbalancer will retry if the backend service resets the stream with a
+  REFUSED_STREAM error code. This reset type indicates that it is safe to retry.
+  - cancelled: Loadbalancer will retry if the gRPC status code in the response
+  header is set to cancelled
+  - deadline-exceeded: Loadbalancer will retry if the
+  gRPC status code in the response header is set to deadline-exceeded
+  - resource-exhausted: Loadbalancer will retry if the gRPC status code in the response
+  header is set to resource-exhausted
+  - unavailable: Loadbalancer will retry if
+  the gRPC status code in the response header is set to unavailable
+
+
+The `per_try_timeout` block supports:
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution. Durations
+  less than one second are represented with a 0 `seconds` field and a positive
+  `nanos` field. Must be from 0 to 999,999,999 inclusive.
+
+* `seconds` -
+  (Required)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+  inclusive.
+
+The `timeout` block supports:
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution. Durations
+  less than one second are represented with a 0 `seconds` field and a positive
+  `nanos` field. Must be from 0 to 999,999,999 inclusive.
+
+* `seconds` -
+  (Required)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+  inclusive.
+
+The `url_rewrite` block supports:
+
+* `host_rewrite` -
+  (Optional)
+  Prior to forwarding the request to the selected service, the request's host
+  header is replaced with contents of hostRewrite. The value must be between 1 and
+  255 characters.
+
+* `path_prefix_rewrite` -
+  (Optional)
+  Prior to forwarding the request to the selected backend service, the matching
+  portion of the request's path is replaced by pathPrefixRewrite. The value must
+  be between 1 and 1024 characters.
+
+The `weighted_backend_services` block supports:
+
+* `backend_service` -
+  (Required)
+  The default BackendService resource. Before
+  forwarding the request to backendService, the loadbalancer applies any relevant
+  headerActions specified as part of this backendServiceWeight.
+
+* `header_action` -
+  (Optional)
+  Specifies changes to request and response headers that need to take effect for
+  the selected backendService. headerAction specified here take effect before
+  headerAction in the enclosing HttpRouteRule, PathMatcher and UrlMap.  Structure is documented below.
+
+* `weight` -
+  (Optional)
+  Specifies the fraction of traffic sent to backendService, computed as weight /
+  (sum of all weightedBackendService weights in routeAction) . The selection of a
+  backend service is determined only for new traffic. Once a user's request has
+  been directed to a backendService, subsequent requests will be sent to the same
+  backendService as determined by the BackendService's session affinity policy.
+  The value must be between 0 and 1000
+
+
+The `header_action` block supports:
+
+* `request_headers_to_add` -
+  (Optional)
+  Headers to add to a matching request prior to forwarding the request to the
+  backendService.  Structure is documented below.
+
+* `request_headers_to_remove` -
+  (Optional)
+  A list of header names for headers that need to be removed from the request
+  prior to forwarding the request to the backendService.
+
+* `response_headers_to_add` -
+  (Optional)
+  Headers to add the response prior to sending the response back to the client.  Structure is documented below.
+
+* `response_headers_to_remove` -
+  (Optional)
+  A list of header names for headers that need to be removed from the response
+  prior to sending the response back to the client.
+
+
+The `request_headers_to_add` block supports:
+
+* `header_name` -
+  (Required)
+  The name of the header.
+
+* `header_value` -
+  (Required)
+  The value of the header to add.
+
+* `replace` -
+  (Required)
+  If false, headerValue is appended to any values that already exist for the
+  header. If true, headerValue is set for the header, discarding any values that
+  were set for that header.
+
+The `response_headers_to_add` block supports:
+
+* `header_name` -
+  (Required)
+  The name of the header.
+
+* `header_value` -
+  (Required)
+  The value of the header to add.
+
+* `replace` -
+  (Required)
+  If false, headerValue is appended to any values that already exist for the
+  header. If true, headerValue is set for the header, discarding any values that
+  were set for that header.
+
+The `url_redirect` block supports:
+
+* `host_redirect` -
+  (Optional)
+  The host that will be used in the redirect response instead of the one that was
+  supplied in the request. The value must be between 1 and 255 characters.
+
+* `https_redirect` -
+  (Optional)
+  If set to true, the URL scheme in the redirected request is set to https. If set
+  to false, the URL scheme of the redirected request will remain the same as that
+  of the request. This must only be set for UrlMaps used in TargetHttpProxys.
+  Setting this true for TargetHttpsProxy is not permitted. Defaults to false.
+
+* `path_redirect` -
+  (Optional)
+  The path that will be used in the redirect response instead of the one that was
+  supplied in the request. Only one of pathRedirect or prefixRedirect must be
+  specified. The value must be between 1 and 1024 characters.
+
+* `prefix_redirect` -
+  (Optional)
+  The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
+  retaining the remaining portion of the URL before redirecting the request.
+
+* `redirect_response_code` -
+  (Optional)
+  The HTTP Status code to use for this RedirectAction. Supported values are:
+  - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
+  - FOUND, which corresponds to 302.
+  - SEE_OTHER which corresponds to 303.
+  - TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request method
+  will be retained.
+  - PERMANENT_REDIRECT, which corresponds to 308. In this case,
+  the request method will be retained.
+
+* `strip_query` -
+  (Required)
+  If set to true, any accompanying query portion of the original URL is removed
+  prior to redirecting the request. If set to false, the query portion of the
+  original URL is retained.
 
 The `route_rules` block supports:
 
