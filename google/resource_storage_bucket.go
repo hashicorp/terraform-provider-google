@@ -595,73 +595,75 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	// Get the bucket
 	bucket := d.Get("name").(string)
 
+	var listError error
 	for {
 		res, err := config.clientStorage.Objects.List(bucket).Versions(true).Do()
 		if err != nil {
-			fmt.Printf("Error Objects.List failed: %v", err)
-			return err
+			log.Printf("Error listing contents of bucket %s: %v", bucket, err)
+			// If we can't list the contents, try deleting the bucket anyway in case it's empty
+			listError = err
+			break
 		}
 
-		if len(res.Items) != 0 {
-			if d.Get("retention_policy.0.is_locked").(bool) {
-				for _, item := range res.Items {
-					expiration, err := time.Parse(time.RFC3339, item.RetentionExpirationTime)
-					if err != nil {
-						return err
-					}
-					if expiration.After(time.Now()) {
-						deleteErr := errors.New("Bucket '" + d.Get("name").(string) + "' contains objects that have not met the retention period yet and cannot be deleted.")
-						log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
-						return deleteErr
-					}
-				}
-			}
-
-			if d.Get("force_destroy").(bool) {
-				// GCS requires that a bucket be empty (have no objects or object
-				// versions) before it can be deleted.
-				log.Printf("[DEBUG] GCS Bucket attempting to forceDestroy\n\n")
-
-				// Create a workerpool for parallel deletion of resources. In the
-				// future, it would be great to expose Terraform's global parallelism
-				// flag here, but that's currently reserved for core use. Testing
-				// shows that NumCPUs-1 is the most performant on average networks.
-				//
-				// The challenge with making this user-configurable is that the
-				// configuration would reside in the Terraform configuration file,
-				// decreasing its portability. Ideally we'd want this to connect to
-				// Terraform's top-level -parallelism flag, but that's not plumbed nor
-				// is it scheduled to be plumbed to individual providers.
-				wp := workerpool.New(runtime.NumCPU() - 1)
-
-				for _, object := range res.Items {
-					log.Printf("[DEBUG] Found %s", object.Name)
-					object := object
-
-					wp.Submit(func() {
-						log.Printf("[TRACE] Attempting to delete %s", object.Name)
-						if err := config.clientStorage.Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
-							// We should really return an error here, but it doesn't really
-							// matter since the following step (bucket deletion) will fail
-							// with an error indicating objects are still present, and this
-							// log line will point to that object.
-							log.Printf("[ERR] Failed to delete storage object %s: %s", object.Name, err)
-						} else {
-							log.Printf("[TRACE] Successfully deleted %s", object.Name)
-						}
-					})
-				}
-
-				// Wait for everything to finish.
-				wp.StopWait()
-			} else {
-				deleteErr := errors.New("Error trying to delete a bucket containing objects without `force_destroy` set to true")
-				log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
-				return deleteErr
-			}
-		} else {
+		if len(res.Items) == 0 {
 			break // 0 items, bucket empty
 		}
+
+		if d.Get("retention_policy.0.is_locked").(bool) {
+			for _, item := range res.Items {
+				expiration, err := time.Parse(time.RFC3339, item.RetentionExpirationTime)
+				if err != nil {
+					return err
+				}
+				if expiration.After(time.Now()) {
+					deleteErr := errors.New("Bucket '" + d.Get("name").(string) + "' contains objects that have not met the retention period yet and cannot be deleted.")
+					log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
+					return deleteErr
+				}
+			}
+		}
+
+		if !d.Get("force_destroy").(bool) {
+			deleteErr := errors.New("Error trying to delete a bucket containing objects without `force_destroy` set to true")
+			log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
+			return deleteErr
+		}
+		// GCS requires that a bucket be empty (have no objects or object
+		// versions) before it can be deleted.
+		log.Printf("[DEBUG] GCS Bucket attempting to forceDestroy\n\n")
+
+		// Create a workerpool for parallel deletion of resources. In the
+		// future, it would be great to expose Terraform's global parallelism
+		// flag here, but that's currently reserved for core use. Testing
+		// shows that NumCPUs-1 is the most performant on average networks.
+		//
+		// The challenge with making this user-configurable is that the
+		// configuration would reside in the Terraform configuration file,
+		// decreasing its portability. Ideally we'd want this to connect to
+		// Terraform's top-level -parallelism flag, but that's not plumbed nor
+		// is it scheduled to be plumbed to individual providers.
+		wp := workerpool.New(runtime.NumCPU() - 1)
+
+		for _, object := range res.Items {
+			log.Printf("[DEBUG] Found %s", object.Name)
+			object := object
+
+			wp.Submit(func() {
+				log.Printf("[TRACE] Attempting to delete %s", object.Name)
+				if err := config.clientStorage.Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
+					// We should really return an error here, but it doesn't really
+					// matter since the following step (bucket deletion) will fail
+					// with an error indicating objects are still present, and this
+					// log line will point to that object.
+					log.Printf("[ERR] Failed to delete storage object %s: %s", object.Name, err)
+				} else {
+					log.Printf("[TRACE] Successfully deleted %s", object.Name)
+				}
+			})
+		}
+
+		// Wait for everything to finish.
+		wp.StopWait()
 	}
 
 	// remove empty bucket
@@ -675,8 +677,11 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		}
 		return resource.NonRetryableError(err)
 	})
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && listError != nil {
+		return fmt.Errorf("could not delete non-empty bucket due to error when listing contents: %v", listError)
+	}
 	if err != nil {
-		fmt.Printf("Error deleting bucket %s: %v\n\n", bucket, err)
+		log.Printf("Error deleting bucket %s: %v", bucket, err)
 		return err
 	}
 	log.Printf("[DEBUG] Deleted bucket %v\n\n", bucket)
