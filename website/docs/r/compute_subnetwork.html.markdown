@@ -252,10 +252,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `gateway_address` -
   The gateway address for default routes to reach destination addresses
   outside this subnetwork.
-
-* `fingerprint` -
-  Fingerprint of this resource. This field is used internally during
-  updates of this resource.
 * `self_link` - The URI of the created resource.
 
 
