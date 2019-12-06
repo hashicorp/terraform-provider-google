@@ -153,8 +153,13 @@ func resourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	dnsType := d.Get("type").(string)
 
-	resp, err := config.clientDns.ResourceRecordSets.List(
-		project, zone).Name(name).Type(dnsType).Do()
+	var resp *dns.ResourceRecordSetsListResponse
+	err = retry(func() error {
+		var reqErr error
+		resp, reqErr = config.clientDns.ResourceRecordSets.List(
+			project, zone).Name(name).Type(dnsType).Do()
+		return reqErr
+	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DNS Record Set %q", d.Get("name").(string)))
 	}
