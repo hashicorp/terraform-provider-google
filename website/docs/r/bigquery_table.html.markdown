@@ -106,6 +106,10 @@ The following arguments are supported:
 
 * `friendly_name` - (Optional) A descriptive name for the table.
 
+* `encryption_configuration` - (Optional) Specifies how the table should be encrypted.
+    If left blank, the table will be encrypted with a Google-managed key; that process
+    is transparent to the user.  Structure is documented below.
+
 * `labels` - (Optional) A mapping of labels to assign to the resource.
 
 * `schema` - (Optional) A JSON schema for the table. Schema is required
@@ -216,6 +220,14 @@ The `view` block supports:
 
 * `use_legacy_sql` - (Optional) Specifies whether to use BigQuery's legacy SQL for this view.
     The default value is true. If set to false, the view will use BigQuery's standard SQL.
+
+The `encryption_configuration` block supports the following arguments:
+
+* `kms_key_name` - (Required) The self link or full name of a key which should be used to
+    encrypt this table.  Note that the default bigquery service account will need to have
+    encrypt/decrypt permissions on this key - you may want to see the
+    `google_bigquery_default_service_account` datasource and the
+    `google_kms_crypto_key_iam_binding` resource.
 
 ## Attributes Reference
 
