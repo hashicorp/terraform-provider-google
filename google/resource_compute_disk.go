@@ -283,9 +283,10 @@ you do not need to provide a key to use the disk later.`,
 							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkRelativePaths,
 							Description: `The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
-in the cloud console. In order to use this additional
-IAM permissions need to be set on the Compute Engine Service Agent. See
-https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys`,
+in the cloud console. Your project's Compute Engine System service account
+('service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com') must have
+'roles/cloudkms.cryptoKeyEncrypterDecrypter' to use this feature.
+See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys`,
 						},
 						"raw_key": {
 							Type:     schema.TypeString,
@@ -379,9 +380,10 @@ the source image is protected by a customer-supplied encryption key.`,
 							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkRelativePaths,
 							Description: `The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
-in the cloud console. In order to use this additional
-IAM permissions need to be set on the Compute Engine Service Agent. See
-https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys`,
+in the cloud console. Your project's Compute Engine System service account
+('service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com') must have
+'roles/cloudkms.cryptoKeyEncrypterDecrypter' to use this feature.
+See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys`,
 						},
 						"raw_key": {
 							Type:     schema.TypeString,
@@ -415,9 +417,10 @@ key.`,
 							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkRelativePaths,
 							Description: `The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
-in the cloud console. In order to use this additional
-IAM permissions need to be set on the Compute Engine Service Agent. See
-https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys`,
+in the cloud console. Your project's Compute Engine System service account
+('service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com') must have
+'roles/cloudkms.cryptoKeyEncrypterDecrypter' to use this feature.
+See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys`,
 						},
 						"raw_key": {
 							Type:     schema.TypeString,
