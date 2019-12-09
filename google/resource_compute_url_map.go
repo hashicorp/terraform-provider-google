@@ -512,7 +512,7 @@ less than one second are represented with a 0 'seconds' field and a positive
 															"retry_conditions": {
 																Type:     schema.TypeList,
 																Optional: true,
-																Description: `Specfies one or more conditions when this retry rule applies. Valid values are:
+																Description: `Specifies one or more conditions when this retry rule applies. Valid values are:
 - 5xx: Loadbalancer will attempt a retry if the backend service responds with
 any 5xx response code, or if the backend service does not respond at all,
 example: disconnects, reset, read timeout, connection failure, and refused
@@ -612,6 +612,16 @@ HttpRouteAction.`,
 forwarding the request to backendService, the loadbalancer applies any relevant
 headerActions specified as part of this backendServiceWeight.`,
 															},
+															"weight": {
+																Type:     schema.TypeInt,
+																Required: true,
+																Description: `Specifies the fraction of traffic sent to backendService, computed as weight /
+(sum of all weightedBackendService weights in routeAction) . The selection of a
+backend service is determined only for new traffic. Once a user's request has
+been directed to a backendService, subsequent requests will be sent to the same
+backendService as determined by the BackendService's session affinity policy.
+The value must be between 0 and 1000`,
+															},
 															"header_action": {
 																Type:     schema.TypeList,
 																Optional: true,
@@ -694,16 +704,6 @@ prior to sending the response back to the client.`,
 																		},
 																	},
 																},
-															},
-															"weight": {
-																Type:     schema.TypeInt,
-																Optional: true,
-																Description: `Specifies the fraction of traffic sent to backendService, computed as weight /
-(sum of all weightedBackendService weights in routeAction) . The selection of a
-backend service is determined only for new traffic. Once a user's request has
-been directed to a backendService, subsequent requests will be sent to the same
-backendService as determined by the BackendService's session affinity policy.
-The value must be between 0 and 1000`,
 															},
 														},
 													},
