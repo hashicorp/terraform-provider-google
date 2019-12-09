@@ -164,7 +164,7 @@ the lower bound. Each bucket represents a constant relative uncertainty on a spe
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"growth_factor": {
-										Type:         schema.TypeInt,
+										Type:         schema.TypeFloat,
 										Optional:     true,
 										Description:  `Must be greater than 1.`,
 										AtLeastOneOf: []string{"bucket_options.0.exponential_buckets.0.num_finite_buckets", "bucket_options.0.exponential_buckets.0.growth_factor", "bucket_options.0.exponential_buckets.0.scale"},
@@ -685,12 +685,6 @@ func flattenLoggingMetricBucketOptionsExponentialBucketsNumFiniteBuckets(v inter
 }
 
 func flattenLoggingMetricBucketOptionsExponentialBucketsGrowthFactor(v interface{}, d *schema.ResourceData) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
-			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
-	}
 	return v
 }
 
