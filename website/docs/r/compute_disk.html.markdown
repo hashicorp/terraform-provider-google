@@ -190,9 +190,10 @@ The `source_image_encryption_key` block supports:
 * `kms_key_self_link` -
   (Optional)
   The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
-  in the cloud console. In order to use this additional
-  IAM permissions need to be set on the Compute Engine Service Agent. See
-  https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+  in the cloud console. Your project's Compute Engine System service account
+  (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
+  `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+  See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
 
 The `disk_encryption_key` block supports:
 
@@ -208,9 +209,10 @@ The `disk_encryption_key` block supports:
 * `kms_key_self_link` -
   (Optional)
   The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
-  in the cloud console. In order to use this additional
-  IAM permissions need to be set on the Compute Engine Service Agent. See
-  https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+  in the cloud console. Your project's Compute Engine System service account
+  (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
+  `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+  See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
 
 The `source_snapshot_encryption_key` block supports:
 
@@ -222,9 +224,10 @@ The `source_snapshot_encryption_key` block supports:
 * `kms_key_self_link` -
   (Optional)
   The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
-  in the cloud console. In order to use this additional
-  IAM permissions need to be set on the Compute Engine Service Agent. See
-  https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+  in the cloud console. Your project's Compute Engine System service account
+  (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
+  `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+  See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
 
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
