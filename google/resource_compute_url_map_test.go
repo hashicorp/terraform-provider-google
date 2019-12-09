@@ -155,6 +155,39 @@ func TestAccComputeUrlMap_trafficDirectorUpdate(t *testing.T) {
 	})
 }
 
+func TestAccComputeUrlMap_trafficDirectorPathUpdate(t *testing.T) {
+	t.Parallel()
+
+	randString := acctest.RandString(10)
+
+	bsName := fmt.Sprintf("urlmap-test-%s", randString)
+	hcName := fmt.Sprintf("urlmap-test-%s", randString)
+	umName := fmt.Sprintf("urlmap-test-%s", randString)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeUrlMapDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeUrlMap_trafficDirectorPath(bsName, hcName, umName),
+			},
+			{
+				ResourceName:      "google_compute_url_map.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeUrlMap_trafficDirectorPathUpdate(bsName, hcName, umName),
+			},
+			{
+				ResourceName:      "google_compute_url_map.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeUrlMap_trafficDirectorRemoveRouteRule(t *testing.T) {
 	t.Parallel()
 
@@ -634,6 +667,243 @@ resource "google_compute_url_map" "foobar" {
   path_matcher {
     name = "allpaths2"
     default_service = "${google_compute_backend_service.home2.self_link}"
+  }
+
+  test {
+    service = "${google_compute_backend_service.home.self_link}"
+    host    = "hi.com"
+    path    = "/home"
+  }
+}
+
+resource "google_compute_backend_service" "home" {
+  name        = "%s"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = ["${google_compute_health_check.default.self_link}"]
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+}
+
+resource "google_compute_backend_service" "home2" {
+  name        = "%s-2"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = ["${google_compute_health_check.default.self_link}"]
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "%s"
+  http_health_check {
+    port = 80
+  }
+}
+`, umName, bsName, bsName, hcName)
+}
+
+func testAccComputeUrlMap_trafficDirectorPath(bsName, hcName, umName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_url_map" "foobar" {
+  name        = "%s"
+  description = "a description"
+  default_service = "${google_compute_backend_service.home.self_link}"
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name = "allpaths"
+    default_service = "${google_compute_backend_service.home.self_link}"
+
+    path_rule {
+      paths   = ["/home"]
+      route_action {
+        cors_policy {
+          allow_credentials = true
+          allow_headers = ["Allowed content"]
+          allow_methods = ["GET"]
+          allow_origin_regexes = ["abc.*"]
+          allow_origins = ["Allowed origin"]
+          expose_headers = ["Exposed header"]
+          max_age = 30
+          disabled = true
+        }
+        fault_injection_policy {
+          abort {
+            http_status = 234
+            percentage = 5.6
+          }
+          delay {
+            fixed_delay {
+              seconds = 0
+              nanos = 50000
+            }
+            percentage = 7.8
+          }
+        }
+        request_mirror_policy {
+          backend_service = "${google_compute_backend_service.home.self_link}"
+        }
+        retry_policy {
+          num_retries = 4
+          per_try_timeout {
+            seconds = 30
+          }
+          retry_conditions = ["5xx", "deadline-exceeded"]
+        }
+        timeout {
+          seconds = 20
+          nanos = 750000000
+        }
+        url_rewrite {
+          host_rewrite = "A replacement header"
+          path_prefix_rewrite = "A replacement path"
+        }
+        weighted_backend_services {
+          backend_service = "${google_compute_backend_service.home.self_link}"
+          weight = 400
+          header_action {
+            request_headers_to_remove = ["RemoveMe"]
+            request_headers_to_add {
+              header_name = "AddMe"
+              header_value = "MyValue"
+              replace = true
+            }
+            response_headers_to_remove = ["RemoveMe"]
+            response_headers_to_add {
+              header_name = "AddMe"
+              header_value = "MyValue"
+              replace = false
+            }
+          }
+        }
+      }
+    }
+  }
+
+  test {
+    service = "${google_compute_backend_service.home.self_link}"
+    host    = "hi.com"
+    path    = "/home"
+  }
+}
+
+resource "google_compute_backend_service" "home" {
+  name        = "%s"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = ["${google_compute_health_check.default.self_link}"]
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+}
+
+resource "google_compute_backend_service" "home2" {
+  name        = "%s-2"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = ["${google_compute_health_check.default.self_link}"]
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "%s"
+  http_health_check {
+    port = 80
+  }
+}
+
+`, umName, bsName, bsName, hcName)
+}
+
+func testAccComputeUrlMap_trafficDirectorPathUpdate(bsName, hcName, umName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_url_map" "foobar" {
+  name        = "%s"
+  description = "a description"
+  default_service = "${google_compute_backend_service.home2.self_link}"
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths2"
+  }
+
+  path_matcher {
+    name = "allpaths2"
+    default_service = "${google_compute_backend_service.home.self_link}"
+
+    path_rule {
+      paths   = ["/homeupdated"]
+      route_action {
+        cors_policy {
+          allow_credentials = false
+          allow_headers = ["Allowed content updated"]
+          allow_methods = ["PUT"]
+          allow_origin_regexes = ["abcdef.*"]
+          allow_origins = ["Allowed origin updated"]
+          expose_headers = ["Exposed header updated"]
+          max_age = 31
+          disabled = false
+        }
+        fault_injection_policy {
+          abort {
+            http_status = 235
+            percentage = 6.7
+          }
+          delay {
+            fixed_delay {
+              seconds = 1
+              nanos = 40000
+            }
+            percentage = 8.9
+          }
+        }
+        request_mirror_policy {
+          backend_service = "${google_compute_backend_service.home.self_link}"
+        }
+        retry_policy {
+          num_retries = 5
+          per_try_timeout {
+            seconds = 31
+          }
+          retry_conditions = ["5xx"]
+        }
+        timeout {
+          seconds = 21
+          nanos = 760000000
+        }
+        url_rewrite {
+          host_rewrite = "A replacement header updated"
+          path_prefix_rewrite = "A replacement path updated"
+        }
+        weighted_backend_services {
+          backend_service = "${google_compute_backend_service.home.self_link}"
+          weight = 400
+          header_action {
+            request_headers_to_remove = ["RemoveMeUpdated"]
+            request_headers_to_add {
+              header_name = "AddMeUpdated"
+              header_value = "MyValueUpdated"
+              replace = false
+            }
+            response_headers_to_remove = ["RemoveMeUpdated"]
+            response_headers_to_add {
+              header_name = "AddMeUpdated"
+              header_value = "MyValueUpdated"
+              replace = true
+            }
+          }
+        }
+      }
+    }
   }
 
   test {
