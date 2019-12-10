@@ -117,7 +117,7 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 			for _, e := range getAllTypes(err, &googleapi.Error{}, &url.Error{}) {
 				if isRetryableError(e, predicates) {
 					log.Printf("[DEBUG] Dismissed error on GET of operation '%v' retryable: %s", w.OpName(), err)
-					return op, "done: false", nil
+					return nil, "done: false", nil
 				}
 			}
 
@@ -131,7 +131,7 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 		if err = w.Error(); err != nil {
 			if w.IsRetryable(err) {
 				log.Printf("[DEBUG] Retrying operation GET based on retryable err: %s", err)
-				return op, w.State(), nil
+				return nil, w.State(), nil
 			}
 			return nil, "", err
 		}
