@@ -40,6 +40,7 @@ The following arguments are supported:
     Can be updated without creating a new resource.
 
 * `description` - (Optional) A text description of the service account.
+    Must be less than or equal to 256 UTF-8 bytes.
 
 * `project` - (Optional) The ID of the project that the service account will be created in.
     Defaults to the provider project configuration.
