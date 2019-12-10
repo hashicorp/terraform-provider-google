@@ -70,7 +70,7 @@ func resourceLoggingOrganizationSinkRead(d *schema.ResourceData, meta interface{
 func resourceLoggingOrganizationSinkUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	sink := expandResourceLoggingSinkForUpdate(d)
+	sink, updateMask := expandResourceLoggingSinkForUpdate(d)
 	// It seems the API might actually accept an update for include_children; this is not in the list of updatable
 	// properties though and might break in the future. Always include the value to prevent it changing.
 	sink.IncludeChildren = d.Get("include_children").(bool)
@@ -78,7 +78,7 @@ func resourceLoggingOrganizationSinkUpdate(d *schema.ResourceData, meta interfac
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
 	_, err := config.clientLogging.Organizations.Sinks.Patch(d.Id(), sink).
-		UpdateMask(defaultLogSinkUpdateMask).UniqueWriterIdentity(true).Do()
+		UpdateMask(updateMask).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
 	}

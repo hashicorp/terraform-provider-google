@@ -64,6 +64,37 @@ func TestAccLoggingProjectSink_updatePreservesUniqueWriter(t *testing.T) {
 	})
 }
 
+func TestAccLoggingProjectSink_updateBigquerySink(t *testing.T) {
+	t.Parallel()
+
+	sinkName := "tf-test-sink-" + acctest.RandString(10)
+	bqDatasetID := "tf_test_sink_" + acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingProjectSinkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingProjectSink_bigquery_before(sinkName, bqDatasetID),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.bigquery",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingProjectSink_bigquery_after(sinkName, bqDatasetID),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.bigquery",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccLoggingProjectSink_heredoc(t *testing.T) {
 	t.Parallel()
 
@@ -177,4 +208,42 @@ resource "google_storage_bucket" "log-bucket" {
   name = "%s"
 }
 `, name, project, project, bucketName)
+}
+
+func testAccLoggingProjectSink_bigquery_before(sinkName, bqDatasetID string) string {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "bigquery" {
+  name        = "%s"
+  destination = "bigquery.googleapis.com/projects/%s/datasets/${google_bigquery_dataset.logging_sink.dataset_id}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+
+  unique_writer_identity = true
+
+  bigquery_options {
+    use_partitioned_tables = true
+  }
+}
+
+resource "google_bigquery_dataset" "logging_sink" {
+  dataset_id  = "%s"
+  description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
+}
+`, sinkName, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID)
+}
+
+func testAccLoggingProjectSink_bigquery_after(sinkName, bqDatasetID string) string {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "bigquery" {
+  name        = "%s"
+  destination = "bigquery.googleapis.com/projects/%s/datasets/${google_bigquery_dataset.logging_sink.dataset_id}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=WARNING"
+
+  unique_writer_identity = false
+}
+
+resource "google_bigquery_dataset" "logging_sink" {
+  dataset_id  = "%s"
+  description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
+}
+`, sinkName, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID)
 }

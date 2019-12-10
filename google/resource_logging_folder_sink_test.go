@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"testing"
 
+	"strconv"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/logging/v2"
-	"strconv"
 )
 
 func TestAccLoggingFolderSink_basic(t *testing.T) {
@@ -33,6 +34,39 @@ func TestAccLoggingFolderSink_basic(t *testing.T) {
 					testAccCheckLoggingFolderSink(&sink, "google_logging_folder_sink.basic"),
 				),
 			}, {
+				ResourceName:      "google_logging_folder_sink.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccLoggingFolderSink_removeOptionals(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	sinkName := "tf-test-sink-" + acctest.RandString(10)
+	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
+	folderName := "tf-test-folder-" + acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingFolderSinkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingFolderSink_basic(sinkName, bucketName, folderName, "organizations/"+org),
+			},
+			{
+				ResourceName:      "google_logging_folder_sink.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingFolderSink_removeOptionals(sinkName, bucketName, folderName, "organizations/"+org),
+			},
+			{
 				ResourceName:      "google_logging_folder_sink.basic",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -116,6 +150,39 @@ func TestAccLoggingFolderSink_update(t *testing.T) {
 		t.Errorf("Expected WriterIdentity to be the same, but it differs: before = %#v, after = %#v",
 			sinkBefore.WriterIdentity, sinkAfter.WriterIdentity)
 	}
+}
+
+func TestAccLoggingFolderSink_updateBigquerySink(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	sinkName := "tf-test-sink-" + acctest.RandString(10)
+	bqDatasetID := "tf_test_sink_" + acctest.RandString(10)
+	folderName := "tf-test-folder-" + acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingFolderSinkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingFolderSink_bigquery_before(sinkName, bqDatasetID, folderName, "organizations/"+org),
+			},
+			{
+				ResourceName:      "google_logging_folder_sink.bigquery",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingFolderSink_bigquery_after(sinkName, bqDatasetID, folderName, "organizations/"+org),
+			},
+			{
+				ResourceName:      "google_logging_folder_sink.bigquery",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
 func TestAccLoggingFolderSink_heredoc(t *testing.T) {
@@ -240,6 +307,26 @@ resource "google_folder" "my-folder" {
 `, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
 }
 
+func testAccLoggingFolderSink_removeOptionals(sinkName, bucketName, folderName, folderParent string) string {
+	return fmt.Sprintf(`
+resource "google_logging_folder_sink" "basic" {
+	name             = "%s"
+	folder           = "${element(split("/", google_folder.my-folder.name), 1)}"
+	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+	filter           = ""
+	include_children = true
+}
+
+resource "google_storage_bucket" "log-bucket" {
+	name = "%s"
+}
+
+resource "google_folder" "my-folder" {
+	display_name = "%s"
+    parent       = "%s"
+}`, sinkName, bucketName, folderName, folderParent)
+}
+
 func testAccLoggingFolderSink_withFullFolderPath(sinkName, bucketName, folderName, folderParent string) string {
 	return fmt.Sprintf(`
 resource "google_logging_folder_sink" "basic" {
@@ -288,4 +375,50 @@ resource "google_folder" "my-folder" {
   parent       = "%s"
 }
 `, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
+}
+
+func testAccLoggingFolderSink_bigquery_before(sinkName, bqDatasetID, folderName, folderParent string) string {
+	return fmt.Sprintf(`
+resource "google_logging_folder_sink" "bigquery" {
+  name             = "%s"
+  folder           = "${element(split("/", google_folder.my-folder.name), 1)}"
+  destination      = "bigquery.googleapis.com/projects/%s/datasets/${google_bigquery_dataset.logging_sink.dataset_id}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = true
+
+  bigquery_options {
+    use_partitioned_tables = true
+  }
+}
+
+resource "google_bigquery_dataset" "logging_sink" {
+  dataset_id  = "%s"
+  description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
+}
+
+resource "google_folder" "my-folder" {
+  display_name = "%s"
+  parent       = "%s"
+}`, sinkName, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID, folderName, folderParent)
+}
+
+func testAccLoggingFolderSink_bigquery_after(sinkName, bqDatasetID, folderName, folderParent string) string {
+	return fmt.Sprintf(`
+resource "google_logging_folder_sink" "bigquery" {
+  name             = "%s"
+  folder           = "${element(split("/", google_folder.my-folder.name), 1)}"
+  destination      = "bigquery.googleapis.com/projects/%s/datasets/${google_bigquery_dataset.logging_sink.dataset_id}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=WARNING"
+  include_children = true
+}
+
+resource "google_bigquery_dataset" "logging_sink" {
+  dataset_id  = "%s"
+  description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
+}
+
+resource "google_folder" "my-folder" {
+  display_name = "%s"
+  parent       = "%s"
+}`, sinkName, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID, folderName, folderParent)
 }
