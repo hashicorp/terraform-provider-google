@@ -73,6 +73,15 @@ The following arguments are supported:
 * `include_children` - (Optional) Whether or not to include children folders in the sink export. If true, logs
     associated with child projects are also exported; otherwise only logs relating to the provided folder are included.
 
+* `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure documented below.
+
+The `bigquery_options` block supports:
+
+* `use_partitioned_tables` - (Required) Whether to use [BigQuery's partition tables](https://cloud.google.com/bigquery/docs/partitioned-tables).
+    By default, Logging creates dated tables based on the log entries' timestamps, e.g. syslog_20170523. With partitioned
+    tables the date suffix is no longer present and [special query syntax](https://cloud.google.com/bigquery/docs/querying-partitioned-tables)
+    has to be used instead. In both cases, tables are sharded based on UTC timezone.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
