@@ -1444,6 +1444,16 @@ HttpRouteAction.`,
 forwarding the request to backendService, the loadbalancer applies any relevant
 headerActions specified as part of this backendServiceWeight.`,
 															},
+															"weight": {
+																Type:     schema.TypeInt,
+																Required: true,
+																Description: `Specifies the fraction of traffic sent to backendService, computed as weight /
+(sum of all weightedBackendService weights in routeAction) . The selection of a
+backend service is determined only for new traffic. Once a user's request has
+been directed to a backendService, subsequent requests will be sent to the same
+backendService as determined by the BackendService's session affinity policy.
+The value must be between 0 and 1000`,
+															},
 															"header_action": {
 																Type:     schema.TypeList,
 																Optional: true,
@@ -1527,21 +1537,23 @@ prior to sending the response back to the client.`,
 																	},
 																},
 															},
-															"weight": {
-																Type:     schema.TypeInt,
-																Optional: true,
-																Description: `Specifies the fraction of traffic sent to backendService, computed as weight /
-(sum of all weightedBackendService weights in routeAction) . The selection of a
-backend service is determined only for new traffic. Once a user's request has
-been directed to a backendService, subsequent requests will be sent to the same
-backendService as determined by the BackendService's session affinity policy.
-The value must be between 0 and 1000`,
-															},
 														},
 													},
 												},
 											},
 										},
+									},
+									"service": {
+										Type:             schema.TypeString,
+										Optional:         true,
+										DiffSuppressFunc: compareSelfLinkOrResourceName,
+										Description: `The backend service resource to which traffic is
+directed if this rule is matched. If routeAction is additionally specified,
+advanced routing actions like URL Rewrites, etc. take effect prior to sending
+the request to the backend. However, if service is specified, routeAction cannot
+contain any weightedBackendService s. Conversely, if routeAction specifies any
+weightedBackendServices, service must not be specified. Only one of urlRedirect,
+service or routeAction.weightedBackendService must be set.`,
 									},
 									"url_redirect": {
 										Type:     schema.TypeList,
@@ -2808,6 +2820,7 @@ func flattenComputeUrlMapPathMatcherRouteRules(v interface{}, d *schema.Resource
 		}
 		transformed = append(transformed, map[string]interface{}{
 			"priority":      flattenComputeUrlMapPathMatcherRouteRulesPriority(original["priority"], d),
+			"service":       flattenComputeUrlMapPathMatcherRouteRulesService(original["service"], d),
 			"header_action": flattenComputeUrlMapPathMatcherRouteRulesHeaderAction(original["headerAction"], d),
 			"match_rules":   flattenComputeUrlMapPathMatcherRouteRulesMatchRules(original["matchRules"], d),
 			"route_action":  flattenComputeUrlMapPathMatcherRouteRulesRouteAction(original["routeAction"], d),
@@ -2824,6 +2837,13 @@ func flattenComputeUrlMapPathMatcherRouteRulesPriority(v interface{}, d *schema.
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
 	return v
+}
+
+func flattenComputeUrlMapPathMatcherRouteRulesService(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapPathMatcherRouteRulesHeaderAction(v interface{}, d *schema.ResourceData) interface{} {
@@ -4878,6 +4898,13 @@ func expandComputeUrlMapPathMatcherRouteRules(v interface{}, d TerraformResource
 			transformed["priority"] = transformedPriority
 		}
 
+		transformedService, err := expandComputeUrlMapPathMatcherRouteRulesService(original["service"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedService); val.IsValid() && !isEmptyValue(val) {
+			transformed["service"] = transformedService
+		}
+
 		transformedHeaderAction, err := expandComputeUrlMapPathMatcherRouteRulesHeaderAction(original["header_action"], d, config)
 		if err != nil {
 			return nil, err
@@ -4913,6 +4940,14 @@ func expandComputeUrlMapPathMatcherRouteRules(v interface{}, d TerraformResource
 
 func expandComputeUrlMapPathMatcherRouteRulesPriority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandComputeUrlMapPathMatcherRouteRulesService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for service: %s", err)
+	}
+	return f.RelativeLink(), nil
 }
 
 func expandComputeUrlMapPathMatcherRouteRulesHeaderAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
