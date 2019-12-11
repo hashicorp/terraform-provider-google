@@ -195,7 +195,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	priorityProp, err := expandComputeRoutePriority(d.Get("priority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("priority"); !isEmptyValue(reflect.ValueOf(priorityProp)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
+	} else if v, ok := d.GetOkExists("priority"); ok || !reflect.DeepEqual(v, priorityProp) {
 		obj["priority"] = priorityProp
 	}
 	tagsProp, err := expandComputeRouteTags(d.Get("tags"), d, config)
