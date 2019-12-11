@@ -489,6 +489,35 @@ func TestIamCreateIamBindingsMap(t *testing.T) {
 				{"role-3", conditionKey{}}: {"user-3": {}},
 			},
 		},
+		{
+			input: []*cloudresourcemanager.Binding{
+				{
+					Role:    "role-1",
+					Members: []string{"deleted:serviceAccount:user-1", "user-2"},
+				},
+				{
+					Role:    "role-2",
+					Members: []string{"deleted:user:user-1"},
+				},
+				{
+					Role:    "role-1",
+					Members: []string{"serviceAccount:user-3"},
+				},
+				{
+					Role:    "role-2",
+					Members: []string{"user-2"},
+				},
+				{
+					Role:    "role-3",
+					Members: []string{"user-3"},
+				},
+			},
+			expect: map[iamBindingKey]map[string]struct{}{
+				{"role-1", conditionKey{}}: {"deleted:serviceAccount:user-1": {}, "user-2": {}, "serviceAccount:user-3": {}},
+				{"role-2", conditionKey{}}: {"deleted:user:user-1": {}, "user-2": {}},
+				{"role-3", conditionKey{}}: {"user-3": {}},
+			},
+		},
 	}
 
 	for _, tc := range testCases {
