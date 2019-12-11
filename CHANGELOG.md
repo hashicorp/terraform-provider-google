@@ -1,10 +1,7 @@
 ## 3.2.0 (Unreleased)
 
 DEPRECATIONS:
-* compute: deprecated `fingerprint` field in `google_compute_subnetwork` ([#5105](https://github.com/terraform-providers/terraform-provider-google/pull/5105))
-
-BREAKING CHANGES:
-* compute: the `fingerprint` field is no longer set in `google_compute_subnetwork` ([#5105](https://github.com/terraform-providers/terraform-provider-google/pull/5105))
+* compute: deprecated `fingerprint` field in `google_compute_subnetwork`. Its value is now always `""`. ([#5105](https://github.com/terraform-providers/terraform-provider-google/pull/5105))
 
 FEATURES:
 * **New Data Source:** `data_source_google_bigquery_default_service_account` ([#5081](https://github.com/terraform-providers/terraform-provider-google/pull/5081))
