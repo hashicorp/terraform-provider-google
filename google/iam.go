@@ -232,10 +232,21 @@ func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[iamBindi
 			// <type> is case sensitive
 			// <value> isn't
 			// so let's lowercase the value and leave the type alone
-			pieces := strings.SplitN(m, ":", 2)
-			if len(pieces) > 1 {
-				pieces[1] = strings.ToLower(pieces[1])
+			// since Dec '19 members can be prefixed with "deleted:" to indicate the principal
+			// has been deleted
+			var pieces []string
+			if strings.HasPrefix(m, "deleted:") {
+				pieces = strings.SplitN(m, ":", 3)
+				if len(pieces) > 2 {
+					pieces[2] = strings.ToLower(pieces[2])
+				}
+			} else {
+				pieces = strings.SplitN(m, ":", 2)
+				if len(pieces) > 1 {
+					pieces[1] = strings.ToLower(pieces[1])
+				}
 			}
+
 			m = strings.Join(pieces, ":")
 
 			// Add the member
