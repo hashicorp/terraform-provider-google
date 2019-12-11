@@ -18,7 +18,7 @@ func TestAccServiceAccount_basic(t *testing.T) {
 	displayName := "Terraform Test"
 	displayName2 := "Terraform Test Update"
 	desc := "test description"
-	desc2 := ""
+	desc2 := "test description update"
 	project := getTestProjectFromEnv()
 	expectedEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountId, project)
 	resource.Test(t, resource.TestCase{
