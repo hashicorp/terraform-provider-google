@@ -36,7 +36,8 @@ func testSweepMonitoringGroups(region string) error {
 
 	groups, ok := res["group"]
 	if !ok {
-		log.Fatalf("Fatal - no groups found in Monitoring Groups response")
+		log.Printf("No groups found in Monitoring Groups response")
+		return nil
 	}
 	gs := groups.([]interface{})
 

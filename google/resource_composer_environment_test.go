@@ -621,7 +621,7 @@ func testSweepComposerEnvironmentBuckets(config *Config) error {
 	artifactBucket, err := config.clientStorage.Buckets.Get(artifactsBName).Do()
 	if err != nil {
 		if isGoogleApiErrorWithCode(err, 404) {
-			log.Printf("composer environment bucket %q not found, doesn't need to be clean up", artifactsBName)
+			log.Printf("composer environment bucket %q not found, doesn't need to be cleaned up", artifactsBName)
 		} else {
 			return err
 		}

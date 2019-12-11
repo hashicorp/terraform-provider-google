@@ -63,7 +63,7 @@ func TestAccContainerClusterDatasource_regional(t *testing.T) {
 func testAccContainerClusterDatasource_zonal() string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "kubes" {
-  name               = "cluster-test-%s"
+  name               = "tf-test-cluster-%s"
   location           = "us-central1-a"
   initial_node_count = 1
 
@@ -83,7 +83,7 @@ data "google_container_cluster" "kubes" {
 func testAccContainerClusterDatasource_regional() string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "kubes" {
-  name               = "cluster-test-%s"
+  name               = "tf-test-cluster-%s"
   location           = "us-central1"
   initial_node_count = 1
 }
