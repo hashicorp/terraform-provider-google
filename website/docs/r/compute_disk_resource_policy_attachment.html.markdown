@@ -26,6 +26,43 @@ description: |-
 Disk resource policies define a schedule for taking snapshots and a
 retention period for these snapshots.
 
+## Example Usage
+
+Example attaching a schedule policy to a disk.
+
+```hcl
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "my_disk" {
+  name  = "my-disk"
+  image = data.google_compute_image.my_image
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_resource_policy" "schedule_daily" {
+  name = "schedule-daily-policy"
+  region = "us-central1"
+  snapshot_schedule_policy {
+    schedule {
+      daily_schedule {
+        days_in_cycle = 1
+        start_time = "09:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_disk_resource_policy_attachment" "policy_attachment" {
+  name = google_compute_resource_policy.schedule_daily.name
+  disk = google_compute_disk.my_disk.name
+  zone = "us-central1-a"
+}
+```
 
 
 ## Argument Reference
