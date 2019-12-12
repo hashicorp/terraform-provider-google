@@ -468,50 +468,6 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 
 		d.SetPartial("ip_cidr_range")
 	}
-	if d.HasChange("secondary_ip_range") {
-		obj := make(map[string]interface{})
-
-		getUrl, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		project, err := getProject(d, config)
-		if err != nil {
-			return err
-		}
-		getRes, err := sendRequest(config, "GET", project, getUrl, nil)
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
-		}
-
-		obj["fingerprint"] = getRes["fingerprint"]
-
-		secondaryIpRangesProp, err := expandComputeSubnetworkSecondaryIpRange(d.Get("secondary_ip_range"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("secondary_ip_range"); ok || !reflect.DeepEqual(v, secondaryIpRangesProp) {
-			obj["secondaryIpRanges"] = secondaryIpRangesProp
-		}
-
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
-		if err != nil {
-			return err
-		}
-		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating Subnetwork",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("secondary_ip_range")
-	}
 	if d.HasChange("private_ip_google_access") {
 		obj := make(map[string]interface{})
 
@@ -547,11 +503,6 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-
-		project, err := getProject(d, config)
-		if err != nil {
-			return err
-		}
 		getRes, err := sendRequest(config, "GET", project, getUrl, nil)
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
@@ -583,6 +534,45 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		d.SetPartial("log_config")
+	}
+	if d.HasChange("secondary_ip_range") {
+		obj := make(map[string]interface{})
+
+		getUrl, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+		if err != nil {
+			return err
+		}
+		getRes, err := sendRequest(config, "GET", project, getUrl, nil)
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
+		}
+
+		obj["fingerprint"] = getRes["fingerprint"]
+
+		secondaryIpRangesProp, err := expandComputeSubnetworkSecondaryIpRange(d.Get("secondary_ip_range"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("secondary_ip_range"); ok || !reflect.DeepEqual(v, secondaryIpRangesProp) {
+			obj["secondaryIpRanges"] = secondaryIpRangesProp
+		}
+
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+		if err != nil {
+			return err
+		}
+		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating Subnetwork",
+			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("secondary_ip_range")
 	}
 
 	d.Partial(false)
