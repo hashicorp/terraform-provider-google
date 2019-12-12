@@ -1098,7 +1098,6 @@ resource "google_container_cluster" "primary" {
   initial_node_count = 1
 
   ip_allocation_policy {
-    use_ip_aliases           = true
     cluster_ipv4_cidr_block  = "10.0.0.0/16"
     services_ipv4_cidr_block = "10.1.0.0/16"
   }
@@ -1198,11 +1197,6 @@ monitoring_service = "monitoring.googleapis.com"
 logging_service    = "logging.googleapis.com/kubernetes"
 monitoring_service = "monitoring.googleapis.com/kubernetes"
 ```
-
-### `use_ip_aliases` is now required on block `google_container_cluster.ip_allocation_policy`
-
-Previously the default value of `use_ip_aliases` was `true`. In an attempt to avoid allowing empty blocks
-in config files, `use_ip_aliases` is now required on the `ip_allocation_policy` block.
 
 ### `zone`, `region` and `additional_zones` are now removed
 
