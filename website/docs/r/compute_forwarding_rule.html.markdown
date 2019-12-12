@@ -34,6 +34,55 @@ To get more information about ForwardingRule, see:
     * [Official Documentation](https://cloud.google.com/compute/docs/load-balancing/network/forwarding-rules)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=forwarding_rule_global_internallb&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Forwarding Rule Global Internallb
+
+
+```hcl
+// Forwarding rule for Internal Load Balancing
+resource "google_compute_forwarding_rule" "default" {
+  provider = "google-beta"
+  name                  = "website-forwarding-rule"
+  region                = "us-central1"
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = "${google_compute_region_backend_service.backend.self_link}"
+  all_ports             = true
+  allow_global_access   = true
+  network               = "${google_compute_network.default.name}"
+  subnetwork            = "${google_compute_subnetwork.default.name}"
+}
+resource "google_compute_region_backend_service" "backend" {
+  provider = "google-beta"
+  name                  = "website-backend"
+  region                = "us-central1"
+  health_checks         = ["${google_compute_health_check.hc.self_link}"]
+}
+resource "google_compute_health_check" "hc" {
+  provider = "google-beta"
+  name               = "check-website-backend"
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+resource "google_compute_network" "default" {
+  provider = "google-beta"
+  name = "website-net"
+  auto_create_subnetworks = false
+}
+resource "google_compute_subnetwork" "default" {
+  provider = "google-beta"
+  name          = "website-net"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = "${google_compute_network.default.self_link}"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=forwarding_rule_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
