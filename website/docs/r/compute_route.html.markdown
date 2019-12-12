@@ -74,22 +74,20 @@ resource "google_compute_network" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=route_ilb_beta&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=route_ilb&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Route Ilb Beta
+## Example Usage - Route Ilb
 
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "compute-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "compute-subnet"
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-central1"
@@ -97,7 +95,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_health_check" "hc" {
-  provider           = google-beta
   name               = "proxy-health-check"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -108,14 +105,12 @@ resource "google_compute_health_check" "hc" {
 }
 
 resource "google_compute_region_backend_service" "backend" {
-  provider      = google-beta
   name          = "compute-backend"
   region        = "us-central1"
   health_checks = [google_compute_health_check.hc.self_link]
 }
 
 resource "google_compute_forwarding_rule" "default" {
-  provider = google-beta
   name     = "compute-forwarding-rule"
   region   = "us-central1"
 
@@ -126,9 +121,8 @@ resource "google_compute_forwarding_rule" "default" {
   subnetwork            = google_compute_subnetwork.default.name
 }
 
-resource "google_compute_route" "route-ilb-beta" {
-  provider     = google-beta
-  name         = "route-ilb-beta"
+resource "google_compute_route" "route-ilb" {
+  name         = "route-ilb"
   dest_range   = "0.0.0.0/0"
   network      = google_compute_network.default.name
   next_hop_ilb = google_compute_forwarding_rule.default.self_link
@@ -207,6 +201,14 @@ The following arguments are supported:
 * `next_hop_vpn_tunnel` -
   (Optional)
   URL to a VpnTunnel that should handle matching packets.
+
+* `next_hop_ilb` -
+  (Optional)
+  The URL to a forwarding rule of type loadBalancingScheme=INTERNAL that should handle matching packets.
+  You can only specify the forwarding rule as a partial or full URL. For example, the following are all valid URLs:
+  https://www.googleapis.com/compute/v1/projects/project/regions/region/forwardingRules/forwardingRule
+  regions/region/forwardingRules/forwardingRule
+  Note that this can only be used when the destinationRange is a public (non-RFC 1918) IP CIDR range.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

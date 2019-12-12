@@ -64,6 +64,81 @@ resource "google_compute_network" "default" {
 `, context)
 }
 
+func TestAccComputeRoute_routeIlbExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRouteDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRoute_routeIlbExample(context),
+			},
+			{
+				ResourceName:      "google_compute_route.route-ilb",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRoute_routeIlbExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_network" "default" {
+  name                    = "compute-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "compute-subnet%{random_suffix}"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.self_link
+}
+
+resource "google_compute_health_check" "hc" {
+  name               = "proxy-health-check%{random_suffix}"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_region_backend_service" "backend" {
+  name          = "compute-backend%{random_suffix}"
+  region        = "us-central1"
+  health_checks = [google_compute_health_check.hc.self_link]
+}
+
+resource "google_compute_forwarding_rule" "default" {
+  name     = "compute-forwarding-rule%{random_suffix}"
+  region   = "us-central1"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.backend.self_link
+  all_ports             = true
+  network               = google_compute_network.default.name
+  subnetwork            = google_compute_subnetwork.default.name
+}
+
+resource "google_compute_route" "route-ilb" {
+  name         = "route-ilb%{random_suffix}"
+  dest_range   = "0.0.0.0/0"
+  network      = google_compute_network.default.name
+  next_hop_ilb = google_compute_forwarding_rule.default.self_link
+  priority     = 2000
+}
+`, context)
+}
+
 func testAccCheckComputeRouteDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_compute_route" {
