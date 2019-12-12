@@ -43,7 +43,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(t *testing.
 				ResourceName:            "google_bigtable_app_profile.ap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+				ImportStateVerifyIgnore: []string{"app_profile_id", "instance", "ignore_warnings", "ignore_warnings"},
 			},
 		},
 	})
@@ -90,7 +90,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(t *testing
 				ResourceName:            "google_bigtable_app_profile.ap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+				ImportStateVerifyIgnore: []string{"app_profile_id", "instance", "ignore_warnings", "ignore_warnings"},
 			},
 		},
 	})

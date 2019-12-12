@@ -42,9 +42,10 @@ func TestAccCloudRunDomainMapping_cloudRunDomainMappingBasicExample(t *testing.T
 				Config: testAccCloudRunDomainMapping_cloudRunDomainMappingBasicExample(context),
 			},
 			{
-				ResourceName:      "google_cloud_run_domain_mapping.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloud_run_domain_mapping.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location"},
 			},
 		},
 	})
