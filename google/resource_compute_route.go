@@ -86,7 +86,19 @@ partial valid URL:
 * 'projects/project/global/gateways/default-internet-gateway'
 * 'global/gateways/default-internet-gateway'
 * The string 'default-internet-gateway'.`,
-				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel"},
+				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel", "next_hop_ilb"},
+			},
+			"next_hop_ilb": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The URL to a forwarding rule of type loadBalancingScheme=INTERNAL that should handle matching packets.
+You can only specify the forwarding rule as a partial or full URL. For example, the following are all valid URLs:
+https://www.googleapis.com/compute/v1/projects/project/regions/region/forwardingRules/forwardingRule
+regions/region/forwardingRules/forwardingRule
+Note that this can only be used when the destinationRange is a public (non-RFC 1918) IP CIDR range.`,
+				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel", "next_hop_ilb"},
 			},
 			"next_hop_instance": {
 				Type:             schema.TypeString,
@@ -99,7 +111,7 @@ You can specify this as a full or partial URL. For example:
 * 'projects/project/zones/zone/instances/instance'
 * 'zones/zone/instances/instance'
 * Just the instance name, with the zone in 'next_hop_instance_zone'.`,
-				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel"},
+				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel", "next_hop_ilb"},
 			},
 			"next_hop_ip": {
 				Type:         schema.TypeString,
@@ -107,7 +119,7 @@ You can specify this as a full or partial URL. For example:
 				Optional:     true,
 				ForceNew:     true,
 				Description:  `Network IP address of an instance that should handle matching packets.`,
-				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel"},
+				ExactlyOneOf: []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel", "next_hop_ilb"},
 			},
 			"next_hop_vpn_tunnel": {
 				Type:             schema.TypeString,
@@ -115,7 +127,7 @@ You can specify this as a full or partial URL. For example:
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description:      `URL to a VpnTunnel that should handle matching packets.`,
-				ExactlyOneOf:     []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel"},
+				ExactlyOneOf:     []string{"next_hop_gateway", "next_hop_instance", "next_hop_ip", "next_hop_vpn_tunnel", "next_hop_ilb"},
 			},
 			"priority": {
 				Type:     schema.TypeInt,
@@ -228,6 +240,12 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("next_hop_vpn_tunnel"); !isEmptyValue(reflect.ValueOf(nextHopVpnTunnelProp)) && (ok || !reflect.DeepEqual(v, nextHopVpnTunnelProp)) {
 		obj["nextHopVpnTunnel"] = nextHopVpnTunnelProp
 	}
+	nextHopIlbProp, err := expandComputeRouteNextHopIlb(d.Get("next_hop_ilb"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("next_hop_ilb"); !isEmptyValue(reflect.ValueOf(nextHopIlbProp)) && (ok || !reflect.DeepEqual(v, nextHopIlbProp)) {
+		obj["nextHopIlb"] = nextHopIlbProp
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes")
 	if err != nil {
@@ -330,6 +348,9 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
 	if err := d.Set("next_hop_network", flattenComputeRouteNextHopNetwork(res["nextHopNetwork"], d)); err != nil {
+		return fmt.Errorf("Error reading Route: %s", err)
+	}
+	if err := d.Set("next_hop_ilb", flattenComputeRouteNextHopIlb(res["nextHopIlb"], d)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -454,6 +475,13 @@ func flattenComputeRouteNextHopNetwork(v interface{}, d *schema.ResourceData) in
 	return v
 }
 
+func flattenComputeRouteNextHopIlb(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
+}
+
 func expandComputeRouteDestRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -513,6 +541,14 @@ func expandComputeRouteNextHopVpnTunnel(v interface{}, d TerraformResourceData, 
 	f, err := parseRegionalFieldValue("vpnTunnels", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for next_hop_vpn_tunnel: %s", err)
+	}
+	return f.RelativeLink(), nil
+}
+
+func expandComputeRouteNextHopIlb(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseRegionalFieldValue("forwardingRules", v.(string), "project", "region", "zone", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for next_hop_ilb: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
