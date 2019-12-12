@@ -605,6 +605,28 @@ func TestAccDataprocCluster_KMS(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withKerberos(t *testing.T) {
+	t.Parallel()
+
+	rnd := acctest.RandString(10)
+	kms := BootstrapKMSKey(t)
+
+	var cluster dataproc.Cluster
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withKerberos(rnd, kms.CryptoKey.Name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists("google_dataproc_cluster.kerb", &cluster),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDataprocClusterDestroy() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -1346,4 +1368,31 @@ resource "google_dataproc_cluster" "kms" {
   }
 }
 `, pid, rnd, kmsKey)
+}
+
+func testAccDataprocCluster_withKerberos(rnd, kmsKey string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "dproc-cluster-test-%s"
+}
+resource "google_storage_bucket_object" "password" {
+  name = "dataproc-password-%s"
+  bucket = google_storage_bucket.bucket.name
+  content = "hunter2"
+}
+
+resource "google_dataproc_cluster" "kerb" {
+  name   = "dproc-cluster-test-%s"
+  region = "us-central1"
+
+  cluster_config {
+    security_config {
+      kerberos_config {
+        root_principal_password_uri = google_storage_bucket_object.password.self_link
+        kms_key_uri = "%s"
+      }
+    }
+  }
+}
+`, rnd, rnd, rnd, kmsKey)
 }
