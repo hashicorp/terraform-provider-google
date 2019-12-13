@@ -262,22 +262,25 @@ func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceSourceRepoRepositoryImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+
 	config := meta.(*Config)
-	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/repos/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
-	}, d, config); err != nil {
+
+	// current import_formats can't import fields with forward slashes in their value
+	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 
-	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/repos/{{name}}")
-	if err != nil {
-		return nil, fmt.Errorf("Error constructing id: %s", err)
+	stringParts := strings.SplitN(d.Get("name").(string), "/", 4)
+	if len(stringParts) != 4 {
+		return nil, fmt.Errorf(
+			"Saw %s when the name is expected to have shape %s",
+			d.Get("name"),
+			"projects/{{project}}/repos/{{repository}}",
+		)
 	}
-	d.SetId(id)
 
+	d.Set("project", stringParts[1])
+	d.Set("name", stringParts[3])
 	return []*schema.ResourceData{d}, nil
 }
 

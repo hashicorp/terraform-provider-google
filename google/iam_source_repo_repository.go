@@ -15,6 +15,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -55,14 +56,14 @@ func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Conf
 		values["repository"] = v.(string)
 	}
 
-	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/repos/(?P<repository>[^/]+)", "(?P<project>[^/]+)/(?P<repository>[^/]+)", "(?P<repository>[^/]+)"}, d, config, d.Get("repository").(string))
-	if err != nil {
-		return nil, err
+	repo := values["repository"]
+	if repo == "" {
+		repo = d.Id()
 	}
 
-	for k, v := range m {
-		values[k] = v
+	stringParts := strings.SplitN(repo, "/", 4)
+	if len(stringParts) == 4 {
+		values["repository"] = stringParts[3]
 	}
 
 	u := &SourceRepoRepositoryIamUpdater{
@@ -87,13 +88,14 @@ func SourceRepoRepositoryIdParseFunc(d *schema.ResourceData, config *Config) err
 	}
 	values["project"] = project
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/repos/(?P<repository>[^/]+)", "(?P<project>[^/]+)/(?P<repository>[^/]+)", "(?P<repository>[^/]+)"}, d, config, d.Id())
-	if err != nil {
-		return err
+	repo := values["repository"]
+	if repo == "" {
+		repo = d.Id()
 	}
 
-	for k, v := range m {
-		values[k] = v
+	stringParts := strings.SplitN(repo, "/", 4)
+	if len(stringParts) == 4 {
+		values["repository"] = stringParts[3]
 	}
 
 	u := &SourceRepoRepositoryIamUpdater{
