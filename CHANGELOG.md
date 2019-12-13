@@ -201,6 +201,8 @@ BREAKING CHANGES:
 
 ## 2.20.1 (December 13, 2019)
 
+**Note:** 2.20.1 is a backport release. The changes in it are unavailable in 3.0.0-beta.1 through 3.2.0.
+
 BUG FIXES:
 * iam: Fixed a bug that causes badRequest errors on IAM resources due to deleted serviceAccount principals ([#5142](https://github.com/terraform-providers/terraform-provider-google/pull/5142))
 
