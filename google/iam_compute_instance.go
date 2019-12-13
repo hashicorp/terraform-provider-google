@@ -166,7 +166,6 @@ func (u *ComputeInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 	if err != nil {
 		return err
 	}
-
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return err

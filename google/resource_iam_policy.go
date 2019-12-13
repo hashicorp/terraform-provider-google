@@ -115,7 +115,11 @@ func ResourceIamPolicyDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.De
 		}
 
 		// Set an empty policy to delete the attached policy.
-		err = updater.SetResourceIamPolicy(&cloudresourcemanager.Policy{})
+		pol := &cloudresourcemanager.Policy{}
+		if v, ok := d.GetOk("etag"); ok {
+			pol.Etag = v.(string)
+		}
+		err = updater.SetResourceIamPolicy(pol)
 		if err != nil {
 			return err
 		}

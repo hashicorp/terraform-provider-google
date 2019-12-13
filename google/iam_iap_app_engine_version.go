@@ -172,7 +172,6 @@ func (u *IapAppEngineVersionIamUpdater) SetResourceIamPolicy(policy *cloudresour
 	if err != nil {
 		return err
 	}
-
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return err
