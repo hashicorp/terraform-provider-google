@@ -462,7 +462,7 @@ func Provider() terraform.ResourceProvider {
 			// We can therefore assume that if it's missing it's 0.10 or 0.11
 			terraformVersion = "0.11+compatible"
 		}
-		return providerConfigure(d, terraformVersion)
+		return providerConfigure(d, provider, terraformVersion)
 	}
 
 	return provider
@@ -721,7 +721,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 	)
 }
 
-func providerConfigure(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
+func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVersion string) (interface{}, error) {
 	config := Config{
 		Project:             d.Get("project").(string),
 		Region:              d.Get("region").(string),
@@ -814,7 +814,7 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	config.StorageTransferBasePath = d.Get(StorageTransferCustomEndpointEntryKey).(string)
 	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
 
-	if err := config.LoadAndValidate(); err != nil {
+	if err := config.LoadAndValidate(p.StopContext()); err != nil {
 		return nil, err
 	}
 
