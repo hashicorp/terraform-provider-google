@@ -100,7 +100,7 @@ specifies a protocol and port-range tuple that describes a permitted
 connection.`,
 				Elem:         computeFirewallAllowSchema(),
 				Set:          resourceComputeFirewallRuleHash,
-				ExactlyOneOf: []string{"allow", "deny"},
+				AtLeastOneOf: []string{"allow", "deny"},
 			},
 			"deny": {
 				Type:     schema.TypeSet,
@@ -109,7 +109,7 @@ connection.`,
 a protocol and port-range tuple that describes a denied connection.`,
 				Elem:         computeFirewallDenySchema(),
 				Set:          resourceComputeFirewallRuleHash,
-				ExactlyOneOf: []string{"allow", "deny"},
+				AtLeastOneOf: []string{"allow", "deny"},
 			},
 			"description": {
 				Type:     schema.TypeString,
