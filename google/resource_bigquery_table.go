@@ -323,6 +323,26 @@ func resourceBigQueryTable() *schema.Resource {
 				},
 			},
 
+			// EncryptionConfiguration: [Optional] Custom encryption configuration (e.g., Cloud KMS keys).
+			"encryption_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// KmsKeyName: [Optional] Describes the Cloud KMS encryption key that
+						// will be used to protect destination BigQuery table. The BigQuery
+						// Service Account associated with your project requires access to this
+						// encryption key.
+						"kms_key_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+
 			// CreationTime: [Output-only] The time when this table was created, in
 			// milliseconds since the epoch.
 			"creation_time": {
@@ -468,6 +488,10 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 		}
 	}
 
+	if v, ok := d.GetOk("encryption_configuration"); ok {
+		table.EncryptionConfiguration = expandEncryptionConfiguration(v)
+	}
+
 	return table, nil
 }
 
@@ -553,6 +577,12 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	if res.Clustering != nil {
 		d.Set("clustering", res.Clustering.Fields)
 	}
+	if res.EncryptionConfiguration != nil {
+		if err := d.Set("encryption_configuration", flattenEncryptionConfiguration(res.EncryptionConfiguration)); err != nil {
+			return err
+		}
+	}
+
 	if res.EncryptionConfiguration != nil {
 		if err := d.Set("encryption_configuration", flattenEncryptionConfiguration(res.EncryptionConfiguration)); err != nil {
 			return err
@@ -872,6 +902,19 @@ func expandView(configured interface{}) *bigquery.ViewDefinition {
 func flattenView(vd *bigquery.ViewDefinition) []map[string]interface{} {
 	result := map[string]interface{}{"query": vd.Query}
 	result["use_legacy_sql"] = vd.UseLegacySql
+
+	return []map[string]interface{}{result}
+}
+
+func expandEncryptionConfiguration(configured interface{}) *bigquery.EncryptionConfiguration {
+	raw := configured.([]interface{})[0].(map[string]interface{})
+	ec := &bigquery.EncryptionConfiguration{KmsKeyName: raw["kms_key_name"].(string)}
+
+	return ec
+}
+
+func flattenEncryptionConfiguration(ec *bigquery.EncryptionConfiguration) []map[string]interface{} {
+	result := map[string]interface{}{"kms_key_name": ec.KmsKeyName}
 
 	return []map[string]interface{}{result}
 }
