@@ -220,13 +220,15 @@ func TestAccContainerCluster_withMasterAuthConfig(t *testing.T) {
 func TestAccContainerCluster_withMasterAuthConfig_NoCert(t *testing.T) {
 	t.Parallel()
 
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withMasterAuthNoCert(),
+				Config: testAccContainerCluster_withMasterAuthNoCert(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth_no_cert", "master_auth.0.client_certificate", ""),
 				),
@@ -600,13 +602,15 @@ func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
 	t.Parallel()
 
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withNodeConfigScopeAlias(),
+				Config: testAccContainerCluster_withNodeConfigScopeAlias(clusterName),
 			},
 			{
 				ResourceName:      "google_container_cluster.with_node_config_scope_alias",
@@ -642,13 +646,16 @@ func TestAccContainerCluster_withNodeConfigShieldedInstanceConfig(t *testing.T) 
 func TestAccContainerCluster_network(t *testing.T) {
 	t.Parallel()
 
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
+	network := fmt.Sprintf("tf-test-net-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_networkRef(),
+				Config: testAccContainerCluster_networkRef(clusterName, network),
 			},
 			{
 				ResourceName:      "google_container_cluster.with_net_ref_by_url",
@@ -667,13 +674,15 @@ func TestAccContainerCluster_network(t *testing.T) {
 func TestAccContainerCluster_backend(t *testing.T) {
 	t.Parallel()
 
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_backendRef(),
+				Config: testAccContainerCluster_backendRef(clusterName),
 			},
 			{
 				ResourceName:      "google_container_cluster.primary",
@@ -830,13 +839,16 @@ func TestAccContainerCluster_withNodePoolAutoscaling(t *testing.T) {
 func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
 	t.Parallel()
 
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
+	npNamePrefix := "tf-test-np-"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withNodePoolNamePrefix(),
+				Config: testAccContainerCluster_withNodePoolNamePrefix(clusterName, npNamePrefix),
 			},
 			{
 				ResourceName:            "google_container_cluster.with_node_pool_name_prefix",
@@ -851,13 +863,16 @@ func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
 func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
 	t.Parallel()
 
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
+	npNamePrefix := "tf-test-np-"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withNodePoolMultiple(),
+				Config: testAccContainerCluster_withNodePoolMultiple(clusterName, npNamePrefix),
 			},
 			{
 				ResourceName:      "google_container_cluster.with_node_pool_multiple",
@@ -871,13 +886,16 @@ func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
 func TestAccContainerCluster_withNodePoolConflictingNameFields(t *testing.T) {
 	t.Parallel()
 
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
+	npPrefix := "tf-test-np"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccContainerCluster_withNodePoolConflictingNameFields(),
+				Config:      testAccContainerCluster_withNodePoolConflictingNameFields(clusterName, npPrefix),
 				ExpectError: regexp.MustCompile("Cannot specify both name and name_prefix for a node_pool"),
 			},
 		},
@@ -887,13 +905,16 @@ func TestAccContainerCluster_withNodePoolConflictingNameFields(t *testing.T) {
 func TestAccContainerCluster_withNodePoolNodeConfig(t *testing.T) {
 	t.Parallel()
 
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(10))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withNodePoolNodeConfig(),
+				Config: testAccContainerCluster_withNodePoolNodeConfig(cluster, np),
 			},
 			{
 				ResourceName:      "google_container_cluster.with_node_pool_node_config",
@@ -906,6 +927,7 @@ func TestAccContainerCluster_withNodePoolNodeConfig(t *testing.T) {
 
 func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 	t.Parallel()
+
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
 	resourceName := "google_container_cluster.with_maintenance_window"
 
@@ -1457,10 +1479,10 @@ resource "google_container_cluster" "with_master_auth" {
 `, clusterName)
 }
 
-func testAccContainerCluster_withMasterAuthNoCert() string {
+func testAccContainerCluster_withMasterAuthNoCert(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_master_auth_no_cert" {
-  name               = "tf-test-cluster-%s"
+  name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 3
 
@@ -1472,7 +1494,7 @@ resource "google_container_cluster" "with_master_auth_no_cert" {
     }
   }
 }
-`, acctest.RandString(10))
+`, clusterName)
 }
 
 func testAccContainerCluster_withNetworkPolicyEnabled(clusterName string) string {
@@ -1823,10 +1845,10 @@ resource "google_container_cluster" "with_node_config" {
 `, clusterName)
 }
 
-func testAccContainerCluster_withNodeConfigScopeAlias() string {
+func testAccContainerCluster_withNodeConfigScopeAlias(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_config_scope_alias" {
-  name               = "tf-test-cluster-%s"
+  name               = "%s"
   location           = "us-central1-f"
   initial_node_count = 1
 
@@ -1836,7 +1858,7 @@ resource "google_container_cluster" "with_node_config_scope_alias" {
     oauth_scopes = ["compute-rw", "storage-ro", "logging-write", "monitoring"]
   }
 }
-`, acctest.RandString(10))
+`, clusterName)
 }
 
 func testAccContainerCluster_withNodeConfigShieldedInstanceConfig(clusterName string) string {
@@ -1881,15 +1903,15 @@ resource "google_container_cluster" "with_node_config" {
 `, clusterName)
 }
 
-func testAccContainerCluster_networkRef() string {
+func testAccContainerCluster_networkRef(cluster, network string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "container_network" {
-  name                    = "tf-test-container-net-%s"
+  name                    = "%s"
   auto_create_subnetworks = true
 }
 
 resource "google_container_cluster" "with_net_ref_by_url" {
-  name               = "tf-test-cluster-%s"
+  name               = "%s-url"
   location           = "us-central1-a"
   initial_node_count = 1
 
@@ -1897,19 +1919,19 @@ resource "google_container_cluster" "with_net_ref_by_url" {
 }
 
 resource "google_container_cluster" "with_net_ref_by_name" {
-  name               = "tf-test-cluster-%s"
+  name               = "%s-name"
   location           = "us-central1-a"
   initial_node_count = 1
 
   network = google_compute_network.container_network.name
 }
-`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+`, network, cluster, cluster)
 }
 
-func testAccContainerCluster_backendRef() string {
+func testAccContainerCluster_backendRef(cluster string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "my-backend-service" {
-  name      = "terraform-test-%s"
+  name      = "%s-backend"
   port_name = "http"
   protocol  = "HTTP"
 
@@ -1921,14 +1943,14 @@ resource "google_compute_backend_service" "my-backend-service" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "terraform-test-%s"
+  name               = "%s-hc"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_container_cluster" "primary" {
-  name               = "tf-test-cluster-%s"
+  name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 3
 
@@ -1946,7 +1968,7 @@ resource "google_container_cluster" "primary" {
     ]
   }
 }
-`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+`, cluster, cluster, cluster)
 }
 
 func testAccContainerCluster_withNodePoolBasic(cluster, nodePool string) string {
@@ -2160,63 +2182,62 @@ resource "google_container_cluster" "with_node_pool" {
 `, cluster, np)
 }
 
-func testAccContainerCluster_withNodePoolNamePrefix() string {
+func testAccContainerCluster_withNodePoolNamePrefix(cluster, npPrefix string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool_name_prefix" {
-  name     = "tf-test-cluster-nodepool-%s"
+  name     = "%s"
   location = "us-central1-a"
 
   node_pool {
-    name_prefix = "tf-np-test"
+    name_prefix = "%s"
     node_count  = 2
   }
 }
-`, acctest.RandString(10))
+`, cluster, npPrefix)
 }
 
-func testAccContainerCluster_withNodePoolMultiple() string {
+func testAccContainerCluster_withNodePoolMultiple(cluster, npPrefix string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool_multiple" {
-  name     = "tf-test-cluster-nodepool-%s"
+  name     = "%s"
   location = "us-central1-a"
 
   node_pool {
-    name       = "tf-test-cluster-nodepool-%s"
+    name       = "%s-one"
     node_count = 2
   }
 
   node_pool {
-    name       = "tf-test-cluster-nodepool-%s"
+    name       = "%s-two"
     node_count = 3
   }
 }
-`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+`, cluster, npPrefix, npPrefix)
 }
 
-func testAccContainerCluster_withNodePoolConflictingNameFields() string {
+func testAccContainerCluster_withNodePoolConflictingNameFields(cluster, npPrefix string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool_multiple" {
-  name     = "tf-test-cluster-nodepool-%s"
+  name     = "%s"
   location = "us-central1-a"
 
   node_pool {
     # ERROR: name and name_prefix cannot be both specified
-    name        = "tf-test-cluster-nodepool-%s"
-    name_prefix = "tf-test-cluster-nodepool-"
+    name        = "%s-notok"
+    name_prefix = "%s"
     node_count  = 1
   }
 }
-`, acctest.RandString(10), acctest.RandString(10))
+`, cluster, npPrefix, npPrefix)
 }
 
-func testAccContainerCluster_withNodePoolNodeConfig() string {
-	testId := acctest.RandString(10)
+func testAccContainerCluster_withNodePoolNodeConfig(cluster, np string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_node_pool_node_config" {
-  name     = "tf-test-cluster-nodepool-%s"
+  name     = "%s"
   location = "us-central1-a"
   node_pool {
-    name       = "tf-test-cluster-nodepool-%s"
+    name       = "%s"
     node_count = 2
     node_config {
       machine_type    = "n1-standard-1"
@@ -2241,7 +2262,7 @@ resource "google_container_cluster" "with_node_pool_node_config" {
     }
   }
 }
-`, testId, testId)
+`, cluster, np)
 }
 
 func testAccContainerCluster_withMaintenanceWindow(clusterName string, startTime string) string {
