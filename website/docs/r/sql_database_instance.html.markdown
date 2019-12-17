@@ -192,12 +192,21 @@ The following arguments are supported:
 
 - - -
 
+<<<<<<< HEAD
 * `database_version` - (Optional, Default: `MYSQL_5_6`) The MySQL, PostgreSQL or
 SQL Server (beta) version to use. Supported values include `MYSQL_5_6`,
 `MYSQL_5_7`, `POSTGRES_9_6`,`POSTGRES_11`, `SQLSERVER_2017_STANDARD`,
 `SQLSERVER_2017_ENTERPRISE`, `SQLSERVER_2017_EXPRESS`, `SQLSERVER_2017_WEB`.
 [Database Version Policies](https://cloud.google.com/sql/docs/sqlserver/db-versions)
 includes an up-to-date reference of supported versions.
+=======
+* `database_version` - (Optional, Default: `MYSQL_5_6`) The MySQL, PostgreSQL or MS SQL Server (beta) version to
+    use. Can be `MYSQL_5_6`, `MYSQL_5_7`, `POSTGRES_9_6` or `POSTGRES_11` (beta) for second-generation
+    instances, or `MYSQL_5_5` or `MYSQL_5_6` for first-generation instances.
+    MS SQL Server supported versions: `SQLSERVER_2017_STANDARD`, `SQLSERVER_2017_ENTERPRISE`, `SQLSERVER_2017_EXPRESS`, `SQLSERVER_2017_WEB`.
+    See [Second Generation Capabilities](https://cloud.google.com/sql/docs/1st-2nd-gen-differences)
+    for more information.
+>>>>>>> Fixes Issue-5190: Remove unsupported MSSQL version from documentation.
 
 * `name` - (Optional, Computed) The name of the instance. If the name is left
     blank, Terraform will randomly generate one when the instance is first
