@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -12,106 +13,137 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func TestAccDataflowJobCreate(t *testing.T) {
+const (
+	testDataflowJobTemplateWordCountUrl = "gs://dataflow-templates/latest/Word_Count"
+	testDataflowJobSampleFileUrl        = "gs://dataflow-samples/shakespeare/various.txt"
+)
+
+func TestAccDataflowJob_basic(t *testing.T) {
 	t.Parallel()
+
+	randStr := acctest.RandString(10)
+	bucket := "tf-test-dataflow-gcs-" + randStr
+	job := "tf-test-dataflow-job-" + randStr
+	zone := "us-central1-f"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataflowJobDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataflowJob,
+				Config: testAccDataflowJob_zone(bucket, job, zone),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataflowJobExists(
-						"google_dataflow_job.big_data"),
+					testAccDataflowJobExists("google_dataflow_job.big_data"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccDataflowJobRegionCreate(t *testing.T) {
+func TestAccDataflowJob_withRegion(t *testing.T) {
 	t.Parallel()
+
+	randStr := acctest.RandString(10)
+	bucket := "tf-test-dataflow-gcs-" + randStr
+	job := "tf-test-dataflow-job-" + randStr
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataflowJobRegionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataflowJobRegion,
+				Config: testAccDataflowJob_region(bucket, job),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataflowJobRegionExists(
-						"google_dataflow_job.big_data"),
+					testAccRegionalDataflowJobExists("google_dataflow_job.big_data", "us-central1"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccDataflowJobCreateWithServiceAccount(t *testing.T) {
+func TestAccDataflowJob_withServiceAccount(t *testing.T) {
 	t.Parallel()
+
+	randStr := acctest.RandString(10)
+	bucket := "tf-test-dataflow-gcs-" + randStr
+	job := "tf-test-dataflow-job-" + randStr
+	accountId := "tf-test-dataflow-sa" + randStr
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataflowJobDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataflowJobWithServiceAccount,
+				Config: testAccDataflowJob_serviceAccount(bucket, job, accountId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataflowJobExists(
-						"google_dataflow_job.big_data"),
-					testAccDataflowJobHasServiceAccount(
-						"google_dataflow_job.big_data"),
+					testAccDataflowJobExists("google_dataflow_job.big_data"),
+					testAccDataflowJobHasServiceAccount("google_dataflow_job.big_data", accountId),
 				),
 			},
 		},
 	})
 }
 
-func TestAccDataflowJobCreateWithNetwork(t *testing.T) {
+func TestAccDataflowJob_withNetwork(t *testing.T) {
 	t.Parallel()
+
+	randStr := acctest.RandString(10)
+	bucket := "tf-test-dataflow-gcs-" + randStr
+	job := "tf-test-dataflow-job-" + randStr
+	network := "tf-test-dataflow-net" + randStr
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataflowJobDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataflowJobWithNetwork,
+				Config: testAccDataflowJob_network(bucket, job, network),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataflowJobExists(
-						"google_dataflow_job.big_data"),
-					testAccDataflowJobHasNetwork(
-						"google_dataflow_job.big_data"),
+					testAccDataflowJobExists("google_dataflow_job.big_data"),
+					testAccDataflowJobHasNetwork("google_dataflow_job.big_data", network),
 				),
 			},
 		},
 	})
 }
 
-func TestAccDataflowJobCreateWithSubnetwork(t *testing.T) {
+func TestAccDataflowJob_withSubnetwork(t *testing.T) {
 	t.Parallel()
+
+	randStr := acctest.RandString(10)
+	bucket := "tf-test-dataflow-gcs-" + randStr
+	job := "tf-test-dataflow-job-" + randStr
+	network := "tf-test-dataflow-net" + randStr
+	subnetwork := "tf-test-dataflow-subnet" + randStr
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataflowJobDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataflowJobWithSubnetwork,
+				Config: testAccDataflowJob_subnetwork(bucket, job, network, subnetwork),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataflowJobExists(
-						"google_dataflow_job.big_data"),
-					testAccDataflowJobHasSubnetwork(
-						"google_dataflow_job.big_data"),
+					testAccDataflowJobExists("google_dataflow_job.big_data"),
+					testAccDataflowJobHasSubnetwork("google_dataflow_job.big_data", subnetwork),
 				),
 			},
 		},
 	})
 }
 
-func TestAccDataflowJobCreateWithLabels(t *testing.T) {
+func TestAccDataflowJob_withLabels(t *testing.T) {
 	t.Parallel()
 
+	randStr := acctest.RandString(10)
+	bucket := "tf-test-dataflow-gcs-" + randStr
+	job := "tf-test-dataflow-job-" + randStr
 	key := "my-label"
+	value := "my-value"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -119,30 +151,32 @@ func TestAccDataflowJobCreateWithLabels(t *testing.T) {
 		CheckDestroy: testAccCheckDataflowJobDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataflowJobWithLabels(key),
+				Config: testAccDataflowJob_labels(bucket, job, key, value),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataflowJobExists(
-						"google_dataflow_job.with_labels"),
-					testAccDataflowJobHasLabels(
-						"google_dataflow_job.with_labels", key),
+					testAccDataflowJobExists("google_dataflow_job.with_labels"),
+					testAccDataflowJobHasLabels("google_dataflow_job.with_labels", key),
 				),
 			},
 		},
 	})
 }
 
-func TestAccDataflowJobCreateWithIpConfig(t *testing.T) {
+func TestAccDataflowJob_withIpConfig(t *testing.T) {
 	t.Parallel()
+
+	randStr := acctest.RandString(10)
+	bucket := "tf-test-dataflow-gcs-" + randStr
+	job := "tf-test-dataflow-job-" + randStr
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataflowJobDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataflowJobWithIpConfig,
+				Config: testAccDataflowJob_ipConfig(bucket, job),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataflowJobExists(
-						"google_dataflow_job.big_data"),
+					testAccDataflowJobExists("google_dataflow_job.big_data"),
 				),
 			},
 		},
@@ -189,170 +223,131 @@ func testAccCheckDataflowJobRegionDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccDataflowJobExists(n string) resource.TestCheckFunc {
+func testAccDataflowJobExists(resource string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
+		rs, ok := s.RootModule().Resources[resource]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("resource %q not in state", resource)
+		}
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no ID is set")
 		}
 
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
 		config := testAccProvider.Meta().(*Config)
 		_, err := config.clientDataflow.Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 		if err != nil {
-			return fmt.Errorf("Job does not exist")
+			return fmt.Errorf("could not confirm Dataflow Job %q exists: %v", rs.Primary.ID, err)
 		}
 
 		return nil
 	}
 }
 
-func testAccDataflowJobHasNetwork(n string) resource.TestCheckFunc {
+func testAccDataflowJobHasNetwork(res, expected string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+		instanceTmpl, err := testAccDataflowJobGetGeneratedInstanceTemplate(s, res)
+		if err != nil {
+			return fmt.Errorf("Error getting dataflow job instance template: %s", err)
 		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+		if len(instanceTmpl.Properties.NetworkInterfaces) == 0 {
+			return fmt.Errorf("no network interfaces in template properties: %+v", instanceTmpl.Properties)
 		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		var network string
-		filter := fmt.Sprintf("properties.labels.dataflow_job_id = %s", rs.Primary.ID)
-
-		retryErr := resource.Retry(1*time.Minute, func() *resource.RetryError {
-			instanceTemplates, err := config.clientCompute.InstanceTemplates.List(config.Project).Filter(filter).MaxResults(2).Fields("items/properties/networkInterfaces/network").Do()
-			if err != nil {
-				return resource.NonRetryableError(err)
-			}
-			if len(instanceTemplates.Items) == 0 {
-				return resource.RetryableError(fmt.Errorf("No instance templates for job %s", rs.Primary.ID))
-			}
-			if len(instanceTemplates.Items) > 1 {
-				return resource.NonRetryableError(fmt.Errorf("Wrong number of matching instance templates for dataflow job: %s, %d", rs.Primary.ID, len(instanceTemplates.Items)))
-			}
-			network = instanceTemplates.Items[0].Properties.NetworkInterfaces[0].Network
-			return nil
-		})
-
-		if retryErr != nil {
-			return fmt.Errorf("Error getting network from instance template: %s", retryErr)
-		}
-		if GetResourceNameFromSelfLink(network) != GetResourceNameFromSelfLink(rs.Primary.Attributes["network"]) {
-			return fmt.Errorf("Network mismatch: %s != %s", network, rs.Primary.Attributes["network"])
+		actual := instanceTmpl.Properties.NetworkInterfaces[0].Network
+		if GetResourceNameFromSelfLink(actual) != GetResourceNameFromSelfLink(expected) {
+			return fmt.Errorf("network mismatch: %s != %s", actual, expected)
 		}
 		return nil
 	}
 }
 
-func testAccDataflowJobHasSubnetwork(n string) resource.TestCheckFunc {
+func testAccDataflowJobHasSubnetwork(res, expected string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+		instanceTmpl, err := testAccDataflowJobGetGeneratedInstanceTemplate(s, res)
+		if err != nil {
+			return fmt.Errorf("Error getting dataflow job instance template: %s", err)
 		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+		if len(instanceTmpl.Properties.NetworkInterfaces) == 0 {
+			return fmt.Errorf("no network interfaces in template properties: %+v", instanceTmpl.Properties)
 		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		var subnetwork string
-		filter := fmt.Sprintf("properties.labels.dataflow_job_id = %s", rs.Primary.ID)
-
-		retryErr := resource.Retry(1*time.Minute, func() *resource.RetryError {
-			instanceTemplates, err := config.clientCompute.InstanceTemplates.List(config.Project).Filter(filter).MaxResults(2).Fields("items/properties/networkInterfaces/subnetwork").Do()
-			if err != nil {
-				return resource.NonRetryableError(err)
-			}
-			if len(instanceTemplates.Items) == 0 {
-				return resource.RetryableError(fmt.Errorf("No instance templates for job %s", rs.Primary.ID))
-			}
-			if len(instanceTemplates.Items) > 1 {
-				return resource.NonRetryableError(fmt.Errorf("Wrong number of matching instance templates for dataflow job: %s, %d", rs.Primary.ID, len(instanceTemplates.Items)))
-			}
-			subnetwork = instanceTemplates.Items[0].Properties.NetworkInterfaces[0].Subnetwork
-			return nil
-		})
-
-		if retryErr != nil {
-			return fmt.Errorf("Error getting subnetwork from instance template: %s", retryErr)
-		}
-		if GetResourceNameFromSelfLink(subnetwork) != GetResourceNameFromSelfLink(rs.Primary.Attributes["subnetwork"]) {
-			return fmt.Errorf("Subnetwork mismatch: %s != %s", subnetwork, rs.Primary.Attributes["subnetwork"])
+		actual := instanceTmpl.Properties.NetworkInterfaces[0].Subnetwork
+		if GetResourceNameFromSelfLink(actual) != GetResourceNameFromSelfLink(expected) {
+			return fmt.Errorf("subnetwork mismatch: %s != %s", actual, expected)
 		}
 		return nil
 	}
 }
 
-func testAccDataflowJobHasServiceAccount(n string) resource.TestCheckFunc {
+func testAccDataflowJobHasServiceAccount(res, expectedId string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+		instanceTmpl, err := testAccDataflowJobGetGeneratedInstanceTemplate(s, res)
+		if err != nil {
+			return fmt.Errorf("Error getting dataflow job instance template: %s", err)
 		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+		accounts := instanceTmpl.Properties.ServiceAccounts
+		if len(accounts) != 1 {
+			return fmt.Errorf("Found multiple service accounts (%d) for dataflow job %q, expected 1", len(accounts), res)
 		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		// Check that the service account was applied to the Dataflow job's
-		// generated instance template.
-		if serviceAccountEmail, ok := rs.Primary.Attributes["service_account_email"]; ok {
-			filter := fmt.Sprintf("properties.labels.dataflow_job_id = %s", rs.Primary.ID)
-			var serviceAccounts []*compute.ServiceAccount
-
-			// Wait for instance template generation.
-			err := resource.Retry(1*time.Minute, func() *resource.RetryError {
-				var err error
-				instanceTemplates, err :=
-					config.clientCompute.InstanceTemplates.List(config.Project).Filter(filter).MaxResults(2).Fields("items/properties/serviceAccounts/email").Do()
-				if err != nil {
-					return resource.NonRetryableError(err)
-				}
-				if len(instanceTemplates.Items) == 0 {
-					return resource.RetryableError(fmt.Errorf("no instance template found for dataflow job"))
-				}
-				if len(instanceTemplates.Items) > 1 {
-					return resource.NonRetryableError(fmt.Errorf("Wrong number of matching instance templates for dataflow job: %s, %d", rs.Primary.ID, len(instanceTemplates.Items)))
-				}
-				serviceAccounts = instanceTemplates.Items[0].Properties.ServiceAccounts
-				return nil
-			})
-
-			if err != nil {
-				return fmt.Errorf("Error getting service account from instance template: %s", err)
-			}
-
-			if len(serviceAccounts) > 1 {
-				return fmt.Errorf("Found multiple service accounts for dataflow job: %s, %d", rs.Primary.ID, len(serviceAccounts))
-			}
-			if serviceAccountEmail != serviceAccounts[0].Email {
-				return fmt.Errorf("Service account mismatch: %s != %s", serviceAccountEmail, serviceAccounts[0].Email)
-			}
+		actualId := strings.Split(accounts[0].Email, "@")[0]
+		if expectedId != actualId {
+			return fmt.Errorf("service account mismatch, expected account ID = %q, actual email = %q", expectedId, accounts[0].Email)
 		}
-
 		return nil
 	}
 }
 
-func testAccDataflowJobRegionExists(n string) resource.TestCheckFunc {
+func testAccDataflowJobGetGeneratedInstanceTemplate(s *terraform.State, res string) (*compute.InstanceTemplate, error) {
+	rs, ok := s.RootModule().Resources[res]
+	if !ok {
+		return nil, fmt.Errorf("resource %q not in state", res)
+	}
+	if rs.Primary.ID == "" {
+		return nil, fmt.Errorf("resource %q does not have an ID set", res)
+	}
+	filter := fmt.Sprintf("properties.labels.dataflow_job_id = %s", rs.Primary.ID)
+
+	config := testAccProvider.Meta().(*Config)
+
+	var instanceTemplate *compute.InstanceTemplate
+
+	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
+		instanceTemplates, rerr := config.clientCompute.InstanceTemplates.
+			List(config.Project).
+			Filter(filter).
+			MaxResults(2).
+			Fields("items/properties").Do()
+		if rerr != nil {
+			return resource.NonRetryableError(rerr)
+		}
+		if len(instanceTemplates.Items) == 0 {
+			return resource.RetryableError(fmt.Errorf("no instance template found for dataflow job %q", rs.Primary.ID))
+		}
+		if len(instanceTemplates.Items) > 1 {
+			return resource.NonRetryableError(fmt.Errorf("Wrong number of matching instance templates for dataflow job: %s, %d", rs.Primary.ID, len(instanceTemplates.Items)))
+		}
+		instanceTemplate = instanceTemplates.Items[0]
+		if instanceTemplate == nil || instanceTemplate.Properties == nil {
+			return resource.NonRetryableError(fmt.Errorf("invalid instance template has no properties"))
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return instanceTemplate, nil
+}
+
+func testAccRegionalDataflowJobExists(res, region string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
+		rs, ok := s.RootModule().Resources[res]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("resource %q not found in state", res)
 		}
 
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
 		config := testAccProvider.Meta().(*Config)
-		_, err := config.clientDataflow.Projects.Locations.Jobs.Get(config.Project, "us-central1", rs.Primary.ID).Do()
+		_, err := config.clientDataflow.Projects.Locations.Jobs.Get(config.Project, region, rs.Primary.ID).Do()
 		if err != nil {
 			return fmt.Errorf("Job does not exist")
 		}
@@ -361,20 +356,21 @@ func testAccDataflowJobRegionExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccDataflowJobHasLabels(n, key string) resource.TestCheckFunc {
+func testAccDataflowJobHasLabels(res, key string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
+		rs, ok := s.RootModule().Resources[res]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("resource %q not found in state", res)
 		}
 
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
 		config := testAccProvider.Meta().(*Config)
+
 		job, err := config.clientDataflow.Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 		if err != nil {
-			return fmt.Errorf("Job does not exist")
+			return fmt.Errorf("dataflow job does not exist")
 		}
 
 		if job.Labels[key] != rs.Primary.Attributes["labels."+key] {
@@ -385,131 +381,124 @@ func testAccDataflowJobHasLabels(n, key string) resource.TestCheckFunc {
 	}
 }
 
-var testAccDataflowJob = fmt.Sprintf(`
+func testAccDataflowJob_zone(bucket, job, zone string) string {
+	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "dfjob-test-%s-temp"
-
+  name = "%s"
   force_destroy = true
 }
 
 resource "google_dataflow_job" "big_data" {
-  name = "dfjob-test-%s"
+  name = "%s"
+ 
+  zone    = "%s"
 
-  template_gcs_path = "gs://dataflow-templates/wordcount/template_file"
-  temp_gcs_location = google_storage_bucket.temp.url
   machine_type      = "n1-standard-2"
-
+  template_gcs_path = "%s"
+  temp_gcs_location = google_storage_bucket.temp.url
   parameters = {
-    inputFile = "gs://dataflow-samples/shakespeare/kinglear.txt"
+    inputFile = "%s"
     output    = "${google_storage_bucket.temp.url}/output"
   }
-  zone    = "us-central1-f"
-  project = "%s"
-
   on_delete = "cancel"
 }
-`, acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
+`, bucket, job, zone, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+}
 
-var testAccDataflowJobRegion = fmt.Sprintf(`
+func testAccDataflowJob_region(bucket, job string) string {
+	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "dfjob-test-%s-temp"
-
+  name = "%s"
   force_destroy = true
 }
 
 resource "google_dataflow_job" "big_data" {
-  name = "dfjob-test-%s"
+  name = "%s"
+  region  = "us-central1"
 
-  template_gcs_path = "gs://dataflow-templates/wordcount/template_file"
+  template_gcs_path = "%s"
   temp_gcs_location = google_storage_bucket.temp.url
-
   parameters = {
-    inputFile = "gs://dataflow-samples/shakespeare/kinglear.txt"
+    inputFile = "%s"
     output    = "${google_storage_bucket.temp.url}/output"
   }
-  region  = "us-central1"
-  zone    = "us-central1-c"
-  project = "%s"
 
   on_delete = "cancel"
 }
-`, acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
+`, bucket, job, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+}
 
-var testAccDataflowJobWithNetwork = fmt.Sprintf(`
+func testAccDataflowJob_network(bucket, job, network string) string {
+	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "dfjob-test-%s-temp"
-
+  name = "%s"
   force_destroy = true
 }
 
 resource "google_compute_network" "net" {
-  name                    = "dfjob-test-%s-net"
+  name                    = "%s"
   auto_create_subnetworks = true
 }
 
 resource "google_dataflow_job" "big_data" {
-  name = "dfjob-test-%s"
+  name = "%s"
 
-  template_gcs_path = "gs://dataflow-templates/wordcount/template_file"
-  temp_gcs_location = google_storage_bucket.temp.url
   network           = google_compute_network.net.name
 
+  template_gcs_path = "%s"
+  temp_gcs_location = google_storage_bucket.temp.url
   parameters = {
-    inputFile = "gs://dataflow-samples/shakespeare/kinglear.txt"
+    inputFile = "%s"
     output    = "${google_storage_bucket.temp.url}/output"
   }
-  zone    = "us-central1-f"
-  project = "%s"
-
   on_delete = "cancel"
 }
-`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
+`, bucket, network, job, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+}
 
-var testAccDataflowJobWithSubnetwork = fmt.Sprintf(`
+func testAccDataflowJob_subnetwork(bucket, job, network, subnet string) string {
+	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "dfjob-test-%s-temp"
-
+  name = "%s"
   force_destroy = true
 }
 
 resource "google_compute_network" "net" {
-  name                    = "dfjob-test-%s-net"
+  name                    = "%s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnet" {
-  name          = "dfjob-test-%s-subnet"
+  name          = "%s"
   ip_cidr_range = "10.2.0.0/16"
   network       = google_compute_network.net.self_link
 }
 
 resource "google_dataflow_job" "big_data" {
-  name = "dfjob-test-%s"
+  name = "%s"
 
-  template_gcs_path = "gs://dataflow-templates/wordcount/template_file"
-  temp_gcs_location = google_storage_bucket.temp.url
   subnetwork        = google_compute_subnetwork.subnet.self_link
 
+  template_gcs_path = "%s"
+  temp_gcs_location = google_storage_bucket.temp.url
   parameters = {
-    inputFile = "gs://dataflow-samples/shakespeare/kinglear.txt"
+    inputFile = "%s"
     output    = "${google_storage_bucket.temp.url}/output"
   }
-  zone    = "us-central1-f"
-  project = "%s"
-
   on_delete = "cancel"
 }
-`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
+`, bucket, network, subnet, job, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+}
 
-var testAccDataflowJobWithServiceAccount = fmt.Sprintf(`
+func testAccDataflowJob_serviceAccount(bucket, job, accountId string) string {
+	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "dfjob-test-%s-temp"
-
+  name = "%s"
   force_destroy = true
 }
 
 resource "google_service_account" "dataflow-sa" {
-  account_id   = "dfjob-test-%s"
+  account_id   = "%s"
   display_name = "DataFlow Service Account"
 }
 
@@ -525,77 +514,69 @@ resource "google_project_iam_member" "dataflow-worker" {
 }
 
 resource "google_dataflow_job" "big_data" {
-  name = "dfjob-test-%s"
+  name = "%s"
+  depends_on = [
+    google_storage_bucket_iam_member.dataflow-gcs, 
+    google_project_iam_member.dataflow-worker
+  ]
 
-  template_gcs_path = "gs://dataflow-templates/wordcount/template_file"
+  template_gcs_path = "%s"
   temp_gcs_location = google_storage_bucket.temp.url
-
   parameters = {
-    inputFile = "gs://dataflow-samples/shakespeare/kinglear.txt"
+    inputFile = "%s"
     output    = "${google_storage_bucket.temp.url}/output"
   }
-  zone                  = "us-central1-f"
-  project               = "%s"
+
   service_account_email = google_service_account.dataflow-sa.email
-
-  on_delete = "cancel"
 }
-`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
+`, bucket, accountId, job, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+}
 
-var testAccDataflowJobWithIpConfig = fmt.Sprintf(`
+func testAccDataflowJob_ipConfig(bucket, job string) string {
+	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "dfjob-test-%s-temp"
-
+  name = "%s"
   force_destroy = true
 }
 
 resource "google_dataflow_job" "big_data" {
-  name = "dfjob-test-%s"
-
-  template_gcs_path = "gs://dataflow-templates/wordcount/template_file"
-  temp_gcs_location = google_storage_bucket.temp.url
-  machine_type      = "n1-standard-2"
-
-  parameters = {
-    inputFile = "gs://dataflow-samples/shakespeare/kinglear.txt"
-    output    = "${google_storage_bucket.temp.url}/output"
-  }
+  name = "%s"
 
   ip_configuration = "WORKER_IP_PRIVATE"
 
-  zone    = "us-central1-f"
-  project = "%s"
-
+  template_gcs_path = "%s"
+  temp_gcs_location = google_storage_bucket.temp.url
+  parameters = {
+    inputFile = "%s"
+    output    = "${google_storage_bucket.temp.url}/output"
+  }
   on_delete = "cancel"
 }
-`, acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
+`, bucket, job, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+}
 
-func testAccDataflowJobWithLabels(key string) string {
+func testAccDataflowJob_labels(bucket, job, labelKey, labelVal string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
-  name = "dfjob-test-%s-temp"
-
+  name = "%s"
   force_destroy = true
 }
 
 resource "google_dataflow_job" "with_labels" {
-  name = "dfjob-test-%s"
-
-  template_gcs_path = "gs://dataflow-templates/wordcount/template_file"
-  temp_gcs_location = google_storage_bucket.temp.url
+  name = "%s"
 
   labels = {
-    "my-label" = "test"
+    "%s" = "%s"
   }
 
+  template_gcs_path = "%s"
+  temp_gcs_location = google_storage_bucket.temp.url
   parameters = {
-    inputFile = "gs://dataflow-samples/shakespeare/kinglear.txt"
+    inputFile = "%s"
     output    = "${google_storage_bucket.temp.url}/output"
   }
-  zone    = "us-central1-f"
-  project = "%s"
-
   on_delete = "cancel"
 }
-`, acctest.RandString(10), acctest.RandString(10), getTestProjectFromEnv())
+`, bucket, job, labelKey, labelVal, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+
 }

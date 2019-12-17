@@ -13,7 +13,6 @@ Creates a job on Dataflow, which is an implementation of Apache Beam running on 
 the official documentation for
 [Beam](https://beam.apache.org) and [Dataflow](https://cloud.google.com/dataflow/).
 
-
 ## Example Usage
 
 ```hcl
@@ -46,7 +45,10 @@ The following arguments are supported:
 - - -
 
 * `parameters` - (Optional) Key/Value pairs to be passed to the Dataflow job (as used in the template).
-* `labels` - (Optional) User labels to be specified for the job. Keys and values should follow the restrictions specified in the [labeling restrictions](https://cloud.google.com/compute/docs/labeling-resources#restrictions) page.
+* `labels` - (Optional) User labels to be specified for the job. Keys and values should follow the restrictions
+   specified in the [labeling restrictions](https://cloud.google.com/compute/docs/labeling-resources#restrictions) page.
+   **NOTE**: Google-provided Dataflow templates often provide default labels that begin with `goog-dataflow-provided`.
+   Unless explicitly set in config, these labels will be ignored to prevent diffs on re-apply. 
 * `max_workers` - (Optional) The number of workers permitted to work on the job.  More workers may improve processing speed at additional cost.
 * `on_delete` - (Optional) One of "drain" or "cancel".  Specifies behavior of deletion during `terraform destroy`.  See above note.
 * `project` - (Optional) The project in which the resource belongs. If it is not provided, the provider project is used.
