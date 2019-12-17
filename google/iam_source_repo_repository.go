@@ -15,6 +15,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -32,8 +33,16 @@ var SourceRepoRepositoryIamSchema = map[string]*schema.Schema{
 		Type:             schema.TypeString,
 		Required:         true,
 		ForceNew:         true,
-		DiffSuppressFunc: compareSelfLinkOrResourceName,
+		DiffSuppressFunc: SourceRepoRepositoryDiffSuppress,
 	},
+}
+
+func SourceRepoRepositoryDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	oldParts := regexp.MustCompile("projects/[^/]+/repos/").Split(old, -1)
+	if len(oldParts) == 2 {
+		return oldParts[1] == new
+	}
+	return new == old
 }
 
 type SourceRepoRepositoryIamUpdater struct {
@@ -56,7 +65,7 @@ func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Conf
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/repos/(?P<repository>[^/]+)", "(?P<project>[^/]+)/(?P<repository>[^/]+)", "(?P<repository>[^/]+)"}, d, config, d.Get("repository").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/repos/(?P<repository>.+)", "(?P<repository>.+)"}, d, config, d.Get("repository").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +96,7 @@ func SourceRepoRepositoryIdParseFunc(d *schema.ResourceData, config *Config) err
 	}
 	values["project"] = project
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/repos/(?P<repository>[^/]+)", "(?P<project>[^/]+)/(?P<repository>[^/]+)", "(?P<repository>[^/]+)"}, d, config, d.Id())
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/repos/(?P<repository>.+)", "(?P<repository>.+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
