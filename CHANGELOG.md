@@ -6,8 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 * bigquery: added `PARQUET` as an option in `google_bigquery_table.external_data_configuration.source_format` ([#5170](https://github.com/terraform-providers/terraform-provider-google/pull/5170))
-* compute: Added `allow_global_access` for to `google_compute_forwarding_rule` resource. ([#5166](https://github.com/terraform-providers/terraform-provider-google/pull/5166))
-* compute: Moved `next_hop_ilb` from beta to GA provider. ([#5162](https://github.com/terraform-providers/terraform-provider-google/pull/5162))
+* compute: Added support for `next_hop_ilb` to `google_compute_route` ([#5162](https://github.com/terraform-providers/terraform-provider-google/pull/5162))
 * dataproc: added support for `security_config` to `google_dataproc_cluster` ([#5129](https://github.com/terraform-providers/terraform-provider-google/pull/5129))
 * storage: updated `id` and `bucket` fields for `google_storage_bucket_iam_*` resources to use `b/{bucket_name}` ([#5099](https://github.com/terraform-providers/terraform-provider-google/pull/5099))
 
