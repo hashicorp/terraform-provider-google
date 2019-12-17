@@ -264,9 +264,8 @@ func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}
 func resourceSourceRepoRepositoryImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/repos/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
+		"projects/(?P<project>[^/]+)/repos/(?P<name>.+)",
+		"(?P<name>.+)",
 	}, d, config); err != nil {
 		return nil, err
 	}

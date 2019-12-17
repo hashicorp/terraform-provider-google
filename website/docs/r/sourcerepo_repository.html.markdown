@@ -41,7 +41,7 @@ To get more information about Repository, see:
 
 ```hcl
 resource "google_sourcerepo_repository" "my-repo" {
-  name = "my-repository"
+  name = "my/repository"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -139,7 +139,6 @@ Repository can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_sourcerepo_repository.default projects/{{project}}/repos/{{name}}
-$ terraform import google_sourcerepo_repository.default {{project}}/{{name}}
 $ terraform import google_sourcerepo_repository.default {{name}}
 ```
 

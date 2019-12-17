@@ -51,7 +51,7 @@ func TestAccSourceRepoRepository_sourcerepoRepositoryBasicExample(t *testing.T) 
 func testAccSourceRepoRepository_sourcerepoRepositoryBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sourcerepo_repository" "my-repo" {
-  name = "my-repository%{random_suffix}"
+  name = "my/repository%{random_suffix}"
 }
 `, context)
 }
