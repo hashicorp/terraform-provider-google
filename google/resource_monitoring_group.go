@@ -130,7 +130,7 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringRetryableError)
 	if err != nil {
 		return fmt.Errorf("Error creating Group: %s", err)
 	}
