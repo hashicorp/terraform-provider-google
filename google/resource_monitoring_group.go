@@ -167,7 +167,7 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringGroup %q", d.Id()))
 	}
@@ -242,7 +242,7 @@ func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Updating Group %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	_, err = sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringRetryableError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Group %q: %s", d.Id(), err)
@@ -274,7 +274,7 @@ func resourceMonitoringGroupDelete(d *schema.ResourceData, meta interface{}) err
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Group %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, "Group")
 	}

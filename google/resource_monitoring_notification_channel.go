@@ -203,7 +203,7 @@ func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringNotificationChannel %q", d.Id()))
 	}
@@ -299,7 +299,7 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Updating NotificationChannel %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringRetryableError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating NotificationChannel %q: %s", d.Id(), err)
@@ -331,7 +331,7 @@ func resourceMonitoringNotificationChannelDelete(d *schema.ResourceData, meta in
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting NotificationChannel %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, "NotificationChannel")
 	}
