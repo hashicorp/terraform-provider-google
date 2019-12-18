@@ -175,7 +175,7 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	res, err := sendRequest(config, "GET", project, url, nil, pubsubTopicProjectNotReady)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("PubsubTopic %q", d.Id()))
 	}
@@ -248,7 +248,7 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), pubsubTopicProjectNotReady)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Topic %q: %s", d.Id(), err)
@@ -273,7 +273,7 @@ func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Topic %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), pubsubTopicProjectNotReady)
 	if err != nil {
 		return handleNotFoundError(err, d, "Topic")
 	}

@@ -76,7 +76,7 @@ func testAccCheckMonitoringNotificationChannelDestroy(s *terraform.State) error 
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", "", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil, isMonitoringRetryableError)
 		if err == nil {
 			return fmt.Errorf("MonitoringNotificationChannel still exists at %s", url)
 		}

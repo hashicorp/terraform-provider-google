@@ -35,8 +35,8 @@ func isEmptyValue(v reflect.Value) bool {
 	return false
 }
 
-func sendRequest(config *Config, method, project, rawurl string, body map[string]interface{}) (map[string]interface{}, error) {
-	return sendRequestWithTimeout(config, method, project, rawurl, body, DefaultRequestTimeout)
+func sendRequest(config *Config, method, project, rawurl string, body map[string]interface{}, errorRetryPredicates ...func(e error) (bool, string)) (map[string]interface{}, error) {
+	return sendRequestWithTimeout(config, method, project, rawurl, body, DefaultRequestTimeout, errorRetryPredicates...)
 }
 
 func sendRequestWithTimeout(config *Config, method, project, rawurl string, body map[string]interface{}, timeout time.Duration, errorRetryPredicates ...func(e error) (bool, string)) (map[string]interface{}, error) {
