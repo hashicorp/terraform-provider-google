@@ -34,7 +34,7 @@ data "google_iam_policy" "admin" {
 
 resource "google_kms_crypto_key_iam_policy" "crypto_key" {
   crypto_key_id = "your-crypto-key-id"
-  policy_data = "${data.google_iam_policy.admin.policy_data}"
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -70,6 +70,24 @@ resource "google_kms_crypto_key_iam_binding" "crypto_key" {
 }
 ```
 
+With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)):
+```hcl
+resource "google_kms_crypto_key_iam_binding" "crypto_key" {
+  crypto_key_id = "your-crypto-key-id"
+  role          = "roles/editor"
+
+  members = [
+    "user:alice@gmail.com",
+  ]
+
+  condition {
+    title       = "expires_after_2019_12_31"
+    description = "Expiring at midnight of 2019-12-31"
+    expression  = "request.time < timestamp(\"2020-01-01T00:00:00Z\")"
+  }
+}
+```
+
 # google\_kms\_crypto\_key\_iam\_member
 
 ```hcl
@@ -77,6 +95,21 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
   crypto_key_id = "your-crypto-key-id"
   role          = "roles/editor"
   member        = "user:alice@gmail.com"
+}
+```
+
+With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)):
+```hcl
+resource "google_kms_crypto_key_iam_member" "crypto_key" {
+  crypto_key_id = "your-crypto-key-id"
+  role          = "roles/editor"
+  member        = "user:alice@gmail.com"
+
+  condition {
+    title       = "expires_after_2019_12_31"
+    description = "Expiring at midnight of 2019-12-31"
+    expression  = "request.time < timestamp(\"2020-01-01T00:00:00Z\")"
+  }
 }
 ```
 

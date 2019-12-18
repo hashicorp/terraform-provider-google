@@ -398,7 +398,7 @@ resource "google_project" "test_project" {
 }
 
 resource "google_project_services" "test_project" {
-  project = "${google_project.test_project.project_id}"
+  project = google_project.test_project.project_id
 
   services = [
      "cloudkms.googleapis.com",
@@ -408,19 +408,19 @@ resource "google_project_services" "test_project" {
 }
 
 resource "google_service_account" "test_account" {
-  project      = "${google_project_services.test_project.project}"
+  project      = google_project_services.test_project.project
   account_id   = "%s"
   display_name = "Kms Key Ring Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project  = "${google_project_services.test_project.project}"
+  project  = google_project_services.test_project.project
   location = "%s"
   name     = "%s"
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-  key_ring = "${google_kms_key_ring.key_ring.id}"
+  key_ring = google_kms_key_ring.key_ring.id
   name     = "%s"
 }
 
@@ -433,8 +433,8 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_kms_crypto_key_iam_policy" "foo" {
-  crypto_key_id = "${google_kms_crypto_key.crypto_key.id}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, projectId, orgId, billingAccount, account, DEFAULT_KMS_TEST_LOCATION, keyRingName, cryptoKeyName, roleId)
 }
