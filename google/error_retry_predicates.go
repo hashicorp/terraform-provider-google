@@ -50,3 +50,12 @@ func isMonitoringRetryableError(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+func isAppEngineRetryableError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 && strings.Contains(strings.ToLower(gerr.Body), "operation is already in progress") {
+			return true, "Waiting for other concurrent App Engine changes to finish"
+		}
+	}
+	return false, ""
+}
