@@ -320,7 +320,9 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 		tagsList := v.([]interface{})
 		tags := []string{}
 		for _, v := range tagsList {
-			tags = append(tags, v.(string))
+			if v != nil {
+				tags = append(tags, v.(string))
+			}
 		}
 		nc.Tags = tags
 	}
