@@ -53,7 +53,7 @@ func testAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(
 resource "google_binary_authorization_attestor" "attestor" {
   name = "test-attestor%{random_suffix}"
   attestation_authority_note {
-    note_reference = "${google_container_analysis_note.note.name}"
+    note_reference = google_container_analysis_note.note.name
     public_keys {
       ascii_armored_pgp_public_key = <<EOF
 mQENBFtP0doBCADF+joTiXWKVuP8kJt3fgpBSjT9h8ezMfKA4aXZctYLx5wslWQl
@@ -72,6 +72,7 @@ MAU9vdm1DIv567meMqTaVZgR3w7bck2P49AO8lO5ERFpVkErtu/98y+rUy9d789l
 qoIRW6y0+UlAc+MbqfL0ziHDOAmcqz1GnROg
 =6Bvm
 EOF
+
     }
   }
 }

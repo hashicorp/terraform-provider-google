@@ -1,9 +1,9 @@
 # See https://cloud.google.com/compute/docs/load-balancing/network/example
 
 provider "google" {
-  region      = "${var.region}"
-  project     = "${var.project_name}"
-  credentials = "${file("${var.credentials_file_path}")}"
+  region      = var.region
+  project     = var.project_name
+  credentials = file(var.credentials_file_path)
 }
 
 resource "google_compute_http_health_check" "default" {
@@ -17,13 +17,13 @@ resource "google_compute_http_health_check" "default" {
 
 resource "google_compute_target_pool" "default" {
   name          = "tf-www-target-pool"
-  instances     = ["${google_compute_instance.www.*.self_link}"]
-  health_checks = ["${google_compute_http_health_check.default.name}"]
+  instances     = google_compute_instance.www.*.self_link
+  health_checks = [google_compute_http_health_check.default.name]
 }
 
 resource "google_compute_forwarding_rule" "default" {
   name       = "tf-www-forwarding-rule"
-  target     = "${google_compute_target_pool.default.self_link}"
+  target     = google_compute_target_pool.default.self_link
   port_range = "80"
 }
 
@@ -32,7 +32,7 @@ resource "google_compute_instance" "www" {
 
   name         = "tf-www-${count.index}"
   machine_type = "f1-micro"
-  zone         = "${var.region_zone}"
+  zone         = var.region_zone
   tags         = ["www-node"]
 
   boot_disk {
@@ -49,27 +49,29 @@ resource "google_compute_instance" "www" {
     }
   }
 
-  metadata {
-    ssh-keys = "root:${file("${var.public_key_path}")}"
+  metadata = {
+    ssh-keys = "root:${file(var.public_key_path)}"
   }
 
   provisioner "file" {
-    source      = "${var.install_script_src_path}"
-    destination = "${var.install_script_dest_path}"
+    source      = var.install_script_src_path
+    destination = var.install_script_dest_path
 
     connection {
+      host        = self.network_interface.0.access_config.0.nat_ip
       type        = "ssh"
       user        = "root"
-      private_key = "${file("${var.private_key_path}")}"
+      private_key = file(var.private_key_path)
       agent       = false
     }
   }
 
   provisioner "remote-exec" {
     connection {
+      host        = self.network_interface.0.access_config.0.nat_ip
       type        = "ssh"
       user        = "root"
-      private_key = "${file("${var.private_key_path}")}"
+      private_key = file(var.private_key_path)
       agent       = false
     }
 

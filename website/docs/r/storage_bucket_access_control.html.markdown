@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Storage"
 layout: "google"
 page_title: "Google: google_storage_bucket_access_control"
 sidebar_current: "docs-google-storage-bucket-access-control"
@@ -54,7 +55,7 @@ resource "google_storage_bucket_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-	name = "static-content-bucket"
+  name = "static-content-bucket"
 }
 ```
 

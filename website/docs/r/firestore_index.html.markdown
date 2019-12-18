@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Firestore"
 layout: "google"
 page_title: "Google: google_firestore_index"
 sidebar_current: "docs-google-firestore-index"
@@ -42,7 +43,7 @@ To get more information about Index, see:
 
 ```hcl
 resource "google_firestore_index" "my-index" {
-  project    = "my-project-name"
+  project = "my-project-name"
 
   collection = "chatrooms"
 
@@ -145,4 +146,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

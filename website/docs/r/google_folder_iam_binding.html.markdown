@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_folder_iam_binding"
 sidebar_current: "docs-google-folder-iam-binding"
@@ -28,8 +29,8 @@ resource "google_folder" "department1" {
 }
 
 resource "google_folder_iam_binding" "admin" {
-  folder  = "${google_folder.department1.name}"
-  role    = "roles/editor"
+  folder = google_folder.department1.name
+  role   = "roles/editor"
 
   members = [
     "user:alice@gmail.com",

@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_backend_bucket_signed_url_key"
 sidebar_current: "docs-google-compute-backend-bucket-signed-url-key"
@@ -42,13 +43,13 @@ we cannot confirm or reverse changes to a key outside of Terraform.
 resource "google_compute_backend_bucket_signed_url_key" "backend_key" {
   name           = "test-key"
   key_value      = "pPsVemX8GM46QVeezid6Rw=="
-  backend_bucket = "${google_compute_backend_bucket.test_backend.name}"
+  backend_bucket = google_compute_backend_bucket.test_backend.name
 }
 
 resource "google_compute_backend_bucket" "test_backend" {
   name        = "test-signed-backend-bucket"
   description = "Contains beautiful images"
-  bucket_name = "${google_storage_bucket.bucket.name}"
+  bucket_name = google_storage_bucket.bucket.name
   enable_cdn  = true
 }
 
@@ -108,4 +109,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

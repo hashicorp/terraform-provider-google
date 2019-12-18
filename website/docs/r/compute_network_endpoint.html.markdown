@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_network_endpoint"
 sidebar_current: "docs-google-compute-network-endpoint"
@@ -40,11 +41,11 @@ To get more information about NetworkEndpoint, see:
 
 ```hcl
 resource "google_compute_network_endpoint" "default-endpoint" {
-  network_endpoint_group = "${google_compute_network_endpoint_group.neg.name}"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
 
-  instance    = "${google_compute_instance.endpoint-instance.name}"
-  port        = "${google_compute_network_endpoint_group.neg.default_port}"
-  ip_address  = "${google_compute_instance.endpoint-instance.network_interface.0.network_ip}"
+  instance   = google_compute_instance.endpoint-instance.name
+  port       = google_compute_network_endpoint_group.neg.default_port
+  ip_address = google_compute_instance.endpoint-instance.network_interface[0].network_ip
 }
 
 data "google_compute_image" "my_image" {
@@ -53,31 +54,32 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance" "endpoint-instance" {
-  name         =  "endpoint-instance"
+  name         = "endpoint-instance"
   machine_type = "n1-standard-1"
 
   boot_disk {
-    initialize_params{
-      image = "${data.google_compute_image.my_image.self_link}"
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
     }
   }
 
   network_interface {
-    subnetwork = "${google_compute_subnetwork.default.self_link}"
-    access_config { }
+    subnetwork = google_compute_subnetwork.default.self_link
+    access_config {
+    }
   }
 }
 
 resource "google_compute_network_endpoint_group" "group" {
   name         = "my-lb-neg"
-  network      = "${google_compute_network.default.self_link}"
-  subnetwork   = "${google_compute_subnetwork.default.self_link}"
+  network      = google_compute_network.default.self_link
+  subnetwork   = google_compute_subnetwork.default.self_link
   default_port = "90"
   zone         = "us-central1-a"
 }
 
 resource "google_compute_network" "default" {
-  name = "neg-network"
+  name                    = "neg-network"
   auto_create_subnetworks = false
 }
 
@@ -85,7 +87,7 @@ resource "google_compute_subnetwork" "default" {
   name          = "neg-subnetwork"
   ip_cidr_range = "10.0.0.1/16"
   region        = "us-central1"
-  network       = "${google_compute_network.default.self_link}"
+  network       = google_compute_network.default.self_link
 }
 ```
 
@@ -132,8 +134,8 @@ The following arguments are supported:
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 6 minutes.
+- `delete` - Default is 6 minutes.
 
 ## Import
 
@@ -151,4 +153,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

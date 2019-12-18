@@ -1,4 +1,5 @@
 ---
+subcategory: "Kubernetes (Container) Engine"
 layout: "google"
 page_title: "Google: google_container_cluster"
 sidebar_current: "docs-google-datasource-container-cluster"
@@ -14,32 +15,32 @@ Get info about a GKE cluster from its name and location.
 
 ```tf
 data "google_container_cluster" "my_cluster" {
-  name       = "my-cluster"
-  location   = "us-east1-a"
+  name     = "my-cluster"
+  location = "us-east1-a"
 }
 
 output "cluster_username" {
-  value = "${data.google_container_cluster.my_cluster.master_auth.0.username}"
+  value = data.google_container_cluster.my_cluster.master_auth[0].username
 }
 
 output "cluster_password" {
-  value = "${data.google_container_cluster.my_cluster.master_auth.0.password}"
+  value = data.google_container_cluster.my_cluster.master_auth[0].password
 }
 
 output "endpoint" {
-  value = "${data.google_container_cluster.my_cluster.endpoint}"
+  value = data.google_container_cluster.my_cluster.endpoint
 }
 
 output "instance_group_urls" {
-  value = "${data.google_container_cluster.my_cluster.instance_group_urls}"
+  value = data.google_container_cluster.my_cluster.instance_group_urls
 }
 
 output "node_config" {
-  value = "${data.google_container_cluster.my_cluster.node_config}"
+  value = data.google_container_cluster.my_cluster.node_config
 }
 
 output "node_pools" {
-  value = "${data.google_container_cluster.my_cluster.node_pool}"
+  value = data.google_container_cluster.my_cluster.node_pool
 }
 ```
 

@@ -46,40 +46,63 @@ func resourceLoggingMetric() *schema.Resource {
 			"filter": {
 				Type:     schema.TypeString,
 				Required: true,
+				Description: `An advanced logs filter (https://cloud.google.com/logging/docs/view/advanced-filters) which
+is used to match log entries.`,
 			},
 			"metric_descriptor": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: `The metric descriptor associated with the logs-based metric.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"metric_kind": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"DELTA", "GAUGE", "CUMULATIVE"}, false),
+							Description: `Whether the metric records instantaneous values, changes to a value, etc.
+Some combinations of metricKind and valueType might not be supported.
+For counter metrics, set this to DELTA.`,
 						},
 						"value_type": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"}, false),
+							Description: `Whether the measurement is an integer, a floating-point number, etc.
+Some combinations of metricKind and valueType might not be supported.
+For counter metrics, set this to INT64.`,
+						},
+						"display_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `A concise name for the metric, which can be displayed in user interfaces. Use sentence case 
+without an ending period, for example "Request count". This field is optional but it is 
+recommended to be set for any metrics associated with user-visible concepts, such as Quota.`,
 						},
 						"labels": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Description: `The set of labels that can be used to describe a specific instance of this metric type. For
+example, the appengine.googleapis.com/http/server/response_latencies metric type has a label
+for the HTTP response code, response_code, so you can look at latencies for successful responses
+or just for responses that failed.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"key": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The label key.`,
 									},
 									"description": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `A human-readable description for the label.`,
 									},
 									"value_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										ValidateFunc: validation.StringInSlice([]string{"BOOL", "INT64", "STRING", ""}, false),
+										Description:  `The type of data that can be assigned to the label.`,
 										Default:      "STRING",
 									},
 								},
@@ -88,7 +111,10 @@ func resourceLoggingMetric() *schema.Resource {
 						"unit": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default:  "1",
+							Description: `The unit in which the metric value is reported. It is only applicable if the valueType is
+'INT64', 'DOUBLE', or 'DISTRIBUTION'. The supported units are a subset of
+[The Unified Code for Units of Measure](http://unitsofmeasure.org/ucum.html) standard`,
+							Default: "1",
 						},
 					},
 				},
@@ -96,70 +122,98 @@ func resourceLoggingMetric() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+				Description: `The client-assigned metric identifier. Examples - "error_count", "nginx/requests".
+Metric identifiers are limited to 100 characters and can include only the following
+characters A-Z, a-z, 0-9, and the special characters _-.,+!*',()%/. The forward-slash
+character (/) denotes a hierarchy of name pieces, and it cannot be the first character
+of the name.`,
 			},
 			"bucket_options": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Description: `The bucketOptions are required when the logs-based metric is using a DISTRIBUTION value type and it
+describes the bucket boundaries used to create a histogram of the extracted values.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"explicit_buckets": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Specifies a set of buckets with arbitrary widths.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"bounds": {
-										Type:     schema.TypeList,
-										Optional: true,
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `The values must be monotonically increasing.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeFloat,
 										},
 									},
 								},
 							},
+							AtLeastOneOf: []string{"bucket_options.0.linear_buckets", "bucket_options.0.exponential_buckets", "bucket_options.0.explicit_buckets"},
 						},
 						"exponential_buckets": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Description: `Specifies an exponential sequence of buckets that have a width that is proportional to the value of
+the lower bound. Each bucket represents a constant relative uncertainty on a specific value in the bucket.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"growth_factor": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:         schema.TypeFloat,
+										Optional:     true,
+										Description:  `Must be greater than 1.`,
+										AtLeastOneOf: []string{"bucket_options.0.exponential_buckets.0.num_finite_buckets", "bucket_options.0.exponential_buckets.0.growth_factor", "bucket_options.0.exponential_buckets.0.scale"},
 									},
 									"num_finite_buckets": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Description:  `Must be greater than 0.`,
+										AtLeastOneOf: []string{"bucket_options.0.exponential_buckets.0.num_finite_buckets", "bucket_options.0.exponential_buckets.0.growth_factor", "bucket_options.0.exponential_buckets.0.scale"},
 									},
 									"scale": {
-										Type:     schema.TypeFloat,
-										Optional: true,
+										Type:         schema.TypeFloat,
+										Optional:     true,
+										Description:  `Must be greater than 0.`,
+										AtLeastOneOf: []string{"bucket_options.0.exponential_buckets.0.num_finite_buckets", "bucket_options.0.exponential_buckets.0.growth_factor", "bucket_options.0.exponential_buckets.0.scale"},
 									},
 								},
 							},
+							AtLeastOneOf: []string{"bucket_options.0.linear_buckets", "bucket_options.0.exponential_buckets", "bucket_options.0.explicit_buckets"},
 						},
 						"linear_buckets": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Description: `Specifies a linear sequence of buckets that all have the same width (except overflow and underflow).
+Each bucket represents a constant absolute uncertainty on the specific value in the bucket.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"num_finite_buckets": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Description:  `Must be greater than 0.`,
+										AtLeastOneOf: []string{"bucket_options.0.linear_buckets.0.num_finite_buckets", "bucket_options.0.linear_buckets.0.width", "bucket_options.0.linear_buckets.0.offset"},
 									},
 									"offset": {
-										Type:     schema.TypeFloat,
-										Optional: true,
+										Type:         schema.TypeFloat,
+										Optional:     true,
+										Description:  `Lower bound of the first bucket.`,
+										AtLeastOneOf: []string{"bucket_options.0.linear_buckets.0.num_finite_buckets", "bucket_options.0.linear_buckets.0.width", "bucket_options.0.linear_buckets.0.offset"},
 									},
 									"width": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Description:  `Must be greater than 0.`,
+										AtLeastOneOf: []string{"bucket_options.0.linear_buckets.0.num_finite_buckets", "bucket_options.0.linear_buckets.0.width", "bucket_options.0.linear_buckets.0.offset"},
 									},
 								},
 							},
+							AtLeastOneOf: []string{"bucket_options.0.linear_buckets", "bucket_options.0.exponential_buckets", "bucket_options.0.explicit_buckets"},
 						},
 					},
 				},
@@ -167,15 +221,28 @@ func resourceLoggingMetric() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: `A description of this metric, which is used in documentation. The maximum length of the
+description is 8000 characters.`,
 			},
 			"label_extractors": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: `A map from a label key string to an extractor expression which is used to extract data from a log
+entry field and assign as the label value. Each label key specified in the LabelDescriptor must
+have an associated extractor expression in this map. The syntax of the extractor expression is
+the same as for the valueExtractor field.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"value_extractor": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: `A valueExtractor is required when using a distribution logs-based metric to extract the values to
+record from a log entry. Two functions are supported for value extraction - EXTRACT(field) or
+REGEXP_EXTRACT(field, regex). The argument are 1. field - The name of the log entry field from which
+the value is to be extracted. 2. regex - A regular expression using the Google RE2 syntax
+(https://github.com/google/re2/wiki/Syntax) with a single capture group to extract data from the specified
+log entry field. The value of the field is converted to a string before applying the regex. It is an
+error to specify a regex that does not include exactly one capture group.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -469,6 +536,8 @@ func flattenLoggingMetricMetricDescriptor(v interface{}, d *schema.ResourceData)
 		flattenLoggingMetricMetricDescriptorMetricKind(original["metricKind"], d)
 	transformed["labels"] =
 		flattenLoggingMetricMetricDescriptorLabels(original["labels"], d)
+	transformed["display_name"] =
+		flattenLoggingMetricMetricDescriptorDisplayName(original["displayName"], d)
 	return []interface{}{transformed}
 }
 func flattenLoggingMetricMetricDescriptorUnit(v interface{}, d *schema.ResourceData) interface{} {
@@ -515,6 +584,10 @@ func flattenLoggingMetricMetricDescriptorLabelsValueType(v interface{}, d *schem
 	if v == nil || v.(string) == "" {
 		return "STRING"
 	}
+	return v
+}
+
+func flattenLoggingMetricMetricDescriptorDisplayName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -612,12 +685,6 @@ func flattenLoggingMetricBucketOptionsExponentialBucketsNumFiniteBuckets(v inter
 }
 
 func flattenLoggingMetricBucketOptionsExponentialBucketsGrowthFactor(v interface{}, d *schema.ResourceData) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
-			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
-	}
 	return v
 }
 
@@ -691,6 +758,13 @@ func expandLoggingMetricMetricDescriptor(v interface{}, d TerraformResourceData,
 		transformed["labels"] = transformedLabels
 	}
 
+	transformedDisplayName, err := expandLoggingMetricMetricDescriptorDisplayName(original["display_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisplayName); val.IsValid() && !isEmptyValue(val) {
+		transformed["displayName"] = transformedDisplayName
+	}
+
 	return transformed, nil
 }
 
@@ -751,6 +825,10 @@ func expandLoggingMetricMetricDescriptorLabelsDescription(v interface{}, d Terra
 }
 
 func expandLoggingMetricMetricDescriptorLabelsValueType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLoggingMetricMetricDescriptorDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

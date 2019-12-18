@@ -44,52 +44,64 @@ func resourceBigtableAppProfile() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"app_profile_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The unique name of the app profile in the form '[_a-zA-Z0-9][-_.a-zA-Z0-9]*'.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Long form description of the use case for this app profile.`,
 			},
 			"ignore_warnings": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If true, ignore safety checks when deleting/updating the app profile.`,
+				Default:     false,
 			},
 			"instance": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The name of the instance to create the app profile within.`,
 			},
 			"multi_cluster_routing_use_any": {
-				Type:          schema.TypeBool,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"single_cluster_routing"},
-			},
-			"single_cluster_routing": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
-				MaxItems: 1,
+				Description: `If true, read/write requests are routed to the nearest cluster in the instance, and will fail over to the nearest cluster that is available
+in the event of transient errors or delays. Clusters in a region are considered equidistant. Choosing this option sacrifices read-your-writes
+consistency to improve availability.`,
+				ExactlyOneOf: []string{"single_cluster_routing", "multi_cluster_routing_use_any"},
+			},
+			"single_cluster_routing": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Use a single-cluster routing policy.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"cluster_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The cluster to which read/write requests should be routed.`,
+						},
 						"allow_transactional_writes": {
 							Type:     schema.TypeBool,
 							Optional: true,
-						},
-						"cluster_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: `If true, CheckAndMutateRow and ReadModifyWriteRow requests are allowed by this app profile.
+It is unsafe to send these requests to the same table/row/column in multiple clusters.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"multi_cluster_routing_use_any"},
+				ExactlyOneOf: []string{"single_cluster_routing", "multi_cluster_routing_use_any"},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unique name of the requested app profile. Values are of the form 'projects/<project>/instances/<instance>/appProfiles/<appProfileId>'.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -140,7 +152,7 @@ func resourceBigtableAppProfileCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{instance}}/{{app_profile_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -266,7 +278,7 @@ func resourceBigtableAppProfileImport(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{instance}}/{{app_profile_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -284,11 +296,7 @@ func flattenBigtableAppProfileDescription(v interface{}, d *schema.ResourceData)
 }
 
 func flattenBigtableAppProfileMultiClusterRoutingUseAny(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil {
-		return false
-	}
-
-	return true
+	return v != nil
 }
 
 func flattenBigtableAppProfileSingleClusterRouting(v interface{}, d *schema.ResourceData) interface{} {

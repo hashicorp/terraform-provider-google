@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_forwarding_rule"
 sidebar_current: "docs-google-compute-forwarding-rule"
@@ -33,6 +34,55 @@ To get more information about ForwardingRule, see:
     * [Official Documentation](https://cloud.google.com/compute/docs/load-balancing/network/forwarding-rules)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=forwarding_rule_global_internallb&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Forwarding Rule Global Internallb
+
+
+```hcl
+// Forwarding rule for Internal Load Balancing
+resource "google_compute_forwarding_rule" "default" {
+  provider = "google-beta"
+  name                  = "website-forwarding-rule"
+  region                = "us-central1"
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = "${google_compute_region_backend_service.backend.self_link}"
+  all_ports             = true
+  allow_global_access   = true
+  network               = "${google_compute_network.default.name}"
+  subnetwork            = "${google_compute_subnetwork.default.name}"
+}
+resource "google_compute_region_backend_service" "backend" {
+  provider = "google-beta"
+  name                  = "website-backend"
+  region                = "us-central1"
+  health_checks         = ["${google_compute_health_check.hc.self_link}"]
+}
+resource "google_compute_health_check" "hc" {
+  provider = "google-beta"
+  name               = "check-website-backend"
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+resource "google_compute_network" "default" {
+  provider = "google-beta"
+  name = "website-net"
+  auto_create_subnetworks = false
+}
+resource "google_compute_subnetwork" "default" {
+  provider = "google-beta"
+  name          = "website-net"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = "${google_compute_network.default.self_link}"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=forwarding_rule_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -43,7 +93,7 @@ To get more information about ForwardingRule, see:
 ```hcl
 resource "google_compute_forwarding_rule" "default" {
   name       = "website-forwarding-rule"
-  target     = "${google_compute_target_pool.default.self_link}"
+  target     = google_compute_target_pool.default.self_link
   port_range = "80"
 }
 
@@ -62,20 +112,20 @@ resource "google_compute_target_pool" "default" {
 ```hcl
 // Forwarding rule for Internal Load Balancing
 resource "google_compute_forwarding_rule" "default" {
-  name                  = "website-forwarding-rule"
-  region                = "us-central1"
+  name   = "website-forwarding-rule"
+  region = "us-central1"
 
   load_balancing_scheme = "INTERNAL"
-  backend_service       = "${google_compute_region_backend_service.backend.self_link}"
+  backend_service       = google_compute_region_backend_service.backend.self_link
   all_ports             = true
-  network               = "${google_compute_network.default.name}"
-  subnetwork            = "${google_compute_subnetwork.default.name}"
+  network               = google_compute_network.default.name
+  subnetwork            = google_compute_subnetwork.default.name
 }
 
 resource "google_compute_region_backend_service" "backend" {
-  name                  = "website-backend"
-  region                = "us-central1"
-  health_checks         = ["${google_compute_health_check.hc.self_link}"]
+  name          = "website-backend"
+  region        = "us-central1"
+  health_checks = [google_compute_health_check.hc.self_link]
 }
 
 resource "google_compute_health_check" "hc" {
@@ -89,7 +139,7 @@ resource "google_compute_health_check" "hc" {
 }
 
 resource "google_compute_network" "default" {
-  name = "website-net"
+  name                    = "website-net"
   auto_create_subnetworks = false
 }
 
@@ -97,7 +147,7 @@ resource "google_compute_subnetwork" "default" {
   name          = "website-net"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.default.self_link}"
+  network       = google_compute_network.default.self_link
 }
 ```
 
@@ -142,14 +192,11 @@ The following arguments are supported:
   forwarding rule. By default, if this field is empty, an ephemeral
   internal IP address will be automatically allocated from the IP range
   of the subnet or network configured for this forwarding rule.
-  ~> **NOTE** The address should be specified as a literal IP address,
-  e.g. `100.1.2.3` to avoid a permanent diff, as the server returns the
-  IP address regardless of the input value.
-  The server accepts a literal IP address or a URL reference to an existing
-  Address resource. The following examples are all valid but only the first
-  will prevent a permadiff. If you are using `google_compute_address` or
-  similar, interpolate using `.address` instead of `.self_link` or similar
-  to prevent a diff on re-apply.
+  An address must be specified by a literal IP address. ~> **NOTE**: While
+  the API allows you to specify various resource paths for an address resource
+  instead, Terraform requires this to specifically be an IP address to
+  avoid needing to fetching the IP address from resource paths on refresh
+  or unnecessary diffs.
 
 * `ip_protocol` -
   (Optional)
@@ -163,17 +210,15 @@ The following arguments are supported:
   A BackendService to receive the matched traffic. This is used only
   for INTERNAL load balancing.
 
-* `ip_version` -
-  (Optional, Deprecated)
-  ipVersion is not a valid field for regional forwarding rules.
-
 * `load_balancing_scheme` -
   (Optional)
-  This signifies what the ForwardingRule will be used for and can only
-  take the following values: INTERNAL, EXTERNAL The value of INTERNAL
-  means that this will be used for Internal Network Load Balancing (TCP,
-  UDP). The value of EXTERNAL means that this will be used for External
-  Load Balancing (HTTP(S) LB, External TCP/UDP LB, SSL Proxy)
+  This signifies what the ForwardingRule will be used for and can be
+  EXTERNAL, INTERNAL, or INTERNAL_MANAGED. EXTERNAL is used for Classic
+  Cloud VPN gateways, protocol forwarding to VMs from an external IP address,
+  and HTTP(S), SSL Proxy, TCP Proxy, and Network TCP/UDP load balancers.
+  INTERNAL is used for protocol forwarding to VMs from an internal IP address,
+  and internal TCP/UDP load balancers.
+  INTERNAL_MANAGED is used for internal HTTP(S) load balancers.
 
 * `network` -
   (Optional)
@@ -302,4 +347,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

@@ -139,7 +139,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_member" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   role    = "%s"
   member  = "%s"
 }
@@ -155,13 +155,13 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_member" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   role    = "%s"
   member  = "%s"
 }
 
 resource "google_project_iam_member" "multiple" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   role    = "%s"
   member  = "%s"
 }

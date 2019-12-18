@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_network_endpoint_group"
 sidebar_current: "docs-google-compute-network-endpoint-group"
@@ -52,14 +53,14 @@ To get more information about NetworkEndpointGroup, see:
 ```hcl
 resource "google_compute_network_endpoint_group" "neg" {
   name         = "my-lb-neg"
-  network      = "${google_compute_network.default.self_link}"
-  subnetwork   = "${google_compute_subnetwork.default.self_link}"
+  network      = google_compute_network.default.self_link
+  subnetwork   = google_compute_subnetwork.default.self_link
   default_port = "90"
   zone         = "us-central1-a"
 }
 
 resource "google_compute_network" "default" {
-  name = "neg-network"
+  name                    = "neg-network"
   auto_create_subnetworks = false
 }
 
@@ -67,7 +68,7 @@ resource "google_compute_subnetwork" "default" {
   name          = "neg-subnetwork"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.default.self_link}"
+  network       = google_compute_network.default.self_link
 }
 ```
 
@@ -156,4 +157,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

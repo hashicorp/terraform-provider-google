@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_instance_from_template"
 sidebar_current: "docs-google-compute-instance-from-template"
@@ -22,14 +23,14 @@ This resource is specifically to create a compute instance from a given
 
 ```hcl
 resource "google_compute_instance_template" "tpl" {
-  name = "template"
+  name         = "template"
   machine_type = "n1-standard-1"
 
   disk {
     source_image = "debian-cloud/debian-9"
-    auto_delete = true
+    auto_delete  = true
     disk_size_gb = 100
-    boot = true
+    boot         = true
   }
 
   network_interface {
@@ -44,15 +45,15 @@ resource "google_compute_instance_template" "tpl" {
 }
 
 resource "google_compute_instance_from_template" "tpl" {
-  name           = "instance-from-template"
-  zone           = "us-central1-a"
+  name = "instance-from-template"
+  zone = "us-central1-a"
 
-  source_instance_template = "${google_compute_instance_template.tpl.self_link}"
+  source_instance_template = google_compute_instance_template.tpl.self_link
 
   // Override fields from instance template
   can_ip_forward = false
   labels = {
-    my_key       = "my_value"
+    my_key = "my_value"
   }
 }
 ```

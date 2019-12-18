@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud KMS"
 layout: "google"
 page_title: "Google: google_kms_crypto_key"
 sidebar_current: "docs-google-kms-crypto-key"
@@ -44,13 +45,13 @@ To get more information about CryptoKey, see:
 
 ```hcl
 resource "google_kms_key_ring" "keyring" {
-  name = "keyring-example"
+  name     = "keyring-example"
   location = "global"
 }
 
 resource "google_kms_crypto_key" "example-key" {
   name            = "crypto-key-example"
-  key_ring        = "${google_kms_key_ring.keyring.self_link}"
+  key_ring        = google_kms_key_ring.keyring.self_link
   rotation_period = "100000s"
 
   lifecycle {
@@ -69,7 +70,7 @@ resource "google_kms_key_ring" "keyring" {
 
 resource "google_kms_crypto_key" "example-asymmetric-sign-key" {
   name     = "crypto-key-example"
-  key_ring = "${google_kms_key_ring.keyring.self_link}"
+  key_ring = google_kms_key_ring.keyring.self_link
   purpose  = "ASYMMETRIC_SIGN"
 
   version_template {
@@ -161,3 +162,7 @@ $ terraform import google_kms_crypto_key.default {{key_ring}}/{{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

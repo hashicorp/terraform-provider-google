@@ -159,7 +159,7 @@ resource "google_organization_iam_custom_role" "test-role" {
 
 resource "google_organization_iam_binding" "foo" {
   org_id  = "%s"
-  role    = "${google_organization_iam_custom_role.test-role.id}"
+  role    = google_organization_iam_custom_role.test-role.id
   members = ["serviceAccount:${google_service_account.test-account.email}"]
 }
 `, account, role, org, org)
@@ -185,11 +185,11 @@ resource "google_service_account" "test-account-2" {
 }
 
 resource "google_organization_iam_binding" "foo" {
-  org_id  = "%s"
-  role    = "${google_organization_iam_custom_role.test-role.id}"
+  org_id = "%s"
+  role   = google_organization_iam_custom_role.test-role.id
   members = [
     "serviceAccount:${google_service_account.test-account.email}",
-    "serviceAccount:${google_service_account.test-account-2.email}"
+    "serviceAccount:${google_service_account.test-account-2.email}",
   ]
 }
 `, account, role, org, account, org)

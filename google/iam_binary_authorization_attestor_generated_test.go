@@ -113,7 +113,7 @@ func testAccBinaryAuthorizationAttestorIamMember_basicGenerated(context map[stri
 resource "google_binary_authorization_attestor" "attestor" {
   name = "test-attestor%{random_suffix}"
   attestation_authority_note {
-    note_reference = "${google_container_analysis_note.note.name}"
+    note_reference = google_container_analysis_note.note.name
     public_keys {
       ascii_armored_pgp_public_key = <<EOF
 mQENBFtP0doBCADF+joTiXWKVuP8kJt3fgpBSjT9h8ezMfKA4aXZctYLx5wslWQl
@@ -132,6 +132,7 @@ MAU9vdm1DIv567meMqTaVZgR3w7bck2P49AO8lO5ERFpVkErtu/98y+rUy9d789l
 qoIRW6y0+UlAc+MbqfL0ziHDOAmcqz1GnROg
 =6Bvm
 EOF
+
     }
   }
 }
@@ -146,10 +147,10 @@ resource "google_container_analysis_note" "note" {
 }
 
 resource "google_binary_authorization_attestor_iam_member" "foo" {
-	project = "${google_binary_authorization_attestor.attestor.project}"
-	attestor = "${google_binary_authorization_attestor.attestor.name}"
-	role = "%{role}"
-	member = "user:admin@hashicorptest.com"
+  project = "${google_binary_authorization_attestor.attestor.project}"
+  attestor = "${google_binary_authorization_attestor.attestor.name}"
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -159,7 +160,7 @@ func testAccBinaryAuthorizationAttestorIamPolicy_basicGenerated(context map[stri
 resource "google_binary_authorization_attestor" "attestor" {
   name = "test-attestor%{random_suffix}"
   attestation_authority_note {
-    note_reference = "${google_container_analysis_note.note.name}"
+    note_reference = google_container_analysis_note.note.name
     public_keys {
       ascii_armored_pgp_public_key = <<EOF
 mQENBFtP0doBCADF+joTiXWKVuP8kJt3fgpBSjT9h8ezMfKA4aXZctYLx5wslWQl
@@ -178,6 +179,7 @@ MAU9vdm1DIv567meMqTaVZgR3w7bck2P49AO8lO5ERFpVkErtu/98y+rUy9d789l
 qoIRW6y0+UlAc+MbqfL0ziHDOAmcqz1GnROg
 =6Bvm
 EOF
+
     }
   }
 }
@@ -192,16 +194,16 @@ resource "google_container_analysis_note" "note" {
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%{role}"
-		members = ["user:admin@hashicorptest.com"]
-	}
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+  }
 }
 
 resource "google_binary_authorization_attestor_iam_policy" "foo" {
-	project = "${google_binary_authorization_attestor.attestor.project}"
-	attestor = "${google_binary_authorization_attestor.attestor.name}"
-	policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = "${google_binary_authorization_attestor.attestor.project}"
+  attestor = "${google_binary_authorization_attestor.attestor.name}"
+  policy_data = "${data.google_iam_policy.foo.policy_data}"
 }
 `, context)
 }
@@ -211,7 +213,7 @@ func testAccBinaryAuthorizationAttestorIamBinding_basicGenerated(context map[str
 resource "google_binary_authorization_attestor" "attestor" {
   name = "test-attestor%{random_suffix}"
   attestation_authority_note {
-    note_reference = "${google_container_analysis_note.note.name}"
+    note_reference = google_container_analysis_note.note.name
     public_keys {
       ascii_armored_pgp_public_key = <<EOF
 mQENBFtP0doBCADF+joTiXWKVuP8kJt3fgpBSjT9h8ezMfKA4aXZctYLx5wslWQl
@@ -230,6 +232,7 @@ MAU9vdm1DIv567meMqTaVZgR3w7bck2P49AO8lO5ERFpVkErtu/98y+rUy9d789l
 qoIRW6y0+UlAc+MbqfL0ziHDOAmcqz1GnROg
 =6Bvm
 EOF
+
     }
   }
 }
@@ -244,10 +247,10 @@ resource "google_container_analysis_note" "note" {
 }
 
 resource "google_binary_authorization_attestor_iam_binding" "foo" {
-	project = "${google_binary_authorization_attestor.attestor.project}"
-	attestor = "${google_binary_authorization_attestor.attestor.name}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com"]
+  project = "${google_binary_authorization_attestor.attestor.project}"
+  attestor = "${google_binary_authorization_attestor.attestor.name}"
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -257,7 +260,7 @@ func testAccBinaryAuthorizationAttestorIamBinding_updateGenerated(context map[st
 resource "google_binary_authorization_attestor" "attestor" {
   name = "test-attestor%{random_suffix}"
   attestation_authority_note {
-    note_reference = "${google_container_analysis_note.note.name}"
+    note_reference = google_container_analysis_note.note.name
     public_keys {
       ascii_armored_pgp_public_key = <<EOF
 mQENBFtP0doBCADF+joTiXWKVuP8kJt3fgpBSjT9h8ezMfKA4aXZctYLx5wslWQl
@@ -276,6 +279,7 @@ MAU9vdm1DIv567meMqTaVZgR3w7bck2P49AO8lO5ERFpVkErtu/98y+rUy9d789l
 qoIRW6y0+UlAc+MbqfL0ziHDOAmcqz1GnROg
 =6Bvm
 EOF
+
     }
   }
 }
@@ -290,10 +294,10 @@ resource "google_container_analysis_note" "note" {
 }
 
 resource "google_binary_authorization_attestor_iam_binding" "foo" {
-	project = "${google_binary_authorization_attestor.attestor.project}"
-	attestor = "${google_binary_authorization_attestor.attestor.name}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  project = "${google_binary_authorization_attestor.attestor.project}"
+  attestor = "${google_binary_authorization_attestor.attestor.name}"
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }

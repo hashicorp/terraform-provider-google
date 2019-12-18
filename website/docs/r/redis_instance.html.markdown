@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Memorystore"
 layout: "google"
 page_title: "Google: google_redis_instance"
 sidebar_current: "docs-google-redis-instance"
@@ -61,7 +62,7 @@ resource "google_redis_instance" "cache" {
   location_id             = "us-central1-a"
   alternative_location_id = "us-central1-f"
 
-  authorized_network = "${google_compute_network.auto-network.self_link}"
+  authorized_network = google_compute_network.auto-network.self_link
 
   redis_version     = "REDIS_3_2"
   display_name      = "Terraform Test Instance"
@@ -208,4 +209,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

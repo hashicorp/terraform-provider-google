@@ -1,4 +1,5 @@
 ---
+subcategory: "Bigtable"
 layout: "google"
 page_title: "Google: google_bigtable_gc_policy"
 sidebar_current: "docs-google-bigtable-gc-policy"
@@ -17,27 +18,29 @@ Creates a Google Cloud Bigtable GC Policy inside a family. For more information 
 
 ```hcl
 resource "google_bigtable_instance" "instance" {
-  name         = "tf-instance"
-  cluster_id   = "tf-instance-cluster"
-  zone         = "us-central1-b"
-  num_nodes    = 3
-  storage_type = "HDD"
+  name = "tf-instance"
+  cluster {
+    cluster_id   = "tf-instance-cluster"
+    zone         = "us-central1-b"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
 }
 
 resource "google_bigtable_table" "table" {
   name          = "tf-table"
-  instance_name = "${google_bigtable_instance.instance.name}"
-  
+  instance_name = google_bigtable_instance.instance.name
+
   column_family {
     family = "name"
   }
 }
 
 resource "google_bigtable_gc_policy" "policy" {
-  instance_name = "${google_bigtable_instance.instance.name}"
-  table         = "${google_bigtable_table.table.name}"
+  instance_name = google_bigtable_instance.instance.name
+  table         = google_bigtable_table.table.name
   column_family = "name"
-  
+
   max_age {
     days = 7
   }
@@ -45,18 +48,19 @@ resource "google_bigtable_gc_policy" "policy" {
 ```
 
 Multiple conditions is also supported. `UNION` when any of its sub-policies apply (OR). `INTERSECTION` when all its sub-policies apply (AND)
-```
+
+```hcl
 resource "google_bigtable_gc_policy" "policy" {
-  instance_name = "${google_bigtable_instance.instance.name}"
-  table         = "${google_bigtable_table.table.name}"
+  instance_name = google_bigtable_instance.instance.name
+  table         = google_bigtable_table.table.name
   column_family = "name"
-  
+
   mode = "UNION"
-  
+
   max_age {
     days = 7
   }
-  
+
   max_version {
     number = 10
   }
@@ -67,11 +71,11 @@ resource "google_bigtable_gc_policy" "policy" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of the table.
+* `table` - (Required) The name of the table.
 
 * `instance_name` - (Required) The name of the Bigtable instance.
 
-* `family` - (Required) The name of the column family.
+* `column_family` - (Required) The name of the column family.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it is not provided, the provider project is used.
 

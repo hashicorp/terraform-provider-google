@@ -182,183 +182,207 @@ func testAccCheckComputeRouterInterfaceExists(n string) resource.TestCheckFunc {
 
 func testAccComputeRouterInterfaceBasic(testId string) string {
 	return fmt.Sprintf(`
-		resource "google_compute_network" "foobar" {
-			name = "router-interface-test-%s"
-		}
-		resource "google_compute_subnetwork" "foobar" {
-			name = "router-interface-test-subnetwork-%s"
-			network = "${google_compute_network.foobar.self_link}"
-			ip_cidr_range = "10.0.0.0/16"
-			region = "us-central1"
-		}
-		resource "google_compute_address" "foobar" {
-			name = "router-interface-test-%s"
-			region = "${google_compute_subnetwork.foobar.region}"
-		}
-		resource "google_compute_vpn_gateway" "foobar" {
-			name = "router-interface-test-%s"
-			network = "${google_compute_network.foobar.self_link}"
-			region = "${google_compute_subnetwork.foobar.region}"
-		}
-		resource "google_compute_forwarding_rule" "foobar_esp" {
-			name = "router-interface-test-%s-1"
-			region = "${google_compute_vpn_gateway.foobar.region}"
-			ip_protocol = "ESP"
-			ip_address = "${google_compute_address.foobar.address}"
-			target = "${google_compute_vpn_gateway.foobar.self_link}"
-		}
-		resource "google_compute_forwarding_rule" "foobar_udp500" {
-			name = "router-interface-test-%s-2"
-			region = "${google_compute_forwarding_rule.foobar_esp.region}"
-			ip_protocol = "UDP"
-			port_range = "500-500"
-			ip_address = "${google_compute_address.foobar.address}"
-			target = "${google_compute_vpn_gateway.foobar.self_link}"
-		}
-		resource "google_compute_forwarding_rule" "foobar_udp4500" {
-			name = "router-interface-test-%s-3"
-			region = "${google_compute_forwarding_rule.foobar_udp500.region}"
-			ip_protocol = "UDP"
-			port_range = "4500-4500"
-			ip_address = "${google_compute_address.foobar.address}"
-			target = "${google_compute_vpn_gateway.foobar.self_link}"
-		}
-		resource "google_compute_router" "foobar"{
-			name = "router-interface-test-%s"
-			region = "${google_compute_forwarding_rule.foobar_udp500.region}"
-			network = "${google_compute_network.foobar.self_link}"
-			bgp {
-				asn = 64514
-			}
-		}
-		resource "google_compute_router_interface" "foobar" {
-			name    = "router-interface-test-%s"
-			router  = "${google_compute_router.foobar.name}"
-			region  = "${google_compute_router.foobar.region}"
-			ip_range = "169.254.3.1/30"
-		}
-	`, testId, testId, testId, testId, testId, testId, testId, testId, testId)
+resource "google_compute_network" "foobar" {
+  name = "router-interface-test-%s"
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "router-interface-test-subnetwork-%s"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_address" "foobar" {
+  name   = "router-interface-test-%s"
+  region = google_compute_subnetwork.foobar.region
+}
+
+resource "google_compute_vpn_gateway" "foobar" {
+  name    = "router-interface-test-%s"
+  network = google_compute_network.foobar.self_link
+  region  = google_compute_subnetwork.foobar.region
+}
+
+resource "google_compute_forwarding_rule" "foobar_esp" {
+  name        = "router-interface-test-%s-1"
+  region      = google_compute_vpn_gateway.foobar.region
+  ip_protocol = "ESP"
+  ip_address  = google_compute_address.foobar.address
+  target      = google_compute_vpn_gateway.foobar.self_link
+}
+
+resource "google_compute_forwarding_rule" "foobar_udp500" {
+  name        = "router-interface-test-%s-2"
+  region      = google_compute_forwarding_rule.foobar_esp.region
+  ip_protocol = "UDP"
+  port_range  = "500-500"
+  ip_address  = google_compute_address.foobar.address
+  target      = google_compute_vpn_gateway.foobar.self_link
+}
+
+resource "google_compute_forwarding_rule" "foobar_udp4500" {
+  name        = "router-interface-test-%s-3"
+  region      = google_compute_forwarding_rule.foobar_udp500.region
+  ip_protocol = "UDP"
+  port_range  = "4500-4500"
+  ip_address  = google_compute_address.foobar.address
+  target      = google_compute_vpn_gateway.foobar.self_link
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "router-interface-test-%s"
+  region  = google_compute_forwarding_rule.foobar_udp500.region
+  network = google_compute_network.foobar.self_link
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_router_interface" "foobar" {
+  name     = "router-interface-test-%s"
+  router   = google_compute_router.foobar.name
+  region   = google_compute_router.foobar.region
+  ip_range = "169.254.3.1/30"
+}
+`, testId, testId, testId, testId, testId, testId, testId, testId, testId)
 }
 
 func testAccComputeRouterInterfaceKeepRouter(testId string) string {
 	return fmt.Sprintf(`
-		resource "google_compute_network" "foobar" {
-			name = "router-interface-test-%s"
-		}
-		resource "google_compute_subnetwork" "foobar" {
-			name = "router-interface-test-subnetwork-%s"
-			network = "${google_compute_network.foobar.self_link}"
-			ip_cidr_range = "10.0.0.0/16"
-			region = "us-central1"
-		}
-		resource "google_compute_address" "foobar" {
-			name = "router-interface-test-%s"
-			region = "${google_compute_subnetwork.foobar.region}"
-		}
-		resource "google_compute_vpn_gateway" "foobar" {
-			name = "router-interface-test-%s"
-			network = "${google_compute_network.foobar.self_link}"
-			region = "${google_compute_subnetwork.foobar.region}"
-		}
-		resource "google_compute_forwarding_rule" "foobar_esp" {
-			name = "router-interface-test-%s-1"
-			region = "${google_compute_vpn_gateway.foobar.region}"
-			ip_protocol = "ESP"
-			ip_address = "${google_compute_address.foobar.address}"
-			target = "${google_compute_vpn_gateway.foobar.self_link}"
-		}
-		resource "google_compute_forwarding_rule" "foobar_udp500" {
-			name = "router-interface-test-%s-2"
-			region = "${google_compute_forwarding_rule.foobar_esp.region}"
-			ip_protocol = "UDP"
-			port_range = "500-500"
-			ip_address = "${google_compute_address.foobar.address}"
-			target = "${google_compute_vpn_gateway.foobar.self_link}"
-		}
-		resource "google_compute_forwarding_rule" "foobar_udp4500" {
-			name = "router-interface-test-%s-3"
-			region = "${google_compute_forwarding_rule.foobar_udp500.region}"
-			ip_protocol = "UDP"
-			port_range = "4500-4500"
-			ip_address = "${google_compute_address.foobar.address}"
-			target = "${google_compute_vpn_gateway.foobar.self_link}"
-		}
-		resource "google_compute_router" "foobar"{
-			name = "router-interface-test-%s"
-			region = "${google_compute_forwarding_rule.foobar_udp500.region}"
-			network = "${google_compute_network.foobar.self_link}"
-			bgp {
-				asn = 64514
-			}
-		}
-	`, testId, testId, testId, testId, testId, testId, testId, testId)
+resource "google_compute_network" "foobar" {
+  name = "router-interface-test-%s"
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "router-interface-test-subnetwork-%s"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_address" "foobar" {
+  name   = "router-interface-test-%s"
+  region = google_compute_subnetwork.foobar.region
+}
+
+resource "google_compute_vpn_gateway" "foobar" {
+  name    = "router-interface-test-%s"
+  network = google_compute_network.foobar.self_link
+  region  = google_compute_subnetwork.foobar.region
+}
+
+resource "google_compute_forwarding_rule" "foobar_esp" {
+  name        = "router-interface-test-%s-1"
+  region      = google_compute_vpn_gateway.foobar.region
+  ip_protocol = "ESP"
+  ip_address  = google_compute_address.foobar.address
+  target      = google_compute_vpn_gateway.foobar.self_link
+}
+
+resource "google_compute_forwarding_rule" "foobar_udp500" {
+  name        = "router-interface-test-%s-2"
+  region      = google_compute_forwarding_rule.foobar_esp.region
+  ip_protocol = "UDP"
+  port_range  = "500-500"
+  ip_address  = google_compute_address.foobar.address
+  target      = google_compute_vpn_gateway.foobar.self_link
+}
+
+resource "google_compute_forwarding_rule" "foobar_udp4500" {
+  name        = "router-interface-test-%s-3"
+  region      = google_compute_forwarding_rule.foobar_udp500.region
+  ip_protocol = "UDP"
+  port_range  = "4500-4500"
+  ip_address  = google_compute_address.foobar.address
+  target      = google_compute_vpn_gateway.foobar.self_link
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "router-interface-test-%s"
+  region  = google_compute_forwarding_rule.foobar_udp500.region
+  network = google_compute_network.foobar.self_link
+  bgp {
+    asn = 64514
+  }
+}
+`, testId, testId, testId, testId, testId, testId, testId, testId)
 }
 
 func testAccComputeRouterInterfaceWithTunnel(testId string) string {
 	return fmt.Sprintf(`
-		resource "google_compute_network" "foobar" {
-			name = "router-interface-test-%s"
-		}
-		resource "google_compute_subnetwork" "foobar" {
-			name = "router-interface-test-subnetwork-%s"
-			network = "${google_compute_network.foobar.self_link}"
-			ip_cidr_range = "10.0.0.0/16"
-			region = "us-central1"
-		}
-		resource "google_compute_address" "foobar" {
-			name = "router-interface-test-%s"
-			region = "${google_compute_subnetwork.foobar.region}"
-		}
-		resource "google_compute_vpn_gateway" "foobar" {
-			name = "router-interface-test-%s"
-			network = "${google_compute_network.foobar.self_link}"
-			region = "${google_compute_subnetwork.foobar.region}"
-		}
-		resource "google_compute_forwarding_rule" "foobar_esp" {
-			name = "router-interface-test-%s-1"
-			region = "${google_compute_vpn_gateway.foobar.region}"
-			ip_protocol = "ESP"
-			ip_address = "${google_compute_address.foobar.address}"
-			target = "${google_compute_vpn_gateway.foobar.self_link}"
-		}
-		resource "google_compute_forwarding_rule" "foobar_udp500" {
-			name = "router-interface-test-%s-2"
-			region = "${google_compute_forwarding_rule.foobar_esp.region}"
-			ip_protocol = "UDP"
-			port_range = "500-500"
-			ip_address = "${google_compute_address.foobar.address}"
-			target = "${google_compute_vpn_gateway.foobar.self_link}"
-		}
-		resource "google_compute_forwarding_rule" "foobar_udp4500" {
-			name = "router-interface-test-%s-3"
-			region = "${google_compute_forwarding_rule.foobar_udp500.region}"
-			ip_protocol = "UDP"
-			port_range = "4500-4500"
-			ip_address = "${google_compute_address.foobar.address}"
-			target = "${google_compute_vpn_gateway.foobar.self_link}"
-		}
-		resource "google_compute_router" "foobar"{
-			name = "router-interface-test-%s"
-			region = "${google_compute_forwarding_rule.foobar_udp500.region}"
-			network = "${google_compute_network.foobar.self_link}"
-			bgp {
-				asn = 64514
-			}
-		}
-		resource "google_compute_vpn_tunnel" "foobar" {
-			name = "router-interface-test-%s"
-			region = "${google_compute_forwarding_rule.foobar_udp4500.region}"
-			target_vpn_gateway = "${google_compute_vpn_gateway.foobar.self_link}"
-			shared_secret = "unguessable"
-			peer_ip = "8.8.8.8"
-			router = "${google_compute_router.foobar.name}"
-		}
-		resource "google_compute_router_interface" "foobar" {
-			name    = "router-interface-test-%s"
-			router  = "${google_compute_router.foobar.name}"
-			region  = "${google_compute_router.foobar.region}"
-			ip_range = "169.254.3.1/30"
-			vpn_tunnel = "${google_compute_vpn_tunnel.foobar.name}"
-		}
-	`, testId, testId, testId, testId, testId, testId, testId, testId, testId, testId)
+resource "google_compute_network" "foobar" {
+  name = "router-interface-test-%s"
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "router-interface-test-subnetwork-%s"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_address" "foobar" {
+  name   = "router-interface-test-%s"
+  region = google_compute_subnetwork.foobar.region
+}
+
+resource "google_compute_vpn_gateway" "foobar" {
+  name    = "router-interface-test-%s"
+  network = google_compute_network.foobar.self_link
+  region  = google_compute_subnetwork.foobar.region
+}
+
+resource "google_compute_forwarding_rule" "foobar_esp" {
+  name        = "router-interface-test-%s-1"
+  region      = google_compute_vpn_gateway.foobar.region
+  ip_protocol = "ESP"
+  ip_address  = google_compute_address.foobar.address
+  target      = google_compute_vpn_gateway.foobar.self_link
+}
+
+resource "google_compute_forwarding_rule" "foobar_udp500" {
+  name        = "router-interface-test-%s-2"
+  region      = google_compute_forwarding_rule.foobar_esp.region
+  ip_protocol = "UDP"
+  port_range  = "500-500"
+  ip_address  = google_compute_address.foobar.address
+  target      = google_compute_vpn_gateway.foobar.self_link
+}
+
+resource "google_compute_forwarding_rule" "foobar_udp4500" {
+  name        = "router-interface-test-%s-3"
+  region      = google_compute_forwarding_rule.foobar_udp500.region
+  ip_protocol = "UDP"
+  port_range  = "4500-4500"
+  ip_address  = google_compute_address.foobar.address
+  target      = google_compute_vpn_gateway.foobar.self_link
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "router-interface-test-%s"
+  region  = google_compute_forwarding_rule.foobar_udp500.region
+  network = google_compute_network.foobar.self_link
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_vpn_tunnel" "foobar" {
+  name               = "router-interface-test-%s"
+  region             = google_compute_forwarding_rule.foobar_udp4500.region
+  target_vpn_gateway = google_compute_vpn_gateway.foobar.self_link
+  shared_secret      = "unguessable"
+  peer_ip            = "8.8.8.8"
+  router             = google_compute_router.foobar.name
+}
+
+resource "google_compute_router_interface" "foobar" {
+  name       = "router-interface-test-%s"
+  router     = google_compute_router.foobar.name
+  region     = google_compute_router.foobar.region
+  ip_range   = "169.254.3.1/30"
+  vpn_tunnel = google_compute_vpn_tunnel.foobar.name
+}
+`, testId, testId, testId, testId, testId, testId, testId, testId, testId, testId)
 }

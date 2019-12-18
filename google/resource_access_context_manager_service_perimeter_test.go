@@ -139,7 +139,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
   perimeter_type = "PERIMETER_TYPE_REGULAR"
   status {
     restricted_services = ["bigquery.googleapis.com"]
-    access_levels = ["${google_access_context_manager_access_level.test-access.name}"]
+    access_levels       = [google_access_context_manager_access_level.test-access.name]
   }
 }
 `, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName)

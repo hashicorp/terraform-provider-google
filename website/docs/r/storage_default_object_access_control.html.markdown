@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Storage"
 layout: "google"
 page_title: "Google: google_storage_default_object_access_control"
 sidebar_current: "docs-google-storage-default-object-access-control"
@@ -54,13 +55,13 @@ To get more information about DefaultObjectAccessControl, see:
 
 ```hcl
 resource "google_storage_default_object_access_control" "public_rule" {
-  bucket = "${google_storage_bucket.bucket.name}"
+  bucket = google_storage_bucket.bucket.name
   role   = "READER"
   entity = "allUsers"
 }
 
 resource "google_storage_bucket" "bucket" {
-	name = "static-content-bucket"
+  name = "static-content-bucket"
 }
 ```
 

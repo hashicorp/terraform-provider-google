@@ -23,7 +23,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeInterconnectAttachment() *schema.Resource {
@@ -47,17 +46,29 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRegexp(`^[a-z]([-a-z0-9]*[a-z0-9])?$`),
+				Description: `Name of the resource. Provided by the client when the resource is created. The
+name must be 1-63 characters long, and comply with RFC1035. Specifically, the
+name must be 1-63 characters long and match the regular expression
+'[a-z]([-a-z0-9]*[a-z0-9])?' which means the first character must be a
+lowercase letter, and all following characters must be a dash, lowercase
+letter, or digit, except the last character, which cannot be a dash.`,
 			},
 			"router": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `URL of the cloud router to be used for dynamic routing. This router must be in
+the same region as this InterconnectAttachment. The InterconnectAttachment will
+automatically connect the Interconnect to the network & region within which the
+Cloud Router is configured.`,
 			},
 			"admin_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
+				Description: `Whether the VLAN attachment is enabled or disabled.  When using
+PARTNER type this will Pre-Activate the interconnect attachment`,
 			},
 			"bandwidth": {
 				Type:         schema.TypeString,
@@ -65,30 +76,52 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"BPS_50M", "BPS_100M", "BPS_200M", "BPS_300M", "BPS_400M", "BPS_500M", "BPS_1G", "BPS_2G", "BPS_5G", "BPS_10G", "BPS_20G", "BPS_50G", ""}, false),
+				Description: `Provisioned bandwidth capacity for the interconnect attachment.
+For attachments of type DEDICATED, the user can set the bandwidth.
+For attachments of type PARTNER, the Google Partner that is operating the interconnect must set the bandwidth.
+Output only for PARTNER type, mutable for PARTNER_PROVIDER and DEDICATED,
+Defaults to BPS_10G`,
 			},
 			"candidate_subnets": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				Description: `Up to 16 candidate prefixes that can be used to restrict the allocation
+of cloudRouterIpAddress and customerRouterIpAddress for this attachment.
+All prefixes must be within link-local address space (169.254.0.0/16)
+and must be /29 or shorter (/28, /27, etc). Google will attempt to select
+an unused /29 from the supplied candidate prefix(es). The request will
+fail if all possible /29s are in use on Google's edge. If not supplied,
+Google will randomly select an unused /29 from all of link-local space.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An optional description of this resource.`,
 			},
 			"edge_availability_domain": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Description: `Desired availability domain for the attachment. Only available for type
+PARTNER, at creation time. For improved reliability, customers should
+configure a pair of attachments with one per availability domain. The
+selected availability domain will be provided to the Partner via the
+pairing key so that the provisioned circuit will lie in the specified
+domain. If not specified, the value will default to AVAILABILITY_DOMAIN_ANY.`,
 			},
 			"interconnect": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `URL of the underlying Interconnect object that this attachment's
+traffic will traverse through. Required if type is DEDICATED, must not
+be set if type is PARTNER.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -96,6 +129,7 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Region where the regional interconnect attachment resides.`,
 			},
 			"type": {
 				Type:         schema.TypeString,
@@ -103,53 +137,75 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"DEDICATED", "PARTNER", "PARTNER_PROVIDER", ""}, false),
+				Description: `The type of InterconnectAttachment you wish to create. Defaults to
+DEDICATED.`,
 			},
 			"vlan_tag8021q": {
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
+				Description: `The IEEE 802.1Q VLAN tag for this attachment, in the range 2-4094. When
+using PARTNER type this will be managed upstream.`,
 			},
 			"cloud_router_ip_address": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `IPv4 address + prefix length to be configured on Cloud Router
+Interface for this interconnect attachment.`,
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"customer_router_ip_address": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `IPv4 address + prefix length to be configured on the customer
+router subinterface for this interconnect attachment.`,
 			},
 			"google_reference_id": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `Google reference ID, to be used when raising support tickets with
+Google or otherwise to debug backend connectivity issues.`,
 			},
 			"pairing_key": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `[Output only for type PARTNER. Not present for DEDICATED]. The opaque
+identifier of an PARTNER attachment used to initiate provisioning with
+a selected partner. Of the form "XXXXX/region/domain"`,
 			},
 			"partner_asn": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `[Output only for type PARTNER. Not present for DEDICATED]. Optional
+BGP ASN for the router that should be supplied by a layer 3 Partner if
+they configured BGP on behalf of the customer.`,
 			},
 			"private_interconnect_info": {
 				Type:     schema.TypeList,
 				Computed: true,
+				Description: `Information specific to an InterconnectAttachment. This property
+is populated if the interconnect that this is attached to is of type DEDICATED.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"tag8021q": {
 							Type:     schema.TypeInt,
 							Computed: true,
+							Description: `802.1q encapsulation tag to be used for traffic between
+Google and the customer, going to and from this network and region.`,
 						},
 					},
 				},
 			},
 			"state": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `[Output Only] The current state of this attachment's functionality.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -252,26 +308,20 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/interconnectAttachments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating InterconnectAttachment",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating InterconnectAttachment",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create InterconnectAttachment: %s", waitErr)
+		return fmt.Errorf("Error waiting to create InterconnectAttachment: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating InterconnectAttachment %q: %#v", d.Id(), res)
@@ -385,14 +435,8 @@ func resourceComputeInterconnectAttachmentDelete(d *schema.ResourceData, meta in
 		return handleNotFoundError(err, d, "InterconnectAttachment")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting InterconnectAttachment",
+		config, res, project, "Deleting InterconnectAttachment",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -415,7 +459,7 @@ func resourceComputeInterconnectAttachmentImport(d *schema.ResourceData, meta in
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/interconnectAttachments/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

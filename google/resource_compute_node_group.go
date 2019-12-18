@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeNodeGroup() *schema.Resource {
@@ -47,21 +46,25 @@ func resourceComputeNodeGroup() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The URL of the node template to which this node group belongs.`,
 			},
 			"size": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The total number of nodes in the node group.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An optional textual description of the resource.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Name of the resource.`,
 			},
 			"zone": {
 				Type:             schema.TypeString,
@@ -69,10 +72,12 @@ func resourceComputeNodeGroup() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Zone where this node group is located`,
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -139,26 +144,20 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating NodeGroup",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating NodeGroup",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create NodeGroup: %s", waitErr)
+		return fmt.Errorf("Error waiting to create NodeGroup: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating NodeGroup %q: %#v", d.Id(), res)
@@ -241,16 +240,9 @@ func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Error updating NodeGroup %q: %s", d.Id(), err)
 		}
 
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
 		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating NodeGroup",
+			config, res, project, "Updating NodeGroup",
 			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
 		if err != nil {
 			return err
 		}
@@ -284,14 +276,8 @@ func resourceComputeNodeGroupDelete(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, "NodeGroup")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting NodeGroup",
+		config, res, project, "Deleting NodeGroup",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -314,7 +300,7 @@ func resourceComputeNodeGroupImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	computeBeta "google.golang.org/api/compute/v0.beta"
@@ -18,6 +19,9 @@ func resourceComputeNetworkPeering() *schema.Resource {
 		Create: resourceComputeNetworkPeeringCreate,
 		Read:   resourceComputeNetworkPeeringRead,
 		Delete: resourceComputeNetworkPeeringDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceComputeNetworkPeeringImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -26,6 +30,7 @@ func resourceComputeNetworkPeering() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateGCPName,
 			},
+
 			"network": {
 				Type:             schema.TypeString,
 				Required:         true,
@@ -33,6 +38,7 @@ func resourceComputeNetworkPeering() *schema.Resource {
 				ValidateFunc:     validateRegexp(peerNetworkLinkRegex),
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
 			},
+
 			"peer_network": {
 				Type:             schema.TypeString,
 				Required:         true,
@@ -40,22 +46,22 @@ func resourceComputeNetworkPeering() *schema.Resource {
 				ValidateFunc:     validateRegexp(peerNetworkLinkRegex),
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
 			},
-			// The API only accepts true as a value for exchange_subnet_routes or auto_create_routes (of which only one can be set in a valid request).
-			// Also, you can't set auto_create_routes if you use the networkPeering object. auto_create_routes is also deprecated
-			"auto_create_routes": {
-				Type:       schema.TypeBool,
-				Optional:   true,
-				Deprecated: "auto_create_routes has been deprecated because it's redundant and not user-configurable. It can safely be removed from your config",
-				ForceNew:   true,
-				Default:    true,
-			},
+
 			"state": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
 			"state_details": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+
+			"auto_create_routes": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Removed:  "auto_create_routes has been removed because it's redundant and not user-configurable. It can safely be removed from your config",
+				ForceNew: true,
 			},
 		},
 	}
@@ -76,7 +82,7 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error adding network peering: %s", err)
 	}
 
-	err = computeSharedOperationWait(config.clientCompute, addOp, networkFieldValue.Project, "Adding Network Peering")
+	err = computeOperationWait(config, addOp, networkFieldValue.Project, "Adding Network Peering")
 	if err != nil {
 		return err
 	}
@@ -146,7 +152,7 @@ func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error removing peering `%s` from network `%s`: %s", name, networkFieldValue.Name, err)
 		}
 	} else {
-		err = computeSharedOperationWait(config.clientCompute, removeOp, networkFieldValue.Project, "Removing Network Peering")
+		err = computeOperationWait(config, removeOp, networkFieldValue.Project, "Removing Network Peering")
 		if err != nil {
 			return err
 		}
@@ -165,7 +171,6 @@ func findPeeringFromNetwork(network *computeBeta.Network, peeringName string) *c
 }
 func expandNetworkPeering(d *schema.ResourceData) *computeBeta.NetworkPeering {
 	return &computeBeta.NetworkPeering{
-		// auto_create_routes was replaced by exchange_subnet_routes in the network peering object
 		ExchangeSubnetRoutes: true,
 		Name:                 d.Get("name").(string),
 		Network:              d.Get("peer_network").(string),
@@ -179,4 +184,26 @@ func getNetworkPeeringLockName(networkName, peerNetworkName string) string {
 	sort.Strings(networks)
 
 	return fmt.Sprintf("network_peering/%s/%s", networks[0], networks[1])
+}
+
+func resourceComputeNetworkPeeringImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	splits := strings.Split(d.Id(), "/")
+	if len(splits) != 3 {
+		return nil, fmt.Errorf("Error parsing network peering import format, expected: {project}/{network}/{name}")
+	}
+
+	// Build the template for the network self_link
+	urlTemplate, err := replaceVars(d, config, "{{ComputeBasePath}}projects/%s/global/networks/%s")
+	if err != nil {
+		return nil, err
+	}
+	d.Set("network", ConvertSelfLinkToV1(fmt.Sprintf(urlTemplate, splits[0], splits[1])))
+	d.Set("name", splits[2])
+
+	// Replace import id for the resource id
+	id := fmt.Sprintf("%s/%s", splits[1], splits[2])
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }

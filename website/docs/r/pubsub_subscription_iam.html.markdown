@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Pub/Sub"
 layout: "google"
 page_title: "Google: google_pubsub_subscription_iam"
 sidebar_current: "docs-google-pubsub-subscription-iam"
@@ -23,7 +24,7 @@ Three different resources help you manage your IAM policy for pubsub subscriptio
 ```hcl
 data "google_iam_policy" "admin" {
   binding {
-    role    = "roles/editor"
+    role = "roles/editor"
     members = [
       "user:jane@example.com",
     ]
@@ -32,7 +33,7 @@ data "google_iam_policy" "admin" {
 
 resource "google_pubsub_subscription_iam_policy" "editor" {
   subscription = "your-subscription-name"
-  policy_data  = "${data.google_iam_policy.admin.policy_data}"
+  policy_data  = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -42,7 +43,7 @@ resource "google_pubsub_subscription_iam_policy" "editor" {
 resource "google_pubsub_subscription_iam_binding" "editor" {
   subscription = "your-subscription-name"
   role         = "roles/editor"
-  members      = [
+  members = [
     "user:jane@example.com",
   ]
 }

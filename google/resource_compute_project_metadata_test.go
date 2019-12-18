@@ -122,97 +122,101 @@ func testAccCheckComputeProjectMetadataDestroy(s *terraform.State) error {
 func testAccComputeProject_basic0_metadata(projectID, name, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "project" {
-  project_id = "%s"
-  name = "%s"
-  org_id = "%s"
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
   billing_account = "%s"
 }
 
 resource "google_project_service" "compute" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
   service = "compute.googleapis.com"
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
   metadata = {
     banana = "orange"
-    sofa = "darwinism"
+    sofa   = "darwinism"
   }
-  depends_on = ["google_project_service.compute"]
-}`, projectID, name, org, billing)
+  depends_on = [google_project_service.compute]
+}
+`, projectID, name, org, billing)
 }
 
 func testAccComputeProject_basic1_metadata(projectID, name, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "project" {
-  project_id = "%s"
-  name = "%s"
-  org_id = "%s"
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
   billing_account = "%s"
 }
 
 resource "google_project_service" "compute" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
   service = "compute.googleapis.com"
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
   metadata = {
-    kiwi = "papaya"
+    kiwi    = "papaya"
     finches = "darwinism"
   }
-  depends_on = ["google_project_service.compute"]
-}`, projectID, name, org, billing)
+  depends_on = [google_project_service.compute]
+}
+`, projectID, name, org, billing)
 }
 
 func testAccComputeProject_modify0_metadata(projectID, name, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "project" {
-  project_id = "%s"
-  name = "%s"
-  org_id = "%s"
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
   billing_account = "%s"
 }
 
 resource "google_project_service" "compute" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
   service = "compute.googleapis.com"
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
   metadata = {
-    paper = "pen"
+    paper        = "pen"
     genghis_khan = "french bread"
-    happy = "smiling"
+    happy        = "smiling"
   }
-  depends_on = ["google_project_service.compute"]
-}`, projectID, name, org, billing)
+  depends_on = [google_project_service.compute]
+}
+`, projectID, name, org, billing)
 }
 
 func testAccComputeProject_modify1_metadata(projectID, name, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "project" {
-  project_id = "%s"
-  name = "%s"
-  org_id = "%s"
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
   billing_account = "%s"
 }
 
 resource "google_project_service" "compute" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
   service = "compute.googleapis.com"
 }
 
 resource "google_compute_project_metadata" "fizzbuzz" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
   metadata = {
     paper = "pen"
     paris = "french bread"
     happy = "laughing"
   }
-  depends_on = ["google_project_service.compute"]
-}`, projectID, name, org, billing)
+  depends_on = [google_project_service.compute]
+}
+`, projectID, name, org, billing)
 }

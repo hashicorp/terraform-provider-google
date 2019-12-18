@@ -34,14 +34,14 @@ func TestAccComputeBackendServiceSignedUrlKey_basic(t *testing.T) {
 func testAccComputeBackendServiceSignedUrlKey_basic(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_backend_service_signed_url_key" "backend_key" {
-  name           = "testkey-%{random_suffix}"
-  key_value      = "iAmAFakeKeyRandomBytes=="
-  backend_service = "${google_compute_backend_service.test_bs.name}"
+  name            = "testkey-%{random_suffix}"
+  key_value       = "iAmAFakeKeyRandomBytes=="
+  backend_service = google_compute_backend_service.test_bs.name
 }
 
 resource "google_compute_backend_service" "test_bs" {
   name          = "testbs-%{random_suffix}"
-  health_checks = ["${google_compute_http_health_check.zero.self_link}"]
+  health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
@@ -85,7 +85,7 @@ func checkComputeBackendServiceSignedUrlKeyExists(s *terraform.State) (bool, err
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		keyName := rs.Primary.ID
+		keyName := rs.Primary.Attributes["name"]
 
 		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}")
 		if err != nil {

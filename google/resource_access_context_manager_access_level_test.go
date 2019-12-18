@@ -145,6 +145,8 @@ resource "google_access_context_manager_access_level" "test-access" {
       negate = false
       device_policy {
         require_screen_lock = false
+        require_admin_approval = false
+        require_corp_owned = true
         os_constraints {
           os_type = "DESKTOP_CHROME_OS"
         }

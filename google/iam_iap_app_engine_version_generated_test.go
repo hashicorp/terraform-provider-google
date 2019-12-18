@@ -111,19 +111,19 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 func testAccIapAppEngineVersionIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name    = "appengine-static-content-%{random_suffix}"
+  name = "appengine-static-content-%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "object" {
-  name    = "hello-world.zip"
-  bucket  = "${google_storage_bucket.bucket.name}"
-  source  = "./test-fixtures/appengine/hello-world.zip"
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/appengine/hello-world.zip"
 }
 
 resource "google_app_engine_standard_app_version" "version" {
-  version_id = "%{random_suffix}"
-  service = "default"
-  runtime = "nodejs10"
+  version_id      = "%{random_suffix}"
+  service         = "default"
+  runtime         = "nodejs10"
   noop_on_destroy = false
   entrypoint {
     shell = "node ./app.js"
@@ -139,12 +139,12 @@ resource "google_app_engine_standard_app_version" "version" {
 }
 
 resource "google_iap_app_engine_version_iam_member" "foo" {
-	project = "${google_app_engine_standard_app_version.version.project}"
-	app_id = "${google_app_engine_standard_app_version.version.project}"
-	service = "${google_app_engine_standard_app_version.version.service}"
-	version_id = "${google_app_engine_standard_app_version.version.version_id}"
-	role = "%{role}"
-	member = "user:admin@hashicorptest.com"
+  project = "${google_app_engine_standard_app_version.version.project}"
+  app_id = "${google_app_engine_standard_app_version.version.project}"
+  service = "${google_app_engine_standard_app_version.version.service}"
+  version_id = "${google_app_engine_standard_app_version.version.version_id}"
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -152,19 +152,19 @@ resource "google_iap_app_engine_version_iam_member" "foo" {
 func testAccIapAppEngineVersionIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name    = "appengine-static-content-%{random_suffix}"
+  name = "appengine-static-content-%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "object" {
-  name    = "hello-world.zip"
-  bucket  = "${google_storage_bucket.bucket.name}"
-  source  = "./test-fixtures/appengine/hello-world.zip"
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/appengine/hello-world.zip"
 }
 
 resource "google_app_engine_standard_app_version" "version" {
-  version_id = "%{random_suffix}"
-  service = "default"
-  runtime = "nodejs10"
+  version_id      = "%{random_suffix}"
+  service         = "default"
+  runtime         = "nodejs10"
   noop_on_destroy = false
   entrypoint {
     shell = "node ./app.js"
@@ -180,18 +180,18 @@ resource "google_app_engine_standard_app_version" "version" {
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%{role}"
-		members = ["user:admin@hashicorptest.com"]
-	}
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+  }
 }
 
 resource "google_iap_app_engine_version_iam_policy" "foo" {
-	project = "${google_app_engine_standard_app_version.version.project}"
-	app_id = "${google_app_engine_standard_app_version.version.project}"
-	service = "${google_app_engine_standard_app_version.version.service}"
-	version_id = "${google_app_engine_standard_app_version.version.version_id}"
-	policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = "${google_app_engine_standard_app_version.version.project}"
+  app_id = "${google_app_engine_standard_app_version.version.project}"
+  service = "${google_app_engine_standard_app_version.version.service}"
+  version_id = "${google_app_engine_standard_app_version.version.version_id}"
+  policy_data = "${data.google_iam_policy.foo.policy_data}"
 }
 `, context)
 }
@@ -199,19 +199,19 @@ resource "google_iap_app_engine_version_iam_policy" "foo" {
 func testAccIapAppEngineVersionIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name    = "appengine-static-content-%{random_suffix}"
+  name = "appengine-static-content-%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "object" {
-  name    = "hello-world.zip"
-  bucket  = "${google_storage_bucket.bucket.name}"
-  source  = "./test-fixtures/appengine/hello-world.zip"
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/appengine/hello-world.zip"
 }
 
 resource "google_app_engine_standard_app_version" "version" {
-  version_id = "%{random_suffix}"
-  service = "default"
-  runtime = "nodejs10"
+  version_id      = "%{random_suffix}"
+  service         = "default"
+  runtime         = "nodejs10"
   noop_on_destroy = false
   entrypoint {
     shell = "node ./app.js"
@@ -227,12 +227,12 @@ resource "google_app_engine_standard_app_version" "version" {
 }
 
 resource "google_iap_app_engine_version_iam_binding" "foo" {
-	project = "${google_app_engine_standard_app_version.version.project}"
-	app_id = "${google_app_engine_standard_app_version.version.project}"
-	service = "${google_app_engine_standard_app_version.version.service}"
-	version_id = "${google_app_engine_standard_app_version.version.version_id}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com"]
+  project = "${google_app_engine_standard_app_version.version.project}"
+  app_id = "${google_app_engine_standard_app_version.version.project}"
+  service = "${google_app_engine_standard_app_version.version.service}"
+  version_id = "${google_app_engine_standard_app_version.version.version_id}"
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -240,19 +240,19 @@ resource "google_iap_app_engine_version_iam_binding" "foo" {
 func testAccIapAppEngineVersionIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name    = "appengine-static-content-%{random_suffix}"
+  name = "appengine-static-content-%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "object" {
-  name    = "hello-world.zip"
-  bucket  = "${google_storage_bucket.bucket.name}"
-  source  = "./test-fixtures/appengine/hello-world.zip"
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/appengine/hello-world.zip"
 }
 
 resource "google_app_engine_standard_app_version" "version" {
-  version_id = "%{random_suffix}"
-  service = "default"
-  runtime = "nodejs10"
+  version_id      = "%{random_suffix}"
+  service         = "default"
+  runtime         = "nodejs10"
   noop_on_destroy = false
   entrypoint {
     shell = "node ./app.js"
@@ -268,12 +268,12 @@ resource "google_app_engine_standard_app_version" "version" {
 }
 
 resource "google_iap_app_engine_version_iam_binding" "foo" {
-	project = "${google_app_engine_standard_app_version.version.project}"
-	app_id = "${google_app_engine_standard_app_version.version.project}"
-	service = "${google_app_engine_standard_app_version.version.service}"
-	version_id = "${google_app_engine_standard_app_version.version.version_id}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  project = "${google_app_engine_standard_app_version.version.project}"
+  app_id = "${google_app_engine_standard_app_version.version.project}"
+  service = "${google_app_engine_standard_app_version.version.service}"
+  version_id = "${google_app_engine_standard_app_version.version.version_id}"
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }

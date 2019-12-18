@@ -22,7 +22,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v1"
 )
 
 func sslPolicyCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
@@ -70,39 +69,73 @@ func resourceComputeSslPolicy() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Name of the resource. Provided by the client when the resource is
+created. The name must be 1-63 characters long, and comply with
+RFC1035. Specifically, the name must be 1-63 characters long and match
+the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
+first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the last
+character, which cannot be a dash.`,
 			},
 			"custom_features": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Description: `Profile specifies the set of SSL features that can be used by the
+load balancer when negotiating SSL with clients. This can be one of
+'COMPATIBLE', 'MODERN', 'RESTRICTED', or 'CUSTOM'. If using 'CUSTOM',
+the set of SSL features to enable must be specified in the
+'customFeatures' field.
+
+See the [official documentation](https://cloud.google.com/compute/docs/load-balancing/ssl-policies#profilefeaturesupport)
+for which ciphers are available to use. **Note**: this argument
+*must* be present when using the 'CUSTOM' profile. This argument
+*must not* be present when using any other profile.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 				Set: schema.HashString,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An optional description of this resource.`,
 			},
 			"min_tls_version": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"TLS_1_0", "TLS_1_1", "TLS_1_2", ""}, false),
-				Default:      "TLS_1_0",
+				Description: `The minimum version of SSL protocol that can be used by the clients
+to establish a connection with the load balancer. This can be one of
+'TLS_1_0', 'TLS_1_1', 'TLS_1_2'.
+ Default is 'TLS_1_0'.`,
+				Default: "TLS_1_0",
 			},
 			"profile": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"COMPATIBLE", "MODERN", "RESTRICTED", "CUSTOM", ""}, false),
-				Default:      "COMPATIBLE",
+				Description: `Profile specifies the set of SSL features that can be used by the
+load balancer when negotiating SSL with clients. This can be one of
+'COMPATIBLE', 'MODERN', 'RESTRICTED', or 'CUSTOM'. If using 'CUSTOM',
+the set of SSL features to enable must be specified in the
+'customFeatures' field.
+
+See the [official documentation](https://cloud.google.com/compute/docs/load-balancing/ssl-policies#profilefeaturesupport)
+for information on what cipher suites each profile provides. If
+'CUSTOM' is used, the 'custom_features' attribute **must be set**.
+Default is 'COMPATIBLE'.`,
+				Default: "COMPATIBLE",
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"enabled_features": {
-				Type:     schema.TypeSet,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: `The list of features enabled in the SSL policy.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -111,6 +144,8 @@ func resourceComputeSslPolicy() *schema.Resource {
 			"fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `Fingerprint of this resource. A hash of the contents stored in this
+object. This field is used in optimistic locking.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -177,26 +212,20 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/sslPolicies/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating SslPolicy",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating SslPolicy",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create SslPolicy: %s", waitErr)
+		return fmt.Errorf("Error waiting to create SslPolicy: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating SslPolicy %q: %#v", d.Id(), res)
@@ -301,14 +330,8 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error updating SslPolicy %q: %s", d.Id(), err)
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Updating SslPolicy",
+		config, res, project, "Updating SslPolicy",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -339,14 +362,8 @@ func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, "SslPolicy")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting SslPolicy",
+		config, res, project, "Deleting SslPolicy",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -368,7 +385,7 @@ func resourceComputeSslPolicyImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/sslPolicies/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

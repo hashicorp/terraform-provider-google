@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_instance"
 sidebar_current: "docs-google-compute-instance-x"
@@ -32,6 +33,7 @@ resource "google_compute_instance" "default" {
 
   // Local SSD disk
   scratch_disk {
+    interface = "SCSI"
   }
 
   network_interface {
@@ -138,6 +140,10 @@ The following arguments are supported:
 * `shielded_instance_config` - (Optional) Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is documented below.
 	**Note**: [`shielded_instance_config`](#shielded_instance_config) can only be used with boot images with shielded vm support. See the complete list [here](https://cloud.google.com/compute/docs/images#shielded-images).
 
+* `enable_display` - (Optional) Enable [Virtual Displays](https://cloud.google.com/compute/docs/instances/enable-instance-virtual-display#verify_display_driver) on this instance.
+**Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
+
+
 ---
 
 The `boot_disk` block supports:
@@ -188,15 +194,14 @@ The `initialize_params` block supports:
 
 The `scratch_disk` block supports:
 
-* `interface` - (Optional) The disk interface to use for attaching this disk; either SCSI or NVME.
-    Defaults to SCSI.
+* `interface` - (Required) The disk interface to use for attaching this disk; either SCSI or NVME.
 
 The `attached_disk` block supports:
 
 * `source` - (Required) The name or self_link of the disk to attach to this instance.
 
 * `device_name` - (Optional) Name with which the attached disk will be accessible
-    under `/dev/disk/by-id/`
+    under `/dev/disk/by-id/google-*`
 
 * `mode` - (Optional) Either "READ_ONLY" or "READ_WRITE", defaults to "READ_WRITE"
     If you have a persistent disk with data that you want to share

@@ -51,10 +51,11 @@ func TestAccComputeGlobalAddress_internal(t *testing.T) {
 func testAccComputeGlobalAddress_ipv6() string {
 	return fmt.Sprintf(`
 resource "google_compute_global_address" "foobar" {
-	name = "address-test-%s"
-	description = "Created for Terraform acceptance testing"
-	ip_version = "IPV6"
-}`, acctest.RandString(10))
+  name        = "address-test-%s"
+  description = "Created for Terraform acceptance testing"
+  ip_version  = "IPV6"
+}
+`, acctest.RandString(10))
 }
 
 func testAccComputeGlobalAddress_internal() string {
@@ -63,13 +64,13 @@ resource "google_compute_network" "foobar" {
   name = "address-test-%s"
 }
 
-
 resource "google_compute_global_address" "foobar" {
-  name = "address-test-%s"
-  address_type = "INTERNAL"
-  purpose = "VPC_PEERING"
+  name          = "address-test-%s"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
   prefix_length = 24
-	address = "172.20.181.0"
-  network = "${google_compute_network.foobar.self_link}"
-}`, acctest.RandString(10), acctest.RandString(10))
+  address       = "172.20.181.0"
+  network       = google_compute_network.foobar.self_link
+}
+`, acctest.RandString(10), acctest.RandString(10))
 }

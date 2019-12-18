@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_reservation"
 sidebar_current: "docs-google-compute-reservation"
@@ -54,7 +55,7 @@ resource "google_compute_reservation" "gce_reservation" {
     count = 1
     instance_properties {
       min_cpu_platform = "Intel Cascade Lake"
-      machine_type = "n2-standard-2"
+      machine_type     = "n2-standard-2"
     }
   }
 }
@@ -204,4 +205,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

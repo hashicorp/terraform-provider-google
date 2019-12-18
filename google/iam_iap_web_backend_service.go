@@ -75,8 +75,6 @@ func IapWebBackendServiceIamUpdaterProducer(d *schema.ResourceData, config *Conf
 	d.Set("project", u.project)
 	d.Set("web_backend_service", u.GetResourceId())
 
-	d.SetId(u.GetResourceId())
-
 	return u, nil
 }
 
@@ -110,14 +108,18 @@ func IapWebBackendServiceIdParseFunc(d *schema.ResourceData, config *Config) err
 }
 
 func (u *IapWebBackendServiceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyWebBackendServiceUrl("getIamPolicy")
+	url, err := u.qualifyWebBackendServiceUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
+	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "POST", project, url, nil)
+	policy, err := sendRequest(u.Config, "POST", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -140,8 +142,10 @@ func (u *IapWebBackendServiceIamUpdater) SetResourceIamPolicy(policy *cloudresou
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyWebBackendServiceUrl("setIamPolicy")
-
+	url, err := u.qualifyWebBackendServiceUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return err
@@ -155,8 +159,13 @@ func (u *IapWebBackendServiceIamUpdater) SetResourceIamPolicy(policy *cloudresou
 	return nil
 }
 
-func (u *IapWebBackendServiceIamUpdater) qualifyWebBackendServiceUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://iap.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/iap_web/compute/services/%s", u.project, u.webBackendService), methodIdentifier)
+func (u *IapWebBackendServiceIamUpdater) qualifyWebBackendServiceUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web/compute/services/%s", u.project, u.webBackendService), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *IapWebBackendServiceIamUpdater) GetResourceId() string {

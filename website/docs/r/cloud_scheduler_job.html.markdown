@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Scheduler"
 layout: "google"
 page_title: "Google: google_cloud_scheduler_job"
 sidebar_current: "docs-google-cloud-scheduler-job"
@@ -50,13 +51,13 @@ resource "google_pubsub_topic" "topic" {
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job"
+  name        = "test-job"
   description = "test job"
-  schedule = "*/2 * * * *"
+  schedule    = "*/2 * * * *"
 
   pubsub_target {
-    topic_name = "${google_pubsub_topic.topic.id}"
-    data = "${base64encode("test")}"
+    topic_name = google_pubsub_topic.topic.id
+    data       = base64encode("test")
   }
 }
 ```
@@ -70,14 +71,14 @@ resource "google_cloud_scheduler_job" "job" {
 
 ```hcl
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job"
+  name        = "test-job"
   description = "test http job"
-  schedule = "*/8 * * * *"
-  time_zone = "America/New_York"
+  schedule    = "*/8 * * * *"
+  time_zone   = "America/New_York"
 
   http_target {
     http_method = "POST"
-    uri = "https://example.com/ping"
+    uri         = "https://example.com/ping"
   }
 }
 ```
@@ -91,17 +92,17 @@ resource "google_cloud_scheduler_job" "job" {
 
 ```hcl
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job"
-  schedule = "*/4 * * * *"
+  name        = "test-job"
+  schedule    = "*/4 * * * *"
   description = "test app engine job"
-  time_zone = "Europe/London"
+  time_zone   = "Europe/London"
 
   app_engine_http_target {
     http_method = "POST"
 
     app_engine_routing {
-      service = "web"
-      version = "prod"
+      service  = "web"
+      version  = "prod"
       instance = "my-instance-001"
     }
 
@@ -118,20 +119,21 @@ resource "google_cloud_scheduler_job" "job" {
 
 
 ```hcl
-data "google_compute_default_service_account" "default" { }
+data "google_compute_default_service_account" "default" {
+}
 
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job"
+  name        = "test-job"
   description = "test http job"
-  schedule = "*/8 * * * *"
-  time_zone = "America/New_York"
+  schedule    = "*/8 * * * *"
+  time_zone   = "America/New_York"
 
   http_target {
     http_method = "GET"
-    uri = "https://cloudscheduler.googleapis.com/v1/projects/my-project-name/locations/us-west1/jobs"
+    uri         = "https://cloudscheduler.googleapis.com/v1/projects/my-project-name/locations/us-west1/jobs"
 
     oauth_token {
-      service_account_email = "${data.google_compute_default_service_account.default.email}"
+      service_account_email = data.google_compute_default_service_account.default.email
     }
   }
 }
@@ -145,20 +147,21 @@ resource "google_cloud_scheduler_job" "job" {
 
 
 ```hcl
-data "google_compute_default_service_account" "default" { }
+data "google_compute_default_service_account" "default" {
+}
 
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job"
+  name        = "test-job"
   description = "test http job"
-  schedule = "*/8 * * * *"
-  time_zone = "America/New_York"
+  schedule    = "*/8 * * * *"
+  time_zone   = "America/New_York"
 
   http_target {
     http_method = "GET"
-    uri = "https://example.com/ping"
+    uri         = "https://example.com/ping"
 
     oidc_token {
-      service_account_email = "${data.google_compute_default_service_account.default.email}"
+      service_account_email = data.google_compute_default_service_account.default.email
     }
   }
 }
@@ -355,7 +358,7 @@ The `http_target` block supports:
 The `oauth_token` block supports:
 
 * `service_account_email` -
-  (Optional)
+  (Required)
   Service account email to be used for generating OAuth token.
   The service account must be within the same project as the job.
 
@@ -367,7 +370,7 @@ The `oauth_token` block supports:
 The `oidc_token` block supports:
 
 * `service_account_email` -
-  (Optional)
+  (Required)
   Service account email to be used for generating OAuth token.
   The service account must be within the same project as the job.
 
@@ -401,4 +404,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

@@ -127,7 +127,7 @@ func testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, schedule, l
 data "google_project" "project" {}
 
 resource "google_project_iam_member" "permissions" {
-  role = "roles/iam.serviceAccountShortTermTokenMinter"
+  role   = "roles/iam.serviceAccountShortTermTokenMinter"
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
 }
 
@@ -135,24 +135,24 @@ resource "google_project_iam_member" "permissions" {
 resource "google_bigquery_dataset" "my_dataset" {
   depends_on = [google_project_iam_member.permissions]
 
-  dataset_id = "my_dataset%s"
+  dataset_id    = "my_dataset%s"
   friendly_name = "foo"
-  description = "bar"
-  location = "asia-northeast1"
+  description   = "bar"
+  location      = "asia-northeast1"
 }
 
 resource "google_bigquery_data_transfer_config" "query_config" {
   depends_on = [google_project_iam_member.permissions]
 
-  display_name = "my-query-%s"
-  location = "asia-northeast1"
-  data_source_id = "scheduled_query"
-  schedule = "%s sunday of quarter 00:00"
+  display_name           = "my-query-%s"
+  location               = "asia-northeast1"
+  data_source_id         = "scheduled_query"
+  schedule               = "%s sunday of quarter 00:00"
   destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
   params = {
     destination_table_name_template = "my-table"
-    write_disposition = "WRITE_APPEND"
-    query = "SELECT name FROM tabl WHERE x = '%s'"
+    write_disposition               = "WRITE_APPEND"
+    query                           = "SELECT name FROM tabl WHERE x = '%s'"
   }
 }
 `, random_suffix, random_suffix, schedule, letter)
@@ -163,26 +163,26 @@ func testAccBigqueryDataTransferConfig_booleanParam(random_suffix string) string
 data "google_project" "project" {}
 
 resource "google_project_iam_member" "permissions" {
-  role = "roles/iam.serviceAccountShortTermTokenMinter"
+  role   = "roles/iam.serviceAccountShortTermTokenMinter"
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
 }
 
 resource "google_bigquery_dataset" "source_dataset" {
   depends_on = [google_project_iam_member.permissions]
 
-  dataset_id = "source_%s"
+  dataset_id    = "source_%s"
   friendly_name = "foo"
-  description = "bar"
-  location = "asia-northeast1"
+  description   = "bar"
+  location      = "asia-northeast1"
 }
 
 resource "google_bigquery_dataset" "destination_dataset" {
   depends_on = [google_project_iam_member.permissions]
 
-  dataset_id = "destination_%s"
+  dataset_id    = "destination_%s"
   friendly_name = "foo"
-  description = "bar"
-  location = "asia-northeast1"
+  description   = "bar"
+  location      = "asia-northeast1"
 }
 
 resource "google_bigquery_data_transfer_config" "copy_config" {
@@ -190,13 +190,13 @@ resource "google_bigquery_data_transfer_config" "copy_config" {
 
   location = "asia-northeast1"
 
-  display_name = "Copy test %s"
-  data_source_id = "cross_region_copy"
+  display_name           = "Copy test %s"
+  data_source_id         = "cross_region_copy"
   destination_dataset_id = google_bigquery_dataset.destination_dataset.dataset_id
   params = {
     overwrite_destination_table = "true"
-    source_dataset_id = google_bigquery_dataset.source_dataset.dataset_id
-    source_project_id = data.google_project.project.project_id
+    source_dataset_id           = google_bigquery_dataset.source_dataset.dataset_id
+    source_project_id           = data.google_project.project.project_id
   }
 }
 `, random_suffix, random_suffix, random_suffix)

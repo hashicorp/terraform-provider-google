@@ -304,7 +304,7 @@ func resourceInstanceTags(d TerraformResourceData) *computeBeta.Tags {
 	return tags
 }
 
-func expandShieldedVmConfigs(d *schema.ResourceData) *computeBeta.ShieldedVmConfig {
+func expandShieldedVmConfigs(d TerraformResourceData) *computeBeta.ShieldedVmConfig {
 	if _, ok := d.GetOk("shielded_instance_config"); !ok {
 		return nil
 	}
@@ -328,4 +328,22 @@ func flattenShieldedVmConfig(shieldedVmConfig *computeBeta.ShieldedVmConfig) []m
 		"enable_vtpm":                 shieldedVmConfig.EnableVtpm,
 		"enable_integrity_monitoring": shieldedVmConfig.EnableIntegrityMonitoring,
 	}}
+}
+
+func expandDisplayDevice(d TerraformResourceData) *computeBeta.DisplayDevice {
+	if _, ok := d.GetOk("enable_display"); !ok {
+		return nil
+	}
+	return &computeBeta.DisplayDevice{
+		EnableDisplay:   d.Get("enable_display").(bool),
+		ForceSendFields: []string{"EnableDisplay"},
+	}
+}
+
+func flattenEnableDisplay(displayDevice *computeBeta.DisplayDevice) interface{} {
+	if displayDevice == nil {
+		return nil
+	}
+
+	return displayDevice.EnableDisplay
 }

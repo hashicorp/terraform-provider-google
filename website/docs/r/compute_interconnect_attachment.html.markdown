@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_interconnect_attachment"
 sidebar_current: "docs-google-compute-interconnect-attachment"
@@ -33,12 +34,12 @@ information, see Creating VLAN Attachments.
 resource "google_compute_interconnect_attachment" "on_prem" {
   name         = "on-prem-attachment"
   interconnect = "my-interconnect-id"
-  router       = "${google_compute_router.foobar.self_link}"
+  router       = google_compute_router.foobar.self_link
 }
 
 resource "google_compute_router" "foobar" {
   name    = "router"
-  network = "${google_compute_network.foobar.name}"
+  network = google_compute_network.foobar.name
 }
 ```
 
@@ -196,4 +197,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

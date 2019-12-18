@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_project_organization_policy"
 sidebar_current: "docs-google-datasource-project-organization-policy"
@@ -21,7 +22,7 @@ data "google_project_organization_policy" "policy" {
 }
 
 output "version" {
-  value = "${data.google_project_organization_policy.policy.version}"
+  value = data.google_project_organization_policy.policy.version
 }
 ```
 

@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/api/appengine/v1"
 )
 
 func resourceAppEngineApplicationUrlDispatchRules() *schema.Resource {
@@ -43,22 +42,29 @@ func resourceAppEngineApplicationUrlDispatchRules() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"dispatch_rules": {
-				Type:     schema.TypeList,
-				Required: true,
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: `Rules to match an HTTP request and dispatch that request to a service.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"path": {
 							Type:     schema.TypeString,
 							Required: true,
+							Description: `Pathname within the host. Must start with a "/". A single "*" can be included at the end of the path.
+The sum of the lengths of the domain and path may not exceed 100 characters.`,
 						},
 						"service": {
 							Type:     schema.TypeString,
 							Required: true,
+							Description: `Pathname within the host. Must start with a "/". A single "*" can be included at the end of the path.
+The sum of the lengths of the domain and path may not exceed 100 characters.`,
 						},
 						"domain": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default:  "*",
+							Description: `Domain name to match against. The wildcard "*" is supported if specified before a period: "*.".
+Defaults to matching all domains: "*".`,
+							Default: "*",
 						},
 					},
 				},
@@ -101,7 +107,7 @@ func resourceAppEngineApplicationUrlDispatchRulesCreate(d *schema.ResourceData, 
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutCreate), isAppEngineRetryableError)
 	if err != nil {
 		return fmt.Errorf("Error creating ApplicationUrlDispatchRules: %s", err)
 	}
@@ -113,20 +119,14 @@ func resourceAppEngineApplicationUrlDispatchRulesCreate(d *schema.ResourceData, 
 	}
 	d.SetId(id)
 
-	op := &appengine.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := appEngineOperationWaitTime(
-		config.clientAppEngine, op, project, "Creating ApplicationUrlDispatchRules",
+	err = appEngineOperationWaitTime(
+		config, res, project, "Creating ApplicationUrlDispatchRules",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create ApplicationUrlDispatchRules: %s", waitErr)
+		return fmt.Errorf("Error waiting to create ApplicationUrlDispatchRules: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating ApplicationUrlDispatchRules %q: %#v", d.Id(), res)
@@ -146,7 +146,7 @@ func resourceAppEngineApplicationUrlDispatchRulesRead(d *schema.ResourceData, me
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	res, err := sendRequest(config, "GET", project, url, nil, isAppEngineRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AppEngineApplicationUrlDispatchRules %q", d.Id()))
 	}
@@ -191,20 +191,14 @@ func resourceAppEngineApplicationUrlDispatchRulesUpdate(d *schema.ResourceData, 
 	}
 
 	log.Printf("[DEBUG] Updating ApplicationUrlDispatchRules %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), isAppEngineRetryableError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating ApplicationUrlDispatchRules %q: %s", d.Id(), err)
 	}
 
-	op := &appengine.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = appEngineOperationWaitTime(
-		config.clientAppEngine, op, project, "Updating ApplicationUrlDispatchRules",
+		config, res, project, "Updating ApplicationUrlDispatchRules",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -237,19 +231,13 @@ func resourceAppEngineApplicationUrlDispatchRulesDelete(d *schema.ResourceData, 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ApplicationUrlDispatchRules %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutDelete), isAppEngineRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, "ApplicationUrlDispatchRules")
 	}
 
-	op := &appengine.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = appEngineOperationWaitTime(
-		config.clientAppEngine, op, project, "Deleting ApplicationUrlDispatchRules",
+		config, res, project, "Deleting ApplicationUrlDispatchRules",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

@@ -63,6 +63,7 @@ type Config struct {
 	Scopes              []string
 	BatchingConfig      *batchingConfig
 	UserProjectOverride bool
+	RequestTimeout      time.Duration
 
 	client           *http.Client
 	terraformVersion string
@@ -78,10 +79,13 @@ type Config struct {
 	BinaryAuthorizationBasePath  string
 	CloudBuildBasePath           string
 	CloudFunctionsBasePath       string
+	CloudRunBasePath             string
 	CloudSchedulerBasePath       string
+	CloudTasksBasePath           string
 	ComputeBasePath              string
 	ContainerAnalysisBasePath    string
 	DataprocBasePath             string
+	DeploymentManagerBasePath    string
 	DNSBasePath                  string
 	FilestoreBasePath            string
 	FirestoreBasePath            string
@@ -205,10 +209,13 @@ var BigtableDefaultBasePath = "https://bigtableadmin.googleapis.com/v2/"
 var BinaryAuthorizationDefaultBasePath = "https://binaryauthorization.googleapis.com/v1/"
 var CloudBuildDefaultBasePath = "https://cloudbuild.googleapis.com/v1/"
 var CloudFunctionsDefaultBasePath = "https://cloudfunctions.googleapis.com/v1/"
+var CloudRunDefaultBasePath = "https://{{location}}-run.googleapis.com/"
 var CloudSchedulerDefaultBasePath = "https://cloudscheduler.googleapis.com/v1/"
+var CloudTasksDefaultBasePath = "https://cloudtasks.googleapis.com/v2/"
 var ComputeDefaultBasePath = "https://www.googleapis.com/compute/v1/"
 var ContainerAnalysisDefaultBasePath = "https://containeranalysis.googleapis.com/v1/"
 var DataprocDefaultBasePath = "https://dataproc.googleapis.com/v1/"
+var DeploymentManagerDefaultBasePath = "https://www.googleapis.com/deploymentmanager/v2/"
 var DNSDefaultBasePath = "https://www.googleapis.com/dns/v1/"
 var FilestoreDefaultBasePath = "https://file.googleapis.com/v1/"
 var FirestoreDefaultBasePath = "https://firestore.googleapis.com/v1/"
@@ -233,6 +240,7 @@ var defaultClientScopes = []string{
 	"https://www.googleapis.com/auth/cloud-platform",
 	"https://www.googleapis.com/auth/ndev.clouddns.readwrite",
 	"https://www.googleapis.com/auth/devstorage.full_control",
+	"https://www.googleapis.com/auth/userinfo.email",
 }
 
 func (c *Config) LoadAndValidate() error {
@@ -248,10 +256,8 @@ func (c *Config) LoadAndValidate() error {
 
 	client := oauth2.NewClient(context.Background(), tokenSource)
 	client.Transport = logging.NewTransport("Google", client.Transport)
-	// Each individual request should return within 30s - timeouts will be retried.
-	// This is a timeout for, e.g. a single GET request of an operation - not a
-	// timeout for the maximum amount of time a logical request can take.
-	client.Timeout, _ = time.ParseDuration("30s")
+	// This timeout is a timeout per HTTP request, not per logical operation.
+	client.Timeout = c.synchronousTimeout()
 
 	tfUserAgent := httpclient.TerraformUserAgent(c.terraformVersion)
 	providerVersion := fmt.Sprintf("terraform-provider-google/%s", version.ProviderVersion)
@@ -618,6 +624,13 @@ func expandProviderBatchingConfig(v interface{}) (*batchingConfig, error) {
 	return config, nil
 }
 
+func (c *Config) synchronousTimeout() time.Duration {
+	if c.RequestTimeout == 0 {
+		return 30 * time.Second
+	}
+	return c.RequestTimeout
+}
+
 func (c *Config) getTokenSource(clientScopes []string) (oauth2.TokenSource, error) {
 	if c.AccessToken != "" {
 		contents, _, err := pathorcontents.Read(c.AccessToken)
@@ -670,10 +683,13 @@ func ConfigureBasePaths(c *Config) {
 	c.BinaryAuthorizationBasePath = BinaryAuthorizationDefaultBasePath
 	c.CloudBuildBasePath = CloudBuildDefaultBasePath
 	c.CloudFunctionsBasePath = CloudFunctionsDefaultBasePath
+	c.CloudRunBasePath = CloudRunDefaultBasePath
 	c.CloudSchedulerBasePath = CloudSchedulerDefaultBasePath
+	c.CloudTasksBasePath = CloudTasksDefaultBasePath
 	c.ComputeBasePath = ComputeDefaultBasePath
 	c.ContainerAnalysisBasePath = ContainerAnalysisDefaultBasePath
 	c.DataprocBasePath = DataprocDefaultBasePath
+	c.DeploymentManagerBasePath = DeploymentManagerDefaultBasePath
 	c.DNSBasePath = DNSDefaultBasePath
 	c.FilestoreBasePath = FilestoreDefaultBasePath
 	c.FirestoreBasePath = FirestoreDefaultBasePath

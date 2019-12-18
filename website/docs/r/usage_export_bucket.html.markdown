@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_project_usage_export_bucket"
 sidebar_current: "docs-google-project-usage-export-bucket"
@@ -24,8 +25,8 @@ safe to have multiple resources with the same backing bucket.
 
 ```hcl
 resource "google_project_usage_export_bucket" "usage_export" {
-  project      = "development-project"
-  bucket_name  = "usage-tracking-bucket"
+  project     = "development-project"
+  bucket_name = "usage-tracking-bucket"
 }
 ```
 

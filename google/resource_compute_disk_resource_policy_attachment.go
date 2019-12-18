@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeDiskResourcePolicyAttachment() *schema.Resource {
@@ -45,11 +44,14 @@ func resourceComputeDiskResourcePolicyAttachment() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The name of the disk in which the resource policies are attached to.`,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The resource policy to be attached to the disk for scheduling snapshot
+creation. Do not specify the self link.`,
 			},
 			"zone": {
 				Type:             schema.TypeString,
@@ -57,6 +59,7 @@ func resourceComputeDiskResourcePolicyAttachment() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `A reference to the zone where the disk resides.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -106,20 +109,14 @@ func resourceComputeDiskResourcePolicyAttachmentCreate(d *schema.ResourceData, m
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating DiskResourcePolicyAttachment",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating DiskResourcePolicyAttachment",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create DiskResourcePolicyAttachment: %s", waitErr)
+		return fmt.Errorf("Error waiting to create DiskResourcePolicyAttachment: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating DiskResourcePolicyAttachment %q: %#v", d.Id(), res)
@@ -211,14 +208,8 @@ func resourceComputeDiskResourcePolicyAttachmentDelete(d *schema.ResourceData, m
 		return handleNotFoundError(err, d, "DiskResourcePolicyAttachment")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting DiskResourcePolicyAttachment",
+		config, res, project, "Deleting DiskResourcePolicyAttachment",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

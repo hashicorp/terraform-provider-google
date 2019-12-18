@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_instance_template"
 sidebar_current: "docs-google-compute-instance-template"
@@ -46,7 +47,7 @@ resource "google_compute_instance_template" "default" {
   // Use an existing disk resource
   disk {
     // Instance Templates reference disks by name, not self link
-    source      = "${google_compute_disk.foobar.name}"
+    source      = google_compute_disk.foobar.name
     auto_delete = false
     boot        = false
   }
@@ -71,7 +72,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_disk" "foobar" {
   name  = "existing-disk"
-  image = "${data.google_compute_image.my_image.self_link}"
+  image = data.google_compute_image.my_image.self_link
   size  = 10
   type  = "pd-ssd"
   zone  = "us-central1-a"
@@ -111,7 +112,7 @@ resource "google_compute_instance_template" "instance_template" {
 
 resource "google_compute_instance_group_manager" "instance_group_manager" {
   name               = "instance-group-manager"
-  instance_template  = "${google_compute_instance_template.instance_template.self_link}"
+  instance_template  = google_compute_instance_template.instance_template.self_link
   base_instance_name = "instance-group-manager"
   zone               = "us-central1-f"
   target_size        = "1"
@@ -152,7 +153,7 @@ resource "google_compute_instance_template" "instance_template" {
 
   // boot disk
   disk {
-    source_image = "${google_compute_image.my_image.self_link}"
+    source_image = google_compute_image.my_image.self_link
   }
 }
 ```
@@ -243,6 +244,9 @@ The following arguments are supported:
 * `shielded_instance_config` - (Optional) Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is documented below.
 	**Note**: [`shielded_instance_config`](#shielded_instance_config) can only be used with boot images with shielded vm support. See the complete list [here](https://cloud.google.com/compute/docs/images#shielded-images).
 
+* `enable_display` - (Optional) Enable [Virtual Displays](https://cloud.google.com/compute/docs/instances/enable-instance-virtual-display#verify_display_driver) on this instance.
+**Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
+
 The `disk` block supports:
 
 * `auto_delete` - (Optional) Whether or not the disk should be auto-deleted.
@@ -296,7 +300,7 @@ The `disk` block supports:
 
 The `disk_encryption_key` block supports:
 
-* `kms_key_self_link` - (Optional) The self link of the encryption key that is stored in Google Cloud KMS
+* `kms_key_self_link` - (Required) The self link of the encryption key that is stored in Google Cloud KMS
 
 The `network_interface` block supports:
 
@@ -418,10 +422,12 @@ exported:
 
 ## Import
 
-Instance templates can be imported using the `name`, e.g.
+Instance templates can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_compute_instance_template.default appserver-template
+$ terraform import google_compute_instance_template.default projects/{{project}}/global/instanceTemplates/{{name}}
+$ terraform import google_compute_instance_template.default {{project}}/{{name}}
+$ terraform import google_compute_instance_template.default {{name}}
 ```
 
 [custom-vm-types]: https://cloud.google.com/dataproc/docs/concepts/compute/custom-machine-types

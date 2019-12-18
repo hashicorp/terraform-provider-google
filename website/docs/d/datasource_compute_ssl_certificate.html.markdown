@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_ssl_certificate"
 sidebar_current: "docs-google-datasource-compute-ssl-certificate"
@@ -14,19 +15,19 @@ Get info about a Google Compute SSL Certificate from its name.
 
 ```tf
 data "google_compute_ssl_certificate" "my_cert" {
-  name       = "my-cert"
+  name = "my-cert"
 }
 
 output "certificate" {
-  value = "${data.google_compute_ssl_certificate.my_cert.certificate}"
+  value = data.google_compute_ssl_certificate.my_cert.certificate
 }
 
 output "certificate_id" {
-  value = "${data.google_compute_ssl_certificate.my_cert.certificate_id}"
+  value = data.google_compute_ssl_certificate.my_cert.certificate_id
 }
 
 output "self_link" {
-  value = "${data.google_compute_ssl_certificate.my_cert.self_link}"
+  value = data.google_compute_ssl_certificate.my_cert.self_link
 }
 ```
 

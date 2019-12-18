@@ -112,7 +112,7 @@ func testAccIapWebBackendServiceIamMember_basicGenerated(context map[string]inte
 	return Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "backend-service%{random_suffix}"
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  health_checks = [google_compute_http_health_check.default.self_link]
 }
 
 resource "google_compute_http_health_check" "default" {
@@ -123,10 +123,10 @@ resource "google_compute_http_health_check" "default" {
 }
 
 resource "google_iap_web_backend_service_iam_member" "foo" {
-	project = "${google_compute_backend_service.default.project}"
-	web_backend_service = "${google_compute_backend_service.default.name}"
-	role = "%{role}"
-	member = "user:admin@hashicorptest.com"
+  project = "${google_compute_backend_service.default.project}"
+  web_backend_service = "${google_compute_backend_service.default.name}"
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -135,7 +135,7 @@ func testAccIapWebBackendServiceIamPolicy_basicGenerated(context map[string]inte
 	return Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "backend-service%{random_suffix}"
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  health_checks = [google_compute_http_health_check.default.self_link]
 }
 
 resource "google_compute_http_health_check" "default" {
@@ -146,16 +146,16 @@ resource "google_compute_http_health_check" "default" {
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%{role}"
-		members = ["user:admin@hashicorptest.com"]
-	}
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+  }
 }
 
 resource "google_iap_web_backend_service_iam_policy" "foo" {
-	project = "${google_compute_backend_service.default.project}"
-	web_backend_service = "${google_compute_backend_service.default.name}"
-	policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = "${google_compute_backend_service.default.project}"
+  web_backend_service = "${google_compute_backend_service.default.name}"
+  policy_data = "${data.google_iam_policy.foo.policy_data}"
 }
 `, context)
 }
@@ -164,7 +164,7 @@ func testAccIapWebBackendServiceIamBinding_basicGenerated(context map[string]int
 	return Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "backend-service%{random_suffix}"
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  health_checks = [google_compute_http_health_check.default.self_link]
 }
 
 resource "google_compute_http_health_check" "default" {
@@ -175,10 +175,10 @@ resource "google_compute_http_health_check" "default" {
 }
 
 resource "google_iap_web_backend_service_iam_binding" "foo" {
-	project = "${google_compute_backend_service.default.project}"
-	web_backend_service = "${google_compute_backend_service.default.name}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com"]
+  project = "${google_compute_backend_service.default.project}"
+  web_backend_service = "${google_compute_backend_service.default.name}"
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -187,7 +187,7 @@ func testAccIapWebBackendServiceIamBinding_updateGenerated(context map[string]in
 	return Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "backend-service%{random_suffix}"
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  health_checks = [google_compute_http_health_check.default.self_link]
 }
 
 resource "google_compute_http_health_check" "default" {
@@ -198,10 +198,10 @@ resource "google_compute_http_health_check" "default" {
 }
 
 resource "google_iap_web_backend_service_iam_binding" "foo" {
-	project = "${google_compute_backend_service.default.project}"
-	web_backend_service = "${google_compute_backend_service.default.name}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  project = "${google_compute_backend_service.default.project}"
+  web_backend_service = "${google_compute_backend_service.default.name}"
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }

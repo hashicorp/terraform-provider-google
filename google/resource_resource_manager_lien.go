@@ -45,32 +45,48 @@ func resourceResourceManagerLien() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `A stable, user-visible/meaningful string identifying the origin
+of the Lien, intended to be inspected programmatically. Maximum length of
+200 characters.`,
 			},
 			"parent": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `A reference to the resource this Lien is attached to.
+The server will validate the parent against those for which Liens are supported.
+Since a variety of objects can have Liens against them, you must provide the type
+prefix (e.g. "projects/my-project-name").`,
 			},
 			"reason": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Concise user-visible strings indicating why an action cannot be performed
+on a resource. Maximum length of 200 characters.`,
 			},
 			"restrictions": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
+				Description: `The types of operations which should be blocked as a result of this Lien.
+Each value should correspond to an IAM permission. The server will validate
+the permissions against those for which Liens are supported.  An empty
+list is meaningless and will be rejected.
+e.g. ['resourcemanager.projects.delete']`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Time of creation`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `A system-generated unique identifier for this Lien.`,
 			},
 		},
 	}

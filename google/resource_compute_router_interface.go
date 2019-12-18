@@ -145,7 +145,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 	d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, ifaceName))
-	err = computeOperationWait(config.clientCompute, op, project, "Patching router")
+	err = computeOperationWait(config, op, project, "Patching router")
 	if err != nil {
 		d.SetId("")
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
@@ -270,7 +270,7 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 
-	err = computeOperationWait(config.clientCompute, op, project, "Patching router")
+	err = computeOperationWait(config, op, project, "Patching router")
 	if err != nil {
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
 	}
@@ -296,8 +296,15 @@ func routerInterfaceDiffOneOfCheck(d *schema.ResourceDiff, meta interface{}) err
 	_, ipOk := d.GetOk("ip_range")
 	_, vpnOk := d.GetOk("vpn_tunnel")
 	_, icOk := d.GetOk("interconnect_attachment")
-	if !(ipOk || vpnOk || icOk) {
+	// When unset, these values are all known. However, if the value is an
+	// interpolation to a resource that hasn't been created, the value is
+	// unknown and d.GetOk will return false. For each value, if that value is
+	// unknown, consider it true-ish.
+	if !((ipOk || !d.NewValueKnown("ip_range")) ||
+		(vpnOk || !d.NewValueKnown("vpn_tunnel")) ||
+		(icOk || !d.NewValueKnown("interconnect_attachment"))) {
 		return fmt.Errorf("Each interface requires one linked resource or an ip range, or both.")
 	}
+
 	return nil
 }

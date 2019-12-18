@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Access Context Manager"
 layout: "google"
 page_title: "Google: google_access_context_manager_access_level"
 sidebar_current: "docs-google-access-context-manager-access-level"
@@ -37,9 +38,9 @@ To get more information about AccessLevel, see:
 
 ```hcl
 resource "google_access_context_manager_access_level" "access-level" {
-  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
-  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/chromeos_no_lock"
-  title       = "chromeos_no_lock"
+  parent = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name   = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/chromeos_no_lock"
+  title  = "chromeos_no_lock"
   basic {
     conditions {
       device_policy {
@@ -131,12 +132,13 @@ The `conditions` block supports:
 
 * `members` -
   (Optional)
-  An allowed list of members (users, groups, service accounts).
+  An allowed list of members (users, service accounts).
+  Using groups is not supported yet.
   The signed-in user originating the request must be a part of one
   of the provided members. If not specified, a request may come
   from any user (logged in/not logged in, not present in any
   groups, etc.).
-  Formats: `user:{emailid}`, `group:{emailid}`, `serviceAccount:{emailid}`
+  Formats: `user:{emailid}`, `serviceAccount:{emailid}`
 
 * `negate` -
   (Optional)
@@ -173,6 +175,14 @@ The `device_policy` block supports:
   A list of allowed OS versions.
   An empty list allows all types and all versions.  Structure is documented below.
 
+* `require_admin_approval` -
+  (Optional)
+  Whether the device needs to be approved by the customer admin.
+
+* `require_corp_owned` -
+  (Optional)
+  Whether the device needs to be corp owned.
+
 
 The `os_constraints` block supports:
 
@@ -183,7 +193,7 @@ The `os_constraints` block supports:
   Format: "major.minor.patch" such as "10.5.301", "9.2.1".
 
 * `os_type` -
-  (Optional)
+  (Required)
   The operating system type of the device.
 
 

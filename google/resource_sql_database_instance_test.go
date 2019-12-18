@@ -101,7 +101,7 @@ func testSweepDatabases(region string) error {
 				return fmt.Errorf("error, failed to stop replica instance (%s) for instance (%s): %s", replicaName, d.Name, err)
 			}
 
-			err = sqlAdminOperationWait(config.clientSqlAdmin, op, config.Project, "Stop Replica")
+			err = sqlAdminOperationWait(config, op, config.Project, "Stop Replica")
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("Replication operation not found")
@@ -131,7 +131,7 @@ func testSweepDatabases(region string) error {
 				return fmt.Errorf("Error, failed to delete instance %s: %s", db, err)
 			}
 
-			err = sqlAdminOperationWait(config.clientSqlAdmin, op, config.Project, "Delete Instance")
+			err = sqlAdminOperationWait(config, op, config.Project, "Delete Instance")
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("SQL instance not found")
@@ -261,7 +261,7 @@ func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 						t.Errorf("Error while inserting root@%% user: %s", err)
 						return
 					}
-					err = sqlAdminOperationWait(config.clientSqlAdmin, op, config.Project, "Waiting for user to insert")
+					err = sqlAdminOperationWait(config, op, config.Project, "Waiting for user to insert")
 					if err != nil {
 						t.Errorf("Error while waiting for user insert operation to complete: %s", err.Error())
 					}
@@ -632,82 +632,85 @@ func testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(instance string) resource
 
 var testGoogleSqlDatabaseInstance_basic = `
 resource "google_sql_database_instance" "instance" {
-	name = "tf-lw-%d"
-	region = "us-central"
-	settings {
-		tier = "D0"
-		crash_safe_replication = false
-	}
+  name   = "tf-lw-%d"
+  region = "us-central"
+  settings {
+    tier                   = "D0"
+    crash_safe_replication = false
+  }
 }
 `
 
 var testGoogleSqlDatabaseInstance_basic2 = `
 resource "google_sql_database_instance" "instance" {
-	region = "us-central"
-	settings {
-		tier = "D0"
-		crash_safe_replication = false
-	}
+  region = "us-central"
+  settings {
+    tier                   = "D0"
+    crash_safe_replication = false
+  }
 }
 `
+
 var testGoogleSqlDatabaseInstance_basic3 = `
 resource "google_sql_database_instance" "instance" {
-	name = "%s"
-	region = "us-central1"
-	settings {
-		tier = "db-f1-micro"
-	}
+  name   = "%s"
+  region = "us-central1"
+  settings {
+    tier = "db-f1-micro"
+  }
 }
 `
 
 func testGoogleSqlDatabaseInstanceConfig_withoutReplica(instanceName string) string {
-	return fmt.Sprintf(`resource "google_sql_database_instance" "instance" {
-  name               = "%s"
-  region             = "us-central1"
-  database_version   = "MYSQL_5_7"
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  region           = "us-central1"
+  database_version = "MYSQL_5_7"
 
   settings {
-    tier             = "db-n1-standard-1"
+    tier = "db-n1-standard-1"
 
     backup_configuration {
-        binary_log_enabled = "true"
-        enabled            = "true"
-        start_time         = "18:00"
+      binary_log_enabled = "true"
+      enabled            = "true"
+      start_time         = "18:00"
     }
   }
-}`, instanceName)
+}
+`, instanceName)
 }
 
 func testGoogleSqlDatabaseInstanceConfig_withReplica(instanceName, failoverName string) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
-  name               = "%s"
-  region             = "us-central1"
-  database_version   = "MYSQL_5_7"
+  name             = "%s"
+  region           = "us-central1"
+  database_version = "MYSQL_5_7"
 
   settings {
-    tier             = "db-n1-standard-1"
+    tier = "db-n1-standard-1"
 
     backup_configuration {
-        binary_log_enabled = "true"
-        enabled            = "true"
-        start_time         = "18:00"
+      binary_log_enabled = "true"
+      enabled            = "true"
+      start_time         = "18:00"
     }
   }
 }
 
 resource "google_sql_database_instance" "instance-failover" {
-  name               = "%s"
-  region             = "us-central1"
-  database_version   = "MYSQL_5_7"
-  master_instance_name = "${google_sql_database_instance.instance.name}"
+  name                 = "%s"
+  region               = "us-central1"
+  database_version     = "MYSQL_5_7"
+  master_instance_name = google_sql_database_instance.instance.name
 
   replica_configuration {
-    failover_target        = "true"
+    failover_target = "true"
   }
 
   settings {
-    tier             = "db-n1-standard-1"
+    tier = "db-n1-standard-1"
   }
 }
 `, instanceName, failoverName)
@@ -715,252 +718,252 @@ resource "google_sql_database_instance" "instance-failover" {
 
 var testGoogleSqlDatabaseInstance_settings = `
 resource "google_sql_database_instance" "instance" {
-	name = "tf-lw-%d"
-	region = "us-central"
-	settings {
-		tier = "D0"
-		crash_safe_replication = false
-		replication_type = "ASYNCHRONOUS"
-		location_preference {
-			zone = "us-central1-f"
-		}
+  name   = "tf-lw-%d"
+  region = "us-central"
+  settings {
+    tier                   = "D0"
+    crash_safe_replication = false
+    replication_type       = "ASYNCHRONOUS"
+    location_preference {
+      zone = "us-central1-f"
+    }
 
-		ip_configuration {
-			ipv4_enabled = "true"
-			authorized_networks {
-				value = "108.12.12.12"
-				name = "misc"
-				expiration_time = "2050-11-15T16:19:00.094Z"
-			}
-		}
+    ip_configuration {
+      ipv4_enabled = "true"
+      authorized_networks {
+        value           = "108.12.12.12"
+        name            = "misc"
+        expiration_time = "2050-11-15T16:19:00.094Z"
+      }
+    }
 
-		backup_configuration {
-			enabled = "true"
-			start_time = "19:19"
-		}
+    backup_configuration {
+      enabled    = "true"
+      start_time = "19:19"
+    }
 
-		activation_policy = "ON_DEMAND"
-	}
+    activation_policy = "ON_DEMAND"
+  }
 }
 `
 
 var testGoogleSqlDatabaseInstance_replica = `
 resource "google_sql_database_instance" "instance_master" {
-	name = "tf-lw-%d"
-	database_version = "MYSQL_5_6"
-	region = "us-central1"
+  name             = "tf-lw-%d"
+  database_version = "MYSQL_5_6"
+  region           = "us-central1"
 
-	settings {
-		tier = "db-n1-standard-1"
+  settings {
+    tier = "db-n1-standard-1"
 
-		backup_configuration {
-			enabled = true
-			start_time = "00:00"
-			binary_log_enabled = true
-		}
-	}
+    backup_configuration {
+      enabled            = true
+      start_time         = "00:00"
+      binary_log_enabled = true
+    }
+  }
 }
 
 resource "google_sql_database_instance" "replica1" {
-	name = "tf-lw-%d-1"
-	database_version = "MYSQL_5_6"
-	region = "us-central1"
+  name             = "tf-lw-%d-1"
+  database_version = "MYSQL_5_6"
+  region           = "us-central1"
 
-	settings {
-		tier = "db-n1-standard-1"
-	}
+  settings {
+    tier = "db-n1-standard-1"
+  }
 
-	master_instance_name = "${google_sql_database_instance.instance_master.name}"
+  master_instance_name = google_sql_database_instance.instance_master.name
 
-	replica_configuration {
-		connect_retry_interval = 100
-		master_heartbeat_period = 10000
-		password = "password"
-		username = "username"
-		ssl_cipher = "ALL"
-		verify_server_certificate = false
-	}
+  replica_configuration {
+    connect_retry_interval    = 100
+    master_heartbeat_period   = 10000
+    password                  = "password"
+    username                  = "username"
+    ssl_cipher                = "ALL"
+    verify_server_certificate = false
+  }
 }
 
 resource "google_sql_database_instance" "replica2" {
-	name = "tf-lw-%d-2"
-	database_version = "MYSQL_5_6"
-	region = "us-central1"
+  name             = "tf-lw-%d-2"
+  database_version = "MYSQL_5_6"
+  region           = "us-central1"
 
-	settings {
-		tier = "db-n1-standard-1"
-	}
+  settings {
+    tier = "db-n1-standard-1"
+  }
 
-	master_instance_name = "${google_sql_database_instance.instance_master.name}"
+  master_instance_name = google_sql_database_instance.instance_master.name
 
-	replica_configuration {
-		connect_retry_interval = 100
-		master_heartbeat_period = 10000
-		password = "password"
-		username = "username"
-		ssl_cipher = "ALL"
-		verify_server_certificate = false
-	}
+  replica_configuration {
+    connect_retry_interval    = 100
+    master_heartbeat_period   = 10000
+    password                  = "password"
+    username                  = "username"
+    ssl_cipher                = "ALL"
+    verify_server_certificate = false
+  }
 }
 `
 
 var testGoogleSqlDatabaseInstance_slave = `
 resource "google_sql_database_instance" "instance_master" {
-	name = "tf-lw-%d"
-	region = "us-central1"
+  name   = "tf-lw-%d"
+  region = "us-central1"
 
-	settings {
-		tier = "db-f1-micro"
+  settings {
+    tier = "db-f1-micro"
 
-		backup_configuration {
-			enabled = true
-			binary_log_enabled = true
-		}
-	}
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+  }
 }
 
 resource "google_sql_database_instance" "instance_slave" {
-	name = "tf-lw-%d"
-	region = "us-central1"
+  name   = "tf-lw-%d"
+  region = "us-central1"
 
-	master_instance_name = "${google_sql_database_instance.instance_master.name}"
+  master_instance_name = google_sql_database_instance.instance_master.name
 
-	settings {
-		tier = "db-f1-micro"
-	}
+  settings {
+    tier = "db-f1-micro"
+  }
 }
 `
 
 var testGoogleSqlDatabaseInstance_highAvailability = `
 resource "google_sql_database_instance" "instance" {
-	name = "tf-lw-%d"
-	region = "us-central1"
-	database_version = "POSTGRES_9_6"
+  name             = "tf-lw-%d"
+  region           = "us-central1"
+  database_version = "POSTGRES_9_6"
 
-	settings {
-		tier = "db-f1-micro"
+  settings {
+    tier = "db-f1-micro"
 
-		availability_type = "REGIONAL"
+    availability_type = "REGIONAL"
 
-		backup_configuration {
-			enabled   = true
-			location  = "us"
-		}
-	}
+    backup_configuration {
+      enabled  = true
+      location = "us"
+    }
+  }
 }
 `
 
 var testGoogleSqlDatabaseInstance_diskspecs = `
 resource "google_sql_database_instance" "instance" {
-	name = "tf-lw-%d"
-	region = "us-central1"
+  name   = "tf-lw-%d"
+  region = "us-central1"
 
-	settings {
-		tier = "db-f1-micro"
-		disk_autoresize = true
-		disk_size = 15
-		disk_type = "PD_HDD"
-	}
+  settings {
+    tier            = "db-f1-micro"
+    disk_autoresize = true
+    disk_size       = 15
+    disk_type       = "PD_HDD"
+  }
 }
 `
 
 var testGoogleSqlDatabaseInstance_maintenance = `
 resource "google_sql_database_instance" "instance" {
-	name = "tf-lw-%d"
-	region = "us-central1"
+  name   = "tf-lw-%d"
+  region = "us-central1"
 
-	settings {
-		tier = "db-f1-micro"
+  settings {
+    tier = "db-f1-micro"
 
-		maintenance_window {
-		  day  = 7
-		  hour = 3
-			update_track = "canary"
-	  }
-	}
+    maintenance_window {
+      day          = 7
+      hour         = 3
+      update_track = "canary"
+    }
+  }
 }
 `
 
 var testGoogleSqlDatabaseInstance_authNets_step1 = `
 resource "google_sql_database_instance" "instance" {
-	name = "tf-lw-%d"
-	region = "us-central"
-	settings {
-		tier = "D0"
-		crash_safe_replication = false
+  name   = "tf-lw-%d"
+  region = "us-central"
+  settings {
+    tier                   = "D0"
+    crash_safe_replication = false
 
-		ip_configuration {
-			ipv4_enabled = "true"
-			authorized_networks {
-				value = "108.12.12.12"
-				name = "misc"
-				expiration_time = "2050-11-15T16:19:00.094Z"
-			}
-		}
-	}
+    ip_configuration {
+      ipv4_enabled = "true"
+      authorized_networks {
+        value           = "108.12.12.12"
+        name            = "misc"
+        expiration_time = "2050-11-15T16:19:00.094Z"
+      }
+    }
+  }
 }
 `
 
 var testGoogleSqlDatabaseInstance_authNets_step2 = `
 resource "google_sql_database_instance" "instance" {
-	name = "tf-lw-%d"
-	region = "us-central"
-	settings {
-		tier = "D0"
-		crash_safe_replication = false
+  name   = "tf-lw-%d"
+  region = "us-central"
+  settings {
+    tier                   = "D0"
+    crash_safe_replication = false
 
-		ip_configuration {
-			ipv4_enabled = "true"
-		}
-	}
+    ip_configuration {
+      ipv4_enabled = "true"
+    }
+  }
 }
 `
 
 var testGoogleSqlDatabaseInstance_multipleOperations = `
 resource "google_sql_database_instance" "instance" {
-	name = "tf-test-%s"
-	region = "us-central"
-	settings {
-		tier = "D0"
-		crash_safe_replication = false
-	}
+  name   = "tf-test-%s"
+  region = "us-central"
+  settings {
+    tier                   = "D0"
+    crash_safe_replication = false
+  }
 }
 
 resource "google_sql_database" "database" {
-	name = "tf-test-%s"
-	instance = "${google_sql_database_instance.instance.name}"
+  name     = "tf-test-%s"
+  instance = google_sql_database_instance.instance.name
 }
 
 resource "google_sql_user" "user" {
-	name = "tf-test-%s"
-	instance = "${google_sql_database_instance.instance.name}"
-	host = "google.com"
-	password = "hunter2"
+  name     = "tf-test-%s"
+  instance = google_sql_database_instance.instance.name
+  host     = "google.com"
+  password = "hunter2"
 }
 `
 
 var testGoogleSqlDatabaseInstance_basic_with_user_labels = `
 resource "google_sql_database_instance" "instance" {
-	name = "%s"
-	region = "us-central1"
-	settings {
-		tier = "db-f1-micro"
-		user_labels = {
-		    track = "production"
-		    location = "western-division"
-		}
-	}
+  name   = "%s"
+  region = "us-central1"
+  settings {
+    tier = "db-f1-micro"
+    user_labels = {
+      track    = "production"
+      location = "western-division"
+    }
+  }
 }
 `
 var testGoogleSqlDatabaseInstance_basic_with_user_labels_update = `
 resource "google_sql_database_instance" "instance" {
-	name = "%s"
-	region = "us-central1"
-	settings {
-		tier = "db-f1-micro"
-		user_labels = {
-		    track = "production"
-		}
-	}
+  name   = "%s"
+  region = "us-central1"
+  settings {
+    tier = "db-f1-micro"
+    user_labels = {
+      track = "production"
+    }
+  }
 }
 `

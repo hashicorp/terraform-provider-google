@@ -29,9 +29,6 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 			{
 				// Create one endpoint
 				Config: testAccComputeNetworkEndpoint_networkEndpointsBasic(context),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeNetworkEndpointWithPortExists("google_compute_network_endpoint.default", "90"),
-				),
 			},
 			{
 				ResourceName:      "google_compute_network_endpoint.default",
@@ -42,18 +39,32 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 				// Force-recreate old endpoint
 				Config: testAccComputeNetworkEndpoint_networkEndpointsModified(context),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeNetworkEndpointWithPortExists("google_compute_network_endpoint.default", "100"),
 					testAccCheckComputeNetworkEndpointWithPortsDestroyed(negId, "90"),
 				),
 			},
 			{
+				ResourceName:      "google_compute_network_endpoint.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				// Add two new endpoints
 				Config: testAccComputeNetworkEndpoint_networkEndpointsAdditional(context),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeNetworkEndpointWithPortExists("google_compute_network_endpoint.default", "100"),
-					testAccCheckComputeNetworkEndpointWithPortExists("google_compute_network_endpoint.add1", "101"),
-					testAccCheckComputeNetworkEndpointWithPortExists("google_compute_network_endpoint.add2", "102"),
-				),
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.add1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.add2",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				// delete all endpoints
@@ -69,12 +80,12 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 func testAccComputeNetworkEndpoint_networkEndpointsBasic(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network_endpoint" "default" {
- zone                   = "us-central1-a"
- network_endpoint_group = "${google_compute_network_endpoint_group.neg.name}"
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
 
- instance    = "${google_compute_instance.default.name}"
- ip_address  = "${google_compute_instance.default.network_interface.0.network_ip}"
- port        = "${google_compute_network_endpoint_group.neg.default_port}"
+  instance   = google_compute_instance.default.name
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  port       = google_compute_network_endpoint_group.neg.default_port
 }
 `, context) + testAccComputeNetworkEndpoint_noNetworkEndpoints(context)
 }
@@ -82,126 +93,91 @@ resource "google_compute_network_endpoint" "default" {
 func testAccComputeNetworkEndpoint_networkEndpointsModified(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network_endpoint" "default" {
- zone                   = "us-central1-a"
- network_endpoint_group = "${google_compute_network_endpoint_group.neg.name}"
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
 
- instance    = "${google_compute_instance.default.name}"
- ip_address  = "${google_compute_instance.default.network_interface.0.network_ip}"
- port        = "%{modified_port}"
-}`, context) + testAccComputeNetworkEndpoint_noNetworkEndpoints(context)
+  instance   = google_compute_instance.default.name
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  port       = "%{modified_port}"
+}
+`, context) + testAccComputeNetworkEndpoint_noNetworkEndpoints(context)
 }
 
 func testAccComputeNetworkEndpoint_networkEndpointsAdditional(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network_endpoint" "default" {
- zone                   = "us-central1-a"
- network_endpoint_group = "${google_compute_network_endpoint_group.neg.name}"
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
 
- instance    = "${google_compute_instance.default.name}"
- ip_address  = "${google_compute_instance.default.network_interface.0.network_ip}"
- port        = "%{modified_port}"
+  instance   = google_compute_instance.default.name
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  port       = "%{modified_port}"
 }
 
 resource "google_compute_network_endpoint" "add1" {
- zone                   = "us-central1-a"
- network_endpoint_group = "${google_compute_network_endpoint_group.neg.name}"
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
 
- instance    = "${google_compute_instance.default.name}"
- ip_address  = "${google_compute_instance.default.network_interface.0.network_ip}"
- port        = "%{add1_port}"
+  instance   = google_compute_instance.default.name
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  port       = "%{add1_port}"
 }
 
 resource "google_compute_network_endpoint" "add2" {
- zone                   = "us-central1-a"
- network_endpoint_group = "${google_compute_network_endpoint_group.neg.name}"
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
 
- instance    = "${google_compute_instance.default.name}"
- ip_address  = "${google_compute_instance.default.network_interface.0.network_ip}"
- port        = "%{add2_port}"
+  instance   = google_compute_instance.default.name
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  port       = "%{add2_port}"
 }
-
 `, context) + testAccComputeNetworkEndpoint_noNetworkEndpoints(context)
 }
 
 func testAccComputeNetworkEndpoint_noNetworkEndpoints(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
- name         = "neg-%{random_suffix}"
- zone         = "us-central1-a"
- network      = "${google_compute_network.default.self_link}"
- subnetwork   = "${google_compute_subnetwork.default.self_link}"
- default_port = "%{default_port}"
+  name         = "neg-%{random_suffix}"
+  zone         = "us-central1-a"
+  network      = google_compute_network.default.self_link
+  subnetwork   = google_compute_subnetwork.default.self_link
+  default_port = "%{default_port}"
 }
 
 resource "google_compute_network" "default" {
- name = "neg-network-%{random_suffix}"
- auto_create_subnetworks = false
+  name                    = "neg-network-%{random_suffix}"
+  auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
- name          = "neg-subnetwork-%{random_suffix}"
- ip_cidr_range = "10.0.0.0/16"
- region        = "us-central1"
- network       = "${google_compute_network.default.self_link}"
+  name          = "neg-subnetwork-%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.self_link
 }
 
 resource "google_compute_instance" "default" {
- name         =  "neg-instance1-%{random_suffix}"
- machine_type = "n1-standard-1"
+  name         = "neg-instance1-%{random_suffix}"
+  machine_type = "n1-standard-1"
 
- boot_disk {
-   initialize_params{
-     image = "${data.google_compute_image.my_image.self_link}"
-   }
- }
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
 
- network_interface {
-   subnetwork = "${google_compute_subnetwork.default.self_link}"
-   access_config { }
- }
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.self_link
+    access_config {
+    }
+  }
 }
 
 data "google_compute_image" "my_image" {
- family  = "debian-9"
- project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 `, context)
-}
-
-// testAccCheckComputeNetworkEndpointExists makes sure the resource with given
-// (Terraform) name exists, and returns identifying information about the
-// existing endpoint
-func testAccCheckComputeNetworkEndpointWithPortExists(name, port string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[name]
-		if !ok {
-			return fmt.Errorf("resource %q not in path %q", name, s.RootModule().Path)
-		}
-
-		if rs.Type != "google_compute_network_endpoint" {
-			return fmt.Errorf("resource %q has unexpected type %q", name, rs.Type)
-		}
-
-		if rs.Primary.Attributes["port"] != port {
-			return fmt.Errorf("unexpected port %s for resource %s, expected %s", rs.Primary.Attributes["port"], name, port)
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		negResourceId, err := replaceVarsForTest(config, rs, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{network_endpoint_group}}")
-		if err != nil {
-			return fmt.Errorf("creating URL for getting network endpoint %q failed: %v", name, err)
-		}
-
-		foundPorts, err := testAccComputeNetworkEndpointsListEndpointPorts(negResourceId)
-		if err != nil {
-			return fmt.Errorf("unable to confirm endpoints with port %s exists: %v", port, err)
-		}
-		if _, ok := foundPorts[port]; !ok {
-			return fmt.Errorf("did not find endpoint with port %s", port)
-		}
-		return nil
-	}
 }
 
 // testAccCheckComputeNetworkEndpointDestroyed makes sure the endpoint with

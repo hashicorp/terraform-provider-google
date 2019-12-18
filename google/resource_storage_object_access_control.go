@@ -47,50 +47,69 @@ func resourceStorageObjectAccessControl() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The name of the bucket.`,
 			},
 			"entity": {
 				Type:     schema.TypeString,
 				Required: true,
+				Description: `The entity holding the permission, in one of the following forms:
+  * user-{{userId}}
+  * user-{{email}} (such as "user-liz@example.com")
+  * group-{{groupId}}
+  * group-{{email}} (such as "group-example@googlegroups.com")
+  * domain-{{domain}} (such as "domain-example.com")
+  * project-team-{{projectId}}
+  * allUsers
+  * allAuthenticatedUsers`,
 			},
 			"object": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The name of the object to apply the access control to.`,
 			},
 			"role": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"OWNER", "READER"}, false),
+				Description:  `The access permission for the entity.`,
 			},
 			"domain": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The domain associated with the entity.`,
 			},
 			"email": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The email address associated with the entity.`,
 			},
 			"entity_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID for the entity`,
 			},
 			"generation": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The content generation of the object, if applied to an object.`,
 			},
 			"project_team": {
-				Type:     schema.TypeList,
-				Computed: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The project team associated with the entity`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"project_number": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The project team associated with the entity`,
 						},
 						"team": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"editors", "owners", "viewers", ""}, false),
+							Description:  `The team.`,
 						},
 					},
 				},

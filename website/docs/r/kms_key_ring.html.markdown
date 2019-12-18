@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud KMS"
 layout: "google"
 page_title: "Google: google_kms_key_ring"
 sidebar_current: "docs-google-kms-key-ring"
@@ -40,7 +41,7 @@ To get more information about KeyRing, see:
 
 ```hcl
 resource "google_kms_key_ring" "example-keyring" {
-  name = "keyring-example"
+  name     = "keyring-example"
   location = "global"
 }
 ```
@@ -98,4 +99,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

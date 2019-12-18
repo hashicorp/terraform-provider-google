@@ -75,8 +75,6 @@ func BinaryAuthorizationAttestorIamUpdaterProducer(d *schema.ResourceData, confi
 	d.Set("project", u.project)
 	d.Set("attestor", u.GetResourceId())
 
-	d.SetId(u.GetResourceId())
-
 	return u, nil
 }
 
@@ -110,14 +108,18 @@ func BinaryAuthorizationAttestorIdParseFunc(d *schema.ResourceData, config *Conf
 }
 
 func (u *BinaryAuthorizationAttestorIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyAttestorUrl("getIamPolicy")
+	url, err := u.qualifyAttestorUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
+	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "GET", project, url, nil)
+	policy, err := sendRequest(u.Config, "GET", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -140,8 +142,10 @@ func (u *BinaryAuthorizationAttestorIamUpdater) SetResourceIamPolicy(policy *clo
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyAttestorUrl("setIamPolicy")
-
+	url, err := u.qualifyAttestorUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return err
@@ -155,12 +159,17 @@ func (u *BinaryAuthorizationAttestorIamUpdater) SetResourceIamPolicy(policy *clo
 	return nil
 }
 
-func (u *BinaryAuthorizationAttestorIamUpdater) qualifyAttestorUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://binaryauthorization.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/attestors/%s", u.project, u.attestor), methodIdentifier)
+func (u *BinaryAuthorizationAttestorIamUpdater) qualifyAttestorUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{BinaryAuthorizationBasePath}}%s:%s", fmt.Sprintf("projects/%s/attestors/%s", u.project, u.attestor), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *BinaryAuthorizationAttestorIamUpdater) GetResourceId() string {
-	return fmt.Sprintf("%s/%s", u.project, u.attestor)
+	return fmt.Sprintf("projects/%s/attestors/%s", u.project, u.attestor)
 }
 
 func (u *BinaryAuthorizationAttestorIamUpdater) GetMutexKey() string {

@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Binary Authorization"
 layout: "google"
 page_title: "Google: google_binary_authorization_attestor_iam"
 sidebar_current: "docs-google-binary-authorization-attestor-iam"
@@ -36,18 +37,18 @@ Three different resources help you manage your IAM policy for BinaryAuthorizatio
 
 ```hcl
 data "google_iam_policy" "admin" {
-	binding {
-		role = "roles/viewer"
-		members = [
-			"user:jane@example.com",
-		]
-	}
+  binding {
+    role = "roles/viewer"
+    members = [
+      "user:jane@example.com",
+    ]
+  }
 }
 
 resource "google_binary_authorization_attestor_iam_policy" "editor" {
-	project = "${google_binary_authorization_attestor.attestor.project}"
-	attestor = "${google_binary_authorization_attestor.attestor.name}"
-	policy_data = "${data.google_iam_policy.admin.policy_data}"
+  project = "${google_binary_authorization_attestor.attestor.project}"
+  attestor = "${google_binary_authorization_attestor.attestor.name}"
+  policy_data = "${data.google_iam_policy.admin.policy_data}"
 }
 ```
 
@@ -55,12 +56,12 @@ resource "google_binary_authorization_attestor_iam_policy" "editor" {
 
 ```hcl
 resource "google_binary_authorization_attestor_iam_binding" "editor" {
-	project = "${google_binary_authorization_attestor.attestor.project}"
-	attestor = "${google_binary_authorization_attestor.attestor.name}"
-	role = "roles/viewer"
-	members = [
-		"user:jane@example.com",
-	]
+  project = "${google_binary_authorization_attestor.attestor.project}"
+  attestor = "${google_binary_authorization_attestor.attestor.name}"
+  role = "roles/viewer"
+  members = [
+    "user:jane@example.com",
+  ]
 }
 ```
 
@@ -68,10 +69,10 @@ resource "google_binary_authorization_attestor_iam_binding" "editor" {
 
 ```hcl
 resource "google_binary_authorization_attestor_iam_member" "editor" {
-	project = "${google_binary_authorization_attestor.attestor.project}"
-	attestor = "${google_binary_authorization_attestor.attestor.name}"
-	role = "roles/viewer"
-	member = "user:jane@example.com"
+  project = "${google_binary_authorization_attestor.attestor.project}"
+  attestor = "${google_binary_authorization_attestor.attestor.name}"
+  role = "roles/viewer"
+  member = "user:jane@example.com"
 }
 ```
 
@@ -109,14 +110,29 @@ exported:
 
 ## Import
 
-BinaryAuthorization attestor IAM resources can be imported using the project, resource identifiers, role and member.
+For all import syntaxes, the "resource in question" can take any of the following forms:
 
+* projects/{{project}}/attestors/{{name}}
+* {{project}}/{{name}}
+* {{name}}
+
+Any variables not passed in the import command will be taken from the provider configuration.
+
+BinaryAuthorization attestor IAM resources can be imported using the resource identifiers, role, and member.
+
+IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_binary_authorization_attestor_iam_policy.editor {{project}}/{{attestor}}
+$ terraform import google_binary_authorization_attestor_iam_member.editor "projects/{{project}}/attestors/{{attestor}} roles/viewer jane@example.com"
+```
 
-$ terraform import google_binary_authorization_attestor_iam_binding.editor "{{project}}/{{attestor}} roles/viewer"
+IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
+```
+$ terraform import google_binary_authorization_attestor_iam_binding.editor "projects/{{project}}/attestors/{{attestor}} roles/viewer"
+```
 
-$ terraform import google_binary_authorization_attestor_iam_member.editor "{{project}}/{{attestor}} roles/viewer jane@example.com"
+IAM policy imports use the identifier of the resource in question, e.g.
+```
+$ terraform import google_binary_authorization_attestor_iam_policy.editor projects/{{project}}/attestors/{{attestor}}
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
@@ -124,4 +140,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

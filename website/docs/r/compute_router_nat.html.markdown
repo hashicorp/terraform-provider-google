@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_router_nat"
 sidebar_current: "docs-google-compute-router-nat"
@@ -35,37 +36,37 @@ To get more information about RouterNat, see:
 
 ```hcl
 resource "google_compute_network" "net" {
-	name = "my-network"
+  name = "my-network"
 }
 
 resource "google_compute_subnetwork" "subnet" {
-	name          = "my-subnetwork"
-	network       = google_compute_network.net.self_link
-	ip_cidr_range = "10.0.0.0/16"
-	region        = "us-central1"
+  name          = "my-subnetwork"
+  network       = google_compute_network.net.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
 }
 
-resource "google_compute_router" "router"{
-	name    = "my-router"
-	region  = google_compute_subnetwork.subnet.region
-	network = google_compute_network.net.self_link
+resource "google_compute_router" "router" {
+  name    = "my-router"
+  region  = google_compute_subnetwork.subnet.region
+  network = google_compute_network.net.self_link
 
-	bgp {
-		asn = 64514
-	}
+  bgp {
+    asn = 64514
+  }
 }
 
 resource "google_compute_router_nat" "nat" {
-	name                               = "my-router-nat"
-	router                             = google_compute_router.router.name
-	region                             = google_compute_router.router.region
-	nat_ip_allocate_option             = "AUTO_ONLY"
-	source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
-	
-	log_config {
-	  enable = true
-	  filter = "ERRORS_ONLY"
-	}
+  name                               = "my-router-nat"
+  router                             = google_compute_router.router.name
+  region                             = google_compute_router.router.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+
+  log_config {
+    enable = true
+    filter = "ERRORS_ONLY"
+  }
 }
 ```
 ## Example Usage - Router Nat Manual Ips
@@ -73,41 +74,41 @@ resource "google_compute_router_nat" "nat" {
 
 ```hcl
 resource "google_compute_network" "net" {
-	name = "my-network"
+  name = "my-network"
 }
 
 resource "google_compute_subnetwork" "subnet" {
-	name          = "my-subnetwork"
-	network       = google_compute_network.net.self_link
-	ip_cidr_range = "10.0.0.0/16"
-	region        = "us-central1"
+  name          = "my-subnetwork"
+  network       = google_compute_network.net.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
 }
 
-resource "google_compute_router" "router"{
-	name    = "my-router"
-	region  = google_compute_subnetwork.subnet.region
-	network = google_compute_network.net.self_link
+resource "google_compute_router" "router" {
+  name    = "my-router"
+  region  = google_compute_subnetwork.subnet.region
+  network = google_compute_network.net.self_link
 }
 
 resource "google_compute_address" "address" {
-	count  = 2
-	name   = "nat-manual-ip-${count.index}"
-	region = google_compute_subnetwork.subnet.region
+  count  = 2
+  name   = "nat-manual-ip-${count.index}"
+  region = google_compute_subnetwork.subnet.region
 }
 
 resource "google_compute_router_nat" "nat_manual" {
-	name                               = "my-router-nat"
-	router                             = google_compute_router.router.name
-	region                             = google_compute_router.router.region
-	
-	nat_ip_allocate_option             = "MANUAL_ONLY"
-	nat_ips                            = google_compute_address.address[*].self_link
-	
-	source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
-	subnetwork {
-		name                    = google_compute_subnetwork.default.self_link
-		source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
-	}
+  name   = "my-router-nat"
+  router = google_compute_router.router.name
+  region = google_compute_router.router.region
+
+  nat_ip_allocate_option = "MANUAL_ONLY"
+  nat_ips                = google_compute_address.address.*.self_link
+
+  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+  subnetwork {
+    name                    = google_compute_subnetwork.default.self_link
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
 }
 ```
 
@@ -249,4 +250,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

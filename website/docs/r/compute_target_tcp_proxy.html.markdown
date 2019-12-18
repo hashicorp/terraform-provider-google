@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_target_tcp_proxy"
 sidebar_current: "docs-google-compute-target-tcp-proxy"
@@ -45,15 +46,15 @@ To get more information about TargetTcpProxy, see:
 ```hcl
 resource "google_compute_target_tcp_proxy" "default" {
   name            = "test-proxy"
-  backend_service = "${google_compute_backend_service.default.self_link}"
+  backend_service = google_compute_backend_service.default.self_link
 }
 
 resource "google_compute_backend_service" "default" {
-  name          = "backend-service"
-  protocol      = "TCP"
-  timeout_sec   = 10
+  name        = "backend-service"
+  protocol    = "TCP"
+  timeout_sec = 10
 
-  health_checks = ["${google_compute_health_check.default.self_link}"]
+  health_checks = [google_compute_health_check.default.self_link]
 }
 
 resource "google_compute_health_check" "default" {
@@ -140,4 +141,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

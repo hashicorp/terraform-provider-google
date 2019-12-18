@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Runtime Configuration"
 layout: "google"
 page_title: "Google: google_runtimeconfig_config_iam"
 sidebar_current: "docs-google-runtimeconfig-config-iam"
@@ -36,18 +37,18 @@ Three different resources help you manage your IAM policy for RuntimeConfig Conf
 
 ```hcl
 data "google_iam_policy" "admin" {
-	binding {
-		role = "roles/viewer"
-		members = [
-			"user:jane@example.com",
-		]
-	}
+  binding {
+    role = "roles/viewer"
+    members = [
+      "user:jane@example.com",
+    ]
+  }
 }
 
 resource "google_runtimeconfig_config_iam_policy" "editor" {
-	project = "${google_runtimeconfig_config.config.project}"
-	config = "${google_runtimeconfig_config.config.name}"
-	policy_data = "${data.google_iam_policy.admin.policy_data}"
+  project = "${google_runtimeconfig_config.config.project}"
+  config = "${google_runtimeconfig_config.config.name}"
+  policy_data = "${data.google_iam_policy.admin.policy_data}"
 }
 ```
 
@@ -55,12 +56,12 @@ resource "google_runtimeconfig_config_iam_policy" "editor" {
 
 ```hcl
 resource "google_runtimeconfig_config_iam_binding" "editor" {
-	project = "${google_runtimeconfig_config.config.project}"
-	config = "${google_runtimeconfig_config.config.name}"
-	role = "roles/viewer"
-	members = [
-		"user:jane@example.com",
-	]
+  project = "${google_runtimeconfig_config.config.project}"
+  config = "${google_runtimeconfig_config.config.name}"
+  role = "roles/viewer"
+  members = [
+    "user:jane@example.com",
+  ]
 }
 ```
 
@@ -68,10 +69,10 @@ resource "google_runtimeconfig_config_iam_binding" "editor" {
 
 ```hcl
 resource "google_runtimeconfig_config_iam_member" "editor" {
-	project = "${google_runtimeconfig_config.config.project}"
-	config = "${google_runtimeconfig_config.config.name}"
-	role = "roles/viewer"
-	member = "user:jane@example.com"
+  project = "${google_runtimeconfig_config.config.project}"
+  config = "${google_runtimeconfig_config.config.name}"
+  role = "roles/viewer"
+  member = "user:jane@example.com"
 }
 ```
 
@@ -109,14 +110,29 @@ exported:
 
 ## Import
 
-RuntimeConfig config IAM resources can be imported using the project, resource identifiers, role and member.
+For all import syntaxes, the "resource in question" can take any of the following forms:
 
+* projects/{{project}}/configs/{{config}}
+* {{project}}/{{config}}
+* {{config}}
+
+Any variables not passed in the import command will be taken from the provider configuration.
+
+RuntimeConfig config IAM resources can be imported using the resource identifiers, role, and member.
+
+IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
+```
+$ terraform import google_runtimeconfig_config_iam_member.editor "projects/{{project}}/configs/{{config}} roles/viewer jane@example.com"
+```
+
+IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
+```
+$ terraform import google_runtimeconfig_config_iam_binding.editor "projects/{{project}}/configs/{{config}} roles/viewer"
+```
+
+IAM policy imports use the identifier of the resource in question, e.g.
 ```
 $ terraform import google_runtimeconfig_config_iam_policy.editor projects/{{project}}/configs/{{config}}
-
-$ terraform import google_runtimeconfig_config_iam_binding.editor "projects/{{project}}/configs/{{config}} roles/viewer"
-
-$ terraform import google_runtimeconfig_config_iam_member.editor "projects/{{project}}/configs/{{config}} roles/viewer jane@example.com"
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
@@ -124,4 +140,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

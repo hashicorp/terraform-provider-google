@@ -1,4 +1,5 @@
 ---
+subcategory: "BigQuery"
 layout: "google"
 page_title: "Google: google_bigquery_table"
 sidebar_current: "docs-google-bigquery-table"
@@ -29,7 +30,7 @@ resource "google_bigquery_dataset" "default" {
 }
 
 resource "google_bigquery_table" "default" {
-  dataset_id = "${google_bigquery_dataset.default.dataset_id}"
+  dataset_id = google_bigquery_dataset.default.dataset_id
   table_id   = "bar"
 
   time_partitioning {
@@ -56,10 +57,11 @@ resource "google_bigquery_table" "default" {
   }
 ]
 EOF
+
 }
 
 resource "google_bigquery_table" "sheet" {
-  dataset_id = "${google_bigquery_dataset.default.dataset_id}"
+  dataset_id = google_bigquery_dataset.default.dataset_id
   table_id   = "sheet"
 
   external_data_configuration {
@@ -103,6 +105,10 @@ The following arguments are supported:
     if it were a standard BigQuery table. Structure is documented below.
 
 * `friendly_name` - (Optional) A descriptive name for the table.
+
+* `encryption_configuration` - (Optional) Specifies how the table should be encrypted.
+    If left blank, the table will be encrypted with a Google-managed key; that process
+    is transparent to the user.  Structure is documented below.
 
 * `labels` - (Optional) A mapping of labels to assign to the resource.
 
@@ -183,13 +189,14 @@ The `csv_options` block supports:
 
 The `google_sheets_options` block supports:
 
-* `range` (Optional, Beta) - Range of a sheet to query from. Only used when
-    non-empty.
+* `range` (Optional) - Range of a sheet to query from. Only used when
+    non-empty. At least one of `range` or `skip_leading_rows` must be set.
     Typical format: "sheet_name!top_left_cell_id:bottom_right_cell_id"
     For example: "sheet1!A1:B20"
 
 * `skip_leading_rows` (Optional) - The number of rows at the top of the sheet
-    that BigQuery will skip when reading the data.
+    that BigQuery will skip when reading the data. At least one of `range` or
+    `skip_leading_rows` must be set.
 
 The `time_partitioning` block supports:
 
@@ -213,6 +220,14 @@ The `view` block supports:
 
 * `use_legacy_sql` - (Optional) Specifies whether to use BigQuery's legacy SQL for this view.
     The default value is true. If set to false, the view will use BigQuery's standard SQL.
+
+The `encryption_configuration` block supports the following arguments:
+
+* `kms_key_name` - (Required) The self link or full name of a key which should be used to
+    encrypt this table.  Note that the default bigquery service account will need to have
+    encrypt/decrypt permissions on this key - you may want to see the
+    `google_bigquery_default_service_account` datasource and the
+    `google_kms_crypto_key_iam_binding` resource.
 
 ## Attributes Reference
 
@@ -242,5 +257,5 @@ exported:
 BigQuery tables can be imported using the `project`, `dataset_id`, and `table_id`, e.g.
 
 ```
-$ terraform import google_bigquery_table.default gcp-project:foo.bar
+$ terraform import google_bigquery_table.default gcp-project/foo/bar
 ```

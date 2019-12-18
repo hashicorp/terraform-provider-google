@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_iam_policy"
 sidebar_current: "docs-google-datasource-iam-policy"
@@ -12,7 +13,7 @@ description: |-
 Generates an IAM policy document that may be referenced by and applied to
 other Google Cloud Platform resources, such as the `google_project` resource.
 
-```
+```hcl
 data "google_iam_policy" "admin" {
   binding {
     role = "roles/compute.instanceAdmin"

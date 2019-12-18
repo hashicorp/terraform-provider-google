@@ -64,8 +64,6 @@ func IapWebIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceI
 
 	d.Set("project", u.project)
 
-	d.SetId(u.GetResourceId())
-
 	return u, nil
 }
 
@@ -98,14 +96,18 @@ func IapWebIdParseFunc(d *schema.ResourceData, config *Config) error {
 }
 
 func (u *IapWebIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyWebUrl("getIamPolicy")
+	url, err := u.qualifyWebUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
+	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "POST", project, url, nil)
+	policy, err := sendRequest(u.Config, "POST", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -128,8 +130,10 @@ func (u *IapWebIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Pol
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyWebUrl("setIamPolicy")
-
+	url, err := u.qualifyWebUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return err
@@ -143,8 +147,13 @@ func (u *IapWebIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Pol
 	return nil
 }
 
-func (u *IapWebIamUpdater) qualifyWebUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://iap.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/iap_web", u.project), methodIdentifier)
+func (u *IapWebIamUpdater) qualifyWebUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web", u.project), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *IapWebIamUpdater) GetResourceId() string {

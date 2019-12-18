@@ -123,21 +123,21 @@ func testServiceNetworkingConnectionDestroy(parent, network, project string) res
 func testAccServiceNetworkingConnection(networkName, addressRangeName, serviceName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-	name       = "%s"
+  name = "%s"
 }
 
 resource "google_compute_global_address" "foobar" {
-	name          = "%s"
-	purpose       = "VPC_PEERING"
-	address_type = "INTERNAL"
-	prefix_length = 16
-	network       = "${google_compute_network.foobar.self_link}"
+  name          = "%s"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.foobar.self_link
 }
 
 resource "google_service_networking_connection" "foobar" {
-	network       = "${google_compute_network.foobar.self_link}"
-	service       = "%s"
-	reserved_peering_ranges = ["${google_compute_global_address.foobar.name}"]
+  network                 = google_compute_network.foobar.self_link
+  service                 = "%s"
+  reserved_peering_ranges = [google_compute_global_address.foobar.name]
 }
 `, networkName, addressRangeName, serviceName)
 }
@@ -145,15 +145,15 @@ resource "google_service_networking_connection" "foobar" {
 func testAccServiceNetworkingConnectionDestroy(networkName, addressRangeName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-	name       = "%s"
+  name = "%s"
 }
 
 resource "google_compute_global_address" "foobar" {
-	name          = "%s"
-	purpose       = "VPC_PEERING"
-	address_type = "INTERNAL"
-	prefix_length = 16
-	network       = "${google_compute_network.foobar.self_link}"
+  name          = "%s"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.foobar.self_link
 }
 `, networkName, addressRangeName)
 }

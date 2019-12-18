@@ -111,29 +111,29 @@ func TestAccDataprocJobIamPolicy(t *testing.T) {
 
 var testDataprocIamJobConfig = testDataprocIamSingleNodeCluster + `
 resource "google_dataproc_job" "pyspark" {
-	region       = "${google_dataproc_cluster.cluster.region}"
+  region = google_dataproc_cluster.cluster.region
 
-	placement {
-		cluster_name = "${google_dataproc_cluster.cluster.name}"
-	}
+  placement {
+    cluster_name = google_dataproc_cluster.cluster.name
+  }
 
-	reference {
-		job_id = "%s"
-	}
+  reference {
+    job_id = "%s"
+  }
 
-	force_delete = true
+  force_delete = true
 
-	pyspark_config {
-		main_python_file_uri = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
-		properties = {
-			"spark.logConf" = "true"
-		}
-		logging_config {
-			driver_log_levels = {
-				"root" = "INFO"
-			}
-		}
-	}
+  pyspark_config {
+    main_python_file_uri = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
+    properties = {
+      "spark.logConf" = "true"
+    }
+    logging_config {
+      driver_log_levels = {
+        "root" = "INFO"
+      }
+    }
+  }
 }
 `
 
@@ -150,14 +150,13 @@ resource "google_service_account" "test-account2" {
 }
 
 resource "google_dataproc_job_iam_binding" "binding" {
-  job_id      = "${google_dataproc_job.pyspark.reference.0.job_id}"
-  region 	   = "us-central1"
-  role         = "%s"
-  members      = [
+  job_id = google_dataproc_job.pyspark.reference[0].job_id
+  region = "us-central1"
+  role   = "%s"
+  members = [
     "serviceAccount:${google_service_account.test-account1.email}",
   ]
 }
-
 `, cluster, job, account, account, role)
 }
 
@@ -174,10 +173,10 @@ resource "google_service_account" "test-account2" {
 }
 
 resource "google_dataproc_job_iam_binding" "binding" {
-  job_id      = "${google_dataproc_job.pyspark.reference.0.job_id}"
-  region 	   = "us-central1"
-  role         = "%s"
-  members      = [
+  job_id = google_dataproc_job.pyspark.reference[0].job_id
+  region = "us-central1"
+  role   = "%s"
+  members = [
     "serviceAccount:${google_service_account.test-account1.email}",
     "serviceAccount:${google_service_account.test-account2.email}",
   ]
@@ -193,9 +192,9 @@ resource "google_service_account" "test-account" {
 }
 
 resource "google_dataproc_job_iam_member" "member" {
-  job_id      = "${google_dataproc_job.pyspark.reference.0.job_id}"
-  role         = "%s"
-  member       = "serviceAccount:${google_service_account.test-account.email}"
+  job_id = google_dataproc_job.pyspark.reference[0].job_id
+  role   = "%s"
+  member = "serviceAccount:${google_service_account.test-account.email}"
 }
 `, cluster, job, account, role)
 }
@@ -208,16 +207,16 @@ resource "google_service_account" "test-account" {
 }
 
 data "google_iam_policy" "policy" {
-	binding {
-		role    = "%s"
-		members = ["serviceAccount:${google_service_account.test-account.email}"]
-	}
+  binding {
+    role    = "%s"
+    members = ["serviceAccount:${google_service_account.test-account.email}"]
+  }
 }
 
 resource "google_dataproc_job_iam_policy" "policy" {
-  job_id      = "${google_dataproc_job.pyspark.reference.0.job_id}"
-  region 	   = "us-central1"
-  policy_data  = "${data.google_iam_policy.policy.policy_data}"
+  job_id      = google_dataproc_job.pyspark.reference[0].job_id
+  region      = "us-central1"
+  policy_data = data.google_iam_policy.policy.policy_data
 }
 `, cluster, job, account, role)
 }

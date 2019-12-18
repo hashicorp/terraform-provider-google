@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Storage"
 layout: "google"
 page_title: "Google: google_storage_bucket_acl"
 sidebar_current: "docs-google-storage-bucket-acl"
@@ -24,7 +25,7 @@ resource "google_storage_bucket" "image-store" {
 }
 
 resource "google_storage_bucket_acl" "image-store-acl" {
-  bucket = "${google_storage_bucket.image-store.name}"
+  bucket = google_storage_bucket.image-store.name
 
   role_entity = [
     "OWNER:user-my.email@gmail.com",

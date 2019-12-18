@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Resource Manager"
 layout: "google"
 page_title: "Google: google_resource_manager_lien"
 sidebar_current: "docs-google-resource-manager-lien"
@@ -30,15 +31,15 @@ A Lien represents an encumbrance on the actions that can be performed on a resou
 
 ```hcl
 resource "google_resource_manager_lien" "lien" {
-  parent = "projects/${google_project.project.number}"
+  parent       = "projects/${google_project.project.number}"
   restrictions = ["resourcemanager.projects.delete"]
-  origin = "machine-readable-explanation"
-  reason = "This project is an important environment"
+  origin       = "machine-readable-explanation"
+  reason       = "This project is an important environment"
 }
 
 resource "google_project" "project" {
   project_id = "staging-project"
-  name = "A very important project!"
+  name       = "A very important project!"
 }
 ```
 

@@ -6,6 +6,8 @@ import (
 	"log"
 	"sync"
 	"time"
+
+	"github.com/hashicorp/errwrap"
 )
 
 const defaultBatchSendIntervalSec = 10
@@ -123,7 +125,7 @@ func (b *RequestBatcher) stop() {
 // may choose to use a key with method if needed to diff GET/read and
 // POST/create)
 //
-// As an example, for google_project_service and google_project_services, the
+// As an example, for google_project_service, the
 // batcher is called to batch services.batchEnable() calls for a project
 // $PROJECT. The calling code uses the template
 // "serviceusage:projects/$PROJECT/services:batchEnable", which mirrors the HTTP request:
@@ -154,7 +156,8 @@ func (b *RequestBatcher) SendRequestWithTimeout(batchKey string, request *BatchR
 	select {
 	case resp := <-respCh:
 		if resp.err != nil {
-			return nil, fmt.Errorf("Batch %q for request %q returned error: %v", batchKey, request.DebugId, resp.err)
+			// use wrapf so we can potentially extract the original error type
+			return nil, errwrap.Wrapf(fmt.Sprintf("Batch %q for request %q returned error: {{err}}", batchKey, request.DebugId), resp.err)
 		}
 		return resp.body, nil
 	case <-ctx.Done():

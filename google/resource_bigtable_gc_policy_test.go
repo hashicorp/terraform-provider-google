@@ -127,7 +127,7 @@ func testAccBigtableGCPolicyExists(n string) resource.TestCheckFunc {
 func testAccBigtableGCPolicy(instanceName, tableName, family string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-  name          = "%s"
+  name = "%s"
 
   cluster {
     cluster_id = "%s"
@@ -139,7 +139,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_table" "table" {
   name          = "%s"
-  instance_name = "${google_bigtable_instance.instance.name}"
+  instance_name = google_bigtable_instance.instance.name
 
   column_family {
     family = "%s"
@@ -147,11 +147,11 @@ resource "google_bigtable_table" "table" {
 }
 
 resource "google_bigtable_gc_policy" "policy" {
-  instance_name = "${google_bigtable_instance.instance.name}"
-  table         = "${google_bigtable_table.table.name}"
+  instance_name = google_bigtable_instance.instance.name
+  table         = google_bigtable_table.table.name
   column_family = "%s"
 
-  max_age {	
+  max_age {
     days = 3
   }
 }
@@ -161,7 +161,7 @@ resource "google_bigtable_gc_policy" "policy" {
 func testAccBigtableGCPolicyUnion(instanceName, tableName, family string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-  name          = "%s"
+  name = "%s"
 
   cluster {
     cluster_id = "%s"
@@ -173,7 +173,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_table" "table" {
   name          = "%s"
-  instance_name = "${google_bigtable_instance.instance.name}"
+  instance_name = google_bigtable_instance.instance.name
 
   column_family {
     family = "%s"
@@ -181,8 +181,8 @@ resource "google_bigtable_table" "table" {
 }
 
 resource "google_bigtable_gc_policy" "policy" {
-  instance_name = "${google_bigtable_instance.instance.name}"
-  table         = "${google_bigtable_table.table.name}"
+  instance_name = google_bigtable_instance.instance.name
+  table         = google_bigtable_table.table.name
   column_family = "%s"
 
   mode = "UNION"

@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeNetworkEndpoint() *schema.Resource {
@@ -35,8 +34,8 @@ func resourceComputeNetworkEndpoint() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(6 * time.Minute),
+			Delete: schema.DefaultTimeout(6 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -45,22 +44,30 @@ func resourceComputeNetworkEndpoint() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The name for a specific VM instance that the IP address belongs to.
+This is required for network endpoints of type GCE_VM_IP_PORT.
+The instance must be in the same zone of network endpoint group.`,
 			},
 			"ip_address": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `IPv4 address of network endpoint. The IP address must belong
+to a VM in GCE (either the primary IP or as part of an aliased IP
+range).`,
 			},
 			"network_endpoint_group": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The network endpoint group this endpoint is part of.`,
 			},
 			"port": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Port number of network endpoint.`,
 			},
 			"zone": {
 				Type:             schema.TypeString,
@@ -68,6 +75,7 @@ func resourceComputeNetworkEndpoint() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Zone where the containing network endpoint group is located.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -136,20 +144,14 @@ func resourceComputeNetworkEndpointCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating NetworkEndpoint",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating NetworkEndpoint",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create NetworkEndpoint: %s", waitErr)
+		return fmt.Errorf("Error waiting to create NetworkEndpoint: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating NetworkEndpoint %q: %#v", d.Id(), res)
@@ -265,14 +267,8 @@ func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface
 		return handleNotFoundError(err, d, "NetworkEndpoint")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting NetworkEndpoint",
+		config, res, project, "Deleting NetworkEndpoint",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {

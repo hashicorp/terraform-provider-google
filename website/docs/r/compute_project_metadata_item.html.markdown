@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_project_metadata_item"
 sidebar_current: "docs-google-compute-project-metadata-item"
@@ -17,7 +18,7 @@ project metadata map.
 
 ```hcl
 resource "google_compute_project_metadata_item" "default" {
-  key = "my_metadata"
+  key   = "my_metadata"
   value = "my_value"
 }
 ```

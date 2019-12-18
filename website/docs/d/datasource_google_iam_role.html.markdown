@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_iam_role"
 sidebar_current: "docs-google-datasource-iam-role"
@@ -16,9 +17,8 @@ data "google_iam_role" "roleinfo" {
 }
 
 output "the_role_permissions" {
-  value = "${data.google_iam_role.roleinfo.included_permissions}"
+  value = data.google_iam_role.roleinfo.included_permissions
 }
-
 ```
 
 ## Argument Reference

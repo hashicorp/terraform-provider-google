@@ -42,14 +42,21 @@ func resourceFirestoreIndex() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"collection": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The collection being indexed.`,
 			},
 			"fields": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
+				Description: `The fields supported by this index. The last field entry is always for
+the field path '__name__'. If, on creation, '__name__' was not
+specified as the last field, it will be added automatically with the
+same direction as that of the last field defined. If the final field
+in a composite index is not directional, the '__name__' will be
+ordered '"ASCENDING"' (unless explicitly specified otherwise).`,
 				MinItems: 2,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -58,37 +65,47 @@ func resourceFirestoreIndex() *schema.Resource {
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"CONTAINS", ""}, false),
+							Description: `Indicates that this field supports operations on arrayValues. Only one of 'order' and 'arrayConfig' can
+be specified.`,
 						},
 						"field_path": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Name of the field.`,
 						},
 						"order": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ASCENDING", "DESCENDING", ""}, false),
+							Description: `Indicates that this field supports ordering by the specified order or comparing using =, <, <=, >, >=.
+Only one of 'order' and 'arrayConfig' can be specified.`,
 						},
 					},
 				},
 			},
 			"database": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "(default)",
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The Firestore database id. Defaults to '"(default)"'.`,
+				Default:     "(default)",
 			},
 			"query_scope": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"COLLECTION", "COLLECTION_GROUP", ""}, false),
-				Default:      "COLLECTION",
+				Description: `The scope at which a query is run. One of '"COLLECTION"' or
+'"COLLECTION_GROUP"'. Defaults to '"COLLECTION"'.`,
+				Default: "COLLECTION",
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `A server defined name for this index. Format:
+'projects/{{project}}/databases/{{database}}/collectionGroups/{{collection}}/indexes/{{server_generated_id}}'`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -156,14 +173,14 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	waitErr := firestoreOperationWaitTime(
+	err = firestoreOperationWaitTime(
 		config, res, project, "Creating Index",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Index: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Index: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Index %q: %#v", d.Id(), res)
@@ -264,7 +281,7 @@ func resourceFirestoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*
 		)
 	}
 
-	d.Set("project", fmt.Sprintf("%s", stringParts[1]))
+	d.Set("project", stringParts[1])
 	return []*schema.ResourceData{d}, nil
 }
 

@@ -42,6 +42,8 @@ behavior "assign_random_reviewer" "random" {
     "tysen",
     "ndmckinley",
     "slevenick",
+    "emilymye",
+    "chrisst",
   ]
   only_non_maintainers = true
 }

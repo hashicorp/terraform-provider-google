@@ -16,8 +16,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
 )
@@ -32,7 +32,8 @@ func resourceStorageBucket() *schema.Resource {
 			State: resourceStorageBucketStateImporter,
 		},
 		CustomizeDiff: customdiff.All(
-			customdiff.ForceNewIfChange("retention_policy.0.is_locked", isPolicyLocked)),
+			customdiff.ForceNewIfChange("retention_policy.0.is_locked", isPolicyLocked),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -80,13 +81,6 @@ func resourceStorageBucket() *schema.Resource {
 				StateFunc: func(s interface{}) string {
 					return strings.ToUpper(s.(string))
 				},
-			},
-
-			"predefined_acl": {
-				Type:     schema.TypeString,
-				Removed:  "Please use resource \"storage_bucket_acl.predefined_acl\" instead.",
-				Optional: true,
-				ForceNew: true,
 			},
 
 			"project": {
@@ -154,10 +148,9 @@ func resourceStorageBucket() *schema.Resource {
 										Optional: true,
 									},
 									"is_live": {
-										Type:       schema.TypeBool,
-										Optional:   true,
-										Computed:   true,
-										Deprecated: "Please use `with_state` instead",
+										Type:     schema.TypeBool,
+										Optional: true,
+										Removed:  "Please use `with_state` instead",
 									},
 									"with_state": {
 										Type:         schema.TypeString,
@@ -190,8 +183,7 @@ func resourceStorageBucket() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"enabled": {
 							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Required: true,
 						},
 					},
 				},
@@ -204,12 +196,14 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"main_page_suffix": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: []string{"website.0.not_found_page", "website.0.main_page_suffix"},
 						},
 						"not_found_page": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: []string{"website.0.main_page_suffix", "website.0.not_found_page"},
 						},
 					},
 				},
@@ -392,7 +386,9 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Created bucket %v at location %v\n\n", res.Name, res.SelfLink)
 	d.SetId(res.Id)
 
-	if v, ok := d.GetOk("retention_policy"); ok {
+	// If the retention policy is not already locked, check if it
+	// needs to be locked.
+	if v, ok := d.GetOk("retention_policy"); ok && !res.RetentionPolicy.IsLocked {
 		retention_policies := v.([]interface{})
 
 		sb.RetentionPolicy = &storage.BucketRetentionPolicy{}
@@ -514,7 +510,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 			retentionPolicy := retention_policies[0].(map[string]interface{})
 
-			if locked, ok := retentionPolicy["is_locked"]; ok && locked.(bool) {
+			if locked, ok := retentionPolicy["is_locked"]; ok && locked.(bool) && d.HasChange("retention_policy.0.is_locked") {
 				err = lockRetentionPolicy(config.clientStorage.Buckets, d.Get("name").(string), res.Metageneration)
 				if err != nil {
 					return err
@@ -599,73 +595,75 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	// Get the bucket
 	bucket := d.Get("name").(string)
 
+	var listError error
 	for {
 		res, err := config.clientStorage.Objects.List(bucket).Versions(true).Do()
 		if err != nil {
-			fmt.Printf("Error Objects.List failed: %v", err)
-			return err
+			log.Printf("Error listing contents of bucket %s: %v", bucket, err)
+			// If we can't list the contents, try deleting the bucket anyway in case it's empty
+			listError = err
+			break
 		}
 
-		if len(res.Items) != 0 {
-			if d.Get("retention_policy.0.is_locked").(bool) {
-				for _, item := range res.Items {
-					expiration, err := time.Parse(time.RFC3339, item.RetentionExpirationTime)
-					if err != nil {
-						return err
-					}
-					if expiration.After(time.Now()) {
-						deleteErr := errors.New("Bucket '" + d.Get("name").(string) + "' contains objects that have not met the retention period yet and cannot be deleted.")
-						log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
-						return deleteErr
-					}
-				}
-			}
-
-			if d.Get("force_destroy").(bool) {
-				// GCS requires that a bucket be empty (have no objects or object
-				// versions) before it can be deleted.
-				log.Printf("[DEBUG] GCS Bucket attempting to forceDestroy\n\n")
-
-				// Create a workerpool for parallel deletion of resources. In the
-				// future, it would be great to expose Terraform's global parallelism
-				// flag here, but that's currently reserved for core use. Testing
-				// shows that NumCPUs-1 is the most performant on average networks.
-				//
-				// The challenge with making this user-configurable is that the
-				// configuration would reside in the Terraform configuration file,
-				// decreasing its portability. Ideally we'd want this to connect to
-				// Terraform's top-level -parallelism flag, but that's not plumbed nor
-				// is it scheduled to be plumbed to individual providers.
-				wp := workerpool.New(runtime.NumCPU() - 1)
-
-				for _, object := range res.Items {
-					log.Printf("[DEBUG] Found %s", object.Name)
-					object := object
-
-					wp.Submit(func() {
-						log.Printf("[TRACE] Attempting to delete %s", object.Name)
-						if err := config.clientStorage.Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
-							// We should really return an error here, but it doesn't really
-							// matter since the following step (bucket deletion) will fail
-							// with an error indicating objects are still present, and this
-							// log line will point to that object.
-							log.Printf("[ERR] Failed to delete storage object %s: %s", object.Name, err)
-						} else {
-							log.Printf("[TRACE] Successfully deleted %s", object.Name)
-						}
-					})
-				}
-
-				// Wait for everything to finish.
-				wp.StopWait()
-			} else {
-				deleteErr := errors.New("Error trying to delete a bucket containing objects without `force_destroy` set to true")
-				log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
-				return deleteErr
-			}
-		} else {
+		if len(res.Items) == 0 {
 			break // 0 items, bucket empty
 		}
+
+		if d.Get("retention_policy.0.is_locked").(bool) {
+			for _, item := range res.Items {
+				expiration, err := time.Parse(time.RFC3339, item.RetentionExpirationTime)
+				if err != nil {
+					return err
+				}
+				if expiration.After(time.Now()) {
+					deleteErr := errors.New("Bucket '" + d.Get("name").(string) + "' contains objects that have not met the retention period yet and cannot be deleted.")
+					log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
+					return deleteErr
+				}
+			}
+		}
+
+		if !d.Get("force_destroy").(bool) {
+			deleteErr := errors.New("Error trying to delete a bucket containing objects without `force_destroy` set to true")
+			log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
+			return deleteErr
+		}
+		// GCS requires that a bucket be empty (have no objects or object
+		// versions) before it can be deleted.
+		log.Printf("[DEBUG] GCS Bucket attempting to forceDestroy\n\n")
+
+		// Create a workerpool for parallel deletion of resources. In the
+		// future, it would be great to expose Terraform's global parallelism
+		// flag here, but that's currently reserved for core use. Testing
+		// shows that NumCPUs-1 is the most performant on average networks.
+		//
+		// The challenge with making this user-configurable is that the
+		// configuration would reside in the Terraform configuration file,
+		// decreasing its portability. Ideally we'd want this to connect to
+		// Terraform's top-level -parallelism flag, but that's not plumbed nor
+		// is it scheduled to be plumbed to individual providers.
+		wp := workerpool.New(runtime.NumCPU() - 1)
+
+		for _, object := range res.Items {
+			log.Printf("[DEBUG] Found %s", object.Name)
+			object := object
+
+			wp.Submit(func() {
+				log.Printf("[TRACE] Attempting to delete %s", object.Name)
+				if err := config.clientStorage.Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
+					// We should really return an error here, but it doesn't really
+					// matter since the following step (bucket deletion) will fail
+					// with an error indicating objects are still present, and this
+					// log line will point to that object.
+					log.Printf("[ERR] Failed to delete storage object %s: %s", object.Name, err)
+				} else {
+					log.Printf("[TRACE] Successfully deleted %s", object.Name)
+				}
+			})
+		}
+
+		// Wait for everything to finish.
+		wp.StopWait()
 	}
 
 	// remove empty bucket
@@ -679,8 +677,11 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		}
 		return resource.NonRetryableError(err)
 	})
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && listError != nil {
+		return fmt.Errorf("could not delete non-empty bucket due to error when listing contents: %v", listError)
+	}
 	if err != nil {
-		fmt.Printf("Error deleting bucket %s: %v\n\n", bucket, err)
+		log.Printf("Error deleting bucket %s: %v", bucket, err)
 		return err
 	}
 	log.Printf("[DEBUG] Deleted bucket %v\n\n", bucket)
@@ -738,7 +739,7 @@ func flattenCors(corsRules []*storage.BucketCors) []map[string]interface{} {
 
 func expandBucketEncryption(configured interface{}) *storage.BucketEncryption {
 	encs := configured.([]interface{})
-	if encs == nil || encs[0] == nil {
+	if len(encs) == 0 || encs[0] == nil {
 		return nil
 	}
 	enc := encs[0].(map[string]interface{})
@@ -768,6 +769,10 @@ func flattenBucketEncryption(enc *storage.BucketEncryption) []map[string]interfa
 
 func expandBucketLogging(configured interface{}) *storage.BucketLogging {
 	loggings := configured.([]interface{})
+	if len(loggings) == 0 {
+		return nil
+	}
+
 	logging := loggings[0].(map[string]interface{})
 
 	bucketLogging := &storage.BucketLogging{
@@ -824,6 +829,10 @@ func flattenBucketRetentionPolicy(bucketRetentionPolicy *storage.BucketRetention
 
 func expandBucketVersioning(configured interface{}) *storage.BucketVersioning {
 	versionings := configured.([]interface{})
+	if len(versionings) == 0 {
+		return nil
+	}
+
 	versioning := versionings[0].(map[string]interface{})
 
 	bucketVersioning := &storage.BucketVersioning{}
@@ -884,10 +893,8 @@ func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleC
 	} else {
 		if *condition.IsLive {
 			ruleCondition["with_state"] = "LIVE"
-			ruleCondition["is_live"] = true
 		} else {
 			ruleCondition["with_state"] = "ARCHIVED"
-			ruleCondition["is_live"] = false
 		}
 	}
 	return ruleCondition
@@ -1050,18 +1057,9 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 			transformed.IsLive = googleapi.Bool(true)
 		case "ARCHIVED":
 			transformed.IsLive = googleapi.Bool(false)
-		case "ANY":
+		case "ANY", "":
 			// This is unnecessary, but set explicitly to nil for readability.
 			transformed.IsLive = nil
-		case "":
-			// Support deprecated `is_live` behavior
-			// is_live was always read (ok always true)
-			// so it can only support LIVE/ARCHIVED.
-			// TODO: When removing is_live, combine this case with case "ANY"
-			if v, ok := condition["is_live"]; ok {
-				log.Printf("[WARN] using deprecated field `is_live` because with_state is empty")
-				transformed.IsLive = googleapi.Bool(v.(bool))
-			}
 		default:
 			return nil, fmt.Errorf("unexpected value %q for condition.with_state", withStateV.(string))
 		}
@@ -1117,32 +1115,8 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
 
-	// Note that we are keeping the boolean notation from when is_live was
-	// the only field (i.e. not deprecated) in order to prevent a diff from
-	// hash key.
-	// There are three possible states for the actual condition
-	// and correspond to the following hash codes:
-	//
-	// 1. LIVE only: "true-"
-	//    Applies for one of:
-	//      with_state = "" && is_live = true
-	//      with_state = "LIVE"
-	//
-	// 2. ARCHIVED only: "false-"
-	//    Applies for one of:
-	//      with_state = "" && is_live = false
-	//      with_state = "ARCHIVED"
-	//
-	// 3. ANY (i.e. LIVE and ARCHIVED): ""
-	//    Applies for one of:
-	//      with_state = "ANY"
-
 	withStateV, withStateOk := m["with_state"]
-	if !withStateOk || withStateV.(string) == "" {
-		if isLiveV, ok := m["is_live"]; ok {
-			buf.WriteString(fmt.Sprintf("%t-", isLiveV.(bool)))
-		}
-	} else if withStateOk {
+	if withStateOk {
 		switch withStateV.(string) {
 		case "LIVE":
 			buf.WriteString(fmt.Sprintf("%t-", true))

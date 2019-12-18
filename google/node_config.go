@@ -1,9 +1,6 @@
 package google
 
 import (
-	"strconv"
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	containerBeta "google.golang.org/api/container/v1beta1"
@@ -123,7 +120,8 @@ var schemaNodeConfig = &schema.Schema{
 						return canonicalizeServiceScope(v.(string))
 					},
 				},
-				Set: stringScopeHashcode,
+				DiffSuppressFunc: containerClusterAddedScopesSuppress,
+				Set:              stringScopeHashcode,
 			},
 
 			"preemptible": {
@@ -172,13 +170,14 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"taint": {
-				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
 				Type:     schema.TypeList,
 				Optional: true,
 				// Computed=true because GKE Sandbox will automatically add taints to nodes that can/cannot run sandboxed pods.
-				Computed:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: taintDiffSuppress,
+				Computed: true,
+				ForceNew: true,
+				// Legacy config mode allows explicitly defining an empty taint.
+				// See https://www.terraform.io/docs/configuration/attr-as-blocks.html
+				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key": {
@@ -202,7 +201,7 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"workload_metadata_config": {
-				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
@@ -220,7 +219,7 @@ var schemaNodeConfig = &schema.Schema{
 			},
 
 			"sandbox_config": {
-				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/provider_versions.html for more details.",
+				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
@@ -341,6 +340,21 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 		nc.MinCpuPlatform = v.(string)
 	}
 
+	if v, ok := nodeConfig["taint"]; ok && len(v.([]interface{})) > 0 {
+		taints := v.([]interface{})
+		nodeTaints := make([]*containerBeta.NodeTaint, 0, len(taints))
+		for _, raw := range taints {
+			data := raw.(map[string]interface{})
+			taint := &containerBeta.NodeTaint{
+				Key:    data["key"].(string),
+				Value:  data["value"].(string),
+				Effect: data["effect"].(string),
+			}
+			nodeTaints = append(nodeTaints, taint)
+		}
+		nc.Taints = nodeTaints
+	}
+
 	return nc
 }
 
@@ -365,6 +379,7 @@ func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
 		"preemptible":              c.Preemptible,
 		"min_cpu_platform":         c.MinCpuPlatform,
 		"shielded_instance_config": flattenShieldedInstanceConfig(c.ShieldedInstanceConfig),
+		"taint":                    flattenTaints(c.Taints),
 	})
 
 	if len(c.OauthScopes) > 0 {
@@ -396,19 +411,14 @@ func flattenShieldedInstanceConfig(c *containerBeta.ShieldedInstanceConfig) []ma
 	return result
 }
 
-func taintDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	if strings.HasSuffix(k, "#") {
-		oldCount, oldErr := strconv.Atoi(old)
-		newCount, newErr := strconv.Atoi(new)
-		// If either of them isn't a number somehow, or if there's one that we didn't have before.
-		return oldErr != nil || newErr != nil || oldCount == newCount+1
-	} else {
-		lastDot := strings.LastIndex(k, ".")
-		taintKey := d.Get(k[:lastDot] + ".key").(string)
-		if taintKey == "nvidia.com/gpu" {
-			return true
-		} else {
-			return false
-		}
+func flattenTaints(c []*containerBeta.NodeTaint) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	for _, taint := range c {
+		result = append(result, map[string]interface{}{
+			"key":    taint.Key,
+			"value":  taint.Value,
+			"effect": taint.Effect,
+		})
 	}
+	return result
 }

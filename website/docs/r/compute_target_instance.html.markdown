@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_target_instance"
 sidebar_current: "docs-google-compute-target-instance"
@@ -25,7 +26,7 @@ description: |-
 Represents a TargetInstance resource which defines an endpoint instance
 that terminates traffic of certain protocols. In particular, they are used
 in Protocol Forwarding, where forwarding rules can send packets to a
-non-NAT’ed target instance. Each target instance contains a single
+non-NAT'ed target instance. Each target instance contains a single
 virtual machine instance that receives and handles traffic from the
 corresponding forwarding rules.
 
@@ -46,8 +47,8 @@ To get more information about TargetInstance, see:
 
 ```hcl
 resource "google_compute_target_instance" "default" {
-  name        = "target"
-  instance    = "${google_compute_instance.target-vm.self_link}"
+  name     = "target"
+  instance = google_compute_instance.target-vm.self_link
 }
 
 data "google_compute_image" "vmimage" {
@@ -61,8 +62,8 @@ resource "google_compute_instance" "target-vm" {
   zone         = "us-central1-a"
 
   boot_disk {
-    initialize_params{
-      image = "${data.google_compute_image.vmimage.self_link}"
+    initialize_params {
+      image = data.google_compute_image.vmimage.self_link
     }
   }
 
@@ -151,4 +152,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

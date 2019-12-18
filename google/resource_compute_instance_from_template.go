@@ -127,7 +127,6 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Force send all top-level fields that have been set in case they're overridden to zero values.
-	// TODO: consider doing so for nested fields as well.
 	// Initialize ForceSendFields to empty so we don't get things that the instance resource
 	// always force-sends.
 	instance.ForceSendFields = []string{}
@@ -154,10 +153,11 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	d.SetId(instance.Name)
+	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, z, instance.Name))
 
 	// Wait for the operation to complete
-	waitErr := computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutCreate).Minutes()), "instance to create")
+	waitErr := computeOperationWaitTime(config, op, project,
+		"instance to create", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")

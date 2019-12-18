@@ -20,7 +20,7 @@ func resourceComputeTargetPool() *schema.Resource {
 		Delete: resourceComputeTargetPoolDelete,
 		Update: resourceComputeTargetPoolUpdate,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceTargetPoolStateImporter,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -122,7 +122,7 @@ func canonicalizeInstanceRef(instanceRef string) string {
 
 // Healthchecks need to exist before being referred to from the target pool.
 func convertHealthChecks(healthChecks []interface{}, d *schema.ResourceData, config *Config) ([]string, error) {
-	if healthChecks == nil || len(healthChecks) == 0 {
+	if len(healthChecks) == 0 {
 		return []string{}, nil
 	}
 
@@ -207,9 +207,13 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// It probably maybe worked, so store the ID now
-	d.SetId(tpool.Name)
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
-	err = computeOperationWait(config.clientCompute, op, project, "Creating Target Pool")
+	err = computeOperationWait(config, op, project, "Creating Target Pool")
 	if err != nil {
 		return err
 	}
@@ -228,6 +232,8 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+
+	name := d.Get("name").(string)
 
 	d.Partial(true)
 
@@ -251,12 +257,12 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			removeReq.HealthChecks[i] = &compute.HealthCheckReference{HealthCheck: v}
 		}
 		op, err := config.clientCompute.TargetPools.RemoveHealthCheck(
-			project, region, d.Id(), removeReq).Do()
+			project, region, name, removeReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating health_check: %s", err)
 		}
 
-		err = computeOperationWait(config.clientCompute, op, project, "Updating Target Pool")
+		err = computeOperationWait(config, op, project, "Updating Target Pool")
 		if err != nil {
 			return err
 		}
@@ -267,12 +273,12 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			addReq.HealthChecks[i] = &compute.HealthCheckReference{HealthCheck: v}
 		}
 		op, err = config.clientCompute.TargetPools.AddHealthCheck(
-			project, region, d.Id(), addReq).Do()
+			project, region, name, addReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating health_check: %s", err)
 		}
 
-		err = computeOperationWait(config.clientCompute, op, project, "Updating Target Pool")
+		err = computeOperationWait(config, op, project, "Updating Target Pool")
 		if err != nil {
 			return err
 		}
@@ -301,12 +307,12 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			addReq.Instances[i] = &compute.InstanceReference{Instance: v}
 		}
 		op, err := config.clientCompute.TargetPools.AddInstance(
-			project, region, d.Id(), addReq).Do()
+			project, region, name, addReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating instances: %s", err)
 		}
 
-		err = computeOperationWait(config.clientCompute, op, project, "Updating Target Pool")
+		err = computeOperationWait(config, op, project, "Updating Target Pool")
 		if err != nil {
 			return err
 		}
@@ -317,11 +323,11 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			removeReq.Instances[i] = &compute.InstanceReference{Instance: v}
 		}
 		op, err = config.clientCompute.TargetPools.RemoveInstance(
-			project, region, d.Id(), removeReq).Do()
+			project, region, name, removeReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating instances: %s", err)
 		}
-		err = computeOperationWait(config.clientCompute, op, project, "Updating Target Pool")
+		err = computeOperationWait(config, op, project, "Updating Target Pool")
 		if err != nil {
 			return err
 		}
@@ -334,12 +340,12 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			Target: bpool_name,
 		}
 		op, err := config.clientCompute.TargetPools.SetBackup(
-			project, region, d.Id(), tref).Do()
+			project, region, name, tref).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating backup_pool: %s", err)
 		}
 
-		err = computeOperationWait(config.clientCompute, op, project, "Updating Target Pool")
+		err = computeOperationWait(config, op, project, "Updating Target Pool")
 		if err != nil {
 			return err
 		}
@@ -375,7 +381,7 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	tpool, err := config.clientCompute.TargetPools.Get(
-		project, region, d.Id()).Do()
+		project, region, d.Get("name").(string)).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Target Pool %q", d.Get("name").(string)))
 	}
@@ -412,15 +418,36 @@ func resourceComputeTargetPoolDelete(d *schema.ResourceData, meta interface{}) e
 
 	// Delete the TargetPool
 	op, err := config.clientCompute.TargetPools.Delete(
-		project, region, d.Id()).Do()
+		project, region, d.Get("name").(string)).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting TargetPool: %s", err)
 	}
 
-	err = computeOperationWait(config.clientCompute, op, project, "Deleting Target Pool")
+	err = computeOperationWait(config, op, project, "Deleting Target Pool")
 	if err != nil {
 		return err
 	}
 	d.SetId("")
 	return nil
+}
+
+func resourceTargetPoolStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/targetPools/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
+		"(?P<region>[^/]+)/(?P<name>[^/]+)",
+		"(?P<name>[^/]+)",
+	}, d, config); err != nil {
+		return nil, err
+	}
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }

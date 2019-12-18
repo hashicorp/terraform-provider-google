@@ -52,7 +52,7 @@ func testAccComputeRouter_routerBasicExample(context map[string]interface{}) str
 	return Nprintf(`
 resource "google_compute_router" "foobar" {
   name    = "my-router%{random_suffix}"
-  network = "${google_compute_network.foobar.name}"
+  network = google_compute_network.foobar.name
   bgp {
     asn               = 64514
     advertise_mode    = "CUSTOM"
@@ -67,7 +67,7 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_network" "foobar" {
-  name = "my-network%{random_suffix}"
+  name                    = "my-network%{random_suffix}"
   auto_create_subnetworks = false
 }
 `, context)

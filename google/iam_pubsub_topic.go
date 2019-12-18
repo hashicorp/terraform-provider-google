@@ -75,8 +75,6 @@ func PubsubTopicIamUpdaterProducer(d *schema.ResourceData, config *Config) (Reso
 	d.Set("project", u.project)
 	d.Set("topic", u.GetResourceId())
 
-	d.SetId(u.GetResourceId())
-
 	return u, nil
 }
 
@@ -110,14 +108,18 @@ func PubsubTopicIdParseFunc(d *schema.ResourceData, config *Config) error {
 }
 
 func (u *PubsubTopicIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyTopicUrl("getIamPolicy")
+	url, err := u.qualifyTopicUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
+	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "GET", project, url, nil)
+	policy, err := sendRequest(u.Config, "GET", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -140,8 +142,10 @@ func (u *PubsubTopicIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyTopicUrl("setIamPolicy")
-
+	url, err := u.qualifyTopicUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return err
@@ -155,8 +159,13 @@ func (u *PubsubTopicIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 	return nil
 }
 
-func (u *PubsubTopicIamUpdater) qualifyTopicUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://pubsub.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/topics/%s", u.project, u.topic), methodIdentifier)
+func (u *PubsubTopicIamUpdater) qualifyTopicUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{PubsubBasePath}}%s:%s", fmt.Sprintf("projects/%s/topics/%s", u.project, u.topic), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *PubsubTopicIamUpdater) GetResourceId() string {

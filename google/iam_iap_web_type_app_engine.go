@@ -89,8 +89,6 @@ func IapWebTypeAppEngineIamUpdaterProducer(d *schema.ResourceData, config *Confi
 	d.Set("project", u.project)
 	d.Set("app_id", u.GetResourceId())
 
-	d.SetId(u.GetResourceId())
-
 	return u, nil
 }
 
@@ -124,14 +122,18 @@ func IapWebTypeAppEngineIdParseFunc(d *schema.ResourceData, config *Config) erro
 }
 
 func (u *IapWebTypeAppEngineIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyWebTypeAppEngineUrl("getIamPolicy")
+	url, err := u.qualifyWebTypeAppEngineUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
+	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "POST", project, url, nil)
+	policy, err := sendRequest(u.Config, "POST", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -154,8 +156,10 @@ func (u *IapWebTypeAppEngineIamUpdater) SetResourceIamPolicy(policy *cloudresour
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyWebTypeAppEngineUrl("setIamPolicy")
-
+	url, err := u.qualifyWebTypeAppEngineUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return err
@@ -169,8 +173,13 @@ func (u *IapWebTypeAppEngineIamUpdater) SetResourceIamPolicy(policy *cloudresour
 	return nil
 }
 
-func (u *IapWebTypeAppEngineIamUpdater) qualifyWebTypeAppEngineUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://iap.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/iap_web/appengine-%s", u.project, u.appId), methodIdentifier)
+func (u *IapWebTypeAppEngineIamUpdater) qualifyWebTypeAppEngineUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web/appengine-%s", u.project, u.appId), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *IapWebTypeAppEngineIamUpdater) GetResourceId() string {

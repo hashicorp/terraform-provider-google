@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_instance_group_manager"
 sidebar_current: "docs-google-compute-instance-group-manager"
@@ -23,7 +24,7 @@ resource "google_compute_health_check" "autohealing" {
   check_interval_sec  = 5
   timeout_sec         = 5
   healthy_threshold   = 2
-  unhealthy_threshold = 10                         # 50 seconds
+  unhealthy_threshold = 10 # 50 seconds
 
   http_health_check {
     request_path = "/healthz"
@@ -35,11 +36,13 @@ resource "google_compute_instance_group_manager" "appserver" {
   name = "appserver-igm"
 
   base_instance_name = "app"
-  instance_template  = "${google_compute_instance_template.appserver.self_link}"
-  update_strategy    = "NONE"
   zone               = "us-central1-a"
 
-  target_pools = ["${google_compute_target_pool.appserver.self_link}"]
+  version {
+    instance_template  = google_compute_instance_template.appserver.self_link
+  }
+
+  target_pools = [google_compute_target_pool.appserver.self_link]
   target_size  = 2
 
   named_port {
@@ -48,7 +51,7 @@ resource "google_compute_instance_group_manager" "appserver" {
   }
 
   auto_healing_policies {
-    health_check      = "${google_compute_health_check.autohealing.self_link}"
+    health_check      = google_compute_health_check.autohealing.self_link
     initial_delay_sec = 300
   }
 }
@@ -57,22 +60,22 @@ resource "google_compute_instance_group_manager" "appserver" {
 ## Example Usage with multiple versions (`google-beta` provider)
 ```hcl
 resource "google_compute_instance_group_manager" "appserver" {
-  provider = "google-beta"
-  name = "appserver-igm"
+  provider = google-beta
+  name     = "appserver-igm"
 
   base_instance_name = "app"
   zone               = "us-central1-a"
 
-  target_size  = 5
+  target_size = 5
 
   version {
-    name = "appserver"
-    instance_template  = "${google_compute_instance_template.appserver.self_link}"
+    name              = "appserver"
+    instance_template = google_compute_instance_template.appserver.self_link
   }
 
   version {
-    name = "appserver-canary"
-    instance_template  = "${google_compute_instance_template.appserver-canary.self_link}"
+    name              = "appserver-canary"
+    instance_template = google_compute_instance_template.appserver-canary.self_link
     target_size {
       fixed = 1
     }
@@ -91,11 +94,7 @@ The following arguments are supported:
     appending a hyphen and a random four-character string to the base instance
     name.
 
-* `instance_template` - (Required, [GA](https://terraform.io/docs/providers/google/provider_versions.html)) The
-  full URL to an instance template from which all new instances
-  will be created. This field is only present in the `google` provider.
-
-* `version` - (Required, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) Application versions managed by this instance group. Each
+* `version` - (Required) Application versions managed by this instance group. Each
     version deals with a specific instance template, allowing canary release scenarios.
     Structure is documented below.
 
@@ -118,12 +117,6 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `update_strategy` - (Optional, Default `"REPLACE"`) If the `instance_template`
-    resource is modified, a value of `"NONE"` will prevent any of the managed
-    instances from being restarted by Terraform. A value of `"REPLACE"` will
-    restart all of the instances at once. This field is only present in the
-    `google` provider.
-
 * `target_size` - (Optional) The target number of running instances for this managed
     instance group. This value should always be explicitly set unless this resource is attached to
      an autoscaler, in which case it should never be set. Defaults to `0`.
@@ -138,27 +131,27 @@ The following arguments are supported:
 
 ---
 
-* `auto_healing_policies` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The autohealing policies for this managed instance
+* `auto_healing_policies` - (Optional) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 
-* `update_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/instanceGroupManagers/patch)
+* `update_policy` - (Optional) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/instanceGroupManagers/patch)
 - - -
 
 The `update_policy` block supports:
 
 ```hcl
-update_policy{
-  type = "PROACTIVE"
-  minimal_action = "REPLACE"
-  max_surge_percent = 20
+update_policy {
+  type                  = "PROACTIVE"
+  minimal_action        = "REPLACE"
+  max_surge_percent     = 20
   max_unavailable_fixed = 2
-  min_ready_sec = 50
+  min_ready_sec         = 50
 }
 ```
 
-* `minimal_action` - (Required) - Minimal action to be taken on an instance. Valid values are `"RESTART"`, `"REPLACE"`
+* `minimal_action` - (Required) - Minimal action to be taken on an instance. You can specify either `RESTART` to restart existing instances or `REPLACE` to delete and create new instances from the target template. If you specify a `RESTART`, the Updater will attempt to perform that action only. However, if the Updater determines that the minimal action you specify is not enough to perform the update, it might perform a more disruptive action.
 
-* `type` - (Required) - The type of update. Valid values are `"OPPORTUNISTIC"`, `"PROACTIVE"`
+* `type` - (Required) - The type of update process. You can specify either `PROACTIVE` so that the instance group manager proactively executes actions in order to bring instances to their target versions or `OPPORTUNISTIC` so that no action is proactively executed but the update will be performed as part of other actions (for example, resizes or recreateInstances calls).
 
 * `max_surge_fixed` - (Optional), The maximum number of instances that can be created above the specified targetSize during the update process. Conflicts with `max_surge_percent`. If neither is set, defaults to 1
 
@@ -189,21 +182,23 @@ The `version` block supports:
 
 ```hcl
 version {
- name = "appserver-canary"
- instance_template = "${google_compute_instance_template.appserver-canary.self_link}"
- target_size {
-   fixed = 1
- }
+  name              = "appserver-canary"
+  instance_template = google_compute_instance_template.appserver-canary.self_link
+
+  target_size {
+    fixed = 1
+  }
 }
 ```
 
 ```hcl
 version {
- name = "appserver-canary"
- instance_template = "${google_compute_instance_template.appserver-canary.self_link}"
- target_size {
-   percent = 20
- }
+  name              = "appserver-canary"
+  instance_template = google_compute_instance_template.appserver-canary.self_link
+
+  target_size {
+    percent = 20
+  }
 }
 ```
 
@@ -252,6 +247,7 @@ This resource provides the following
 Instance group managers can be imported using any of these accepted formats:
 
 ```
+$ terraform import google_compute_instance_group_manager.appserver projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{name}}
 $ terraform import google_compute_instance_group_manager.appserver {{project}}/{{zone}}/{{name}}
 $ terraform import google_compute_instance_group_manager.appserver {{project}}/{{name}}
 $ terraform import google_compute_instance_group_manager.appserver {{name}}

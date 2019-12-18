@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud DNS"
 layout: "google"
 page_title: "Google: google_dns_managed_zone"
 sidebar_current: "docs-google-datasource-dns-managed-zone"
@@ -16,7 +17,7 @@ and
 
 ```hcl
 data "google_dns_managed_zone" "env_dns_zone" {
-  name        = "qa-zone"
+  name = "qa-zone"
 }
 
 resource "google_dns_record_set" "dns" {
@@ -24,7 +25,7 @@ resource "google_dns_record_set" "dns" {
   type = "TXT"
   ttl  = 300
 
-  managed_zone = "${data.google_dns_managed_zone.env_dns_zone.name}"
+  managed_zone = data.google_dns_managed_zone.env_dns_zone.name
 
   rrdatas = ["test"]
 }
@@ -47,3 +48,6 @@ The following attributes are exported:
 * `name_servers` - The list of nameservers that will be authoritative for this
     domain. Use NS records to redirect from your DNS provider to these names,
     thus making Google Cloud DNS authoritative for this zone.
+
+* `visibility` - The zone's visibility: public zones are exposed to the Internet,
+    while private zones are visible only to Virtual Private Cloud resources.

@@ -73,47 +73,50 @@ func TestAccRedisInstance_regionFromLocation(t *testing.T) {
 func testAccRedisInstance_update(name string) string {
 	return fmt.Sprintf(`
 resource "google_redis_instance" "test" {
-	name           = "%s"
-	display_name   = "pre-update"
-	memory_size_gb = 1
-	region         = "us-central1"
+  name           = "%s"
+  display_name   = "pre-update"
+  memory_size_gb = 1
+  region         = "us-central1"
 
-	labels = {
-		my_key    = "my_val"
-		other_key = "other_val"
-	}
+  labels = {
+    my_key    = "my_val"
+    other_key = "other_val"
+  }
 
-	redis_configs = {
-		maxmemory-policy       = "allkeys-lru"
-		notify-keyspace-events = "KEA"
-	}
-}`, name)
+  redis_configs = {
+    maxmemory-policy       = "allkeys-lru"
+    notify-keyspace-events = "KEA"
+  }
+}
+`, name)
 }
 
 func testAccRedisInstance_update2(name string) string {
 	return fmt.Sprintf(`
 resource "google_redis_instance" "test" {
-	name           = "%s"
-	display_name   = "post-update"
-	memory_size_gb = 1
+  name           = "%s"
+  display_name   = "post-update"
+  memory_size_gb = 1
 
-	labels = {
-		my_key    = "my_val"
-		other_key = "new_val"
-	}
+  labels = {
+    my_key    = "my_val"
+    other_key = "new_val"
+  }
 
-	redis_configs = {
-		maxmemory-policy       = "noeviction"
-		notify-keyspace-events = ""
-	}
-}`, name)
+  redis_configs = {
+    maxmemory-policy       = "noeviction"
+    notify-keyspace-events = ""
+  }
+}
+`, name)
 }
 
 func testAccRedisInstance_regionFromLocation(name, zone string) string {
 	return fmt.Sprintf(`
 resource "google_redis_instance" "test" {
-	name           = "%s"
-	memory_size_gb = 1
-	location_id    = "%s"
-}`, name, zone)
+  name           = "%s"
+  memory_size_gb = 1
+  location_id    = "%s"
+}
+`, name, zone)
 }

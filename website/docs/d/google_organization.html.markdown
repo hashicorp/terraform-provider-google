@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_organization"
 sidebar_current: "docs-google-datasource-organization"
@@ -17,7 +18,7 @@ data "google_organization" "org" {
 
 resource "google_folder" "sales" {
   display_name = "Sales"
-  parent       = "${data.google_organization.org.name}"
+  parent       = data.google_organization.org.name
 }
 ```
 
@@ -36,7 +37,7 @@ The following arguments are supported:
 
 The following additional attributes are exported:
 
-* `id` - The Organization ID.
+* `org_id` - The Organization ID.
 * `name` - The resource name of the Organization in the form `organizations/{organization_id}`.
 * `directory_customer_id` - The Google for Work customer ID of the Organization.
 * `create_time` - Timestamp when the Organization was created. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".

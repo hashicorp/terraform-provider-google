@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud KMS"
 layout: "google"
 page_title: "Google: google_kms_secret_ciphertext"
 sidebar_current: "docs-google-kms-secret-ciphertext"
@@ -32,7 +33,7 @@ resource "google_kms_key_ring" "my_key_ring" {
 
 resource "google_kms_crypto_key" "my_crypto_key" {
   name     = "my-crypto-key"
-  key_ring = "${google_kms_key_ring.my_key_ring.self_link}"
+  key_ring = google_kms_key_ring.my_key_ring.self_link
 }
 ```
 
@@ -40,8 +41,8 @@ Next, encrypt some sensitive information and use the encrypted data in your reso
 
 ```hcl
 data "google_kms_secret_ciphertext" "my_password" {
-  crypto_key = "${google_kms_crypto_key.my_crypto_key.self_link}"
-  plaintext = "my-secret-password"
+  crypto_key = google_kms_crypto_key.my_crypto_key.self_link
+  plaintext  = "my-secret-password"
 }
 
 resource "google_compute_instance" "instance" {
@@ -61,9 +62,9 @@ resource "google_compute_instance" "instance" {
     access_config {
     }
   }
-  
+
   metadata = {
-    password = "${data.google_kms_secret_ciphertext.my_password.ciphertext}"
+    password = data.google_kms_secret_ciphertext.my_password.ciphertext
   }
 }
 ```
@@ -96,3 +97,7 @@ The following arguments are supported:
 The following attribute is exported:
 
 * `ciphertext` - Contains the result of encrypting the provided plaintext, encoded in base64.
+
+## User Project Overrides
+
+This data source supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

@@ -45,7 +45,7 @@ func testAccCheckGoogleIAMRoleCheck(n string) resource.TestCheckFunc {
 func testAccCheckGoogleIamRoleConfig(name string) string {
 	return fmt.Sprintf(`
 data "google_iam_role" "role" {
-	name = "%s"
+  name = "%s"
 }
 `, name)
 }

@@ -46,22 +46,28 @@ func resourceAccessContextManagerAccessPolicy() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The parent of this AccessPolicy in the Cloud Resource Hierarchy.
+Format: organizations/{organization_id}`,
 			},
 			"title": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Human readable title. Does not affect behavior.`,
 			},
 			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Time the AccessPolicy was created in UTC.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Resource name of the AccessPolicy. Format: {policy_id}`,
 			},
 			"update_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Time the AccessPolicy was updated in UTC.`,
 			},
 		},
 	}
@@ -102,14 +108,14 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	waitErr := accessContextManagerOperationWaitTime(
+	err = accessContextManagerOperationWaitTime(
 		config, res, "Creating AccessPolicy",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create AccessPolicy: %s", waitErr)
+		return fmt.Errorf("Error waiting to create AccessPolicy: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating AccessPolicy %q: %#v", d.Id(), res)

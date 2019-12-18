@@ -38,9 +38,9 @@ func resourceComputeProjectMetadataItem() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(5 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
+			Create: schema.DefaultTimeout(7 * time.Minute),
+			Update: schema.DefaultTimeout(7 * time.Minute),
+			Delete: schema.DefaultTimeout(7 * time.Minute),
 		},
 	}
 }
@@ -180,7 +180,7 @@ func updateComputeCommonInstanceMetadata(config *Config, projectID string, key s
 
 		log.Printf("[DEBUG] SetCommonInstanceMetadata: %d (%s)", op.Id, op.SelfLink)
 
-		return computeOperationWaitTime(config.clientCompute, op, project.Name, "SetCommonInstanceMetadata", timeout)
+		return computeOperationWaitTime(config, op, project.Name, "SetCommonInstanceMetadata", timeout)
 	}
 
 	return MetadataRetryWrapper(updateMD)

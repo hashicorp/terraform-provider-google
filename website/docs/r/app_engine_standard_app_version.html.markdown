@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "App Engine"
 layout: "google"
 page_title: "Google: google_app_engine_standard_app_version"
 sidebar_current: "docs-google-app-engine-standard-app-version"
@@ -41,70 +42,58 @@ To get more information about StandardAppVersion, see:
 
 
 ```hcl
+resource "google_app_engine_standard_app_version" "myapp_v1" {
+  version_id = "v1"
+  service    = "myapp"
+  runtime    = "nodejs10"
+
+  entrypoint {
+    shell = "node ./app.js"
+  }
+
+  deployment {
+    zip {
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.name}"
+    }
+  }
+
+  env_variables = {
+    port = "8080"
+  }
+
+  delete_service_on_destroy = true
+}
+
+resource "google_app_engine_standard_app_version" "myapp_v2" {
+  version_id = "v2"
+  service    = "myapp"
+  runtime    = "nodejs10"
+
+  entrypoint {
+    shell = "node ./app.js"
+  }
+
+  deployment {
+    zip {
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.name}"
+    }
+  }
+
+  env_variables = {
+    port = "8080"
+  }
+
+  noop_on_destroy = true
+}
+
 resource "google_storage_bucket" "bucket" {
-	name = "appengine-static-content"
+  name = "appengine-static-content"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name   = "hello-world.zip"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "./test-fixtures/appengine/hello-world.zip"
-}
-
-resource "google_app_engine_standard_app_version" "version_id" {
-  version_id = "v2"
-  service = "default"
-  runtime = "nodejs10"
-  noop_on_destroy = true
-  entrypoint {
-    shell = "node ./app.js"
-  }
-  deployment {
-    zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
-    }  
-  }
-  env_variables = {
-    port = "8080"
-  } 
-
-}
-
-resource "google_app_engine_standard_app_version" "myapp_v1" {
-  version_id = "v1"
-  service = "myapp"
-  runtime = "nodejs10"
-  delete_service_on_destroy = true
-  entrypoint {
-    shell = "node ./app.js"
-  }
-  deployment {
-    zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
-    }  
-  }
-  env_variables = {
-    port = "8080"
-  } 
-  depends_on = ["google_storage_bucket_object.object"]
-}
-resource "google_app_engine_standard_app_version" "myapp_v2" {
-  version_id = "v2"
-  service = "myapp"
-  runtime = "nodejs10"
-  entrypoint {
-    shell = "node ./app.js"
-  }
-  deployment {
-    zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
-    }  
-  }
-  env_variables = {
-    port = "8080"
-  } 
-  depends_on = ["google_app_engine_standard_app_version.myapp_v1"]
-
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/appengine/hello-world.zip"
 }
 ```
 
@@ -207,7 +196,7 @@ The `handlers` block supports:
 The `script` block supports:
 
 * `script_path` -
-  (Optional)
+  (Required)
   Path to the script from the application root directory.
 
 The `static_files` block supports:
@@ -268,7 +257,7 @@ The `deployment` block supports:
 The `zip` block supports:
 
 * `source_url` -
-  (Optional)
+  (Required)
   Source URL
 
 * `files_count` -
@@ -284,13 +273,13 @@ The `files` block supports:
   SHA1 checksum of the file
 
 * `source_url` -
-  (Optional)
+  (Required)
   Source URL
 
 The `entrypoint` block supports:
 
 * `shell` -
-  (Optional)
+  (Required)
   The format should be a shell command that can be fed to bash -c.
 
 ## Attributes Reference
@@ -326,4 +315,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -102,6 +103,11 @@ func Provider() terraform.ResourceProvider {
 				Optional: true,
 			},
 
+			"request_timeout": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			// Generated Products
 			"access_context_manager_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -167,6 +173,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_CLOUD_FUNCTIONS_CUSTOM_ENDPOINT",
 				}, CloudFunctionsDefaultBasePath),
 			},
+			"cloud_run_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_CLOUD_RUN_CUSTOM_ENDPOINT",
+				}, CloudRunDefaultBasePath),
+			},
 			"cloud_scheduler_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -174,6 +188,14 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_CLOUD_SCHEDULER_CUSTOM_ENDPOINT",
 				}, CloudSchedulerDefaultBasePath),
+			},
+			"cloud_tasks_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_CLOUD_TASKS_CUSTOM_ENDPOINT",
+				}, CloudTasksDefaultBasePath),
 			},
 			"compute_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -198,6 +220,14 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_DATAPROC_CUSTOM_ENDPOINT",
 				}, DataprocDefaultBasePath),
+			},
+			"deployment_manager_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_DEPLOYMENT_MANAGER_CUSTOM_ENDPOINT",
+				}, DeploymentManagerDefaultBasePath),
 			},
 			"dns_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -368,6 +398,7 @@ func Provider() terraform.ResourceProvider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"google_active_folder":                            dataSourceGoogleActiveFolder(),
 			"google_billing_account":                          dataSourceGoogleBillingAccount(),
+			"google_bigquery_default_service_account":         dataSourceGoogleBigqueryDefaultServiceAccount(),
 			"google_client_config":                            dataSourceGoogleClientConfig(),
 			"google_client_openid_userinfo":                   dataSourceGoogleClientOpenIDUserinfo(),
 			"google_cloudfunctions_function":                  dataSourceGoogleCloudFunctionsFunction(),
@@ -386,6 +417,7 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_node_types":                       dataSourceGoogleComputeNodeTypes(),
 			"google_compute_regions":                          dataSourceGoogleComputeRegions(),
 			"google_compute_region_instance_group":            dataSourceGoogleComputeRegionInstanceGroup(),
+			"google_compute_router":                           dataSourceGoogleComputeRouter(),
 			"google_compute_ssl_certificate":                  dataSourceGoogleComputeSslCertificate(),
 			"google_compute_ssl_policy":                       dataSourceGoogleComputeSslPolicy(),
 			"google_compute_subnetwork":                       dataSourceGoogleComputeSubnetwork(),
@@ -410,7 +442,6 @@ func Provider() terraform.ResourceProvider {
 			"google_project":                                  dataSourceGoogleProject(),
 			"google_projects":                                 dataSourceGoogleProjects(),
 			"google_project_organization_policy":              dataSourceGoogleProjectOrganizationPolicy(),
-			"google_project_services":                         dataSourceGoogleProjectServices(),
 			"google_service_account":                          dataSourceGoogleServiceAccount(),
 			"google_service_account_access_token":             dataSourceGoogleServiceAccountAccessToken(),
 			"google_service_account_key":                      dataSourceGoogleServiceAccountKey(),
@@ -437,9 +468,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 81
-// Generated IAM resources: 33
-// Total generated resources: 114
+// Generated resources: 88
+// Generated IAM resources: 45
+// Total generated resources: 133
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -467,7 +498,13 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloudfunctions_function_iam_binding":       ResourceIamBinding(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
 			"google_cloudfunctions_function_iam_member":        ResourceIamMember(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
 			"google_cloudfunctions_function_iam_policy":        ResourceIamPolicy(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
+			"google_cloud_run_domain_mapping":                  resourceCloudRunDomainMapping(),
+			"google_cloud_run_service":                         resourceCloudRunService(),
+			"google_cloud_run_service_iam_binding":             ResourceIamBinding(CloudRunServiceIamSchema, CloudRunServiceIamUpdaterProducer, CloudRunServiceIdParseFunc),
+			"google_cloud_run_service_iam_member":              ResourceIamMember(CloudRunServiceIamSchema, CloudRunServiceIamUpdaterProducer, CloudRunServiceIdParseFunc),
+			"google_cloud_run_service_iam_policy":              ResourceIamPolicy(CloudRunServiceIamSchema, CloudRunServiceIamUpdaterProducer, CloudRunServiceIdParseFunc),
 			"google_cloud_scheduler_job":                       resourceCloudSchedulerJob(),
+			"google_cloud_tasks_queue":                         resourceCloudTasksQueue(),
 			"google_compute_address":                           resourceComputeAddress(),
 			"google_compute_autoscaler":                        resourceComputeAutoscaler(),
 			"google_compute_backend_bucket":                    resourceComputeBackendBucket(),
@@ -485,6 +522,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_https_health_check":                resourceComputeHttpsHealthCheck(),
 			"google_compute_health_check":                      resourceComputeHealthCheck(),
 			"google_compute_image":                             resourceComputeImage(),
+			"google_compute_instance_iam_binding":              ResourceIamBinding(ComputeInstanceIamSchema, ComputeInstanceIamUpdaterProducer, ComputeInstanceIdParseFunc),
+			"google_compute_instance_iam_member":               ResourceIamMember(ComputeInstanceIamSchema, ComputeInstanceIamUpdaterProducer, ComputeInstanceIdParseFunc),
+			"google_compute_instance_iam_policy":               ResourceIamPolicy(ComputeInstanceIamSchema, ComputeInstanceIamUpdaterProducer, ComputeInstanceIdParseFunc),
 			"google_compute_interconnect_attachment":           resourceComputeInterconnectAttachment(),
 			"google_compute_network":                           resourceComputeNetwork(),
 			"google_compute_network_endpoint":                  resourceComputeNetworkEndpoint(),
@@ -493,15 +533,20 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_node_template":                     resourceComputeNodeTemplate(),
 			"google_compute_region_autoscaler":                 resourceComputeRegionAutoscaler(),
 			"google_compute_region_disk":                       resourceComputeRegionDisk(),
+			"google_compute_region_health_check":               resourceComputeRegionHealthCheck(),
 			"google_compute_resource_policy":                   resourceComputeResourcePolicy(),
 			"google_compute_route":                             resourceComputeRoute(),
 			"google_compute_router":                            resourceComputeRouter(),
 			"google_compute_router_nat":                        resourceComputeRouterNat(),
+			"google_compute_router_peer":                       resourceComputeRouterBgpPeer(),
 			"google_compute_snapshot":                          resourceComputeSnapshot(),
 			"google_compute_ssl_certificate":                   resourceComputeSslCertificate(),
 			"google_compute_reservation":                       resourceComputeReservation(),
 			"google_compute_ssl_policy":                        resourceComputeSslPolicy(),
 			"google_compute_subnetwork":                        resourceComputeSubnetwork(),
+			"google_compute_subnetwork_iam_binding":            ResourceIamBinding(ComputeSubnetworkIamSchema, ComputeSubnetworkIamUpdaterProducer, ComputeSubnetworkIdParseFunc),
+			"google_compute_subnetwork_iam_member":             ResourceIamMember(ComputeSubnetworkIamSchema, ComputeSubnetworkIamUpdaterProducer, ComputeSubnetworkIdParseFunc),
+			"google_compute_subnetwork_iam_policy":             ResourceIamPolicy(ComputeSubnetworkIamSchema, ComputeSubnetworkIamUpdaterProducer, ComputeSubnetworkIdParseFunc),
 			"google_compute_target_http_proxy":                 resourceComputeTargetHttpProxy(),
 			"google_compute_target_https_proxy":                resourceComputeTargetHttpsProxy(),
 			"google_compute_target_instance":                   resourceComputeTargetInstance(),
@@ -511,6 +556,8 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_url_map":                           resourceComputeUrlMap(),
 			"google_compute_vpn_tunnel":                        resourceComputeVpnTunnel(),
 			"google_container_analysis_note":                   resourceContainerAnalysisNote(),
+			"google_dataproc_autoscaling_policy":               resourceDataprocAutoscalingPolicy(),
+			"google_deployment_manager_deployment":             resourceDeploymentManagerDeployment(),
 			"google_dns_managed_zone":                          resourceDNSManagedZone(),
 			"google_filestore_instance":                        resourceFilestoreInstance(),
 			"google_firestore_index":                           resourceFirestoreIndex(),
@@ -558,6 +605,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_spanner_instance":                          resourceSpannerInstance(),
 			"google_spanner_database":                          resourceSpannerDatabase(),
 			"google_sql_database":                              resourceSQLDatabase(),
+			"google_storage_bucket_iam_binding":                ResourceIamBinding(StorageBucketIamSchema, StorageBucketIamUpdaterProducer, StorageBucketIdParseFunc),
+			"google_storage_bucket_iam_member":                 ResourceIamMember(StorageBucketIamSchema, StorageBucketIamUpdaterProducer, StorageBucketIdParseFunc),
+			"google_storage_bucket_iam_policy":                 ResourceIamPolicy(StorageBucketIamSchema, StorageBucketIamUpdaterProducer, StorageBucketIdParseFunc),
 			"google_storage_bucket_access_control":             resourceStorageBucketAccessControl(),
 			"google_storage_object_access_control":             resourceStorageObjectAccessControl(),
 			"google_storage_default_object_access_control":     resourceStorageDefaultObjectAccessControl(),
@@ -583,9 +633,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_instance_from_template":        resourceComputeInstanceFromTemplate(),
 			"google_compute_instance_group":                resourceComputeInstanceGroup(),
 			"google_compute_instance_group_manager":        resourceComputeInstanceGroupManager(),
-			"google_compute_instance_iam_binding":          ResourceIamBinding(IamComputeInstanceSchema, NewComputeInstanceIamUpdater, ComputeInstanceIdParseFunc),
-			"google_compute_instance_iam_member":           ResourceIamMember(IamComputeInstanceSchema, NewComputeInstanceIamUpdater, ComputeInstanceIdParseFunc),
-			"google_compute_instance_iam_policy":           ResourceIamPolicy(IamComputeInstanceSchema, NewComputeInstanceIamUpdater, ComputeInstanceIdParseFunc),
 			"google_compute_instance_template":             resourceComputeInstanceTemplate(),
 			"google_compute_network_peering":               resourceComputeNetworkPeering(),
 			"google_compute_project_default_network_tier":  resourceComputeProjectDefaultNetworkTier(),
@@ -593,13 +640,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_project_metadata_item":         resourceComputeProjectMetadataItem(),
 			"google_compute_region_instance_group_manager": resourceComputeRegionInstanceGroupManager(),
 			"google_compute_router_interface":              resourceComputeRouterInterface(),
-			"google_compute_router_peer":                   resourceComputeRouterPeer(),
 			"google_compute_security_policy":               resourceComputeSecurityPolicy(),
 			"google_compute_shared_vpc_host_project":       resourceComputeSharedVpcHostProject(),
 			"google_compute_shared_vpc_service_project":    resourceComputeSharedVpcServiceProject(),
-			"google_compute_subnetwork_iam_binding":        ResourceIamBinding(IamComputeSubnetworkSchema, NewComputeSubnetworkIamUpdater, ComputeSubnetworkIdParseFunc),
-			"google_compute_subnetwork_iam_member":         ResourceIamMember(IamComputeSubnetworkSchema, NewComputeSubnetworkIamUpdater, ComputeSubnetworkIdParseFunc),
-			"google_compute_subnetwork_iam_policy":         ResourceIamPolicy(IamComputeSubnetworkSchema, NewComputeSubnetworkIamUpdater, ComputeSubnetworkIdParseFunc),
 			"google_compute_target_pool":                   resourceComputeTargetPool(),
 			"google_container_cluster":                     resourceContainerCluster(),
 			"google_container_node_pool":                   resourceContainerNodePool(),
@@ -646,6 +689,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_organization_iam_custom_role":          resourceGoogleOrganizationIamCustomRole(),
 			"google_organization_iam_member":               ResourceIamMember(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
 			"google_organization_iam_policy":               ResourceIamPolicy(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
+			"google_organization_iam_audit_config":         ResourceIamAuditConfig(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
 			"google_organization_policy":                   resourceGoogleOrganizationPolicy(),
 			"google_project":                               resourceGoogleProject(),
 			"google_project_iam_policy":                    resourceGoogleProjectIamPolicy(),
@@ -656,7 +700,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_project_iam_custom_role":               resourceGoogleProjectIamCustomRole(),
 			"google_project_organization_policy":           resourceGoogleProjectOrganizationPolicy(),
 			"google_project_usage_export_bucket":           resourceProjectUsageBucket(),
-			"google_project_services":                      resourceGoogleProjectServices(),
 			"google_pubsub_subscription_iam_binding":       ResourceIamBinding(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater, PubsubSubscriptionIdParseFunc),
 			"google_pubsub_subscription_iam_member":        ResourceIamMember(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater, PubsubSubscriptionIdParseFunc),
 			"google_pubsub_subscription_iam_policy":        ResourceIamPolicy(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater, PubsubSubscriptionIdParseFunc),
@@ -669,17 +712,11 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_service_account_key":                   resourceGoogleServiceAccountKey(),
 			"google_storage_bucket":                        resourceStorageBucket(),
 			"google_storage_bucket_acl":                    resourceStorageBucketAcl(),
-			// Legacy roles such as roles/storage.legacyBucketReader are automatically added
-			// when creating a bucket. For this reason, it is better not to add the authoritative
-			// google_storage_bucket_iam_policy resource.
-			"google_storage_bucket_iam_binding": ResourceIamBinding(IamStorageBucketSchema, NewStorageBucketIamUpdater, StorageBucketIdParseFunc),
-			"google_storage_bucket_iam_member":  ResourceIamMember(IamStorageBucketSchema, NewStorageBucketIamUpdater, StorageBucketIdParseFunc),
-			"google_storage_bucket_iam_policy":  ResourceIamPolicy(IamStorageBucketSchema, NewStorageBucketIamUpdater, StorageBucketIdParseFunc),
-			"google_storage_bucket_object":      resourceStorageBucketObject(),
-			"google_storage_object_acl":         resourceStorageObjectAcl(),
-			"google_storage_default_object_acl": resourceStorageDefaultObjectAcl(),
-			"google_storage_notification":       resourceStorageNotification(),
-			"google_storage_transfer_job":       resourceStorageTransferJob(),
+			"google_storage_bucket_object":                 resourceStorageBucketObject(),
+			"google_storage_object_acl":                    resourceStorageObjectAcl(),
+			"google_storage_default_object_acl":            resourceStorageDefaultObjectAcl(),
+			"google_storage_notification":                  resourceStorageNotification(),
+			"google_storage_transfer_job":                  resourceStorageTransferJob(),
 		},
 	)
 }
@@ -693,6 +730,13 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 		terraformVersion:    terraformVersion,
 	}
 
+	if v, ok := d.GetOk("request_timeout"); ok {
+		var err error
+		config.RequestTimeout, err = time.ParseDuration(v.(string))
+		if err != nil {
+			return nil, err
+		}
+	}
 	// Add credential source
 	if v, ok := d.GetOk("access_token"); ok {
 		config.AccessToken = v.(string)
@@ -702,7 +746,7 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 
 	scopes := d.Get("scopes").([]interface{})
 	if len(scopes) > 0 {
-		config.Scopes = make([]string, len(scopes), len(scopes))
+		config.Scopes = make([]string, len(scopes))
 	}
 	for i, scope := range scopes {
 		config.Scopes[i] = scope.(string)
@@ -723,10 +767,13 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	config.BinaryAuthorizationBasePath = d.Get("binary_authorization_custom_endpoint").(string)
 	config.CloudBuildBasePath = d.Get("cloud_build_custom_endpoint").(string)
 	config.CloudFunctionsBasePath = d.Get("cloud_functions_custom_endpoint").(string)
+	config.CloudRunBasePath = d.Get("cloud_run_custom_endpoint").(string)
 	config.CloudSchedulerBasePath = d.Get("cloud_scheduler_custom_endpoint").(string)
+	config.CloudTasksBasePath = d.Get("cloud_tasks_custom_endpoint").(string)
 	config.ComputeBasePath = d.Get("compute_custom_endpoint").(string)
 	config.ContainerAnalysisBasePath = d.Get("container_analysis_custom_endpoint").(string)
 	config.DataprocBasePath = d.Get("dataproc_custom_endpoint").(string)
+	config.DeploymentManagerBasePath = d.Get("deployment_manager_custom_endpoint").(string)
 	config.DNSBasePath = d.Get("dns_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)

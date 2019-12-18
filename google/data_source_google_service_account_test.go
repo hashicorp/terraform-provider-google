@@ -41,7 +41,7 @@ resource "google_service_account" "acceptance" {
 }
 
 data "google_service_account" "acceptance" {
-	account_id = "${google_service_account.acceptance.account_id}"
+  account_id = google_service_account.acceptance.account_id
 }
 `, account)
 }

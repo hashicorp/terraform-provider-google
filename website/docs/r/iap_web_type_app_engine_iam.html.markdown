@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Identity-Aware Proxy"
 layout: "google"
 page_title: "Google: google_iap_web_type_app_engine_iam"
 sidebar_current: "docs-google-iap-web-type-app-engine-iam"
@@ -36,18 +37,18 @@ Three different resources help you manage your IAM policy for Iap WebTypeAppEngi
 
 ```hcl
 data "google_iam_policy" "admin" {
-	binding {
-		role = "roles/iap.httpsResourceAccessor"
-		members = [
-			"user:jane@example.com",
-		]
-	}
+  binding {
+    role = "roles/iap.httpsResourceAccessor"
+    members = [
+      "user:jane@example.com",
+    ]
+  }
 }
 
 resource "google_iap_web_type_app_engine_iam_policy" "editor" {
-	project = "${google_app_engine_application.app.project}"
-	app_id = "${google_app_engine_application.app.app_id}"
-	policy_data = "${data.google_iam_policy.admin.policy_data}"
+  project = "${google_app_engine_application.app.project}"
+  app_id = "${google_app_engine_application.app.app_id}"
+  policy_data = "${data.google_iam_policy.admin.policy_data}"
 }
 ```
 
@@ -55,12 +56,12 @@ resource "google_iap_web_type_app_engine_iam_policy" "editor" {
 
 ```hcl
 resource "google_iap_web_type_app_engine_iam_binding" "editor" {
-	project = "${google_app_engine_application.app.project}"
-	app_id = "${google_app_engine_application.app.app_id}"
-	role = "roles/iap.httpsResourceAccessor"
-	members = [
-		"user:jane@example.com",
-	]
+  project = "${google_app_engine_application.app.project}"
+  app_id = "${google_app_engine_application.app.app_id}"
+  role = "roles/iap.httpsResourceAccessor"
+  members = [
+    "user:jane@example.com",
+  ]
 }
 ```
 
@@ -68,10 +69,10 @@ resource "google_iap_web_type_app_engine_iam_binding" "editor" {
 
 ```hcl
 resource "google_iap_web_type_app_engine_iam_member" "editor" {
-	project = "${google_app_engine_application.app.project}"
-	app_id = "${google_app_engine_application.app.app_id}"
-	role = "roles/iap.httpsResourceAccessor"
-	member = "user:jane@example.com"
+  project = "${google_app_engine_application.app.project}"
+  app_id = "${google_app_engine_application.app.app_id}"
+  role = "roles/iap.httpsResourceAccessor"
+  member = "user:jane@example.com"
 }
 ```
 
@@ -109,14 +110,29 @@ exported:
 
 ## Import
 
-Iap webtypeappengine IAM resources can be imported using the project, resource identifiers, role and member.
+For all import syntaxes, the "resource in question" can take any of the following forms:
 
+* projects/{{project}}/iap_web/appengine-{{appId}}
+* {{project}}/{{appId}}
+* {{appId}}
+
+Any variables not passed in the import command will be taken from the provider configuration.
+
+Iap webtypeappengine IAM resources can be imported using the resource identifiers, role, and member.
+
+IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
+```
+$ terraform import google_iap_web_type_app_engine_iam_member.editor "projects/{{project}}/iap_web/appengine-{{appId}} roles/iap.httpsResourceAccessor jane@example.com"
+```
+
+IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
+```
+$ terraform import google_iap_web_type_app_engine_iam_binding.editor "projects/{{project}}/iap_web/appengine-{{appId}} roles/iap.httpsResourceAccessor"
+```
+
+IAM policy imports use the identifier of the resource in question, e.g.
 ```
 $ terraform import google_iap_web_type_app_engine_iam_policy.editor projects/{{project}}/iap_web/appengine-{{appId}}
-
-$ terraform import google_iap_web_type_app_engine_iam_binding.editor "projects/{{project}}/iap_web/appengine-{{appId}} roles/iap.httpsResourceAccessor"
-
-$ terraform import google_iap_web_type_app_engine_iam_member.editor "projects/{{project}}/iap_web/appengine-{{appId}} roles/iap.httpsResourceAccessor jane@example.com"
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
@@ -124,4 +140,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

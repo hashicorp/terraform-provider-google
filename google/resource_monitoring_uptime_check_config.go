@@ -45,109 +45,138 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"display_name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `A human-friendly name for the uptime check configuration. The display name should be unique within a Stackdriver Workspace in order to make it easier to identify; however, uniqueness is not enforced.`,
 			},
 			"timeout": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The maximum amount of time to wait for the request to complete (must be between 1 and 60 seconds). Accepted formats https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.Duration`,
 			},
 			"content_matchers": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The expected content on the page the check is run against. Currently, only the first entry in the list is supported, and other entries will be ignored. The server will look for an exact match of the string in the page response's content. This field is optional and should only be specified if a content match is required.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"content": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `String or regex content to match (max 1024 bytes)`,
 						},
 					},
 				},
 			},
 			"http_check": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Contains information needed to make an HTTP or HTTPS check.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auth_info": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The authentication information. Optional when creating an HTTP check; defaults to empty.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"password": {
-										Type:      schema.TypeString,
-										Optional:  true,
-										Sensitive: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The password to authenticate.`,
+										Sensitive:   true,
 									},
 									"username": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The username to authenticate.`,
 									},
 								},
 							},
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"headers": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:         schema.TypeMap,
+							Optional:     true,
+							Description:  `The list of headers to send as part of the uptime check request. If two headers have the same key and different values, they should be entered as a single header, with the value being a comma-separated list of all the desired values as described at https://www.w3.org/Protocols/rfc2616/rfc2616.txt (page 31). Entering two separate headers with the same key in a Create call will cause the first to be overwritten by the second. The maximum number of headers allowed is 100.`,
+							Elem:         &schema.Schema{Type: schema.TypeString},
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"mask_headers": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:         schema.TypeBool,
+							Optional:     true,
+							Description:  `Boolean specifying whether to encrypt the header information. Encryption should be specified for any headers related to authentication that you do not wish to be seen when retrieving the configuration. The server will be responsible for encrypting the headers. On Get/List calls, if mask_headers is set to True then the headers will be obscured with ******.`,
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"path": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "/",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. Optional (defaults to "/").`,
+							Default:      "/",
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"port": {
-							Type:     schema.TypeInt,
-							Computed: true,
-							Optional: true,
+							Type:         schema.TypeInt,
+							Computed:     true,
+							Optional:     true,
+							Description:  `The port to the page to run the check against. Will be combined with host (specified within the MonitoredResource) and path to construct the full URL. Optional (defaults to 80 without SSL, or 443 with SSL).`,
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"use_ssl": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:         schema.TypeBool,
+							Optional:     true,
+							Description:  `If true, use HTTPS instead of HTTP to run the check.`,
+							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
+						},
+						"validate_ssl": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Boolean specifying whether to include SSL certificate validation as a part of the Uptime check. Only applies to checks where monitoredResource is set to uptime_url. If useSsl is false, setting validateSsl to true has no effect.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"tcp_check"},
+				ExactlyOneOf: []string{"http_check", "tcp_check"},
 			},
 			"monitored_resource": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance  aws_elb_load_balancer`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"labels": {
-							Type:     schema.TypeMap,
-							Required: true,
-							ForceNew: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:        schema.TypeMap,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Values for all of the labels listed in the associated monitored resource descriptor. For example, Compute Engine VM instances use the labels "project_id", "instance_id", and "zone".`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The monitored resource type. This field must match the type field of a MonitoredResourceDescriptor (https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.monitoredResourceDescriptors#MonitoredResourceDescriptor) object. For example, the type of a Compute Engine VM instance is gce_instance. For a list of types, see Monitoring resource types (https://cloud.google.com/monitoring/api/resources) and Logging resource types (https://cloud.google.com/logging/docs/api/v2/resource-list).`,
 						},
 					},
 				},
-				ConflictsWith: []string{"resource_group"},
+				ExactlyOneOf: []string{"monitored_resource", "resource_group"},
 			},
 			"period": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "300s",
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `How often, in seconds, the uptime check is performed. Currently, the only supported values are 60s (1 minute), 300s (5 minutes), 600s (10 minutes), and 900s (15 minutes). Optional, defaults to 300s.`,
+				Default:     "300s",
 			},
 			"resource_group": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The group resource associated with the configuration.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"group_id": {
@@ -155,83 +184,90 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Optional:         true,
 							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description:      `The group of resources being monitored. Should be the 'name' of a group`,
+							AtLeastOneOf:     []string{"resource_group.0.resource_type", "resource_group.0.group_id"},
 						},
 						"resource_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER", ""}, false),
+							Description:  `The resource type of the group members.`,
+							AtLeastOneOf: []string{"resource_group.0.resource_type", "resource_group.0.group_id"},
 						},
 					},
 				},
-				ConflictsWith: []string{"monitored_resource"},
+				ExactlyOneOf: []string{"monitored_resource", "resource_group"},
 			},
 			"selected_regions": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The list of regions from which the check will be run. Some regions contain one location, and others contain more than one. If this field is specified, enough regions to include a minimum of 3 locations must be provided, or an error message is returned. Not specifying this field will result in uptime checks running from all regions.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"tcp_check": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Contains information needed to make a TCP check.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"port": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `The port to the page to run the check against. Will be combined with host (specified within the MonitoredResource) to construct the full URL.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"http_check"},
+				ExactlyOneOf: []string{"http_check", "tcp_check"},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `A unique resource name for this UptimeCheckConfig. The format is projects/[PROJECT_ID]/uptimeCheckConfigs/[UPTIME_CHECK_ID].`,
 			},
 			"uptime_check_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The id of the uptime check`,
 			},
 			"is_internal": {
-				Type:       schema.TypeBool,
-				Optional:   true,
-				Computed:   true,
-				Deprecated: "This field never worked, and will be removed in 3.0.0.",
+				Type:     schema.TypeBool,
+				Optional: true,
+				Removed:  "This field never worked, and will be removed in 3.0.0.",
 			},
 			"internal_checkers": {
-				Type:       schema.TypeList,
-				Optional:   true,
-				Computed:   true,
-				Deprecated: "This field never worked, and will be removed in 3.0.0.",
+				Type:     schema.TypeList,
+				Optional: true,
+				Removed:  "This field never worked, and will be removed in 3.0.0.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"display_name": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"gcp_zone": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"name": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"network": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 						"peer_project_id": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							Deprecated: "This field never worked, and will be removed in 3.0.0.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Removed:  "This field never worked, and will be removed in 3.0.0.",
 						},
 					},
 				},
@@ -315,7 +351,7 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringRetryableError)
 	if err != nil {
 		return fmt.Errorf("Error creating UptimeCheckConfig: %s", err)
 	}
@@ -352,21 +388,9 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringUptimeCheckConfig %q", d.Id()))
-	}
-
-	res, err = resourceMonitoringUptimeCheckConfigDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
-
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing MonitoringUptimeCheckConfig because it no longer exists.")
-		d.SetId("")
-		return nil
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -493,7 +517,7 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringRetryableError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating UptimeCheckConfig %q: %s", d.Id(), err)
@@ -518,7 +542,7 @@ func resourceMonitoringUptimeCheckConfigDelete(d *schema.ResourceData, meta inte
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting UptimeCheckConfig %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, "UptimeCheckConfig")
 	}
@@ -605,6 +629,8 @@ func flattenMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.Resour
 		flattenMonitoringUptimeCheckConfigHttpCheckPath(original["path"], d)
 	transformed["use_ssl"] =
 		flattenMonitoringUptimeCheckConfigHttpCheckUseSsl(original["useSsl"], d)
+	transformed["validate_ssl"] =
+		flattenMonitoringUptimeCheckConfigHttpCheckValidateSsl(original["validateSsl"], d)
 	transformed["mask_headers"] =
 		flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(original["maskHeaders"], d)
 	return []interface{}{transformed}
@@ -651,6 +677,10 @@ func flattenMonitoringUptimeCheckConfigHttpCheckPath(v interface{}, d *schema.Re
 }
 
 func flattenMonitoringUptimeCheckConfigHttpCheckUseSsl(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigHttpCheckValidateSsl(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -814,6 +844,13 @@ func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d TerraformResour
 		transformed["useSsl"] = transformedUseSsl
 	}
 
+	transformedValidateSsl, err := expandMonitoringUptimeCheckConfigHttpCheckValidateSsl(original["validate_ssl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValidateSsl); val.IsValid() && !isEmptyValue(val) {
+		transformed["validateSsl"] = transformedValidateSsl
+	}
+
 	transformedMaskHeaders, err := expandMonitoringUptimeCheckConfigHttpCheckMaskHeaders(original["mask_headers"], d, config)
 	if err != nil {
 		return nil, err
@@ -878,6 +915,10 @@ func expandMonitoringUptimeCheckConfigHttpCheckPath(v interface{}, d TerraformRe
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheckUseSsl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckValidateSsl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -981,9 +1022,4 @@ func expandMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d T
 		m[k] = val.(string)
 	}
 	return m, nil
-}
-
-func resourceMonitoringUptimeCheckConfigDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	d.Set("internal_checkers", nil)
-	return res, nil
 }

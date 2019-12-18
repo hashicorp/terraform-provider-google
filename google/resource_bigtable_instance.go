@@ -87,34 +87,6 @@ func resourceBigtableInstance() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
-			"cluster_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Removed:  "Use cluster instead.",
-			},
-
-			"zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Removed:  "Use cluster instead.",
-			},
-
-			"num_nodes": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				Removed:  "Use cluster instead.",
-			},
-
-			"storage_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Removed:  "Use cluster instead.",
-			},
 		},
 	}
 }
@@ -159,7 +131,11 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error creating instance. %s", err)
 	}
 
-	d.SetId(conf.InstanceID)
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	return resourceBigtableInstanceRead(d, meta)
 }
@@ -180,14 +156,24 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	defer c.Close()
 
-	instance, err := c.InstanceInfo(ctx, d.Id())
+	instanceName := d.Get("name").(string)
+
+	instance, err := c.InstanceInfo(ctx, instanceName)
 	if err != nil {
-		log.Printf("[WARN] Removing %s because it's gone", d.Id())
+		log.Printf("[WARN] Removing %s because it's gone", instanceName)
 		d.SetId("")
-		return fmt.Errorf("Error retrieving instance. Could not find %s. %s", d.Id(), err)
+		return fmt.Errorf("Error retrieving instance. Could not find %s. %s", instanceName, err)
 	}
 
 	d.Set("project", project)
+
+	var instanceType string
+	if instance.InstanceType == bigtable.DEVELOPMENT {
+		instanceType = "DEVELOPMENT"
+	} else {
+		instanceType = "PRODUCTION"
+	}
+	d.Set("instance_type", instanceType)
 
 	clusters, err := c.Clusters(ctx, instance.Name)
 	if err != nil {
@@ -195,20 +181,7 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	clustersNewState := []map[string]interface{}{}
-	for i, cluster := range clusters {
-		// DEVELOPMENT clusters have num_nodes = 0 on their first (and only)
-		// cluster while PRODUCTION clusters will have at least 3.
-		if i == 0 {
-			var instanceType string
-			if cluster.ServeNodes == 0 {
-				instanceType = "DEVELOPMENT"
-			} else {
-				instanceType = "PRODUCTION"
-			}
-
-			d.Set("instance_type", instanceType)
-		}
-
+	for _, cluster := range clusters {
 		clustersNewState = append(clustersNewState, flattenBigtableCluster(cluster))
 	}
 
@@ -281,7 +254,7 @@ func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) e
 
 	defer c.Close()
 
-	name := d.Id()
+	name := d.Get("name").(string)
 	err = c.DeleteInstance(ctx, name)
 	if err != nil {
 		return fmt.Errorf("Error deleting instance. %s", err)
@@ -399,7 +372,7 @@ func resourceBigtableInstanceImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

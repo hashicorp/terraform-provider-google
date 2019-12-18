@@ -44,21 +44,23 @@ func testAccAppEngineDomainMapping_basic(domainName string) string {
 	return fmt.Sprintf(`
 resource "google_app_engine_domain_mapping" "domain_mapping" {
   domain_name = "%s.gcp.tfacc.hashicorptest.com"
-  
+
   ssl_settings {
     ssl_management_type = "AUTOMATIC"
   }
-}`, domainName)
+}
+`, domainName)
 }
 
 func testAccAppEngineDomainMapping_update(domainName string) string {
 	return fmt.Sprintf(`
 resource "google_app_engine_domain_mapping" "domain_mapping" {
   domain_name = "%s.gcp.tfacc.hashicorptest.com"
-  
+
   ssl_settings {
-  	certificate_id = ""
+    certificate_id      = ""
     ssl_management_type = "MANUAL"
   }
-}`, domainName)
+}
+`, domainName)
 }

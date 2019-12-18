@@ -40,50 +40,60 @@ func resourceMLEngineModel() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name specified for the model.`,
 			},
 			"default_version": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				Description: `The default version of the model. This version will be used to handle
+prediction requests that do not specify a version.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The name specified for the version when it was created.`,
 						},
 					},
 				},
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The description specified for the model when it was created.`,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `One or more labels that you can add, to organize your models.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"online_prediction_console_logging": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `If true, online prediction nodes send stderr and stdout streams to Stackdriver Logging`,
 			},
 			"online_prediction_logging": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `If true, online prediction access logs are sent to StackDriver Logging.`,
 			},
 			"regions": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				Description: `The list of regions where the model is going to be deployed.
+Currently only one region per model is supported`,
 				MaxItems: 1,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -162,7 +172,7 @@ func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/models/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -263,7 +273,7 @@ func resourceMLEngineModelImport(d *schema.ResourceData, meta interface{}) ([]*s
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/models/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

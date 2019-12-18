@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_netblock_ip_ranges"
 sidebar_current: "docs-google-datasource-netblock-ip-ranges"
@@ -13,18 +14,19 @@ Use this data source to get the IP addresses from different special IP ranges on
 ## Example Usage - Cloud Ranges
 
 ```tf
-data "google_netblock_ip_ranges" "netblock" {}
+data "google_netblock_ip_ranges" "netblock" {
+}
 
 output "cidr_blocks" {
-  value = "${data.google_netblock_ip_ranges.netblock.cidr_blocks}"
+  value = data.google_netblock_ip_ranges.netblock.cidr_blocks
 }
 
 output "cidr_blocks_ipv4" {
-  value = "${data.google_netblock_ip_ranges.netblock.cidr_blocks_ipv4}"
+  value = data.google_netblock_ip_ranges.netblock.cidr_blocks_ipv4
 }
 
 output "cidr_blocks_ipv6" {
-  value = "${data.google_netblock_ip_ranges.netblock.cidr_blocks_ipv6}"
+  value = data.google_netblock_ip_ranges.netblock.cidr_blocks_ipv6
 }
 ```
 
@@ -37,14 +39,14 @@ data "google_netblock_ip_ranges" "legacy-hcs" {
 
 resource "google_compute_firewall" "allow-hcs" {
   name    = "allow-hcs"
-  network = "${google_compute_network.default.name}"
+  network = google_compute_network.default.name
 
   allow {
     protocol = "tcp"
     ports    = ["80"]
   }
 
-  source_ranges = ["${data.google_netblock_ip_ranges.legacy-hcs.cidr_blocks_ipv4}"]
+  source_ranges = data.google_netblock_ip_ranges.legacy-hcs.cidr_blocks_ipv4
 }
 
 resource "google_compute_network" "default" {

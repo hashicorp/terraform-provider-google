@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v0.beta"
+	compute "google.golang.org/api/compute/v0.beta"
 )
 
 func resourceComputeSecurityPolicy() *schema.Resource {
@@ -19,7 +19,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 		Update: resourceComputeSecurityPolicyUpdate,
 		Delete: resourceComputeSecurityPolicyDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceSecurityPolicyStateImporter,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -73,7 +73,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"config": {
 										Type:     schema.TypeList,
-										Required: true,
+										Optional: true,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -90,7 +90,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 
 									"versioned_expr": {
 										Type:         schema.TypeString,
-										Required:     true,
+										Optional:     true,
 										ValidateFunc: validation.StringInSlice([]string{"SRC_IPS_V1"}, false),
 									},
 								},
@@ -148,9 +148,13 @@ func resourceComputeSecurityPolicyCreate(d *schema.ResourceData, meta interface{
 		return errwrap.Wrapf("Error creating SecurityPolicy: {{err}}", err)
 	}
 
-	d.SetId(securityPolicy.Name)
+	id, err := replaceVars(d, config, "projects/{{project}}/global/securityPolicies/{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
-	err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutCreate).Minutes()), fmt.Sprintf("Creating SecurityPolicy %q", sp))
+	err = computeOperationWaitTime(config, op, project, fmt.Sprintf("Creating SecurityPolicy %q", sp), int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if err != nil {
 		return err
 	}
@@ -166,7 +170,8 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	securityPolicy, err := config.clientComputeBeta.SecurityPolicies.Get(project, d.Id()).Do()
+	sp := d.Get("name").(string)
+	securityPolicy, err := config.clientComputeBeta.SecurityPolicies.Get(project, sp).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SecurityPolicy %q", d.Id()))
 	}
@@ -191,7 +196,7 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	sp := d.Id()
+	sp := d.Get("name").(string)
 
 	if d.HasChange("description") {
 		securityPolicy := &compute.SecurityPolicy{
@@ -205,7 +210,7 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 			return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
 		}
 
-		err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutCreate).Minutes()), fmt.Sprintf("Updating SecurityPolicy %q", sp))
+		err = computeOperationWaitTime(config, op, project, fmt.Sprintf("Updating SecurityPolicy %q", sp), int(d.Timeout(schema.TimeoutCreate).Minutes()))
 		if err != nil {
 			return err
 		}
@@ -233,7 +238,7 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 					return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
 				}
 
-				err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutCreate).Minutes()), fmt.Sprintf("Updating SecurityPolicy %q", sp))
+				err = computeOperationWaitTime(config, op, project, fmt.Sprintf("Updating SecurityPolicy %q", sp), int(d.Timeout(schema.TimeoutCreate).Minutes()))
 				if err != nil {
 					return err
 				}
@@ -245,7 +250,7 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 					return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
 				}
 
-				err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutCreate).Minutes()), fmt.Sprintf("Updating SecurityPolicy %q", sp))
+				err = computeOperationWaitTime(config, op, project, fmt.Sprintf("Updating SecurityPolicy %q", sp), int(d.Timeout(schema.TimeoutCreate).Minutes()))
 				if err != nil {
 					return err
 				}
@@ -262,7 +267,7 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 					return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
 				}
 
-				err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutCreate).Minutes()), fmt.Sprintf("Updating SecurityPolicy %q", sp))
+				err = computeOperationWaitTime(config, op, project, fmt.Sprintf("Updating SecurityPolicy %q", sp), int(d.Timeout(schema.TimeoutCreate).Minutes()))
 				if err != nil {
 					return err
 				}
@@ -282,12 +287,12 @@ func resourceComputeSecurityPolicyDelete(d *schema.ResourceData, meta interface{
 	}
 
 	// Delete the SecurityPolicy
-	op, err := config.clientComputeBeta.SecurityPolicies.Delete(project, d.Id()).Do()
+	op, err := config.clientComputeBeta.SecurityPolicies.Delete(project, d.Get("name").(string)).Do()
 	if err != nil {
 		return errwrap.Wrapf("Error deleting SecurityPolicy: {{err}}", err)
 	}
 
-	err = computeSharedOperationWaitTime(config.clientCompute, op, project, int(d.Timeout(schema.TimeoutDelete).Minutes()), "Deleting SecurityPolicy")
+	err = computeOperationWaitTime(config, op, project, "Deleting SecurityPolicy", int(d.Timeout(schema.TimeoutDelete).Minutes()))
 	if err != nil {
 		return err
 	}
@@ -347,19 +352,51 @@ func flattenSecurityPolicyRules(rules []*compute.SecurityPolicyRule) []map[strin
 			"priority":    rule.Priority,
 			"action":      rule.Action,
 			"preview":     rule.Preview,
-			"match": []map[string]interface{}{
-				{
-					"versioned_expr": rule.Match.VersionedExpr,
-					"config": []map[string]interface{}{
-						{
-							"src_ip_ranges": schema.NewSet(schema.HashString, convertStringArrToInterface(rule.Match.Config.SrcIpRanges)),
-						},
-					},
-				},
-			},
+			"match":       flattenMatch(rule.Match),
 		}
 
 		rulesSchema = append(rulesSchema, data)
 	}
 	return rulesSchema
+}
+
+func flattenMatch(match *compute.SecurityPolicyRuleMatcher) []map[string]interface{} {
+	if match == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"versioned_expr": match.VersionedExpr,
+		"config":         flattenMatchConfig(match.Config),
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenMatchConfig(conf *compute.SecurityPolicyRuleMatcherConfig) []map[string]interface{} {
+	if conf == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"src_ip_ranges": schema.NewSet(schema.HashString, convertStringArrToInterface(conf.SrcIpRanges)),
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func resourceSecurityPolicyStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/global/securityPolicies/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
+		return nil, err
+	}
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "projects/{{project}}/global/securityPolicies/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }

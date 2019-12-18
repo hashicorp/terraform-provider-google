@@ -51,16 +51,16 @@ func TestAccSQLDatabase_sqlDatabaseBasicExample(t *testing.T) {
 func testAccSQLDatabase_sqlDatabaseBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sql_database" "database" {
-	name = "my-database%{random_suffix}"
-	instance = "${google_sql_database_instance.instance.name}"
+  name     = "my-database%{random_suffix}"
+  instance = google_sql_database_instance.instance.name
 }
 
 resource "google_sql_database_instance" "instance" {
-	name = "my-database-instance%{random_suffix}"
-	region = "us-central"
-	settings {
-		tier = "D0"
-	}
+  name   = "my-database-instance%{random_suffix}"
+  region = "us-central"
+  settings {
+    tier = "D0"
+  }
 }
 `, context)
 }
