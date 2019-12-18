@@ -45,7 +45,8 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 					MaxItems: 1,
 					// TODO(terraform-providers/terraform-provider-google#5193): Change back to exactly_one_of
 					// once hashicorp/terraform-plugin-sdk#280 is fixed
-					AtLeastOneOf: []string{"list_policy.0.allow", "list_policy.0.deny"},
+					AtLeastOneOf:  []string{"list_policy.0.allow", "list_policy.0.deny"},
+					ConflictsWith: []string{"list_policy.0.deny"},
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"all": {
@@ -70,7 +71,8 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 					MaxItems: 1,
 					// TODO(terraform-providers/terraform-provider-google#5193): Change back to exactly_one_of
 					// once hashicorp/terraform-plugin-sdk#280 is fixed
-					AtLeastOneOf: []string{"list_policy.0.allow", "list_policy.0.deny"},
+					AtLeastOneOf:  []string{"list_policy.0.allow", "list_policy.0.deny"},
+					ConflictsWith: []string{"list_policy.0.allow"},
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"all": {
