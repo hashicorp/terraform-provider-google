@@ -385,7 +385,7 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isAppEngineRetryableError)
 	if err != nil {
 		return fmt.Errorf("Error creating StandardAppVersion: %s", err)
 	}
