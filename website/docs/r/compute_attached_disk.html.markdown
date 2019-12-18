@@ -117,6 +117,6 @@ This resource provides the following
 Attached Disk can be imported the following ways:
 
 ```
-$ terraform import google_compute_disk.default projects/{{project}}/zones/{{zone}}/instances/{{instance.name}}/{{disk.name}}
-$ terraform import google_compute_disk.default {{project}}/{{zone}}/{{instance.name}}/{{disk.name}}
+$ terraform import google_compute_attached_disk.default projects/{{project}}/zones/{{zone}}/instances/{{instance.name}}/{{disk.name}}
+$ terraform import google_compute_attached_disk.default {{project}}/{{zone}}/{{instance.name}}/{{disk.name}}
 ```
