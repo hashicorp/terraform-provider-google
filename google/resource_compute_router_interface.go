@@ -20,8 +20,6 @@ func resourceComputeRouterInterface() *schema.Resource {
 			State: resourceComputeRouterInterfaceImportState,
 		},
 
-		CustomizeDiff: routerInterfaceDiffOneOfCheck,
-
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -39,6 +37,7 @@ func resourceComputeRouterInterface() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				AtLeastOneOf:     []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
 			},
 			"interconnect_attachment": {
 				Type:             schema.TypeString,
@@ -46,11 +45,13 @@ func resourceComputeRouterInterface() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				AtLeastOneOf:     []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
 			},
 			"ip_range": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				AtLeastOneOf: []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -290,21 +291,4 @@ func resourceComputeRouterInterfaceImportState(d *schema.ResourceData, meta inte
 	d.Set("name", parts[2])
 
 	return []*schema.ResourceData{d}, nil
-}
-
-func routerInterfaceDiffOneOfCheck(d *schema.ResourceDiff, meta interface{}) error {
-	_, ipOk := d.GetOk("ip_range")
-	_, vpnOk := d.GetOk("vpn_tunnel")
-	_, icOk := d.GetOk("interconnect_attachment")
-	// When unset, these values are all known. However, if the value is an
-	// interpolation to a resource that hasn't been created, the value is
-	// unknown and d.GetOk will return false. For each value, if that value is
-	// unknown, consider it true-ish.
-	if !((ipOk || !d.NewValueKnown("ip_range")) ||
-		(vpnOk || !d.NewValueKnown("vpn_tunnel")) ||
-		(icOk || !d.NewValueKnown("interconnect_attachment"))) {
-		return fmt.Errorf("Each interface requires one linked resource or an ip range, or both.")
-	}
-
-	return nil
 }
