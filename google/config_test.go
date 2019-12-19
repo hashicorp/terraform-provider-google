@@ -218,3 +218,23 @@ func TestConfigLoadAndValidate_customBatchingConfig(t *testing.T) {
 		t.Fatalf("expected enableBatching to be false")
 	}
 }
+
+func TestRemoveBasePathVersion(t *testing.T) {
+	cases := []struct {
+		BaseURL  string
+		Expected string
+	}{
+		{"https://www.googleapis.com/compute/version_v1/", "https://www.googleapis.com/compute/"},
+		{"https://runtimeconfig.googleapis.com/v1beta1/", "https://runtimeconfig.googleapis.com/"},
+		{"https://www.googleapis.com/compute/v1/", "https://www.googleapis.com/compute/"},
+		{"https://staging-version.googleapis.com/", "https://staging-version.googleapis.com/"},
+		// For URLs with any parts, the last part is always removed- it's assumed to be the version.
+		{"https://runtimeconfig.googleapis.com/runtimeconfig/", "https://runtimeconfig.googleapis.com/"},
+	}
+
+	for _, c := range cases {
+		if c.Expected != removeBasePathVersion(c.BaseURL) {
+			t.Errorf("replace url failed: got %s wanted %s", removeBasePathVersion(c.BaseURL), c.Expected)
+		}
+	}
+}
