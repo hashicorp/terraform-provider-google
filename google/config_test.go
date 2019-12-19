@@ -24,7 +24,7 @@ func TestConfigLoadAndValidate_accountFilePath(t *testing.T) {
 
 	ConfigureBasePaths(config)
 
-	err := config.LoadAndValidate()
+	err := config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -43,7 +43,7 @@ func TestConfigLoadAndValidate_accountFileJSON(t *testing.T) {
 
 	ConfigureBasePaths(config)
 
-	err = config.LoadAndValidate()
+	err = config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -58,7 +58,7 @@ func TestConfigLoadAndValidate_accountFileJSONInvalid(t *testing.T) {
 
 	ConfigureBasePaths(config)
 
-	if config.LoadAndValidate() == nil {
+	if config.LoadAndValidate(context.Background()) == nil {
 		t.Fatalf("expected error, but got nil")
 	}
 }
@@ -80,7 +80,7 @@ func TestAccConfigLoadValidate_credentials(t *testing.T) {
 
 	ConfigureBasePaths(config)
 
-	err := config.LoadAndValidate()
+	err := config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -118,7 +118,7 @@ func TestAccConfigLoadValidate_accessToken(t *testing.T) {
 
 	ConfigureBasePaths(config)
 
-	err = config.LoadAndValidate()
+	err = config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -139,7 +139,7 @@ func TestConfigLoadAndValidate_customScopes(t *testing.T) {
 
 	ConfigureBasePaths(config)
 
-	err := config.LoadAndValidate()
+	err := config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -165,7 +165,7 @@ func TestConfigLoadAndValidate_defaultBatchingConfig(t *testing.T) {
 		BatchingConfig: batchCfg,
 	}
 
-	err = config.LoadAndValidate()
+	err = config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -202,7 +202,7 @@ func TestConfigLoadAndValidate_customBatchingConfig(t *testing.T) {
 		BatchingConfig: batchCfg,
 	}
 
-	err = config.LoadAndValidate()
+	err = config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

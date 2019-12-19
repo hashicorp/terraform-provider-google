@@ -1,6 +1,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -941,7 +942,7 @@ func getInitializedConfig(t *testing.T) *Config {
 
 	ConfigureBasePaths(config)
 
-	err := config.LoadAndValidate()
+	err := config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
