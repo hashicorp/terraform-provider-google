@@ -55,11 +55,17 @@ resource "google_logging_metric" "logging_metric" {
       value_type  = "STRING"
       description = "amount of matter"
     }
+    labels {
+      key         = "sku"
+      value_type  = "INT64"
+      description = "Identifying number for item"
+    }
     display_name = "My metric"
   }
   value_extractor = "EXTRACT(jsonPayload.request)"
   label_extractors = {
     "mass" = "EXTRACT(jsonPayload.request)"
+    "sku"  = "EXTRACT(jsonPayload.id)"
   }
   bucket_options {
     linear_buckets {
