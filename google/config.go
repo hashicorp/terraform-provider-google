@@ -665,9 +665,10 @@ func (c *Config) getTokenSource(clientScopes []string) (oauth2.TokenSource, erro
 	return googleoauth.DefaultTokenSource(context.Background(), clientScopes...)
 }
 
-// Remove the `/{{version}}/` from a base path, replacing it with `/`
+// Remove the `/{{version}}/` from a base path if present.
 func removeBasePathVersion(url string) string {
-	return regexp.MustCompile(`/[^/]+/$`).ReplaceAllString(url, "/")
+	re := regexp.MustCompile(`(?P<base>http[s]://.*)(?P<version>/[^/]+?/$)`)
+	return re.ReplaceAllString(url, "$1/")
 }
 
 // For a consumer of config.go that isn't a full fledged provider and doesn't
