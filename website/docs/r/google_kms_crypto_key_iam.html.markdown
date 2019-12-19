@@ -22,9 +22,22 @@ Three different resources help you manage your IAM policy for KMS crypto key. Ea
 # google\_kms\_crypto\_key\_iam\_policy
 
 ```hcl
+resource "google_kms_key_ring" "keyring" {
+  name     = "keyring-example"
+  location = "global"
+}
+resource "google_kms_crypto_key" "key" {
+  name            = "crypto-key-example"
+  key_ring        = google_kms_key_ring.keyring.id
+  rotation_period = "100000s"
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 data "google_iam_policy" "admin" {
   binding {
-    role = "roles/editor"
+    role = "roles/cloudkms.cryptoKeyEncrypter"
 
     members = [
       "user:jane@example.com",
@@ -33,7 +46,7 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_kms_crypto_key_iam_policy" "crypto_key" {
-  crypto_key_id = "your-crypto-key-id"
+  crypto_key_id = google_kms_crypto_key.key.id
   policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
@@ -42,7 +55,7 @@ With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_
 ```hcl
 data "google_iam_policy" "admin" {
   binding {
-    role = "roles/editor"
+    role = "roles/cloudkms.cryptoKeyEncrypter"
 
     members = [
       "user:jane@example.com",
@@ -61,11 +74,11 @@ data "google_iam_policy" "admin" {
 
 ```hcl
 resource "google_kms_crypto_key_iam_binding" "crypto_key" {
-  crypto_key_id = "your-crypto-key-id"
-  role          = "roles/editor"
+  crypto_key_id = google_kms_crypto_key.key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypter"
 
   members = [
-    "user:alice@gmail.com",
+    "user:jane@example.com",
   ]
 }
 ```
@@ -73,11 +86,11 @@ resource "google_kms_crypto_key_iam_binding" "crypto_key" {
 With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)):
 ```hcl
 resource "google_kms_crypto_key_iam_binding" "crypto_key" {
-  crypto_key_id = "your-crypto-key-id"
-  role          = "roles/editor"
+  crypto_key_id = google_kms_crypto_key.key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypter"
 
   members = [
-    "user:alice@gmail.com",
+    "user:jane@example.com",
   ]
 
   condition {
@@ -92,18 +105,18 @@ resource "google_kms_crypto_key_iam_binding" "crypto_key" {
 
 ```hcl
 resource "google_kms_crypto_key_iam_member" "crypto_key" {
-  crypto_key_id = "your-crypto-key-id"
-  role          = "roles/editor"
-  member        = "user:alice@gmail.com"
+  crypto_key_id = google_kms_crypto_key.key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypter"
+  member        = "user:jane@example.com"
 }
 ```
 
 With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)):
 ```hcl
 resource "google_kms_crypto_key_iam_member" "crypto_key" {
-  crypto_key_id = "your-crypto-key-id"
-  role          = "roles/editor"
-  member        = "user:alice@gmail.com"
+  crypto_key_id = google_kms_crypto_key.key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypter"
+  member        = "user:jane@example.com"
 
   condition {
     title       = "expires_after_2019_12_31"
@@ -126,7 +139,7 @@ The following arguments are supported:
   Each entry can have one of the following values:
   * **allUsers**: A special identifier that represents anyone who is on the internet; with or without a Google account.
   * **allAuthenticatedUsers**: A special identifier that represents anyone who is authenticated with a Google account or a service account.
-  * **user:{emailid}**: An email address that represents a specific Google account. For example, alice@gmail.com or joe@example.com.
+  * **user:{emailid}**: An email address that represents a specific Google account. For example, jane@example.com or joe@example.com.
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
