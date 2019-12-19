@@ -1,6 +1,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -73,7 +74,7 @@ func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID stri
 
 	ConfigureBasePaths(config)
 
-	if err := config.LoadAndValidate(); err != nil {
+	if err := config.LoadAndValidate(context.Background()); err != nil {
 		t.Errorf("Unable to bootstrap KMS key: %s", err)
 	}
 
@@ -213,7 +214,7 @@ func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
 
 	ConfigureBasePaths(config)
 
-	if err := config.LoadAndValidate(); err != nil {
+	if err := config.LoadAndValidate(context.Background()); err != nil {
 		t.Fatalf("Bootstrapping failed. Unable to load test config: %s", err)
 	}
 

@@ -2,6 +2,7 @@ package google
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"regexp"
@@ -27,7 +28,7 @@ func testSweepContainerClusters(region string) error {
 		log.Fatalf("error getting shared config for region: %s", err)
 	}
 
-	err = config.LoadAndValidate()
+	err = config.LoadAndValidate(context.Background())
 	if err != nil {
 		log.Fatalf("error loading: %s", err)
 	}

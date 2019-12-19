@@ -109,6 +109,11 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"operation": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"location": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -916,6 +921,18 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
 	waitErr := containerOperationWait(config, op, project, location, "creating GKE cluster", timeoutInMinutes)
 	if waitErr != nil {
+		// Check if the create operation failed because Terraform was prematurely terminated. If it was we can persist the
+		// operation id to state so that a subsequent refresh of this resource will wait until the operation has terminated
+		// before attempting to Read the state of the cluster. This allows a graceful resumption of a Create that was killed
+		// by the upstream Terraform process exiting early such as a sigterm.
+		select {
+		case <-config.context.Done():
+			log.Printf("[DEBUG] Persisting %s so this operation can be resumed \n", op.Name)
+			d.Set("operation", op.Name)
+			return nil
+		default:
+			// leaving default case to ensure this is non blocking
+		}
 		// Try a GET on the cluster so we can see the state in debug logs. This will help classify error states.
 		_, getErr := config.clientContainerBeta.Projects.Locations.Clusters.Get(containerClusterFullName(project, location, clusterName)).Do()
 		if getErr != nil {
@@ -972,6 +989,19 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	location, err := getLocation(d, config)
 	if err != nil {
 		return err
+	}
+
+	operation := d.Get("operation").(string)
+	if operation != "" {
+		log.Printf("[DEBUG] in progress operation detected at %v, attempting to resume", operation)
+		op := &containerBeta.Operation{
+			Name: operation,
+		}
+		d.Set("operation", "")
+		waitErr := containerOperationWait(config, op, project, location, "resuming GKE cluster", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		if waitErr != nil {
+			return waitErr
+		}
 	}
 
 	clusterName := d.Get("name").(string)
