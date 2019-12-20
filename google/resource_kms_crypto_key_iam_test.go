@@ -99,6 +99,43 @@ func TestAccKmsCryptoKeyIamMember(t *testing.T) {
 	})
 }
 
+func TestAccKmsCryptoKeyIamPolicy(t *testing.T) {
+	t.Parallel()
+
+	orgId := getTestOrgFromEnv(t)
+	projectId := acctest.RandomWithPrefix("tf-test")
+	billingAccount := getTestBillingAccountFromEnv(t)
+	account := acctest.RandomWithPrefix("tf-test")
+	roleId := "roles/cloudkms.cryptoKeyEncrypter"
+	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	keyRingId := &kmsKeyRingId{
+		Project:  projectId,
+		Location: DEFAULT_KMS_TEST_LOCATION,
+		Name:     keyRingName,
+	}
+	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKmsCryptoKeyIamPolicy_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
+				Check: testAccCheckGoogleCryptoKmsKeyIam("foo", roleId, []string{
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
+				}),
+			},
+			{
+				ResourceName:      "google_kms_crypto_key_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("%s/%s", keyRingId.terraformId(), cryptoKeyName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleKmsCryptoKeyIamBindingExists(bindingResourceName, roleId string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		bindingRs, ok := s.RootModule().Resources[fmt.Sprintf("google_kms_crypto_key_iam_binding.%s", bindingResourceName)]
@@ -163,6 +200,44 @@ func testAccCheckGoogleKmsCryptoKeyIamMemberExists(n, role, member string) resou
 				}
 
 				return fmt.Errorf("Missing member %q, got %v", member, binding.Members)
+			}
+		}
+
+		return fmt.Errorf("No binding for role %q", role)
+	}
+}
+
+func testAccCheckGoogleCryptoKmsKeyIam(n, role string, members []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources["google_kms_crypto_key_iam_policy."+n]
+		if !ok {
+			return fmt.Errorf("IAM policy resource not found")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+		cryptoKeyId, err := parseKmsCryptoKeyId(rs.Primary.Attributes["crypto_key_id"], config)
+
+		if err != nil {
+			return err
+		}
+
+		p, err := config.clientKms.Projects.Locations.KeyRings.GetIamPolicy(cryptoKeyId.cryptoKeyId()).Do()
+		if err != nil {
+			return err
+		}
+
+		for _, binding := range p.Bindings {
+			if binding.Role == role {
+				sort.Strings(members)
+				sort.Strings(binding.Members)
+
+				if reflect.DeepEqual(members, binding.Members) {
+					return nil
+				}
+
+				return fmt.Errorf("Binding found but expected members is %v, got %v", members, binding.Members)
+			} else {
+				return fmt.Errorf("Binding found but not expected for role: %v", binding.Role)
 			}
 		}
 
@@ -309,6 +384,56 @@ resource "google_kms_crypto_key_iam_member" "foo" {
   crypto_key_id = google_kms_crypto_key.crypto_key.id
   role          = "%s"
   member        = "serviceAccount:${google_service_account.test_account.email}"
+}
+`, projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId)
+}
+
+func testAccKmsCryptoKeyIamPolicy_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId string) string {
+	return fmt.Sprintf(`
+resource "google_project" "test_project" {
+  name            = "Test project"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
+}
+
+resource "google_project_service" "kms" {
+  project = google_project.test_project.project_id
+  service = "cloudkms.googleapis.com"
+}
+
+resource "google_project_service" "iam" {
+  project = google_project_service.kms.project
+  service = "iam.googleapis.com"
+}
+
+resource "google_service_account" "test_account" {
+  project      = google_project_service.iam.project
+  account_id   = "%s"
+  display_name = "Kms Crypto Key Iam Testing Account"
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  project  = google_project_service.iam.project
+  location = "us-central1"
+  name     = "%s"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  key_ring = google_kms_key_ring.key_ring.id
+  name     = "%s"
+}
+
+data "google_iam_policy" "foo" {
+  binding {
+    role = "%s"
+    members = ["serviceAccount:${google_service_account.test_account.email}"]
+  }
+}
+
+resource "google_kms_crypto_key_iam_policy" "foo" {
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId)
 }
