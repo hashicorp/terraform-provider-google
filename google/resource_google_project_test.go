@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"reflect"
 	"strconv"
@@ -374,6 +375,11 @@ resource "google_folder" "folder1" {
 }
 
 func skipIfEnvNotSet(t *testing.T, envs ...string) {
+	if t == nil {
+		log.Printf("[DEBUG] Not running inside of test - skip skipping")
+		return
+	}
+
 	for _, k := range envs {
 		if os.Getenv(k) == "" {
 			t.Skipf("Environment variable %s is not set", k)
