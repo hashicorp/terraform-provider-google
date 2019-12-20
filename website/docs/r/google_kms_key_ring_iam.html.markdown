@@ -194,7 +194,7 @@ IAM binding imports use space-delimited identifiers; the resource in question an
 $ terraform import google_kms_key_ring_iam_binding.key_ring_iam "your-project-id/location-name/key-ring-name roles/viewer"
 ```
 
-IAM policy imports use the identifier of the resource in question.  This policy resource can be imported using the `key_ring_id`, role, and account e.g.
+IAM policy imports use the identifier of the resource in question.  This policy resource can be imported using the `key_ring_id`, e.g.
 
 ```
 $ terraform import google_kms_key_ring_iam_policy.key_ring_iam your-project-id/location-name/key-ring-name
