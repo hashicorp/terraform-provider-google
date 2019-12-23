@@ -29,7 +29,6 @@ func resourceCloudRunDomainMapping() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudRunDomainMappingCreate,
 		Read:   resourceCloudRunDomainMappingRead,
-		Update: resourceCloudRunDomainMappingUpdate,
 		Delete: resourceCloudRunDomainMappingDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -38,7 +37,6 @@ func resourceCloudRunDomainMapping() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
@@ -46,11 +44,13 @@ func resourceCloudRunDomainMapping() *schema.Resource {
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The location of the cloud run instance. eg us-central1`,
 			},
 			"metadata": {
 				Type:        schema.TypeList,
 				Required:    true,
+				ForceNew:    true,
 				Description: `Metadata associated with this DomainMapping.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -58,6 +58,7 @@ func resourceCloudRunDomainMapping() *schema.Resource {
 						"namespace": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 							Description: `In Cloud Run the namespace must be equal to either the
 project ID or project number.`,
 						},
@@ -65,6 +66,7 @@ project ID or project number.`,
 							Type:     schema.TypeMap,
 							Computed: true,
 							Optional: true,
+							ForceNew: true,
 							Description: `Annotations is a key value map stored with a resource that
 may be set by external tools to store and retrieve arbitrary metadata. More
 info: http://kubernetes.io/docs/user-guide/annotations`,
@@ -74,6 +76,7 @@ info: http://kubernetes.io/docs/user-guide/annotations`,
 							Type:     schema.TypeMap,
 							Computed: true,
 							Optional: true,
+							ForceNew: true,
 							Description: `Map of string keys and values that can be used to organize and categorize
 (scope and select) objects. May match selectors of replication controllers
 and routes.
@@ -122,6 +125,7 @@ More info: http://kubernetes.io/docs/user-guide/identifiers#uids`,
 			"spec": {
 				Type:        schema.TypeList,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The spec for this DomainMapping.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -129,6 +133,7 @@ More info: http://kubernetes.io/docs/user-guide/identifiers#uids`,
 						"route_name": {
 							Type:             schema.TypeString,
 							Required:         true,
+							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 							Description: `The name of the Cloud Run Service that this DomainMapping applies to.
 The route must exist.`,
@@ -136,6 +141,7 @@ The route must exist.`,
 						"certificate_mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"NONE", "AUTOMATIC", ""}, false),
 							Description:  `The mode of the certificate.`,
 							Default:      "AUTOMATIC",
@@ -143,6 +149,7 @@ The route must exist.`,
 						"force_override": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							ForceNew: true,
 							Description: `If set, the mapping will override any mapping set before this spec was set.
 It is recommended that the user leaves this empty to receive an error
 warning about a potential conflict and only set it once the respective UI
@@ -334,48 +341,6 @@ func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{})
 	}
 
 	return nil
-}
-
-func resourceCloudRunDomainMappingUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	obj := make(map[string]interface{})
-	specProp, err := expandCloudRunDomainMappingSpec(d.Get("spec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("spec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, specProp)) {
-		obj["spec"] = specProp
-	}
-	metadataProp, err := expandCloudRunDomainMappingMetadata(d.Get("metadata"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("metadata"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, metadataProp)) {
-		obj["metadata"] = metadataProp
-	}
-
-	obj, err = resourceCloudRunDomainMappingEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
-
-	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
-	if err != nil {
-		return err
-	}
-
-	log.Printf("[DEBUG] Updating DomainMapping %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
-
-	if err != nil {
-		return fmt.Errorf("Error updating DomainMapping %q: %s", d.Id(), err)
-	}
-
-	return resourceCloudRunDomainMappingRead(d, meta)
 }
 
 func resourceCloudRunDomainMappingDelete(d *schema.ResourceData, meta interface{}) error {
