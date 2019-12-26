@@ -80,33 +80,14 @@ without an ending period, for example "Request count". This field is optional bu
 recommended to be set for any metrics associated with user-visible concepts, such as Quota.`,
 						},
 						"labels": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Description: `The set of labels that can be used to describe a specific instance of this metric type. For
 example, the appengine.googleapis.com/http/server/response_latencies metric type has a label
 for the HTTP response code, response_code, so you can look at latencies for successful responses
 or just for responses that failed.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"key": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `The label key.`,
-									},
-									"description": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `A human-readable description for the label.`,
-									},
-									"value_type": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"BOOL", "INT64", "STRING", ""}, false),
-										Description:  `The type of data that can be assigned to the label.`,
-										Default:      "STRING",
-									},
-								},
-							},
+							Elem: loggingMetricMetricDescriptorLabelsSchema(),
+							// Default schema.HashSchema is used.
 						},
 						"unit": {
 							Type:     schema.TypeString,
@@ -249,6 +230,30 @@ error to specify a regex that does not include exactly one capture group.`,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+		},
+	}
+}
+
+func loggingMetricMetricDescriptorLabelsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"key": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The label key.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A human-readable description for the label.`,
+			},
+			"value_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"BOOL", "INT64", "STRING", ""}, false),
+				Description:  `The type of data that can be assigned to the label.`,
+				Default:      "STRING",
 			},
 		},
 	}
@@ -557,14 +562,14 @@ func flattenLoggingMetricMetricDescriptorLabels(v interface{}, d *schema.Resourc
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(schema.HashResource(loggingMetricMetricDescriptorLabelsSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"key":         flattenLoggingMetricMetricDescriptorLabelsKey(original["key"], d),
 			"description": flattenLoggingMetricMetricDescriptorLabelsDescription(original["description"], d),
 			"value_type":  flattenLoggingMetricMetricDescriptorLabelsValueType(original["valueType"], d),
@@ -781,6 +786,7 @@ func expandLoggingMetricMetricDescriptorMetricKind(v interface{}, d TerraformRes
 }
 
 func expandLoggingMetricMetricDescriptorLabels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
