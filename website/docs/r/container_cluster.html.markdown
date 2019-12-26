@@ -410,13 +410,23 @@ Specify `start_time` and `end_time` in [RFC3339](https://www.ietf.org/rfc/rfc333
 the initial date that the window starts, and the end time is used for calculating duration.  Specify `recurrence` in
 [RFC5545](https://tools.ietf.org/html/rfc5545#section-3.8.5.3) RRULE format, to specify when this recurs.
 
-For example:
+Examples:
 ```
 maintenance_policy {
   recurring_window {
-    start_time = "2019-01-01T03:00"
-    end_time = "2019-01-01T06:00"
+    start_time = "2019-08-01T02:00:00Z"
+    end_time = "2019-08-01T06:00:00Z"
     recurrence = "FREQ=DAILY"
+  }
+}
+```
+
+```
+maintenance_policy {
+  recurring_window {
+    start_time = "2019-01-01T09:00:00-04:00"
+    end_time = "2019-01-01T17:00:00-04:00"
+    recurrence = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR"
   }
 }
 ```
