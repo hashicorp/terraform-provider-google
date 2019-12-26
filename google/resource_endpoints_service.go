@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/servicemanagement/v1"
@@ -117,7 +118,7 @@ func resourceEndpointsService() *schema.Resource {
 	}
 }
 
-func getOpenAPIConfigSource(configText string) servicemanagement.ConfigSource {
+func getEndpointServiceOpenAPIConfigSource(configText string) *servicemanagement.ConfigSource {
 	// We need to provide a ConfigSource object to the API whenever submitting a
 	// new config.  A ConfigSource contains a ConfigFile which contains the b64
 	// encoded contents of the file.  OpenAPI requires only one file.
@@ -126,12 +127,12 @@ func getOpenAPIConfigSource(configText string) servicemanagement.ConfigSource {
 		FileType:     "OPEN_API_YAML",
 		FilePath:     "heredoc.yaml",
 	}
-	return servicemanagement.ConfigSource{
+	return &servicemanagement.ConfigSource{
 		Files: []*servicemanagement.ConfigFile{&configfile},
 	}
 }
 
-func getGRPCConfigSource(serviceConfig, protoConfig string) servicemanagement.ConfigSource {
+func getEndpointServiceGRPCConfigSource(serviceConfig, protoConfig string) *servicemanagement.ConfigSource {
 	// gRPC requires both the file specifying the service and the compiled protobuf,
 	// but they can be in any order.
 	ymlConfigfile := servicemanagement.ConfigFile{
@@ -144,7 +145,7 @@ func getGRPCConfigSource(serviceConfig, protoConfig string) servicemanagement.Co
 		FileType:     "FILE_DESCRIPTOR_SET_PROTO",
 		FilePath:     "api_def.pb",
 	}
-	return servicemanagement.ConfigSource{
+	return &servicemanagement.ConfigSource{
 		Files: []*servicemanagement.ConfigFile{&ymlConfigfile, &protoConfigfile},
 	}
 }
@@ -155,6 +156,7 @@ func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+
 	// If the service doesn't exist, we'll need to create it, but if it does, it
 	// will be reused.  This is unusual for Terraform, but it causes the behavior
 	// that users will want and accept.  Users of Endpoints are not thinking in
@@ -164,15 +166,28 @@ func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) er
 	// so that we can perform the rollout without further disruption, which is the
 	// action that a user running `terraform apply` is going to want.
 	serviceName := d.Get("service_name").(string)
-	servicesService := servicemanagement.NewServicesService(config.clientServiceMan)
-	_, err = servicesService.Get(serviceName).Do()
+	log.Printf("[DEBUG] Create Endpoint Service %q", serviceName)
+
+	log.Printf("[DEBUG] Checking for existing ManagedService %q", serviceName)
+	_, err = config.clientServiceMan.Services.Get(serviceName).Do()
 	if err != nil {
-		_, err = servicesService.Create(&servicemanagement.ManagedService{ProducerProjectId: project, ServiceName: serviceName}).Do()
+		log.Printf("[DEBUG] Creating new ServiceManagement ManagedService %q", serviceName)
+		op, err := config.clientServiceMan.Services.Create(
+			&servicemanagement.ManagedService{
+				ProducerProjectId: project,
+				ServiceName:       serviceName,
+			}).Do()
+		if err != nil {
+			return err
+		}
+
+		_, err = serviceManagementOperationWait(config, op, "Creating new ManagedService.")
 		if err != nil {
 			return err
 		}
 	}
-	// Do a rollout using the update mechanism.
+
+	// Use update to set other fields like config.
 	err = resourceEndpointsServiceUpdate(d, meta)
 	if err != nil {
 		return err
@@ -180,6 +195,20 @@ func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) er
 
 	d.SetId(serviceName)
 	return resourceEndpointsServiceRead(d, meta)
+}
+
+func expandEndpointServiceConfigSource(d *schema.ResourceData, meta interface{}) (*servicemanagement.ConfigSource, error) {
+	if openapiConfig, ok := d.GetOk("openapi_config"); ok {
+		return getEndpointServiceOpenAPIConfigSource(openapiConfig.(string)), nil
+	}
+
+	grpcConfig, gok := d.GetOk("grpc_config")
+	protocOutput, pok := d.GetOk("protoc_output_base64")
+	if gok && pok {
+		return getEndpointServiceGRPCConfigSource(grpcConfig.(string), protocOutput.(string)), nil
+	}
+
+	return nil, errors.New("Could not parse config - either openapi_config or both grpc_config and protoc_output_base64 must be set.")
 }
 
 func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -194,27 +223,26 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	// rollouts or A/B testing is going to need a more precise tool than this resource.
 	config := meta.(*Config)
 	serviceName := d.Get("service_name").(string)
-	var source servicemanagement.ConfigSource
-	if openapiConfig, ok := d.GetOk("openapi_config"); ok {
-		source = getOpenAPIConfigSource(openapiConfig.(string))
-	} else {
-		grpcConfig, gok := d.GetOk("grpc_config")
-		protocOutput, pok := d.GetOk("protoc_output_base64")
 
-		if gok && pok {
-			source = getGRPCConfigSource(grpcConfig.(string), protocOutput.(string))
-		} else {
-			return errors.New("Could not decypher config - please either set openapi_config or set both grpc_config and protoc_output_base64.")
-		}
+	log.Printf("[DEBUG] Updating ManagedService %q", serviceName)
+
+	cfgSource, err := expandEndpointServiceConfigSource(d, meta)
+	if err != nil {
+		return err
 	}
 
-	configService := servicemanagement.NewServicesConfigsService(config.clientServiceMan)
+	log.Printf("[DEBUG] Updating ManagedService %q", serviceName)
 	// The difference between "submit" and "create" is that submit parses the config
 	// you provide, where "create" requires the config in a pre-parsed format.
 	// "submit" will be a lot more flexible for users and will always be up-to-date
 	// with any new features that arise - this is why you provide a YAML config
 	// instead of providing the config in HCL.
-	op, err := configService.Submit(serviceName, &servicemanagement.SubmitConfigSourceRequest{ConfigSource: &source}).Do()
+	log.Printf("[DEBUG] Submitting config for ManagedService %q", serviceName)
+	op, err := config.clientServiceMan.Services.Configs.Submit(
+		serviceName,
+		&servicemanagement.SubmitConfigSourceRequest{
+			ConfigSource: cfgSource,
+		}).Do()
 	if err != nil {
 		return err
 	}
@@ -228,14 +256,15 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Next, we create a new rollout with the new config value, and wait for it to complete.
-	rolloutService := servicemanagement.NewServicesRolloutsService(config.clientServiceMan)
 	rollout := servicemanagement.Rollout{
 		ServiceName: serviceName,
 		TrafficPercentStrategy: &servicemanagement.TrafficPercentStrategy{
 			Percentages: map[string]float64{serviceConfig.ServiceConfig.Id: 100.0},
 		},
 	}
-	op, err = rolloutService.Create(serviceName, &rollout).Do()
+
+	log.Printf("[DEBUG] Creating new rollout for ManagedService %q", serviceName)
+	op, err = config.clientServiceMan.Services.Rollouts.Create(serviceName, &rollout).Do()
 	if err != nil {
 		return err
 	}
@@ -243,13 +272,16 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+
 	return resourceEndpointsServiceRead(d, meta)
 }
 
 func resourceEndpointsServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	servicesService := servicemanagement.NewServicesService(config.clientServiceMan)
-	op, err := servicesService.Delete(d.Get("service_name").(string)).Do()
+
+	log.Printf("[DEBUG] Deleting ManagedService %q", d.Id())
+
+	op, err := config.clientServiceMan.Services.Delete(d.Get("service_name").(string)).Do()
 	if err != nil {
 		return err
 	}
@@ -260,11 +292,14 @@ func resourceEndpointsServiceDelete(d *schema.ResourceData, meta interface{}) er
 
 func resourceEndpointsServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	servicesService := servicemanagement.NewServicesService(config.clientServiceMan)
-	service, err := servicesService.GetConfig(d.Get("service_name").(string)).Do()
+
+	log.Printf("[DEBUG] Reading ManagedService %q", d.Id())
+
+	service, err := config.clientServiceMan.Services.GetConfig(d.Get("service_name").(string)).Do()
 	if err != nil {
 		return err
 	}
+
 	d.Set("config_id", service.Id)
 	d.Set("dns_address", service.Name)
 	d.Set("apis", flattenServiceManagementAPIs(service.Apis))
