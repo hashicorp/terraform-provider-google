@@ -36,7 +36,7 @@ func resourceCloudRunDomainMapping() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(6 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
@@ -291,6 +291,19 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	waitURL, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	err = cloudRunPollingWaitTime(
+		config, res, project, waitURL, "Creating DomainMapping",
+		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+
+	if err != nil {
+		return fmt.Errorf("Error waiting to create DomainMapping: %s", err)
+	}
 
 	log.Printf("[DEBUG] Finished creating DomainMapping %q: %#v", d.Id(), res)
 
