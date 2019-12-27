@@ -192,8 +192,21 @@ func resourceComputeDiskResourcePolicyAttachmentDelete(d *schema.ResourceData, m
 	var obj map[string]interface{}
 	obj = make(map[string]interface{})
 
-	// projects/{project}/regions/{region}/resourcePolicies/{resourceId}
-	region := getRegionFromZone(d.Get("zone").(string))
+	zone, err := getZone(d, config)
+	if err != nil {
+		return err
+	}
+	if zone == "" {
+		return fmt.Errorf("zone must be non-empty - set in resource or at provider-level")
+	}
+
+	// resourcePolicies are referred to by region but affixed to zonal disks.
+	// We construct the regional name from the zone:
+	//   projects/{project}/regions/{region}/resourcePolicies/{resourceId}
+	region := getRegionFromZone(zone)
+	if region == "" {
+		return fmt.Errorf("invalid zone %q, unable to infer region from zone", zone)
+	}
 
 	name, err := expandComputeDiskResourcePolicyAttachmentName(d.Get("name"), d, config)
 	if err != nil {
@@ -256,7 +269,21 @@ func resourceComputeDiskResourcePolicyAttachmentEncoder(d *schema.ResourceData, 
 		return nil, err
 	}
 
-	region := getRegionFromZone(d.Get("zone").(string))
+	zone, err := getZone(d, config)
+	if err != nil {
+		return nil, err
+	}
+	if zone == "" {
+		return nil, fmt.Errorf("zone must be non-empty - set in resource or at provider-level")
+	}
+
+	// resourcePolicies are referred to by region but affixed to zonal disks.
+	// We construct the regional name from the zone:
+	//   projects/{project}/regions/{region}/resourcePolicies/{resourceId}
+	region := getRegionFromZone(zone)
+	if region == "" {
+		return nil, fmt.Errorf("invalid zone %q, unable to infer region from zone", zone)
+	}
 
 	obj["resourcePolicies"] = []interface{}{fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", project, region, obj["name"])}
 	delete(obj, "name")

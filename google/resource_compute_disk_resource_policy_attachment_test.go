@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-func TestAccComputeDiskResourcePolicyAttachment_basic(t *testing.T) {
+func TestAccComputeDiskResourcePolicyAttachment_update(t *testing.T) {
 	t.Parallel()
 
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
