@@ -115,7 +115,6 @@ https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument
 												"command": {
 													Type:     schema.TypeList,
 													Optional: true,
-													ForceNew: true,
 													Description: `Entrypoint array. Not executed within a shell.
 The docker image's ENTRYPOINT is used if this is not provided.
 Variable references $(VAR_NAME) are expanded using the container's
@@ -132,7 +131,6 @@ https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument
 												"env": {
 													Type:        schema.TypeList,
 													Optional:    true,
-													ForceNew:    true,
 													Description: `List of environment variables to set in the container.`,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
