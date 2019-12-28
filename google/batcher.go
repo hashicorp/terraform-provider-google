@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/errwrap"
 )
 
-const defaultBatchSendIntervalSec = 10
+const defaultBatchSendIntervalSec = 3
 
 // RequestBatcher is a global batcher object that keeps track of
 // existing batches.
