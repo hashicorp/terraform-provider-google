@@ -1476,35 +1476,35 @@ func expandComputeBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d Terrafo
 	transformedIncludeHost, err := expandComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(original["include_host"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIncludeHost); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["includeHost"] = transformedIncludeHost
 	}
 
 	transformedIncludeProtocol, err := expandComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(original["include_protocol"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIncludeProtocol); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["includeProtocol"] = transformedIncludeProtocol
 	}
 
 	transformedIncludeQueryString, err := expandComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(original["include_query_string"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIncludeQueryString); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["includeQueryString"] = transformedIncludeQueryString
 	}
 
 	transformedQueryStringBlacklist, err := expandComputeBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(original["query_string_blacklist"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedQueryStringBlacklist); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["queryStringBlacklist"] = transformedQueryStringBlacklist
 	}
 
 	transformedQueryStringWhitelist, err := expandComputeBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["query_string_whitelist"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedQueryStringWhitelist); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["queryStringWhitelist"] = transformedQueryStringWhitelist
 	}
 
