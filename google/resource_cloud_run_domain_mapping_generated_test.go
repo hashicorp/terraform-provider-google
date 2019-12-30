@@ -28,9 +28,8 @@ func TestAccCloudRunDomainMapping_cloudRunDomainMappingBasicExample(t *testing.T
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"namespace":       getTestProjectFromEnv(),
-		"verified_domain": "tftest-domainmapping.com",
-		"random_suffix":   acctest.RandString(10),
+		"namespace":     getTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(10),
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -73,7 +72,7 @@ resource "google_cloud_run_service" "default" {
 
 resource "google_cloud_run_domain_mapping" "default" {
   location = "us-central1"
-  name     = "%{verified_domain}"
+  name     = "tf-test-domain%{random_suffix}.gcp.tfacc.hashicorptest.com"
 
   metadata {
     namespace = "%{namespace}"
