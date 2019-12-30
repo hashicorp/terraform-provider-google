@@ -41,7 +41,7 @@ To get more information about DomainMapping, see:
 
 ```hcl
 resource "google_app_engine_domain_mapping" "domain_mapping" {
-  domain_name = "dm-test-.gcp.tfacc.hashicorptest.com"
+  domain_name = "verified-domain.com"
 
   ssl_settings {
     ssl_management_type = "AUTOMATIC"
