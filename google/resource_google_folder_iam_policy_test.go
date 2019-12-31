@@ -1,12 +1,14 @@
 package google
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 )
 
@@ -42,25 +44,53 @@ func TestAccFolderIamPolicy_basic(t *testing.T) {
 	})
 }
 
-func TestAccFolderIamPolicy_auditConfigs(t *testing.T) {
+// Test that an IAM policy with an audit config can be applied to a folder
+func TestAccFolderIamPolicy_basicAuditConfig(t *testing.T) {
 	t.Parallel()
 
 	folderDisplayName := "tf-test-" + acctest.RandString(10)
 	org := getTestOrgFromEnv(t)
 	parent := "organizations/" + org
-
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
+			// Create a new folder
 			{
-				Config: testAccFolderIamPolicy_auditConfigs(folderDisplayName, parent, "roles/viewer", "user:admin@hashicorptest.com"),
+				Config: testAccFolder_create(folderDisplayName, parent),
+				Check: resource.ComposeTestCheckFunc(
+					testAccFolderExistingPolicy(org, folderDisplayName),
+				),
+			},
+			// Apply an IAM policy from a data source. The application
+			// merges policies, so we validate the expected state.
+			{
+				Config: testAccFolderAssociatePolicyAuditConfigBasic(folderDisplayName, parent),
 			},
 			{
-				ResourceName:      "google_folder_iam_policy.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName: "google_folder_iam_policy.acceptance",
+				ImportState:  true,
+			},
+		},
+	})
+}
+
+// Test that a non-collapsed IAM policy with AuditConfig doesn't perpetually diff
+func TestAccFolderIamPolicy_expandedAuditConfig(t *testing.T) {
+	t.Parallel()
+
+	folderDisplayName := "tf-test-" + acctest.RandString(10)
+	org := getTestOrgFromEnv(t)
+	parent := "organizations/" + org
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFolderAssociatePolicyAuditConfigExpanded(folderDisplayName, parent),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleFolderIamPolicyExists("google_folder_iam_policy.acceptance", "data.google_iam_policy.expanded"),
+				),
 			},
 		},
 	})
@@ -84,6 +114,50 @@ func testAccCheckGoogleFolderIamPolicyDestroy(s *terraform.State) error {
 	return nil
 }
 
+func getGoogleFolderIamPolicyFromResource(resource *terraform.InstanceState) (cloudresourcemanager.Policy, error) {
+	var p cloudresourcemanager.Policy
+	ps, ok := resource.Attributes["policy_data"]
+	if !ok {
+		return p, fmt.Errorf("Resource %q did not have a 'policy_data' attribute. Attributes were %#v", resource.ID, resource.Attributes)
+	}
+	if err := json.Unmarshal([]byte(ps), &p); err != nil {
+		return p, fmt.Errorf("Could not unmarshal %s:\n: %v", ps, err)
+	}
+	return p, nil
+}
+
+func getGoogleFolderIamPolicyFromState(s *terraform.State, res string) (cloudresourcemanager.Policy, error) {
+	folder, err := getStatePrimaryResource(s, res, "")
+	if err != nil {
+		return cloudresourcemanager.Policy{}, err
+	}
+	return getGoogleFolderIamPolicyFromResource(folder)
+}
+
+func testAccCheckGoogleFolderIamPolicyExists(folder, policyRes string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		folderPolicy, err := getGoogleFolderIamPolicyFromState(s, folder)
+		if err != nil {
+			return fmt.Errorf("Error retrieving IAM policy for folder from state: %s", err)
+		}
+		policyPolicy, err := getGoogleFolderIamPolicyFromState(s, policyRes)
+		if err != nil {
+			return fmt.Errorf("Error retrieving IAM policy for data_policy from state: %s", err)
+		}
+
+		// The bindings in both policies should be identical
+		if !compareBindings(folderPolicy.Bindings, policyPolicy.Bindings) {
+			return fmt.Errorf("Folder and data source policies do not match: folder policy is %+v, data resource policy is  %+v", debugPrintBindings(folderPolicy.Bindings), debugPrintBindings(policyPolicy.Bindings))
+		}
+
+		// The audit configs in both policies should be identical
+		if !compareAuditConfigs(folderPolicy.AuditConfigs, policyPolicy.AuditConfigs) {
+			return fmt.Errorf("Folder and data source policies do not match: folder policy is %+v, data resource policy is  %+v", debugPrintAuditConfigs(folderPolicy.AuditConfigs), debugPrintAuditConfigs(policyPolicy.AuditConfigs))
+		}
+		return nil
+	}
+}
+
 // Confirm that a folder has an IAM policy with at least 1 binding
 func testAccFolderExistingPolicy(org, fname string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -100,20 +174,74 @@ func testAccFolderExistingPolicy(org, fname string) resource.TestCheckFunc {
 	}
 }
 
+func testAccFolderAssociatePolicyAuditConfigBasic(folder, parent string) string {
+	return fmt.Sprintf(`
+resource "google_folder" "acceptance" {
+  display_name = "%s"
+  parent = "%s"
+}
+resource "google_folder_iam_policy" "acceptance" {
+    folder = "${google_folder.acceptance.id}"
+    policy_data = "${data.google_iam_policy.admin.policy_data}"
+}
+data "google_iam_policy" "admin" {
+  binding {
+    role = "roles/storage.objectViewer"
+    members = [
+      "user:evanbrown@google.com",
+    ]
+  }
+  binding {
+    role = "roles/compute.instanceAdmin"
+    members = [
+      "user:evanbrown@google.com",
+      "user:evandbrown@gmail.com",
+    ]
+  }
+  audit_config {
+    service = "cloudkms.googleapis.com"
+    audit_log_configs {
+      log_type = "DATA_READ"
+      exempted_members = ["user:paddy@hashicorp.com"]
+    }
+    audit_log_configs {
+      log_type = "DATA_WRITE"
+    }
+  }
+  audit_config {
+    service = "cloudsql.googleapis.com"
+    audit_log_configs {
+      log_type = "DATA_READ"
+      exempted_members = ["user:paddy@hashicorp.com"]
+    }
+    audit_log_configs {
+      log_type = "DATA_WRITE"
+    }
+  }
+}
+`, folder, parent)
+}
+
+func testAccFolder_create(folder, parent string) string {
+	return fmt.Sprintf(`
+resource "google_folder" "acceptance" {
+  display_name = "%s"
+  parent = "%s"
+}`, folder, parent)
+}
+
 func testAccFolderIamPolicy_basic(folder, parent, role, member string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "permissiontest" {
   display_name = "%s"
   parent       = "%s"
 }
-
 data "google_iam_policy" "test" {
   binding {
     role    = "%s"
     members = ["%s"]
   }
 }
-
 resource "google_folder_iam_policy" "test" {
   folder      = google_folder.permissiontest.name
   policy_data = data.google_iam_policy.test.policy_data
@@ -127,19 +255,16 @@ resource "google_folder" "permissiontest" {
   display_name = "%s"
   parent       = "%s"
 }
-
 data "google_iam_policy" "test" {
   binding {
     role    = "%s"
     members = ["%s"]
   }
-
   binding {
     role    = "%s"
     members = ["%s"]
   }
 }
-
 resource "google_folder_iam_policy" "test" {
   folder      = google_folder.permissiontest.name
   policy_data = data.google_iam_policy.test.policy_data
@@ -147,45 +272,49 @@ resource "google_folder_iam_policy" "test" {
 `, folder, parent, role, member, role2, member2)
 }
 
-func testAccFolderIamPolicy_auditConfigs(folder, parent, role, member string) string {
+func testAccFolderAssociatePolicyAuditConfigExpanded(folder, parent string) string {
 	return fmt.Sprintf(`
-resource "google_folder" "permissiontest" {
+resource "google_folder" "acceptance" {
   display_name = "%s"
-  parent       = "%s"
+  parent = "%s"
 }
-
-data "google_iam_policy" "test" {
+resource "google_folder_iam_policy" "acceptance" {
+    folder = "${google_folder.acceptance.id}"
+    policy_data = "${data.google_iam_policy.expanded.policy_data}"
+}
+data "google_iam_policy" "expanded" {
   binding {
-    role    = "%s"
-    members = ["%s"]
+    role = "roles/storage.objectViewer"
+    members = [
+      "user:evanbrown@google.com",
+    ]
+  }
+  binding {
+    role = "roles/compute.instanceAdmin"
+    members = [
+      "user:evanbrown@google.com",
+      "user:evandbrown@gmail.com",
+    ]
   }
   audit_config {
     service = "cloudkms.googleapis.com"
     audit_log_configs {
-      log_type         = "DATA_READ"
-      exempted_members = ["%s"]
+      log_type = "DATA_READ"
+      exempted_members = ["user:paddy@hashicorp.com"]
     }
-
     audit_log_configs {
       log_type = "DATA_WRITE"
     }
   }
   audit_config {
-    service = "cloudsql.googleapis.com"
+    service = "cloudkms.googleapis.com"
     audit_log_configs {
-      log_type         = "DATA_READ"
-      exempted_members = ["%s"]
+      log_type = "DATA_READ"
+      exempted_members = ["user:paddy@hashicorp.com"]
     }
-
     audit_log_configs {
       log_type = "DATA_WRITE"
     }
   }
-}
-
-resource "google_folder_iam_policy" "test" {
-  folder      = google_folder.permissiontest.name
-  policy_data = data.google_iam_policy.test.policy_data
-}
-`, folder, parent, role, member, member, member)
+}`, folder, parent)
 }
