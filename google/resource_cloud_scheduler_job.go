@@ -307,9 +307,10 @@ a message to the provided topic`,
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							Description: `The name of the Cloud Pub/Sub topic to which messages will be published when a job is delivered. 
-The topic name must be in the same format as required by PubSub's PublishRequest.name, 
-for example projects/PROJECT_ID/topics/TOPIC_ID.`,
+							Description: `The full resource name for the Cloud Pub/Sub topic to which
+messages will be published when a job is delivered. ~>**NOTE**:
+The topic name must be in the same format as required by PubSub's
+PublishRequest.name, e.g. 'projects/my-project/topics/my-topic'.`,
 						},
 						"attributes": {
 							Type:     schema.TypeMap,

@@ -56,6 +56,7 @@ resource "google_cloud_scheduler_job" "job" {
   schedule    = "*/2 * * * *"
 
   pubsub_target {
+    # topic.id is the topic's full resource name.
     topic_name = google_pubsub_topic.topic.id
     data       = base64encode("test")
   }
@@ -261,9 +262,10 @@ The `pubsub_target` block supports:
 
 * `topic_name` -
   (Required)
-  The name of the Cloud Pub/Sub topic to which messages will be published when a job is delivered. 
-  The topic name must be in the same format as required by PubSub's PublishRequest.name, 
-  for example projects/PROJECT_ID/topics/TOPIC_ID.
+  The full resource name for the Cloud Pub/Sub topic to which
+  messages will be published when a job is delivered. ~>**NOTE**:
+  The topic name must be in the same format as required by PubSub's
+  PublishRequest.name, e.g. `projects/my-project/topics/my-topic`.
 
 * `data` -
   (Optional)
