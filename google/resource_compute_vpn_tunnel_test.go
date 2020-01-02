@@ -40,7 +40,7 @@ func TestAccComputeVpnTunnel_regionFromGateway(t *testing.T) {
 func TestAccComputeVpnTunnel_router(t *testing.T) {
 	t.Parallel()
 
-	router := fmt.Sprintf("tunnel-test-router-%s", acctest.RandString(10))
+	router := fmt.Sprintf("tf-test-tunnel-%s", acctest.RandString(10))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -83,30 +83,30 @@ func TestAccComputeVpnTunnel_defaultTrafficSelectors(t *testing.T) {
 func testAccComputeVpnTunnel_regionFromGateway(region string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-  name                    = "tunnel-test-%s"
+  name                    = "tf-test-%[1]s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "foobar" {
-  name          = "tunnel-test-subnetwork-%s"
+  name          = "tf-test-%[1]s"
   network       = google_compute_network.foobar.self_link
   ip_cidr_range = "10.0.0.0/16"
-  region        = "%s"
+  region        = "%[2]s"
 }
 
 resource "google_compute_address" "foobar" {
-  name   = "tunnel-test-%s"
+  name   = "tf-test-%[1]s"
   region = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_vpn_gateway" "foobar" {
-  name    = "tunnel-test-%s"
+  name    = "tf-test-%[1]s"
   network = google_compute_network.foobar.self_link
   region  = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_forwarding_rule" "foobar_esp" {
-  name        = "tunnel-test-%s"
+  name        = "tf-test-%[1]s-esp"
   region      = google_compute_vpn_gateway.foobar.region
   ip_protocol = "ESP"
   ip_address  = google_compute_address.foobar.address
@@ -114,7 +114,7 @@ resource "google_compute_forwarding_rule" "foobar_esp" {
 }
 
 resource "google_compute_forwarding_rule" "foobar_udp500" {
-  name        = "tunnel-test-%s"
+  name        = "tf-test-%[1]s-udp500"
   region      = google_compute_forwarding_rule.foobar_esp.region
   ip_protocol = "UDP"
   port_range  = "500-500"
@@ -123,7 +123,7 @@ resource "google_compute_forwarding_rule" "foobar_udp500" {
 }
 
 resource "google_compute_forwarding_rule" "foobar_udp4500" {
-  name        = "tunnel-test-%s"
+  name        = "tf-test-%[1]s-udp4500"
   region      = google_compute_forwarding_rule.foobar_udp500.region
   ip_protocol = "UDP"
   port_range  = "4500-4500"
@@ -132,7 +132,7 @@ resource "google_compute_forwarding_rule" "foobar_udp4500" {
 }
 
 resource "google_compute_vpn_tunnel" "foobar" {
-  name                    = "tunnel-test-%s"
+  name                    = "tf-test-%[1]s"
   target_vpn_gateway      = google_compute_vpn_gateway.foobar.self_link
   shared_secret           = "unguessable"
   peer_ip                 = "8.8.8.8"
@@ -141,39 +141,36 @@ resource "google_compute_vpn_tunnel" "foobar" {
 
   depends_on = [google_compute_forwarding_rule.foobar_udp4500]
 }
-`, acctest.RandString(10), acctest.RandString(10), region, acctest.RandString(10),
-		acctest.RandString(10), acctest.RandString(10), acctest.RandString(10),
-		acctest.RandString(10), acctest.RandString(10))
+`, acctest.RandString(10), region)
 }
 
 func testAccComputeVpnTunnelRouter(router string) string {
-	testId := acctest.RandString(10)
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-  name                    = "tunnel-test-%s"
+  name                    = "tf-test-%[1]s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "foobar" {
-  name          = "tunnel-test-subnetwork-%s"
+  name          = "tf-test-subnetwork-%[1]s"
   network       = google_compute_network.foobar.self_link
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
 
 resource "google_compute_address" "foobar" {
-  name   = "tunnel-test-%s"
+  name   = "tf-test-%[1]s"
   region = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_vpn_gateway" "foobar" {
-  name    = "tunnel-test-%s"
+  name    = "tf-test-%[1]s"
   network = google_compute_network.foobar.self_link
   region  = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_forwarding_rule" "foobar_esp" {
-  name        = "tunnel-test-%s-1"
+  name        = "tf-test-%[1]s-1"
   region      = google_compute_vpn_gateway.foobar.region
   ip_protocol = "ESP"
   ip_address  = google_compute_address.foobar.address
@@ -181,7 +178,7 @@ resource "google_compute_forwarding_rule" "foobar_esp" {
 }
 
 resource "google_compute_forwarding_rule" "foobar_udp500" {
-  name        = "tunnel-test-%s-2"
+  name        = "tf-test-%[1]s-2"
   region      = google_compute_forwarding_rule.foobar_esp.region
   ip_protocol = "UDP"
   port_range  = "500-500"
@@ -190,7 +187,7 @@ resource "google_compute_forwarding_rule" "foobar_udp500" {
 }
 
 resource "google_compute_forwarding_rule" "foobar_udp4500" {
-  name        = "tunnel-test-%s-3"
+  name        = "tf-test-%[1]s-3"
   region      = google_compute_forwarding_rule.foobar_udp500.region
   ip_protocol = "UDP"
   port_range  = "4500-4500"
@@ -199,7 +196,7 @@ resource "google_compute_forwarding_rule" "foobar_udp4500" {
 }
 
 resource "google_compute_router" "foobar" {
-  name    = "%s"
+  name    = "%[2]s"
   region  = google_compute_forwarding_rule.foobar_udp500.region
   network = google_compute_network.foobar.self_link
   bgp {
@@ -208,36 +205,36 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_vpn_tunnel" "foobar" {
-  name               = "tunnel-test-%s"
+  name               = "tf-test-%[1]s"
   region             = google_compute_forwarding_rule.foobar_udp4500.region
   target_vpn_gateway = google_compute_vpn_gateway.foobar.self_link
   shared_secret      = "unguessable"
   peer_ip            = "8.8.8.8"
   router             = google_compute_router.foobar.self_link
 }
-`, testId, testId, testId, testId, testId, testId, testId, router, testId)
+`, acctest.RandString(10), router)
 }
 
 func testAccComputeVpnTunnelDefaultTrafficSelectors() string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-  name                    = "tunnel-test-%s"
+  name                    = "tf-test-%[1]s"
   auto_create_subnetworks = "true"
 }
 
 resource "google_compute_address" "foobar" {
-  name   = "tunnel-test-%s"
+  name   = "tf-test-%[1]s"
   region = "us-central1"
 }
 
 resource "google_compute_vpn_gateway" "foobar" {
-  name    = "tunnel-test-%s"
+  name    = "tf-test-%[1]s"
   network = google_compute_network.foobar.self_link
   region  = google_compute_address.foobar.region
 }
 
 resource "google_compute_forwarding_rule" "foobar_esp" {
-  name        = "tunnel-test-%s"
+  name        = "tf-test-%[1]s-esp"
   region      = google_compute_vpn_gateway.foobar.region
   ip_protocol = "ESP"
   ip_address  = google_compute_address.foobar.address
@@ -245,7 +242,7 @@ resource "google_compute_forwarding_rule" "foobar_esp" {
 }
 
 resource "google_compute_forwarding_rule" "foobar_udp500" {
-  name        = "tunnel-test-%s"
+  name        = "tf-test-%[1]s-udp500"
   region      = google_compute_forwarding_rule.foobar_esp.region
   ip_protocol = "UDP"
   port_range  = "500-500"
@@ -254,7 +251,7 @@ resource "google_compute_forwarding_rule" "foobar_udp500" {
 }
 
 resource "google_compute_forwarding_rule" "foobar_udp4500" {
-  name        = "tunnel-test-%s"
+  name        = "tf-test-%[1]s-udp4500"
   region      = google_compute_forwarding_rule.foobar_udp500.region
   ip_protocol = "UDP"
   port_range  = "4500-4500"
@@ -263,13 +260,11 @@ resource "google_compute_forwarding_rule" "foobar_udp4500" {
 }
 
 resource "google_compute_vpn_tunnel" "foobar" {
-  name               = "tunnel-test-%s"
+  name               = "tf-test-%[1]s"
   region             = google_compute_forwarding_rule.foobar_udp4500.region
   target_vpn_gateway = google_compute_vpn_gateway.foobar.self_link
   shared_secret      = "unguessable"
   peer_ip            = "8.8.8.8"
 }
-`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10),
-		acctest.RandString(10), acctest.RandString(10), acctest.RandString(10),
-		acctest.RandString(10))
+`, acctest.RandString(10))
 }
