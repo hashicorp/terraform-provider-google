@@ -31,12 +31,16 @@ about: For when something is there, but doesn't work how it should.
 <!--- Information about code formatting: https://help.github.com/articles/basic-writing-and-formatting-syntax/#quoting-code --->
 
 ```tf
-# Copy-paste your Terraform configurations here - for large Terraform configs,
-# please use a service like Dropbox and share a link to the ZIP file. For
-# security, you can also encrypt the files using our GPG public key: https://www.hashicorp.com/security
+# Copy-paste your Terraform configurations here.
+#
+# For large Terraform configs, please use a service like Dropbox and share a link to the ZIP file.
+# For security, you can also encrypt the files using our GPG public key:
+#    https://www.hashicorp.com/security
+#
 # If reproducing the bug involves modifying the config file (e.g., apply a config,
-# change a value, apply the config again, see the bug) then please include both the
-# version of the config before the change, and the version of the config after the change.
+# change a value, apply the config again, see the bug), then please include both:
+# * the version of the config before the change, and
+# * the version of the config after the change.
 ```
 
 ### Debug Output
