@@ -28,11 +28,13 @@ func dataSourceGoogleContainerEngineVersions() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Removed:  "Use location instead",
+				Computed: true,
 			},
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Removed:  "Use location instead",
+				Computed: true,
 			},
 			"default_cluster_version": {
 				Type:     schema.TypeString,

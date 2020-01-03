@@ -56,11 +56,13 @@ func resourceContainerNodePool() *schema.Resource {
 					Type:     schema.TypeString,
 					Optional: true,
 					Removed:  "use location instead",
+					Computed: true,
 				},
 				"region": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Removed:  "use location instead",
+					Computed: true,
 				},
 				"location": {
 					Type:     schema.TypeString,

@@ -268,6 +268,7 @@ This field is only used for INTERNAL load balancing.`,
 				Type:     schema.TypeString,
 				Optional: true,
 				Removed:  "ipVersion is not used for regional forwarding rules. Please remove this field if you are using it.",
+				Computed: true,
 			},
 			"project": {
 				Type:     schema.TypeString,

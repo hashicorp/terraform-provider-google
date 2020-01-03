@@ -143,6 +143,7 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Type:     schema.TypeString,
 				Removed:  "This field is removed.",
 				Optional: true,
+				Computed: true,
 			},
 
 			"target_pools": {

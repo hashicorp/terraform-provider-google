@@ -125,12 +125,14 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Removed:  "Use location instead",
+				Computed: true,
 			},
 
 			"zone": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Removed:  "Use location instead",
+				Computed: true,
 			},
 
 			"node_locations": {
@@ -144,6 +146,7 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Removed:  "Use node_locations instead",
+				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -188,6 +191,7 @@ func resourceContainerCluster() *schema.Resource {
 							Type:     schema.TypeList,
 							Optional: true,
 							Removed:  "The Kubernetes Dashboard addon is removed for clusters on GKE.",
+							Computed: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -517,6 +521,7 @@ func resourceContainerCluster() *schema.Resource {
 			"pod_security_policy_config": {
 				// Remove return nil from expand when this is removed for good.
 				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
+				Computed: true,
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
@@ -717,6 +722,7 @@ func resourceContainerCluster() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
+				Computed: true,
 			},
 		},
 	}

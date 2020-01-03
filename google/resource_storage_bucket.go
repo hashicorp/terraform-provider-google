@@ -151,6 +151,7 @@ func resourceStorageBucket() *schema.Resource {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Removed:  "Please use `with_state` instead",
+										Computed: true,
 									},
 									"with_state": {
 										Type:         schema.TypeString,
