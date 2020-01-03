@@ -281,7 +281,7 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 		routingConfigProp, err := expandComputeNetworkRoutingConfig(nil, d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("routing_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, routingConfigProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(routingConfigProp)) {
 			obj["routingConfig"] = routingConfigProp
 		}
 

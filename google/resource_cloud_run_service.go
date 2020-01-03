@@ -696,7 +696,7 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 	specProp, err := expandCloudRunServiceSpec(nil, d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("spec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, specProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(specProp)) {
 		obj["spec"] = specProp
 	}
 	metadataProp, err := expandCloudRunServiceMetadata(d.Get("metadata"), d, config)

@@ -483,7 +483,7 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 	datasetReferenceProp, err := expandBigQueryDatasetDatasetReference(nil, d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("dataset_reference"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, datasetReferenceProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(datasetReferenceProp)) {
 		obj["datasetReference"] = datasetReferenceProp
 	}
 	defaultTableExpirationMsProp, err := expandBigQueryDatasetDefaultTableExpirationMs(d.Get("default_table_expiration_ms"), d, config)

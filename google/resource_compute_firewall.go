@@ -593,7 +593,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 	logConfigProp, err := expandComputeFirewallLogConfig(nil, d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(logConfigProp)) {
 		obj["logConfig"] = logConfigProp
 	}
 	networkProp, err := expandComputeFirewallNetwork(d.Get("network"), d, config)
