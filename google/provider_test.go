@@ -192,6 +192,7 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 	billing := getTestBillingAccountFromEnv(t)
 	pid := "terraform-" + acctest.RandString(10)
 	sa := "terraform-" + acctest.RandString(10)
+	topicName := "tf-test-topic-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -208,14 +209,14 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 				},
 			},
 			{
-				Config:      testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, false),
-				ExpectError: regexp.MustCompile("Binary Authorization API has not been used"),
+				Config:      testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, false, topicName),
+				ExpectError: regexp.MustCompile("Cloud Pub/Sub API has not been used"),
 			},
 			{
-				Config: testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, true),
+				Config: testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, true, topicName),
 			},
 			{
-				ResourceName:      "google_binary_authorization_policy.project-2-policy",
+				ResourceName:      "google_pubsub_topic.project-2-topic",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -281,7 +282,7 @@ resource "google_compute_address" "default" {
 }
 
 // Set up two projects. Project 1 has a service account that is used to create a
-// binauthz policy in project 2. The binauthz API is only enabled in project 2,
+// pubsub topic in project 2. The pubsub API is only enabled in project 2,
 // which causes the create to fail unless user_project_override is set to true.
 func testAccProviderUserProjectOverride(pid, name, org, billing, sa string) string {
 	return fmt.Sprintf(`
@@ -304,9 +305,9 @@ resource "google_project" "project-2" {
 	billing_account = "%s"
 }
 
-resource "google_project_service" "project-2-binauthz" {
+resource "google_project_service" "project-2-pubsub-service" {
 	project = google_project.project-2.project_id
-	service = "binaryauthorization.googleapis.com"
+	service = "pubsub.googleapis.com"
 }
 
 // Permission needed for user_project_override
@@ -316,9 +317,9 @@ resource "google_project_iam_member" "project-2-serviceusage" {
 	member  = "serviceAccount:${google_service_account.project-1.email}"
 }
 
-resource "google_project_iam_member" "project-2-binauthz" {
+resource "google_project_iam_member" "project-2-pubsub-member" {
 	project = google_project.project-2.project_id
-	role    = "roles/binaryauthorization.policyEditor"
+	role    = "roles/pubsub.admin"
 	member  = "serviceAccount:${google_service_account.project-1.email}"
 }
 
@@ -334,28 +335,24 @@ resource "google_service_account_iam_member" "token-creator-iam" {
 `, pid, name, org, billing, sa, pid, name, org, billing)
 }
 
-func testAccProviderUserProjectOverride_step2(pid, name, org, billing, sa string, override bool) string {
+func testAccProviderUserProjectOverride_step2(pid, name, org, billing, sa string, override bool, topicName string) string {
 	return fmt.Sprintf(`
-// See step 3 below, which is really step 2 minus the binauthz policy.
+// See step 3 below, which is really step 2 minus the pubsub topic.
 // Step 3 exists because provider configurations can't be removed while objects
 // created by that provider still exist in state. Step 3 will remove the
-// binauthz policy so the whole config can be deleted.
+// pubsub topic so the whole config can be deleted.
 %s
 
-resource "google_binary_authorization_policy" "project-2-policy" {
+resource "google_pubsub_topic" "project-2-topic" {
 	provider = google.project-1-token
 	project  = google_project.project-2.project_id
 
-	admission_whitelist_patterns {
-		name_pattern= "gcr.io/google_containers/*"
-	}
-
-	default_admission_rule {
-		evaluation_mode = "ALWAYS_DENY"
-		enforcement_mode = "ENFORCED_BLOCK_AND_AUDIT_LOG"
+	name = "%s"
+	labels = {
+	  foo = "bar"
 	}
 }
-`, testAccProviderUserProjectOverride_step3(pid, name, org, billing, sa, override))
+`, testAccProviderUserProjectOverride_step3(pid, name, org, billing, sa, override), topicName)
 }
 
 func testAccProviderUserProjectOverride_step3(pid, name, org, billing, sa string, override bool) string {
