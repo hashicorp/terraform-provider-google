@@ -20,6 +20,7 @@ func TestAccDataSourceGoogleSubnetwork(t *testing.T) {
 				Config: testAccDataSourceGoogleSubnetwork(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleSubnetworkCheck("data.google_compute_subnetwork.my_subnetwork", "google_compute_subnetwork.foobar"),
+					testAccDataSourceGoogleSubnetworkCheck("data.google_compute_subnetwork.my_subnetwork_self_link", "google_compute_subnetwork.foobar"),
 				),
 			},
 		},
