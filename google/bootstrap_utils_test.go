@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/iam/v1"
@@ -229,4 +230,64 @@ func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
 	}
 
 	return sa.Email
+}
+
+const SharedTestNetworkPrefix = "tf-bootstrap-net-"
+
+// BootstrapSharedServiceNetworkingConsumerNetwork will return a shared compute network
+// for service networking test to prevent hitting limits on tenancy projects.
+//
+// This will either return an existing network or create one if it hasn't been created
+// in the project yet. One consumer network/tenant project we don't own is created
+// per producer network (i.e. network created by test), with a hard limit set.
+func BootstrapSharedServiceNetworkingConsumerNetwork(t *testing.T, testId string) string {
+	if v := os.Getenv("TF_ACC"); v == "" {
+		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+		// If not running acceptance tests, return an empty string
+		return ""
+	}
+
+	project := getTestProjectFromEnv()
+	networkName := SharedTestNetworkPrefix + testId
+	config := &Config{
+		Credentials: getTestCredsFromEnv(),
+		Project:     project,
+		Region:      getTestRegionFromEnv(),
+		Zone:        getTestZoneFromEnv(),
+	}
+	ConfigureBasePaths(config)
+	if err := config.LoadAndValidate(context.Background()); err != nil {
+		t.Errorf("Unable to bootstrap network: %s", err)
+	}
+
+	log.Printf("[DEBUG] Getting shared test network %q", networkName)
+	_, err := config.clientCompute.Networks.Get(project, networkName).Do()
+	if err != nil && isGoogleApiErrorWithCode(err, 404) {
+		log.Printf("[DEBUG] Network %q not found, bootstrapping", networkName)
+		url := fmt.Sprintf("%sprojects/%s/global/networks", config.ComputeBasePath, project)
+		netObj := map[string]interface{}{
+			"name":                  networkName,
+			"autoCreateSubnetworks": false,
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", project, url, netObj, 4*time.Minute)
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared test network %q: %s", networkName, err)
+		}
+
+		log.Printf("[DEBUG] Waiting for network creation to finish")
+		err = computeOperationWaitTime(config, res, project, "Error bootstrapping shared test network", 4)
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared test network %q: %s", networkName, err)
+		}
+	}
+
+	network, err := config.clientCompute.Networks.Get(project, networkName).Do()
+	if err != nil {
+		t.Errorf("Error getting shared test network %q: %s", networkName, err)
+	}
+	if network == nil {
+		t.Fatalf("Error getting shared test network %q: is nil", networkName)
+	}
+	return network.Name
 }
