@@ -202,6 +202,7 @@ var schemaNodeConfig = &schema.Schema{
 
 			"workload_metadata_config": {
 				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
+				Computed: true,
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
@@ -220,6 +221,7 @@ var schemaNodeConfig = &schema.Schema{
 
 			"sandbox_config": {
 				Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
+				Computed: true,
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,

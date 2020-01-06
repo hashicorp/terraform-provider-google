@@ -708,7 +708,8 @@ Its syntax is: projects/[PROJECT_ID]/alertPolicies/[ALERT_POLICY_ID]`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Removed: "labels is removed as it was never used. See user_labels for the correct field",
+				Removed:  "labels is removed as it was never used. See user_labels for the correct field",
+				Computed: true,
 			},
 			"project": {
 				Type:     schema.TypeString,

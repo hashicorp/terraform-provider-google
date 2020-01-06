@@ -37,11 +37,10 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			},
 
 			"instance_template": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				Computed:         true,
-				Removed:          "This field has been replaced by `version.instance_template`",
-				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Removed:  "This field has been replaced by `version.instance_template`",
 			},
 
 			"version": {

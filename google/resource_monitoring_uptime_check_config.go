@@ -237,37 +237,44 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Removed:  "This field never worked, and will be removed in 3.0.0.",
+				Computed: true,
 			},
 			"internal_checkers": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Removed:  "This field never worked, and will be removed in 3.0.0.",
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"display_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Removed:  "This field never worked, and will be removed in 3.0.0.",
+							Computed: true,
 						},
 						"gcp_zone": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Removed:  "This field never worked, and will be removed in 3.0.0.",
+							Computed: true,
 						},
 						"name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Removed:  "This field never worked, and will be removed in 3.0.0.",
+							Computed: true,
 						},
 						"network": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Removed:  "This field never worked, and will be removed in 3.0.0.",
+							Computed: true,
 						},
 						"peer_project_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Removed:  "This field never worked, and will be removed in 3.0.0.",
+							Computed: true,
 						},
 					},
 				},

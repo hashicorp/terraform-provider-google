@@ -32,8 +32,8 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 			"pgp_key": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Removed:  "The pgp_key field has been removed. See https://www.terraform.io/docs/extend/best-practices/sensitive-state.html for more information.",
+				Computed: true,
 			},
 			"private_key_type": {
 				Type:         schema.TypeString,
