@@ -1,7 +1,7 @@
 module github.com/terraform-providers/terraform-provider-google
 
 require (
-	cloud.google.com/go/bigtable v1.0.1-0.20190930151326-312d69ccea6e
+	cloud.google.com/go/bigtable v1.1.0
 	github.com/apparentlymart/go-cidr v1.0.1
 	github.com/client9/misspell v0.3.4
 	github.com/davecgh/go-spew v1.1.1
@@ -20,7 +20,7 @@ require (
 	github.com/stoewer/go-strcase v1.0.2
 	github.com/terraform-providers/terraform-provider-random v0.0.0-20190925200408-30dac3233094
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
-	google.golang.org/api v0.11.1-0.20191012001332-5e0e3f4a3bb8
+	google.golang.org/api v0.13.0
 )
 
 go 1.13
