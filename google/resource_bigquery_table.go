@@ -312,6 +312,7 @@ func resourceBigQueryTable() *schema.Resource {
 			"encryption_configuration": {
 				Type:     schema.TypeList,
 				Optional: true,
+				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
