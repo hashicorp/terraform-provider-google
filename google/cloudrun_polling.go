@@ -59,6 +59,11 @@ func (s KnativeStatus) LatestMessage() string {
 func (s KnativeStatus) State(res interface{}) string {
 	for _, condition := range s.Status.Conditions {
 		if condition.Type == "Ready" {
+			// DomainMapping can enter a 'terminal' state of waiting for external verification
+			// of DNS records.
+			if condition.Reason == "CertificatePending" {
+				return "Ready:CertificatePending"
+			}
 			return fmt.Sprintf("%s:%s", condition.Type, condition.Status)
 		}
 	}
@@ -76,7 +81,7 @@ func (p *CloudRunPolling) PendingStates() []string {
 	return []string{"Ready:Unknown", "Empty"}
 }
 func (p *CloudRunPolling) TargetStates() []string {
-	return []string{"Ready:True"}
+	return []string{"Ready:True", "Ready:CertificatePending"}
 }
 func (p *CloudRunPolling) ErrorStates() []string {
 	return []string{"Ready:False"}
