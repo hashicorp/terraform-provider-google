@@ -16,6 +16,8 @@ import (
 	v1 "google.golang.org/genproto/googleapis/iam/v1"
 	longrunning "google.golang.org/genproto/googleapis/longrunning"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1801,6 +1803,59 @@ type BigtableTableAdminServer interface {
 	SetIamPolicy(context.Context, *v1.SetIamPolicyRequest) (*v1.Policy, error)
 	// Returns permissions that the caller has on the specified table resource.
 	TestIamPermissions(context.Context, *v1.TestIamPermissionsRequest) (*v1.TestIamPermissionsResponse, error)
+}
+
+// UnimplementedBigtableTableAdminServer can be embedded to have forward compatible implementations.
+type UnimplementedBigtableTableAdminServer struct {
+}
+
+func (*UnimplementedBigtableTableAdminServer) CreateTable(ctx context.Context, req *CreateTableRequest) (*Table, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTable not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) CreateTableFromSnapshot(ctx context.Context, req *CreateTableFromSnapshotRequest) (*longrunning.Operation, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTableFromSnapshot not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) ListTables(ctx context.Context, req *ListTablesRequest) (*ListTablesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListTables not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) GetTable(ctx context.Context, req *GetTableRequest) (*Table, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTable not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) DeleteTable(ctx context.Context, req *DeleteTableRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTable not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) ModifyColumnFamilies(ctx context.Context, req *ModifyColumnFamiliesRequest) (*Table, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyColumnFamilies not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) DropRowRange(ctx context.Context, req *DropRowRangeRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DropRowRange not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) GenerateConsistencyToken(ctx context.Context, req *GenerateConsistencyTokenRequest) (*GenerateConsistencyTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateConsistencyToken not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) CheckConsistency(ctx context.Context, req *CheckConsistencyRequest) (*CheckConsistencyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckConsistency not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) SnapshotTable(ctx context.Context, req *SnapshotTableRequest) (*longrunning.Operation, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SnapshotTable not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) GetSnapshot(ctx context.Context, req *GetSnapshotRequest) (*Snapshot, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSnapshot not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) ListSnapshots(ctx context.Context, req *ListSnapshotsRequest) (*ListSnapshotsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListSnapshots not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) DeleteSnapshot(ctx context.Context, req *DeleteSnapshotRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteSnapshot not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) GetIamPolicy(ctx context.Context, req *v1.GetIamPolicyRequest) (*v1.Policy, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetIamPolicy not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) SetIamPolicy(ctx context.Context, req *v1.SetIamPolicyRequest) (*v1.Policy, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetIamPolicy not implemented")
+}
+func (*UnimplementedBigtableTableAdminServer) TestIamPermissions(ctx context.Context, req *v1.TestIamPermissionsRequest) (*v1.TestIamPermissionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TestIamPermissions not implemented")
 }
 
 func RegisterBigtableTableAdminServer(s *grpc.Server, srv BigtableTableAdminServer) {
