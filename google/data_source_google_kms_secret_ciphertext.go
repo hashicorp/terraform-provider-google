@@ -13,7 +13,8 @@ import (
 
 func dataSourceGoogleKmsSecretCiphertext() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGoogleKmsSecretCiphertextRead,
+		DeprecationMessage: "Use the google_kms_secret_ciphertext resource instead.",
+		Read:               dataSourceGoogleKmsSecretCiphertextRead,
 		Schema: map[string]*schema.Schema{
 			"crypto_key": {
 				Type:     schema.TypeString,

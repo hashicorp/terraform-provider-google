@@ -9,6 +9,8 @@ description: |-
 
 # google\_kms\_secret\_ciphertext
 
+!> **Warning:** This data source is deprecated. Use the [`google_kms_secret_ciphertext`](../../r/kms_secret_ciphertext.html) **resource** instead.
+
 This data source allows you to encrypt data with Google Cloud KMS and use the
 ciphertext within your resource definitions.
 
