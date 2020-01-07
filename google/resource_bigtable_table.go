@@ -142,7 +142,7 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		log.Printf("[WARN] Removing %s because it's gone", name)
 		d.SetId("")
-		return nil
+		return fmt.Errorf("Error retrieving table. Could not find %s in %s. %s", name, instanceName, err)
 	}
 
 	d.Set("project", project)
