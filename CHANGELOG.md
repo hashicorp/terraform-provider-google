@@ -1,4 +1,48 @@
-## 3.3.1 (Unreleased)
+## 3.4.1 (Unreleased)
+## 3.4.0 (January 07, 2020)
+
+DEPRECATIONS:
+* kms: deprecated `data.google_kms_secret_ciphertext` as there was no way to make it idempotent. Instead, use the `google_kms_secret_ciphertext` resource. ([#5314](https://github.com/terraform-providers/terraform-provider-google/pull/5314))
+
+BREAKING CHANGES:
+* cloudrun: Changed `google_cloud_run_domain_mapping` to correctly match Cloud Run API expected format for `spec.route_name`, {serviceName}, instead of invalid projects/{project}/global/services/{serviceName} ([#5264](https://github.com/terraform-providers/terraform-provider-google/pull/5264))
+* compute: Added back ConflictsWith restrictions for ExactlyOneOf restrictions that were removed in v3.3.0 for `google_compute_firewall`, `google_compute_health_check`, and `google_compute_region_health_check`. This effectively changes an API-side failure that was only accessible in v3.3.0 to a plan-time one. ([#5220](https://github.com/terraform-providers/terraform-provider-google/pull/5220))
+* logging: Changed `google_logging_metric.metric_descriptors.labels` from a list to a set ([#5258](https://github.com/terraform-providers/terraform-provider-google/pull/5258))
+* resourcemanager: Added back ConflictsWith restrictions for ExactlyOneOf restrictions that were removed in v3.3.0 for `google_organization_policy`, `google_folder_organization_policy`, and `google_project_organization_policy`. This effectively changes an API-side failure that was only accessible in v3.3.0 to a plan-time one. ([#5220](https://github.com/terraform-providers/terraform-provider-google/pull/5220))
+
+FEATURES:
+* **New Data Source:** google_sql_ca_certs ([#5306](https://github.com/terraform-providers/terraform-provider-google/pull/5306))
+* **New Resource:** `google_identity_platform_default_supported_idp_config` ([#5199](https://github.com/terraform-providers/terraform-provider-google/pull/5199))
+* **New Resource:** `google_identity_platform_inbound_saml_config` ([#5199](https://github.com/terraform-providers/terraform-provider-google/pull/5199))
+* **New Resource:** `google_identity_platform_oauth_idp_config` ([#5199](https://github.com/terraform-providers/terraform-provider-google/pull/5199))
+* **New Resource:** `google_identity_platform_tenant_default_supported_idp_config` ([#5199](https://github.com/terraform-providers/terraform-provider-google/pull/5199))
+* **New Resource:** `google_identity_platform_tenant_inbound_saml_config` ([#5199](https://github.com/terraform-providers/terraform-provider-google/pull/5199))
+* **New Resource:** `google_identity_platform_tenant_oauth_idp_config` ([#5199](https://github.com/terraform-providers/terraform-provider-google/pull/5199))
+* **New Resource:** `google_identity_platform_tenant` ([#5199](https://github.com/terraform-providers/terraform-provider-google/pull/5199))
+* **New Resource:** `google_kms_crypto_key_iam_policy` ([#5247](https://github.com/terraform-providers/terraform-provider-google/pull/5247))
+* **New Resource:** `google_kms_secret_ciphertext` ([#5314](https://github.com/terraform-providers/terraform-provider-google/pull/5314))
+
+IMPROVEMENTS:
+* composer: Increased default timeouts for `google_composer_environment` ([#5223](https://github.com/terraform-providers/terraform-provider-google/pull/5223))
+* compute: Added graceful termination to `container_cluster` create calls so that partially created clusters will resume the original operation if the Terraform process is killed mid create. ([#5217](https://github.com/terraform-providers/terraform-provider-google/pull/5217))
+* compute: Fixed `google_compute_disk_resource_policy_attachment` parsing of region from zone to allow for provider-level zone and make error message more accurate` ([#5257](https://github.com/terraform-providers/terraform-provider-google/pull/5257))
+* provider: Reduced default `send_after` controlling the time interval after which a batched request sends. ([#5268](https://github.com/terraform-providers/terraform-provider-google/pull/5268))
+
+BUG FIXES:
+* all: fixed issue where many fields that were removed in 3.0.0 would show a diff when they were removed from config ([#5313](https://github.com/terraform-providers/terraform-provider-google/pull/5313))
+* bigquery: fixed `bigquery_table.encryption_configuration` to correctly recreate the table when modified ([#5321](https://github.com/terraform-providers/terraform-provider-google/pull/5321))
+* cloudrun:  Changed `google_cloud_run_domain_mapping` to correctly match Cloud Run API expected format for `spec.route_name`, {serviceName}, instead of invalid projects/{project}/global/services/{serviceName} ([#5264](https://github.com/terraform-providers/terraform-provider-google/pull/5264))
+* cloudrun: Changed `cloud_run_domain_mapping` to poll for success or failure and throw an appropriate error when ready status returns as false. ([#5267](https://github.com/terraform-providers/terraform-provider-google/pull/5267))
+* cloudrun: Fixed `google_cloudrun_service` to allow update instead of force-recreation for changes in `spec` `env` and `command` fields ([#5269](https://github.com/terraform-providers/terraform-provider-google/pull/5269))
+* cloudrun: Removed unsupported update for `google_cloud_run_domain_mapping` to allow force-recreation. ([#5253](https://github.com/terraform-providers/terraform-provider-google/pull/5253))
+* cloudrun: Stopped returning an error when a `cloud_run_domain_mapping` was waiting on DNS verification. ([#5315](https://github.com/terraform-providers/terraform-provider-google/pull/5315))
+* compute: Fixed `google_compute_backend_service` to allow updating `cdn_policy.cache_key_policy.*` fields to false or empty. ([#5276](https://github.com/terraform-providers/terraform-provider-google/pull/5276))
+* compute: Fixed behaviour where `google_compute_subnetwork` did not record a value for `name` when `self_link` was specified. ([#5288](https://github.com/terraform-providers/terraform-provider-google/pull/5288))
+* container: fixed issue where an empty variable in `tags` would cause a crash ([#5226](https://github.com/terraform-providers/terraform-provider-google/pull/5226))
+* endpoints: Added operation wait for `google_endpoints_service` to fix 403 "Service not found" errors during initial creation ([#5259](https://github.com/terraform-providers/terraform-provider-google/pull/5259))
+* logging: Made `google_logging_metric.metric_descriptors.labels` a set to prevent diff from ordering ([#5258](https://github.com/terraform-providers/terraform-provider-google/pull/5258))
+* resourcemanager: added retries for `data.google_organization` ([#5246](https://github.com/terraform-providers/terraform-provider-google/pull/5246))
+
 ## 3.3.0 (December 17, 2019)
 
 FEATURES:
