@@ -151,7 +151,7 @@ func resourceBigtableGCPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		log.Printf("[WARN] Removing %s because it's gone", name)
 		d.SetId("")
-		return fmt.Errorf("Error retrieving table. Could not find %s in %s. %s", name, instanceName, err)
+		return nil
 	}
 
 	for _, fi := range ti.FamilyInfos {
