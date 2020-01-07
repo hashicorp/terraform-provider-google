@@ -1,0 +1,3 @@
+```release-note:bug
+`cloudrun`: Stopped returning an error when a `cloud_run_domain_mapping` was waiting on DNS verification.
+```
