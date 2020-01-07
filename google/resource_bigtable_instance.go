@@ -44,12 +44,10 @@ func resourceBigtableInstance() *schema.Resource {
 						"cluster_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"zone": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"num_nodes": {
 							Type:         schema.TypeInt,
@@ -60,7 +58,6 @@ func resourceBigtableInstance() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "SSD",
-							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"SSD", "HDD"}, false),
 						},
 					},
@@ -212,27 +209,28 @@ func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	defer c.Close()
 
-	clusters, err := c.Clusters(ctx, d.Get("name").(string))
+	conf := &bigtable.InstanceWithClustersConfig{
+		InstanceID: d.Get("name").(string),
+	}
+
+	displayName, ok := d.GetOk("display_name")
+	if !ok {
+		displayName = conf.InstanceID
+	}
+	conf.DisplayName = displayName.(string)
+
+	switch d.Get("instance_type").(string) {
+	case "DEVELOPMENT":
+		conf.InstanceType = bigtable.DEVELOPMENT
+	case "PRODUCTION":
+		conf.InstanceType = bigtable.PRODUCTION
+	}
+
+	conf.Clusters = expandBigtableClusters(d.Get("cluster").([]interface{}), conf.InstanceID)
+
+	_, err = bigtable.UpdateInstanceAndSyncClusters(ctx, c, conf)
 	if err != nil {
-		return fmt.Errorf("Error retrieving clusters for instance %s", err.Error())
-	}
-
-	clusterMap := make(map[string]*bigtable.ClusterInfo, len(clusters))
-	for _, cluster := range clusters {
-		clusterMap[cluster.Name] = cluster
-	}
-
-	for _, cluster := range d.Get("cluster").([]interface{}) {
-		config := cluster.(map[string]interface{})
-		cluster_id := config["cluster_id"].(string)
-		if cluster, ok := clusterMap[cluster_id]; ok {
-			if cluster.ServeNodes != config["num_nodes"].(int) {
-				err = c.UpdateCluster(ctx, d.Get("name").(string), cluster.Name, int32(config["num_nodes"].(int)))
-				if err != nil {
-					return fmt.Errorf("Error updating cluster %s for instance %s", cluster.Name, d.Get("name").(string))
-				}
-			}
-		}
+		return fmt.Errorf("Error updating instance. %s", err)
 	}
 
 	return resourceBigtableInstanceRead(d, meta)
@@ -305,6 +303,7 @@ func expandBigtableClusters(clusters []interface{}, instanceID string) []bigtabl
 	return results
 }
 
+// resourceBigtableInstanceValidateDevelopment validates restrictions specific to DEVELOPMENT clusters
 func resourceBigtableInstanceValidateDevelopment(diff *schema.ResourceDiff, meta interface{}) error {
 	if diff.Get("instance_type").(string) != "DEVELOPMENT" {
 		return nil
@@ -318,44 +317,113 @@ func resourceBigtableInstanceValidateDevelopment(diff *schema.ResourceDiff, meta
 	return nil
 }
 
+// resourceBigtableInstanceClusterReorderTypeList causes the cluster block to
+// act like a TypeSet while it's a TypeList underneath. It preserves state
+// ordering on updates, and causes the resource to get recreated if it would
+// attempt to perform an impossible change.
+// This doesn't use the standard unordered list utility (https://github.com/GoogleCloudPlatform/magic-modules/blob/master/templates/terraform/unordered_list_customize_diff.erb)
+// because some fields can't be modified using the API and we recreate the instance
+// when they're changed.
 func resourceBigtableInstanceClusterReorderTypeList(diff *schema.ResourceDiff, meta interface{}) error {
-	old_count, new_count := diff.GetChange("cluster.#")
+	oldCount, newCount := diff.GetChange("cluster.#")
 
 	// simulate Required:true, MinItems:1, MaxItems:4 for "cluster"
-	if new_count.(int) < 1 {
+	if newCount.(int) < 1 {
 		return fmt.Errorf("config is invalid: Too few cluster blocks: Should have at least 1 \"cluster\" block")
 	}
-	if new_count.(int) > 4 {
+	if newCount.(int) > 4 {
 		return fmt.Errorf("config is invalid: Too many cluster blocks: No more than 4 \"cluster\" blocks are allowed")
 	}
 
-	if old_count.(int) != new_count.(int) {
+	// exit early if we're in create (name's old value is nil)
+	n, _ := diff.GetChange("name")
+	if n == nil || n == "" {
 		return nil
 	}
 
-	var old_ids []string
-	clusters := make(map[string]interface{}, new_count.(int))
+	oldIds := []string{}
+	clusters := make(map[string]interface{}, newCount.(int))
 
-	for i := 0; i < new_count.(int); i++ {
-		old_id, new_id := diff.GetChange(fmt.Sprintf("cluster.%d.cluster_id", i))
-		if old_id != nil && old_id != "" {
-			old_ids = append(old_ids, old_id.(string))
+	for i := 0; i < oldCount.(int); i++ {
+		oldId, _ := diff.GetChange(fmt.Sprintf("cluster.%d.cluster_id", i))
+		if oldId != nil && oldId != "" {
+			oldIds = append(oldIds, oldId.(string))
 		}
+	}
+	log.Printf("[DEBUG] Saw old ids: %#v", oldIds)
+
+	for i := 0; i < newCount.(int); i++ {
+		_, newId := diff.GetChange(fmt.Sprintf("cluster.%d.cluster_id", i))
 		_, c := diff.GetChange(fmt.Sprintf("cluster.%d", i))
-		clusters[new_id.(string)] = c
+		clusters[newId.(string)] = c
 	}
 
-	// reorder clusters according to the old cluster order
-	var old_cluster_order []interface{}
-	for _, id := range old_ids {
-		if c, ok := clusters[id]; ok {
-			old_cluster_order = append(old_cluster_order, c)
+	// create a list of clusters using the old order when possible to minimise
+	// diffs
+	// initially, add matching clusters to their index by id (nil otherwise)
+	// then, fill in nils with new clusters.
+	// [a, b, c, e] -> [c, a, d] becomes [a, nil, c] followed by [a, d, c]
+	var orderedClusters []interface{}
+	for i := 0; i < newCount.(int); i++ {
+		// when i is out of range of old, all values are nil
+		if i >= len(oldIds) {
+			orderedClusters = append(orderedClusters, nil)
+			continue
+		}
+
+		oldId := oldIds[i]
+		if c, ok := clusters[oldId]; ok {
+			log.Printf("[DEBUG] Matched: %#v", oldId)
+			orderedClusters = append(orderedClusters, c)
+			delete(clusters, oldId)
+		} else {
+			orderedClusters = append(orderedClusters, nil)
 		}
 	}
 
-	err := diff.SetNew("cluster", old_cluster_order)
+	log.Printf("[DEBUG] Remaining clusters: %#v", clusters)
+	for _, elem := range clusters {
+		for i, e := range orderedClusters {
+			if e == nil {
+				orderedClusters[i] = elem
+			}
+		}
+	}
+
+	err := diff.SetNew("cluster", orderedClusters)
 	if err != nil {
 		return fmt.Errorf("Error setting cluster diff: %s", err)
+	}
+
+	// Clusters can't have their zone / storage_type updated, ForceNew if it's
+	// changed. This will show a diff with the old state on the left side and
+	// the unmodified new state on the right and the ForceNew attributed to the
+	// _old state index_ even if the diff appears to have moved.
+	// This depends on the clusters having been reordered already by the prior
+	// SetNew call.
+	// We've implemented it here because it doesn't return an error in the
+	// client and silently fails.
+	for i := 0; i < newCount.(int); i++ {
+		oldId, newId := diff.GetChange(fmt.Sprintf("cluster.%d.cluster_id", i))
+		if oldId != newId {
+			continue
+		}
+
+		oZone, nZone := diff.GetChange(fmt.Sprintf("cluster.%d.zone", i))
+		if oZone != nZone {
+			err := diff.ForceNew(fmt.Sprintf("cluster.%d.zone", i))
+			if err != nil {
+				return fmt.Errorf("Error setting cluster diff: %s", err)
+			}
+		}
+
+		oST, nST := diff.GetChange(fmt.Sprintf("cluster.%d.storage_type", i))
+		if oST != nST {
+			err := diff.ForceNew(fmt.Sprintf("cluster.%d.storage_type", i))
+			if err != nil {
+				return fmt.Errorf("Error setting cluster diff: %s", err)
+			}
+		}
 	}
 
 	return nil
