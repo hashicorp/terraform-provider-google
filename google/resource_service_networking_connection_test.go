@@ -9,19 +9,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccServiceNetworkingConnectionCreate(t *testing.T) {
+func TestAccServiceNetworkingConnection_create(t *testing.T) {
 	t.Parallel()
 
+	network := BootstrapSharedServiceNetworkingConsumerNetwork(t, "service-networking-connection-create")
+	addr := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	service := "servicenetworking.googleapis.com"
+
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testServiceNetworkingConnectionDestroy(service, network),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccServiceNetworkingConnection(
-					fmt.Sprintf("tf-test-%s", acctest.RandString(10)),
-					fmt.Sprintf("tf-test-%s", acctest.RandString(10)),
-					"servicenetworking.googleapis.com",
-				),
+				Config: testAccServiceNetworkingConnection(network, addr, "servicenetworking.googleapis.com"),
 			},
 			{
 				ResourceName:      "google_service_networking_connection.foobar",
@@ -32,49 +33,21 @@ func TestAccServiceNetworkingConnectionCreate(t *testing.T) {
 	})
 }
 
-// Standard checkDestroy cannot be used here because destroying the network will delete
-// all the networking connections so this would return false positives.
-func TestAccServiceNetworkingConnectionDestroy(t *testing.T) {
+func TestAccServiceNetworkingConnection_update(t *testing.T) {
 	t.Parallel()
 
-	network := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	addressRange := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	network := BootstrapSharedServiceNetworkingConsumerNetwork(t, "service-networking-connection-update")
+	addr1 := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	addr2 := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	service := "servicenetworking.googleapis.com"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testServiceNetworkingConnectionDestroy(service, network),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccServiceNetworkingConnection(
-					network,
-					addressRange,
-					"servicenetworking.googleapis.com",
-				),
-			},
-			{
-				Config: testAccServiceNetworkingConnectionDestroy(network, addressRange),
-				Check: resource.ComposeTestCheckFunc(
-					testServiceNetworkingConnectionDestroy("servicenetworking.googleapis.com", network, getTestProjectFromEnv()),
-				),
-			},
-		},
-	})
-}
-
-func TestAccServiceNetworkingConnectionUpdate(t *testing.T) {
-	t.Parallel()
-
-	network := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccServiceNetworkingConnection(
-					network,
-					fmt.Sprintf("tf-test-%s", acctest.RandString(10)),
-					"servicenetworking.googleapis.com",
-				),
+				Config: testAccServiceNetworkingConnection(network, addr1, "servicenetworking.googleapis.com"),
 			},
 			{
 				ResourceName:      "google_service_networking_connection.foobar",
@@ -82,11 +55,7 @@ func TestAccServiceNetworkingConnectionUpdate(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccServiceNetworkingConnection(
-					network,
-					fmt.Sprintf("tf-test-%s", acctest.RandString(10)),
-					"servicenetworking.googleapis.com",
-				),
+				Config: testAccServiceNetworkingConnection(network, addr2, "servicenetworking.googleapis.com"),
 			},
 			{
 				ResourceName:      "google_service_networking_connection.foobar",
@@ -98,11 +67,11 @@ func TestAccServiceNetworkingConnectionUpdate(t *testing.T) {
 
 }
 
-func testServiceNetworkingConnectionDestroy(parent, network, project string) resource.TestCheckFunc {
+func testServiceNetworkingConnectionDestroy(parent, network string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 		parentService := "services/" + parent
-		networkName := fmt.Sprintf("projects/%s/global/networks/%s", project, network)
+		networkName := fmt.Sprintf("projects/%s/global/networks/%s", getTestProjectFromEnv(), network)
 
 		response, err := config.clientServiceNetworking.Services.Connections.List(parentService).
 			Network(networkName).Do()
@@ -122,7 +91,7 @@ func testServiceNetworkingConnectionDestroy(parent, network, project string) res
 
 func testAccServiceNetworkingConnection(networkName, addressRangeName, serviceName string) string {
 	return fmt.Sprintf(`
-resource "google_compute_network" "foobar" {
+data "google_compute_network" "servicenet" {
   name = "%s"
 }
 
@@ -131,29 +100,13 @@ resource "google_compute_global_address" "foobar" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = google_compute_network.foobar.self_link
+  network       = data.google_compute_network.servicenet.self_link
 }
 
 resource "google_service_networking_connection" "foobar" {
-  network                 = google_compute_network.foobar.self_link
+  network                 = data.google_compute_network.servicenet.self_link
   service                 = "%s"
   reserved_peering_ranges = [google_compute_global_address.foobar.name]
 }
 `, networkName, addressRangeName, serviceName)
-}
-
-func testAccServiceNetworkingConnectionDestroy(networkName, addressRangeName string) string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "foobar" {
-  name = "%s"
-}
-
-resource "google_compute_global_address" "foobar" {
-  name          = "%s"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.foobar.self_link
-}
-`, networkName, addressRangeName)
 }
