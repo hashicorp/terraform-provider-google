@@ -1,0 +1,3 @@
+```release-note:REPLACEME
+terraform-google-conversion only: set master_authorized_networks_config.enabled to true when there is a master_authorized_networks_config block in Terraform configuration.
+```
