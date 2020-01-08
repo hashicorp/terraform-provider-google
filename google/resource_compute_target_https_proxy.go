@@ -457,6 +457,9 @@ func flattenComputeTargetHttpsProxyName(v interface{}, d *schema.ResourceData) i
 }
 
 func flattenComputeTargetHttpsProxyQuicOverride(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil || v.(string) == "" {
+		return "NONE"
+	}
 	return v
 }
 
