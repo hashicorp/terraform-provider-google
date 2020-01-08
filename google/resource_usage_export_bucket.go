@@ -54,6 +54,7 @@ func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) er
 	if p.UsageExportLocation == nil {
 		log.Printf("[WARN] Removing usage export location resource %s because it's not enabled server-side.", project)
 		d.SetId("")
+		return nil
 	}
 
 	d.Set("project", project)
