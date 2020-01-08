@@ -107,3 +107,6 @@ $ terraform import google_bigtable_instance_iam_binding.editor "projects/{projec
 
 $ terraform import google_bigtable_instance_iam_member.editor "projects/{project}/instances/{instance} roles/editor user:jane@example.com"
 ```
+
+-> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
+ full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
