@@ -701,7 +701,6 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[INFO] Dataproc cluster %s has been created", cluster.ClusterName)
 	return resourceDataprocClusterRead(d, meta)
-
 }
 
 func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.ClusterConfig, error) {
