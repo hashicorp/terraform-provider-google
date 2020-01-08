@@ -73,9 +73,21 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
+	peerNetworkFieldValue, err := ParseNetworkFieldValue(d.Get("peer_network").(string), d, config)
+	if err != nil {
+		return err
+	}
 
 	request := &computeBeta.NetworksAddPeeringRequest{}
 	request.NetworkPeering = expandNetworkPeering(d)
+
+	// Only one peering operation at a time can be performed for a given network.
+	// Lock on both networks, sorted so we don't deadlock for A <--> B peering pairs.
+	peeringLockNames := sortedNetworkPeeringMutexKeys(networkFieldValue, peerNetworkFieldValue)
+	for _, kn := range peeringLockNames {
+		mutexKV.Lock(kn)
+		defer mutexKV.Unlock(kn)
+	}
 
 	addOp, err := config.clientComputeBeta.Networks.AddPeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
 	if err != nil {
@@ -139,10 +151,13 @@ func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{
 		Name: name,
 	}
 
-	// Only one delete peering operation at a time can be performed inside any peered VPCs.
-	peeringLockName := getNetworkPeeringLockName(networkFieldValue.Name, peerNetworkFieldValue.Name)
-	mutexKV.Lock(peeringLockName)
-	defer mutexKV.Unlock(peeringLockName)
+	// Only one peering operation at a time can be performed for a given network.
+	// Lock on both networks, sorted so we don't deadlock for A <--> B peering pairs.
+	peeringLockNames := sortedNetworkPeeringMutexKeys(networkFieldValue, peerNetworkFieldValue)
+	for _, kn := range peeringLockNames {
+		mutexKV.Lock(kn)
+		defer mutexKV.Unlock(kn)
+	}
 
 	removeOp, err := config.clientCompute.Networks.RemovePeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
 	if err != nil {
@@ -177,13 +192,15 @@ func expandNetworkPeering(d *schema.ResourceData) *computeBeta.NetworkPeering {
 	}
 }
 
-func getNetworkPeeringLockName(networkName, peerNetworkName string) string {
+func sortedNetworkPeeringMutexKeys(networkName, peerNetworkName *GlobalFieldValue) []string {
 	// Whether you delete the peering from network A to B or the one from B to A, they
 	// cannot happen at the same time.
-	networks := []string{networkName, peerNetworkName}
+	networks := []string{
+		fmt.Sprintf("%s/peerings", networkName.RelativeLink()),
+		fmt.Sprintf("%s/peerings", peerNetworkName.RelativeLink()),
+	}
 	sort.Strings(networks)
-
-	return fmt.Sprintf("network_peering/%s/%s", networks[0], networks[1])
+	return networks
 }
 
 func resourceComputeNetworkPeeringImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
