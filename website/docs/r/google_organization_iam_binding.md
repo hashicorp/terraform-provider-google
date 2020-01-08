@@ -59,3 +59,6 @@ IAM binding imports use space-delimited identifiers; first the resource in quest
 ```
 $ terraform import google_organization_iam_binding.my_org "your-org-id roles/viewer"
 ```
+
+-> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
+ full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.

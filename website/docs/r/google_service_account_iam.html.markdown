@@ -189,6 +189,9 @@ $ terraform import google_service_account_iam_binding.admin-account-iam "project
 $ terraform import google_service_account_iam_member.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} roles/editor user:foo@example.com"
 ```
 
+-> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
+full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
+
 With conditions:
 ```
 $ terraform import -provider=google-beta google_service_account_iam_binding.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} iam.serviceAccountUser expires_after_2019_12_31"
