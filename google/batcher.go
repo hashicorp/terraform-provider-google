@@ -3,21 +3,19 @@ package google
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/errwrap"
 	"log"
 	"sync"
 	"time"
-
-	"github.com/hashicorp/errwrap"
 )
 
 const defaultBatchSendIntervalSec = 3
 
-// RequestBatcher is a global batcher object that keeps track of
-// existing batches.
-// In general, a batcher should be created per service that requires batching
-// in order to prevent blocking batching for one service due to another,
-// and to minimize the possibility of overlap in batchKey formats
-// (see SendRequestWithTimeout)
+// RequestBatcher keeps track of batched requests globally.
+// It should be created at a provider level. In general, one
+// should be created per service that requires batching to:
+//   - prevent blocking batching for one service due to another,
+//   - minimize the possibility of overlap in batchKey formats (see SendRequestWithTimeout)
 type RequestBatcher struct {
 	sync.Mutex
 
@@ -27,39 +25,41 @@ type RequestBatcher struct {
 	debugId   string
 }
 
-// BatchRequest represents a single request to a global batcher.
-type BatchRequest struct {
-	// ResourceName represents the underlying resource for which
-	// a request is made. Its format is determined by what SendF expects, but
-	// typically should be the name of the parent GCP resource being changed.
-	ResourceName string
-
-	// Body is this request's data to be passed to SendF, and may be combined
-	// with other bodies using CombineF.
-	Body interface{}
-
-	// CombineF function determines how to combine bodies from two batches.
-	CombineF batcherCombineFunc
-
-	// SendF function determines how to actually send a batched request to a
-	// third party service. The arguments given to this function are
-	// (ResourceName, Body) where Body may have been combined with other request
-	// Bodies.
-	SendF batcherSendFunc
-
-	// ID for debugging request. This should be specific to a single request
-	// (i.e. per Terraform resource)
-	DebugId string
-}
-
 // These types are meant to be the public interface to batchers. They define
-// logic to manage batch data type and behavior, and require service-specific
-// implementations per type of request per service.
-// Function type for combine existing batches and additional batch data
-type batcherCombineFunc func(body interface{}, toAdd interface{}) (interface{}, error)
+// batch data format and logic to send/combine batches, i.e. they require
+// specific implementations per type of request.
+type (
+	// BatchRequest represents a single request to a global batcher.
+	BatchRequest struct {
+		// ResourceName represents the underlying resource for which
+		// a request is made. Its format is determined by what SendF expects, but
+		// typically should be the name of the parent GCP resource being changed.
+		ResourceName string
 
-// Function type for sending a batch request
-type batcherSendFunc func(resourceName string, body interface{}) (interface{}, error)
+		// Body is this request's data to be passed to SendF, and may be combined
+		// with other bodies using CombineF.
+		Body interface{}
+
+		// CombineF function determines how to combine bodies from two batches.
+		CombineF BatcherCombineFunc
+
+		// SendF function determines how to actually send a batched request to a
+		// third party service. The arguments given to this function are
+		// (ResourceName, Body) where Body may have been combined with other request
+		// Bodies.
+		SendF BatcherSendFunc
+
+		// ID for debugging request. This should be specific to a single request
+		// (i.e. per Terraform resource)
+		DebugId string
+	}
+
+	// BatcherCombineFunc is a function type for combine existing batches and additional batch data
+	BatcherCombineFunc func(body interface{}, toAdd interface{}) (interface{}, error)
+
+	// BatcherSendFunc is a function type for sending a batch request
+	BatcherSendFunc func(resourceName string, body interface{}) (interface{}, error)
+)
 
 // batchResponse bundles an API response (data, error) tuple.
 type batchResponse struct {
@@ -67,16 +67,32 @@ type batchResponse struct {
 	err  error
 }
 
-// startedBatch refers to a processed batch whose timer to send the request has
-// already been started. The responses for the request is sent to each listener
-// channel, representing parallel callers that are waiting on requests
-// combined into this batch.
+func (br *batchResponse) IsError() bool {
+	return br.err != nil
+}
+
+// startedBatch refers to a registered batch to group batch requests coming in.
+// The timer manages the time after which a given batch is sent.
 type startedBatch struct {
 	batchKey string
+
+	// Combined Batch Request
 	*BatchRequest
 
-	listeners []chan batchResponse
-	timer     *time.Timer
+	// subscribers is a registry of the requests (batchSubscriber) combined into this batcher.
+
+	subscribers []batchSubscriber
+
+	timer *time.Timer
+}
+
+// batchSubscriber contains information required for a single request for a startedBatch.
+type batchSubscriber struct {
+	// singleRequest is the original request this subscriber represents
+	singleRequest *BatchRequest
+
+	// respCh is the channel created to communicate the result to a waiting goroutine.s
+	respCh chan batchResponse
 }
 
 // batchingConfig contains user configuration for controlling batch requests.
@@ -94,8 +110,12 @@ func NewRequestBatcher(debugId string, ctx context.Context, config *batchingConf
 		batches:        make(map[string]*startedBatch),
 	}
 
+	// Start goroutine to managing stopping the batcher if the provider-level parent context is closed.
 	go func(b *RequestBatcher) {
-		<-ctx.Done()
+		// Block until parent context is closed
+		<-b.parentCtx.Done()
+
+		log.Printf("[DEBUG] parent context canceled, cleaning up batcher batches")
 		b.stop()
 	}(batcher)
 
@@ -108,19 +128,19 @@ func (b *RequestBatcher) stop() {
 
 	log.Printf("[DEBUG] Stopping batcher %q", b.debugId)
 	for batchKey, batch := range b.batches {
-		log.Printf("[DEBUG] Cleaning up batch request %q", batchKey)
+		log.Printf("[DEBUG] Cancelling started batch for batchKey %q", batchKey)
 		batch.timer.Stop()
-		for _, l := range batch.listeners {
-			close(l)
+		for _, l := range batch.subscribers {
+			close(l.respCh)
 		}
 	}
 }
 
-// SendRequestWithTimeout is expected to be called per parallel call.
-// It manages waiting on the result of a batch request.
+// SendRequestWithTimeout is a blocking call for making a single request, run alone or as part of a batch.
+// It manages registering the single request with the batcher and waiting on the result.
 //
-// Batch requests are grouped by the given batchKey. batchKey
-// should be unique to the API request being sent, most likely similar to
+// Params:
+// batchKey: A string to group batchable requests. It should be unique to the API request being sent, similar to
 // the HTTP request URL with GCP resource ID included in the URL (the caller
 // may choose to use a key with method if needed to diff GET/read and
 // POST/create)
@@ -179,38 +199,73 @@ func (b *RequestBatcher) registerBatchRequest(batchKey string, newRequest *Batch
 		return batch.addRequest(newRequest)
 	}
 
+	// Batch doesn't exist for given batch key - create a new batch.
+
 	log.Printf("[DEBUG] Creating new batch %q from request %q", newRequest.DebugId, batchKey)
+
 	// The calling goroutine will need a channel to wait on for a response.
 	respCh := make(chan batchResponse, 1)
+	sub := batchSubscriber{
+		singleRequest: newRequest,
+		respCh:        respCh,
+	}
 
-	// Create a new batch.
+	// Create a new batch with copy of the given batch request.
 	b.batches[batchKey] = &startedBatch{
-		BatchRequest: newRequest,
-		batchKey:     batchKey,
-		listeners:    []chan batchResponse{respCh},
+		BatchRequest: &BatchRequest{
+			ResourceName: newRequest.ResourceName,
+			Body:         newRequest.Body,
+			CombineF:     newRequest.CombineF,
+			SendF:        newRequest.SendF,
+			DebugId:      fmt.Sprintf("Combined batch for started batch %q", batchKey),
+		},
+		batchKey:    batchKey,
+		subscribers: []batchSubscriber{sub},
 	}
 
 	// Start a timer to send the request
 	b.batches[batchKey].timer = time.AfterFunc(b.sendAfter, func() {
 		batch := b.popBatch(batchKey)
-
-		var resp batchResponse
 		if batch == nil {
-			log.Printf("[DEBUG] Batch not found in saved batches, running single request batch %q", batchKey)
-			resp = newRequest.send()
+			log.Printf("[ERROR] batch should have been added to saved batches - just run as single request %q", newRequest.DebugId)
+			respCh <- newRequest.send()
+			close(respCh)
 		} else {
-			log.Printf("[DEBUG] Sending batch %q combining %d requests)", batchKey, len(batch.listeners))
-			resp = batch.send()
-		}
-
-		// Send message to all goroutines waiting on result.
-		for _, ch := range batch.listeners {
-			ch <- resp
-			close(ch)
+			b.sendBatchWithSingleRetry(batchKey, batch)
 		}
 	})
 
 	return respCh, nil
+}
+
+func (b *RequestBatcher) sendBatchWithSingleRetry(batchKey string, batch *startedBatch) {
+	log.Printf("[DEBUG] Sending batch %q combining %d requests)", batchKey, len(batch.subscribers))
+	resp := batch.send()
+
+	// If the batch failed and combines more than one request, retry each single request.
+	if resp.IsError() && len(batch.subscribers) > 1 {
+		log.Printf("[DEBUG] Batch failed with error: %v", resp.err)
+		log.Printf("[DEBUG] Sending each request in batch separately")
+		for _, sub := range batch.subscribers {
+			log.Printf("[DEBUG] Retrying single request %q", sub.singleRequest.DebugId)
+			singleResp := sub.singleRequest.send()
+			log.Printf("[DEBUG] Retried single request %q returned response: %v", sub.singleRequest.DebugId, singleResp)
+
+			if singleResp.IsError() {
+				singleResp.err = errwrap.Wrapf(
+					"batch request and retry as single request failed - final error: {{err}}",
+					singleResp.err)
+			}
+			sub.respCh <- singleResp
+			close(sub.respCh)
+		}
+	} else {
+		// Send result to all subscribers
+		for _, sub := range batch.subscribers {
+			sub.respCh <- resp
+			close(sub.respCh)
+		}
+	}
 }
 
 // popBatch safely gets and removes a batch with given batchkey from the
@@ -243,7 +298,11 @@ func (batch *startedBatch) addRequest(newRequest *BatchRequest) (<-chan batchRes
 	log.Printf("[DEBUG] Added batch request %q to batch. New batch body: %v", newRequest.DebugId, batch.Body)
 
 	respCh := make(chan batchResponse, 1)
-	batch.listeners = append(batch.listeners, respCh)
+	sub := batchSubscriber{
+		singleRequest: newRequest,
+		respCh:        respCh,
+	}
+	batch.subscribers = append(batch.subscribers, sub)
 	return respCh, nil
 }
 
