@@ -152,9 +152,8 @@ The `hourly_schedule` block supports:
 * `start_time` -
   (Required)
   Time within the window to start the operations.
-  It must be in an hourly format "HH:MM",
-  where HH : [00-23] and MM : [00] GMT.
-  eg: 21:00
+  It must be in format "HH:MM",
+  where HH : [00-23] and MM : [00-00] GMT.
 
 The `daily_schedule` block supports:
 
