@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed `google_compute_router_nat` timeout fields causing a diff when using a long-lived resource
+```

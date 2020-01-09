@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 	"sync"
 	"testing"
@@ -140,63 +139,41 @@ func TestRequestBatcher_errInSend(t *testing.T) {
 			enableBatching: true,
 		})
 
-	// combineF keeps track of the batched indexes
-	testCombine := func(body interface{}, toAdd interface{}) (interface{}, error) {
-		return append(body.([]int), toAdd.([]int)...), nil
-	}
+	testResource := "resource for send error"
+	sendErrTmpl := "this is an expected error in send batch for resource %q"
 
-	failIdx := 0
-	testResource := "RESOURCE-SEND-ERROR"
-	expectedErrMsg := fmt.Sprintf("Error - batch %q contains idx %d", testResource, failIdx)
-
-	testSendBatch := func(resourceName string, body interface{}) (interface{}, error) {
-		log.Printf("[DEBUG] sendBatch body: %+v", body)
-		for _, v := range body.([]int) {
-			if v == failIdx {
-				return nil, fmt.Errorf(expectedErrMsg)
-			}
-		}
+	// combineF is no-op
+	testCombine := func(_ interface{}, _ interface{}) (interface{}, error) {
 		return nil, nil
 	}
 
-	numRequests := 3
+	testSendBatch := func(resourceName string, cnt interface{}) (interface{}, error) {
+		return cnt, fmt.Errorf(sendErrTmpl, resourceName)
+	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(numRequests)
+	wg.Add(2)
 
-	for i := 0; i < numRequests; i++ {
+	for i := 0; i < 2; i++ {
 		go func(idx int) {
 			defer wg.Done()
 
 			req := &BatchRequest{
 				DebugId:      fmt.Sprintf("sendError %d", idx),
 				ResourceName: testResource,
-				Body:         []int{idx},
+				Body:         nil,
 				CombineF:     testCombine,
 				SendF:        testSendBatch,
 			}
 
 			_, err := testBatcher.SendRequestWithTimeout("batchSendError", req, time.Duration(10)*time.Second)
-			// Requests without index 0 should have succeeded
-			if idx == failIdx {
-				// We expect an error
-				if err == nil {
-					t.Errorf("expected error for request %d, got none", idx)
-				}
-				// Check error message
-				expectedErrPrefix := "batch request and retry as single request failed - final error: "
-				if !strings.Contains(err.Error(), expectedErrPrefix) {
-					t.Errorf("expected error %q to contain %q", err, expectedErrPrefix)
-				}
-				if !strings.Contains(err.Error(), expectedErrMsg) {
-					t.Errorf("expected error %q to contain %q", err, expectedErrMsg)
-				}
-			} else {
-
-				// We shouldn't get error for non-failure index
-				if err != nil {
-					t.Errorf("expected request %d to succeed, got error: %v", idx, err)
-				}
+			if err == nil {
+				t.Errorf("expected error, got none")
+				return
+			}
+			expectedErr := fmt.Sprintf(sendErrTmpl, testResource)
+			if !strings.Contains(err.Error(), fmt.Sprintf(sendErrTmpl, testResource)) {
+				t.Errorf("expected error %q, got error: %v", expectedErr, err)
 			}
 		}(i)
 	}

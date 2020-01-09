@@ -42,7 +42,7 @@ func combineBatchIamPolicyModifiers(currV interface{}, toAddV interface{}) (inte
 	return append(currModifiers, newModifiers...), nil
 }
 
-func sendBatchModifyIamPolicy(updater ResourceIamUpdater) BatcherSendFunc {
+func sendBatchModifyIamPolicy(updater ResourceIamUpdater) batcherSendFunc {
 	return func(resourceName string, body interface{}) (interface{}, error) {
 		modifiers, ok := body.([]iamPolicyModifyFunc)
 		if !ok {
