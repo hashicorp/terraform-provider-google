@@ -2,14 +2,7 @@ package google
 
 import (
 	"fmt"
-	"testing"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
-
-func TestMain(m *testing.M) {
-	resource.TestMain(m)
-}
 
 // sharedConfigForRegion returns a common config setup needed for the sweeper
 // functions for a given region

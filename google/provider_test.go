@@ -15,6 +15,7 @@ import (
 
 	"github.com/dnaeon/go-vcr/cassette"
 	"github.com/dnaeon/go-vcr/recorder"
+	sdkAcctest "github.com/hashicorp/terraform-plugin-sdk/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -669,4 +670,9 @@ func multiEnvSearch(ks []string) string {
 		}
 	}
 	return ""
+}
+
+func TestMain(m *testing.M) {
+	sdkAcctest.UseBinaryDriver("google", Provider)
+	resource.TestMain(m)
 }
