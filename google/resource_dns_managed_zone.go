@@ -544,9 +544,10 @@ func flattenDNSManagedZoneLabels(v interface{}, d *schema.ResourceData) interfac
 }
 
 func flattenDNSManagedZoneVisibility(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil || v.(string) == "" {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "public"
 	}
+
 	return v
 }
 

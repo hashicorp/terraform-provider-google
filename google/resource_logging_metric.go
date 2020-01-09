@@ -586,9 +586,10 @@ func flattenLoggingMetricMetricDescriptorLabelsDescription(v interface{}, d *sch
 }
 
 func flattenLoggingMetricMetricDescriptorLabelsValueType(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil || v.(string) == "" {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "STRING"
 	}
+
 	return v
 }
 
