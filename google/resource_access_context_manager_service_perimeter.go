@@ -407,9 +407,10 @@ func flattenAccessContextManagerServicePerimeterUpdateTime(v interface{}, d *sch
 }
 
 func flattenAccessContextManagerServicePerimeterPerimeterType(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil || v.(string) == "" {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "PERIMETER_TYPE_REGULAR"
 	}
+
 	return v
 }
 

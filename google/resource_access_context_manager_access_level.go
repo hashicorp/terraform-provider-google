@@ -462,9 +462,10 @@ func flattenAccessContextManagerAccessLevelBasic(v interface{}, d *schema.Resour
 	return []interface{}{transformed}
 }
 func flattenAccessContextManagerAccessLevelBasicCombiningFunction(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil || v.(string) == "" {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "AND"
 	}
+
 	return v
 }
 

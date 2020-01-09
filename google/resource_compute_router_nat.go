@@ -721,42 +721,58 @@ func flattenComputeRouterNatMinPortsPerVm(v interface{}, d *schema.ResourceData)
 }
 
 func flattenComputeRouterNatUdpIdleTimeoutSec(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return 30
+	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
+
 	return v
 }
 
 func flattenComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return 30
+	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
+
 	return v
 }
 
 func flattenComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return 1200
+	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
+
 	return v
 }
 
 func flattenComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d *schema.ResourceData) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return 30
+	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
+
 	return v
 }
 
