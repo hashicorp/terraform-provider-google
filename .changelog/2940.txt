@@ -1,0 +1,3 @@
+```release-note:bug
+`compute`: Added validation for `compute_resource_policy` to no longer allow invalid `start_time` values that weren't hourly.
+```
