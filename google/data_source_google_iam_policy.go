@@ -29,8 +29,10 @@ func dataSourceGoogleIamPolicy() *schema.Resource {
 		Read: dataSourceGoogleIamPolicyRead,
 		Schema: map[string]*schema.Schema{
 			"binding": {
-				Type:     schema.TypeSet,
-				Required: true,
+				Type: schema.TypeSet,
+				// Binding is optional because a user may want to set an IAM policy with no bindings
+				// This allows users to ensure that no bindings were created outside of terraform
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"role": {

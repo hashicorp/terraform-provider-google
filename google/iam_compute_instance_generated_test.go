@@ -104,6 +104,15 @@ func TestAccComputeInstanceIamPolicyGenerated(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccComputeInstanceIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_compute_instance_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("my-instance%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -159,6 +168,36 @@ data "google_iam_policy" "foo" {
     role = "%{role}"
     members = ["user:admin@hashicorptest.com"]
   }
+}
+
+resource "google_compute_instance_iam_policy" "foo" {
+  project = "${google_compute_instance.default.project}"
+  zone = "${google_compute_instance.default.zone}"
+  instance_name = "${google_compute_instance.default.name}"
+  policy_data = "${data.google_iam_policy.foo.policy_data}"
+}
+`, context)
+}
+
+func testAccComputeInstanceIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_instance" "default" {
+  name         = "my-instance%{random_suffix}"
+  zone         = ""
+  machine_type = "n1-standard-1"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+
+data "google_iam_policy" "foo" {
 }
 
 resource "google_compute_instance_iam_policy" "foo" {

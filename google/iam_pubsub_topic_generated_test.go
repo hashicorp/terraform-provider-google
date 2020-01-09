@@ -104,6 +104,15 @@ func TestAccPubsubTopicIamPolicyGenerated(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccPubsubTopicIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_pubsub_topic_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/topics/%s", getTestProjectFromEnv(), fmt.Sprintf("example-topic%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -142,6 +151,27 @@ data "google_iam_policy" "foo" {
     role = "%{role}"
     members = ["user:admin@hashicorptest.com"]
   }
+}
+
+resource "google_pubsub_topic_iam_policy" "foo" {
+  project = "${google_pubsub_topic.example.project}"
+  topic = "${google_pubsub_topic.example.name}"
+  policy_data = "${data.google_iam_policy.foo.policy_data}"
+}
+`, context)
+}
+
+func testAccPubsubTopicIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_pubsub_topic" "example" {
+  name = "example-topic%{random_suffix}"
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+data "google_iam_policy" "foo" {
 }
 
 resource "google_pubsub_topic_iam_policy" "foo" {

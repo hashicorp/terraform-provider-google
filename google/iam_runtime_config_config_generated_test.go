@@ -104,6 +104,15 @@ func TestAccRuntimeConfigConfigIamPolicyGenerated(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccRuntimeConfigConfigIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_runtimeconfig_config_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s", getTestProjectFromEnv(), fmt.Sprintf("my-config%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -136,6 +145,24 @@ data "google_iam_policy" "foo" {
     role = "%{role}"
     members = ["user:admin@hashicorptest.com"]
   }
+}
+
+resource "google_runtimeconfig_config_iam_policy" "foo" {
+  project = "${google_runtimeconfig_config.config.project}"
+  config = "${google_runtimeconfig_config.config.name}"
+  policy_data = "${data.google_iam_policy.foo.policy_data}"
+}
+`, context)
+}
+
+func testAccRuntimeConfigConfigIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_runtimeconfig_config" "config" {
+  name        = "my-config%{random_suffix}"
+  description = "Runtime configuration values for my service"
+}
+
+data "google_iam_policy" "foo" {
 }
 
 resource "google_runtimeconfig_config_iam_policy" "foo" {

@@ -104,6 +104,15 @@ func TestAccSourceRepoRepositoryIamPolicyGenerated(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccSourceRepoRepositoryIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_sourcerepo_repository_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s", getTestProjectFromEnv(), fmt.Sprintf("my/repository%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -134,6 +143,23 @@ data "google_iam_policy" "foo" {
     role = "%{role}"
     members = ["user:admin@hashicorptest.com"]
   }
+}
+
+resource "google_sourcerepo_repository_iam_policy" "foo" {
+  project = "${google_sourcerepo_repository.my-repo.project}"
+  repository = "${google_sourcerepo_repository.my-repo.name}"
+  policy_data = "${data.google_iam_policy.foo.policy_data}"
+}
+`, context)
+}
+
+func testAccSourceRepoRepositoryIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sourcerepo_repository" "my-repo" {
+  name = "my/repository%{random_suffix}"
+}
+
+data "google_iam_policy" "foo" {
 }
 
 resource "google_sourcerepo_repository_iam_policy" "foo" {
