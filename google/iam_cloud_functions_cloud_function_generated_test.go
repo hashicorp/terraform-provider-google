@@ -107,6 +107,15 @@ func TestAccCloudFunctionsCloudFunctionIamPolicyGenerated(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccCloudFunctionsCloudFunctionIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_cloudfunctions_function_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("my-function%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -176,6 +185,43 @@ data "google_iam_policy" "foo" {
     role = "%{role}"
     members = ["user:admin@hashicorptest.com"]
   }
+}
+
+resource "google_cloudfunctions_function_iam_policy" "foo" {
+  project = "${google_cloudfunctions_function.function.project}"
+  region = "${google_cloudfunctions_function.function.region}"
+  cloud_function = "${google_cloudfunctions_function.function.name}"
+  policy_data = "${data.google_iam_policy.foo.policy_data}"
+}
+`, context)
+}
+
+func testAccCloudFunctionsCloudFunctionIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "tf-cloudfunctions-function-example-bucket%{random_suffix}"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "%{zip_path}"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name        = "my-function%{random_suffix}"
+  description = "My function"
+  runtime     = "nodejs10"
+
+  available_memory_mb   = 128
+  source_archive_bucket = google_storage_bucket.bucket.name
+  source_archive_object = google_storage_bucket_object.archive.name
+  trigger_http          = true
+  timeout               = 60
+  entry_point           = "helloGET"
+}
+
+data "google_iam_policy" "foo" {
 }
 
 resource "google_cloudfunctions_function_iam_policy" "foo" {

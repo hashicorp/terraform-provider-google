@@ -107,6 +107,15 @@ func TestAccIapWebIamPolicyGenerated(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccIapWebIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_iap_web_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web", fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -150,6 +159,29 @@ data "google_iam_policy" "foo" {
     role = "%{role}"
     members = ["user:admin@hashicorptest.com"]
   }
+}
+
+resource "google_iap_web_iam_policy" "foo" {
+  project = "${google_project_service.project_service.project}"
+  policy_data = "${data.google_iam_policy.foo.policy_data}"
+}
+`, context)
+}
+
+func testAccIapWebIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_project" "project" {
+  project_id = "tf-test%{random_suffix}"
+  name       = "tf-test%{random_suffix}"
+  org_id     = "%{org_id}"
+}
+
+resource "google_project_service" "project_service" {
+  project = google_project.project.project_id
+  service = "iap.googleapis.com"
+}
+
+data "google_iam_policy" "foo" {
 }
 
 resource "google_iap_web_iam_policy" "foo" {

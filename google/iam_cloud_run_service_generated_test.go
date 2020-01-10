@@ -107,6 +107,15 @@ func TestAccCloudRunServiceIamPolicyGenerated(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccCloudRunServiceIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_cloud_run_service_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tftest-cloudrun%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -166,6 +175,38 @@ data "google_iam_policy" "foo" {
     role = "%{role}"
     members = ["user:admin@hashicorptest.com"]
   }
+}
+
+resource "google_cloud_run_service_iam_policy" "foo" {
+  location = "${google_cloud_run_service.default.location}"
+  project = "${google_cloud_run_service.default.project}"
+  service = "${google_cloud_run_service.default.name}"
+  policy_data = "${data.google_iam_policy.foo.policy_data}"
+}
+`, context)
+}
+
+func testAccCloudRunServiceIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_cloud_run_service" "default" {
+  name     = "tftest-cloudrun%{random_suffix}"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+}
+
+data "google_iam_policy" "foo" {
 }
 
 resource "google_cloud_run_service_iam_policy" "foo" {
