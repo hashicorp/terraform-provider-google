@@ -32,22 +32,21 @@ func init() {
 // At the time of writing, the CI only passes us-central1 as the region
 func testSweepIdentityPlatformTenantOauthIdpConfig(region string) error {
 	resourceName := "IdentityPlatformTenantOauthIdpConfig"
-	log.Printf("[INFO] Sweeping %s", resourceName)
+	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
-		log.Printf("[INFO] error getting shared config for region: %s", err)
+		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
 	}
 
 	err = config.LoadAndValidate(context.Background())
 	if err != nil {
-		log.Printf("[INFO] error loading: %s", err)
+		log.Printf("[INFO][SWEEPER_LOG] error loading: %s", err)
 		return err
 	}
 
-	listTemplate := strings.Split("https://identitytoolkit.googleapis.com/v2/projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs", "?")[0]
-
+	// Setup variables to replace in list template
 	d := &ResourceDataMock{
 		FieldsInSchema: map[string]interface{}{
 			"project":  config.Project,
@@ -57,67 +56,63 @@ func testSweepIdentityPlatformTenantOauthIdpConfig(region string) error {
 		},
 	}
 
+	listTemplate := strings.Split("https://identitytoolkit.googleapis.com/v2/projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs", "?")[0]
 	listUrl, err := replaceVars(d, config, listTemplate)
 	if err != nil {
-		log.Printf("[INFO] error preparing sweeper list url: %s", err)
-		return nil
-	}
-
-	if strings.Count(listUrl, "//") > 1 {
-		log.Printf("[INFO] Invalid list url for %s sweeper: %s", resourceName, listUrl)
+		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
 	}
 
 	res, err := sendRequest(config, "GET", config.Project, listUrl, nil)
 	if err != nil {
-		log.Printf("[INFO] Unable to list %s: %s", resourceName, err)
+		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
 		return nil
 	}
 
 	resourceList, ok := res["tenantOauthIdpConfigs"]
 	if !ok {
-		log.Printf("[INFO] Nothing found in response.")
+		log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
 		return nil
 	}
 
 	rl := resourceList.([]interface{})
 
-	log.Printf("[INFO] Found %d items in %s list response.", len(rl), resourceName)
+	log.Printf("[INFO][SWEEPER_LOG] Found %d items in %s list response.", len(rl), resourceName)
 	// items who don't match the tf-test prefix
 	nonPrefixCount := 0
 	for _, ri := range rl {
 		obj := ri.(map[string]interface{})
 		if obj["name"] == nil {
-			log.Printf("[INFO] %s resource name was nil", resourceName)
+			log.Printf("[INFO][SWEEPER_LOG] %s resource name was nil", resourceName)
 			return nil
 		}
 
-		nameSegs := strings.Split(obj["name"].(string), "/")
-		name := nameSegs[len(nameSegs)-1]
-
+		name := GetResourceNameFromSelfLink(obj["name"].(string))
 		// Only sweep resources with the test prefix
 		if !strings.HasPrefix(name, "tf-test") {
 			nonPrefixCount++
 			continue
 		}
+
 		deleteTemplate := "https://identitytoolkit.googleapis.com/v2/projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}"
 		deleteUrl, err := replaceVars(d, config, deleteTemplate)
 		if err != nil {
-			log.Printf("[INFO] error preparing delete url: %s", err)
+			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil
 		}
 		deleteUrl = deleteUrl + name
+
 		// Don't wait on operations as we may have a lot to delete
 		_, err = sendRequest(config, "DELETE", config.Project, deleteUrl, nil)
 		if err != nil {
-			log.Printf("[INFO] Error deleting for url %s : %s", deleteUrl, err)
+			log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
 		} else {
-			log.Printf("[INFO] Sent delete request for %s resource: %s", resourceName, name)
+			log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)
 		}
 	}
 
 	if nonPrefixCount > 0 {
-		log.Printf("[INFO] %d items without tf_test prefix remain.", nonPrefixCount)
+		log.Printf("[INFO][SWEEPER_LOG] %d items without tf_test prefix remain.", nonPrefixCount)
 	}
 
 	return nil
