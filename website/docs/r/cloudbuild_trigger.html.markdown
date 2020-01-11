@@ -86,7 +86,7 @@ The following arguments are supported:
 
 * `ignored_files` -
   (Optional)
-  ignoredFiles and includedFiles are file glob matches using http://godoc/pkg/path/filepath#Match
+  ignoredFiles and includedFiles are file glob matches using https://golang.org/pkg/path/filepath/#Match
   extended with support for `**`.
   If ignoredFiles and changed files are both empty, then they are not
   used to determine whether or not to trigger a build.
@@ -96,7 +96,7 @@ The following arguments are supported:
 
 * `included_files` -
   (Optional)
-  ignoredFiles and includedFiles are file glob matches using http://godoc/pkg/path/filepath#Match
+  ignoredFiles and includedFiles are file glob matches using https://golang.org/pkg/path/filepath/#Match
   extended with support for `**`.
   If any of the files altered in the commit pass the ignoredFiles filter
   and includedFiles is empty, then as far as this filter is concerned, we
