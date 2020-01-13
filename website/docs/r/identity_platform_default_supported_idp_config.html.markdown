@@ -36,7 +36,8 @@ the marketplace prior to using this resource.
 ```hcl
 resource "google_identity_platform_default_supported_idp_config" "idp_config" {
   enabled       = true
-  client_id     = "playgames.google.com"
+  idp_id        = "playgames.google.com"
+  client_id     = "client-id"
   client_secret = "secret"
 }
 ```
@@ -45,6 +46,20 @@ resource "google_identity_platform_default_supported_idp_config" "idp_config" {
 
 The following arguments are supported:
 
+
+* `idp_id` -
+  (Required)
+  ID of the IDP. Possible values include:
+  * `apple.com`
+  * `facebook.com`
+  * `gc.apple.com`
+  * `github.com`
+  * `google.com`
+  * `linkedin.com`
+  * `microsoft.com`
+  * `playgames.google.com`
+  * `twitter.com`
+  * `yahoo.com`
 
 * `client_id` -
   (Required)
@@ -89,9 +104,9 @@ This resource provides the following
 DefaultSupportedIdpConfig can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_identity_platform_default_supported_idp_config.default projects/{{project}}/defaultSupportedIdpConfigs/{{client_id}}
-$ terraform import google_identity_platform_default_supported_idp_config.default {{project}}/{{client_id}}
-$ terraform import google_identity_platform_default_supported_idp_config.default {{client_id}}
+$ terraform import google_identity_platform_default_supported_idp_config.default projects/{{project}}/defaultSupportedIdpConfigs/{{idp_id}}
+$ terraform import google_identity_platform_default_supported_idp_config.default {{project}}/{{idp_id}}
+$ terraform import google_identity_platform_default_supported_idp_config.default {{idp_id}}
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`

@@ -45,13 +45,38 @@ func resourceIdentityPlatformDefaultSupportedIdpConfig() *schema.Resource {
 			"client_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `OAuth client ID`,
 			},
 			"client_secret": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `OAuth client secret`,
+			},
+			"idp_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `ID of the IDP. Possible values include:
+
+* 'apple.com'
+
+* 'facebook.com'
+
+* 'gc.apple.com'
+
+* 'github.com'
+
+* 'google.com'
+
+* 'linkedin.com'
+
+* 'microsoft.com'
+
+* 'playgames.google.com'
+
+* 'twitter.com'
+
+* 'yahoo.com'`,
 			},
 			"enabled": {
 				Type:        schema.TypeBool,
@@ -96,7 +121,7 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigCreate(d *schema.ResourceD
 		obj["enabled"] = enabledProp
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/defaultSupportedIdpConfigs?idpId={{client_id}}")
+	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/defaultSupportedIdpConfigs?idpId={{idp_id}}")
 	if err != nil {
 		return err
 	}
@@ -112,7 +137,7 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigCreate(d *schema.ResourceD
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/defaultSupportedIdpConfigs/{{client_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -126,7 +151,7 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigCreate(d *schema.ResourceD
 func resourceIdentityPlatformDefaultSupportedIdpConfigRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/defaultSupportedIdpConfigs/{{client_id}}")
+	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return err
 	}
@@ -169,6 +194,12 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigUpdate(d *schema.ResourceD
 	}
 
 	obj := make(map[string]interface{})
+	clientIdProp, err := expandIdentityPlatformDefaultSupportedIdpConfigClientId(d.Get("client_id"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("client_id"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, clientIdProp)) {
+		obj["clientId"] = clientIdProp
+	}
 	clientSecretProp, err := expandIdentityPlatformDefaultSupportedIdpConfigClientSecret(d.Get("client_secret"), d, config)
 	if err != nil {
 		return err
@@ -182,13 +213,17 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigUpdate(d *schema.ResourceD
 		obj["enabled"] = enabledProp
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/defaultSupportedIdpConfigs/{{client_id}}")
+	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Updating DefaultSupportedIdpConfig %q: %#v", d.Id(), obj)
 	updateMask := []string{}
+
+	if d.HasChange("client_id") {
+		updateMask = append(updateMask, "clientId")
+	}
 
 	if d.HasChange("client_secret") {
 		updateMask = append(updateMask, "clientSecret")
@@ -220,7 +255,7 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigDelete(d *schema.ResourceD
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/defaultSupportedIdpConfigs/{{client_id}}")
+	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return err
 	}
@@ -240,15 +275,15 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigDelete(d *schema.ResourceD
 func resourceIdentityPlatformDefaultSupportedIdpConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/defaultSupportedIdpConfigs/(?P<client_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<client_id>[^/]+)",
-		"(?P<client_id>[^/]+)",
+		"projects/(?P<project>[^/]+)/defaultSupportedIdpConfigs/(?P<idp_id>[^/]+)",
+		"(?P<project>[^/]+)/(?P<idp_id>[^/]+)",
+		"(?P<idp_id>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/defaultSupportedIdpConfigs/{{client_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

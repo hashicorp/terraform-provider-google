@@ -71,7 +71,8 @@ func testAccIdentityPlatformDefaultSupportedIdpConfig_defaultSupportedIdpConfigB
 	return Nprintf(`
 resource "google_identity_platform_default_supported_idp_config" "idp_config" {
   enabled = true
-  client_id = "playgames.google.com"
+  idp_id  = "playgames.google.com"
+  client_id = "client-id"
   client_secret = "secret"
 }
 `, context)
@@ -81,7 +82,8 @@ func testAccIdentityPlatformDefaultSupportedIdpConfig_defaultSupportedIdpConfigU
 	return Nprintf(`
 resource "google_identity_platform_default_supported_idp_config" "idp_config" {
   enabled = false
-  client_id = "playgames.google.com"
+  idp_id  = "playgames.google.com"
+  client_id = "client-id"
   client_secret = "anothersecret"
 }
 `, context)
