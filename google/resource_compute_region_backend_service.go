@@ -202,13 +202,15 @@ partial URL.`,
 			},
 			"capacity_scaler": {
 				Type:     schema.TypeFloat,
-				Computed: true,
 				Optional: true,
 				Description: `A multiplier applied to the group's maximum servicing capacity
 (based on UTILIZATION, RATE or CONNECTION).
 
+Default value is 1, which means the group will serve up to 100%
+of its configured capacity (depending on balancingMode).
 A setting of 0 means the group is completely drained, offering
 0% of its available Capacity. Valid range is [0.0,1.0].`,
+				Default: 1.0,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -811,7 +813,7 @@ func expandComputeRegionBackendServiceBackend(v interface{}, d TerraformResource
 		transformedCapacityScaler, err := expandComputeRegionBackendServiceBackendCapacityScaler(original["capacity_scaler"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedCapacityScaler); val.IsValid() && !isEmptyValue(val) {
+		} else {
 			transformed["capacityScaler"] = transformedCapacityScaler
 		}
 
