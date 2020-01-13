@@ -95,7 +95,7 @@ The following arguments are supported:
   to avoid a diff, Terraform will use the state value if it appears
   that the obfuscated value matches the state value in
   length/unobfuscated characters. However, Terraform will not detect a
-  a diff if the obfuscated portion of the value was changed outside of
+  diff if the obfuscated portion of the value was changed outside of
   Terraform.
 
 * `user_labels` -
