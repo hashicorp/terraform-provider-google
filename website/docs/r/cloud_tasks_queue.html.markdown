@@ -65,7 +65,7 @@ The following arguments are supported:
 
 * `rate_limits` -
   (Optional)
-  Rate limits for task dispatches. 
+  Rate limits for task dispatches.
   The queue's actual dispatch rate is the result of:
   * Number of tasks in the queue
   * User-specified throttling: rateLimits, retryConfig, and the queue's state.
