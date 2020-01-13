@@ -247,9 +247,8 @@ subnetwork must be specified.`,
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
-				Description: `This field is only used for EXTERNAL load balancing.
-A reference to a TargetPool resource to receive the matched traffic.
-This target must live in the same region as the forwarding rule.
+				Description: `The URL of the target resource to receive the matched traffic.
+The target must live in the same region as the forwarding rule.
 The forwarded traffic must be of a type appropriate to the target
 object.`,
 			},
@@ -650,10 +649,7 @@ func flattenComputeForwardingRuleSubnetwork(v interface{}, d *schema.ResourceDat
 }
 
 func flattenComputeForwardingRuleTarget(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil {
-		return v
-	}
-	return ConvertSelfLinkToV1(v.(string))
+	return v
 }
 
 func flattenComputeForwardingRuleAllPorts(v interface{}, d *schema.ResourceData) interface{} {
