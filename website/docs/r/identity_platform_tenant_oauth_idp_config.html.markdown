@@ -25,8 +25,8 @@ description: |-
 OIDC IdP configuration for a Identity Toolkit project within a tenant.
 
 You must enable the
-((Google Identity Platform)[https://console.cloud.google.com/marketplace/details/google-cloud-platform/customer-identity])
-in the marketplace prior to using this resource.
+[Google Identity Platform](https://console.cloud.google.com/marketplace/details/google-cloud-platform/customer-identity) in
+the marketplace prior to using this resource.
 
 
 
