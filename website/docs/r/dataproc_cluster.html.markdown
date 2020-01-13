@@ -182,6 +182,10 @@ The `cluster_config` block supports:
 
 * `encryption_config` (Optional) The Customer managed encryption keys settings for the cluster.
    Structure defined below.
+
+* `lifecycle_config` (Optional, Beta) The settings for auto deletion cluster schedule.
+   Structure defined below.
+
 - - -
 
 The `cluster_config.gce_cluster_config` block supports:
@@ -548,6 +552,26 @@ cluster_config {
 * `kms_key_name` - (Required) The Cloud KMS key name to use for PD disk encryption for
    all instances in the cluster.
 
+- - -
+
+The `lifecycle_config` block supports:
+
+```hcl
+cluster_config {
+  lifecycle_config {
+    idle_delete_ttl = "10m"
+    auto_delete_time = "2120-01-01T12:00:00.01Z"
+  }
+}
+```
+
+* `idle_delete_ttl` - (Optional) The duration to keep the cluster alive while idling
+  (no jobs running). After this TTL, the cluster will be deleted. Valid range: [10m, 14d].
+
+* `auto_delete_time` - (Optional) The time when cluster will be auto-deleted.
+  A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds.
+  Example: "2014-10-02T15:01:23.045123456Z".
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -569,6 +593,8 @@ exported:
 * `cluster_config.0.software_config.0.properties` - A list of the properties used to set the daemon config files.
    This will include any values supplied by the user via `cluster_config.software_config.override_properties`
 
+* `cluster_config.0.lifecycle_config.0.idle_start_time` - Time when the cluster became idle
+  (most recent job finished) and became eligible for deletion due to idleness.
 
 ## Timeouts
 
