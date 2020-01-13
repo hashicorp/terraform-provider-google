@@ -25,11 +25,11 @@ description: |-
 Tenant configuration in a multi-tenant project.
 
 You must enable the
-((Google Identity Platform)[https://console.cloud.google.com/marketplace/details/google-cloud-platform/customer-identity])
-in the marketplace prior to using this resource.
+[Google Identity Platform](https://console.cloud.google.com/marketplace/details/google-cloud-platform/customer-identity) in
+the marketplace prior to using this resource.
 
-You must ((enable multi-tenancy)[https://cloud.google.com/identity-platform/docs/multi-tenancy-quickstart])
-via the Cloud Console prior to creating tenants.
+You must [enable multi-tenancy](https://cloud.google.com/identity-platform/docs/multi-tenancy-quickstart) via
+the Cloud Console prior to creating tenants.
 
 
 

@@ -25,8 +25,8 @@ description: |-
 Configurations options for the tenant for authenticating with a the standard set of Identity Toolkit-trusted IDPs.
 
 You must enable the
-((Google Identity Platform)[https://console.cloud.google.com/marketplace/details/google-cloud-platform/customer-identity])
-in the marketplace prior to using this resource.
+[Google Identity Platform](https://console.cloud.google.com/marketplace/details/google-cloud-platform/customer-identity) in
+the marketplace prior to using this resource.
 
 
 
