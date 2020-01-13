@@ -96,7 +96,7 @@ By default, the task is sent to the version which is the default version when th
 				Type:     schema.TypeList,
 				Computed: true,
 				Optional: true,
-				Description: `Rate limits for task dispatches. 
+				Description: `Rate limits for task dispatches.
 
 The queue's actual dispatch rate is the result of:
 
@@ -118,7 +118,7 @@ reached, Cloud Tasks stops dispatching tasks until the number of
 concurrent requests decreases.`,
 						},
 						"max_dispatches_per_second": {
-							Type:     schema.TypeInt,
+							Type:     schema.TypeFloat,
 							Computed: true,
 							Optional: true,
 							Description: `The maximum rate at which tasks are dispatched from this queue.
@@ -456,12 +456,6 @@ func flattenCloudTasksQueueRateLimits(v interface{}, d *schema.ResourceData) int
 	return []interface{}{transformed}
 }
 func flattenCloudTasksQueueRateLimitsMaxDispatchesPerSecond(v interface{}, d *schema.ResourceData) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
-			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
-	}
 	return v
 }
 
