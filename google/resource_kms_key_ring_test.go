@@ -72,7 +72,7 @@ func TestKeyRingIdParsing(t *testing.T) {
 }
 
 func TestAccKmsKeyRing_basic(t *testing.T) {
-	projectId := "terraform-" + acctest.RandString(10)
+	projectId := acctest.RandomWithPrefix("tf-test")
 	projectOrg := getTestOrgFromEnv(t)
 	projectBillingAccount := getTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))

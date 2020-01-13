@@ -16,7 +16,7 @@ func TestAccProjectService_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	services := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -70,7 +70,7 @@ func TestAccProjectService_disableDependentServices(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	services := []string{"cloudbuild.googleapis.com", "containerregistry.googleapis.com"}
 
 	resource.Test(t, resource.TestCase{
@@ -111,7 +111,7 @@ func TestAccProjectService_handleNotFound(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	service := "iam.googleapis.com"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -136,7 +136,7 @@ func TestAccProjectService_renamedService(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,

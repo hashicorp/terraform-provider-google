@@ -53,7 +53,7 @@ func testAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(context map[
 	return Nprintf(`
 resource "google_project" "my_project" {
   name       = "tf-test-project"
-  project_id = "test-project%{random_suffix}"
+  project_id = "tf-test-project%{random_suffix}"
   org_id     = "%{org_id}"
 }
 

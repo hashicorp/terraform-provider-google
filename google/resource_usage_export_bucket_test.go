@@ -12,7 +12,7 @@ func TestAccComputeResourceUsageExportBucket(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
 
-	baseProject := "ub-" + acctest.RandString(10)
+	baseProject := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

@@ -190,8 +190,8 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billing := getTestBillingAccountFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
-	sa := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
+	sa := acctest.RandomWithPrefix("tf-test")
 	topicName := "tf-test-topic-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
@@ -234,8 +234,8 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billing := getTestBillingAccountFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
-	sa := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
+	sa := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

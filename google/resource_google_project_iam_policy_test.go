@@ -16,7 +16,7 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -46,7 +46,7 @@ func TestAccProjectIamPolicy_emptyMembers(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -63,7 +63,7 @@ func TestAccProjectIamPolicy_expanded(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -83,7 +83,7 @@ func TestAccProjectIamPolicy_basicAuditConfig(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "tf-acctest-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -113,7 +113,7 @@ func TestAccProjectIamPolicy_expandedAuditConfig(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "tf-acctest-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,

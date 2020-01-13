@@ -13,7 +13,7 @@ func TestAccComputeProjectDefaultNetworkTier_basic(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	projectID := "terraform-test-" + acctest.RandString(10)
+	projectID := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -36,7 +36,7 @@ func TestAccComputeProjectDefaultNetworkTier_modify(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	projectID := "terraform-test-" + acctest.RandString(10)
+	projectID := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

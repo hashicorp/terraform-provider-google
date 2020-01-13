@@ -44,7 +44,7 @@ To get more information about FirewallRule, see:
 ```hcl
 resource "google_project" "my_project" {
   name       = "tf-test-project"
-  project_id = "test-project"
+  project_id = "tf-test-project"
   org_id     = "123456789"
 }
 
