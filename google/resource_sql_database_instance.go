@@ -21,8 +21,9 @@ const privateNetworkLinkRegex = "projects/(" + ProjectRegex + ")/global/networks
 var sqlDatabaseAuthorizedNetWorkSchemaElem *schema.Resource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
 		"expiration_time": {
-			Type:     schema.TypeString,
-			Optional: true,
+			Type:       schema.TypeString,
+			Optional:   true,
+			Deprecated: "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
 		},
 		"name": {
 			Type:     schema.TypeString,
@@ -127,9 +128,10 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Computed: true,
 						},
 						"authorized_gae_applications": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:       schema.TypeList,
+							Optional:   true,
+							Elem:       &schema.Schema{Type: schema.TypeString},
+							Deprecated: "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
 						},
 						"availability_type": {
 							Type:             schema.TypeString,
@@ -174,9 +176,10 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							},
 						},
 						"crash_safe_replication": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Computed: true,
+							Type:       schema.TypeBool,
+							Optional:   true,
+							Computed:   true,
+							Deprecated: "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
 						},
 						"database_flags": {
 							Type:     schema.TypeList,
@@ -300,9 +303,10 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Default:  "PER_USE",
 						},
 						"replication_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "SYNCHRONOUS",
+							Type:       schema.TypeString,
+							Optional:   true,
+							Deprecated: "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
+							Default:    "SYNCHRONOUS",
 						},
 						"user_labels": {
 							Type:     schema.TypeMap,
