@@ -44,6 +44,8 @@ func TestCloudFunctionsFunction_nameValidator(t *testing.T) {
 		"has_underscore",
 		"hasUpperCase",
 		"allChars_-A0",
+		"StartsUpperCase",
+		"endsUpperCasE",
 	}
 	for _, tc := range validNames {
 		wrns, errs := validateResourceCloudFunctionsFunctionName(tc, "function.name")
@@ -60,7 +62,7 @@ func TestCloudFunctionsFunction_nameValidator(t *testing.T) {
 		"endsWith_",
 		"endsWith-",
 		"bad*Character",
-		"aFunctionsNameThatIsLongerThanFortyEightCharacters",
+		"aCloudFunctionsFunctionNameThatIsSeventyFiveCharactersLongWhichIsMoreThan63",
 	}
 	for _, tc := range invalidNames {
 		_, errs := validateResourceCloudFunctionsFunctionName(tc, "function.name")

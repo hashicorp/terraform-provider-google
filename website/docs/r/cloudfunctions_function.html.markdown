@@ -143,10 +143,8 @@ Eg. `"nodejs8"`, `"nodejs10"`, `"python37"`, `"go111"`.
 The `event_trigger` block supports:
 
 * `event_type` - (Required) The type of event to observe. For example: `"google.storage.object.finalize"`.
-See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/) for a full reference.
-Cloud Storage, Cloud Pub/Sub and Cloud Firestore triggers are supported at this time.
-Legacy triggers are supported, such as `"providers/cloud.storage/eventTypes/object.change"`, 
-`"providers/cloud.pubsub/eventTypes/topic.publish"` and `"providers/cloud.firestore/eventTypes/document.create"`.
+See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/) for a 
+full reference of accepted triggers.
 
 * `resource` - (Required) Required. The name or partial URI of the resource from
 which to observe events. For example, `"myBucket"` or `"projects/my-project/topics/my-topic"`
