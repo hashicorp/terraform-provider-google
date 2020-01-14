@@ -168,7 +168,7 @@ func TestCryptoKeyStateUpgradeV0(t *testing.T) {
 func TestAccKmsCryptoKey_basic(t *testing.T) {
 	t.Parallel()
 
-	projectId := "terraform-" + acctest.RandString(10)
+	projectId := acctest.RandomWithPrefix("tf-test")
 	projectOrg := getTestOrgFromEnv(t)
 	location := getTestRegionFromEnv()
 	projectBillingAccount := getTestBillingAccountFromEnv(t)
@@ -203,7 +203,7 @@ func TestAccKmsCryptoKey_basic(t *testing.T) {
 func TestAccKmsCryptoKey_rotation(t *testing.T) {
 	t.Parallel()
 
-	projectId := "terraform-" + acctest.RandString(10)
+	projectId := acctest.RandomWithPrefix("tf-test")
 	projectOrg := getTestOrgFromEnv(t)
 	location := getTestRegionFromEnv()
 	projectBillingAccount := getTestBillingAccountFromEnv(t)
@@ -256,7 +256,7 @@ func TestAccKmsCryptoKey_rotation(t *testing.T) {
 func TestAccKmsCryptoKey_template(t *testing.T) {
 	t.Parallel()
 
-	projectId := "terraform-" + acctest.RandString(10)
+	projectId := acctest.RandomWithPrefix("tf-test")
 	projectOrg := getTestOrgFromEnv(t)
 	location := getTestRegionFromEnv()
 	projectBillingAccount := getTestBillingAccountFromEnv(t)

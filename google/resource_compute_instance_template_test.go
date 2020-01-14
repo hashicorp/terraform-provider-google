@@ -517,7 +517,7 @@ func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
 	var instanceTemplate compute.InstanceTemplate
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	projectName := fmt.Sprintf("tf-xpntest-%d", time.Now().Unix())
+	projectName := fmt.Sprintf("tf-testxpn-%d", time.Now().Unix())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

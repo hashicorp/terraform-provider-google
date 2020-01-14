@@ -13,8 +13,8 @@ func TestAccComputeSharedVpc_basic(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
 
-	hostProject := "xpn-host-" + acctest.RandString(10)
-	serviceProject := "xpn-service-" + acctest.RandString(10)
+	hostProject := acctest.RandomWithPrefix("tf-test-xpn-host")
+	serviceProject := acctest.RandomWithPrefix("tf-test-xpn-service")
 
 	hostProjectResourceName := "google_compute_shared_vpc_host_project.host"
 	serviceProjectResourceName := "google_compute_shared_vpc_service_project.service"
