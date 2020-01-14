@@ -45,13 +45,38 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfig() *schema.Resource 
 			"client_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `OAuth client ID`,
 			},
 			"client_secret": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `OAuth client secret`,
+			},
+			"idp_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `ID of the IDP. Possible values include:
+
+* 'apple.com'
+
+* 'facebook.com'
+
+* 'gc.apple.com'
+
+* 'github.com'
+
+* 'google.com'
+
+* 'linkedin.com'
+
+* 'microsoft.com'
+
+* 'playgames.google.com'
+
+* 'twitter.com'
+
+* 'yahoo.com'`,
 			},
 			"tenant": {
 				Type:        schema.TypeString,
@@ -102,7 +127,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigCreate(d *schema.Res
 		obj["enabled"] = enabledProp
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs?idpId={{client_id}}")
+	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs?idpId={{idp_id}}")
 	if err != nil {
 		return err
 	}
@@ -118,7 +143,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigCreate(d *schema.Res
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{client_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -132,7 +157,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigCreate(d *schema.Res
 func resourceIdentityPlatformTenantDefaultSupportedIdpConfigRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{client_id}}")
+	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return err
 	}
@@ -175,6 +200,12 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigUpdate(d *schema.Res
 	}
 
 	obj := make(map[string]interface{})
+	clientIdProp, err := expandIdentityPlatformTenantDefaultSupportedIdpConfigClientId(d.Get("client_id"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("client_id"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, clientIdProp)) {
+		obj["clientId"] = clientIdProp
+	}
 	clientSecretProp, err := expandIdentityPlatformTenantDefaultSupportedIdpConfigClientSecret(d.Get("client_secret"), d, config)
 	if err != nil {
 		return err
@@ -188,13 +219,17 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigUpdate(d *schema.Res
 		obj["enabled"] = enabledProp
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{client_id}}")
+	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Updating TenantDefaultSupportedIdpConfig %q: %#v", d.Id(), obj)
 	updateMask := []string{}
+
+	if d.HasChange("client_id") {
+		updateMask = append(updateMask, "clientId")
+	}
 
 	if d.HasChange("client_secret") {
 		updateMask = append(updateMask, "clientSecret")
@@ -226,7 +261,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigDelete(d *schema.Res
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{client_id}}")
+	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return err
 	}
@@ -246,15 +281,15 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigDelete(d *schema.Res
 func resourceIdentityPlatformTenantDefaultSupportedIdpConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/tenants/(?P<tenant>[^/]+)/defaultSupportedIdpConfigs/(?P<client_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<tenant>[^/]+)/(?P<client_id>[^/]+)",
-		"(?P<tenant>[^/]+)/(?P<client_id>[^/]+)",
+		"projects/(?P<project>[^/]+)/tenants/(?P<tenant>[^/]+)/defaultSupportedIdpConfigs/(?P<idp_id>[^/]+)",
+		"(?P<project>[^/]+)/(?P<tenant>[^/]+)/(?P<idp_id>[^/]+)",
+		"(?P<tenant>[^/]+)/(?P<idp_id>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{client_id}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

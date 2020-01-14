@@ -43,7 +43,7 @@ func TestAccIdentityPlatformTenantDefaultSupportedIdpConfig_identityPlatformTena
 				ResourceName:            "google_identity_platform_tenant_default_supported_idp_config.idp_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"tenant"},
+				ImportStateVerifyIgnore: []string{"idp_id", "tenant"},
 			},
 		},
 	})
@@ -58,7 +58,8 @@ resource "google_identity_platform_tenant" "tenant" {
 resource "google_identity_platform_tenant_default_supported_idp_config" "idp_config" {
   enabled       = true
   tenant        = google_identity_platform_tenant.tenant.name
-  client_id     = "playgames.google.com"
+  idp_id        = "playgames.google.com"
+  client_id     = "my-client-id"
   client_secret = "secret"
 }
 `, context)
@@ -75,7 +76,7 @@ func testAccCheckIdentityPlatformTenantDefaultSupportedIdpConfigDestroy(s *terra
 
 		config := testAccProvider.Meta().(*Config)
 
-		url, err := replaceVarsForTest(config, rs, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{client_id}}")
+		url, err := replaceVarsForTest(config, rs, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
 		if err != nil {
 			return err
 		}

@@ -46,7 +46,8 @@ resource "google_identity_platform_tenant" "tenant" {
 resource "google_identity_platform_tenant_default_supported_idp_config" "idp_config" {
   enabled       = true
   tenant        = google_identity_platform_tenant.tenant.name
-  client_id     = "playgames.google.com"
+  idp_id        = "playgames.google.com"
+  client_id     = "my-client-id"
   client_secret = "secret"
 }
 ```
@@ -55,6 +56,20 @@ resource "google_identity_platform_tenant_default_supported_idp_config" "idp_con
 
 The following arguments are supported:
 
+
+* `idp_id` -
+  (Required)
+  ID of the IDP. Possible values include:
+  * `apple.com`
+  * `facebook.com`
+  * `gc.apple.com`
+  * `github.com`
+  * `google.com`
+  * `linkedin.com`
+  * `microsoft.com`
+  * `playgames.google.com`
+  * `twitter.com`
+  * `yahoo.com`
 
 * `tenant` -
   (Required)
@@ -103,9 +118,9 @@ This resource provides the following
 TenantDefaultSupportedIdpConfig can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_identity_platform_tenant_default_supported_idp_config.default projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{client_id}}
-$ terraform import google_identity_platform_tenant_default_supported_idp_config.default {{project}}/{{tenant}}/{{client_id}}
-$ terraform import google_identity_platform_tenant_default_supported_idp_config.default {{tenant}}/{{client_id}}
+$ terraform import google_identity_platform_tenant_default_supported_idp_config.default projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}
+$ terraform import google_identity_platform_tenant_default_supported_idp_config.default {{project}}/{{tenant}}/{{idp_id}}
+$ terraform import google_identity_platform_tenant_default_supported_idp_config.default {{tenant}}/{{idp_id}}
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`

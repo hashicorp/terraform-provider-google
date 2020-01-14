@@ -94,7 +94,7 @@ func testSweepIdentityPlatformTenantDefaultSupportedIdpConfig(region string) err
 			continue
 		}
 
-		deleteTemplate := "https://identitytoolkit.googleapis.com/v2/projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{client_id}}"
+		deleteTemplate := "https://identitytoolkit.googleapis.com/v2/projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}"
 		deleteUrl, err := replaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)

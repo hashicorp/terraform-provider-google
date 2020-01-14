@@ -50,7 +50,8 @@ resource "google_identity_platform_tenant" "tenant" {
 resource "google_identity_platform_tenant_default_supported_idp_config" "idp_config" {
   enabled       = true
   tenant        = google_identity_platform_tenant.tenant.name
-  client_id     = "playgames.google.com"
+  idp_id        = "playgames.google.com"
+  client_id     = "client-id"
   client_secret = "secret"
 }
 `, context)
@@ -65,7 +66,8 @@ resource "google_identity_platform_tenant" "tenant" {
 resource "google_identity_platform_tenant_default_supported_idp_config" "idp_config" {
   enabled       = false
   tenant        = google_identity_platform_tenant.tenant.name
-  client_id     = "playgames.google.com"
+  idp_id        = "playgames.google.com"
+  client_id     = "client-id2"
   client_secret = "differentsecret"
 }
 `, context)
