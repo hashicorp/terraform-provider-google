@@ -186,11 +186,6 @@ resource "google_cloudiot_registry" "foobar" {
 
 func testAccCloudIoTRegistry_extended(registryName string) string {
 	return fmt.Sprintf(`
-resource "google_project_iam_binding" "cloud-iot-iam-binding" {
-  members = ["serviceAccount:cloud-iot@system.gserviceaccount.com"]
-  role    = "roles/pubsub.publisher"
-}
-
 resource "google_pubsub_topic" "default-devicestatus" {
   name = "psregistry-test-devicestatus-%s"
 }
@@ -200,8 +195,6 @@ resource "google_pubsub_topic" "default-telemetry" {
 }
 
 resource "google_cloudiot_registry" "foobar" {
-  depends_on = [google_project_iam_binding.cloud-iot-iam-binding]
-
   name = "%s"
 
   event_notification_configs {
@@ -234,18 +227,11 @@ resource "google_cloudiot_registry" "foobar" {
 
 func testAccCloudIoTRegistry_singleEventNotificationConfigs(topic, registryName string) string {
 	return fmt.Sprintf(`
-resource "google_project_iam_binding" "cloud-iot-iam-binding" {
-  members = ["serviceAccount:cloud-iot@system.gserviceaccount.com"]
-  role    = "roles/pubsub.publisher"
-}
-
 resource "google_pubsub_topic" "event-topic-1" {
   name = "%s"
 }
 
 resource "google_cloudiot_registry" "foobar" {
-  depends_on = [google_project_iam_binding.cloud-iot-iam-binding]
-
   name = "%s"
 
   event_notification_configs {
@@ -258,11 +244,6 @@ resource "google_cloudiot_registry" "foobar" {
 
 func testAccCloudIoTRegistry_multipleEventNotificationConfigs(topic, registryName string) string {
 	return fmt.Sprintf(`
-resource "google_project_iam_binding" "cloud-iot-iam-binding" {
-  members = ["serviceAccount:cloud-iot@system.gserviceaccount.com"]
-  role    = "roles/pubsub.publisher"
-}
-
 resource "google_pubsub_topic" "event-topic-1" {
   name = "%s"
 }
@@ -272,8 +253,6 @@ resource "google_pubsub_topic" "event-topic-2" {
 }
 
 resource "google_cloudiot_registry" "foobar" {
-  depends_on = [google_project_iam_binding.cloud-iot-iam-binding]
-
   name = "%s"
 
   event_notification_configs {
