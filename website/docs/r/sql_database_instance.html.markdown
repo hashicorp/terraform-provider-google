@@ -12,6 +12,29 @@ description: |-
 Creates a new Google SQL Database Instance. For more information, see the [official documentation](https://cloud.google.com/sql/),
 or the [JSON API](https://cloud.google.com/sql/docs/admin-api/v1beta4/instances).
 
+~> **NOTE on `google_sql_database_instance`:** - First-generation instances have been
+deprecated and should no longer be created, see [upgrade docs](https://cloud.google.com/sql/docs/mysql/upgrade-2nd-gen)
+for more details.
+To upgrade your First-generation instance, update your Terraform config that the instance has
+* `settings.ip_configuration.ipv4_enabled=true`
+* `settings.backup_configuration.enabled=true`
+* `settings.backup_configuration.binary_log_enabled=true`.  
+Apply the terraform config, then upgrade the instance in the console as described in the documentation.
+Once upgraded, update the following attributes in your Terraform config to the correct value according to
+the above documentation:
+* `region`
+* `database_version` (if applicable)
+* `tier`  
+Remove any fields that are not applicable to Second-generation instances:
+* `settings.crash_safe_replication`
+* `settings.ip_configuration.authorized_networks.expiration_time`
+* `settings.replication_type`
+* `settings.authorized_gae_applications`
+And change values to appropriate values for Second-generation instances for:
+* `activation_policy` ("ON_DEMAND" is no longer an option)
+* `pricing_plan` ("PER_USE" is now the only valid option)
+Change `settings.backup_configuration.enabled` attribute back to its desired value and apply as necessary.
+
 ~> **NOTE on `google_sql_database_instance`:** - Second-generation instances include a
 default 'root'@'%' user with no password. This user will be deleted by Terraform on
 instance creation. You should use `google_sql_user` to define a custom user with
@@ -19,28 +42,7 @@ a restricted host and strong password.
 
 ## Example Usage
 
-### SQL First Generation
-
-```hcl
-resource "random_id" "db_name_suffix" {
-  byte_length = 4
-}
-
-resource "google_sql_database_instance" "master" {
-  name             = "master-instance-${random_id.db_name_suffix.hex}"
-  database_version = "MYSQL_5_7"
-
-  # First-generation instance regions are not the conventional
-  # Google Compute Engine regions. See argument reference below.
-  region = "us-central"
-
-  settings {
-    tier = "D0"
-  }
-}
-```
-
-### SQL Second generation
+### SQL Second Generation Instance
 
 ```hcl
 resource "google_sql_database_instance" "master" {
@@ -179,13 +181,12 @@ provider "google-beta" {
 
 The following arguments are supported:
 
-* `region` - (Required) The region the instance will sit in. Note, first-generation Cloud SQL instance
-    regions do not line up with the Google Compute Engine (GCE) regions, and Cloud SQL is not
+* `region` - (Optional) The region the instance will sit in. Note, Cloud SQL is not
     available in all regions - choose from one of the options listed [here](https://cloud.google.com/sql/docs/mysql/instance-locations).
     A valid region must be provided to use this resource. If a region is not provided in the resource definition,
-    the provider region will be used instead, but this will be an apply-time error for all first-generation
-    instances *and* for second-generation instances if the provider region is not supported with Cloud SQL.
-    If you choose not to provide the `region` argument for this resource, make sure you understand this.
+    the provider region will be used instead, but this will be an apply-time error for instances if the provider
+    region is not supported with Cloud SQL. If you choose not to provide the `region` argument for this resource,
+    make sure you understand this.
 
 * `settings` - (Required) The settings to use for the database. The
     configuration is detailed below.
@@ -197,8 +198,7 @@ SQL Server (beta) version to use. Supported values include `MYSQL_5_6`,
 `MYSQL_5_7`, `POSTGRES_9_6`,`POSTGRES_11`, `SQLSERVER_2017_STANDARD`,
 `SQLSERVER_2017_ENTERPRISE`, `SQLSERVER_2017_EXPRESS`, `SQLSERVER_2017_WEB`.
 [Database Version Policies](https://cloud.google.com/sql/docs/sqlserver/db-versions)
-includes an up-to-date reference of supported versions. First-generation
-instances support `MYSQL_5_5` or `MYSQL_5_6`.
+includes an up-to-date reference of supported versions.
 
 * `name` - (Optional, Computed) The name of the instance. If the name is left
     blank, Terraform will randomly generate one when the instance is first
@@ -219,36 +219,39 @@ instances support `MYSQL_5_5` or `MYSQL_5_6`.
 
 The required `settings` block supports:
 
-* `tier` - (Required) The machine tier (First Generation) or type (Second Generation) to use. See
-    [tiers](https://cloud.google.com/sql/docs/admin-api/v1beta4/tiers) for more details and
-    supported versions. Postgres supports only shared-core machine types such as `db-f1-micro`, and custom
-    machine types such as `db-custom-2-13312`. See the
-    [Custom Machine Type Documentation](https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#create)
-    to learn about specifying custom machine types.
+* `tier` - (Required) The machine type to use. See [tiers](https://cloud.google.com/sql/docs/admin-api/v1beta4/tiers)
+    for more details and supported versions. Postgres supports only shared-core machine types such as `db-f1-micro`,
+    and custom machine types such as `db-custom-2-13312`. See the [Custom Machine Type Documentation](https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#create) to learn about specifying custom machine types.
 
 * `activation_policy` - (Optional) This specifies when the instance should be
     active. Can be either `ALWAYS`, `NEVER` or `ON_DEMAND`.
 
-* `authorized_gae_applications` - (Optional) A list of Google App Engine (GAE)
-    project names that are allowed to access this instance.
+* `authorized_gae_applications` - (Optional, Deprecated) This property is only applicable to First Generation instances.
+    First Generation instances are now deprecated, see [here](https://cloud.google.com/sql/docs/mysql/upgrade-2nd-gen)
+    for information on how to upgrade to Second Generation instances.
+    A list of Google App Engine (GAE) project names that are allowed to access this instance.
 
 * `availability_type` - (Optional) This specifies whether a PostgreSQL instance
     should be set up for high availability (`REGIONAL`) or single zone (`ZONAL`).
 
-* `crash_safe_replication` - (Optional) Specific to read instances, indicates
+* `crash_safe_replication` - (Optional, Deprecated) This property is only applicable to First Generation instances.
+    First Generation instances are now deprecated, see [here](https://cloud.google.com/sql/docs/mysql/upgrade-2nd-gen)
+    for information on how to upgrade to Second Generation instances.
+    Specific to read instances, indicates
     when crash-safe replication flags are enabled.
 
-* `disk_autoresize` - (Optional, Second Generation, Default: `true`) Configuration to increase storage size automatically.  Note that future `terraform apply` calls will attempt to resize the disk to the value specified in `disk_size` - if this is set, do not set `disk_size`.
+* `disk_autoresize` - (Optional, Default: `true`) Configuration to increase storage size automatically.  Note that future `terraform apply` calls will attempt to resize the disk to the value specified in `disk_size` - if this is set, do not set `disk_size`.
 
-* `disk_size` - (Optional, Second Generation, Default: `10`) The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased.
+* `disk_size` - (Optional, Default: `10`) The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased.
 
-* `disk_type` - (Optional, Second Generation, Default: `PD_SSD`) The type of data disk: PD_SSD or PD_HDD.
+* `disk_type` - (Optional, Default: `PD_SSD`) The type of data disk: PD_SSD or PD_HDD.
 
-* `pricing_plan` - (Optional, First Generation) Pricing plan for this instance, can be one of
-    `PER_USE` or `PACKAGE`.
+* `pricing_plan` - (Optional) Pricing plan for this instance, can only be `PER_USE`.
 
-* `replication_type` - (Optional) Replication type for this instance, can be one
-    of `ASYNCHRONOUS` or `SYNCHRONOUS`.
+* `replication_type` - (Optional, Deprecated) This property is only applicable to First Generation instances.
+    First Generation instances are now deprecated, see [here](https://cloud.google.com/sql/docs/mysql/upgrade-2nd-gen)
+    for information on how to upgrade to Second Generation instances.
+    Replication type for this instance, can be one of `ASYNCHRONOUS` or `SYNCHRONOUS`.
 
 * `user_labels` - (Optional) A set of key/value user label pairs to assign to the instance.
 
@@ -303,8 +306,8 @@ The optional `settings.location_preference` subblock supports:
 * `zone` - (Optional) The preferred compute engine
     [zone](https://cloud.google.com/compute/docs/zones?hl=en).
 
-The optional `settings.maintenance_window` subblock for Second Generation
-instances declares a one-hour [maintenance window](https://cloud.google.com/sql/docs/instance-settings?hl=en#maintenance-window-2ndgen)
+The optional `settings.maintenance_window` subblock for instances declares a one-hour
+[maintenance window](https://cloud.google.com/sql/docs/instance-settings?hl=en#maintenance-window-2ndgen)
 when an Instance can automatically restart to apply updates. The maintenance window is specified in UTC time. It supports:
 
 * `day` - (Optional) Day of week (`1-7`), starting on Monday
@@ -360,7 +363,7 @@ exported:
 connection strings. For example, when connecting with [Cloud SQL Proxy](https://cloud.google.com/sql/docs/mysql/connect-admin-proxy).
 
 * `service_account_email_address` - The service account email address assigned to the
-instance. This property is applicable only to Second Generation instances.
+instance.
 
 * `ip_address.0.ip_address` - The IPv4 address assigned.
 
