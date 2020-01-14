@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -66,26 +65,11 @@ func joinMapKeys(mapToJoin *map[int]bool) string {
 	return strings.Join(keys, ",")
 }
 
+// Differs from validateGcpName because Cloud Functions allow capital letters
+// at start/end
 func validateResourceCloudFunctionsFunctionName(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-
-	if len(value) > 48 {
-		errors = append(errors, fmt.Errorf(
-			"%q cannot be longer than 48 characters", k))
-	}
-	if !regexp.MustCompile("^[a-zA-Z0-9-_]+$").MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q can only contain letters, numbers, underscores and hyphens", k))
-	}
-	if !regexp.MustCompile("^[a-zA-Z]").MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q must start with a letter", k))
-	}
-	if !regexp.MustCompile("[a-zA-Z0-9]$").MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q must end with a number or a letter", k))
-	}
-	return
+	re := `^(?:[a-zA-Z](?:[-_a-zA-Z0-9]{0,61}[a-zA-Z0-9])?)$`
+	return validateRegexp(re)(v, k)
 }
 
 // based on compareSelfLinkOrResourceName, but less reusable and allows multi-/

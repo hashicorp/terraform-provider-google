@@ -56,9 +56,9 @@ exported:
 
 The `event_trigger` block contains:
 
-* `event_type` - The type of event being observed. For example: `"providers/cloud.storage/eventTypes/object.change"`
-    and `"providers/cloud.pubsub/eventTypes/topic.publish"`. See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/)
-    for a full reference.
+* `event_type` - The type of event to observe. For example: `"google.storage.object.finalize"`.
+See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/)
+for a full reference of accepted triggers.
 
 * `resource` - The name of the resource whose events are being observed, for example, `"myBucket"`
 
