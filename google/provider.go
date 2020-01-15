@@ -445,6 +445,7 @@ func Provider() terraform.ResourceProvider {
 			"google_kms_secret_ciphertext":                    dataSourceGoogleKmsSecretCiphertext(),
 			"google_folder":                                   dataSourceGoogleFolder(),
 			"google_folder_organization_policy":               dataSourceGoogleFolderOrganizationPolicy(),
+			"google_monitoring_notification_channel":          dataSourceMonitoringNotificationChannel(),
 			"google_netblock_ip_ranges":                       dataSourceGoogleNetblockIpRanges(),
 			"google_organization":                             dataSourceGoogleOrganization(),
 			"google_project":                                  dataSourceGoogleProject(),
