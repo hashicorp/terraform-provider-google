@@ -8,12 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	computeBeta "google.golang.org/api/compute/v0.beta"
+	"google.golang.org/api/compute/v1"
 )
 
 func TestAccComputeNetworkPeering_basic(t *testing.T) {
 	t.Parallel()
-	var peering_beta computeBeta.NetworkPeering
+	var peering_beta compute.NetworkPeering
 
 	primaryNetworkName := acctest.RandomWithPrefix("network-test-1")
 	peeringName := acctest.RandomWithPrefix("peering-test-1")
@@ -27,10 +27,17 @@ func TestAccComputeNetworkPeering_basic(t *testing.T) {
 			{
 				Config: testAccComputeNetworkPeering_basic(primaryNetworkName, peeringName),
 				Check: resource.ComposeTestCheckFunc(
+					// network foo
 					testAccCheckComputeNetworkPeeringExist("google_compute_network_peering.foo", &peering_beta),
 					testAccCheckComputeNetworkPeeringAutoCreateRoutes(true, &peering_beta),
+					testAccCheckComputeNetworkPeeringImportCustomRoutes(false, &peering_beta),
+					testAccCheckComputeNetworkPeeringExportCustomRoutes(false, &peering_beta),
+
+					// network bar
 					testAccCheckComputeNetworkPeeringExist("google_compute_network_peering.bar", &peering_beta),
 					testAccCheckComputeNetworkPeeringAutoCreateRoutes(true, &peering_beta),
+					testAccCheckComputeNetworkPeeringImportCustomRoutes(true, &peering_beta),
+					testAccCheckComputeNetworkPeeringExportCustomRoutes(true, &peering_beta),
 				),
 			},
 			{
@@ -52,7 +59,7 @@ func testAccComputeNetworkPeeringDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.clientComputeBeta.Networks.Get(
+		_, err := config.clientCompute.Networks.Get(
 			config.Project, rs.Primary.ID).Do()
 		if err == nil {
 			return fmt.Errorf("Network peering still exists")
@@ -62,7 +69,7 @@ func testAccComputeNetworkPeeringDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckComputeNetworkPeeringExist(n string, peering *computeBeta.NetworkPeering) resource.TestCheckFunc {
+func testAccCheckComputeNetworkPeeringExist(n string, peering *compute.NetworkPeering) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -82,7 +89,7 @@ func testAccCheckComputeNetworkPeeringExist(n string, peering *computeBeta.Netwo
 
 		networkName, peeringName := parts[0], parts[1]
 
-		network, err := config.clientComputeBeta.Networks.Get(config.Project, networkName).Do()
+		network, err := config.clientCompute.Networks.Get(config.Project, networkName).Do()
 		if err != nil {
 			return err
 		}
@@ -97,12 +104,32 @@ func testAccCheckComputeNetworkPeeringExist(n string, peering *computeBeta.Netwo
 	}
 }
 
-func testAccCheckComputeNetworkPeeringAutoCreateRoutes(v bool, peering *computeBeta.NetworkPeering) resource.TestCheckFunc {
+func testAccCheckComputeNetworkPeeringAutoCreateRoutes(v bool, peering *compute.NetworkPeering) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
 		if peering.ExchangeSubnetRoutes != v {
 			return fmt.Errorf("should ExchangeSubnetRouts set to %t if AutoCreateRoutes is set to %t", v, v)
 		}
+		return nil
+	}
+}
+
+func testAccCheckComputeNetworkPeeringImportCustomRoutes(v bool, peering *compute.NetworkPeering) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if peering.ImportCustomRoutes != v {
+			return fmt.Errorf("should ImportCustomRoutes set to %t", v)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeNetworkPeeringExportCustomRoutes(v bool, peering *compute.NetworkPeering) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if peering.ExportCustomRoutes != v {
+			return fmt.Errorf("should ExportCustomRoutes set to %t", v)
+		}
+
 		return nil
 	}
 }
@@ -131,6 +158,10 @@ resource "google_compute_network_peering" "bar" {
   name         = "peering-test-2-%s"
 `
 
+	s = s +
+		`import_custom_routes = true
+		export_custom_routes = true
+		`
 	s = s + `}`
 	return fmt.Sprintf(s, primaryNetworkName, peeringName, acctest.RandString(10), acctest.RandString(10))
 }
