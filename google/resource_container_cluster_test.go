@@ -1182,6 +1182,29 @@ func TestAccContainerCluster_withMasterAuthorizedNetworksDisabled(t *testing.T) 
 	})
 }
 
+func TestAccContainerCluster_withEnableKubernetesAlpha(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
+	npName := fmt.Sprintf("tf-test-np-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withEnableKubernetesAlpha(clusterName, npName),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccContainerCluster_masterAuthorizedNetworksDisabled(resource_name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource_name]
@@ -1340,7 +1363,6 @@ resource "google_container_cluster" "primary" {
     "us-central1-c",
   ]
 
-  enable_kubernetes_alpha = true
   enable_legacy_abac      = true
 
   logging_service    = "logging.googleapis.com"
@@ -1372,7 +1394,6 @@ resource "google_container_cluster" "primary" {
     "us-central1-c",
   ]
 
-  enable_kubernetes_alpha = true # Not updatable
   enable_legacy_abac      = false
 
   logging_service    = "none"
@@ -2588,4 +2609,23 @@ resource "google_container_cluster" "with_private_cluster" {
   }
 }
 `, containerNetName, clusterName)
+}
+
+func testAccContainerCluster_withEnableKubernetesAlpha(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  enable_kubernetes_alpha = true
+
+  node_pool {
+    name = "%s"
+	initial_node_count = 1
+	management {
+		auto_repair = false
+		auto_upgrade = false
+	}
+  }
+}
+`, cluster, np)
 }
