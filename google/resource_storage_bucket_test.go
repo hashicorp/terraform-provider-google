@@ -701,6 +701,28 @@ func TestAccStorageBucket_cors(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_defaultEventBasedHold(t *testing.T) {
+	t.Parallel()
+
+	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucket_defaultEventBasedHold(bucketName),
+			},
+			{
+				ResourceName:      "google_storage_bucket.bucket",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_encryption(t *testing.T) {
 	t.Parallel()
 
@@ -1167,6 +1189,15 @@ resource "google_storage_bucket" "bucket" {
     response_header = ["000"]
     max_age_seconds = 5
   }
+}
+`, bucketName)
+}
+
+func testAccStorageBucket_defaultEventBasedHold(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+  default_event_based_hold = true
 }
 `, bucketName)
 }
