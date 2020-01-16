@@ -10,14 +10,14 @@ description: |-
 
 -> Try out Terraform 0.12 with the Google provider! `google` and `google-beta` are 0.12-compatible from `2.5.0` onwards.
 
-The Google provider is used to configure your [Google Cloud Platform](https://cloud.google.com/) infrastructure. 
+The Google provider is used to configure your [Google Cloud Platform](https://cloud.google.com/) infrastructure.
 See the [Getting Started](/docs/providers/google/guides/getting_started.html) page for an introduction to using the provider.
 
 A typical provider configuration will look something like:
 
 ```hcl
 provider "google" {
-  credentials = "${file("account.json")}"
+  credentials = file("account.json")
   project     = "my-project-id"
   region      = "us-central1"
 }
