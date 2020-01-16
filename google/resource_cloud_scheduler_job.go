@@ -189,6 +189,20 @@ Headers can be set when the job is created.`,
 				},
 				ExactlyOneOf: []string{"pubsub_target", "http_target", "app_engine_http_target"},
 			},
+			"attempt_deadline": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: emptyOrDefaultStringSuppress("180s"),
+				Description: `The deadline for job attempts. If the request handler does not respond by this deadline then the request is
+cancelled and the attempt is marked as a DEADLINE_EXCEEDED failure. The failed attempt can be viewed in
+execution logs. Cloud Scheduler will retry the job according to the RetryConfig.
+The allowed duration for this deadline is:
+* For HTTP targets, between 15 seconds and 30 minutes.
+* For App Engine HTTP targets, between 15 seconds and 24 hours.
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s"`,
+				Default: "180s",
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -440,6 +454,12 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("time_zone"); !isEmptyValue(reflect.ValueOf(timeZoneProp)) && (ok || !reflect.DeepEqual(v, timeZoneProp)) {
 		obj["timeZone"] = timeZoneProp
 	}
+	attemptDeadlineProp, err := expandCloudSchedulerJobAttemptDeadline(d.Get("attempt_deadline"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("attempt_deadline"); !isEmptyValue(reflect.ValueOf(attemptDeadlineProp)) && (ok || !reflect.DeepEqual(v, attemptDeadlineProp)) {
+		obj["attemptDeadline"] = attemptDeadlineProp
+	}
 	retryConfigProp, err := expandCloudSchedulerJobRetryConfig(d.Get("retry_config"), d, config)
 	if err != nil {
 		return err
@@ -533,6 +553,9 @@ func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("time_zone", flattenCloudSchedulerJobTimeZone(res["timeZone"], d)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
+	if err := d.Set("attempt_deadline", flattenCloudSchedulerJobAttemptDeadline(res["attemptDeadline"], d)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
 	if err := d.Set("retry_config", flattenCloudSchedulerJobRetryConfig(res["retryConfig"], d)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
@@ -611,6 +634,10 @@ func flattenCloudSchedulerJobSchedule(v interface{}, d *schema.ResourceData) int
 }
 
 func flattenCloudSchedulerJobTimeZone(v interface{}, d *schema.ResourceData) interface{} {
+	return v
+}
+
+func flattenCloudSchedulerJobAttemptDeadline(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
@@ -892,6 +919,10 @@ func expandCloudSchedulerJobSchedule(v interface{}, d TerraformResourceData, con
 }
 
 func expandCloudSchedulerJobTimeZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudSchedulerJobAttemptDeadline(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

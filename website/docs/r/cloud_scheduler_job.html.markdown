@@ -72,10 +72,11 @@ resource "google_cloud_scheduler_job" "job" {
 
 ```hcl
 resource "google_cloud_scheduler_job" "job" {
-  name        = "test-job"
-  description = "test http job"
-  schedule    = "*/8 * * * *"
-  time_zone   = "America/New_York"
+  name             = "test-job"
+  description      = "test http job"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
 
   http_target {
     http_method = "POST"
@@ -93,10 +94,11 @@ resource "google_cloud_scheduler_job" "job" {
 
 ```hcl
 resource "google_cloud_scheduler_job" "job" {
-  name        = "test-job"
-  schedule    = "*/4 * * * *"
-  description = "test app engine job"
-  time_zone   = "Europe/London"
+  name             = "test-job"
+  schedule         = "*/4 * * * *"
+  description      = "test app engine job"
+  time_zone        = "Europe/London"
+  attempt_deadline = "320s"
 
   app_engine_http_target {
     http_method = "POST"
@@ -124,10 +126,11 @@ data "google_compute_default_service_account" "default" {
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name        = "test-job"
-  description = "test http job"
-  schedule    = "*/8 * * * *"
-  time_zone   = "America/New_York"
+  name             = "test-job"
+  description      = "test http job"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
 
   http_target {
     http_method = "GET"
@@ -152,10 +155,11 @@ data "google_compute_default_service_account" "default" {
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name        = "test-job"
-  description = "test http job"
-  schedule    = "*/8 * * * *"
-  time_zone   = "America/New_York"
+  name             = "test-job"
+  description      = "test http job"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
 
   http_target {
     http_method = "GET"
@@ -198,6 +202,16 @@ The following arguments are supported:
   (Optional)
   Specifies the time zone to be used in interpreting schedule.
   The value of this field must be a time zone name from the tz database.
+
+* `attempt_deadline` -
+  (Optional)
+  The deadline for job attempts. If the request handler does not respond by this deadline then the request is
+  cancelled and the attempt is marked as a DEADLINE_EXCEEDED failure. The failed attempt can be viewed in
+  execution logs. Cloud Scheduler will retry the job according to the RetryConfig.
+  The allowed duration for this deadline is:
+  * For HTTP targets, between 15 seconds and 30 minutes.
+  * For App Engine HTTP targets, between 15 seconds and 24 hours.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s"
 
 * `retry_config` -
   (Optional)
