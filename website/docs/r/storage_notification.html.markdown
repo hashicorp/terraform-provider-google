@@ -27,7 +27,7 @@ for an example of enabling notifications by granting the correct IAM permission.
 resource "google_storage_notification" "notification" {
   bucket         = google_storage_bucket.bucket.name
   payload_format = "JSON_API_V1"
-  topic          = google_pubsub_topic.topic.name
+  topic          = google_pubsub_topic.topic.id
   event_types    = ["OBJECT_FINALIZE", "OBJECT_METADATA_UPDATE"]
   custom_attributes = {
     new-attribute = "new-attribute-value"
@@ -41,7 +41,7 @@ data "google_storage_project_service_account" "gcs_account" {
 }
 
 resource "google_pubsub_topic_iam_binding" "binding" {
-  topic   = google_pubsub_topic.topic.name
+  topic   = google_pubsub_topic.topic.id
   role    = "roles/pubsub.publisher"
   members = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
 }
@@ -67,7 +67,8 @@ The following arguments are supported:
 
 * `topic` - (Required) The Cloud PubSub topic to which this subscription publishes. Expects either the 
     topic name, assumed to belong to the default GCP provider project, or the project-level name, 
-    i.e. `projects/my-gcp-project/topics/my-topic` or `my-topic`.
+    i.e. `projects/my-gcp-project/topics/my-topic` or `my-topic`. If the project is not set in the provider,
+    you will need to use the project-level name.
     
 - - -
 
