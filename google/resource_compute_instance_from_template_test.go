@@ -230,16 +230,9 @@ resource "google_compute_instance_template" "foobar" {
   machine_type = "n1-standard-1"
 
   disk {
-    source_image = data.google_compute_image.my_image.self_link
-    auto_delete  = true
-    disk_size_gb = 100
-    boot         = true
-  }
-
-  disk {
     source      = google_compute_disk.foobar.name
     auto_delete = false
-    boot        = false
+    boot        = true
   }
 
   disk {
@@ -247,6 +240,15 @@ resource "google_compute_instance_template" "foobar" {
     type         = "SCRATCH"
     interface    = "NVME"
     disk_size_gb = 375
+  }
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 100
+    boot         = false
+    disk_type    = "pd-ssd"
+    type         = "PERSISTENT"
   }
 
   network_interface {
