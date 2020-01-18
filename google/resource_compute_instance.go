@@ -422,6 +422,10 @@ func resourceComputeInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				Elem: &schema.Resource{
+					// !!! IMPORTANT !!!
+					// We have a custom diff function for the scheduling block due to issues with Terraform's
+					// diff on schema.Set. If changes are made to this block, they must be reflected in that
+					// method. See schedulingHasChange in compute_instance_helpers.go
 					Schema: map[string]*schema.Schema{
 						"on_host_maintenance": {
 							Type:         schema.TypeString,
@@ -1051,7 +1055,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		d.SetPartial("labels")
 	}
 
-	if d.HasChange("scheduling") {
+	if schedulingHasChange(d) {
 		scheduling, err := expandScheduling(d.Get("scheduling"))
 		if err != nil {
 			return fmt.Errorf("Error creating request data to update scheduling: %s", err)
@@ -1399,7 +1403,27 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			d.SetPartial("enable_display")
 		}
 
-		op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+		// Retrieve instance from config to pull encryption keys if necessary
+		instanceFromConfig, err := expandComputeInstance(project, d, config)
+		if err != nil {
+			return err
+		}
+
+		var encrypted []*compute.CustomerEncryptionKeyProtectedDisk
+		for _, disk := range instanceFromConfig.Disks {
+			if disk.DiskEncryptionKey != nil {
+				key := compute.CustomerEncryptionKey{RawKey: disk.DiskEncryptionKey.RawKey, KmsKeyName: disk.DiskEncryptionKey.KmsKeyName}
+				eDisk := compute.CustomerEncryptionKeyProtectedDisk{Source: disk.Source, DiskEncryptionKey: &key}
+				encrypted = append(encrypted, &eDisk)
+			}
+		}
+
+		if len(encrypted) > 0 {
+			request := compute.InstancesStartWithEncryptionKeyRequest{Disks: encrypted}
+			op, err = config.clientCompute.Instances.StartWithEncryptionKey(project, zone, instance.Name, &request).Do()
+		} else {
+			op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+		}
 		if err != nil {
 			return errwrap.Wrapf("Error starting instance: {{err}}", err)
 		}
