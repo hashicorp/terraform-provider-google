@@ -630,7 +630,7 @@ In addition, the `private_cluster_config` allows access to the following read-on
 `private_cluster_config` when `enable_private_nodes` is `false`. It's
 recommended that you omit the block entirely if the field is not set to `true`.
 
-The `sandbox_type` block supports:
+The `sandbox_config` block supports:
 
 * `sandbox_type` (Required) Which sandbox to use for pods in the node pool.
     Accepted values are:
