@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -346,4 +347,32 @@ func flattenEnableDisplay(displayDevice *computeBeta.DisplayDevice) interface{} 
 	}
 
 	return displayDevice.EnableDisplay
+}
+
+// Terraform doesn't correctly calculate changes on schema.Set, so we do it manually
+// https://github.com/hashicorp/terraform-plugin-sdk/issues/98
+func schedulingHasChange(d *schema.ResourceData) bool {
+	if !d.HasChange("scheduling") {
+		// This doesn't work correctly, which is why this method exists
+		// But it is here for posterity
+		return false
+	}
+	o, n := d.GetChange("scheduling")
+	oScheduling := o.([]interface{})[0].(map[string]interface{})
+	newScheduling := n.([]interface{})[0].(map[string]interface{})
+	originalNa := oScheduling["node_affinities"].(*schema.Set)
+	newNa := newScheduling["node_affinities"].(*schema.Set)
+	if oScheduling["automatic_restart"] != newScheduling["automatic_restart"] {
+		return true
+	}
+
+	if oScheduling["preemptible"] != newScheduling["preemptible"] {
+		return true
+	}
+
+	if oScheduling["on_host_maintenance"] != newScheduling["on_host_maintenance"] {
+		return true
+	}
+
+	return reflect.DeepEqual(newNa, originalNa)
 }
