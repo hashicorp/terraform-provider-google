@@ -21,9 +21,29 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
+
+// waitForAttachmentToBeProvisioned waits for an attachment to leave the
+// "UNPROVISIONED" state, to indicate that it's either ready or awaiting partner
+// activity.
+func waitForAttachmentToBeProvisioned(d *schema.ResourceData, config *Config, timeout time.Duration) error {
+	return resource.Retry(timeout, func() *resource.RetryError {
+		if err := resourceComputeInterconnectAttachmentRead(d, config); err != nil {
+			return resource.NonRetryableError(err)
+		}
+
+		name := d.Get("name").(string)
+		state := d.Get("state").(string)
+		if state == "UNPROVISIONED" {
+			return resource.RetryableError(fmt.Errorf("InterconnectAttachment %q has state %q.", name, state))
+		}
+		log.Printf("InterconnectAttachment %q has state %q.", name, state)
+		return nil
+	})
+}
 
 func resourceComputeInterconnectAttachment() *schema.Resource {
 	return &schema.Resource{
@@ -36,8 +56,8 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -326,6 +346,10 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 
 	log.Printf("[DEBUG] Finished creating InterconnectAttachment %q: %#v", d.Id(), res)
 
+	if err := waitForAttachmentToBeProvisioned(d, config, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return fmt.Errorf("Error waiting for InterconnectAttachment %q to be provisioned: %q", d.Get("name").(string), err)
+	}
+
 	return resourceComputeInterconnectAttachmentRead(d, meta)
 }
 
@@ -428,6 +452,9 @@ func resourceComputeInterconnectAttachmentDelete(d *schema.ResourceData, meta in
 	}
 
 	var obj map[string]interface{}
+	if err := waitForAttachmentToBeProvisioned(d, config, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return fmt.Errorf("Error waiting for InterconnectAttachment %q to be provisioned: %q", d.Get("name").(string), err)
+	}
 	log.Printf("[DEBUG] Deleting InterconnectAttachment %q", d.Id())
 
 	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
