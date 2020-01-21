@@ -598,6 +598,9 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 		disk.AutoDelete = d.Get(prefix + ".auto_delete").(bool)
 
 		if v, ok := d.GetOk(prefix + ".boot"); ok {
+			if v.(bool) && i != 0 {
+				return nil, fmt.Errorf("Only the first disk specified in instance_template can be a boot disk")
+			}
 			disk.Boot = v.(bool)
 		}
 
