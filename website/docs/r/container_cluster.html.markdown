@@ -154,7 +154,7 @@ per node in this cluster. This doesn't work on "routes-based" clusters, clusters
 that don't have IP Aliasing enabled. See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr)
 for more information.
 
-* `enable_binary_authorization` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Enable Binary Authorization for this cluster.
+* `enable_binary_authorization` - (Optional) Enable Binary Authorization for this cluster.
     If enabled, all container images will be validated by Google Binary Authorization.
 
 * `enable_kubernetes_alpha` - (Optional) Whether to enable Kubernetes Alpha features for
