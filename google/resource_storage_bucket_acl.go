@@ -62,13 +62,6 @@ func resourceStorageRoleEntityCustomizeDiff(diff *schema.ResourceDiff, meta inte
 	conf := map[string]struct{}{}
 	for i := 0; i < count; i++ {
 		old, new := diff.GetChange(fmt.Sprintf("role_entity.%d", i))
-
-		// project-owners- is explicitly stripped from the roles that this
-		// resource will delete
-		if strings.Contains(old.(string), "OWNER:project-owners-") {
-			continue
-		}
-
 		state[old.(string)] = struct{}{}
 		conf[new.(string)] = struct{}{}
 	}
