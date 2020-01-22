@@ -99,6 +99,7 @@ func resourceIamMemberCreate(newUpdaterFunc newResourceIamUpdaterFunc, enableBat
 		modifyF := func(ep *cloudresourcemanager.Policy) error {
 			// Merge the bindings together
 			ep.Bindings = mergeBindings(append(ep.Bindings, memberBind))
+			ep.Version = iamPolicyVersion
 			return nil
 		}
 		if enableBatching {
