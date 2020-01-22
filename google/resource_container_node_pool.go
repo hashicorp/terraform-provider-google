@@ -501,13 +501,17 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 		}
 		size += int(igm.TargetSize)
 	}
+	instanceGroupUrls, err := getInstanceGroupUrlsFromManagerUrls(config, np.InstanceGroupUrls)
+	if err != nil {
+		return nil, err
+	}
 	nodePool := map[string]interface{}{
 		"name":                np.Name,
 		"name_prefix":         d.Get(prefix + "name_prefix"),
 		"initial_node_count":  np.InitialNodeCount,
 		"node_count":          size / len(np.InstanceGroupUrls),
 		"node_config":         flattenNodeConfig(np.Config),
-		"instance_group_urls": np.InstanceGroupUrls,
+		"instance_group_urls": instanceGroupUrls,
 		"version":             np.Version,
 	}
 
