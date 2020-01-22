@@ -677,7 +677,10 @@ func resourceContainerCluster() *schema.Resource {
 							ForceNew:     true,
 							ValidateFunc: orEmpty(validation.CIDRNetwork(28, 28)),
 						},
-
+						"peering_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"private_endpoint": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -2101,6 +2104,7 @@ func flattenPrivateClusterConfig(c *containerBeta.PrivateClusterConfig) []map[st
 			"enable_private_endpoint": c.EnablePrivateEndpoint,
 			"enable_private_nodes":    c.EnablePrivateNodes,
 			"master_ipv4_cidr_block":  c.MasterIpv4CidrBlock,
+			"peering_name":            c.PeeringName,
 			"private_endpoint":        c.PrivateEndpoint,
 			"public_endpoint":         c.PublicEndpoint,
 		},
