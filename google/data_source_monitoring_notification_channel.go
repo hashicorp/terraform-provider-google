@@ -1,8 +1,8 @@
 package google
 
 import (
-	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -14,6 +14,8 @@ func dataSourceMonitoringNotificationChannel() *schema.Resource {
 	addOptionalFieldsToSchema(dsSchema, "display_name")
 	addOptionalFieldsToSchema(dsSchema, "project")
 	addOptionalFieldsToSchema(dsSchema, "type")
+	addOptionalFieldsToSchema(dsSchema, "labels")
+	addOptionalFieldsToSchema(dsSchema, "user_labels")
 
 	return &schema.Resource{
 		Read:   dataSourceMonitoringNotificationChannelRead,
@@ -33,26 +35,41 @@ func dataSourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta in
 	channelType := d.Get("type").(string)
 
 	if displayName == "" && channelType == "" {
-		return errors.New("Must at least provide either `display_name` or `type`")
+		return fmt.Errorf("At least one of display_name or type must be provided")
 	}
 
-	filter := ""
+	labels, err := expandMonitoringNotificationChannelLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	}
+
+	userLabels, err := expandMonitoringNotificationChannelLabels(d.Get("user_labels"), d, config)
+	if err != nil {
+		return err
+	}
+
+	filters := make([]string, 0, len(labels)+2)
+
 	if displayName != "" {
-		filter = fmt.Sprintf("display_name=\"%s\"", displayName)
+		filters = append(filters, fmt.Sprintf(`display_name="%s"`, displayName))
 	}
 
 	if channelType != "" {
-		channelFilter := fmt.Sprintf("type=\"%s\"", channelType)
-		if filter != "" {
-			filter += fmt.Sprintf(" AND %s", channelFilter)
-		} else {
-			filter = channelFilter
-		}
+		filters = append(filters, fmt.Sprintf(`type="%s"`, channelType))
 	}
 
-	params := make(map[string]string)
-	params["filter"] = filter
+	for k, v := range labels {
+		filters = append(filters, fmt.Sprintf(`labels.%s="%s"`, k, v))
+	}
 
+	for k, v := range userLabels {
+		filters = append(filters, fmt.Sprintf(`user_labels.%s="%s"`, k, v))
+	}
+
+	filter := strings.Join(filters, " AND ")
+	params := map[string]string{
+		"filter": filter,
+	}
 	url, err = addQueryParams(url, params)
 	if err != nil {
 		return err
@@ -68,32 +85,21 @@ func dataSourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error retrieving NotificationChannels: %s", err)
 	}
 
-	var pageMonitoringNotificationChannels []interface{}
+	var channels []interface{}
 	if v, ok := response["notificationChannels"]; ok {
-		pageMonitoringNotificationChannels = v.([]interface{})
+		channels = v.([]interface{})
 	}
-
-	if len(pageMonitoringNotificationChannels) == 0 {
-		return fmt.Errorf("No NotificationChannel found using filter=%s", filter)
+	if len(channels) == 0 {
+		return fmt.Errorf("No NotificationChannel found using filter: %s", filter)
 	}
-
-	if len(pageMonitoringNotificationChannels) > 1 {
-		return fmt.Errorf("More than one matching NotificationChannel found using filter=%s", filter)
+	if len(channels) > 1 {
+		return fmt.Errorf("Found more than one 1 NotificationChannel matching specified filter: %s", filter)
 	}
-
-	res := pageMonitoringNotificationChannels[0].(map[string]interface{})
+	res := channels[0].(map[string]interface{})
 
 	name := flattenMonitoringNotificationChannelName(res["name"], d).(string)
 	d.Set("name", name)
-	d.Set("project", project)
-	d.Set("labels", flattenMonitoringNotificationChannelLabels(res["labels"], d))
-	d.Set("verification_status", flattenMonitoringNotificationChannelVerificationStatus(res["verificationStatus"], d))
-	d.Set("type", flattenMonitoringNotificationChannelType(res["type"], d))
-	d.Set("user_labels", flattenMonitoringNotificationChannelUserLabels(res["userLabels"], d))
-	d.Set("description", flattenMonitoringNotificationChannelDescription(res["descriptionx"], d))
-	d.Set("display_name", flattenMonitoringNotificationChannelDisplayName(res["displayName"], d))
-	d.Set("enabled", flattenMonitoringNotificationChannelEnabled(res["enabled"], d))
 	d.SetId(name)
 
-	return nil
+	return resourceMonitoringNotificationChannelRead(d, meta)
 }

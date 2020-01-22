@@ -56,28 +56,29 @@ resource "google_monitoring_alert_policy" "alert_policy" {
 
 The arguments of this data source act as filters for querying the available notification channels. The given filters must match exactly one notification channel whose data will be exported as attributes. The following arguments are supported:
 
+One of the following fields must be specified:
 
 * `display_name` -
   (Optional)
     The display name for this notification channel.
 
-* `type` -
-  (Optional)
-  The type of the notification channel.
-
-~> **NOTE:** One of `display_name` or `type` must be specified.
+* `type` - (Optional) The type of the notification channel.
 
 - - -
 
+Other optional fields include:
+
+* `labels` - (Optional) Labels (corresponding to the
+  NotificationChannelDescriptor schema) to filter the notification channels by.
+
+* `user_labels` - (Optional) User-provided key-value labels to filter by.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
-
 
 * `name` -
   The full REST resource name for this channel. The syntax is:
