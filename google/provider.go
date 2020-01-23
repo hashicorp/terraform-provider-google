@@ -229,6 +229,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_DEPLOYMENT_MANAGER_CUSTOM_ENDPOINT",
 				}, DeploymentManagerDefaultBasePath),
 			},
+			"dialogflow_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_DIALOGFLOW_CUSTOM_ENDPOINT",
+				}, DialogflowDefaultBasePath),
+			},
 			"dns_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -478,9 +486,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 97
+// Generated resources: 98
 // Generated IAM resources: 48
-// Total generated resources: 145
+// Total generated resources: 146
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -569,6 +577,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_container_analysis_note":                               resourceContainerAnalysisNote(),
 			"google_dataproc_autoscaling_policy":                           resourceDataprocAutoscalingPolicy(),
 			"google_deployment_manager_deployment":                         resourceDeploymentManagerDeployment(),
+			"google_dialogflow_agent":                                      resourceDialogflowAgent(),
 			"google_dns_managed_zone":                                      resourceDNSManagedZone(),
 			"google_filestore_instance":                                    resourceFilestoreInstance(),
 			"google_firestore_index":                                       resourceFirestoreIndex(),
@@ -797,6 +806,7 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 	config.ContainerAnalysisBasePath = d.Get("container_analysis_custom_endpoint").(string)
 	config.DataprocBasePath = d.Get("dataproc_custom_endpoint").(string)
 	config.DeploymentManagerBasePath = d.Get("deployment_manager_custom_endpoint").(string)
+	config.DialogflowBasePath = d.Get("dialogflow_custom_endpoint").(string)
 	config.DNSBasePath = d.Get("dns_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
