@@ -17,14 +17,15 @@ layout: "google"
 page_title: "Google: google_compute_disk_resource_policy_attachment"
 sidebar_current: "docs-google-compute-disk-resource-policy-attachment"
 description: |-
-  Disk resource policies define a schedule for taking snapshots and a
-  retention period for these snapshots.
+  Adds existing resource policies to a disk.
 ---
 
 # google\_compute\_disk\_resource\_policy\_attachment
 
-Disk resource policies define a schedule for taking snapshots and a
-retention period for these snapshots.
+Adds existing resource policies to a disk. You can only add one policy
+which will be applied to this disk for scheduling snapshot creation.
+
+~> **Note:** This resource does not support regional disks (`google_compute_region_disk`).
 
 
 
