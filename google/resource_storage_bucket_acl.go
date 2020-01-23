@@ -70,6 +70,11 @@ func resourceStorageRoleEntityCustomizeDiff(diff *schema.ResourceDiff, meta inte
 	}
 	for k := range state {
 		if _, ok := conf[k]; !ok {
+			// project-owners- is explicitly stripped from the roles that this
+			// resource will delete
+			if strings.Contains(k, "OWNER:project-owners-") {
+				continue
+			}
 			return nil
 		}
 	}
