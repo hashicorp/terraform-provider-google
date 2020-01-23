@@ -106,6 +106,11 @@ func (u *IapWebIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy,
 		return nil, err
 	}
 	var obj map[string]interface{}
+	obj = map[string]interface{}{
+		"options": map[string]interface{}{
+			"requestedPolicyVersion": iamPolicyVersion,
+		},
+	}
 
 	policy, err := sendRequest(u.Config, "POST", project, url, obj)
 	if err != nil {

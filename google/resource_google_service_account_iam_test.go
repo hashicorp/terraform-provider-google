@@ -83,7 +83,7 @@ func TestAccServiceAccountIamPolicy(t *testing.T) {
 func testAccCheckGoogleServiceAccountIam(account string, numBindings int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		p, err := config.clientIAM.Projects.ServiceAccounts.GetIamPolicy(serviceAccountCanonicalId(account)).Do()
+		p, err := config.clientIAM.Projects.ServiceAccounts.GetIamPolicy(serviceAccountCanonicalId(account)).OptionsRequestedPolicyVersion(iamPolicyVersion).Do()
 		if err != nil {
 			return err
 		}
