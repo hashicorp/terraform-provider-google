@@ -135,6 +135,9 @@ cluster.
 * `name` - (Optional) The name of the node pool. If left blank, Terraform will
     auto-generate a unique name.
 
+* `name_prefix` - (Optional) Creates a unique name for the node pool beginning
+    with the specified prefix. Conflicts with `name`.
+
 * `node_config` - (Optional) The node configuration of the pool. See
     [google_container_cluster](container_cluster.html) for schema.
 
@@ -179,6 +182,12 @@ The `upgrade_settings` block supports:
     parallel. Can be set to 0 or greater.
 
 `max_surge` and `max_unavailable` must not be negative and at least one of them must be greater than zero.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `instance_group_urls` - The resource URLs of the managed instance groups associated with this node pool.
 
 <a id="timeouts"></a>
 ## Timeouts
