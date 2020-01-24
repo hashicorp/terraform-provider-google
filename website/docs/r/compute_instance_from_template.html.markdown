@@ -79,6 +79,7 @@ from `google_compute_instance` are likewise exported here.
 
 To support removal of Optional/Computed fields in Terraform 0.12 the following fields
 are marked [Attributes as Blocks](/docs/configuration/attr-as-blocks.html):
+
 * `attached_disk`
 * `guest_accelerator`
 * `service_account`
