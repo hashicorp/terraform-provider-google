@@ -1,0 +1,3 @@
+```release-note:bug
+`container`: Fixed perma-diff in `google_container_cluster`'s `cluster_autoscaling.auto_provisioning_defaults`.
+```
