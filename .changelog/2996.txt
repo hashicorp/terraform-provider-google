@@ -1,0 +1,3 @@
+```release-note:bug
+compute: `google_compute_instance_template` add plan time check for any disks marked `boot` outside of the first disk
+```
