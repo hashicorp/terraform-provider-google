@@ -1,0 +1,3 @@
+```release-note:enhancement
+`binaryauthorization`: moved from beta to ga in anticipation of beta api turndown.
+```

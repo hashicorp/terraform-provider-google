@@ -190,16 +190,11 @@ func resourceBinaryAuthorizationAttestorCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	userOwnedDrydockNoteProp, err := expandBinaryAuthorizationAttestorAttestationAuthorityNote(d.Get("attestation_authority_note"), d, config)
+	userOwnedGrafeasNoteProp, err := expandBinaryAuthorizationAttestorAttestationAuthorityNote(d.Get("attestation_authority_note"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("attestation_authority_note"); !isEmptyValue(reflect.ValueOf(userOwnedDrydockNoteProp)) && (ok || !reflect.DeepEqual(v, userOwnedDrydockNoteProp)) {
-		obj["userOwnedDrydockNote"] = userOwnedDrydockNoteProp
-	}
-
-	obj, err = resourceBinaryAuthorizationAttestorEncoder(d, meta, obj)
-	if err != nil {
-		return err
+	} else if v, ok := d.GetOkExists("attestation_authority_note"); !isEmptyValue(reflect.ValueOf(userOwnedGrafeasNoteProp)) && (ok || !reflect.DeepEqual(v, userOwnedGrafeasNoteProp)) {
+		obj["userOwnedGrafeasNote"] = userOwnedGrafeasNoteProp
 	}
 
 	url, err := replaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors?attestorId={{name}}")
@@ -246,18 +241,6 @@ func resourceBinaryAuthorizationAttestorRead(d *schema.ResourceData, meta interf
 		return handleNotFoundError(err, d, fmt.Sprintf("BinaryAuthorizationAttestor %q", d.Id()))
 	}
 
-	res, err = resourceBinaryAuthorizationAttestorDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
-
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing BinaryAuthorizationAttestor because it no longer exists.")
-		d.SetId("")
-		return nil
-	}
-
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Attestor: %s", err)
 	}
@@ -268,7 +251,7 @@ func resourceBinaryAuthorizationAttestorRead(d *schema.ResourceData, meta interf
 	if err := d.Set("description", flattenBinaryAuthorizationAttestorDescription(res["description"], d)); err != nil {
 		return fmt.Errorf("Error reading Attestor: %s", err)
 	}
-	if err := d.Set("attestation_authority_note", flattenBinaryAuthorizationAttestorAttestationAuthorityNote(res["userOwnedDrydockNote"], d)); err != nil {
+	if err := d.Set("attestation_authority_note", flattenBinaryAuthorizationAttestorAttestationAuthorityNote(res["userOwnedGrafeasNote"], d)); err != nil {
 		return fmt.Errorf("Error reading Attestor: %s", err)
 	}
 
@@ -296,16 +279,11 @@ func resourceBinaryAuthorizationAttestorUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	userOwnedDrydockNoteProp, err := expandBinaryAuthorizationAttestorAttestationAuthorityNote(d.Get("attestation_authority_note"), d, config)
+	userOwnedGrafeasNoteProp, err := expandBinaryAuthorizationAttestorAttestationAuthorityNote(d.Get("attestation_authority_note"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("attestation_authority_note"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, userOwnedDrydockNoteProp)) {
-		obj["userOwnedDrydockNote"] = userOwnedDrydockNoteProp
-	}
-
-	obj, err = resourceBinaryAuthorizationAttestorEncoder(d, meta, obj)
-	if err != nil {
-		return err
+	} else if v, ok := d.GetOkExists("attestation_authority_note"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, userOwnedGrafeasNoteProp)) {
+		obj["userOwnedGrafeasNote"] = userOwnedGrafeasNoteProp
 	}
 
 	url, err := replaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")
@@ -606,19 +584,4 @@ func expandBinaryAuthorizationAttestorAttestationAuthorityNotePublicKeysPkixPubl
 
 func expandBinaryAuthorizationAttestorAttestationAuthorityNoteDelegationServiceAccountEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
-}
-
-func resourceBinaryAuthorizationAttestorEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	// Field was renamed in GA API
-	obj["userOwnedGrafeasNote"] = obj["userOwnedDrydockNote"]
-	delete(obj, "userOwnedDrydockNote")
-
-	return obj, nil
-}
-
-func resourceBinaryAuthorizationAttestorDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	res["userOwnedDrydockNote"] = res["userOwnedGrafeasNote"]
-	delete(res, "userOwnedGrafeasNote")
-
-	return res, nil
 }
