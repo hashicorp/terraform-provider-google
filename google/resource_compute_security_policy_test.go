@@ -139,6 +139,18 @@ resource "google_compute_security_policy" "policy" {
   }
 
   rule {
+	action   = "deny(403)"
+	priority = "1000"
+	match {
+		expr {
+			expression = "evaluatePreconfiguredExpr('xss-stable') || evaluatePreconfiguredExpr('sqli-stable')"
+		}
+	}
+	description = "Deny access to xss and sqli rules"
+	preview = true
+  }
+
+  rule {
     action   = "allow"
     priority = "2000"
     match {
