@@ -93,6 +93,21 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 										Optional:     true,
 										ValidateFunc: validation.StringInSlice([]string{"SRC_IPS_V1"}, false),
 									},
+									
+									"expr": {
+										Type:         schema.TypeList,
+										Optional:     true,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"expression": {
+													Type:     schema.TypeString,
+													Required: true,
+													Elem:     &schema.Schema{Type: schema.TypeString},
+												},
+											},
+										},
+									},
 								},
 							},
 						},
