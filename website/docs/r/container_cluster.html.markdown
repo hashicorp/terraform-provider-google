@@ -184,8 +184,8 @@ making the cluster VPC-native instead of routes-based. Structure is documented
 below.
 
 * `logging_service` - (Optional) The logging service that the cluster should
-    write logs to. Available options include `logging.googleapis.com`,
-    `logging.googleapis.com/kubernetes`, and `none`. Defaults to `logging.googleapis.com/kubernetes`
+    write logs to. Available options include `logging.googleapis.com`(Legacy Stackdriver),
+    `logging.googleapis.com/kubernetes`(Stackdriver Kubernetes Engine Logging), and `none`. Defaults to `logging.googleapis.com/kubernetes`
 
 * `maintenance_policy` - (Optional) The maintenance policy to use for the cluster. Structure is
     documented below.
@@ -221,7 +221,7 @@ region are guaranteed to support the same version.
     Automatically send metrics from pods in the cluster to the Google Cloud Monitoring API.
     VM metrics will be collected by Google Compute Engine regardless of this setting
     Available options include
-    `monitoring.googleapis.com`, `monitoring.googleapis.com/kubernetes`, and `none`.
+    `monitoring.googleapis.com`(Legacy Stackdriver), `monitoring.googleapis.com/kubernetes`(Stackdriver Kubernetes Engine Monitoring), and `none`.
     Defaults to `monitoring.googleapis.com/kubernetes`
 
 * `network` - (Optional) The name or self_link of the Google Compute Engine
