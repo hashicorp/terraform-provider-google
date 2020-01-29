@@ -1,3 +1,0 @@
-```release-note:enhancement
-compute: `google_compute_security_policy` `rule.match.expr` field is now GA
-```
