@@ -1,4 +1,18 @@
-## 3.5.1 (Unreleased)
+## 3.7.0 (Unreleased)
+
+BREAKING CHANGES:
+* iam: starts reading/writing IAM policies at version 3 in the GA provider. If you have an IAM resource defined in your config that has a condition on it created outside of Terraform, you should start using the beta provider and defining the condition in your config to avoid unexpected behavior. ([#5469](https://github.com/terraform-providers/terraform-provider-google/pull/5469))
+
+IMPROVEMENTS:
+* dns: `google_dns_managed_zone` added support for Non-RFC1918 fields for reverse lookup and fowarding paths. ([#5493](https://github.com/terraform-providers/terraform-provider-google/pull/5493))
+* monitoring: Added `labels` and `user_labels` filters to data source `google_monitoring_notification_channel` ([#5470](https://github.com/terraform-providers/terraform-provider-google/pull/5470))
+
+BUG FIXES:
+* compute: `google_compute_instance_template` added plan time check for any disks marked `boot` outside of the first disk ([#5491](https://github.com/terraform-providers/terraform-provider-google/pull/5491))
+* container: Fixed perma-diff in `google_container_cluster`'s `cluster_autoscaling.auto_provisioning_defaults`. ([#5486](https://github.com/terraform-providers/terraform-provider-google/pull/5486))
+* iam: fixed issue where users of the GA provider who used IAM conditions outside of Terraform were getting an error ([#5469](https://github.com/terraform-providers/terraform-provider-google/pull/5469))
+* storage: Stopped `project-owner` showing up in the diff for `google_storage_bucket_acl` ([#5479](https://github.com/terraform-providers/terraform-provider-google/pull/5479))
+
 ## 3.5.0 (January 22, 2020)
 
 DEPRECATIONS:
