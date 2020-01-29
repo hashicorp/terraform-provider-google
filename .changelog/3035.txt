@@ -1,3 +1,0 @@
-```release-note:bug
-logging: updated `bigquery_options` so the default value from the api will be set in state.
-```
