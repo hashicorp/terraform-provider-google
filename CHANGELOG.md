@@ -1,4 +1,22 @@
-## 3.5.1 (Unreleased)
+## 3.6.1 (Unreleased)
+## 3.6.0 (January 29, 2020)
+
+FEATURES:
+* **New Data Source:** google_monitoring_notification_channel ([#5405](https://github.com/terraform-providers/terraform-provider-google/pull/5405))
+* **New Resource:** Added `google_iap_tunnel_instance_iam_*` IAM resources for IAP Tunnel Instances ([#5429](https://github.com/terraform-providers/terraform-provider-google/pull/5429))
+* **New Resource:** google_compute_network_peering_routes_config ([#5426](https://github.com/terraform-providers/terraform-provider-google/pull/5426))
+
+IMPROVEMENTS:
+* compute: added waiting logic to `google_compute_interconnect_attachment` to avoid modifications when the attachment is UNPROVISIONED ([#5459](https://github.com/terraform-providers/terraform-provider-google/pull/5459))
+* compute: made the `google_compute_network_peering` routes fields available in GA ([#5419](https://github.com/terraform-providers/terraform-provider-google/pull/5419))
+* container: Promoted `enable_binary_authorization` from beta into ga. ([#5456](https://github.com/terraform-providers/terraform-provider-google/pull/5456))
+* scheduler: Added `attempt_deadline` to `google_cloud_scheduler_job`. ([#5399](https://github.com/terraform-providers/terraform-provider-google/pull/5399))
+* storage: added `default_event_based_hold` to `google_storage_bucket` ([#5373](https://github.com/terraform-providers/terraform-provider-google/pull/5373))
+
+BUG FIXES:
+* compute: Fixed `google_compute_instance_from_template` with existing boot disks ([#5430](https://github.com/terraform-providers/terraform-provider-google/pull/5430))
+* compute: Fixed a bug in `google_compute_instance` when attempting to update a field that requires stopping and starting an instance with an encrypted disk ([#5436](https://github.com/terraform-providers/terraform-provider-google/pull/5436))
+
 ## 3.5.0 (January 22, 2020)
 
 DEPRECATIONS:
