@@ -1,3 +1,0 @@
-```release-note:bug
-sql: undeprecated `settings.ip_configuration.authorized_networks.expiration_time`
-```
