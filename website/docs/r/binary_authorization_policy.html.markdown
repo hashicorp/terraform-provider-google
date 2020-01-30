@@ -199,6 +199,12 @@ The `cluster_admission_rules` block supports:
   (Required)
   The action when a pod creation is denied by the admission rule.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}`
+
 
 ## Timeouts
 

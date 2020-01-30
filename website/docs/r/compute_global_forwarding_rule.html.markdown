@@ -353,6 +353,13 @@ The `filter_labels` block supports:
   The value that the label must match. The value has a maximum
   length of 1024 characters.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/global/forwardingRules/{{name}}`
+* `self_link` - The URI of the created resource.
+
 
 ## Timeouts
 

@@ -133,6 +133,12 @@ The `message_storage_policy` block supports:
   allowed regions. An empty list means that no regions are allowed,
   and is not a valid configuration.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/topics/{{name}}`
+
 
 ## Timeouts
 

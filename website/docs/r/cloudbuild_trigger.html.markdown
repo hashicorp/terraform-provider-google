@@ -290,6 +290,7 @@ The `volumes` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/triggers/{{trigger_id}}`
 
 * `trigger_id` -
   The unique identifier for the trigger.

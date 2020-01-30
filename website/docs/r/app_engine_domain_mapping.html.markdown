@@ -102,6 +102,7 @@ The `ssl_settings` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `apps/{{project}}/domainMappings/{{domain_name}}`
 
 * `name` -
   Full path to the DomainMapping resource in the API. Example: apps/myapp/domainMapping/example.com.

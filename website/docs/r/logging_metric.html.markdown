@@ -277,6 +277,12 @@ The `explicit_buckets` block supports:
   (Required)
   The values must be monotonically increasing.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{name}}`
+
 
 ## Timeouts
 

@@ -139,6 +139,7 @@ The `single_cluster_routing` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}`
 
 * `name` -
   The unique name of the requested app profile. Values are of the form `projects/<project>/instances/<instance>/appProfiles/<appProfileId>`.

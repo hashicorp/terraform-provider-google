@@ -532,6 +532,7 @@ The `metadata` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `locations/{{location}}/namespaces/{{project}}/services/{{name}}`
 
 * `status` -
   The current status of the Service.  Structure is documented below.

@@ -163,6 +163,7 @@ The `metadata` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `locations/{{location}}/namespaces/{{project}}/domainmappings/{{name}}`
 
 * `status` -
   The current status of the DomainMapping.  Structure is documented below.

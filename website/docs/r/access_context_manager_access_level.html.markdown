@@ -196,6 +196,12 @@ The `os_constraints` block supports:
   (Required)
   The operating system type of the device.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{name}}`
+
 
 ## Timeouts
 

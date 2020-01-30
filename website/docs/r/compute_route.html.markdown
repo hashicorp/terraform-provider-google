@@ -223,6 +223,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/routes/{{name}}`
 
 * `next_hop_network` -
   URL to a Network that should handle matching packets.

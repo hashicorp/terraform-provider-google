@@ -162,6 +162,12 @@ The `retry_config` block supports:
   then increases linearly, and finally retries retries at intervals of maxBackoff
   up to maxAttempts times.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/queues/{{name}}`
+
 
 ## Timeouts
 

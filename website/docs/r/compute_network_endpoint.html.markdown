@@ -128,6 +128,12 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{project}}/{{zone}}/{{network_endpoint_group}}/{{instance}}/{{ip_address}}/{{port}}`
+
 
 ## Timeouts
 

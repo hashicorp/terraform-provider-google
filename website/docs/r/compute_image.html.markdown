@@ -182,6 +182,7 @@ The `raw_disk` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/images/{{name}}`
 
 * `archive_size_bytes` -
   Size of the image tar.gz archive stored in Google Cloud Storage (in
