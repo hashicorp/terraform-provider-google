@@ -127,6 +127,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}`
 
 * `size` -
   Number of network endpoints in the network endpoint group.

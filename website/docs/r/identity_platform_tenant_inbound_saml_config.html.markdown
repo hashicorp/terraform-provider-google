@@ -147,6 +147,12 @@ The `sp_certificates` block contains:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/tenants/{{tenant}}/inboundSamlConfigs/{{name}}`
+
 
 ## Timeouts
 

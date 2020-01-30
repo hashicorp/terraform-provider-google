@@ -201,6 +201,7 @@ The `source_snapshot_encryption_key` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/disks/{{name}}`
 
 * `label_fingerprint` -
   The fingerprint used for optimistic locking of this resource.  Used

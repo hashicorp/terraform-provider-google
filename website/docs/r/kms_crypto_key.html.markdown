@@ -138,6 +138,7 @@ The `version_template` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{key_ring}}/cryptoKeys/{{name}}`
 
 
 * `self_link`: The self link of the created CryptoKey. Its format is `{{key_ring}}/cryptoKeys/{{name}}`.

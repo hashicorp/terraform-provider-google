@@ -224,6 +224,12 @@ The `log_config` block supports:
   Specifies the desired filtering of logs on this NAT. Valid
   values are: `"ERRORS_ONLY"`, `"TRANSLATIONS_ONLY"`, `"ALL"`
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{project}}/{{region}}/{{router}}/{{name}}`
+
 
 ## Timeouts
 

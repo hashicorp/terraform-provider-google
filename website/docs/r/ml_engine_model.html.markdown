@@ -114,6 +114,12 @@ The `default_version` block supports:
   (Required)
   The name specified for the version when it was created.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/models/{{name}}`
+
 
 ## Timeouts
 
