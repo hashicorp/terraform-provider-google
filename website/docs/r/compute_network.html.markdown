@@ -95,6 +95,7 @@ immediately after network creation. Defaults to `false`.
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/networks/{{name}}`
 
 * `gateway_ipv4` -
   The gateway address for default routing out of the network. This value

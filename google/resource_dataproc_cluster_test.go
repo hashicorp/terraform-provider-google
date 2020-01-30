@@ -221,9 +221,7 @@ func TestAccDataprocCluster_withAccelerators(t *testing.T) {
 	var cluster dataproc.Cluster
 
 	project := getTestProjectFromEnv()
-	zone := "us-central1-a"
 	acceleratorType := "nvidia-tesla-k80"
-	acceleratorLink := fmt.Sprintf("https://www.googleapis.com/compute/beta/projects/%s/zones/%s/acceleratorTypes/%s", project, zone, acceleratorType)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -231,18 +229,20 @@ func TestAccDataprocCluster_withAccelerators(t *testing.T) {
 		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withAccelerators(rnd, zone, acceleratorType),
+				Config: testAccDataprocCluster_withAccelerators(rnd, acceleratorType),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists("google_dataproc_cluster.accelerated_cluster", &cluster),
-					testAccCheckDataprocClusterAccelerator(&cluster, 1, acceleratorLink, 1, acceleratorLink),
+					testAccCheckDataprocClusterAccelerator(&cluster, project, 1, 1),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckDataprocClusterAccelerator(cluster *dataproc.Cluster, masterCount int, masterAccelerator string, workerCount int, workerAccelerator string) resource.TestCheckFunc {
+func testAccCheckDataprocClusterAccelerator(cluster *dataproc.Cluster, project string, masterCount int, workerCount int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		expectedUri := fmt.Sprintf("projects/%s/zones/.*/acceleratorTypes/nvidia-tesla-k80", project)
+		r := regexp.MustCompile(expectedUri)
 
 		master := cluster.Config.MasterConfig.Accelerators
 		if len(master) != 1 {
@@ -253,8 +253,9 @@ func testAccCheckDataprocClusterAccelerator(cluster *dataproc.Cluster, masterCou
 			return fmt.Errorf("Saw %d master accelerators instead of %d", int(master[0].AcceleratorCount), masterCount)
 		}
 
-		if master[0].AcceleratorTypeUri != masterAccelerator {
-			return fmt.Errorf("Saw %s master accelerator type instead of %s", master[0].AcceleratorTypeUri, masterAccelerator)
+		matches := r.FindStringSubmatch(master[0].AcceleratorTypeUri)
+		if len(matches) != 1 {
+			return fmt.Errorf("Saw %s master accelerator type instead of %s", master[0].AcceleratorTypeUri, expectedUri)
 		}
 
 		worker := cluster.Config.WorkerConfig.Accelerators
@@ -266,8 +267,9 @@ func testAccCheckDataprocClusterAccelerator(cluster *dataproc.Cluster, masterCou
 			return fmt.Errorf("Saw %d worker accelerators instead of %d", int(worker[0].AcceleratorCount), workerCount)
 		}
 
-		if worker[0].AcceleratorTypeUri != workerAccelerator {
-			return fmt.Errorf("Saw %s worker accelerator type instead of %s", worker[0].AcceleratorTypeUri, workerAccelerator)
+		matches = r.FindStringSubmatch(worker[0].AcceleratorTypeUri)
+		if len(matches) != 1 {
+			return fmt.Errorf("Saw %s worker accelerator type instead of %s", worker[0].AcceleratorTypeUri, expectedUri)
 		}
 
 		return nil
@@ -857,17 +859,13 @@ resource "google_dataproc_cluster" "basic" {
 `, rnd)
 }
 
-func testAccDataprocCluster_withAccelerators(rnd, zone, acceleratorType string) string {
+func testAccDataprocCluster_withAccelerators(rnd, acceleratorType string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "accelerated_cluster" {
   name   = "dproc-cluster-test-%s"
   region = "us-central1"
 
   cluster_config {
-    gce_cluster_config {
-      zone = "%s"
-    }
-
     master_config {
       accelerators {
         accelerator_type  = "%s"
@@ -883,7 +881,7 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
     }
   }
 }
-`, rnd, zone, acceleratorType, acceleratorType)
+`, rnd, acceleratorType, acceleratorType)
 }
 
 func testAccDataprocCluster_withInternalIpOnlyTrue(rnd string) string {

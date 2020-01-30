@@ -21,9 +21,8 @@ const privateNetworkLinkRegex = "projects/(" + ProjectRegex + ")/global/networks
 var sqlDatabaseAuthorizedNetWorkSchemaElem *schema.Resource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
 		"expiration_time": {
-			Type:       schema.TypeString,
-			Optional:   true,
-			Deprecated: "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
+			Type:     schema.TypeString,
+			Optional: true,
 		},
 		"name": {
 			Type:     schema.TypeString,

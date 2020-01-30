@@ -263,6 +263,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}`
 
 * `tunnel_id` -
   The unique identifier for the resource. This identifier is defined by the server.

@@ -286,6 +286,7 @@ The `entrypoint` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `apps/{{project}}/services/{{service}}/versions/{{version_id}}`
 
 * `name` -
   Full path to the Version resource in the API. Example, "v1".

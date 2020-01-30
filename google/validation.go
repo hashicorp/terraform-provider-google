@@ -88,8 +88,8 @@ func validateRFC6996Asn(v interface{}, k string) (ws []string, errors []error) {
 	if !(value >= Rfc6996Asn16BitMin && value <= Rfc6996Asn16BitMax) &&
 		!(value >= Rfc6996Asn32BitMin && value <= Rfc6996Asn32BitMax) &&
 		value != GcpRouterPartnerAsn {
-		errors = append(errors, fmt.Errorf(`expected %q to be a RFC6996-compliant Local ASN: 
-must be either in the private ASN ranges: [64512..65534], [4200000000..4294967294]; 
+		errors = append(errors, fmt.Errorf(`expected %q to be a RFC6996-compliant Local ASN:
+must be either in the private ASN ranges: [64512..65534], [4200000000..4294967294];
 or be the value of [%d], got %d`, k, GcpRouterPartnerAsn, value))
 	}
 	return

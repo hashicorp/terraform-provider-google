@@ -159,14 +159,18 @@ data "google_monitoring_notification_channel" "default" {
 `, displayName, displayName)
 }
 
-func testAccDataSourceGoogleMonitoringNotificationChannel_byTypeAndUserLabel(displayName string) string {
+func testAccDataSourceGoogleMonitoringNotificationChannel_byTypeAndUserLabel(testName string) string {
 	return fmt.Sprintf(`
 resource "google_monitoring_notification_channel" "default" {
   display_name = "%s"
   type         = "email"
 
+  labels = {
+    email_address = "%s@google.com"
+  }
+
   user_labels = {
-    testname = "%s"
+    testname = "foo-%s"
   }
 }
 
@@ -174,7 +178,7 @@ data "google_monitoring_notification_channel" "default" {
   type = google_monitoring_notification_channel.default.type
   user_labels =  google_monitoring_notification_channel.default.user_labels
 }
-`, displayName, displayName)
+`, testName, testName, testName)
 }
 
 func testAccDataSourceGoogleMonitoringNotificationChannel_byDisplayNameAndType(displayName string) string {

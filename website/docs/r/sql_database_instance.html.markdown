@@ -27,7 +27,6 @@ the above documentation:
 * `tier`  
 Remove any fields that are not applicable to Second-generation instances:
 * `settings.crash_safe_replication`
-* `settings.ip_configuration.authorized_networks.expiration_time`
 * `settings.replication_type`
 * `settings.authorized_gae_applications`
 And change values to appropriate values for Second-generation instances for:

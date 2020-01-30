@@ -18,7 +18,7 @@ This provider plugin is maintained by:
 Requirements
 ------------
 
-- [Terraform](https://www.terraform.io/downloads.html) 0.10+
+- [Terraform](https://www.terraform.io/downloads.html) 0.12+
 
 
 Using the provider
