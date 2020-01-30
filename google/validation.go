@@ -61,6 +61,14 @@ var (
 
 	ProjectNameInDNSFormRegex = "[-a-z0-9\\.]{1,63}"
 	ProjectNameRegex          = "^[A-Za-z0-9-'\"\\s!]{4,30}$"
+
+	// Valid range for Cloud Router ASN values as per RFC6996
+	// https://tools.ietf.org/html/rfc6996
+	Rfc6996Asn16BitMin  = 64512
+	Rfc6996Asn16BitMax  = 65534
+	Rfc6996Asn32BitMin  = 4200000000
+	Rfc6996Asn32BitMax  = 4294967294
+	GcpRouterPartnerAsn = 16550
 )
 
 var rfc1918Networks = []string{
@@ -72,6 +80,19 @@ var rfc1918Networks = []string{
 func validateGCPName(v interface{}, k string) (ws []string, errors []error) {
 	re := `^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$`
 	return validateRegexp(re)(v, k)
+}
+
+// Ensure that the BGP ASN value of Cloud Router is a valid value as per RFC6996 or a value of 16550
+func validateRFC6996Asn(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(int)
+	if !(value >= Rfc6996Asn16BitMin && value <= Rfc6996Asn16BitMax) &&
+		!(value >= Rfc6996Asn32BitMin && value <= Rfc6996Asn32BitMax) &&
+		value != GcpRouterPartnerAsn {
+		errors = append(errors, fmt.Errorf(`expected %q to be a RFC6996-compliant Local ASN:
+must be either in the private ASN ranges: [64512..65534], [4200000000..4294967294];
+or be the value of [%d], got %d`, k, GcpRouterPartnerAsn, value))
+	}
+	return
 }
 
 func validateRegexp(re string) schema.SchemaValidateFunc {
