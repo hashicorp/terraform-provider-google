@@ -70,8 +70,9 @@ except the last character, which cannot be a dash.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"asn": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validateRFC6996Asn,
 							Description: `Local BGP Autonomous System Number (ASN). Must be an RFC6996
 private ASN, either 16-bit or 32-bit. The value will be fixed for
 this router resource. All VPN tunnels that link to this router
