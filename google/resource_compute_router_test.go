@@ -168,7 +168,7 @@ resource "google_compute_router" "foobar" {
   region  = google_compute_subnetwork.foobar.region
   network = google_compute_network.foobar.name
   bgp {
-    asn = 64514
+    asn = 4294967294
   }
 }
 `, testId, testId, resourceRegion, testId)

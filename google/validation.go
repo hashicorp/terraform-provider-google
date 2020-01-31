@@ -64,11 +64,12 @@ var (
 
 	// Valid range for Cloud Router ASN values as per RFC6996
 	// https://tools.ietf.org/html/rfc6996
-	Rfc6996Asn16BitMin  = 64512
-	Rfc6996Asn16BitMax  = 65534
-	Rfc6996Asn32BitMin  = 4200000000
-	Rfc6996Asn32BitMax  = 4294967294
-	GcpRouterPartnerAsn = 16550
+	// Must be explicitly int64 to avoid overflow when building Terraform for 32bit architectures
+	Rfc6996Asn16BitMin  = int64(64512)
+	Rfc6996Asn16BitMax  = int64(65534)
+	Rfc6996Asn32BitMin  = int64(4200000000)
+	Rfc6996Asn32BitMax  = int64(4294967294)
+	GcpRouterPartnerAsn = int64(16550)
 )
 
 var rfc1918Networks = []string{
@@ -84,7 +85,7 @@ func validateGCPName(v interface{}, k string) (ws []string, errors []error) {
 
 // Ensure that the BGP ASN value of Cloud Router is a valid value as per RFC6996 or a value of 16550
 func validateRFC6996Asn(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(int)
+	value := int64(v.(int))
 	if !(value >= Rfc6996Asn16BitMin && value <= Rfc6996Asn16BitMax) &&
 		!(value >= Rfc6996Asn32BitMin && value <= Rfc6996Asn32BitMax) &&
 		value != GcpRouterPartnerAsn {
