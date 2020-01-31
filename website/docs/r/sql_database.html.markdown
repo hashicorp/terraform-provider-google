@@ -44,9 +44,9 @@ resource "google_sql_database" "database" {
 
 resource "google_sql_database_instance" "instance" {
   name   = "my-database-instance"
-  region = "us-central"
+  region = "us-central1"
   settings {
-    tier = "D0"
+    tier = "db-f1-micro"
   }
 }
 ```
