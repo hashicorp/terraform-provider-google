@@ -248,6 +248,9 @@ func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("tier") {
 		old, new := d.GetChange("tier")
 		readUrl, err := replaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
+		if err != nil {
+			return fmt.Errorf("Error preparing read URL: %s", err)
+		}
 		stateConf := &resource.StateChangeConf{
 			Pending: []string{old.(string)},
 			Target:  []string{new.(string)},
@@ -422,6 +425,9 @@ func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("tier") {
 		old, new := d.GetChange("tier")
 		readUrl, err := replaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
+		if err != nil {
+			return fmt.Errorf("Error preparing read URL: %s", err)
+		}
 		stateConf := &resource.StateChangeConf{
 			Pending: []string{old.(string)},
 			Target:  []string{new.(string)},
