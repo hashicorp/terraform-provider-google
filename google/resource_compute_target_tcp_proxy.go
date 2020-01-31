@@ -186,22 +186,22 @@ func resourceComputeTargetTcpProxyRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeTargetTcpProxyCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeTargetTcpProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
 	}
-	if err := d.Set("description", flattenComputeTargetTcpProxyDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeTargetTcpProxyDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
 	}
-	if err := d.Set("proxy_id", flattenComputeTargetTcpProxyProxyId(res["id"], d)); err != nil {
+	if err := d.Set("proxy_id", flattenComputeTargetTcpProxyProxyId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
 	}
-	if err := d.Set("name", flattenComputeTargetTcpProxyName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeTargetTcpProxyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
 	}
-	if err := d.Set("proxy_header", flattenComputeTargetTcpProxyProxyHeader(res["proxyHeader"], d)); err != nil {
+	if err := d.Set("proxy_header", flattenComputeTargetTcpProxyProxyHeader(res["proxyHeader"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
 	}
-	if err := d.Set("backend_service", flattenComputeTargetTcpProxyBackendService(res["service"], d)); err != nil {
+	if err := d.Set("backend_service", flattenComputeTargetTcpProxyBackendService(res["service"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -336,15 +336,15 @@ func resourceComputeTargetTcpProxyImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeTargetTcpProxyCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetTcpProxyCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetTcpProxyDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetTcpProxyDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetTcpProxyProxyId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetTcpProxyProxyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -354,15 +354,15 @@ func flattenComputeTargetTcpProxyProxyId(v interface{}, d *schema.ResourceData) 
 	return v
 }
 
-func flattenComputeTargetTcpProxyName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetTcpProxyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetTcpProxyProxyHeader(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetTcpProxyProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetTcpProxyBackendService(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetTcpProxyBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

@@ -404,37 +404,37 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenMonitoringUptimeCheckConfigName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenMonitoringUptimeCheckConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("uptime_check_id", flattenMonitoringUptimeCheckConfigUptimeCheckId(res["id"], d)); err != nil {
+	if err := d.Set("uptime_check_id", flattenMonitoringUptimeCheckConfigUptimeCheckId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("display_name", flattenMonitoringUptimeCheckConfigDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenMonitoringUptimeCheckConfigDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("period", flattenMonitoringUptimeCheckConfigPeriod(res["period"], d)); err != nil {
+	if err := d.Set("period", flattenMonitoringUptimeCheckConfigPeriod(res["period"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("timeout", flattenMonitoringUptimeCheckConfigTimeout(res["timeout"], d)); err != nil {
+	if err := d.Set("timeout", flattenMonitoringUptimeCheckConfigTimeout(res["timeout"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("content_matchers", flattenMonitoringUptimeCheckConfigContentMatchers(res["contentMatchers"], d)); err != nil {
+	if err := d.Set("content_matchers", flattenMonitoringUptimeCheckConfigContentMatchers(res["contentMatchers"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("selected_regions", flattenMonitoringUptimeCheckConfigSelectedRegions(res["selectedRegions"], d)); err != nil {
+	if err := d.Set("selected_regions", flattenMonitoringUptimeCheckConfigSelectedRegions(res["selectedRegions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("http_check", flattenMonitoringUptimeCheckConfigHttpCheck(res["httpCheck"], d)); err != nil {
+	if err := d.Set("http_check", flattenMonitoringUptimeCheckConfigHttpCheck(res["httpCheck"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("tcp_check", flattenMonitoringUptimeCheckConfigTcpCheck(res["tcpCheck"], d)); err != nil {
+	if err := d.Set("tcp_check", flattenMonitoringUptimeCheckConfigTcpCheck(res["tcpCheck"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("resource_group", flattenMonitoringUptimeCheckConfigResourceGroup(res["resourceGroup"], d)); err != nil {
+	if err := d.Set("resource_group", flattenMonitoringUptimeCheckConfigResourceGroup(res["resourceGroup"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("monitored_resource", flattenMonitoringUptimeCheckConfigMonitoredResource(res["monitoredResource"], d)); err != nil {
+	if err := d.Set("monitored_resource", flattenMonitoringUptimeCheckConfigMonitoredResource(res["monitoredResource"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
 
@@ -570,28 +570,28 @@ func resourceMonitoringUptimeCheckConfigImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenMonitoringUptimeCheckConfigName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigUptimeCheckId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigUptimeCheckId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	parts := strings.Split(d.Get("name").(string), "/")
 	return parts[len(parts)-1]
 }
 
-func flattenMonitoringUptimeCheckConfigDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigPeriod(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigTimeout(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigContentMatchers(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigContentMatchers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -604,20 +604,20 @@ func flattenMonitoringUptimeCheckConfigContentMatchers(v interface{}, d *schema.
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"content": flattenMonitoringUptimeCheckConfigContentMatchersContent(original["content"], d),
+			"content": flattenMonitoringUptimeCheckConfigContentMatchersContent(original["content"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenMonitoringUptimeCheckConfigContentMatchersContent(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigContentMatchersContent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -627,22 +627,22 @@ func flattenMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.Resour
 	}
 	transformed := make(map[string]interface{})
 	transformed["auth_info"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(original["authInfo"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(original["authInfo"], d, config)
 	transformed["port"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckPort(original["port"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckPort(original["port"], d, config)
 	transformed["headers"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckHeaders(original["headers"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckHeaders(original["headers"], d, config)
 	transformed["path"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckPath(original["path"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckPath(original["path"], d, config)
 	transformed["use_ssl"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckUseSsl(original["useSsl"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckUseSsl(original["useSsl"], d, config)
 	transformed["validate_ssl"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckValidateSsl(original["validateSsl"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckValidateSsl(original["validateSsl"], d, config)
 	transformed["mask_headers"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(original["maskHeaders"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(original["maskHeaders"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -652,20 +652,20 @@ func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d *schem
 	}
 	transformed := make(map[string]interface{})
 	transformed["password"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(original["password"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(original["password"], d, config)
 	transformed["username"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(original["username"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(original["username"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return d.Get("http_check.0.auth_info.0.password")
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -675,27 +675,27 @@ func flattenMonitoringUptimeCheckConfigHttpCheckPort(v interface{}, d *schema.Re
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckHeaders(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckPath(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckUseSsl(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckUseSsl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckValidateSsl(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckValidateSsl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigTcpCheck(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigTcpCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -705,10 +705,10 @@ func flattenMonitoringUptimeCheckConfigTcpCheck(v interface{}, d *schema.Resourc
 	}
 	transformed := make(map[string]interface{})
 	transformed["port"] =
-		flattenMonitoringUptimeCheckConfigTcpCheckPort(original["port"], d)
+		flattenMonitoringUptimeCheckConfigTcpCheckPort(original["port"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringUptimeCheckConfigTcpCheckPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigTcpCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -718,7 +718,7 @@ func flattenMonitoringUptimeCheckConfigTcpCheckPort(v interface{}, d *schema.Res
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigResourceGroup(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigResourceGroup(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -728,21 +728,21 @@ func flattenMonitoringUptimeCheckConfigResourceGroup(v interface{}, d *schema.Re
 	}
 	transformed := make(map[string]interface{})
 	transformed["resource_type"] =
-		flattenMonitoringUptimeCheckConfigResourceGroupResourceType(original["resourceType"], d)
+		flattenMonitoringUptimeCheckConfigResourceGroupResourceType(original["resourceType"], d, config)
 	transformed["group_id"] =
-		flattenMonitoringUptimeCheckConfigResourceGroupGroupId(original["groupId"], d)
+		flattenMonitoringUptimeCheckConfigResourceGroupGroupId(original["groupId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringUptimeCheckConfigResourceGroupResourceType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigResourceGroupResourceType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigResourceGroupGroupId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigResourceGroupGroupId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	project := d.Get("project").(string)
 	return fmt.Sprintf("projects/%s/groups/%s", project, v)
 }
 
-func flattenMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -752,16 +752,16 @@ func flattenMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d *schem
 	}
 	transformed := make(map[string]interface{})
 	transformed["type"] =
-		flattenMonitoringUptimeCheckConfigMonitoredResourceType(original["type"], d)
+		flattenMonitoringUptimeCheckConfigMonitoredResourceType(original["type"], d, config)
 	transformed["labels"] =
-		flattenMonitoringUptimeCheckConfigMonitoredResourceLabels(original["labels"], d)
+		flattenMonitoringUptimeCheckConfigMonitoredResourceLabels(original["labels"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringUptimeCheckConfigMonitoredResourceType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigMonitoredResourceType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

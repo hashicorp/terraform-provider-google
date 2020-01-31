@@ -292,37 +292,37 @@ func resourceDialogflowAgentRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
 
-	if err := d.Set("display_name", flattenDialogflowAgentDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenDialogflowAgentDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
-	if err := d.Set("default_language_code", flattenDialogflowAgentDefaultLanguageCode(res["defaultLanguageCode"], d)); err != nil {
+	if err := d.Set("default_language_code", flattenDialogflowAgentDefaultLanguageCode(res["defaultLanguageCode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
-	if err := d.Set("supported_language_codes", flattenDialogflowAgentSupportedLanguageCodes(res["supportedLanguageCodes"], d)); err != nil {
+	if err := d.Set("supported_language_codes", flattenDialogflowAgentSupportedLanguageCodes(res["supportedLanguageCodes"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
-	if err := d.Set("time_zone", flattenDialogflowAgentTimeZone(res["timeZone"], d)); err != nil {
+	if err := d.Set("time_zone", flattenDialogflowAgentTimeZone(res["timeZone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
-	if err := d.Set("description", flattenDialogflowAgentDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenDialogflowAgentDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
-	if err := d.Set("avatar_uri_backend", flattenDialogflowAgentAvatarUriBackend(res["avatarUri"], d)); err != nil {
+	if err := d.Set("avatar_uri_backend", flattenDialogflowAgentAvatarUriBackend(res["avatarUri"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
-	if err := d.Set("enable_logging", flattenDialogflowAgentEnableLogging(res["enableLogging"], d)); err != nil {
+	if err := d.Set("enable_logging", flattenDialogflowAgentEnableLogging(res["enableLogging"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
-	if err := d.Set("match_mode", flattenDialogflowAgentMatchMode(res["matchMode"], d)); err != nil {
+	if err := d.Set("match_mode", flattenDialogflowAgentMatchMode(res["matchMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
-	if err := d.Set("classification_threshold", flattenDialogflowAgentClassificationThreshold(res["classificationThreshold"], d)); err != nil {
+	if err := d.Set("classification_threshold", flattenDialogflowAgentClassificationThreshold(res["classificationThreshold"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
-	if err := d.Set("api_version", flattenDialogflowAgentApiVersion(res["apiVersion"], d)); err != nil {
+	if err := d.Set("api_version", flattenDialogflowAgentApiVersion(res["apiVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
-	if err := d.Set("tier", flattenDialogflowAgentTier(res["tier"], d)); err != nil {
+	if err := d.Set("tier", flattenDialogflowAgentTier(res["tier"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
 
@@ -487,47 +487,47 @@ func resourceDialogflowAgentImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDialogflowAgentDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDialogflowAgentDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentDefaultLanguageCode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDialogflowAgentDefaultLanguageCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentSupportedLanguageCodes(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDialogflowAgentSupportedLanguageCodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentTimeZone(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDialogflowAgentTimeZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDialogflowAgentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentAvatarUriBackend(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDialogflowAgentAvatarUriBackend(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentEnableLogging(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDialogflowAgentEnableLogging(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentMatchMode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDialogflowAgentMatchMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentClassificationThreshold(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDialogflowAgentClassificationThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentApiVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDialogflowAgentApiVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentTier(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDialogflowAgentTier(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

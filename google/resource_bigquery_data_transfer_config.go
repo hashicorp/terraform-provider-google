@@ -221,28 +221,28 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
 
-	if err := d.Set("display_name", flattenBigqueryDataTransferConfigDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenBigqueryDataTransferConfigDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
-	if err := d.Set("name", flattenBigqueryDataTransferConfigName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenBigqueryDataTransferConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
-	if err := d.Set("destination_dataset_id", flattenBigqueryDataTransferConfigDestinationDatasetId(res["destinationDatasetId"], d)); err != nil {
+	if err := d.Set("destination_dataset_id", flattenBigqueryDataTransferConfigDestinationDatasetId(res["destinationDatasetId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
-	if err := d.Set("data_source_id", flattenBigqueryDataTransferConfigDataSourceId(res["dataSourceId"], d)); err != nil {
+	if err := d.Set("data_source_id", flattenBigqueryDataTransferConfigDataSourceId(res["dataSourceId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
-	if err := d.Set("schedule", flattenBigqueryDataTransferConfigSchedule(res["schedule"], d)); err != nil {
+	if err := d.Set("schedule", flattenBigqueryDataTransferConfigSchedule(res["schedule"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
-	if err := d.Set("data_refresh_window_days", flattenBigqueryDataTransferConfigDataRefreshWindowDays(res["dataRefreshWindowDays"], d)); err != nil {
+	if err := d.Set("data_refresh_window_days", flattenBigqueryDataTransferConfigDataRefreshWindowDays(res["dataRefreshWindowDays"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
-	if err := d.Set("disabled", flattenBigqueryDataTransferConfigDisabled(res["disabled"], d)); err != nil {
+	if err := d.Set("disabled", flattenBigqueryDataTransferConfigDisabled(res["disabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
-	if err := d.Set("params", flattenBigqueryDataTransferConfigParams(res["params"], d)); err != nil {
+	if err := d.Set("params", flattenBigqueryDataTransferConfigParams(res["params"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
 
@@ -368,27 +368,27 @@ func resourceBigqueryDataTransferConfigImport(d *schema.ResourceData, meta inter
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBigqueryDataTransferConfigDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigqueryDataTransferConfigDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigqueryDataTransferConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigDestinationDatasetId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigqueryDataTransferConfigDestinationDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigDataSourceId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigqueryDataTransferConfigDataSourceId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigSchedule(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigqueryDataTransferConfigSchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigDataRefreshWindowDays(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigqueryDataTransferConfigDataRefreshWindowDays(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -398,11 +398,11 @@ func flattenBigqueryDataTransferConfigDataRefreshWindowDays(v interface{}, d *sc
 	return v
 }
 
-func flattenBigqueryDataTransferConfigDisabled(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigqueryDataTransferConfigDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigParams(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigqueryDataTransferConfigParams(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

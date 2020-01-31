@@ -415,15 +415,15 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
 
-	if err := d.Set("access", flattenBigQueryDatasetAccess(res["access"], d)); err != nil {
+	if err := d.Set("access", flattenBigQueryDatasetAccess(res["access"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
-	if err := d.Set("creation_time", flattenBigQueryDatasetCreationTime(res["creationTime"], d)); err != nil {
+	if err := d.Set("creation_time", flattenBigQueryDatasetCreationTime(res["creationTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
 	// Terraform must set the top level schema field, but since this object contains collapsed properties
 	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
-	if flattenedProp := flattenBigQueryDatasetDatasetReference(res["datasetReference"], d); flattenedProp != nil {
+	if flattenedProp := flattenBigQueryDatasetDatasetReference(res["datasetReference"], d, config); flattenedProp != nil {
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
@@ -431,31 +431,31 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 			}
 		}
 	}
-	if err := d.Set("default_table_expiration_ms", flattenBigQueryDatasetDefaultTableExpirationMs(res["defaultTableExpirationMs"], d)); err != nil {
+	if err := d.Set("default_table_expiration_ms", flattenBigQueryDatasetDefaultTableExpirationMs(res["defaultTableExpirationMs"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
-	if err := d.Set("default_partition_expiration_ms", flattenBigQueryDatasetDefaultPartitionExpirationMs(res["defaultPartitionExpirationMs"], d)); err != nil {
+	if err := d.Set("default_partition_expiration_ms", flattenBigQueryDatasetDefaultPartitionExpirationMs(res["defaultPartitionExpirationMs"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
-	if err := d.Set("description", flattenBigQueryDatasetDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenBigQueryDatasetDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
-	if err := d.Set("etag", flattenBigQueryDatasetEtag(res["etag"], d)); err != nil {
+	if err := d.Set("etag", flattenBigQueryDatasetEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
-	if err := d.Set("friendly_name", flattenBigQueryDatasetFriendlyName(res["friendlyName"], d)); err != nil {
+	if err := d.Set("friendly_name", flattenBigQueryDatasetFriendlyName(res["friendlyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
-	if err := d.Set("labels", flattenBigQueryDatasetLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenBigQueryDatasetLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
-	if err := d.Set("last_modified_time", flattenBigQueryDatasetLastModifiedTime(res["lastModifiedTime"], d)); err != nil {
+	if err := d.Set("last_modified_time", flattenBigQueryDatasetLastModifiedTime(res["lastModifiedTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
-	if err := d.Set("location", flattenBigQueryDatasetLocation(res["location"], d)); err != nil {
+	if err := d.Set("location", flattenBigQueryDatasetLocation(res["location"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
-	if err := d.Set("default_encryption_configuration", flattenBigQueryDatasetDefaultEncryptionConfiguration(res["defaultEncryptionConfiguration"], d)); err != nil {
+	if err := d.Set("default_encryption_configuration", flattenBigQueryDatasetDefaultEncryptionConfiguration(res["defaultEncryptionConfiguration"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -592,7 +592,7 @@ func resourceBigQueryDatasetImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBigQueryDatasetAccess(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetAccess(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -605,37 +605,37 @@ func flattenBigQueryDatasetAccess(v interface{}, d *schema.ResourceData) interfa
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"domain":         flattenBigQueryDatasetAccessDomain(original["domain"], d),
-			"group_by_email": flattenBigQueryDatasetAccessGroupByEmail(original["groupByEmail"], d),
-			"role":           flattenBigQueryDatasetAccessRole(original["role"], d),
-			"special_group":  flattenBigQueryDatasetAccessSpecialGroup(original["specialGroup"], d),
-			"user_by_email":  flattenBigQueryDatasetAccessUserByEmail(original["userByEmail"], d),
-			"view":           flattenBigQueryDatasetAccessView(original["view"], d),
+			"domain":         flattenBigQueryDatasetAccessDomain(original["domain"], d, config),
+			"group_by_email": flattenBigQueryDatasetAccessGroupByEmail(original["groupByEmail"], d, config),
+			"role":           flattenBigQueryDatasetAccessRole(original["role"], d, config),
+			"special_group":  flattenBigQueryDatasetAccessSpecialGroup(original["specialGroup"], d, config),
+			"user_by_email":  flattenBigQueryDatasetAccessUserByEmail(original["userByEmail"], d, config),
+			"view":           flattenBigQueryDatasetAccessView(original["view"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenBigQueryDatasetAccessDomain(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetAccessDomain(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigQueryDatasetAccessGroupByEmail(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetAccessGroupByEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigQueryDatasetAccessRole(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetAccessRole(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigQueryDatasetAccessSpecialGroup(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetAccessSpecialGroup(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigQueryDatasetAccessUserByEmail(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetAccessUserByEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigQueryDatasetAccessView(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetAccessView(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -645,26 +645,26 @@ func flattenBigQueryDatasetAccessView(v interface{}, d *schema.ResourceData) int
 	}
 	transformed := make(map[string]interface{})
 	transformed["dataset_id"] =
-		flattenBigQueryDatasetAccessViewDatasetId(original["datasetId"], d)
+		flattenBigQueryDatasetAccessViewDatasetId(original["datasetId"], d, config)
 	transformed["project_id"] =
-		flattenBigQueryDatasetAccessViewProjectId(original["projectId"], d)
+		flattenBigQueryDatasetAccessViewProjectId(original["projectId"], d, config)
 	transformed["table_id"] =
-		flattenBigQueryDatasetAccessViewTableId(original["tableId"], d)
+		flattenBigQueryDatasetAccessViewTableId(original["tableId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryDatasetAccessViewDatasetId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetAccessViewDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigQueryDatasetAccessViewProjectId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetAccessViewProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigQueryDatasetAccessViewTableId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetAccessViewTableId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigQueryDatasetCreationTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetCreationTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -674,7 +674,7 @@ func flattenBigQueryDatasetCreationTime(v interface{}, d *schema.ResourceData) i
 	return v
 }
 
-func flattenBigQueryDatasetDatasetReference(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetDatasetReference(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -684,14 +684,14 @@ func flattenBigQueryDatasetDatasetReference(v interface{}, d *schema.ResourceDat
 	}
 	transformed := make(map[string]interface{})
 	transformed["dataset_id"] =
-		flattenBigQueryDatasetDatasetReferenceDatasetId(original["datasetId"], d)
+		flattenBigQueryDatasetDatasetReferenceDatasetId(original["datasetId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryDatasetDatasetReferenceDatasetId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetDatasetReferenceDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigQueryDatasetDefaultTableExpirationMs(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetDefaultTableExpirationMs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -701,7 +701,7 @@ func flattenBigQueryDatasetDefaultTableExpirationMs(v interface{}, d *schema.Res
 	return v
 }
 
-func flattenBigQueryDatasetDefaultPartitionExpirationMs(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetDefaultPartitionExpirationMs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -711,23 +711,23 @@ func flattenBigQueryDatasetDefaultPartitionExpirationMs(v interface{}, d *schema
 	return v
 }
 
-func flattenBigQueryDatasetDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigQueryDatasetEtag(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetEtag(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigQueryDatasetFriendlyName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetFriendlyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigQueryDatasetLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigQueryDatasetLastModifiedTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetLastModifiedTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -740,14 +740,14 @@ func flattenBigQueryDatasetLastModifiedTime(v interface{}, d *schema.ResourceDat
 // Older Datasets in BigQuery have no Location set in the API response. This may be an issue when importing
 // datasets created before BigQuery was available in multiple zones. We can safely assume that these datasets
 // are in the US, as this was the default at the time.
-func flattenBigQueryDatasetLocation(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return "US"
 	}
 	return v
 }
 
-func flattenBigQueryDatasetDefaultEncryptionConfiguration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetDefaultEncryptionConfiguration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -757,10 +757,10 @@ func flattenBigQueryDatasetDefaultEncryptionConfiguration(v interface{}, d *sche
 	}
 	transformed := make(map[string]interface{})
 	transformed["kms_key_name"] =
-		flattenBigQueryDatasetDefaultEncryptionConfigurationKmsKeyName(original["kmsKeyName"], d)
+		flattenBigQueryDatasetDefaultEncryptionConfigurationKmsKeyName(original["kmsKeyName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryDatasetDefaultEncryptionConfigurationKmsKeyName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigQueryDatasetDefaultEncryptionConfigurationKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

@@ -306,34 +306,34 @@ func resourceTPUNodeRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
 
-	if err := d.Set("name", flattenTPUNodeName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenTPUNodeName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("description", flattenTPUNodeDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenTPUNodeDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("accelerator_type", flattenTPUNodeAcceleratorType(res["acceleratorType"], d)); err != nil {
+	if err := d.Set("accelerator_type", flattenTPUNodeAcceleratorType(res["acceleratorType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("tensorflow_version", flattenTPUNodeTensorflowVersion(res["tensorflowVersion"], d)); err != nil {
+	if err := d.Set("tensorflow_version", flattenTPUNodeTensorflowVersion(res["tensorflowVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("network", flattenTPUNodeNetwork(res["network"], d)); err != nil {
+	if err := d.Set("network", flattenTPUNodeNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("cidr_block", flattenTPUNodeCidrBlock(res["cidrBlock"], d)); err != nil {
+	if err := d.Set("cidr_block", flattenTPUNodeCidrBlock(res["cidrBlock"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("service_account", flattenTPUNodeServiceAccount(res["serviceAccount"], d)); err != nil {
+	if err := d.Set("service_account", flattenTPUNodeServiceAccount(res["serviceAccount"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("scheduling_config", flattenTPUNodeSchedulingConfig(res["schedulingConfig"], d)); err != nil {
+	if err := d.Set("scheduling_config", flattenTPUNodeSchedulingConfig(res["schedulingConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("network_endpoints", flattenTPUNodeNetworkEndpoints(res["networkEndpoints"], d)); err != nil {
+	if err := d.Set("network_endpoints", flattenTPUNodeNetworkEndpoints(res["networkEndpoints"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("labels", flattenTPUNodeLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenTPUNodeLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
 
@@ -438,38 +438,38 @@ func resourceTPUNodeImport(d *schema.ResourceData, meta interface{}) ([]*schema.
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenTPUNodeName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenTPUNodeDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeAcceleratorType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeAcceleratorType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeTensorflowVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeTensorflowVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeNetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeCidrBlock(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeCidrBlock(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeServiceAccount(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeSchedulingConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeSchedulingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -479,14 +479,14 @@ func flattenTPUNodeSchedulingConfig(v interface{}, d *schema.ResourceData) inter
 	}
 	transformed := make(map[string]interface{})
 	transformed["preemptible"] =
-		flattenTPUNodeSchedulingConfigPreemptible(original["preemptible"], d)
+		flattenTPUNodeSchedulingConfigPreemptible(original["preemptible"], d, config)
 	return []interface{}{transformed}
 }
-func flattenTPUNodeSchedulingConfigPreemptible(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeSchedulingConfigPreemptible(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeNetworkEndpoints(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeNetworkEndpoints(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -499,17 +499,17 @@ func flattenTPUNodeNetworkEndpoints(v interface{}, d *schema.ResourceData) inter
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"ip_address": flattenTPUNodeNetworkEndpointsIpAddress(original["ipAddress"], d),
-			"port":       flattenTPUNodeNetworkEndpointsPort(original["port"], d),
+			"ip_address": flattenTPUNodeNetworkEndpointsIpAddress(original["ipAddress"], d, config),
+			"port":       flattenTPUNodeNetworkEndpointsPort(original["port"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenTPUNodeNetworkEndpointsIpAddress(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeNetworkEndpointsIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -519,7 +519,7 @@ func flattenTPUNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData) i
 	return v
 }
 
-func flattenTPUNodeLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

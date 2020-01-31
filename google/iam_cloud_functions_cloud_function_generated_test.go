@@ -146,9 +146,9 @@ resource "google_cloudfunctions_function" "function" {
 }
 
 resource "google_cloudfunctions_function_iam_member" "foo" {
-  project = "${google_cloudfunctions_function.function.project}"
-  region = "${google_cloudfunctions_function.function.region}"
-  cloud_function = "${google_cloudfunctions_function.function.name}"
+  project = google_cloudfunctions_function.function.project
+  region = google_cloudfunctions_function.function.region
+  cloud_function = google_cloudfunctions_function.function.name
   role = "%{role}"
   member = "user:admin@hashicorptest.com"
 }
@@ -188,10 +188,10 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_cloudfunctions_function_iam_policy" "foo" {
-  project = "${google_cloudfunctions_function.function.project}"
-  region = "${google_cloudfunctions_function.function.region}"
-  cloud_function = "${google_cloudfunctions_function.function.name}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = google_cloudfunctions_function.function.project
+  region = google_cloudfunctions_function.function.region
+  cloud_function = google_cloudfunctions_function.function.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -225,10 +225,10 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_cloudfunctions_function_iam_policy" "foo" {
-  project = "${google_cloudfunctions_function.function.project}"
-  region = "${google_cloudfunctions_function.function.region}"
-  cloud_function = "${google_cloudfunctions_function.function.name}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = google_cloudfunctions_function.function.project
+  region = google_cloudfunctions_function.function.region
+  cloud_function = google_cloudfunctions_function.function.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -259,9 +259,9 @@ resource "google_cloudfunctions_function" "function" {
 }
 
 resource "google_cloudfunctions_function_iam_binding" "foo" {
-  project = "${google_cloudfunctions_function.function.project}"
-  region = "${google_cloudfunctions_function.function.region}"
-  cloud_function = "${google_cloudfunctions_function.function.name}"
+  project = google_cloudfunctions_function.function.project
+  region = google_cloudfunctions_function.function.region
+  cloud_function = google_cloudfunctions_function.function.name
   role = "%{role}"
   members = ["user:admin@hashicorptest.com"]
 }
@@ -294,9 +294,9 @@ resource "google_cloudfunctions_function" "function" {
 }
 
 resource "google_cloudfunctions_function_iam_binding" "foo" {
-  project = "${google_cloudfunctions_function.function.project}"
-  region = "${google_cloudfunctions_function.function.region}"
-  cloud_function = "${google_cloudfunctions_function.function.name}"
+  project = google_cloudfunctions_function.function.project
+  region = google_cloudfunctions_function.function.region
+  cloud_function = google_cloudfunctions_function.function.name
   role = "%{role}"
   members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }

@@ -541,31 +541,31 @@ func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 
-	if err := d.Set("name", flattenCloudSchedulerJobName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenCloudSchedulerJobName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
-	if err := d.Set("description", flattenCloudSchedulerJobDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenCloudSchedulerJobDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
-	if err := d.Set("schedule", flattenCloudSchedulerJobSchedule(res["schedule"], d)); err != nil {
+	if err := d.Set("schedule", flattenCloudSchedulerJobSchedule(res["schedule"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
-	if err := d.Set("time_zone", flattenCloudSchedulerJobTimeZone(res["timeZone"], d)); err != nil {
+	if err := d.Set("time_zone", flattenCloudSchedulerJobTimeZone(res["timeZone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
-	if err := d.Set("attempt_deadline", flattenCloudSchedulerJobAttemptDeadline(res["attemptDeadline"], d)); err != nil {
+	if err := d.Set("attempt_deadline", flattenCloudSchedulerJobAttemptDeadline(res["attemptDeadline"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
-	if err := d.Set("retry_config", flattenCloudSchedulerJobRetryConfig(res["retryConfig"], d)); err != nil {
+	if err := d.Set("retry_config", flattenCloudSchedulerJobRetryConfig(res["retryConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
-	if err := d.Set("pubsub_target", flattenCloudSchedulerJobPubsubTarget(res["pubsubTarget"], d)); err != nil {
+	if err := d.Set("pubsub_target", flattenCloudSchedulerJobPubsubTarget(res["pubsubTarget"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
-	if err := d.Set("app_engine_http_target", flattenCloudSchedulerJobAppEngineHttpTarget(res["appEngineHttpTarget"], d)); err != nil {
+	if err := d.Set("app_engine_http_target", flattenCloudSchedulerJobAppEngineHttpTarget(res["appEngineHttpTarget"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
-	if err := d.Set("http_target", flattenCloudSchedulerJobHttpTarget(res["httpTarget"], d)); err != nil {
+	if err := d.Set("http_target", flattenCloudSchedulerJobHttpTarget(res["httpTarget"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 
@@ -618,30 +618,30 @@ func resourceCloudSchedulerJobImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenCloudSchedulerJobName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenCloudSchedulerJobDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobSchedule(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobSchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobTimeZone(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobTimeZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobAttemptDeadline(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobAttemptDeadline(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobRetryConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobRetryConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -651,18 +651,18 @@ func flattenCloudSchedulerJobRetryConfig(v interface{}, d *schema.ResourceData) 
 	}
 	transformed := make(map[string]interface{})
 	transformed["retry_count"] =
-		flattenCloudSchedulerJobRetryConfigRetryCount(original["retryCount"], d)
+		flattenCloudSchedulerJobRetryConfigRetryCount(original["retryCount"], d, config)
 	transformed["max_retry_duration"] =
-		flattenCloudSchedulerJobRetryConfigMaxRetryDuration(original["maxRetryDuration"], d)
+		flattenCloudSchedulerJobRetryConfigMaxRetryDuration(original["maxRetryDuration"], d, config)
 	transformed["min_backoff_duration"] =
-		flattenCloudSchedulerJobRetryConfigMinBackoffDuration(original["minBackoffDuration"], d)
+		flattenCloudSchedulerJobRetryConfigMinBackoffDuration(original["minBackoffDuration"], d, config)
 	transformed["max_backoff_duration"] =
-		flattenCloudSchedulerJobRetryConfigMaxBackoffDuration(original["maxBackoffDuration"], d)
+		flattenCloudSchedulerJobRetryConfigMaxBackoffDuration(original["maxBackoffDuration"], d, config)
 	transformed["max_doublings"] =
-		flattenCloudSchedulerJobRetryConfigMaxDoublings(original["maxDoublings"], d)
+		flattenCloudSchedulerJobRetryConfigMaxDoublings(original["maxDoublings"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudSchedulerJobRetryConfigRetryCount(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobRetryConfigRetryCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -672,19 +672,19 @@ func flattenCloudSchedulerJobRetryConfigRetryCount(v interface{}, d *schema.Reso
 	return v
 }
 
-func flattenCloudSchedulerJobRetryConfigMaxRetryDuration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobRetryConfigMaxRetryDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobRetryConfigMinBackoffDuration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobRetryConfigMinBackoffDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobRetryConfigMaxBackoffDuration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobRetryConfigMaxBackoffDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobRetryConfigMaxDoublings(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobRetryConfigMaxDoublings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -694,7 +694,7 @@ func flattenCloudSchedulerJobRetryConfigMaxDoublings(v interface{}, d *schema.Re
 	return v
 }
 
-func flattenCloudSchedulerJobPubsubTarget(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobPubsubTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -704,26 +704,26 @@ func flattenCloudSchedulerJobPubsubTarget(v interface{}, d *schema.ResourceData)
 	}
 	transformed := make(map[string]interface{})
 	transformed["topic_name"] =
-		flattenCloudSchedulerJobPubsubTargetTopicName(original["topicName"], d)
+		flattenCloudSchedulerJobPubsubTargetTopicName(original["topicName"], d, config)
 	transformed["data"] =
-		flattenCloudSchedulerJobPubsubTargetData(original["data"], d)
+		flattenCloudSchedulerJobPubsubTargetData(original["data"], d, config)
 	transformed["attributes"] =
-		flattenCloudSchedulerJobPubsubTargetAttributes(original["attributes"], d)
+		flattenCloudSchedulerJobPubsubTargetAttributes(original["attributes"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudSchedulerJobPubsubTargetTopicName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobPubsubTargetTopicName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobPubsubTargetData(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobPubsubTargetData(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobPubsubTargetAttributes(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobPubsubTargetAttributes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobAppEngineHttpTarget(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobAppEngineHttpTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -733,23 +733,23 @@ func flattenCloudSchedulerJobAppEngineHttpTarget(v interface{}, d *schema.Resour
 	}
 	transformed := make(map[string]interface{})
 	transformed["http_method"] =
-		flattenCloudSchedulerJobAppEngineHttpTargetHttpMethod(original["httpMethod"], d)
+		flattenCloudSchedulerJobAppEngineHttpTargetHttpMethod(original["httpMethod"], d, config)
 	transformed["app_engine_routing"] =
-		flattenCloudSchedulerJobAppEngineHttpTargetAppEngineRouting(original["appEngineRouting"], d)
+		flattenCloudSchedulerJobAppEngineHttpTargetAppEngineRouting(original["appEngineRouting"], d, config)
 	transformed["relative_uri"] =
-		flattenCloudSchedulerJobAppEngineHttpTargetRelativeUri(original["relativeUri"], d)
+		flattenCloudSchedulerJobAppEngineHttpTargetRelativeUri(original["relativeUri"], d, config)
 	transformed["body"] =
-		flattenCloudSchedulerJobAppEngineHttpTargetBody(original["body"], d)
+		flattenCloudSchedulerJobAppEngineHttpTargetBody(original["body"], d, config)
 	transformed["headers"] =
-		flattenCloudSchedulerJobAppEngineHttpTargetHeaders(original["headers"], d)
+		flattenCloudSchedulerJobAppEngineHttpTargetHeaders(original["headers"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudSchedulerJobAppEngineHttpTargetHttpMethod(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobAppEngineHttpTargetHttpMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
 // An `appEngineRouting` in API response is useless, so we set config values rather than api response to state.
-func flattenCloudSchedulerJobAppEngineHttpTargetAppEngineRouting(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobAppEngineHttpTargetAppEngineRouting(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -767,15 +767,15 @@ func flattenCloudSchedulerJobAppEngineHttpTargetAppEngineRouting(v interface{}, 
 	return []interface{}{transformed}
 }
 
-func flattenCloudSchedulerJobAppEngineHttpTargetRelativeUri(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobAppEngineHttpTargetRelativeUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobAppEngineHttpTargetBody(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobAppEngineHttpTargetBody(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobAppEngineHttpTargetHeaders(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobAppEngineHttpTargetHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	var headers = v.(map[string]interface{})
 	if v, ok := headers["User-Agent"]; ok {
 		if v.(string) == "AppEngine-Google; (+http://code.google.com/appengine)" {
@@ -800,7 +800,7 @@ func flattenCloudSchedulerJobAppEngineHttpTargetHeaders(v interface{}, d *schema
 	return headers
 }
 
-func flattenCloudSchedulerJobHttpTarget(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobHttpTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -810,32 +810,32 @@ func flattenCloudSchedulerJobHttpTarget(v interface{}, d *schema.ResourceData) i
 	}
 	transformed := make(map[string]interface{})
 	transformed["uri"] =
-		flattenCloudSchedulerJobHttpTargetUri(original["uri"], d)
+		flattenCloudSchedulerJobHttpTargetUri(original["uri"], d, config)
 	transformed["http_method"] =
-		flattenCloudSchedulerJobHttpTargetHttpMethod(original["httpMethod"], d)
+		flattenCloudSchedulerJobHttpTargetHttpMethod(original["httpMethod"], d, config)
 	transformed["body"] =
-		flattenCloudSchedulerJobHttpTargetBody(original["body"], d)
+		flattenCloudSchedulerJobHttpTargetBody(original["body"], d, config)
 	transformed["headers"] =
-		flattenCloudSchedulerJobHttpTargetHeaders(original["headers"], d)
+		flattenCloudSchedulerJobHttpTargetHeaders(original["headers"], d, config)
 	transformed["oauth_token"] =
-		flattenCloudSchedulerJobHttpTargetOauthToken(original["oauthToken"], d)
+		flattenCloudSchedulerJobHttpTargetOauthToken(original["oauthToken"], d, config)
 	transformed["oidc_token"] =
-		flattenCloudSchedulerJobHttpTargetOidcToken(original["oidcToken"], d)
+		flattenCloudSchedulerJobHttpTargetOidcToken(original["oidcToken"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudSchedulerJobHttpTargetUri(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobHttpTargetUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobHttpTargetHttpMethod(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobHttpTargetHttpMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobHttpTargetBody(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobHttpTargetBody(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobHttpTargetHeaders(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobHttpTargetHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	var headers = v.(map[string]interface{})
 	if v, ok := headers["User-Agent"]; ok {
 		if v.(string) == "AppEngine-Google; (+http://code.google.com/appengine)" {
@@ -860,7 +860,7 @@ func flattenCloudSchedulerJobHttpTargetHeaders(v interface{}, d *schema.Resource
 	return headers
 }
 
-func flattenCloudSchedulerJobHttpTargetOauthToken(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobHttpTargetOauthToken(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -870,20 +870,20 @@ func flattenCloudSchedulerJobHttpTargetOauthToken(v interface{}, d *schema.Resou
 	}
 	transformed := make(map[string]interface{})
 	transformed["service_account_email"] =
-		flattenCloudSchedulerJobHttpTargetOauthTokenServiceAccountEmail(original["serviceAccountEmail"], d)
+		flattenCloudSchedulerJobHttpTargetOauthTokenServiceAccountEmail(original["serviceAccountEmail"], d, config)
 	transformed["scope"] =
-		flattenCloudSchedulerJobHttpTargetOauthTokenScope(original["scope"], d)
+		flattenCloudSchedulerJobHttpTargetOauthTokenScope(original["scope"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudSchedulerJobHttpTargetOauthTokenServiceAccountEmail(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobHttpTargetOauthTokenServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobHttpTargetOauthTokenScope(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobHttpTargetOauthTokenScope(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobHttpTargetOidcToken(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobHttpTargetOidcToken(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -893,16 +893,16 @@ func flattenCloudSchedulerJobHttpTargetOidcToken(v interface{}, d *schema.Resour
 	}
 	transformed := make(map[string]interface{})
 	transformed["service_account_email"] =
-		flattenCloudSchedulerJobHttpTargetOidcTokenServiceAccountEmail(original["serviceAccountEmail"], d)
+		flattenCloudSchedulerJobHttpTargetOidcTokenServiceAccountEmail(original["serviceAccountEmail"], d, config)
 	transformed["audience"] =
-		flattenCloudSchedulerJobHttpTargetOidcTokenAudience(original["audience"], d)
+		flattenCloudSchedulerJobHttpTargetOidcTokenAudience(original["audience"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudSchedulerJobHttpTargetOidcTokenServiceAccountEmail(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobHttpTargetOidcTokenServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobHttpTargetOidcTokenAudience(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudSchedulerJobHttpTargetOidcTokenAudience(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

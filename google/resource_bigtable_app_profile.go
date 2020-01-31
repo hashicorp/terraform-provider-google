@@ -184,16 +184,16 @@ func resourceBigtableAppProfileRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading AppProfile: %s", err)
 	}
 
-	if err := d.Set("name", flattenBigtableAppProfileName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenBigtableAppProfileName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AppProfile: %s", err)
 	}
-	if err := d.Set("description", flattenBigtableAppProfileDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenBigtableAppProfileDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AppProfile: %s", err)
 	}
-	if err := d.Set("multi_cluster_routing_use_any", flattenBigtableAppProfileMultiClusterRoutingUseAny(res["multiClusterRoutingUseAny"], d)); err != nil {
+	if err := d.Set("multi_cluster_routing_use_any", flattenBigtableAppProfileMultiClusterRoutingUseAny(res["multiClusterRoutingUseAny"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AppProfile: %s", err)
 	}
-	if err := d.Set("single_cluster_routing", flattenBigtableAppProfileSingleClusterRouting(res["singleClusterRouting"], d)); err != nil {
+	if err := d.Set("single_cluster_routing", flattenBigtableAppProfileSingleClusterRouting(res["singleClusterRouting"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AppProfile: %s", err)
 	}
 
@@ -287,19 +287,19 @@ func resourceBigtableAppProfileImport(d *schema.ResourceData, meta interface{}) 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBigtableAppProfileName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigtableAppProfileName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigtableAppProfileDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigtableAppProfileDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigtableAppProfileMultiClusterRoutingUseAny(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigtableAppProfileMultiClusterRoutingUseAny(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v != nil
 }
 
-func flattenBigtableAppProfileSingleClusterRouting(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigtableAppProfileSingleClusterRouting(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -309,16 +309,16 @@ func flattenBigtableAppProfileSingleClusterRouting(v interface{}, d *schema.Reso
 	}
 	transformed := make(map[string]interface{})
 	transformed["cluster_id"] =
-		flattenBigtableAppProfileSingleClusterRoutingClusterId(original["clusterId"], d)
+		flattenBigtableAppProfileSingleClusterRoutingClusterId(original["clusterId"], d, config)
 	transformed["allow_transactional_writes"] =
-		flattenBigtableAppProfileSingleClusterRoutingAllowTransactionalWrites(original["allowTransactionalWrites"], d)
+		flattenBigtableAppProfileSingleClusterRoutingAllowTransactionalWrites(original["allowTransactionalWrites"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigtableAppProfileSingleClusterRoutingClusterId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigtableAppProfileSingleClusterRoutingClusterId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBigtableAppProfileSingleClusterRoutingAllowTransactionalWrites(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBigtableAppProfileSingleClusterRoutingAllowTransactionalWrites(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

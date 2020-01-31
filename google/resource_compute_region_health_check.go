@@ -651,46 +651,46 @@ func resourceComputeRegionHealthCheckRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
 
-	if err := d.Set("check_interval_sec", flattenComputeRegionHealthCheckCheckIntervalSec(res["checkIntervalSec"], d)); err != nil {
+	if err := d.Set("check_interval_sec", flattenComputeRegionHealthCheckCheckIntervalSec(res["checkIntervalSec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err := d.Set("creation_timestamp", flattenComputeRegionHealthCheckCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeRegionHealthCheckCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err := d.Set("description", flattenComputeRegionHealthCheckDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeRegionHealthCheckDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err := d.Set("healthy_threshold", flattenComputeRegionHealthCheckHealthyThreshold(res["healthyThreshold"], d)); err != nil {
+	if err := d.Set("healthy_threshold", flattenComputeRegionHealthCheckHealthyThreshold(res["healthyThreshold"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err := d.Set("name", flattenComputeRegionHealthCheckName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeRegionHealthCheckName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err := d.Set("unhealthy_threshold", flattenComputeRegionHealthCheckUnhealthyThreshold(res["unhealthyThreshold"], d)); err != nil {
+	if err := d.Set("unhealthy_threshold", flattenComputeRegionHealthCheckUnhealthyThreshold(res["unhealthyThreshold"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err := d.Set("timeout_sec", flattenComputeRegionHealthCheckTimeoutSec(res["timeoutSec"], d)); err != nil {
+	if err := d.Set("timeout_sec", flattenComputeRegionHealthCheckTimeoutSec(res["timeoutSec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err := d.Set("type", flattenComputeRegionHealthCheckType(res["type"], d)); err != nil {
+	if err := d.Set("type", flattenComputeRegionHealthCheckType(res["type"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err := d.Set("http_health_check", flattenComputeRegionHealthCheckHttpHealthCheck(res["httpHealthCheck"], d)); err != nil {
+	if err := d.Set("http_health_check", flattenComputeRegionHealthCheckHttpHealthCheck(res["httpHealthCheck"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err := d.Set("https_health_check", flattenComputeRegionHealthCheckHttpsHealthCheck(res["httpsHealthCheck"], d)); err != nil {
+	if err := d.Set("https_health_check", flattenComputeRegionHealthCheckHttpsHealthCheck(res["httpsHealthCheck"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err := d.Set("tcp_health_check", flattenComputeRegionHealthCheckTcpHealthCheck(res["tcpHealthCheck"], d)); err != nil {
+	if err := d.Set("tcp_health_check", flattenComputeRegionHealthCheckTcpHealthCheck(res["tcpHealthCheck"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err := d.Set("ssl_health_check", flattenComputeRegionHealthCheckSslHealthCheck(res["sslHealthCheck"], d)); err != nil {
+	if err := d.Set("ssl_health_check", flattenComputeRegionHealthCheckSslHealthCheck(res["sslHealthCheck"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err := d.Set("http2_health_check", flattenComputeRegionHealthCheckHttp2HealthCheck(res["http2HealthCheck"], d)); err != nil {
+	if err := d.Set("http2_health_check", flattenComputeRegionHealthCheckHttp2HealthCheck(res["http2HealthCheck"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err := d.Set("region", flattenComputeRegionHealthCheckRegion(res["region"], d)); err != nil {
+	if err := d.Set("region", flattenComputeRegionHealthCheckRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -864,7 +864,7 @@ func resourceComputeRegionHealthCheckImport(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeRegionHealthCheckCheckIntervalSec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckCheckIntervalSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -874,15 +874,15 @@ func flattenComputeRegionHealthCheckCheckIntervalSec(v interface{}, d *schema.Re
 	return v
 }
 
-func flattenComputeRegionHealthCheckCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHealthyThreshold(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -892,11 +892,11 @@ func flattenComputeRegionHealthCheckHealthyThreshold(v interface{}, d *schema.Re
 	return v
 }
 
-func flattenComputeRegionHealthCheckName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckUnhealthyThreshold(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckUnhealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -906,7 +906,7 @@ func flattenComputeRegionHealthCheckUnhealthyThreshold(v interface{}, d *schema.
 	return v
 }
 
-func flattenComputeRegionHealthCheckTimeoutSec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -916,11 +916,11 @@ func flattenComputeRegionHealthCheckTimeoutSec(v interface{}, d *schema.Resource
 	return v
 }
 
-func flattenComputeRegionHealthCheckType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheck(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -930,34 +930,34 @@ func flattenComputeRegionHealthCheckHttpHealthCheck(v interface{}, d *schema.Res
 	}
 	transformed := make(map[string]interface{})
 	transformed["host"] =
-		flattenComputeRegionHealthCheckHttpHealthCheckHost(original["host"], d)
+		flattenComputeRegionHealthCheckHttpHealthCheckHost(original["host"], d, config)
 	transformed["request_path"] =
-		flattenComputeRegionHealthCheckHttpHealthCheckRequestPath(original["requestPath"], d)
+		flattenComputeRegionHealthCheckHttpHealthCheckRequestPath(original["requestPath"], d, config)
 	transformed["response"] =
-		flattenComputeRegionHealthCheckHttpHealthCheckResponse(original["response"], d)
+		flattenComputeRegionHealthCheckHttpHealthCheckResponse(original["response"], d, config)
 	transformed["port"] =
-		flattenComputeRegionHealthCheckHttpHealthCheckPort(original["port"], d)
+		flattenComputeRegionHealthCheckHttpHealthCheckPort(original["port"], d, config)
 	transformed["port_name"] =
-		flattenComputeRegionHealthCheckHttpHealthCheckPortName(original["portName"], d)
+		flattenComputeRegionHealthCheckHttpHealthCheckPortName(original["portName"], d, config)
 	transformed["proxy_header"] =
-		flattenComputeRegionHealthCheckHttpHealthCheckProxyHeader(original["proxyHeader"], d)
+		flattenComputeRegionHealthCheckHttpHealthCheckProxyHeader(original["proxyHeader"], d, config)
 	transformed["port_specification"] =
-		flattenComputeRegionHealthCheckHttpHealthCheckPortSpecification(original["portSpecification"], d)
+		flattenComputeRegionHealthCheckHttpHealthCheckPortSpecification(original["portSpecification"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRegionHealthCheckHttpHealthCheckHost(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheckRequestPath(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheckResponse(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheckPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -967,19 +967,19 @@ func flattenComputeRegionHealthCheckHttpHealthCheckPort(v interface{}, d *schema
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheckPortName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckPortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheckProxyHeader(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheckPortSpecification(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheck(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -989,34 +989,34 @@ func flattenComputeRegionHealthCheckHttpsHealthCheck(v interface{}, d *schema.Re
 	}
 	transformed := make(map[string]interface{})
 	transformed["host"] =
-		flattenComputeRegionHealthCheckHttpsHealthCheckHost(original["host"], d)
+		flattenComputeRegionHealthCheckHttpsHealthCheckHost(original["host"], d, config)
 	transformed["request_path"] =
-		flattenComputeRegionHealthCheckHttpsHealthCheckRequestPath(original["requestPath"], d)
+		flattenComputeRegionHealthCheckHttpsHealthCheckRequestPath(original["requestPath"], d, config)
 	transformed["response"] =
-		flattenComputeRegionHealthCheckHttpsHealthCheckResponse(original["response"], d)
+		flattenComputeRegionHealthCheckHttpsHealthCheckResponse(original["response"], d, config)
 	transformed["port"] =
-		flattenComputeRegionHealthCheckHttpsHealthCheckPort(original["port"], d)
+		flattenComputeRegionHealthCheckHttpsHealthCheckPort(original["port"], d, config)
 	transformed["port_name"] =
-		flattenComputeRegionHealthCheckHttpsHealthCheckPortName(original["portName"], d)
+		flattenComputeRegionHealthCheckHttpsHealthCheckPortName(original["portName"], d, config)
 	transformed["proxy_header"] =
-		flattenComputeRegionHealthCheckHttpsHealthCheckProxyHeader(original["proxyHeader"], d)
+		flattenComputeRegionHealthCheckHttpsHealthCheckProxyHeader(original["proxyHeader"], d, config)
 	transformed["port_specification"] =
-		flattenComputeRegionHealthCheckHttpsHealthCheckPortSpecification(original["portSpecification"], d)
+		flattenComputeRegionHealthCheckHttpsHealthCheckPortSpecification(original["portSpecification"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRegionHealthCheckHttpsHealthCheckHost(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheckRequestPath(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheckResponse(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheckPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1026,19 +1026,19 @@ func flattenComputeRegionHealthCheckHttpsHealthCheckPort(v interface{}, d *schem
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheckPortName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckPortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheckProxyHeader(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheckPortSpecification(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckTcpHealthCheck(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1048,28 +1048,28 @@ func flattenComputeRegionHealthCheckTcpHealthCheck(v interface{}, d *schema.Reso
 	}
 	transformed := make(map[string]interface{})
 	transformed["request"] =
-		flattenComputeRegionHealthCheckTcpHealthCheckRequest(original["request"], d)
+		flattenComputeRegionHealthCheckTcpHealthCheckRequest(original["request"], d, config)
 	transformed["response"] =
-		flattenComputeRegionHealthCheckTcpHealthCheckResponse(original["response"], d)
+		flattenComputeRegionHealthCheckTcpHealthCheckResponse(original["response"], d, config)
 	transformed["port"] =
-		flattenComputeRegionHealthCheckTcpHealthCheckPort(original["port"], d)
+		flattenComputeRegionHealthCheckTcpHealthCheckPort(original["port"], d, config)
 	transformed["port_name"] =
-		flattenComputeRegionHealthCheckTcpHealthCheckPortName(original["portName"], d)
+		flattenComputeRegionHealthCheckTcpHealthCheckPortName(original["portName"], d, config)
 	transformed["proxy_header"] =
-		flattenComputeRegionHealthCheckTcpHealthCheckProxyHeader(original["proxyHeader"], d)
+		flattenComputeRegionHealthCheckTcpHealthCheckProxyHeader(original["proxyHeader"], d, config)
 	transformed["port_specification"] =
-		flattenComputeRegionHealthCheckTcpHealthCheckPortSpecification(original["portSpecification"], d)
+		flattenComputeRegionHealthCheckTcpHealthCheckPortSpecification(original["portSpecification"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRegionHealthCheckTcpHealthCheckRequest(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheckRequest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckTcpHealthCheckResponse(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckTcpHealthCheckPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1079,19 +1079,19 @@ func flattenComputeRegionHealthCheckTcpHealthCheckPort(v interface{}, d *schema.
 	return v
 }
 
-func flattenComputeRegionHealthCheckTcpHealthCheckPortName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheckPortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckTcpHealthCheckProxyHeader(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckTcpHealthCheckPortSpecification(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckSslHealthCheck(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1101,28 +1101,28 @@ func flattenComputeRegionHealthCheckSslHealthCheck(v interface{}, d *schema.Reso
 	}
 	transformed := make(map[string]interface{})
 	transformed["request"] =
-		flattenComputeRegionHealthCheckSslHealthCheckRequest(original["request"], d)
+		flattenComputeRegionHealthCheckSslHealthCheckRequest(original["request"], d, config)
 	transformed["response"] =
-		flattenComputeRegionHealthCheckSslHealthCheckResponse(original["response"], d)
+		flattenComputeRegionHealthCheckSslHealthCheckResponse(original["response"], d, config)
 	transformed["port"] =
-		flattenComputeRegionHealthCheckSslHealthCheckPort(original["port"], d)
+		flattenComputeRegionHealthCheckSslHealthCheckPort(original["port"], d, config)
 	transformed["port_name"] =
-		flattenComputeRegionHealthCheckSslHealthCheckPortName(original["portName"], d)
+		flattenComputeRegionHealthCheckSslHealthCheckPortName(original["portName"], d, config)
 	transformed["proxy_header"] =
-		flattenComputeRegionHealthCheckSslHealthCheckProxyHeader(original["proxyHeader"], d)
+		flattenComputeRegionHealthCheckSslHealthCheckProxyHeader(original["proxyHeader"], d, config)
 	transformed["port_specification"] =
-		flattenComputeRegionHealthCheckSslHealthCheckPortSpecification(original["portSpecification"], d)
+		flattenComputeRegionHealthCheckSslHealthCheckPortSpecification(original["portSpecification"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRegionHealthCheckSslHealthCheckRequest(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheckRequest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckSslHealthCheckResponse(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckSslHealthCheckPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1132,19 +1132,19 @@ func flattenComputeRegionHealthCheckSslHealthCheckPort(v interface{}, d *schema.
 	return v
 }
 
-func flattenComputeRegionHealthCheckSslHealthCheckPortName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheckPortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckSslHealthCheckProxyHeader(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckSslHealthCheckPortSpecification(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheck(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1154,34 +1154,34 @@ func flattenComputeRegionHealthCheckHttp2HealthCheck(v interface{}, d *schema.Re
 	}
 	transformed := make(map[string]interface{})
 	transformed["host"] =
-		flattenComputeRegionHealthCheckHttp2HealthCheckHost(original["host"], d)
+		flattenComputeRegionHealthCheckHttp2HealthCheckHost(original["host"], d, config)
 	transformed["request_path"] =
-		flattenComputeRegionHealthCheckHttp2HealthCheckRequestPath(original["requestPath"], d)
+		flattenComputeRegionHealthCheckHttp2HealthCheckRequestPath(original["requestPath"], d, config)
 	transformed["response"] =
-		flattenComputeRegionHealthCheckHttp2HealthCheckResponse(original["response"], d)
+		flattenComputeRegionHealthCheckHttp2HealthCheckResponse(original["response"], d, config)
 	transformed["port"] =
-		flattenComputeRegionHealthCheckHttp2HealthCheckPort(original["port"], d)
+		flattenComputeRegionHealthCheckHttp2HealthCheckPort(original["port"], d, config)
 	transformed["port_name"] =
-		flattenComputeRegionHealthCheckHttp2HealthCheckPortName(original["portName"], d)
+		flattenComputeRegionHealthCheckHttp2HealthCheckPortName(original["portName"], d, config)
 	transformed["proxy_header"] =
-		flattenComputeRegionHealthCheckHttp2HealthCheckProxyHeader(original["proxyHeader"], d)
+		flattenComputeRegionHealthCheckHttp2HealthCheckProxyHeader(original["proxyHeader"], d, config)
 	transformed["port_specification"] =
-		flattenComputeRegionHealthCheckHttp2HealthCheckPortSpecification(original["portSpecification"], d)
+		flattenComputeRegionHealthCheckHttp2HealthCheckPortSpecification(original["portSpecification"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRegionHealthCheckHttp2HealthCheckHost(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheckRequestPath(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheckResponse(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheckPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1191,19 +1191,19 @@ func flattenComputeRegionHealthCheckHttp2HealthCheckPort(v interface{}, d *schem
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheckPortName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckPortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheckProxyHeader(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheckPortSpecification(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckRegion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRegionHealthCheckRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

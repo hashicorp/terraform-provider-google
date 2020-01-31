@@ -46,10 +46,10 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_cloud_run_service_iam_policy" "editor" {
-  location = "${google_cloud_run_service.default.location}"
-  project = "${google_cloud_run_service.default.project}"
-  service = "${google_cloud_run_service.default.name}"
-  policy_data = "${data.google_iam_policy.admin.policy_data}"
+  location = google_cloud_run_service.default.location
+  project = google_cloud_run_service.default.project
+  service = google_cloud_run_service.default.name
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -57,9 +57,9 @@ resource "google_cloud_run_service_iam_policy" "editor" {
 
 ```hcl
 resource "google_cloud_run_service_iam_binding" "editor" {
-  location = "${google_cloud_run_service.default.location}"
-  project = "${google_cloud_run_service.default.project}"
-  service = "${google_cloud_run_service.default.name}"
+  location = google_cloud_run_service.default.location
+  project = google_cloud_run_service.default.project
+  service = google_cloud_run_service.default.name
   role = "roles/viewer"
   members = [
     "user:jane@example.com",
@@ -71,9 +71,9 @@ resource "google_cloud_run_service_iam_binding" "editor" {
 
 ```hcl
 resource "google_cloud_run_service_iam_member" "editor" {
-  location = "${google_cloud_run_service.default.location}"
-  project = "${google_cloud_run_service.default.project}"
-  service = "${google_cloud_run_service.default.name}"
+  location = google_cloud_run_service.default.location
+  project = google_cloud_run_service.default.project
+  service = google_cloud_run_service.default.name
   role = "roles/viewer"
   member = "user:jane@example.com"
 }

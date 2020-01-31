@@ -298,22 +298,22 @@ func resourceDeploymentManagerDeploymentRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
 
-	if err := d.Set("name", flattenDeploymentManagerDeploymentName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenDeploymentManagerDeploymentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
-	if err := d.Set("description", flattenDeploymentManagerDeploymentDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenDeploymentManagerDeploymentDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
-	if err := d.Set("labels", flattenDeploymentManagerDeploymentLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenDeploymentManagerDeploymentLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
-	if err := d.Set("deployment_id", flattenDeploymentManagerDeploymentDeploymentId(res["id"], d)); err != nil {
+	if err := d.Set("deployment_id", flattenDeploymentManagerDeploymentDeploymentId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
-	if err := d.Set("manifest", flattenDeploymentManagerDeploymentManifest(res["manifest"], d)); err != nil {
+	if err := d.Set("manifest", flattenDeploymentManagerDeploymentManifest(res["manifest"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
-	if err := d.Set("self_link", flattenDeploymentManagerDeploymentSelfLink(res["selfLink"], d)); err != nil {
+	if err := d.Set("self_link", flattenDeploymentManagerDeploymentSelfLink(res["selfLink"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
 
@@ -474,15 +474,15 @@ func resourceDeploymentManagerDeploymentImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDeploymentManagerDeploymentName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -495,29 +495,29 @@ func flattenDeploymentManagerDeploymentLabels(v interface{}, d *schema.ResourceD
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"key":   flattenDeploymentManagerDeploymentLabelsKey(original["key"], d),
-			"value": flattenDeploymentManagerDeploymentLabelsValue(original["value"], d),
+			"key":   flattenDeploymentManagerDeploymentLabelsKey(original["key"], d, config),
+			"value": flattenDeploymentManagerDeploymentLabelsValue(original["value"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenDeploymentManagerDeploymentLabelsKey(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentLabelsKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentLabelsValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentLabelsValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentDeploymentId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentDeploymentId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentManifest(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentManifest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentSelfLink(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentSelfLink(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

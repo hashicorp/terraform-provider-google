@@ -148,7 +148,7 @@ func resourceKMSKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading KeyRing: %s", err)
 	}
 
-	if err := d.Set("name", flattenKMSKeyRingName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenKMSKeyRingName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading KeyRing: %s", err)
 	}
 
@@ -184,7 +184,7 @@ func resourceKMSKeyRingImport(d *schema.ResourceData, meta interface{}) ([]*sche
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenKMSKeyRingName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSKeyRingName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

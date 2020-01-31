@@ -254,28 +254,28 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeSslPolicyCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeSslPolicyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
-	if err := d.Set("description", flattenComputeSslPolicyDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeSslPolicyDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
-	if err := d.Set("name", flattenComputeSslPolicyName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeSslPolicyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
-	if err := d.Set("profile", flattenComputeSslPolicyProfile(res["profile"], d)); err != nil {
+	if err := d.Set("profile", flattenComputeSslPolicyProfile(res["profile"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
-	if err := d.Set("min_tls_version", flattenComputeSslPolicyMinTlsVersion(res["minTlsVersion"], d)); err != nil {
+	if err := d.Set("min_tls_version", flattenComputeSslPolicyMinTlsVersion(res["minTlsVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
-	if err := d.Set("enabled_features", flattenComputeSslPolicyEnabledFeatures(res["enabledFeatures"], d)); err != nil {
+	if err := d.Set("enabled_features", flattenComputeSslPolicyEnabledFeatures(res["enabledFeatures"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
-	if err := d.Set("custom_features", flattenComputeSslPolicyCustomFeatures(res["customFeatures"], d)); err != nil {
+	if err := d.Set("custom_features", flattenComputeSslPolicyCustomFeatures(res["customFeatures"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
-	if err := d.Set("fingerprint", flattenComputeSslPolicyFingerprint(res["fingerprint"], d)); err != nil {
+	if err := d.Set("fingerprint", flattenComputeSslPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -394,41 +394,41 @@ func resourceComputeSslPolicyImport(d *schema.ResourceData, meta interface{}) ([
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeSslPolicyCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSslPolicyCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeSslPolicyDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSslPolicyDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeSslPolicyName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSslPolicyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeSslPolicyProfile(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSslPolicyProfile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeSslPolicyMinTlsVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSslPolicyMinTlsVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeSslPolicyEnabledFeatures(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSslPolicyEnabledFeatures(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeSslPolicyCustomFeatures(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSslPolicyCustomFeatures(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeSslPolicyFingerprint(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSslPolicyFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

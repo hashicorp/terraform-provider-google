@@ -317,34 +317,34 @@ func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeRouterBgpPeerName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeRouterBgpPeerName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("interface", flattenComputeRouterBgpPeerInterface(res["interfaceName"], d)); err != nil {
+	if err := d.Set("interface", flattenComputeRouterBgpPeerInterface(res["interfaceName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("ip_address", flattenComputeRouterBgpPeerIpAddress(res["ipAddress"], d)); err != nil {
+	if err := d.Set("ip_address", flattenComputeRouterBgpPeerIpAddress(res["ipAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("peer_ip_address", flattenComputeRouterBgpPeerPeerIpAddress(res["peerIpAddress"], d)); err != nil {
+	if err := d.Set("peer_ip_address", flattenComputeRouterBgpPeerPeerIpAddress(res["peerIpAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("peer_asn", flattenComputeRouterBgpPeerPeerAsn(res["peerAsn"], d)); err != nil {
+	if err := d.Set("peer_asn", flattenComputeRouterBgpPeerPeerAsn(res["peerAsn"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("advertised_route_priority", flattenComputeRouterBgpPeerAdvertisedRoutePriority(res["advertisedRoutePriority"], d)); err != nil {
+	if err := d.Set("advertised_route_priority", flattenComputeRouterBgpPeerAdvertisedRoutePriority(res["advertisedRoutePriority"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("advertise_mode", flattenComputeRouterBgpPeerAdvertiseMode(res["advertiseMode"], d)); err != nil {
+	if err := d.Set("advertise_mode", flattenComputeRouterBgpPeerAdvertiseMode(res["advertiseMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("advertised_groups", flattenComputeRouterBgpPeerAdvertisedGroups(res["advertisedGroups"], d)); err != nil {
+	if err := d.Set("advertised_groups", flattenComputeRouterBgpPeerAdvertisedGroups(res["advertisedGroups"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("advertised_ip_ranges", flattenComputeRouterBgpPeerAdvertisedIpRanges(res["advertisedIpRanges"], d)); err != nil {
+	if err := d.Set("advertised_ip_ranges", flattenComputeRouterBgpPeerAdvertisedIpRanges(res["advertisedIpRanges"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("management_type", flattenComputeRouterBgpPeerManagementType(res["managementType"], d)); err != nil {
+	if err := d.Set("management_type", flattenComputeRouterBgpPeerManagementType(res["managementType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
 
@@ -474,23 +474,23 @@ func resourceComputeRouterBgpPeerImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeRouterBgpPeerName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpPeerName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerInterface(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpPeerInterface(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerIpAddress(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpPeerIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerPeerIpAddress(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpPeerPeerIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerPeerAsn(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpPeerPeerAsn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -500,7 +500,7 @@ func flattenComputeRouterBgpPeerPeerAsn(v interface{}, d *schema.ResourceData) i
 	return v
 }
 
-func flattenComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -510,15 +510,15 @@ func flattenComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d *schema
 	return v
 }
 
-func flattenComputeRouterBgpPeerAdvertiseMode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpPeerAdvertiseMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerAdvertisedGroups(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpPeerAdvertisedGroups(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -531,21 +531,21 @@ func flattenComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d *schema.Reso
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"range":       flattenComputeRouterBgpPeerAdvertisedIpRangesRange(original["range"], d),
-			"description": flattenComputeRouterBgpPeerAdvertisedIpRangesDescription(original["description"], d),
+			"range":       flattenComputeRouterBgpPeerAdvertisedIpRangesRange(original["range"], d, config),
+			"description": flattenComputeRouterBgpPeerAdvertisedIpRangesDescription(original["description"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeRouterBgpPeerAdvertisedIpRangesRange(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpPeerAdvertisedIpRangesRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpPeerAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerManagementType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpPeerManagementType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -653,7 +653,7 @@ func resourceComputeRouterBgpPeerFindNestedObjectInList(d *schema.ResourceData, 
 		}
 		item := itemRaw.(map[string]interface{})
 
-		itemName := flattenComputeRouterBgpPeerName(item["name"], d)
+		itemName := flattenComputeRouterBgpPeerName(item["name"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemName, expectedName) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedName)
 			continue

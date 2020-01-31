@@ -215,16 +215,16 @@ func resourceKMSCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	if err := d.Set("labels", flattenKMSCryptoKeyLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenKMSCryptoKeyLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
-	if err := d.Set("purpose", flattenKMSCryptoKeyPurpose(res["purpose"], d)); err != nil {
+	if err := d.Set("purpose", flattenKMSCryptoKeyPurpose(res["purpose"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
-	if err := d.Set("rotation_period", flattenKMSCryptoKeyRotationPeriod(res["rotationPeriod"], d)); err != nil {
+	if err := d.Set("rotation_period", flattenKMSCryptoKeyRotationPeriod(res["rotationPeriod"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
-	if err := d.Set("version_template", flattenKMSCryptoKeyVersionTemplate(res["versionTemplate"], d)); err != nil {
+	if err := d.Set("version_template", flattenKMSCryptoKeyVersionTemplate(res["versionTemplate"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
 
@@ -342,19 +342,19 @@ func resourceKMSCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenKMSCryptoKeyLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSCryptoKeyLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyPurpose(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSCryptoKeyPurpose(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyRotationPeriod(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSCryptoKeyRotationPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyVersionTemplate(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSCryptoKeyVersionTemplate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -364,16 +364,16 @@ func flattenKMSCryptoKeyVersionTemplate(v interface{}, d *schema.ResourceData) i
 	}
 	transformed := make(map[string]interface{})
 	transformed["algorithm"] =
-		flattenKMSCryptoKeyVersionTemplateAlgorithm(original["algorithm"], d)
+		flattenKMSCryptoKeyVersionTemplateAlgorithm(original["algorithm"], d, config)
 	transformed["protection_level"] =
-		flattenKMSCryptoKeyVersionTemplateProtectionLevel(original["protectionLevel"], d)
+		flattenKMSCryptoKeyVersionTemplateProtectionLevel(original["protectionLevel"], d, config)
 	return []interface{}{transformed}
 }
-func flattenKMSCryptoKeyVersionTemplateAlgorithm(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSCryptoKeyVersionTemplateAlgorithm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyVersionTemplateProtectionLevel(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSCryptoKeyVersionTemplateProtectionLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

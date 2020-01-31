@@ -183,31 +183,31 @@ func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interfa
 		return handleNotFoundError(err, d, fmt.Sprintf("StorageObjectAccessControl %q", d.Id()))
 	}
 
-	if err := d.Set("bucket", flattenStorageObjectAccessControlBucket(res["bucket"], d)); err != nil {
+	if err := d.Set("bucket", flattenStorageObjectAccessControlBucket(res["bucket"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("domain", flattenStorageObjectAccessControlDomain(res["domain"], d)); err != nil {
+	if err := d.Set("domain", flattenStorageObjectAccessControlDomain(res["domain"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("email", flattenStorageObjectAccessControlEmail(res["email"], d)); err != nil {
+	if err := d.Set("email", flattenStorageObjectAccessControlEmail(res["email"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("entity", flattenStorageObjectAccessControlEntity(res["entity"], d)); err != nil {
+	if err := d.Set("entity", flattenStorageObjectAccessControlEntity(res["entity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("entity_id", flattenStorageObjectAccessControlEntityId(res["entityId"], d)); err != nil {
+	if err := d.Set("entity_id", flattenStorageObjectAccessControlEntityId(res["entityId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("generation", flattenStorageObjectAccessControlGeneration(res["generation"], d)); err != nil {
+	if err := d.Set("generation", flattenStorageObjectAccessControlGeneration(res["generation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("object", flattenStorageObjectAccessControlObject(res["object"], d)); err != nil {
+	if err := d.Set("object", flattenStorageObjectAccessControlObject(res["object"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("project_team", flattenStorageObjectAccessControlProjectTeam(res["projectTeam"], d)); err != nil {
+	if err := d.Set("project_team", flattenStorageObjectAccessControlProjectTeam(res["projectTeam"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("role", flattenStorageObjectAccessControlRole(res["role"], d)); err != nil {
+	if err := d.Set("role", flattenStorageObjectAccessControlRole(res["role"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
 
@@ -296,30 +296,30 @@ func resourceStorageObjectAccessControlImport(d *schema.ResourceData, meta inter
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenStorageObjectAccessControlBucket(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlBucket(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenStorageObjectAccessControlDomain(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlDomain(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlEmail(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlEntity(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlEntity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlEntityId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlEntityId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlGeneration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlGeneration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -329,11 +329,11 @@ func flattenStorageObjectAccessControlGeneration(v interface{}, d *schema.Resour
 	return v
 }
 
-func flattenStorageObjectAccessControlObject(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlObject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlProjectTeam(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlProjectTeam(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -343,20 +343,20 @@ func flattenStorageObjectAccessControlProjectTeam(v interface{}, d *schema.Resou
 	}
 	transformed := make(map[string]interface{})
 	transformed["project_number"] =
-		flattenStorageObjectAccessControlProjectTeamProjectNumber(original["projectNumber"], d)
+		flattenStorageObjectAccessControlProjectTeamProjectNumber(original["projectNumber"], d, config)
 	transformed["team"] =
-		flattenStorageObjectAccessControlProjectTeamTeam(original["team"], d)
+		flattenStorageObjectAccessControlProjectTeamTeam(original["team"], d, config)
 	return []interface{}{transformed}
 }
-func flattenStorageObjectAccessControlProjectTeamProjectNumber(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlProjectTeamProjectNumber(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlProjectTeamTeam(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlProjectTeamTeam(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlRole(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlRole(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

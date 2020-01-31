@@ -148,19 +148,19 @@ func resourceStorageBucketAccessControlRead(d *schema.ResourceData, meta interfa
 		return handleNotFoundError(err, d, fmt.Sprintf("StorageBucketAccessControl %q", d.Id()))
 	}
 
-	if err := d.Set("bucket", flattenStorageBucketAccessControlBucket(res["bucket"], d)); err != nil {
+	if err := d.Set("bucket", flattenStorageBucketAccessControlBucket(res["bucket"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
 	}
-	if err := d.Set("domain", flattenStorageBucketAccessControlDomain(res["domain"], d)); err != nil {
+	if err := d.Set("domain", flattenStorageBucketAccessControlDomain(res["domain"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
 	}
-	if err := d.Set("email", flattenStorageBucketAccessControlEmail(res["email"], d)); err != nil {
+	if err := d.Set("email", flattenStorageBucketAccessControlEmail(res["email"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
 	}
-	if err := d.Set("entity", flattenStorageBucketAccessControlEntity(res["entity"], d)); err != nil {
+	if err := d.Set("entity", flattenStorageBucketAccessControlEntity(res["entity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
 	}
-	if err := d.Set("role", flattenStorageBucketAccessControlRole(res["role"], d)); err != nil {
+	if err := d.Set("role", flattenStorageBucketAccessControlRole(res["role"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
 	}
 
@@ -243,26 +243,26 @@ func resourceStorageBucketAccessControlImport(d *schema.ResourceData, meta inter
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenStorageBucketAccessControlBucket(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageBucketAccessControlBucket(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenStorageBucketAccessControlDomain(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageBucketAccessControlDomain(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageBucketAccessControlEmail(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageBucketAccessControlEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageBucketAccessControlEntity(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageBucketAccessControlEntity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageBucketAccessControlRole(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageBucketAccessControlRole(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

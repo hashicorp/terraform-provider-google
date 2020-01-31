@@ -157,16 +157,16 @@ func resourceAppEngineFirewallRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
 
-	if err := d.Set("description", flattenAppEngineFirewallRuleDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenAppEngineFirewallRuleDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
-	if err := d.Set("source_range", flattenAppEngineFirewallRuleSourceRange(res["sourceRange"], d)); err != nil {
+	if err := d.Set("source_range", flattenAppEngineFirewallRuleSourceRange(res["sourceRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
-	if err := d.Set("action", flattenAppEngineFirewallRuleAction(res["action"], d)); err != nil {
+	if err := d.Set("action", flattenAppEngineFirewallRuleAction(res["action"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
-	if err := d.Set("priority", flattenAppEngineFirewallRulePriority(res["priority"], d)); err != nil {
+	if err := d.Set("priority", flattenAppEngineFirewallRulePriority(res["priority"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
 
@@ -290,19 +290,19 @@ func resourceAppEngineFirewallRuleImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAppEngineFirewallRuleDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineFirewallRuleDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineFirewallRuleSourceRange(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineFirewallRuleSourceRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineFirewallRuleAction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineFirewallRuleAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineFirewallRulePriority(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineFirewallRulePriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {

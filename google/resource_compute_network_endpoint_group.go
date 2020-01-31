@@ -224,28 +224,28 @@ func resourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeNetworkEndpointGroupName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeNetworkEndpointGroupName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("description", flattenComputeNetworkEndpointGroupDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeNetworkEndpointGroupDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("network_endpoint_type", flattenComputeNetworkEndpointGroupNetworkEndpointType(res["networkEndpointType"], d)); err != nil {
+	if err := d.Set("network_endpoint_type", flattenComputeNetworkEndpointGroupNetworkEndpointType(res["networkEndpointType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("size", flattenComputeNetworkEndpointGroupSize(res["size"], d)); err != nil {
+	if err := d.Set("size", flattenComputeNetworkEndpointGroupSize(res["size"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("network", flattenComputeNetworkEndpointGroupNetwork(res["network"], d)); err != nil {
+	if err := d.Set("network", flattenComputeNetworkEndpointGroupNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("subnetwork", flattenComputeNetworkEndpointGroupSubnetwork(res["subnetwork"], d)); err != nil {
+	if err := d.Set("subnetwork", flattenComputeNetworkEndpointGroupSubnetwork(res["subnetwork"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("default_port", flattenComputeNetworkEndpointGroupDefaultPort(res["defaultPort"], d)); err != nil {
+	if err := d.Set("default_port", flattenComputeNetworkEndpointGroupDefaultPort(res["defaultPort"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("zone", flattenComputeNetworkEndpointGroupZone(res["zone"], d)); err != nil {
+	if err := d.Set("zone", flattenComputeNetworkEndpointGroupZone(res["zone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -309,19 +309,19 @@ func resourceComputeNetworkEndpointGroupImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNetworkEndpointGroupName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkEndpointGroupDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkEndpointGroupNetworkEndpointType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupNetworkEndpointType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkEndpointGroupSize(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -331,21 +331,21 @@ func flattenComputeNetworkEndpointGroupSize(v interface{}, d *schema.ResourceDat
 	return v
 }
 
-func flattenComputeNetworkEndpointGroupNetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeNetworkEndpointGroupSubnetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupSubnetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeNetworkEndpointGroupDefaultPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupDefaultPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -355,7 +355,7 @@ func flattenComputeNetworkEndpointGroupDefaultPort(v interface{}, d *schema.Reso
 	return v
 }
 
-func flattenComputeNetworkEndpointGroupZone(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

@@ -97,7 +97,7 @@ func dataSourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta in
 	}
 	res := channels[0].(map[string]interface{})
 
-	name := flattenMonitoringNotificationChannelName(res["name"], d).(string)
+	name := flattenMonitoringNotificationChannelName(res["name"], d, config).(string)
 	d.Set("name", name)
 	d.SetId(name)
 

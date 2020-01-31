@@ -175,16 +175,16 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigRead(d *schema.Resou
 		return fmt.Errorf("Error reading TenantDefaultSupportedIdpConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenIdentityPlatformTenantDefaultSupportedIdpConfigName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenIdentityPlatformTenantDefaultSupportedIdpConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantDefaultSupportedIdpConfig: %s", err)
 	}
-	if err := d.Set("client_id", flattenIdentityPlatformTenantDefaultSupportedIdpConfigClientId(res["clientId"], d)); err != nil {
+	if err := d.Set("client_id", flattenIdentityPlatformTenantDefaultSupportedIdpConfigClientId(res["clientId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantDefaultSupportedIdpConfig: %s", err)
 	}
-	if err := d.Set("client_secret", flattenIdentityPlatformTenantDefaultSupportedIdpConfigClientSecret(res["clientSecret"], d)); err != nil {
+	if err := d.Set("client_secret", flattenIdentityPlatformTenantDefaultSupportedIdpConfigClientSecret(res["clientSecret"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantDefaultSupportedIdpConfig: %s", err)
 	}
-	if err := d.Set("enabled", flattenIdentityPlatformTenantDefaultSupportedIdpConfigEnabled(res["enabled"], d)); err != nil {
+	if err := d.Set("enabled", flattenIdentityPlatformTenantDefaultSupportedIdpConfigEnabled(res["enabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantDefaultSupportedIdpConfig: %s", err)
 	}
 
@@ -298,19 +298,19 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigImport(d *schema.Res
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIdentityPlatformTenantDefaultSupportedIdpConfigName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantDefaultSupportedIdpConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantDefaultSupportedIdpConfigClientId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantDefaultSupportedIdpConfigClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantDefaultSupportedIdpConfigClientSecret(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantDefaultSupportedIdpConfigClientSecret(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantDefaultSupportedIdpConfigEnabled(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantDefaultSupportedIdpConfigEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

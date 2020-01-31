@@ -355,28 +355,28 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
 
-	if err := d.Set("name", flattenPubsubSubscriptionName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenPubsubSubscriptionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("topic", flattenPubsubSubscriptionTopic(res["topic"], d)); err != nil {
+	if err := d.Set("topic", flattenPubsubSubscriptionTopic(res["topic"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("labels", flattenPubsubSubscriptionLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenPubsubSubscriptionLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("push_config", flattenPubsubSubscriptionPushConfig(res["pushConfig"], d)); err != nil {
+	if err := d.Set("push_config", flattenPubsubSubscriptionPushConfig(res["pushConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("ack_deadline_seconds", flattenPubsubSubscriptionAckDeadlineSeconds(res["ackDeadlineSeconds"], d)); err != nil {
+	if err := d.Set("ack_deadline_seconds", flattenPubsubSubscriptionAckDeadlineSeconds(res["ackDeadlineSeconds"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("message_retention_duration", flattenPubsubSubscriptionMessageRetentionDuration(res["messageRetentionDuration"], d)); err != nil {
+	if err := d.Set("message_retention_duration", flattenPubsubSubscriptionMessageRetentionDuration(res["messageRetentionDuration"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("retain_acked_messages", flattenPubsubSubscriptionRetainAckedMessages(res["retainAckedMessages"], d)); err != nil {
+	if err := d.Set("retain_acked_messages", flattenPubsubSubscriptionRetainAckedMessages(res["retainAckedMessages"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("expiration_policy", flattenPubsubSubscriptionExpirationPolicy(res["expirationPolicy"], d)); err != nil {
+	if err := d.Set("expiration_policy", flattenPubsubSubscriptionExpirationPolicy(res["expirationPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
 
@@ -525,25 +525,25 @@ func resourcePubsubSubscriptionImport(d *schema.ResourceData, meta interface{}) 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenPubsubSubscriptionName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenPubsubSubscriptionTopic(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenPubsubSubscriptionLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubSubscriptionPushConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionPushConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -553,14 +553,14 @@ func flattenPubsubSubscriptionPushConfig(v interface{}, d *schema.ResourceData) 
 	}
 	transformed := make(map[string]interface{})
 	transformed["oidc_token"] =
-		flattenPubsubSubscriptionPushConfigOidcToken(original["oidcToken"], d)
+		flattenPubsubSubscriptionPushConfigOidcToken(original["oidcToken"], d, config)
 	transformed["push_endpoint"] =
-		flattenPubsubSubscriptionPushConfigPushEndpoint(original["pushEndpoint"], d)
+		flattenPubsubSubscriptionPushConfigPushEndpoint(original["pushEndpoint"], d, config)
 	transformed["attributes"] =
-		flattenPubsubSubscriptionPushConfigAttributes(original["attributes"], d)
+		flattenPubsubSubscriptionPushConfigAttributes(original["attributes"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPubsubSubscriptionPushConfigOidcToken(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionPushConfigOidcToken(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -570,28 +570,28 @@ func flattenPubsubSubscriptionPushConfigOidcToken(v interface{}, d *schema.Resou
 	}
 	transformed := make(map[string]interface{})
 	transformed["service_account_email"] =
-		flattenPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(original["serviceAccountEmail"], d)
+		flattenPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(original["serviceAccountEmail"], d, config)
 	transformed["audience"] =
-		flattenPubsubSubscriptionPushConfigOidcTokenAudience(original["audience"], d)
+		flattenPubsubSubscriptionPushConfigOidcTokenAudience(original["audience"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubSubscriptionPushConfigOidcTokenAudience(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionPushConfigOidcTokenAudience(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubSubscriptionPushConfigAttributes(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionPushConfigAttributes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -601,25 +601,25 @@ func flattenPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.Resour
 	return v
 }
 
-func flattenPubsubSubscriptionMessageRetentionDuration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionMessageRetentionDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubSubscriptionRetainAckedMessages(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionRetainAckedMessages(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubSubscriptionExpirationPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionExpirationPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
 	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
 	transformed["ttl"] =
-		flattenPubsubSubscriptionExpirationPolicyTtl(original["ttl"], d)
+		flattenPubsubSubscriptionExpirationPolicyTtl(original["ttl"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPubsubSubscriptionExpirationPolicyTtl(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionExpirationPolicyTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

@@ -173,16 +173,16 @@ func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 
-	if err := d.Set("name", flattenSourceRepoRepositoryName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenSourceRepoRepositoryName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
-	if err := d.Set("url", flattenSourceRepoRepositoryUrl(res["url"], d)); err != nil {
+	if err := d.Set("url", flattenSourceRepoRepositoryUrl(res["url"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
-	if err := d.Set("size", flattenSourceRepoRepositorySize(res["size"], d)); err != nil {
+	if err := d.Set("size", flattenSourceRepoRepositorySize(res["size"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
-	if err := d.Set("pubsub_configs", flattenSourceRepoRepositoryPubsubConfigs(res["pubsubConfigs"], d)); err != nil {
+	if err := d.Set("pubsub_configs", flattenSourceRepoRepositoryPubsubConfigs(res["pubsubConfigs"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 
@@ -280,7 +280,7 @@ func resourceSourceRepoRepositoryImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSourceRepoRepositoryName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositoryName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -290,11 +290,11 @@ func flattenSourceRepoRepositoryName(v interface{}, d *schema.ResourceData) inte
 	return parts[3]
 }
 
-func flattenSourceRepoRepositoryUrl(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositoryUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSourceRepoRepositorySize(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositorySize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -304,7 +304,7 @@ func flattenSourceRepoRepositorySize(v interface{}, d *schema.ResourceData) inte
 	return v
 }
 
-func flattenSourceRepoRepositoryPubsubConfigs(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositoryPubsubConfigs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -314,17 +314,17 @@ func flattenSourceRepoRepositoryPubsubConfigs(v interface{}, d *schema.ResourceD
 		original := raw.(map[string]interface{})
 		transformed = append(transformed, map[string]interface{}{
 			"topic":                 k,
-			"message_format":        flattenSourceRepoRepositoryPubsubConfigsMessageFormat(original["messageFormat"], d),
-			"service_account_email": flattenSourceRepoRepositoryPubsubConfigsServiceAccountEmail(original["serviceAccountEmail"], d),
+			"message_format":        flattenSourceRepoRepositoryPubsubConfigsMessageFormat(original["messageFormat"], d, config),
+			"service_account_email": flattenSourceRepoRepositoryPubsubConfigsServiceAccountEmail(original["serviceAccountEmail"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenSourceRepoRepositoryPubsubConfigsMessageFormat(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositoryPubsubConfigsMessageFormat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSourceRepoRepositoryPubsubConfigsServiceAccountEmail(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositoryPubsubConfigsServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

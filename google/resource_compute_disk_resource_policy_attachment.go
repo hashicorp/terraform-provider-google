@@ -169,7 +169,7 @@ func resourceComputeDiskResourcePolicyAttachmentRead(d *schema.ResourceData, met
 		return fmt.Errorf("Error reading DiskResourcePolicyAttachment: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeDiskResourcePolicyAttachmentName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeDiskResourcePolicyAttachmentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DiskResourcePolicyAttachment: %s", err)
 	}
 
@@ -254,7 +254,7 @@ func resourceComputeDiskResourcePolicyAttachmentImport(d *schema.ResourceData, m
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeDiskResourcePolicyAttachmentName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeDiskResourcePolicyAttachmentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -338,7 +338,7 @@ func resourceComputeDiskResourcePolicyAttachmentFindNestedObjectInList(d *schema
 			return -1, nil, err
 		}
 
-		itemName := flattenComputeDiskResourcePolicyAttachmentName(item["name"], d)
+		itemName := flattenComputeDiskResourcePolicyAttachmentName(item["name"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemName, expectedName) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedName)
 			continue
