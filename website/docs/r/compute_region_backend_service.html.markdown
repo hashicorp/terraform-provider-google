@@ -43,7 +43,7 @@ To get more information about RegionBackendService, see:
 
 ```hcl
 resource "google_compute_region_backend_service" "default" {
-  name                            = "region-backend-service"
+  name                            = "tf-test-rbs"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.self_link]
   connection_draining_timeout_sec = 10
@@ -51,7 +51,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "health-check"
+  name               = "tf-test-hc"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -73,7 +73,7 @@ resource "google_compute_region_backend_service" "default" {
   provider = "google-beta"
 
   region = "us-central1"
-  name = "region-backend-service"
+  name = "tf-test-rbs"
   health_checks = ["${google_compute_health_check.health_check.self_link}"]
   protocol = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -83,7 +83,7 @@ resource "google_compute_region_backend_service" "default" {
 resource "google_compute_health_check" "health_check" {
   provider = "google-beta"
 
-  name               = "health-check"
+  name               = "tf-test-hc"
   http_health_check {
     port = 80
   }
@@ -102,7 +102,7 @@ resource "google_compute_region_backend_service" "default" {
   provider = "google-beta"
 
   region = "us-central1"
-  name = "region-backend-service"
+  name = "tf-test-rbs"
   health_checks = ["${google_compute_health_check.health_check.self_link}"]
   load_balancing_scheme = "INTERNAL_MANAGED"
   locality_lb_policy = "RING_HASH"
@@ -128,7 +128,7 @@ resource "google_compute_region_backend_service" "default" {
 resource "google_compute_health_check" "health_check" {
   provider = "google-beta"
 
-  name               = "health-check"
+  name               = "tf-test-hc"
   http_health_check {
     port = 80
   }
@@ -151,10 +151,11 @@ resource "google_compute_region_backend_service" "default" {
   backend {
     group          = google_compute_region_instance_group_manager.rigm.instance_group
     balancing_mode = "UTILIZATION"
+    capacity_scaler = 1.0
   }
 
   region      = "us-central1"
-  name        = "region-backend-service"
+  name        = "tf-test-rbs"
   protocol    = "HTTP"
   timeout_sec = 10
 
@@ -172,7 +173,7 @@ resource "google_compute_region_instance_group_manager" "rigm" {
   provider = google-beta
 
   region   = "us-central1"
-  name     = "rigm-internal"
+  name     = "tf-test-rigm"
   version {
     instance_template = google_compute_instance_template.instance_template.self_link
     name              = "primary"
@@ -184,7 +185,7 @@ resource "google_compute_region_instance_group_manager" "rigm" {
 resource "google_compute_instance_template" "instance_template" {
   provider     = google-beta
 
-  name         = "template-region-backend-service"
+  name         = "template-tf-test-rbs"
   machine_type = "n1-standard-1"
 
   network_interface {
@@ -205,7 +206,7 @@ resource "google_compute_region_health_check" "default" {
   provider = google-beta
 
   region = "us-central1"
-  name   = "health-check"
+  name   = "tf-test-hc"
   http_health_check {
     port_specification = "USE_SERVING_PORT"
   }
@@ -214,7 +215,7 @@ resource "google_compute_region_health_check" "default" {
 resource "google_compute_network" "default" {
   provider = google-beta
 
-  name                    = "net"
+  name                    = "tf-test-net"
   auto_create_subnetworks = false
   routing_mode            = "REGIONAL"
 }
@@ -222,7 +223,7 @@ resource "google_compute_network" "default" {
 resource "google_compute_subnetwork" "default" {
   provider = google-beta
 
-  name          = "net-default"
+  name          = "tf-test-net-default"
   ip_cidr_range = "10.1.2.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.self_link
@@ -310,8 +311,10 @@ The `backend` block supports:
   (Optional)
   A multiplier applied to the group's maximum servicing capacity
   (based on UTILIZATION, RATE or CONNECTION).
-  Default value is 1, which means the group will serve up to 100%
-  of its configured capacity (depending on balancingMode).
+  ~>**NOTE**: This field cannot be set for
+  INTERNAL region backend services (default loadBalancingScheme),
+  but is required for non-INTERNAL backend service. The total
+  capacity_scaler for all backends must be non-zero.
   A setting of 0 means the group is completely drained, offering
   0% of its available Capacity. Valid range is [0.0,1.0].
 
@@ -343,6 +346,7 @@ The `backend` block supports:
   (Optional)
   The max number of simultaneous connections for the group. Can
   be used with either CONNECTION or UTILIZATION balancing modes.
+  Cannot be set for INTERNAL backend services.
   For CONNECTION mode, either maxConnections or one
   of maxConnectionsPerInstance or maxConnectionsPerEndpoint,
   as appropriate for group type, must be set.
@@ -350,24 +354,27 @@ The `backend` block supports:
 * `max_connections_per_instance` -
   (Optional)
   The max number of simultaneous connections that a single
-  backend instance can handle. This is used to calculate the
-  capacity of the group. Can be used in either CONNECTION or
-  UTILIZATION balancing modes.
+  backend instance can handle. Cannot be set for INTERNAL backend
+  services.
+  This is used to calculate the capacity of the group.
+  Can be used in either CONNECTION or UTILIZATION balancing modes.
   For CONNECTION mode, either maxConnections or
   maxConnectionsPerInstance must be set.
 
 * `max_connections_per_endpoint` -
   (Optional)
   The max number of simultaneous connections that a single backend
-  network endpoint can handle. This is used to calculate the
-  capacity of the group. Can be used in either CONNECTION or
-  UTILIZATION balancing modes.
-  For CONNECTION mode, either
-  maxConnections or maxConnectionsPerEndpoint must be set.
+  network endpoint can handle. Cannot be set
+  for INTERNAL backend services.
+  This is used to calculate the capacity of the group. Can be
+  used in either CONNECTION or UTILIZATION balancing modes. For
+  CONNECTION mode, either maxConnections or
+  maxConnectionsPerEndpoint must be set.
 
 * `max_rate` -
   (Optional)
-  The max requests per second (RPS) of the group.
+  The max requests per second (RPS) of the group. Cannot be set
+  for INTERNAL backend services.
   Can be used with either RATE or UTILIZATION balancing modes,
   but required if RATE mode. Either maxRate or one
   of maxRatePerInstance or maxRatePerEndpoint, as appropriate for
@@ -378,19 +385,22 @@ The `backend` block supports:
   The max requests per second (RPS) that a single backend
   instance can handle. This is used to calculate the capacity of
   the group. Can be used in either balancing mode. For RATE mode,
-  either maxRate or maxRatePerInstance must be set.
+  either maxRate or maxRatePerInstance must be set. Cannot be set
+  for INTERNAL backend services.
 
 * `max_rate_per_endpoint` -
   (Optional)
   The max requests per second (RPS) that a single backend network
   endpoint can handle. This is used to calculate the capacity of
   the group. Can be used in either balancing mode. For RATE mode,
-  either maxRate or maxRatePerEndpoint must be set.
+  either maxRate or maxRatePerEndpoint must be set. Cannot be set
+  for INTERNAL backend services.
 
 * `max_utilization` -
   (Optional)
   Used when balancingMode is UTILIZATION. This ratio defines the
   CPU utilization target for the group. Valid range is [0.0, 1.0].
+  Cannot be set for INTERNAL backend services.
 
 ## Attributes Reference
 

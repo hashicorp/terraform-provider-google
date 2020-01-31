@@ -199,6 +199,7 @@ resource "google_compute_region_backend_service" "default" {
   backend {
     group = google_compute_region_instance_group_manager.rigm.instance_group
     balancing_mode = "UTILIZATION"
+    capacity_scaler = 1.0
   }
 
   region      = "us-central1"

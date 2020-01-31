@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/googleapi"
 )
 
@@ -571,4 +572,8 @@ func stringInSlice(arr []string, str string) bool {
 	}
 
 	return false
+}
+
+func migrateStateNoop(v int, is *terraform.InstanceState, meta interface{}) (*terraform.InstanceState, error) {
+	return is, nil
 }
