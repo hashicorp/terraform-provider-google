@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: fixed diff for DEVELOPMENT instances that are returned from the API with one node
+```
