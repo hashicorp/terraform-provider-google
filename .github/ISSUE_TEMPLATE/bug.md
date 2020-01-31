@@ -48,7 +48,7 @@ about: For when something is there, but doesn't work how it should.
 <!---
 Please provide a link to a GitHub Gist containing the complete debug output. Please do NOT paste the debug output in the issue; just paste a link to the Gist.
 
-To obtain the debug output, see the [Terraform documentation on debugging](https://www.terraform.io/docs/internals/debugging.html).
+To obtain the debug output, run `terraform apply` with the environment variable `TF_LOG=DEBUG`. See the [Terraform documentation on debugging](https://www.terraform.io/docs/internals/debugging.html) for more information.
 --->
 
 ### Panic Output
