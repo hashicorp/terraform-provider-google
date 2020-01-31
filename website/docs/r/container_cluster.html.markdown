@@ -587,6 +587,7 @@ The `guest_accelerator` block supports:
 The `workload_identity_config` block supports:
 
 * `identity_namespace` (Required) - Currently, the only supported identity namespace is the project's default.
+
 ```hcl
 workload_identity_config {
   identity_namespace = "${data.google_project.project.project_id}.svc.id.goog"
