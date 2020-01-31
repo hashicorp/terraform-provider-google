@@ -125,7 +125,7 @@ resource "google_sql_database_instance" "instance" {
   name   = "cloudrun-sql%{random_suffix}"
   region = "us-east1"
   settings {
-    tier = "D0"
+    tier = "db-f1-micro"
   }
 }
 `, context)
