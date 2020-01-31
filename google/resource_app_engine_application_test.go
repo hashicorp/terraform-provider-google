@@ -44,6 +44,51 @@ func TestAccAppEngineApplication_basic(t *testing.T) {
 	})
 }
 
+func TestAccAppEngineApplication_withIAP(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAppEngineApplication_withIAP(pid, org),
+			},
+			{
+				ResourceName:            "google_app_engine_application.acceptance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
+			},
+		},
+	})
+}
+
+func testAccAppEngineApplication_withIAP(pid, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
+}
+
+resource "google_app_engine_application" "acceptance" {
+  project        = google_project.acceptance.project_id
+  auth_domain    = "hashicorptest.com"
+  location_id    = "us-central"
+  serving_status = "SERVING"
+
+  iap {
+    oauth2_client_id     = "test"
+    oauth2_client_secret = "test"
+  }
+}
+`, pid, pid, org)
+}
+
 func testAccAppEngineApplication_basic(pid, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
