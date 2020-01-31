@@ -1,3 +1,8 @@
+## 2.20.2 (Unreleased)
+
+BUG FIXES:
+* bigtable: fixed diff for DEVELOPMENT instances that are returned from the API with one node ([#5557](https://github.com/terraform-providers/terraform-provider-google/pull/5557))
+
 ## 2.20.1 (December 13, 2019)
 
 BUG FIXES:
