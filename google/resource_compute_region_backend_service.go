@@ -23,11 +23,93 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func migrateStateNoop(v int, is *terraform.InstanceState, meta interface{}) (*terraform.InstanceState, error) {
-	return is, nil
+// Fields in "backends" that are not allowed for INTERNAL backend services
+// (loadBalancingScheme) - the API returns an error if they are set at all
+// in the request.
+var backendServiceOnlyNonInternalFieldNames = []string{
+	"capacity_scaler",
+	"max_connections",
+	"max_connections_per_instance",
+	"max_connections_per_endpoint",
+	"max_rate",
+	"max_rate_per_instance",
+	"max_rate_per_endpoint",
+	"max_utilization",
+}
+
+// validateNonInternalBackendServiceBackends ensures capacity_scaler is set for each backend in an non-INTERNAL
+// backend service. To prevent a permadiff, we decided to override the API behavior and require the
+//// capacity_scaler value in this case.
+//
+// The API:
+// - requires the sum of the backends' capacity_scalers be > 0
+// - defaults to 1 if capacity_scaler is omitted from the request
+//
+// However, the schema.Set Hash function defaults to 0 if not given, which we chose because it's the default
+// float and because INTERNAL backends can't have the value set, so there will be a permadiff for a
+// situational non-zero default returned from the API. We can't diff suppress or customdiff a
+// field inside a set object in ResourceDiff, since the value also determines the hash for that set object.
+func validateNonInternalBackendServiceBackends(backends []interface{}, d *schema.ResourceDiff) error {
+	sum := 0.0
+
+	for _, b := range backends {
+		if b == nil {
+			continue
+		}
+		backend := b.(map[string]interface{})
+		if v, ok := backend["capacity_scaler"]; ok && v != nil {
+			sum += v.(float64)
+		} else {
+			return fmt.Errorf("capacity_scaler is required for each backend in non-INTERNAL backend service")
+		}
+	}
+	if sum == 0.0 {
+		return fmt.Errorf("non-INTERNAL backend service must have at least one non-zero capacity_scaler for backends")
+	}
+	return nil
+}
+
+// If INTERNAL, make sure the user did not provide values for any of the fields that cannot be sent.
+// We ignore these values regardless when sent to the API, but this adds plan-time validation if a
+// user sets the value to non-zero. We can't validate for empty but set because
+// of how the SDK handles set objects (on any read, nil fields will get set to empty values)
+func validateInternalBackendServiceBackends(backends []interface{}, d *schema.ResourceDiff) error {
+	for _, b := range backends {
+		if b == nil {
+			continue
+		}
+		backend := b.(map[string]interface{})
+		for _, fn := range backendServiceOnlyNonInternalFieldNames {
+			if v, ok := backend[fn]; ok && !isEmptyValue(reflect.ValueOf(v)) {
+				return fmt.Errorf("%q cannot be set for INTERNAL backend service, found value %v", fn, v)
+			}
+		}
+	}
+	return nil
+}
+
+func customDiffRegionBackendService(d *schema.ResourceDiff, meta interface{}) error {
+	v, ok := d.GetOk("backend")
+	if !ok {
+		return nil
+	}
+	if v == nil {
+		return nil
+	}
+
+	backends := v.(*schema.Set).List()
+	if len(backends) == 0 {
+		return nil
+	}
+
+	switch d.Get("load_balancing_scheme").(string) {
+	case "INTERNAL":
+		return validateInternalBackendServiceBackends(backends, d)
+	default:
+		return validateNonInternalBackendServiceBackends(backends, d)
+	}
 }
 
 func resourceComputeRegionBackendService() *schema.Resource {
@@ -49,6 +131,7 @@ func resourceComputeRegionBackendService() *schema.Resource {
 
 		SchemaVersion: 1,
 		MigrateState:  migrateStateNoop,
+		CustomizeDiff: customDiffRegionBackendService,
 
 		Schema: map[string]*schema.Schema{
 			"health_checks": {
@@ -202,13 +285,15 @@ partial URL.`,
 			},
 			"capacity_scaler": {
 				Type:     schema.TypeFloat,
-				Computed: true,
 				Optional: true,
 				Description: `A multiplier applied to the group's maximum servicing capacity
 (based on UTILIZATION, RATE or CONNECTION).
 
-Default value is 1, which means the group will serve up to 100%
-of its configured capacity (depending on balancingMode).
+~>**NOTE**: This field cannot be set for
+INTERNAL region backend services (default loadBalancingScheme),
+but is required for non-INTERNAL backend service. The total
+capacity_scaler for all backends must be non-zero.
+
 A setting of 0 means the group is completely drained, offering
 0% of its available Capacity. Valid range is [0.0,1.0].`,
 			},
@@ -223,6 +308,7 @@ Provide this property when you create the resource.`,
 				Optional: true,
 				Description: `The max number of simultaneous connections for the group. Can
 be used with either CONNECTION or UTILIZATION balancing modes.
+Cannot be set for INTERNAL backend services.
 
 For CONNECTION mode, either maxConnections or one
 of maxConnectionsPerInstance or maxConnectionsPerEndpoint,
@@ -232,28 +318,31 @@ as appropriate for group type, must be set.`,
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: `The max number of simultaneous connections that a single backend
-network endpoint can handle. This is used to calculate the
-capacity of the group. Can be used in either CONNECTION or
-UTILIZATION balancing modes.
+network endpoint can handle. Cannot be set
+for INTERNAL backend services.
 
-For CONNECTION mode, either
-maxConnections or maxConnectionsPerEndpoint must be set.`,
+This is used to calculate the capacity of the group. Can be
+used in either CONNECTION or UTILIZATION balancing modes. For
+CONNECTION mode, either maxConnections or
+maxConnectionsPerEndpoint must be set.`,
 			},
 			"max_connections_per_instance": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: `The max number of simultaneous connections that a single
-backend instance can handle. This is used to calculate the
-capacity of the group. Can be used in either CONNECTION or
-UTILIZATION balancing modes.
+backend instance can handle. Cannot be set for INTERNAL backend
+services.
 
+This is used to calculate the capacity of the group.
+Can be used in either CONNECTION or UTILIZATION balancing modes.
 For CONNECTION mode, either maxConnections or
 maxConnectionsPerInstance must be set.`,
 			},
 			"max_rate": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Description: `The max requests per second (RPS) of the group.
+				Description: `The max requests per second (RPS) of the group. Cannot be set
+for INTERNAL backend services.
 
 Can be used with either RATE or UTILIZATION balancing modes,
 but required if RATE mode. Either maxRate or one
@@ -266,7 +355,8 @@ group type, must be set.`,
 				Description: `The max requests per second (RPS) that a single backend network
 endpoint can handle. This is used to calculate the capacity of
 the group. Can be used in either balancing mode. For RATE mode,
-either maxRate or maxRatePerEndpoint must be set.`,
+either maxRate or maxRatePerEndpoint must be set. Cannot be set
+for INTERNAL backend services.`,
 			},
 			"max_rate_per_instance": {
 				Type:     schema.TypeFloat,
@@ -274,13 +364,15 @@ either maxRate or maxRatePerEndpoint must be set.`,
 				Description: `The max requests per second (RPS) that a single backend
 instance can handle. This is used to calculate the capacity of
 the group. Can be used in either balancing mode. For RATE mode,
-either maxRate or maxRatePerInstance must be set.`,
+either maxRate or maxRatePerInstance must be set. Cannot be set
+for INTERNAL backend services.`,
 			},
 			"max_utilization": {
 				Type:     schema.TypeFloat,
 				Optional: true,
 				Description: `Used when balancingMode is UTILIZATION. This ratio defines the
-CPU utilization target for the group. Valid range is [0.0, 1.0].`,
+CPU utilization target for the group. Valid range is [0.0, 1.0].
+Cannot be set for INTERNAL backend services.`,
 			},
 		},
 	}
@@ -355,6 +447,11 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
 		obj["region"] = regionProp
+	}
+
+	obj, err = resourceComputeRegionBackendServiceEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices")
@@ -539,6 +636,11 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regionProp)) {
 		obj["region"] = regionProp
+	}
+
+	obj, err = resourceComputeRegionBackendServiceEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
@@ -813,7 +915,7 @@ func expandComputeRegionBackendServiceBackend(v interface{}, d TerraformResource
 		transformedCapacityScaler, err := expandComputeRegionBackendServiceBackendCapacityScaler(original["capacity_scaler"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedCapacityScaler); val.IsValid() && !isEmptyValue(val) {
+		} else {
 			transformed["capacityScaler"] = transformedCapacityScaler
 		}
 
@@ -984,4 +1086,42 @@ func expandComputeRegionBackendServiceRegion(v interface{}, d TerraformResourceD
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	if d.Get("load_balancing_scheme").(string) != "INTERNAL" {
+		return obj, nil
+	}
+
+	backendServiceOnlyNonInternalApiFieldNames := []string{
+		"capacityScaler",
+		"maxConnections",
+		"maxConnectionsPerInstance",
+		"maxConnectionsPerEndpoint",
+		"maxRate",
+		"maxRatePerInstance",
+		"maxRatePerEndpoint",
+		"maxUtilization",
+	}
+
+	var backends []interface{}
+	if lsV := obj["backends"]; lsV != nil {
+		backends = lsV.([]interface{})
+	}
+	for idx, v := range backends {
+		if v == nil {
+			continue
+		}
+		backend := v.(map[string]interface{})
+		// Remove fields from backends that cannot be sent for INTERNAL
+		// backend services
+		for _, k := range backendServiceOnlyNonInternalApiFieldNames {
+			log.Printf("[DEBUG] Removing field %q for request for INTERNAL backend service %s", k, d.Get("name"))
+			delete(backend, k)
+		}
+		backends[idx] = backend
+	}
+
+	obj["backends"] = backends
+	return obj, nil
 }
