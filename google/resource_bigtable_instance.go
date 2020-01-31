@@ -50,8 +50,11 @@ func resourceBigtableInstance() *schema.Resource {
 							Required: true,
 						},
 						"num_nodes": {
-							Type:         schema.TypeInt,
-							Optional:     true,
+							Type:     schema.TypeInt,
+							Optional: true,
+							// DEVELOPMENT instances could get returned with either zero or one node,
+							// so mark as computed.
+							Computed:     true,
 							ValidateFunc: validation.IntAtLeast(3),
 						},
 						"storage_type": {
@@ -311,7 +314,7 @@ func resourceBigtableInstanceValidateDevelopment(diff *schema.ResourceDiff, meta
 	if diff.Get("cluster.#").(int) != 1 {
 		return fmt.Errorf("config is invalid: instance with instance_type=\"DEVELOPMENT\" should have exactly one \"cluster\" block")
 	}
-	if diff.Get("cluster.0.num_nodes").(int) != 0 {
+	if diff.Get("cluster.0.num_nodes").(int) > 1 {
 		return fmt.Errorf("config is invalid: num_nodes cannot be set for instance_type=\"DEVELOPMENT\"")
 	}
 	return nil
