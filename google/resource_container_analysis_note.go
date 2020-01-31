@@ -181,10 +181,10 @@ func resourceContainerAnalysisNoteRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading Note: %s", err)
 	}
 
-	if err := d.Set("name", flattenContainerAnalysisNoteName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenContainerAnalysisNoteName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Note: %s", err)
 	}
-	if err := d.Set("attestation_authority", flattenContainerAnalysisNoteAttestationAuthority(res["attestationAuthority"], d)); err != nil {
+	if err := d.Set("attestation_authority", flattenContainerAnalysisNoteAttestationAuthority(res["attestationAuthority"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Note: %s", err)
 	}
 
@@ -282,14 +282,14 @@ func resourceContainerAnalysisNoteImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenContainerAnalysisNoteName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenContainerAnalysisNoteName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenContainerAnalysisNoteAttestationAuthority(v interface{}, d *schema.ResourceData) interface{} {
+func flattenContainerAnalysisNoteAttestationAuthority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -299,10 +299,10 @@ func flattenContainerAnalysisNoteAttestationAuthority(v interface{}, d *schema.R
 	}
 	transformed := make(map[string]interface{})
 	transformed["hint"] =
-		flattenContainerAnalysisNoteAttestationAuthorityHint(original["hint"], d)
+		flattenContainerAnalysisNoteAttestationAuthorityHint(original["hint"], d, config)
 	return []interface{}{transformed}
 }
-func flattenContainerAnalysisNoteAttestationAuthorityHint(v interface{}, d *schema.ResourceData) interface{} {
+func flattenContainerAnalysisNoteAttestationAuthorityHint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -312,10 +312,10 @@ func flattenContainerAnalysisNoteAttestationAuthorityHint(v interface{}, d *sche
 	}
 	transformed := make(map[string]interface{})
 	transformed["human_readable_name"] =
-		flattenContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(original["humanReadableName"], d)
+		flattenContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(original["humanReadableName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

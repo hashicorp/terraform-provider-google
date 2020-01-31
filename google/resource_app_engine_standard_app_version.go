@@ -441,22 +441,22 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
 
-	if err := d.Set("name", flattenAppEngineStandardAppVersionName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenAppEngineStandardAppVersionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
-	if err := d.Set("version_id", flattenAppEngineStandardAppVersionVersionId(res["id"], d)); err != nil {
+	if err := d.Set("version_id", flattenAppEngineStandardAppVersionVersionId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
-	if err := d.Set("runtime", flattenAppEngineStandardAppVersionRuntime(res["runtime"], d)); err != nil {
+	if err := d.Set("runtime", flattenAppEngineStandardAppVersionRuntime(res["runtime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
-	if err := d.Set("runtime_api_version", flattenAppEngineStandardAppVersionRuntimeApiVersion(res["runtimeApiVersion"], d)); err != nil {
+	if err := d.Set("runtime_api_version", flattenAppEngineStandardAppVersionRuntimeApiVersion(res["runtimeApiVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
-	if err := d.Set("handlers", flattenAppEngineStandardAppVersionHandlers(res["handlers"], d)); err != nil {
+	if err := d.Set("handlers", flattenAppEngineStandardAppVersionHandlers(res["handlers"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
-	if err := d.Set("libraries", flattenAppEngineStandardAppVersionLibraries(res["libraries"], d)); err != nil {
+	if err := d.Set("libraries", flattenAppEngineStandardAppVersionLibraries(res["libraries"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
 
@@ -651,23 +651,23 @@ func resourceAppEngineStandardAppVersionImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAppEngineStandardAppVersionName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionVersionId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionVersionId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionRuntime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionRuntime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionRuntimeApiVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionRuntimeApiVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlers(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -680,38 +680,38 @@ func flattenAppEngineStandardAppVersionHandlers(v interface{}, d *schema.Resourc
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"url_regex":                   flattenAppEngineStandardAppVersionHandlersUrlRegex(original["urlRegex"], d),
-			"security_level":              flattenAppEngineStandardAppVersionHandlersSecurityLevel(original["securityLevel"], d),
-			"login":                       flattenAppEngineStandardAppVersionHandlersLogin(original["login"], d),
-			"auth_fail_action":            flattenAppEngineStandardAppVersionHandlersAuthFailAction(original["authFailAction"], d),
-			"redirect_http_response_code": flattenAppEngineStandardAppVersionHandlersRedirectHttpResponseCode(original["redirectHttpResponseCode"], d),
-			"script":                      flattenAppEngineStandardAppVersionHandlersScript(original["script"], d),
-			"static_files":                flattenAppEngineStandardAppVersionHandlersStaticFiles(original["staticFiles"], d),
+			"url_regex":                   flattenAppEngineStandardAppVersionHandlersUrlRegex(original["urlRegex"], d, config),
+			"security_level":              flattenAppEngineStandardAppVersionHandlersSecurityLevel(original["securityLevel"], d, config),
+			"login":                       flattenAppEngineStandardAppVersionHandlersLogin(original["login"], d, config),
+			"auth_fail_action":            flattenAppEngineStandardAppVersionHandlersAuthFailAction(original["authFailAction"], d, config),
+			"redirect_http_response_code": flattenAppEngineStandardAppVersionHandlersRedirectHttpResponseCode(original["redirectHttpResponseCode"], d, config),
+			"script":                      flattenAppEngineStandardAppVersionHandlersScript(original["script"], d, config),
+			"static_files":                flattenAppEngineStandardAppVersionHandlersStaticFiles(original["staticFiles"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenAppEngineStandardAppVersionHandlersUrlRegex(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersUrlRegex(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersSecurityLevel(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersSecurityLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersLogin(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersLogin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersAuthFailAction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersAuthFailAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersRedirectHttpResponseCode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersRedirectHttpResponseCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersScript(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersScript(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -721,14 +721,14 @@ func flattenAppEngineStandardAppVersionHandlersScript(v interface{}, d *schema.R
 	}
 	transformed := make(map[string]interface{})
 	transformed["script_path"] =
-		flattenAppEngineStandardAppVersionHandlersScriptScriptPath(original["scriptPath"], d)
+		flattenAppEngineStandardAppVersionHandlersScriptScriptPath(original["scriptPath"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAppEngineStandardAppVersionHandlersScriptScriptPath(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersScriptScriptPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFiles(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFiles(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -738,50 +738,50 @@ func flattenAppEngineStandardAppVersionHandlersStaticFiles(v interface{}, d *sch
 	}
 	transformed := make(map[string]interface{})
 	transformed["path"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesPath(original["path"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesPath(original["path"], d, config)
 	transformed["upload_path_regex"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesUploadPathRegex(original["uploadPathRegex"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesUploadPathRegex(original["uploadPathRegex"], d, config)
 	transformed["http_headers"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesHttpHeaders(original["httpHeaders"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesHttpHeaders(original["httpHeaders"], d, config)
 	transformed["mime_type"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesMimeType(original["mimeType"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesMimeType(original["mimeType"], d, config)
 	transformed["expiration"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesExpiration(original["expiration"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesExpiration(original["expiration"], d, config)
 	transformed["require_matching_file"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesRequireMatchingFile(original["requireMatchingFile"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesRequireMatchingFile(original["requireMatchingFile"], d, config)
 	transformed["application_readable"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesApplicationReadable(original["applicationReadable"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesApplicationReadable(original["applicationReadable"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAppEngineStandardAppVersionHandlersStaticFilesPath(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFilesUploadPathRegex(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesUploadPathRegex(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFilesHttpHeaders(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesHttpHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFilesMimeType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesMimeType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFilesExpiration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesExpiration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFilesRequireMatchingFile(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesRequireMatchingFile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFilesApplicationReadable(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesApplicationReadable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionLibraries(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionLibraries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -794,17 +794,17 @@ func flattenAppEngineStandardAppVersionLibraries(v interface{}, d *schema.Resour
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":    flattenAppEngineStandardAppVersionLibrariesName(original["name"], d),
-			"version": flattenAppEngineStandardAppVersionLibrariesVersion(original["version"], d),
+			"name":    flattenAppEngineStandardAppVersionLibrariesName(original["name"], d, config),
+			"version": flattenAppEngineStandardAppVersionLibrariesVersion(original["version"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenAppEngineStandardAppVersionLibrariesName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionLibrariesName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionLibrariesVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionLibrariesVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

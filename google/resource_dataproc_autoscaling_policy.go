@@ -317,19 +317,19 @@ func resourceDataprocAutoscalingPolicyRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
 	}
 
-	if err := d.Set("policy_id", flattenDataprocAutoscalingPolicyPolicyId(res["id"], d)); err != nil {
+	if err := d.Set("policy_id", flattenDataprocAutoscalingPolicyPolicyId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
 	}
-	if err := d.Set("name", flattenDataprocAutoscalingPolicyName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenDataprocAutoscalingPolicyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
 	}
-	if err := d.Set("worker_config", flattenDataprocAutoscalingPolicyWorkerConfig(res["workerConfig"], d)); err != nil {
+	if err := d.Set("worker_config", flattenDataprocAutoscalingPolicyWorkerConfig(res["workerConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
 	}
-	if err := d.Set("secondary_worker_config", flattenDataprocAutoscalingPolicySecondaryWorkerConfig(res["secondaryWorkerConfig"], d)); err != nil {
+	if err := d.Set("secondary_worker_config", flattenDataprocAutoscalingPolicySecondaryWorkerConfig(res["secondaryWorkerConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
 	}
-	if err := d.Set("basic_algorithm", flattenDataprocAutoscalingPolicyBasicAlgorithm(res["basicAlgorithm"], d)); err != nil {
+	if err := d.Set("basic_algorithm", flattenDataprocAutoscalingPolicyBasicAlgorithm(res["basicAlgorithm"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AutoscalingPolicy: %s", err)
 	}
 
@@ -430,15 +430,15 @@ func resourceDataprocAutoscalingPolicyImport(d *schema.ResourceData, meta interf
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDataprocAutoscalingPolicyPolicyId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyPolicyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyWorkerConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyWorkerConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -448,14 +448,14 @@ func flattenDataprocAutoscalingPolicyWorkerConfig(v interface{}, d *schema.Resou
 	}
 	transformed := make(map[string]interface{})
 	transformed["min_instances"] =
-		flattenDataprocAutoscalingPolicyWorkerConfigMinInstances(original["minInstances"], d)
+		flattenDataprocAutoscalingPolicyWorkerConfigMinInstances(original["minInstances"], d, config)
 	transformed["max_instances"] =
-		flattenDataprocAutoscalingPolicyWorkerConfigMaxInstances(original["maxInstances"], d)
+		flattenDataprocAutoscalingPolicyWorkerConfigMaxInstances(original["maxInstances"], d, config)
 	transformed["weight"] =
-		flattenDataprocAutoscalingPolicyWorkerConfigWeight(original["weight"], d)
+		flattenDataprocAutoscalingPolicyWorkerConfigWeight(original["weight"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDataprocAutoscalingPolicyWorkerConfigMinInstances(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyWorkerConfigMinInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -465,7 +465,7 @@ func flattenDataprocAutoscalingPolicyWorkerConfigMinInstances(v interface{}, d *
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyWorkerConfigMaxInstances(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyWorkerConfigMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -475,7 +475,7 @@ func flattenDataprocAutoscalingPolicyWorkerConfigMaxInstances(v interface{}, d *
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyWorkerConfigWeight(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyWorkerConfigWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -485,7 +485,7 @@ func flattenDataprocAutoscalingPolicyWorkerConfigWeight(v interface{}, d *schema
 	return v
 }
 
-func flattenDataprocAutoscalingPolicySecondaryWorkerConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicySecondaryWorkerConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -495,14 +495,14 @@ func flattenDataprocAutoscalingPolicySecondaryWorkerConfig(v interface{}, d *sch
 	}
 	transformed := make(map[string]interface{})
 	transformed["min_instances"] =
-		flattenDataprocAutoscalingPolicySecondaryWorkerConfigMinInstances(original["minInstances"], d)
+		flattenDataprocAutoscalingPolicySecondaryWorkerConfigMinInstances(original["minInstances"], d, config)
 	transformed["max_instances"] =
-		flattenDataprocAutoscalingPolicySecondaryWorkerConfigMaxInstances(original["maxInstances"], d)
+		flattenDataprocAutoscalingPolicySecondaryWorkerConfigMaxInstances(original["maxInstances"], d, config)
 	transformed["weight"] =
-		flattenDataprocAutoscalingPolicySecondaryWorkerConfigWeight(original["weight"], d)
+		flattenDataprocAutoscalingPolicySecondaryWorkerConfigWeight(original["weight"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMinInstances(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMinInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -512,7 +512,7 @@ func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMinInstances(v interfa
 	return v
 }
 
-func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMaxInstances(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -522,7 +522,7 @@ func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMaxInstances(v interfa
 	return v
 }
 
-func flattenDataprocAutoscalingPolicySecondaryWorkerConfigWeight(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicySecondaryWorkerConfigWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -532,7 +532,7 @@ func flattenDataprocAutoscalingPolicySecondaryWorkerConfigWeight(v interface{}, 
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyBasicAlgorithm(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -542,16 +542,16 @@ func flattenDataprocAutoscalingPolicyBasicAlgorithm(v interface{}, d *schema.Res
 	}
 	transformed := make(map[string]interface{})
 	transformed["cooldown_period"] =
-		flattenDataprocAutoscalingPolicyBasicAlgorithmCooldownPeriod(original["cooldownPeriod"], d)
+		flattenDataprocAutoscalingPolicyBasicAlgorithmCooldownPeriod(original["cooldownPeriod"], d, config)
 	transformed["yarn_config"] =
-		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfig(original["yarnConfig"], d)
+		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfig(original["yarnConfig"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDataprocAutoscalingPolicyBasicAlgorithmCooldownPeriod(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmCooldownPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -561,34 +561,34 @@ func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfig(v interface{}, d *
 	}
 	transformed := make(map[string]interface{})
 	transformed["graceful_decommission_timeout"] =
-		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigGracefulDecommissionTimeout(original["gracefulDecommissionTimeout"], d)
+		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigGracefulDecommissionTimeout(original["gracefulDecommissionTimeout"], d, config)
 	transformed["scale_up_factor"] =
-		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpFactor(original["scaleUpFactor"], d)
+		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpFactor(original["scaleUpFactor"], d, config)
 	transformed["scale_down_factor"] =
-		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownFactor(original["scaleDownFactor"], d)
+		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownFactor(original["scaleDownFactor"], d, config)
 	transformed["scale_up_min_worker_fraction"] =
-		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpMinWorkerFraction(original["scaleUpMinWorkerFraction"], d)
+		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpMinWorkerFraction(original["scaleUpMinWorkerFraction"], d, config)
 	transformed["scale_down_min_worker_fraction"] =
-		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownMinWorkerFraction(original["scaleDownMinWorkerFraction"], d)
+		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownMinWorkerFraction(original["scaleDownMinWorkerFraction"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigGracefulDecommissionTimeout(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigGracefulDecommissionTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpFactor(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpFactor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownFactor(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownFactor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpMinWorkerFraction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpMinWorkerFraction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownMinWorkerFraction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownMinWorkerFraction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

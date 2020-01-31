@@ -186,22 +186,22 @@ func resourceComputeNodeGroupRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeNodeGroupCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeNodeGroupCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
-	if err := d.Set("description", flattenComputeNodeGroupDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeNodeGroupDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
-	if err := d.Set("name", flattenComputeNodeGroupName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeNodeGroupName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
-	if err := d.Set("node_template", flattenComputeNodeGroupNodeTemplate(res["nodeTemplate"], d)); err != nil {
+	if err := d.Set("node_template", flattenComputeNodeGroupNodeTemplate(res["nodeTemplate"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
-	if err := d.Set("size", flattenComputeNodeGroupSize(res["size"], d)); err != nil {
+	if err := d.Set("size", flattenComputeNodeGroupSize(res["size"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
-	if err := d.Set("zone", flattenComputeNodeGroupZone(res["zone"], d)); err != nil {
+	if err := d.Set("zone", flattenComputeNodeGroupZone(res["zone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -309,26 +309,26 @@ func resourceComputeNodeGroupImport(d *schema.ResourceData, meta interface{}) ([
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNodeGroupCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeGroupCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeGroupDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeGroupDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeGroupName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeGroupName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeGroupNodeTemplate(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeGroupNodeTemplate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeNodeGroupSize(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeGroupSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -338,7 +338,7 @@ func flattenComputeNodeGroupSize(v interface{}, d *schema.ResourceData) interfac
 	return v
 }
 
-func flattenComputeNodeGroupZone(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeGroupZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

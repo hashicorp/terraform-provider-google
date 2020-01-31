@@ -46,8 +46,8 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_iap_web_iam_policy" "editor" {
-  project = "${google_project_service.project_service.project}"
-  policy_data = "${data.google_iam_policy.admin.policy_data}"
+  project = google_project_service.project_service.project
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -55,7 +55,7 @@ resource "google_iap_web_iam_policy" "editor" {
 
 ```hcl
 resource "google_iap_web_iam_binding" "editor" {
-  project = "${google_project_service.project_service.project}"
+  project = google_project_service.project_service.project
   role = "roles/iap.httpsResourceAccessor"
   members = [
     "user:jane@example.com",
@@ -67,7 +67,7 @@ resource "google_iap_web_iam_binding" "editor" {
 
 ```hcl
 resource "google_iap_web_iam_member" "editor" {
-  project = "${google_project_service.project_service.project}"
+  project = google_project_service.project_service.project
   role = "roles/iap.httpsResourceAccessor"
   member = "user:jane@example.com"
 }

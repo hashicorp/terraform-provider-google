@@ -204,13 +204,13 @@ func resourceComputeNetworkEndpointRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
 	}
 
-	if err := d.Set("instance", flattenComputeNetworkEndpointInstance(res["instance"], d)); err != nil {
+	if err := d.Set("instance", flattenComputeNetworkEndpointInstance(res["instance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
 	}
-	if err := d.Set("port", flattenComputeNetworkEndpointPort(res["port"], d)); err != nil {
+	if err := d.Set("port", flattenComputeNetworkEndpointPort(res["port"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
 	}
-	if err := d.Set("ip_address", flattenComputeNetworkEndpointIpAddress(res["ipAddress"], d)); err != nil {
+	if err := d.Set("ip_address", flattenComputeNetworkEndpointIpAddress(res["ipAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
 	}
 
@@ -300,14 +300,14 @@ func resourceComputeNetworkEndpointImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNetworkEndpointInstance(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeNetworkEndpointPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles int given in float64 format
 	if floatVal, ok := v.(float64); ok {
 		return int(floatVal)
@@ -315,7 +315,7 @@ func flattenComputeNetworkEndpointPort(v interface{}, d *schema.ResourceData) in
 	return v
 }
 
-func flattenComputeNetworkEndpointIpAddress(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -391,17 +391,17 @@ func resourceComputeNetworkEndpointFindNestedObjectInList(d *schema.ResourceData
 			return -1, nil, err
 		}
 
-		itemInstance := flattenComputeNetworkEndpointInstance(item["instance"], d)
+		itemInstance := flattenComputeNetworkEndpointInstance(item["instance"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemInstance, expectedInstance) {
 			log.Printf("[DEBUG] Skipping item with instance= %#v, looking for %#v)", itemInstance, expectedInstance)
 			continue
 		}
-		itemIpAddress := flattenComputeNetworkEndpointIpAddress(item["ipAddress"], d)
+		itemIpAddress := flattenComputeNetworkEndpointIpAddress(item["ipAddress"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemIpAddress, expectedIpAddress) {
 			log.Printf("[DEBUG] Skipping item with ipAddress= %#v, looking for %#v)", itemIpAddress, expectedIpAddress)
 			continue
 		}
-		itemPort := flattenComputeNetworkEndpointPort(item["port"], d)
+		itemPort := flattenComputeNetworkEndpointPort(item["port"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemPort, expectedPort) {
 			log.Printf("[DEBUG] Skipping item with port= %#v, looking for %#v)", itemPort, expectedPort)
 			continue

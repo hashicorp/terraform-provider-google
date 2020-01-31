@@ -177,13 +177,13 @@ func resourceComputeNetworkPeeringRoutesConfigRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading NetworkPeeringRoutesConfig: %s", err)
 	}
 
-	if err := d.Set("peering", flattenComputeNetworkPeeringRoutesConfigPeering(res["name"], d)); err != nil {
+	if err := d.Set("peering", flattenComputeNetworkPeeringRoutesConfigPeering(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkPeeringRoutesConfig: %s", err)
 	}
-	if err := d.Set("export_custom_routes", flattenComputeNetworkPeeringRoutesConfigExportCustomRoutes(res["exportCustomRoutes"], d)); err != nil {
+	if err := d.Set("export_custom_routes", flattenComputeNetworkPeeringRoutesConfigExportCustomRoutes(res["exportCustomRoutes"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkPeeringRoutesConfig: %s", err)
 	}
-	if err := d.Set("import_custom_routes", flattenComputeNetworkPeeringRoutesConfigImportCustomRoutes(res["importCustomRoutes"], d)); err != nil {
+	if err := d.Set("import_custom_routes", flattenComputeNetworkPeeringRoutesConfigImportCustomRoutes(res["importCustomRoutes"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkPeeringRoutesConfig: %s", err)
 	}
 
@@ -282,15 +282,15 @@ func resourceComputeNetworkPeeringRoutesConfigImport(d *schema.ResourceData, met
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNetworkPeeringRoutesConfigPeering(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkPeeringRoutesConfigPeering(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkPeeringRoutesConfigExportCustomRoutes(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkPeeringRoutesConfigExportCustomRoutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkPeeringRoutesConfigImportCustomRoutes(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkPeeringRoutesConfigImportCustomRoutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -353,7 +353,7 @@ func resourceComputeNetworkPeeringRoutesConfigFindNestedObjectInList(d *schema.R
 		}
 		item := itemRaw.(map[string]interface{})
 
-		itemPeering := flattenComputeNetworkPeeringRoutesConfigPeering(item["name"], d)
+		itemPeering := flattenComputeNetworkPeeringRoutesConfigPeering(item["name"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemPeering, expectedPeering) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemPeering, expectedPeering)
 			continue

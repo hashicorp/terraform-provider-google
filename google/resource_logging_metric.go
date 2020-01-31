@@ -369,25 +369,25 @@ func resourceLoggingMetricRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Metric: %s", err)
 	}
 
-	if err := d.Set("name", flattenLoggingMetricName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenLoggingMetricName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Metric: %s", err)
 	}
-	if err := d.Set("description", flattenLoggingMetricDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenLoggingMetricDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Metric: %s", err)
 	}
-	if err := d.Set("filter", flattenLoggingMetricFilter(res["filter"], d)); err != nil {
+	if err := d.Set("filter", flattenLoggingMetricFilter(res["filter"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Metric: %s", err)
 	}
-	if err := d.Set("metric_descriptor", flattenLoggingMetricMetricDescriptor(res["metricDescriptor"], d)); err != nil {
+	if err := d.Set("metric_descriptor", flattenLoggingMetricMetricDescriptor(res["metricDescriptor"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Metric: %s", err)
 	}
-	if err := d.Set("label_extractors", flattenLoggingMetricLabelExtractors(res["labelExtractors"], d)); err != nil {
+	if err := d.Set("label_extractors", flattenLoggingMetricLabelExtractors(res["labelExtractors"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Metric: %s", err)
 	}
-	if err := d.Set("value_extractor", flattenLoggingMetricValueExtractor(res["valueExtractor"], d)); err != nil {
+	if err := d.Set("value_extractor", flattenLoggingMetricValueExtractor(res["valueExtractor"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Metric: %s", err)
 	}
-	if err := d.Set("bucket_options", flattenLoggingMetricBucketOptions(res["bucketOptions"], d)); err != nil {
+	if err := d.Set("bucket_options", flattenLoggingMetricBucketOptions(res["bucketOptions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Metric: %s", err)
 	}
 
@@ -512,19 +512,19 @@ func resourceLoggingMetricImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenLoggingMetricName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricFilter(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptor(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricMetricDescriptor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -534,30 +534,30 @@ func flattenLoggingMetricMetricDescriptor(v interface{}, d *schema.ResourceData)
 	}
 	transformed := make(map[string]interface{})
 	transformed["unit"] =
-		flattenLoggingMetricMetricDescriptorUnit(original["unit"], d)
+		flattenLoggingMetricMetricDescriptorUnit(original["unit"], d, config)
 	transformed["value_type"] =
-		flattenLoggingMetricMetricDescriptorValueType(original["valueType"], d)
+		flattenLoggingMetricMetricDescriptorValueType(original["valueType"], d, config)
 	transformed["metric_kind"] =
-		flattenLoggingMetricMetricDescriptorMetricKind(original["metricKind"], d)
+		flattenLoggingMetricMetricDescriptorMetricKind(original["metricKind"], d, config)
 	transformed["labels"] =
-		flattenLoggingMetricMetricDescriptorLabels(original["labels"], d)
+		flattenLoggingMetricMetricDescriptorLabels(original["labels"], d, config)
 	transformed["display_name"] =
-		flattenLoggingMetricMetricDescriptorDisplayName(original["displayName"], d)
+		flattenLoggingMetricMetricDescriptorDisplayName(original["displayName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenLoggingMetricMetricDescriptorUnit(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricMetricDescriptorUnit(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptorValueType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricMetricDescriptorValueType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptorMetricKind(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricMetricDescriptorMetricKind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptorLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricMetricDescriptorLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -570,22 +570,22 @@ func flattenLoggingMetricMetricDescriptorLabels(v interface{}, d *schema.Resourc
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"key":         flattenLoggingMetricMetricDescriptorLabelsKey(original["key"], d),
-			"description": flattenLoggingMetricMetricDescriptorLabelsDescription(original["description"], d),
-			"value_type":  flattenLoggingMetricMetricDescriptorLabelsValueType(original["valueType"], d),
+			"key":         flattenLoggingMetricMetricDescriptorLabelsKey(original["key"], d, config),
+			"description": flattenLoggingMetricMetricDescriptorLabelsDescription(original["description"], d, config),
+			"value_type":  flattenLoggingMetricMetricDescriptorLabelsValueType(original["valueType"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenLoggingMetricMetricDescriptorLabelsKey(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricMetricDescriptorLabelsKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptorLabelsDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricMetricDescriptorLabelsDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptorLabelsValueType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricMetricDescriptorLabelsValueType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "STRING"
 	}
@@ -593,19 +593,19 @@ func flattenLoggingMetricMetricDescriptorLabelsValueType(v interface{}, d *schem
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptorDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricMetricDescriptorDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricLabelExtractors(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricLabelExtractors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricValueExtractor(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricValueExtractor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricBucketOptions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricBucketOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -615,14 +615,14 @@ func flattenLoggingMetricBucketOptions(v interface{}, d *schema.ResourceData) in
 	}
 	transformed := make(map[string]interface{})
 	transformed["linear_buckets"] =
-		flattenLoggingMetricBucketOptionsLinearBuckets(original["linearBuckets"], d)
+		flattenLoggingMetricBucketOptionsLinearBuckets(original["linearBuckets"], d, config)
 	transformed["exponential_buckets"] =
-		flattenLoggingMetricBucketOptionsExponentialBuckets(original["exponentialBuckets"], d)
+		flattenLoggingMetricBucketOptionsExponentialBuckets(original["exponentialBuckets"], d, config)
 	transformed["explicit_buckets"] =
-		flattenLoggingMetricBucketOptionsExplicitBuckets(original["explicitBuckets"], d)
+		flattenLoggingMetricBucketOptionsExplicitBuckets(original["explicitBuckets"], d, config)
 	return []interface{}{transformed}
 }
-func flattenLoggingMetricBucketOptionsLinearBuckets(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricBucketOptionsLinearBuckets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -632,14 +632,14 @@ func flattenLoggingMetricBucketOptionsLinearBuckets(v interface{}, d *schema.Res
 	}
 	transformed := make(map[string]interface{})
 	transformed["num_finite_buckets"] =
-		flattenLoggingMetricBucketOptionsLinearBucketsNumFiniteBuckets(original["numFiniteBuckets"], d)
+		flattenLoggingMetricBucketOptionsLinearBucketsNumFiniteBuckets(original["numFiniteBuckets"], d, config)
 	transformed["width"] =
-		flattenLoggingMetricBucketOptionsLinearBucketsWidth(original["width"], d)
+		flattenLoggingMetricBucketOptionsLinearBucketsWidth(original["width"], d, config)
 	transformed["offset"] =
-		flattenLoggingMetricBucketOptionsLinearBucketsOffset(original["offset"], d)
+		flattenLoggingMetricBucketOptionsLinearBucketsOffset(original["offset"], d, config)
 	return []interface{}{transformed}
 }
-func flattenLoggingMetricBucketOptionsLinearBucketsNumFiniteBuckets(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricBucketOptionsLinearBucketsNumFiniteBuckets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -649,7 +649,7 @@ func flattenLoggingMetricBucketOptionsLinearBucketsNumFiniteBuckets(v interface{
 	return v
 }
 
-func flattenLoggingMetricBucketOptionsLinearBucketsWidth(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricBucketOptionsLinearBucketsWidth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -659,11 +659,11 @@ func flattenLoggingMetricBucketOptionsLinearBucketsWidth(v interface{}, d *schem
 	return v
 }
 
-func flattenLoggingMetricBucketOptionsLinearBucketsOffset(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricBucketOptionsLinearBucketsOffset(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricBucketOptionsExponentialBuckets(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricBucketOptionsExponentialBuckets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -673,14 +673,14 @@ func flattenLoggingMetricBucketOptionsExponentialBuckets(v interface{}, d *schem
 	}
 	transformed := make(map[string]interface{})
 	transformed["num_finite_buckets"] =
-		flattenLoggingMetricBucketOptionsExponentialBucketsNumFiniteBuckets(original["numFiniteBuckets"], d)
+		flattenLoggingMetricBucketOptionsExponentialBucketsNumFiniteBuckets(original["numFiniteBuckets"], d, config)
 	transformed["growth_factor"] =
-		flattenLoggingMetricBucketOptionsExponentialBucketsGrowthFactor(original["growthFactor"], d)
+		flattenLoggingMetricBucketOptionsExponentialBucketsGrowthFactor(original["growthFactor"], d, config)
 	transformed["scale"] =
-		flattenLoggingMetricBucketOptionsExponentialBucketsScale(original["scale"], d)
+		flattenLoggingMetricBucketOptionsExponentialBucketsScale(original["scale"], d, config)
 	return []interface{}{transformed}
 }
-func flattenLoggingMetricBucketOptionsExponentialBucketsNumFiniteBuckets(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricBucketOptionsExponentialBucketsNumFiniteBuckets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -690,15 +690,15 @@ func flattenLoggingMetricBucketOptionsExponentialBucketsNumFiniteBuckets(v inter
 	return v
 }
 
-func flattenLoggingMetricBucketOptionsExponentialBucketsGrowthFactor(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricBucketOptionsExponentialBucketsGrowthFactor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricBucketOptionsExponentialBucketsScale(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricBucketOptionsExponentialBucketsScale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricBucketOptionsExplicitBuckets(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricBucketOptionsExplicitBuckets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -708,10 +708,10 @@ func flattenLoggingMetricBucketOptionsExplicitBuckets(v interface{}, d *schema.R
 	}
 	transformed := make(map[string]interface{})
 	transformed["bounds"] =
-		flattenLoggingMetricBucketOptionsExplicitBucketsBounds(original["bounds"], d)
+		flattenLoggingMetricBucketOptionsExplicitBucketsBounds(original["bounds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenLoggingMetricBucketOptionsExplicitBucketsBounds(v interface{}, d *schema.ResourceData) interface{} {
+func flattenLoggingMetricBucketOptionsExplicitBucketsBounds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

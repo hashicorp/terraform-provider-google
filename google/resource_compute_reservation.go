@@ -300,28 +300,28 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeReservationCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeReservationCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("description", flattenComputeReservationDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeReservationDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("name", flattenComputeReservationName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeReservationName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("commitment", flattenComputeReservationCommitment(res["commitment"], d)); err != nil {
+	if err := d.Set("commitment", flattenComputeReservationCommitment(res["commitment"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("specific_reservation_required", flattenComputeReservationSpecificReservationRequired(res["specificReservationRequired"], d)); err != nil {
+	if err := d.Set("specific_reservation_required", flattenComputeReservationSpecificReservationRequired(res["specificReservationRequired"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("status", flattenComputeReservationStatus(res["status"], d)); err != nil {
+	if err := d.Set("status", flattenComputeReservationStatus(res["status"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("specific_reservation", flattenComputeReservationSpecificReservation(res["specificReservation"], d)); err != nil {
+	if err := d.Set("specific_reservation", flattenComputeReservationSpecificReservation(res["specificReservation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("zone", flattenComputeReservationZone(res["zone"], d)); err != nil {
+	if err := d.Set("zone", flattenComputeReservationZone(res["zone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -385,31 +385,31 @@ func resourceComputeReservationImport(d *schema.ResourceData, meta interface{}) 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeReservationCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationCommitment(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationCommitment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationSpecificReservationRequired(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationRequired(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationStatus(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationSpecificReservation(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -419,14 +419,14 @@ func flattenComputeReservationSpecificReservation(v interface{}, d *schema.Resou
 	}
 	transformed := make(map[string]interface{})
 	transformed["count"] =
-		flattenComputeReservationSpecificReservationCount(original["count"], d)
+		flattenComputeReservationSpecificReservationCount(original["count"], d, config)
 	transformed["in_use_count"] =
-		flattenComputeReservationSpecificReservationInUseCount(original["inUseCount"], d)
+		flattenComputeReservationSpecificReservationInUseCount(original["inUseCount"], d, config)
 	transformed["instance_properties"] =
-		flattenComputeReservationSpecificReservationInstanceProperties(original["instanceProperties"], d)
+		flattenComputeReservationSpecificReservationInstanceProperties(original["instanceProperties"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeReservationSpecificReservationCount(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -436,7 +436,7 @@ func flattenComputeReservationSpecificReservationCount(v interface{}, d *schema.
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInUseCount(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInUseCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -446,7 +446,7 @@ func flattenComputeReservationSpecificReservationInUseCount(v interface{}, d *sc
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInstanceProperties(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstanceProperties(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -456,24 +456,24 @@ func flattenComputeReservationSpecificReservationInstanceProperties(v interface{
 	}
 	transformed := make(map[string]interface{})
 	transformed["machine_type"] =
-		flattenComputeReservationSpecificReservationInstancePropertiesMachineType(original["machineType"], d)
+		flattenComputeReservationSpecificReservationInstancePropertiesMachineType(original["machineType"], d, config)
 	transformed["min_cpu_platform"] =
-		flattenComputeReservationSpecificReservationInstancePropertiesMinCpuPlatform(original["minCpuPlatform"], d)
+		flattenComputeReservationSpecificReservationInstancePropertiesMinCpuPlatform(original["minCpuPlatform"], d, config)
 	transformed["guest_accelerators"] =
-		flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelerators(original["guestAccelerators"], d)
+		flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelerators(original["guestAccelerators"], d, config)
 	transformed["local_ssds"] =
-		flattenComputeReservationSpecificReservationInstancePropertiesLocalSsds(original["localSsds"], d)
+		flattenComputeReservationSpecificReservationInstancePropertiesLocalSsds(original["localSsds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeReservationSpecificReservationInstancePropertiesMachineType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesMachineType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInstancePropertiesMinCpuPlatform(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesMinCpuPlatform(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelerators(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelerators(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -486,17 +486,17 @@ func flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelera
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"accelerator_type":  flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorType(original["acceleratorType"], d),
-			"accelerator_count": flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorCount(original["acceleratorCount"], d),
+			"accelerator_type":  flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorType(original["acceleratorType"], d, config),
+			"accelerator_count": flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorCount(original["acceleratorCount"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorCount(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -506,7 +506,7 @@ func flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelera
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsds(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -519,17 +519,17 @@ func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsds(v i
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"interface":    flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsInterface(original["interface"], d),
-			"disk_size_gb": flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsDiskSizeGb(original["diskSizeGb"], d),
+			"interface":    flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsInterface(original["interface"], d, config),
+			"disk_size_gb": flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsDiskSizeGb(original["diskSizeGb"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsInterface(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsInterface(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsDiskSizeGb(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsDiskSizeGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -539,7 +539,7 @@ func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsDisk
 	return v
 }
 
-func flattenComputeReservationZone(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

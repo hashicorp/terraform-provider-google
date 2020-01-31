@@ -218,28 +218,28 @@ func resourceComputeTargetSslProxyRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeTargetSslProxyCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeTargetSslProxyCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
 	}
-	if err := d.Set("description", flattenComputeTargetSslProxyDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeTargetSslProxyDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
 	}
-	if err := d.Set("proxy_id", flattenComputeTargetSslProxyProxyId(res["id"], d)); err != nil {
+	if err := d.Set("proxy_id", flattenComputeTargetSslProxyProxyId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
 	}
-	if err := d.Set("name", flattenComputeTargetSslProxyName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeTargetSslProxyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
 	}
-	if err := d.Set("proxy_header", flattenComputeTargetSslProxyProxyHeader(res["proxyHeader"], d)); err != nil {
+	if err := d.Set("proxy_header", flattenComputeTargetSslProxyProxyHeader(res["proxyHeader"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
 	}
-	if err := d.Set("backend_service", flattenComputeTargetSslProxyBackendService(res["service"], d)); err != nil {
+	if err := d.Set("backend_service", flattenComputeTargetSslProxyBackendService(res["service"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
 	}
-	if err := d.Set("ssl_certificates", flattenComputeTargetSslProxySslCertificates(res["sslCertificates"], d)); err != nil {
+	if err := d.Set("ssl_certificates", flattenComputeTargetSslProxySslCertificates(res["sslCertificates"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
 	}
-	if err := d.Set("ssl_policy", flattenComputeTargetSslProxySslPolicy(res["sslPolicy"], d)); err != nil {
+	if err := d.Set("ssl_policy", flattenComputeTargetSslProxySslPolicy(res["sslPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetSslProxy: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -430,15 +430,15 @@ func resourceComputeTargetSslProxyImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeTargetSslProxyCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetSslProxyCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetSslProxyDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetSslProxyDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetSslProxyProxyId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetSslProxyProxyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -448,29 +448,29 @@ func flattenComputeTargetSslProxyProxyId(v interface{}, d *schema.ResourceData) 
 	return v
 }
 
-func flattenComputeTargetSslProxyName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetSslProxyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetSslProxyProxyHeader(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetSslProxyProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetSslProxyBackendService(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetSslProxyBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeTargetSslProxySslCertificates(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetSslProxySslCertificates(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
-func flattenComputeTargetSslProxySslPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetSslProxySslPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

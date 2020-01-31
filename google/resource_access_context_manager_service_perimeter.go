@@ -252,25 +252,25 @@ func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, me
 		return handleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeter %q", d.Id()))
 	}
 
-	if err := d.Set("title", flattenAccessContextManagerServicePerimeterTitle(res["title"], d)); err != nil {
+	if err := d.Set("title", flattenAccessContextManagerServicePerimeterTitle(res["title"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
-	if err := d.Set("description", flattenAccessContextManagerServicePerimeterDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenAccessContextManagerServicePerimeterDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
-	if err := d.Set("create_time", flattenAccessContextManagerServicePerimeterCreateTime(res["createTime"], d)); err != nil {
+	if err := d.Set("create_time", flattenAccessContextManagerServicePerimeterCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
-	if err := d.Set("update_time", flattenAccessContextManagerServicePerimeterUpdateTime(res["updateTime"], d)); err != nil {
+	if err := d.Set("update_time", flattenAccessContextManagerServicePerimeterUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
-	if err := d.Set("perimeter_type", flattenAccessContextManagerServicePerimeterPerimeterType(res["perimeterType"], d)); err != nil {
+	if err := d.Set("perimeter_type", flattenAccessContextManagerServicePerimeterPerimeterType(res["perimeterType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
-	if err := d.Set("status", flattenAccessContextManagerServicePerimeterStatus(res["status"], d)); err != nil {
+	if err := d.Set("status", flattenAccessContextManagerServicePerimeterStatus(res["status"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
-	if err := d.Set("name", flattenAccessContextManagerServicePerimeterName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenAccessContextManagerServicePerimeterName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
 
@@ -390,23 +390,23 @@ func resourceAccessContextManagerServicePerimeterImport(d *schema.ResourceData, 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAccessContextManagerServicePerimeterTitle(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterTitle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterCreateTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterUpdateTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterPerimeterType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterPerimeterType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "PERIMETER_TYPE_REGULAR"
 	}
@@ -414,7 +414,7 @@ func flattenAccessContextManagerServicePerimeterPerimeterType(v interface{}, d *
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatus(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -424,26 +424,26 @@ func flattenAccessContextManagerServicePerimeterStatus(v interface{}, d *schema.
 	}
 	transformed := make(map[string]interface{})
 	transformed["resources"] =
-		flattenAccessContextManagerServicePerimeterStatusResources(original["resources"], d)
+		flattenAccessContextManagerServicePerimeterStatusResources(original["resources"], d, config)
 	transformed["access_levels"] =
-		flattenAccessContextManagerServicePerimeterStatusAccessLevels(original["accessLevels"], d)
+		flattenAccessContextManagerServicePerimeterStatusAccessLevels(original["accessLevels"], d, config)
 	transformed["restricted_services"] =
-		flattenAccessContextManagerServicePerimeterStatusRestrictedServices(original["restrictedServices"], d)
+		flattenAccessContextManagerServicePerimeterStatusRestrictedServices(original["restrictedServices"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterStatusResources(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusAccessLevels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusAccessLevels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusRestrictedServices(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusRestrictedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

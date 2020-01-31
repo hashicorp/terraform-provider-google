@@ -184,16 +184,16 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Topic: %s", err)
 	}
 
-	if err := d.Set("name", flattenPubsubTopicName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenPubsubTopicName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Topic: %s", err)
 	}
-	if err := d.Set("kms_key_name", flattenPubsubTopicKmsKeyName(res["kmsKeyName"], d)); err != nil {
+	if err := d.Set("kms_key_name", flattenPubsubTopicKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Topic: %s", err)
 	}
-	if err := d.Set("labels", flattenPubsubTopicLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenPubsubTopicLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Topic: %s", err)
 	}
-	if err := d.Set("message_storage_policy", flattenPubsubTopicMessageStoragePolicy(res["messageStoragePolicy"], d)); err != nil {
+	if err := d.Set("message_storage_policy", flattenPubsubTopicMessageStoragePolicy(res["messageStoragePolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Topic: %s", err)
 	}
 
@@ -302,22 +302,22 @@ func resourcePubsubTopicImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenPubsubTopicName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubTopicName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenPubsubTopicKmsKeyName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubTopicKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubTopicLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubTopicLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubTopicMessageStoragePolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubTopicMessageStoragePolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -327,10 +327,10 @@ func flattenPubsubTopicMessageStoragePolicy(v interface{}, d *schema.ResourceDat
 	}
 	transformed := make(map[string]interface{})
 	transformed["allowed_persistence_regions"] =
-		flattenPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(original["allowedPersistenceRegions"], d)
+		flattenPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(original["allowedPersistenceRegions"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

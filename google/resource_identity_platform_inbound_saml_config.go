@@ -227,19 +227,19 @@ func resourceIdentityPlatformInboundSamlConfigRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenIdentityPlatformInboundSamlConfigName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenIdentityPlatformInboundSamlConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
 	}
-	if err := d.Set("display_name", flattenIdentityPlatformInboundSamlConfigDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenIdentityPlatformInboundSamlConfigDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
 	}
-	if err := d.Set("enabled", flattenIdentityPlatformInboundSamlConfigEnabled(res["enabled"], d)); err != nil {
+	if err := d.Set("enabled", flattenIdentityPlatformInboundSamlConfigEnabled(res["enabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
 	}
-	if err := d.Set("idp_config", flattenIdentityPlatformInboundSamlConfigIdpConfig(res["idpConfig"], d)); err != nil {
+	if err := d.Set("idp_config", flattenIdentityPlatformInboundSamlConfigIdpConfig(res["idpConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
 	}
-	if err := d.Set("sp_config", flattenIdentityPlatformInboundSamlConfigSpConfig(res["spConfig"], d)); err != nil {
+	if err := d.Set("sp_config", flattenIdentityPlatformInboundSamlConfigSpConfig(res["spConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
 	}
 
@@ -363,22 +363,22 @@ func resourceIdentityPlatformInboundSamlConfigImport(d *schema.ResourceData, met
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIdentityPlatformInboundSamlConfigName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenIdentityPlatformInboundSamlConfigDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigEnabled(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigIdpConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -388,28 +388,28 @@ func flattenIdentityPlatformInboundSamlConfigIdpConfig(v interface{}, d *schema.
 	}
 	transformed := make(map[string]interface{})
 	transformed["idp_entity_id"] =
-		flattenIdentityPlatformInboundSamlConfigIdpConfigIdpEntityId(original["idpEntityId"], d)
+		flattenIdentityPlatformInboundSamlConfigIdpConfigIdpEntityId(original["idpEntityId"], d, config)
 	transformed["sso_url"] =
-		flattenIdentityPlatformInboundSamlConfigIdpConfigSsoUrl(original["ssoUrl"], d)
+		flattenIdentityPlatformInboundSamlConfigIdpConfigSsoUrl(original["ssoUrl"], d, config)
 	transformed["sign_request"] =
-		flattenIdentityPlatformInboundSamlConfigIdpConfigSignRequest(original["signRequest"], d)
+		flattenIdentityPlatformInboundSamlConfigIdpConfigSignRequest(original["signRequest"], d, config)
 	transformed["idp_certificates"] =
-		flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(original["idpCertificates"], d)
+		flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(original["idpCertificates"], d, config)
 	return []interface{}{transformed}
 }
-func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpEntityId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpEntityId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigIdpConfigSsoUrl(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigSsoUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigIdpConfigSignRequest(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigSignRequest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -422,16 +422,16 @@ func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(v interfac
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"x509_certificate": flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificatesX509Certificate(original["x509Certificate"], d),
+			"x509_certificate": flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificatesX509Certificate(original["x509Certificate"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificatesX509Certificate(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificatesX509Certificate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigSpConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -441,22 +441,22 @@ func flattenIdentityPlatformInboundSamlConfigSpConfig(v interface{}, d *schema.R
 	}
 	transformed := make(map[string]interface{})
 	transformed["sp_entity_id"] =
-		flattenIdentityPlatformInboundSamlConfigSpConfigSpEntityId(original["spEntityId"], d)
+		flattenIdentityPlatformInboundSamlConfigSpConfigSpEntityId(original["spEntityId"], d, config)
 	transformed["callback_uri"] =
-		flattenIdentityPlatformInboundSamlConfigSpConfigCallbackUri(original["callbackUri"], d)
+		flattenIdentityPlatformInboundSamlConfigSpConfigCallbackUri(original["callbackUri"], d, config)
 	transformed["sp_certificates"] =
-		flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(original["spCertificates"], d)
+		flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(original["spCertificates"], d, config)
 	return []interface{}{transformed}
 }
-func flattenIdentityPlatformInboundSamlConfigSpConfigSpEntityId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfigSpEntityId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigSpConfigCallbackUri(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfigCallbackUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -469,12 +469,12 @@ func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(v interface{
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"x509_certificate": flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificatesX509Certificate(original["x509Certificate"], d),
+			"x509_certificate": flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificatesX509Certificate(original["x509Certificate"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificatesX509Certificate(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificatesX509Certificate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

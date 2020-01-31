@@ -167,7 +167,7 @@ func resourceComputeBackendServiceSignedUrlKeyRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading BackendServiceSignedUrlKey: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeBackendServiceSignedUrlKeyName(res["keyName"], d)); err != nil {
+	if err := d.Set("name", flattenComputeBackendServiceSignedUrlKeyName(res["keyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendServiceSignedUrlKey: %s", err)
 	}
 
@@ -214,7 +214,7 @@ func resourceComputeBackendServiceSignedUrlKeyDelete(d *schema.ResourceData, met
 	return nil
 }
 
-func flattenComputeBackendServiceSignedUrlKeyName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceSignedUrlKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -282,7 +282,7 @@ func resourceComputeBackendServiceSignedUrlKeyFindNestedObjectInList(d *schema.R
 			"keyName": itemRaw,
 		}
 
-		itemName := flattenComputeBackendServiceSignedUrlKeyName(item["keyName"], d)
+		itemName := flattenComputeBackendServiceSignedUrlKeyName(item["keyName"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemName, expectedName) {
 			log.Printf("[DEBUG] Skipping item with keyName= %#v, looking for %#v)", itemName, expectedName)
 			continue

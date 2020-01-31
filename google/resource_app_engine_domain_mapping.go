@@ -225,16 +225,16 @@ func resourceAppEngineDomainMappingRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading DomainMapping: %s", err)
 	}
 
-	if err := d.Set("name", flattenAppEngineDomainMappingName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenAppEngineDomainMappingName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DomainMapping: %s", err)
 	}
-	if err := d.Set("ssl_settings", flattenAppEngineDomainMappingSslSettings(res["sslSettings"], d)); err != nil {
+	if err := d.Set("ssl_settings", flattenAppEngineDomainMappingSslSettings(res["sslSettings"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DomainMapping: %s", err)
 	}
-	if err := d.Set("resource_records", flattenAppEngineDomainMappingResourceRecords(res["resourceRecords"], d)); err != nil {
+	if err := d.Set("resource_records", flattenAppEngineDomainMappingResourceRecords(res["resourceRecords"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DomainMapping: %s", err)
 	}
-	if err := d.Set("domain_name", flattenAppEngineDomainMappingDomainName(res["id"], d)); err != nil {
+	if err := d.Set("domain_name", flattenAppEngineDomainMappingDomainName(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DomainMapping: %s", err)
 	}
 
@@ -344,11 +344,11 @@ func resourceAppEngineDomainMappingImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAppEngineDomainMappingName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineDomainMappingName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingSslSettings(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineDomainMappingSslSettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -358,26 +358,26 @@ func flattenAppEngineDomainMappingSslSettings(v interface{}, d *schema.ResourceD
 	}
 	transformed := make(map[string]interface{})
 	transformed["certificate_id"] =
-		flattenAppEngineDomainMappingSslSettingsCertificateId(original["certificateId"], d)
+		flattenAppEngineDomainMappingSslSettingsCertificateId(original["certificateId"], d, config)
 	transformed["ssl_management_type"] =
-		flattenAppEngineDomainMappingSslSettingsSslManagementType(original["sslManagementType"], d)
+		flattenAppEngineDomainMappingSslSettingsSslManagementType(original["sslManagementType"], d, config)
 	transformed["pending_managed_certificate_id"] =
-		flattenAppEngineDomainMappingSslSettingsPendingManagedCertificateId(original["pendingManagedCertificateId"], d)
+		flattenAppEngineDomainMappingSslSettingsPendingManagedCertificateId(original["pendingManagedCertificateId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAppEngineDomainMappingSslSettingsCertificateId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineDomainMappingSslSettingsCertificateId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingSslSettingsSslManagementType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineDomainMappingSslSettingsSslManagementType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingSslSettingsPendingManagedCertificateId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineDomainMappingSslSettingsPendingManagedCertificateId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingResourceRecords(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineDomainMappingResourceRecords(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -390,26 +390,26 @@ func flattenAppEngineDomainMappingResourceRecords(v interface{}, d *schema.Resou
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":   flattenAppEngineDomainMappingResourceRecordsName(original["name"], d),
-			"rrdata": flattenAppEngineDomainMappingResourceRecordsRrdata(original["rrdata"], d),
-			"type":   flattenAppEngineDomainMappingResourceRecordsType(original["type"], d),
+			"name":   flattenAppEngineDomainMappingResourceRecordsName(original["name"], d, config),
+			"rrdata": flattenAppEngineDomainMappingResourceRecordsRrdata(original["rrdata"], d, config),
+			"type":   flattenAppEngineDomainMappingResourceRecordsType(original["type"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenAppEngineDomainMappingResourceRecordsName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineDomainMappingResourceRecordsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingResourceRecordsRrdata(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineDomainMappingResourceRecordsRrdata(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingResourceRecordsType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineDomainMappingResourceRecordsType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingDomainName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineDomainMappingDomainName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

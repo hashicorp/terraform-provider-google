@@ -236,21 +236,21 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeNetworkDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeNetworkDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
-	if err := d.Set("gateway_ipv4", flattenComputeNetworkGatewayIpv4(res["gatewayIPv4"], d)); err != nil {
+	if err := d.Set("gateway_ipv4", flattenComputeNetworkGatewayIpv4(res["gatewayIPv4"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
-	if err := d.Set("name", flattenComputeNetworkName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeNetworkName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
-	if err := d.Set("auto_create_subnetworks", flattenComputeNetworkAutoCreateSubnetworks(res["autoCreateSubnetworks"], d)); err != nil {
+	if err := d.Set("auto_create_subnetworks", flattenComputeNetworkAutoCreateSubnetworks(res["autoCreateSubnetworks"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	// Terraform must set the top level schema field, but since this object contains collapsed properties
 	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
-	if flattenedProp := flattenComputeNetworkRoutingConfig(res["routingConfig"], d); flattenedProp != nil {
+	if flattenedProp := flattenComputeNetworkRoutingConfig(res["routingConfig"], d, config); flattenedProp != nil {
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
@@ -365,23 +365,23 @@ func resourceComputeNetworkImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNetworkDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkGatewayIpv4(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkGatewayIpv4(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkAutoCreateSubnetworks(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkAutoCreateSubnetworks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkRoutingConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkRoutingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -391,10 +391,10 @@ func flattenComputeNetworkRoutingConfig(v interface{}, d *schema.ResourceData) i
 	}
 	transformed := make(map[string]interface{})
 	transformed["routing_mode"] =
-		flattenComputeNetworkRoutingConfigRoutingMode(original["routingMode"], d)
+		flattenComputeNetworkRoutingConfigRoutingMode(original["routingMode"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

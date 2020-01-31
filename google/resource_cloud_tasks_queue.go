@@ -289,16 +289,16 @@ func resourceCloudTasksQueueRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Queue: %s", err)
 	}
 
-	if err := d.Set("name", flattenCloudTasksQueueName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenCloudTasksQueueName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Queue: %s", err)
 	}
-	if err := d.Set("app_engine_routing_override", flattenCloudTasksQueueAppEngineRoutingOverride(res["appEngineRoutingOverride"], d)); err != nil {
+	if err := d.Set("app_engine_routing_override", flattenCloudTasksQueueAppEngineRoutingOverride(res["appEngineRoutingOverride"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Queue: %s", err)
 	}
-	if err := d.Set("rate_limits", flattenCloudTasksQueueRateLimits(res["rateLimits"], d)); err != nil {
+	if err := d.Set("rate_limits", flattenCloudTasksQueueRateLimits(res["rateLimits"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Queue: %s", err)
 	}
-	if err := d.Set("retry_config", flattenCloudTasksQueueRetryConfig(res["retryConfig"], d)); err != nil {
+	if err := d.Set("retry_config", flattenCloudTasksQueueRetryConfig(res["retryConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Queue: %s", err)
 	}
 
@@ -412,7 +412,7 @@ func resourceCloudTasksQueueImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenCloudTasksQueueName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -420,7 +420,7 @@ func flattenCloudTasksQueueName(v interface{}, d *schema.ResourceData) interface
 }
 
 // service, version, and instance are input-only. host is output-only.
-func flattenCloudTasksQueueAppEngineRoutingOverride(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueAppEngineRoutingOverride(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -438,7 +438,7 @@ func flattenCloudTasksQueueAppEngineRoutingOverride(v interface{}, d *schema.Res
 	return []interface{}{transformed}
 }
 
-func flattenCloudTasksQueueRateLimits(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRateLimits(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -448,18 +448,18 @@ func flattenCloudTasksQueueRateLimits(v interface{}, d *schema.ResourceData) int
 	}
 	transformed := make(map[string]interface{})
 	transformed["max_dispatches_per_second"] =
-		flattenCloudTasksQueueRateLimitsMaxDispatchesPerSecond(original["maxDispatchesPerSecond"], d)
+		flattenCloudTasksQueueRateLimitsMaxDispatchesPerSecond(original["maxDispatchesPerSecond"], d, config)
 	transformed["max_concurrent_dispatches"] =
-		flattenCloudTasksQueueRateLimitsMaxConcurrentDispatches(original["maxConcurrentDispatches"], d)
+		flattenCloudTasksQueueRateLimitsMaxConcurrentDispatches(original["maxConcurrentDispatches"], d, config)
 	transformed["max_burst_size"] =
-		flattenCloudTasksQueueRateLimitsMaxBurstSize(original["maxBurstSize"], d)
+		flattenCloudTasksQueueRateLimitsMaxBurstSize(original["maxBurstSize"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudTasksQueueRateLimitsMaxDispatchesPerSecond(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRateLimitsMaxDispatchesPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudTasksQueueRateLimitsMaxConcurrentDispatches(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRateLimitsMaxConcurrentDispatches(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -469,7 +469,7 @@ func flattenCloudTasksQueueRateLimitsMaxConcurrentDispatches(v interface{}, d *s
 	return v
 }
 
-func flattenCloudTasksQueueRateLimitsMaxBurstSize(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRateLimitsMaxBurstSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -479,7 +479,7 @@ func flattenCloudTasksQueueRateLimitsMaxBurstSize(v interface{}, d *schema.Resou
 	return v
 }
 
-func flattenCloudTasksQueueRetryConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRetryConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -489,18 +489,18 @@ func flattenCloudTasksQueueRetryConfig(v interface{}, d *schema.ResourceData) in
 	}
 	transformed := make(map[string]interface{})
 	transformed["max_attempts"] =
-		flattenCloudTasksQueueRetryConfigMaxAttempts(original["maxAttempts"], d)
+		flattenCloudTasksQueueRetryConfigMaxAttempts(original["maxAttempts"], d, config)
 	transformed["max_retry_duration"] =
-		flattenCloudTasksQueueRetryConfigMaxRetryDuration(original["maxRetryDuration"], d)
+		flattenCloudTasksQueueRetryConfigMaxRetryDuration(original["maxRetryDuration"], d, config)
 	transformed["min_backoff"] =
-		flattenCloudTasksQueueRetryConfigMinBackoff(original["minBackoff"], d)
+		flattenCloudTasksQueueRetryConfigMinBackoff(original["minBackoff"], d, config)
 	transformed["max_backoff"] =
-		flattenCloudTasksQueueRetryConfigMaxBackoff(original["maxBackoff"], d)
+		flattenCloudTasksQueueRetryConfigMaxBackoff(original["maxBackoff"], d, config)
 	transformed["max_doublings"] =
-		flattenCloudTasksQueueRetryConfigMaxDoublings(original["maxDoublings"], d)
+		flattenCloudTasksQueueRetryConfigMaxDoublings(original["maxDoublings"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudTasksQueueRetryConfigMaxAttempts(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRetryConfigMaxAttempts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -510,19 +510,19 @@ func flattenCloudTasksQueueRetryConfigMaxAttempts(v interface{}, d *schema.Resou
 	return v
 }
 
-func flattenCloudTasksQueueRetryConfigMaxRetryDuration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRetryConfigMaxRetryDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudTasksQueueRetryConfigMinBackoff(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRetryConfigMinBackoff(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudTasksQueueRetryConfigMaxBackoff(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRetryConfigMaxBackoff(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudTasksQueueRetryConfigMaxDoublings(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRetryConfigMaxDoublings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {

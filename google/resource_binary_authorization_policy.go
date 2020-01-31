@@ -302,19 +302,19 @@ func resourceBinaryAuthorizationPolicyRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading Policy: %s", err)
 	}
 
-	if err := d.Set("description", flattenBinaryAuthorizationPolicyDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenBinaryAuthorizationPolicyDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Policy: %s", err)
 	}
-	if err := d.Set("global_policy_evaluation_mode", flattenBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(res["globalPolicyEvaluationMode"], d)); err != nil {
+	if err := d.Set("global_policy_evaluation_mode", flattenBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(res["globalPolicyEvaluationMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Policy: %s", err)
 	}
-	if err := d.Set("admission_whitelist_patterns", flattenBinaryAuthorizationPolicyAdmissionWhitelistPatterns(res["admissionWhitelistPatterns"], d)); err != nil {
+	if err := d.Set("admission_whitelist_patterns", flattenBinaryAuthorizationPolicyAdmissionWhitelistPatterns(res["admissionWhitelistPatterns"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Policy: %s", err)
 	}
-	if err := d.Set("cluster_admission_rules", flattenBinaryAuthorizationPolicyClusterAdmissionRules(res["clusterAdmissionRules"], d)); err != nil {
+	if err := d.Set("cluster_admission_rules", flattenBinaryAuthorizationPolicyClusterAdmissionRules(res["clusterAdmissionRules"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Policy: %s", err)
 	}
-	if err := d.Set("default_admission_rule", flattenBinaryAuthorizationPolicyDefaultAdmissionRule(res["defaultAdmissionRule"], d)); err != nil {
+	if err := d.Set("default_admission_rule", flattenBinaryAuthorizationPolicyDefaultAdmissionRule(res["defaultAdmissionRule"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Policy: %s", err)
 	}
 
@@ -421,15 +421,15 @@ func resourceBinaryAuthorizationPolicyImport(d *schema.ResourceData, meta interf
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBinaryAuthorizationPolicyDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBinaryAuthorizationPolicyDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -442,16 +442,16 @@ func flattenBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name_pattern": flattenBinaryAuthorizationPolicyAdmissionWhitelistPatternsNamePattern(original["namePattern"], d),
+			"name_pattern": flattenBinaryAuthorizationPolicyAdmissionWhitelistPatternsNamePattern(original["namePattern"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenBinaryAuthorizationPolicyAdmissionWhitelistPatternsNamePattern(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBinaryAuthorizationPolicyAdmissionWhitelistPatternsNamePattern(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -461,29 +461,29 @@ func flattenBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d *sch
 		original := raw.(map[string]interface{})
 		transformed = append(transformed, map[string]interface{}{
 			"cluster":                 k,
-			"evaluation_mode":         flattenBinaryAuthorizationPolicyClusterAdmissionRulesEvaluationMode(original["evaluationMode"], d),
-			"require_attestations_by": flattenBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(original["requireAttestationsBy"], d),
-			"enforcement_mode":        flattenBinaryAuthorizationPolicyClusterAdmissionRulesEnforcementMode(original["enforcementMode"], d),
+			"evaluation_mode":         flattenBinaryAuthorizationPolicyClusterAdmissionRulesEvaluationMode(original["evaluationMode"], d, config),
+			"require_attestations_by": flattenBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(original["requireAttestationsBy"], d, config),
+			"enforcement_mode":        flattenBinaryAuthorizationPolicyClusterAdmissionRulesEnforcementMode(original["enforcementMode"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenBinaryAuthorizationPolicyClusterAdmissionRulesEvaluationMode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBinaryAuthorizationPolicyClusterAdmissionRulesEvaluationMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(selfLinkNameHash, v.([]interface{}))
 }
 
-func flattenBinaryAuthorizationPolicyClusterAdmissionRulesEnforcementMode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBinaryAuthorizationPolicyClusterAdmissionRulesEnforcementMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBinaryAuthorizationPolicyDefaultAdmissionRule(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBinaryAuthorizationPolicyDefaultAdmissionRule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -493,25 +493,25 @@ func flattenBinaryAuthorizationPolicyDefaultAdmissionRule(v interface{}, d *sche
 	}
 	transformed := make(map[string]interface{})
 	transformed["evaluation_mode"] =
-		flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEvaluationMode(original["evaluationMode"], d)
+		flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEvaluationMode(original["evaluationMode"], d, config)
 	transformed["require_attestations_by"] =
-		flattenBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(original["requireAttestationsBy"], d)
+		flattenBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(original["requireAttestationsBy"], d, config)
 	transformed["enforcement_mode"] =
-		flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(original["enforcementMode"], d)
+		flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(original["enforcementMode"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEvaluationMode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEvaluationMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(selfLinkNameHash, v.([]interface{}))
 }
 
-func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

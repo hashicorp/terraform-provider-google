@@ -1823,34 +1823,34 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeUrlMapCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeUrlMapCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("default_service", flattenComputeUrlMapDefaultService(res["defaultService"], d)); err != nil {
+	if err := d.Set("default_service", flattenComputeUrlMapDefaultService(res["defaultService"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("description", flattenComputeUrlMapDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeUrlMapDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("map_id", flattenComputeUrlMapMapId(res["id"], d)); err != nil {
+	if err := d.Set("map_id", flattenComputeUrlMapMapId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("fingerprint", flattenComputeUrlMapFingerprint(res["fingerprint"], d)); err != nil {
+	if err := d.Set("fingerprint", flattenComputeUrlMapFingerprint(res["fingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("header_action", flattenComputeUrlMapHeaderAction(res["headerAction"], d)); err != nil {
+	if err := d.Set("header_action", flattenComputeUrlMapHeaderAction(res["headerAction"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("host_rule", flattenComputeUrlMapHostRule(res["hostRules"], d)); err != nil {
+	if err := d.Set("host_rule", flattenComputeUrlMapHostRule(res["hostRules"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("name", flattenComputeUrlMapName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeUrlMapName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("path_matcher", flattenComputeUrlMapPathMatcher(res["pathMatchers"], d)); err != nil {
+	if err := d.Set("path_matcher", flattenComputeUrlMapPathMatcher(res["pathMatchers"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("test", flattenComputeUrlMapTest(res["tests"], d)); err != nil {
+	if err := d.Set("test", flattenComputeUrlMapTest(res["tests"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -1994,22 +1994,22 @@ func resourceComputeUrlMapImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeUrlMapCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultService(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapDefaultService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapMapId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapMapId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2019,11 +2019,11 @@ func flattenComputeUrlMapMapId(v interface{}, d *schema.ResourceData) interface{
 	return v
 }
 
-func flattenComputeUrlMapFingerprint(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderAction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHeaderAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2033,16 +2033,16 @@ func flattenComputeUrlMapHeaderAction(v interface{}, d *schema.ResourceData) int
 	}
 	transformed := make(map[string]interface{})
 	transformed["request_headers_to_add"] =
-		flattenComputeUrlMapHeaderActionRequestHeadersToAdd(original["requestHeadersToAdd"], d)
+		flattenComputeUrlMapHeaderActionRequestHeadersToAdd(original["requestHeadersToAdd"], d, config)
 	transformed["request_headers_to_remove"] =
-		flattenComputeUrlMapHeaderActionRequestHeadersToRemove(original["requestHeadersToRemove"], d)
+		flattenComputeUrlMapHeaderActionRequestHeadersToRemove(original["requestHeadersToRemove"], d, config)
 	transformed["response_headers_to_add"] =
-		flattenComputeUrlMapHeaderActionResponseHeadersToAdd(original["responseHeadersToAdd"], d)
+		flattenComputeUrlMapHeaderActionResponseHeadersToAdd(original["responseHeadersToAdd"], d, config)
 	transformed["response_headers_to_remove"] =
-		flattenComputeUrlMapHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d)
+		flattenComputeUrlMapHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2055,30 +2055,30 @@ func flattenComputeUrlMapHeaderActionRequestHeadersToAdd(v interface{}, d *schem
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"header_name":  flattenComputeUrlMapHeaderActionRequestHeadersToAddHeaderName(original["headerName"], d),
-			"header_value": flattenComputeUrlMapHeaderActionRequestHeadersToAddHeaderValue(original["headerValue"], d),
-			"replace":      flattenComputeUrlMapHeaderActionRequestHeadersToAddReplace(original["replace"], d),
+			"header_name":  flattenComputeUrlMapHeaderActionRequestHeadersToAddHeaderName(original["headerName"], d, config),
+			"header_value": flattenComputeUrlMapHeaderActionRequestHeadersToAddHeaderValue(original["headerValue"], d, config),
+			"replace":      flattenComputeUrlMapHeaderActionRequestHeadersToAddReplace(original["replace"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2091,30 +2091,30 @@ func flattenComputeUrlMapHeaderActionResponseHeadersToAdd(v interface{}, d *sche
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"header_name":  flattenComputeUrlMapHeaderActionResponseHeadersToAddHeaderName(original["headerName"], d),
-			"header_value": flattenComputeUrlMapHeaderActionResponseHeadersToAddHeaderValue(original["headerValue"], d),
-			"replace":      flattenComputeUrlMapHeaderActionResponseHeadersToAddReplace(original["replace"], d),
+			"header_name":  flattenComputeUrlMapHeaderActionResponseHeadersToAddHeaderName(original["headerName"], d, config),
+			"header_value": flattenComputeUrlMapHeaderActionResponseHeadersToAddHeaderValue(original["headerValue"], d, config),
+			"replace":      flattenComputeUrlMapHeaderActionResponseHeadersToAddReplace(original["replace"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHostRule(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHostRule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2127,33 +2127,33 @@ func flattenComputeUrlMapHostRule(v interface{}, d *schema.ResourceData) interfa
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"description":  flattenComputeUrlMapHostRuleDescription(original["description"], d),
-			"hosts":        flattenComputeUrlMapHostRuleHosts(original["hosts"], d),
-			"path_matcher": flattenComputeUrlMapHostRulePathMatcher(original["pathMatcher"], d),
+			"description":  flattenComputeUrlMapHostRuleDescription(original["description"], d, config),
+			"hosts":        flattenComputeUrlMapHostRuleHosts(original["hosts"], d, config),
+			"path_matcher": flattenComputeUrlMapHostRulePathMatcher(original["pathMatcher"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapHostRuleDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHostRuleDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHostRuleHosts(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHostRuleHosts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeUrlMapHostRulePathMatcher(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapHostRulePathMatcher(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcher(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcher(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2166,28 +2166,28 @@ func flattenComputeUrlMapPathMatcher(v interface{}, d *schema.ResourceData) inte
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"default_service": flattenComputeUrlMapPathMatcherDefaultService(original["defaultService"], d),
-			"description":     flattenComputeUrlMapPathMatcherDescription(original["description"], d),
-			"header_action":   flattenComputeUrlMapPathMatcherHeaderAction(original["headerAction"], d),
-			"name":            flattenComputeUrlMapPathMatcherName(original["name"], d),
-			"path_rule":       flattenComputeUrlMapPathMatcherPathRule(original["pathRules"], d),
-			"route_rules":     flattenComputeUrlMapPathMatcherRouteRules(original["routeRules"], d),
+			"default_service": flattenComputeUrlMapPathMatcherDefaultService(original["defaultService"], d, config),
+			"description":     flattenComputeUrlMapPathMatcherDescription(original["description"], d, config),
+			"header_action":   flattenComputeUrlMapPathMatcherHeaderAction(original["headerAction"], d, config),
+			"name":            flattenComputeUrlMapPathMatcherName(original["name"], d, config),
+			"path_rule":       flattenComputeUrlMapPathMatcherPathRule(original["pathRules"], d, config),
+			"route_rules":     flattenComputeUrlMapPathMatcherRouteRules(original["routeRules"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherDefaultService(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderAction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2197,16 +2197,16 @@ func flattenComputeUrlMapPathMatcherHeaderAction(v interface{}, d *schema.Resour
 	}
 	transformed := make(map[string]interface{})
 	transformed["request_headers_to_add"] =
-		flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAdd(original["requestHeadersToAdd"], d)
+		flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAdd(original["requestHeadersToAdd"], d, config)
 	transformed["request_headers_to_remove"] =
-		flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToRemove(original["requestHeadersToRemove"], d)
+		flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToRemove(original["requestHeadersToRemove"], d, config)
 	transformed["response_headers_to_add"] =
-		flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAdd(original["responseHeadersToAdd"], d)
+		flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAdd(original["responseHeadersToAdd"], d, config)
 	transformed["response_headers_to_remove"] =
-		flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d)
+		flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2219,30 +2219,30 @@ func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAdd(v interface{
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"header_name":  flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderName(original["headerName"], d),
-			"header_value": flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderValue(original["headerValue"], d),
-			"replace":      flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddReplace(original["replace"], d),
+			"header_name":  flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderName(original["headerName"], d, config),
+			"header_value": flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderValue(original["headerValue"], d, config),
+			"replace":      flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddReplace(original["replace"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2255,34 +2255,34 @@ func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAdd(v interface
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"header_name":  flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderName(original["headerName"], d),
-			"header_value": flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderValue(original["headerValue"], d),
-			"replace":      flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddReplace(original["replace"], d),
+			"header_name":  flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderName(original["headerName"], d, config),
+			"header_value": flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderValue(original["headerValue"], d, config),
+			"replace":      flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddReplace(original["replace"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRule(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2295,29 +2295,29 @@ func flattenComputeUrlMapPathMatcherPathRule(v interface{}, d *schema.ResourceDa
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"service":      flattenComputeUrlMapPathMatcherPathRuleService(original["service"], d),
-			"paths":        flattenComputeUrlMapPathMatcherPathRulePaths(original["paths"], d),
-			"route_action": flattenComputeUrlMapPathMatcherPathRuleRouteAction(original["routeAction"], d),
-			"url_redirect": flattenComputeUrlMapPathMatcherPathRuleUrlRedirect(original["urlRedirect"], d),
+			"service":      flattenComputeUrlMapPathMatcherPathRuleService(original["service"], d, config),
+			"paths":        flattenComputeUrlMapPathMatcherPathRulePaths(original["paths"], d, config),
+			"route_action": flattenComputeUrlMapPathMatcherPathRuleRouteAction(original["routeAction"], d, config),
+			"url_redirect": flattenComputeUrlMapPathMatcherPathRuleUrlRedirect(original["urlRedirect"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherPathRuleService(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherPathRulePaths(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRulePaths(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteAction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2327,22 +2327,22 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteAction(v interface{}, d *schema
 	}
 	transformed := make(map[string]interface{})
 	transformed["cors_policy"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicy(original["corsPolicy"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicy(original["corsPolicy"], d, config)
 	transformed["fault_injection_policy"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicy(original["faultInjectionPolicy"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicy(original["faultInjectionPolicy"], d, config)
 	transformed["request_mirror_policy"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy(original["requestMirrorPolicy"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy(original["requestMirrorPolicy"], d, config)
 	transformed["retry_policy"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicy(original["retryPolicy"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicy(original["retryPolicy"], d, config)
 	transformed["timeout"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeout(original["timeout"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeout(original["timeout"], d, config)
 	transformed["url_rewrite"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewrite(original["urlRewrite"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewrite(original["urlRewrite"], d, config)
 	transformed["weighted_backend_services"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServices(original["weightedBackendServices"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServices(original["weightedBackendServices"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2352,52 +2352,52 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicy(v interface{},
 	}
 	transformed := make(map[string]interface{})
 	transformed["allow_credentials"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowCredentials(original["allowCredentials"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowCredentials(original["allowCredentials"], d, config)
 	transformed["allow_headers"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowHeaders(original["allowHeaders"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowHeaders(original["allowHeaders"], d, config)
 	transformed["allow_methods"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowMethods(original["allowMethods"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowMethods(original["allowMethods"], d, config)
 	transformed["allow_origin_regexes"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOriginRegexes(original["allowOriginRegexes"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOriginRegexes(original["allowOriginRegexes"], d, config)
 	transformed["allow_origins"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOrigins(original["allowOrigins"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOrigins(original["allowOrigins"], d, config)
 	transformed["disabled"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyDisabled(original["disabled"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyDisabled(original["disabled"], d, config)
 	transformed["expose_headers"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyExposeHeaders(original["exposeHeaders"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyExposeHeaders(original["exposeHeaders"], d, config)
 	transformed["max_age"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyMaxAge(original["maxAge"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyMaxAge(original["maxAge"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowCredentials(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowCredentials(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowHeaders(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowMethods(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowMethods(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOrigins(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOrigins(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyDisabled(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyExposeHeaders(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyExposeHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2407,7 +2407,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyMaxAge(v interf
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2417,12 +2417,12 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicy(v in
 	}
 	transformed := make(map[string]interface{})
 	transformed["abort"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort(original["abort"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort(original["abort"], d, config)
 	transformed["delay"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay(original["delay"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay(original["delay"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2432,12 +2432,12 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort
 	}
 	transformed := make(map[string]interface{})
 	transformed["http_status"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortHttpStatus(original["httpStatus"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortHttpStatus(original["httpStatus"], d, config)
 	transformed["percentage"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortPercentage(original["percentage"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortPercentage(original["percentage"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2447,11 +2447,11 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2461,12 +2461,12 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay
 	}
 	transformed := make(map[string]interface{})
 	transformed["fixed_delay"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelay(original["fixedDelay"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelay(original["fixedDelay"], d, config)
 	transformed["percentage"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayPercentage(original["percentage"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayPercentage(original["percentage"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2476,12 +2476,12 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay
 	}
 	transformed := make(map[string]interface{})
 	transformed["nanos"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelayNanos(original["nanos"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelayNanos(original["nanos"], d, config)
 	transformed["seconds"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(original["seconds"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(original["seconds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2491,15 +2491,15 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2509,17 +2509,17 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy(v int
 	}
 	transformed := make(map[string]interface{})
 	transformed["backend_service"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBackendService(original["backendService"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBackendService(original["backendService"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2529,14 +2529,14 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicy(v interface{}
 	}
 	transformed := make(map[string]interface{})
 	transformed["num_retries"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyNumRetries(original["numRetries"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyNumRetries(original["numRetries"], d, config)
 	transformed["per_try_timeout"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeout(original["perTryTimeout"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeout(original["perTryTimeout"], d, config)
 	transformed["retry_conditions"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyRetryConditions(original["retryConditions"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyRetryConditions(original["retryConditions"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2546,7 +2546,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyNumRetries(v i
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeout(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2556,12 +2556,12 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeout(
 	}
 	transformed := make(map[string]interface{})
 	transformed["nanos"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutNanos(original["nanos"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutNanos(original["nanos"], d, config)
 	transformed["seconds"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutSeconds(original["seconds"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutSeconds(original["seconds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2571,15 +2571,15 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutN
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyRetryConditions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyRetryConditions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeout(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2589,12 +2589,12 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeout(v interface{}, d 
 	}
 	transformed := make(map[string]interface{})
 	transformed["nanos"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutNanos(original["nanos"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutNanos(original["nanos"], d, config)
 	transformed["seconds"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutSeconds(original["seconds"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutSeconds(original["seconds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2604,11 +2604,11 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutNanos(v interface{
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutSeconds(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewrite(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2618,20 +2618,20 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewrite(v interface{},
 	}
 	transformed := make(map[string]interface{})
 	transformed["host_rewrite"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewriteHostRewrite(original["hostRewrite"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewriteHostRewrite(original["hostRewrite"], d, config)
 	transformed["path_prefix_rewrite"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewritePathPrefixRewrite(original["pathPrefixRewrite"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewritePathPrefixRewrite(original["pathPrefixRewrite"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServices(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2644,21 +2644,21 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServices(v
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"backend_service": flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesBackendService(original["backendService"], d),
-			"header_action":   flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderAction(original["headerAction"], d),
-			"weight":          flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesWeight(original["weight"], d),
+			"backend_service": flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesBackendService(original["backendService"], d, config),
+			"header_action":   flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderAction(original["headerAction"], d, config),
+			"weight":          flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesWeight(original["weight"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesBackendService(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2668,16 +2668,16 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHe
 	}
 	transformed := make(map[string]interface{})
 	transformed["request_headers_to_add"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(original["requestHeadersToAdd"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(original["requestHeadersToAdd"], d, config)
 	transformed["request_headers_to_remove"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(original["requestHeadersToRemove"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(original["requestHeadersToRemove"], d, config)
 	transformed["response_headers_to_add"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(original["responseHeadersToAdd"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(original["responseHeadersToAdd"], d, config)
 	transformed["response_headers_to_remove"] =
-		flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d)
+		flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2690,30 +2690,30 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHe
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"header_name":  flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(original["headerName"], d),
-			"header_value": flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(original["headerValue"], d),
-			"replace":      flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(original["replace"], d),
+			"header_name":  flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(original["headerName"], d, config),
+			"header_value": flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(original["headerValue"], d, config),
+			"replace":      flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(original["replace"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2726,30 +2726,30 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHe
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"header_name":  flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(original["headerName"], d),
-			"header_value": flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(original["headerValue"], d),
-			"replace":      flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(original["replace"], d),
+			"header_name":  flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(original["headerName"], d, config),
+			"header_value": flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(original["headerValue"], d, config),
+			"replace":      flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(original["replace"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2759,7 +2759,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesWe
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirect(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2769,44 +2769,44 @@ func flattenComputeUrlMapPathMatcherPathRuleUrlRedirect(v interface{}, d *schema
 	}
 	transformed := make(map[string]interface{})
 	transformed["host_redirect"] =
-		flattenComputeUrlMapPathMatcherPathRuleUrlRedirectHostRedirect(original["hostRedirect"], d)
+		flattenComputeUrlMapPathMatcherPathRuleUrlRedirectHostRedirect(original["hostRedirect"], d, config)
 	transformed["https_redirect"] =
-		flattenComputeUrlMapPathMatcherPathRuleUrlRedirectHttpsRedirect(original["httpsRedirect"], d)
+		flattenComputeUrlMapPathMatcherPathRuleUrlRedirectHttpsRedirect(original["httpsRedirect"], d, config)
 	transformed["path_redirect"] =
-		flattenComputeUrlMapPathMatcherPathRuleUrlRedirectPathRedirect(original["pathRedirect"], d)
+		flattenComputeUrlMapPathMatcherPathRuleUrlRedirectPathRedirect(original["pathRedirect"], d, config)
 	transformed["prefix_redirect"] =
-		flattenComputeUrlMapPathMatcherPathRuleUrlRedirectPrefixRedirect(original["prefixRedirect"], d)
+		flattenComputeUrlMapPathMatcherPathRuleUrlRedirectPrefixRedirect(original["prefixRedirect"], d, config)
 	transformed["redirect_response_code"] =
-		flattenComputeUrlMapPathMatcherPathRuleUrlRedirectRedirectResponseCode(original["redirectResponseCode"], d)
+		flattenComputeUrlMapPathMatcherPathRuleUrlRedirectRedirectResponseCode(original["redirectResponseCode"], d, config)
 	transformed["strip_query"] =
-		flattenComputeUrlMapPathMatcherPathRuleUrlRedirectStripQuery(original["stripQuery"], d)
+		flattenComputeUrlMapPathMatcherPathRuleUrlRedirectStripQuery(original["stripQuery"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectHostRedirect(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectHostRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectHttpsRedirect(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectHttpsRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectPathRedirect(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectPathRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectPrefixRedirect(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectPrefixRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectRedirectResponseCode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectRedirectResponseCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectStripQuery(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectStripQuery(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRules(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRules(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2819,17 +2819,17 @@ func flattenComputeUrlMapPathMatcherRouteRules(v interface{}, d *schema.Resource
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"priority":      flattenComputeUrlMapPathMatcherRouteRulesPriority(original["priority"], d),
-			"service":       flattenComputeUrlMapPathMatcherRouteRulesService(original["service"], d),
-			"header_action": flattenComputeUrlMapPathMatcherRouteRulesHeaderAction(original["headerAction"], d),
-			"match_rules":   flattenComputeUrlMapPathMatcherRouteRulesMatchRules(original["matchRules"], d),
-			"route_action":  flattenComputeUrlMapPathMatcherRouteRulesRouteAction(original["routeAction"], d),
-			"url_redirect":  flattenComputeUrlMapPathMatcherRouteRulesUrlRedirect(original["urlRedirect"], d),
+			"priority":      flattenComputeUrlMapPathMatcherRouteRulesPriority(original["priority"], d, config),
+			"service":       flattenComputeUrlMapPathMatcherRouteRulesService(original["service"], d, config),
+			"header_action": flattenComputeUrlMapPathMatcherRouteRulesHeaderAction(original["headerAction"], d, config),
+			"match_rules":   flattenComputeUrlMapPathMatcherRouteRulesMatchRules(original["matchRules"], d, config),
+			"route_action":  flattenComputeUrlMapPathMatcherRouteRulesRouteAction(original["routeAction"], d, config),
+			"url_redirect":  flattenComputeUrlMapPathMatcherRouteRulesUrlRedirect(original["urlRedirect"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesPriority(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesPriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -2839,14 +2839,14 @@ func flattenComputeUrlMapPathMatcherRouteRulesPriority(v interface{}, d *schema.
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesService(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderAction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2856,16 +2856,16 @@ func flattenComputeUrlMapPathMatcherRouteRulesHeaderAction(v interface{}, d *sch
 	}
 	transformed := make(map[string]interface{})
 	transformed["request_headers_to_add"] =
-		flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAdd(original["requestHeadersToAdd"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAdd(original["requestHeadersToAdd"], d, config)
 	transformed["request_headers_to_remove"] =
-		flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToRemove(original["requestHeadersToRemove"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToRemove(original["requestHeadersToRemove"], d, config)
 	transformed["response_headers_to_add"] =
-		flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAdd(original["responseHeadersToAdd"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAdd(original["responseHeadersToAdd"], d, config)
 	transformed["response_headers_to_remove"] =
-		flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2878,30 +2878,30 @@ func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAdd(v 
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"header_name":  flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderName(original["headerName"], d),
-			"header_value": flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderValue(original["headerValue"], d),
-			"replace":      flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddReplace(original["replace"], d),
+			"header_name":  flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderName(original["headerName"], d, config),
+			"header_value": flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderValue(original["headerValue"], d, config),
+			"replace":      flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddReplace(original["replace"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2914,30 +2914,30 @@ func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAdd(v
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"header_name":  flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderName(original["headerName"], d),
-			"header_value": flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderValue(original["headerValue"], d),
-			"replace":      flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddReplace(original["replace"], d),
+			"header_name":  flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderName(original["headerName"], d, config),
+			"header_value": flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderValue(original["headerValue"], d, config),
+			"replace":      flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddReplace(original["replace"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRules(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRules(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2950,22 +2950,22 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRules(v interface{}, d *schem
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"full_path_match":         flattenComputeUrlMapPathMatcherRouteRulesMatchRulesFullPathMatch(original["fullPathMatch"], d),
-			"header_matches":          flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatches(original["headerMatches"], d),
-			"ignore_case":             flattenComputeUrlMapPathMatcherRouteRulesMatchRulesIgnoreCase(original["ignoreCase"], d),
-			"metadata_filters":        flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFilters(original["metadataFilters"], d),
-			"prefix_match":            flattenComputeUrlMapPathMatcherRouteRulesMatchRulesPrefixMatch(original["prefixMatch"], d),
-			"query_parameter_matches": flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatches(original["queryParameterMatches"], d),
-			"regex_match":             flattenComputeUrlMapPathMatcherRouteRulesMatchRulesRegexMatch(original["regexMatch"], d),
+			"full_path_match":         flattenComputeUrlMapPathMatcherRouteRulesMatchRulesFullPathMatch(original["fullPathMatch"], d, config),
+			"header_matches":          flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatches(original["headerMatches"], d, config),
+			"ignore_case":             flattenComputeUrlMapPathMatcherRouteRulesMatchRulesIgnoreCase(original["ignoreCase"], d, config),
+			"metadata_filters":        flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFilters(original["metadataFilters"], d, config),
+			"prefix_match":            flattenComputeUrlMapPathMatcherRouteRulesMatchRulesPrefixMatch(original["prefixMatch"], d, config),
+			"query_parameter_matches": flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatches(original["queryParameterMatches"], d, config),
+			"regex_match":             flattenComputeUrlMapPathMatcherRouteRulesMatchRulesRegexMatch(original["regexMatch"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesFullPathMatch(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesFullPathMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatches(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatches(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2978,39 +2978,39 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatches(v interfac
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"exact_match":   flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesExactMatch(original["exactMatch"], d),
-			"header_name":   flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesHeaderName(original["headerName"], d),
-			"invert_match":  flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesInvertMatch(original["invertMatch"], d),
-			"prefix_match":  flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPrefixMatch(original["prefixMatch"], d),
-			"present_match": flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPresentMatch(original["presentMatch"], d),
-			"range_match":   flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatch(original["rangeMatch"], d),
-			"regex_match":   flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRegexMatch(original["regexMatch"], d),
-			"suffix_match":  flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesSuffixMatch(original["suffixMatch"], d),
+			"exact_match":   flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesExactMatch(original["exactMatch"], d, config),
+			"header_name":   flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesHeaderName(original["headerName"], d, config),
+			"invert_match":  flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesInvertMatch(original["invertMatch"], d, config),
+			"prefix_match":  flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPrefixMatch(original["prefixMatch"], d, config),
+			"present_match": flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPresentMatch(original["presentMatch"], d, config),
+			"range_match":   flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatch(original["rangeMatch"], d, config),
+			"regex_match":   flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRegexMatch(original["regexMatch"], d, config),
+			"suffix_match":  flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesSuffixMatch(original["suffixMatch"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesExactMatch(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesExactMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesHeaderName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesInvertMatch(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesInvertMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPrefixMatch(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPrefixMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPresentMatch(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPresentMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatch(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3020,12 +3020,12 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatch(
 	}
 	transformed := make(map[string]interface{})
 	transformed["range_end"] =
-		flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeEnd(original["rangeEnd"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeEnd(original["rangeEnd"], d, config)
 	transformed["range_start"] =
-		flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeStart(original["rangeStart"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeStart(original["rangeStart"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeEnd(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeEnd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -3035,7 +3035,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchR
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeStart(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeStart(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -3045,19 +3045,19 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchR
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRegexMatch(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRegexMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesSuffixMatch(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesSuffixMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesIgnoreCase(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesIgnoreCase(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFilters(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFilters(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3070,13 +3070,13 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFilters(v interf
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"filter_labels":         flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabels(original["filterLabels"], d),
-			"filter_match_criteria": flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterMatchCriteria(original["filterMatchCriteria"], d),
+			"filter_labels":         flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabels(original["filterLabels"], d, config),
+			"filter_match_criteria": flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterMatchCriteria(original["filterMatchCriteria"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3089,29 +3089,29 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLab
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":  flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsName(original["name"], d),
-			"value": flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsValue(original["value"], d),
+			"name":  flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsName(original["name"], d, config),
+			"value": flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsValue(original["value"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterMatchCriteria(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterMatchCriteria(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesPrefixMatch(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesPrefixMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatches(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatches(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3124,35 +3124,35 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatches(v 
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"exact_match":   flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesExactMatch(original["exactMatch"], d),
-			"name":          flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesName(original["name"], d),
-			"present_match": flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesPresentMatch(original["presentMatch"], d),
-			"regex_match":   flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesRegexMatch(original["regexMatch"], d),
+			"exact_match":   flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesExactMatch(original["exactMatch"], d, config),
+			"name":          flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesName(original["name"], d, config),
+			"present_match": flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesPresentMatch(original["presentMatch"], d, config),
+			"regex_match":   flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesRegexMatch(original["regexMatch"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesExactMatch(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesExactMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesPresentMatch(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesPresentMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesRegexMatch(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesRegexMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesRegexMatch(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesRegexMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteAction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3162,22 +3162,22 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteAction(v interface{}, d *sche
 	}
 	transformed := make(map[string]interface{})
 	transformed["cors_policy"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicy(original["corsPolicy"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicy(original["corsPolicy"], d, config)
 	transformed["fault_injection_policy"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicy(original["faultInjectionPolicy"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicy(original["faultInjectionPolicy"], d, config)
 	transformed["request_mirror_policy"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicy(original["requestMirrorPolicy"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicy(original["requestMirrorPolicy"], d, config)
 	transformed["retry_policy"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(original["retryPolicy"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(original["retryPolicy"], d, config)
 	transformed["timeout"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeout(original["timeout"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeout(original["timeout"], d, config)
 	transformed["url_rewrite"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewrite(original["urlRewrite"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewrite(original["urlRewrite"], d, config)
 	transformed["weighted_backend_services"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices(original["weightedBackendServices"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices(original["weightedBackendServices"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3187,52 +3187,52 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicy(v interface{
 	}
 	transformed := make(map[string]interface{})
 	transformed["allow_credentials"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowCredentials(original["allowCredentials"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowCredentials(original["allowCredentials"], d, config)
 	transformed["allow_headers"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowHeaders(original["allowHeaders"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowHeaders(original["allowHeaders"], d, config)
 	transformed["allow_methods"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowMethods(original["allowMethods"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowMethods(original["allowMethods"], d, config)
 	transformed["allow_origin_regexes"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOriginRegexes(original["allowOriginRegexes"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOriginRegexes(original["allowOriginRegexes"], d, config)
 	transformed["allow_origins"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOrigins(original["allowOrigins"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOrigins(original["allowOrigins"], d, config)
 	transformed["disabled"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyDisabled(original["disabled"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyDisabled(original["disabled"], d, config)
 	transformed["expose_headers"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyExposeHeaders(original["exposeHeaders"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyExposeHeaders(original["exposeHeaders"], d, config)
 	transformed["max_age"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyMaxAge(original["maxAge"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyMaxAge(original["maxAge"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowCredentials(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowCredentials(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowHeaders(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowMethods(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowMethods(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOrigins(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOrigins(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyDisabled(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyExposeHeaders(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyExposeHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -3242,7 +3242,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyMaxAge(v inte
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3252,12 +3252,12 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicy(v 
 	}
 	transformed := make(map[string]interface{})
 	transformed["abort"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbort(original["abort"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbort(original["abort"], d, config)
 	transformed["delay"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelay(original["delay"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelay(original["delay"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3267,12 +3267,12 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbo
 	}
 	transformed := make(map[string]interface{})
 	transformed["http_status"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortHttpStatus(original["httpStatus"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortHttpStatus(original["httpStatus"], d, config)
 	transformed["percentage"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortPercentage(original["percentage"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortPercentage(original["percentage"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -3282,11 +3282,11 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbo
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelay(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3296,12 +3296,12 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDel
 	}
 	transformed := make(map[string]interface{})
 	transformed["fixed_delay"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelay(original["fixedDelay"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelay(original["fixedDelay"], d, config)
 	transformed["percentage"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayPercentage(original["percentage"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayPercentage(original["percentage"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3311,12 +3311,12 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDel
 	}
 	transformed := make(map[string]interface{})
 	transformed["nanos"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelayNanos(original["nanos"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelayNanos(original["nanos"], d, config)
 	transformed["seconds"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(original["seconds"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(original["seconds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -3326,15 +3326,15 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDel
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3344,17 +3344,17 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicy(v i
 	}
 	transformed := make(map[string]interface{})
 	transformed["backend_service"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBackendService(original["backendService"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBackendService(original["backendService"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3364,14 +3364,14 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(v interface
 	}
 	transformed := make(map[string]interface{})
 	transformed["num_retries"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyNumRetries(original["numRetries"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyNumRetries(original["numRetries"], d, config)
 	transformed["per_try_timeout"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeout(original["perTryTimeout"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeout(original["perTryTimeout"], d, config)
 	transformed["retry_conditions"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyRetryConditions(original["retryConditions"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyRetryConditions(original["retryConditions"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -3381,7 +3381,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyNumRetries(v
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeout(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3391,12 +3391,12 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeou
 	}
 	transformed := make(map[string]interface{})
 	transformed["nanos"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutNanos(original["nanos"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutNanos(original["nanos"], d, config)
 	transformed["seconds"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutSeconds(original["seconds"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutSeconds(original["seconds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -3406,15 +3406,15 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeou
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyRetryConditions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyRetryConditions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeout(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3424,12 +3424,12 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeout(v interface{}, 
 	}
 	transformed := make(map[string]interface{})
 	transformed["nanos"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutNanos(original["nanos"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutNanos(original["nanos"], d, config)
 	transformed["seconds"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutSeconds(original["seconds"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutSeconds(original["seconds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -3439,11 +3439,11 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutNanos(v interfac
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutSeconds(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewrite(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3453,20 +3453,20 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewrite(v interface{
 	}
 	transformed := make(map[string]interface{})
 	transformed["host_rewrite"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewriteHostRewrite(original["hostRewrite"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewriteHostRewrite(original["hostRewrite"], d, config)
 	transformed["path_prefix_rewrite"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathPrefixRewrite(original["pathPrefixRewrite"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathPrefixRewrite(original["pathPrefixRewrite"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3479,21 +3479,21 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"backend_service": flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesBackendService(original["backendService"], d),
-			"header_action":   flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderAction(original["headerAction"], d),
-			"weight":          flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesWeight(original["weight"], d),
+			"backend_service": flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesBackendService(original["backendService"], d, config),
+			"header_action":   flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderAction(original["headerAction"], d, config),
+			"weight":          flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesWeight(original["weight"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesBackendService(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3503,16 +3503,16 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices
 	}
 	transformed := make(map[string]interface{})
 	transformed["request_headers_to_add"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(original["requestHeadersToAdd"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(original["requestHeadersToAdd"], d, config)
 	transformed["request_headers_to_remove"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(original["requestHeadersToRemove"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(original["requestHeadersToRemove"], d, config)
 	transformed["response_headers_to_add"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(original["responseHeadersToAdd"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(original["responseHeadersToAdd"], d, config)
 	transformed["response_headers_to_remove"] =
-		flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3525,30 +3525,30 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"header_name":  flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(original["headerName"], d),
-			"header_value": flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(original["headerValue"], d),
-			"replace":      flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(original["replace"], d),
+			"header_name":  flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(original["headerName"], d, config),
+			"header_value": flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(original["headerValue"], d, config),
+			"replace":      flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(original["replace"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3561,30 +3561,30 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"header_name":  flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(original["headerName"], d),
-			"header_value": flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(original["headerValue"], d),
-			"replace":      flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(original["replace"], d),
+			"header_name":  flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(original["headerName"], d, config),
+			"header_value": flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(original["headerValue"], d, config),
+			"replace":      flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(original["replace"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -3594,7 +3594,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirect(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3604,44 +3604,44 @@ func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirect(v interface{}, d *sche
 	}
 	transformed := make(map[string]interface{})
 	transformed["host_redirect"] =
-		flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectHostRedirect(original["hostRedirect"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectHostRedirect(original["hostRedirect"], d, config)
 	transformed["https_redirect"] =
-		flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectHttpsRedirect(original["httpsRedirect"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectHttpsRedirect(original["httpsRedirect"], d, config)
 	transformed["path_redirect"] =
-		flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectPathRedirect(original["pathRedirect"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectPathRedirect(original["pathRedirect"], d, config)
 	transformed["prefix_redirect"] =
-		flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectPrefixRedirect(original["prefixRedirect"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectPrefixRedirect(original["prefixRedirect"], d, config)
 	transformed["redirect_response_code"] =
-		flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectRedirectResponseCode(original["redirectResponseCode"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectRedirectResponseCode(original["redirectResponseCode"], d, config)
 	transformed["strip_query"] =
-		flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectStripQuery(original["stripQuery"], d)
+		flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectStripQuery(original["stripQuery"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectHostRedirect(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectHostRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectHttpsRedirect(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectHttpsRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectPathRedirect(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectPathRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectPrefixRedirect(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectPrefixRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectRedirectResponseCode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectRedirectResponseCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectStripQuery(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectStripQuery(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapTest(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapTest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3654,27 +3654,27 @@ func flattenComputeUrlMapTest(v interface{}, d *schema.ResourceData) interface{}
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"description": flattenComputeUrlMapTestDescription(original["description"], d),
-			"host":        flattenComputeUrlMapTestHost(original["host"], d),
-			"path":        flattenComputeUrlMapTestPath(original["path"], d),
-			"service":     flattenComputeUrlMapTestService(original["service"], d),
+			"description": flattenComputeUrlMapTestDescription(original["description"], d, config),
+			"host":        flattenComputeUrlMapTestHost(original["host"], d, config),
+			"path":        flattenComputeUrlMapTestPath(original["path"], d, config),
+			"service":     flattenComputeUrlMapTestService(original["service"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeUrlMapTestDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapTestDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapTestHost(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapTestHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapTestPath(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapTestPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapTestService(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeUrlMapTestService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

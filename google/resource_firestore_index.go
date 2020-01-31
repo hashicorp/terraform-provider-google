@@ -217,13 +217,13 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 
-	if err := d.Set("name", flattenFirestoreIndexName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenFirestoreIndexName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
-	if err := d.Set("query_scope", flattenFirestoreIndexQueryScope(res["queryScope"], d)); err != nil {
+	if err := d.Set("query_scope", flattenFirestoreIndexQueryScope(res["queryScope"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
-	if err := d.Set("fields", flattenFirestoreIndexFields(res["fields"], d)); err != nil {
+	if err := d.Set("fields", flattenFirestoreIndexFields(res["fields"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 
@@ -285,15 +285,15 @@ func resourceFirestoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenFirestoreIndexName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenFirestoreIndexQueryScope(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexQueryScope(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -306,22 +306,22 @@ func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData) interfac
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"field_path":   flattenFirestoreIndexFieldsFieldPath(original["fieldPath"], d),
-			"order":        flattenFirestoreIndexFieldsOrder(original["order"], d),
-			"array_config": flattenFirestoreIndexFieldsArrayConfig(original["arrayConfig"], d),
+			"field_path":   flattenFirestoreIndexFieldsFieldPath(original["fieldPath"], d, config),
+			"order":        flattenFirestoreIndexFieldsOrder(original["order"], d, config),
+			"array_config": flattenFirestoreIndexFieldsArrayConfig(original["arrayConfig"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenFirestoreIndexFieldsFieldPath(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexFieldsFieldPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenFirestoreIndexFieldsOrder(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexFieldsOrder(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenFirestoreIndexFieldsArrayConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexFieldsArrayConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

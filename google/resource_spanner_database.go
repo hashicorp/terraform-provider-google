@@ -179,13 +179,13 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
-	if err := d.Set("name", flattenSpannerDatabaseName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenSpannerDatabaseName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("state", flattenSpannerDatabaseState(res["state"], d)); err != nil {
+	if err := d.Set("state", flattenSpannerDatabaseState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("instance", flattenSpannerDatabaseInstance(res["instance"], d)); err != nil {
+	if err := d.Set("instance", flattenSpannerDatabaseInstance(res["instance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
@@ -238,15 +238,15 @@ func resourceSpannerDatabaseImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSpannerDatabaseName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerDatabaseName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSpannerDatabaseState(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerDatabaseState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSpannerDatabaseInstance(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerDatabaseInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

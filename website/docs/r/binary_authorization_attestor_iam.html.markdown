@@ -46,9 +46,9 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_binary_authorization_attestor_iam_policy" "editor" {
-  project = "${google_binary_authorization_attestor.attestor.project}"
-  attestor = "${google_binary_authorization_attestor.attestor.name}"
-  policy_data = "${data.google_iam_policy.admin.policy_data}"
+  project = google_binary_authorization_attestor.attestor.project
+  attestor = google_binary_authorization_attestor.attestor.name
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -56,8 +56,8 @@ resource "google_binary_authorization_attestor_iam_policy" "editor" {
 
 ```hcl
 resource "google_binary_authorization_attestor_iam_binding" "editor" {
-  project = "${google_binary_authorization_attestor.attestor.project}"
-  attestor = "${google_binary_authorization_attestor.attestor.name}"
+  project = google_binary_authorization_attestor.attestor.project
+  attestor = google_binary_authorization_attestor.attestor.name
   role = "roles/viewer"
   members = [
     "user:jane@example.com",
@@ -69,8 +69,8 @@ resource "google_binary_authorization_attestor_iam_binding" "editor" {
 
 ```hcl
 resource "google_binary_authorization_attestor_iam_member" "editor" {
-  project = "${google_binary_authorization_attestor.attestor.project}"
-  attestor = "${google_binary_authorization_attestor.attestor.name}"
+  project = google_binary_authorization_attestor.attestor.project
+  attestor = google_binary_authorization_attestor.attestor.name
   role = "roles/viewer"
   member = "user:jane@example.com"
 }

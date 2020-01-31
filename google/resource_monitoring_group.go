@@ -176,19 +176,19 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
 
-	if err := d.Set("parent_name", flattenMonitoringGroupParentName(res["parentName"], d)); err != nil {
+	if err := d.Set("parent_name", flattenMonitoringGroupParentName(res["parentName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
-	if err := d.Set("name", flattenMonitoringGroupName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenMonitoringGroupName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
-	if err := d.Set("is_cluster", flattenMonitoringGroupIsCluster(res["isCluster"], d)); err != nil {
+	if err := d.Set("is_cluster", flattenMonitoringGroupIsCluster(res["isCluster"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
-	if err := d.Set("display_name", flattenMonitoringGroupDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenMonitoringGroupDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
-	if err := d.Set("filter", flattenMonitoringGroupFilter(res["filter"], d)); err != nil {
+	if err := d.Set("filter", flattenMonitoringGroupFilter(res["filter"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
 
@@ -295,23 +295,23 @@ func resourceMonitoringGroupImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenMonitoringGroupParentName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringGroupParentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGroupName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringGroupName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGroupIsCluster(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringGroupIsCluster(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGroupDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringGroupDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGroupFilter(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringGroupFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

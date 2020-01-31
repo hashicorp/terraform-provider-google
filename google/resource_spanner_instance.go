@@ -218,22 +218,22 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
-	if err := d.Set("name", flattenSpannerInstanceName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenSpannerInstanceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("config", flattenSpannerInstanceConfig(res["config"], d)); err != nil {
+	if err := d.Set("config", flattenSpannerInstanceConfig(res["config"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("display_name", flattenSpannerInstanceDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenSpannerInstanceDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("num_nodes", flattenSpannerInstanceNumNodes(res["nodeCount"], d)); err != nil {
+	if err := d.Set("num_nodes", flattenSpannerInstanceNumNodes(res["nodeCount"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("labels", flattenSpannerInstanceLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenSpannerInstanceLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("state", flattenSpannerInstanceState(res["state"], d)); err != nil {
+	if err := d.Set("state", flattenSpannerInstanceState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
@@ -347,22 +347,22 @@ func resourceSpannerInstanceImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSpannerInstanceName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerInstanceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSpannerInstanceConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerInstanceConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenSpannerInstanceDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerInstanceDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSpannerInstanceNumNodes(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerInstanceNumNodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -372,11 +372,11 @@ func flattenSpannerInstanceNumNodes(v interface{}, d *schema.ResourceData) inter
 	return v
 }
 
-func flattenSpannerInstanceLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerInstanceLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSpannerInstanceState(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerInstanceState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

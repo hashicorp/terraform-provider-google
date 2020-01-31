@@ -359,31 +359,31 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeGlobalForwardingRuleDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeGlobalForwardingRuleDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("ip_address", flattenComputeGlobalForwardingRuleIPAddress(res["IPAddress"], d)); err != nil {
+	if err := d.Set("ip_address", flattenComputeGlobalForwardingRuleIPAddress(res["IPAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("ip_protocol", flattenComputeGlobalForwardingRuleIPProtocol(res["IPProtocol"], d)); err != nil {
+	if err := d.Set("ip_protocol", flattenComputeGlobalForwardingRuleIPProtocol(res["IPProtocol"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("ip_version", flattenComputeGlobalForwardingRuleIpVersion(res["ipVersion"], d)); err != nil {
+	if err := d.Set("ip_version", flattenComputeGlobalForwardingRuleIpVersion(res["ipVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("load_balancing_scheme", flattenComputeGlobalForwardingRuleLoadBalancingScheme(res["loadBalancingScheme"], d)); err != nil {
+	if err := d.Set("load_balancing_scheme", flattenComputeGlobalForwardingRuleLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("metadata_filters", flattenComputeGlobalForwardingRuleMetadataFilters(res["metadataFilters"], d)); err != nil {
+	if err := d.Set("metadata_filters", flattenComputeGlobalForwardingRuleMetadataFilters(res["metadataFilters"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("name", flattenComputeGlobalForwardingRuleName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeGlobalForwardingRuleName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("port_range", flattenComputeGlobalForwardingRulePortRange(res["portRange"], d)); err != nil {
+	if err := d.Set("port_range", flattenComputeGlobalForwardingRulePortRange(res["portRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("target", flattenComputeGlobalForwardingRuleTarget(res["target"], d)); err != nil {
+	if err := d.Set("target", flattenComputeGlobalForwardingRuleTarget(res["target"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -490,27 +490,27 @@ func resourceComputeGlobalForwardingRuleImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeGlobalForwardingRuleDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleIPAddress(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleIPAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleIPProtocol(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleIPProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleIpVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleIpVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleLoadBalancingScheme(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleLoadBalancingScheme(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleMetadataFilters(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleMetadataFilters(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -523,17 +523,17 @@ func flattenComputeGlobalForwardingRuleMetadataFilters(v interface{}, d *schema.
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"filter_match_criteria": flattenComputeGlobalForwardingRuleMetadataFiltersFilterMatchCriteria(original["filterMatchCriteria"], d),
-			"filter_labels":         flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabels(original["filterLabels"], d),
+			"filter_match_criteria": flattenComputeGlobalForwardingRuleMetadataFiltersFilterMatchCriteria(original["filterMatchCriteria"], d, config),
+			"filter_labels":         flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabels(original["filterLabels"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeGlobalForwardingRuleMetadataFiltersFilterMatchCriteria(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleMetadataFiltersFilterMatchCriteria(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -546,29 +546,29 @@ func flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabels(v interface{}
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":  flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabelsName(original["name"], d),
-			"value": flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabelsValue(original["value"], d),
+			"name":  flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabelsName(original["name"], d, config),
+			"value": flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabelsValue(original["value"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabelsName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabelsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabelsValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabelsValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRulePortRange(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRulePortRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleTarget(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

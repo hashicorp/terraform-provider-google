@@ -737,18 +737,18 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
 
-	if err := d.Set("affinity_cookie_ttl_sec", flattenComputeBackendServiceAffinityCookieTtlSec(res["affinityCookieTtlSec"], d)); err != nil {
+	if err := d.Set("affinity_cookie_ttl_sec", flattenComputeBackendServiceAffinityCookieTtlSec(res["affinityCookieTtlSec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("backend", flattenComputeBackendServiceBackend(res["backends"], d)); err != nil {
+	if err := d.Set("backend", flattenComputeBackendServiceBackend(res["backends"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("cdn_policy", flattenComputeBackendServiceCdnPolicy(res["cdnPolicy"], d)); err != nil {
+	if err := d.Set("cdn_policy", flattenComputeBackendServiceCdnPolicy(res["cdnPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
 	// Terraform must set the top level schema field, but since this object contains collapsed properties
 	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
-	if flattenedProp := flattenComputeBackendServiceConnectionDraining(res["connectionDraining"], d); flattenedProp != nil {
+	if flattenedProp := flattenComputeBackendServiceConnectionDraining(res["connectionDraining"], d, config); flattenedProp != nil {
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
@@ -756,43 +756,43 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 			}
 		}
 	}
-	if err := d.Set("creation_timestamp", flattenComputeBackendServiceCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeBackendServiceCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("fingerprint", flattenComputeBackendServiceFingerprint(res["fingerprint"], d)); err != nil {
+	if err := d.Set("fingerprint", flattenComputeBackendServiceFingerprint(res["fingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("description", flattenComputeBackendServiceDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeBackendServiceDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("enable_cdn", flattenComputeBackendServiceEnableCDN(res["enableCDN"], d)); err != nil {
+	if err := d.Set("enable_cdn", flattenComputeBackendServiceEnableCDN(res["enableCDN"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("health_checks", flattenComputeBackendServiceHealthChecks(res["healthChecks"], d)); err != nil {
+	if err := d.Set("health_checks", flattenComputeBackendServiceHealthChecks(res["healthChecks"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("iap", flattenComputeBackendServiceIap(res["iap"], d)); err != nil {
+	if err := d.Set("iap", flattenComputeBackendServiceIap(res["iap"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("load_balancing_scheme", flattenComputeBackendServiceLoadBalancingScheme(res["loadBalancingScheme"], d)); err != nil {
+	if err := d.Set("load_balancing_scheme", flattenComputeBackendServiceLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("name", flattenComputeBackendServiceName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeBackendServiceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("port_name", flattenComputeBackendServicePortName(res["portName"], d)); err != nil {
+	if err := d.Set("port_name", flattenComputeBackendServicePortName(res["portName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("protocol", flattenComputeBackendServiceProtocol(res["protocol"], d)); err != nil {
+	if err := d.Set("protocol", flattenComputeBackendServiceProtocol(res["protocol"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("security_policy", flattenComputeBackendServiceSecurityPolicy(res["securityPolicy"], d)); err != nil {
+	if err := d.Set("security_policy", flattenComputeBackendServiceSecurityPolicy(res["securityPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("session_affinity", flattenComputeBackendServiceSessionAffinity(res["sessionAffinity"], d)); err != nil {
+	if err := d.Set("session_affinity", flattenComputeBackendServiceSessionAffinity(res["sessionAffinity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
-	if err := d.Set("timeout_sec", flattenComputeBackendServiceTimeoutSec(res["timeoutSec"], d)); err != nil {
+	if err := d.Set("timeout_sec", flattenComputeBackendServiceTimeoutSec(res["timeoutSec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -1007,7 +1007,7 @@ func resourceComputeBackendServiceImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeBackendServiceAffinityCookieTtlSec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceAffinityCookieTtlSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1017,7 +1017,7 @@ func flattenComputeBackendServiceAffinityCookieTtlSec(v interface{}, d *schema.R
 	return v
 }
 
-func flattenComputeBackendServiceBackend(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceBackend(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1030,41 +1030,41 @@ func flattenComputeBackendServiceBackend(v interface{}, d *schema.ResourceData) 
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"balancing_mode":               flattenComputeBackendServiceBackendBalancingMode(original["balancingMode"], d),
-			"capacity_scaler":              flattenComputeBackendServiceBackendCapacityScaler(original["capacityScaler"], d),
-			"description":                  flattenComputeBackendServiceBackendDescription(original["description"], d),
-			"group":                        flattenComputeBackendServiceBackendGroup(original["group"], d),
-			"max_connections":              flattenComputeBackendServiceBackendMaxConnections(original["maxConnections"], d),
-			"max_connections_per_instance": flattenComputeBackendServiceBackendMaxConnectionsPerInstance(original["maxConnectionsPerInstance"], d),
-			"max_connections_per_endpoint": flattenComputeBackendServiceBackendMaxConnectionsPerEndpoint(original["maxConnectionsPerEndpoint"], d),
-			"max_rate":                     flattenComputeBackendServiceBackendMaxRate(original["maxRate"], d),
-			"max_rate_per_instance":        flattenComputeBackendServiceBackendMaxRatePerInstance(original["maxRatePerInstance"], d),
-			"max_rate_per_endpoint":        flattenComputeBackendServiceBackendMaxRatePerEndpoint(original["maxRatePerEndpoint"], d),
-			"max_utilization":              flattenComputeBackendServiceBackendMaxUtilization(original["maxUtilization"], d),
+			"balancing_mode":               flattenComputeBackendServiceBackendBalancingMode(original["balancingMode"], d, config),
+			"capacity_scaler":              flattenComputeBackendServiceBackendCapacityScaler(original["capacityScaler"], d, config),
+			"description":                  flattenComputeBackendServiceBackendDescription(original["description"], d, config),
+			"group":                        flattenComputeBackendServiceBackendGroup(original["group"], d, config),
+			"max_connections":              flattenComputeBackendServiceBackendMaxConnections(original["maxConnections"], d, config),
+			"max_connections_per_instance": flattenComputeBackendServiceBackendMaxConnectionsPerInstance(original["maxConnectionsPerInstance"], d, config),
+			"max_connections_per_endpoint": flattenComputeBackendServiceBackendMaxConnectionsPerEndpoint(original["maxConnectionsPerEndpoint"], d, config),
+			"max_rate":                     flattenComputeBackendServiceBackendMaxRate(original["maxRate"], d, config),
+			"max_rate_per_instance":        flattenComputeBackendServiceBackendMaxRatePerInstance(original["maxRatePerInstance"], d, config),
+			"max_rate_per_endpoint":        flattenComputeBackendServiceBackendMaxRatePerEndpoint(original["maxRatePerEndpoint"], d, config),
+			"max_utilization":              flattenComputeBackendServiceBackendMaxUtilization(original["maxUtilization"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeBackendServiceBackendBalancingMode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceBackendBalancingMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceBackendCapacityScaler(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceBackendCapacityScaler(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceBackendDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceBackendDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceBackendGroup(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceBackendGroup(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeBackendServiceBackendMaxConnections(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceBackendMaxConnections(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1074,7 +1074,7 @@ func flattenComputeBackendServiceBackendMaxConnections(v interface{}, d *schema.
 	return v
 }
 
-func flattenComputeBackendServiceBackendMaxConnectionsPerInstance(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceBackendMaxConnectionsPerInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1084,7 +1084,7 @@ func flattenComputeBackendServiceBackendMaxConnectionsPerInstance(v interface{},
 	return v
 }
 
-func flattenComputeBackendServiceBackendMaxConnectionsPerEndpoint(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceBackendMaxConnectionsPerEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1094,7 +1094,7 @@ func flattenComputeBackendServiceBackendMaxConnectionsPerEndpoint(v interface{},
 	return v
 }
 
-func flattenComputeBackendServiceBackendMaxRate(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceBackendMaxRate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1104,19 +1104,19 @@ func flattenComputeBackendServiceBackendMaxRate(v interface{}, d *schema.Resourc
 	return v
 }
 
-func flattenComputeBackendServiceBackendMaxRatePerInstance(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceBackendMaxRatePerInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceBackendMaxRatePerEndpoint(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceBackendMaxRatePerEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceBackendMaxUtilization(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceBackendMaxUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceCdnPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceCdnPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1126,12 +1126,12 @@ func flattenComputeBackendServiceCdnPolicy(v interface{}, d *schema.ResourceData
 	}
 	transformed := make(map[string]interface{})
 	transformed["cache_key_policy"] =
-		flattenComputeBackendServiceCdnPolicyCacheKeyPolicy(original["cacheKeyPolicy"], d)
+		flattenComputeBackendServiceCdnPolicyCacheKeyPolicy(original["cacheKeyPolicy"], d, config)
 	transformed["signed_url_cache_max_age_sec"] =
-		flattenComputeBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(original["signedUrlCacheMaxAgeSec"], d)
+		flattenComputeBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(original["signedUrlCacheMaxAgeSec"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1141,44 +1141,44 @@ func flattenComputeBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d *schem
 	}
 	transformed := make(map[string]interface{})
 	transformed["include_host"] =
-		flattenComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(original["includeHost"], d)
+		flattenComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(original["includeHost"], d, config)
 	transformed["include_protocol"] =
-		flattenComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(original["includeProtocol"], d)
+		flattenComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(original["includeProtocol"], d, config)
 	transformed["include_query_string"] =
-		flattenComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(original["includeQueryString"], d)
+		flattenComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(original["includeQueryString"], d, config)
 	transformed["query_string_blacklist"] =
-		flattenComputeBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(original["queryStringBlacklist"], d)
+		flattenComputeBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(original["queryStringBlacklist"], d, config)
 	transformed["query_string_whitelist"] =
-		flattenComputeBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["queryStringWhitelist"], d)
+		flattenComputeBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["queryStringWhitelist"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1188,7 +1188,7 @@ func flattenComputeBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{},
 	return v
 }
 
-func flattenComputeBackendServiceConnectionDraining(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceConnectionDraining(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1198,10 +1198,10 @@ func flattenComputeBackendServiceConnectionDraining(v interface{}, d *schema.Res
 	}
 	transformed := make(map[string]interface{})
 	transformed["connection_draining_timeout_sec"] =
-		flattenComputeBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(original["drainingTimeoutSec"], d)
+		flattenComputeBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(original["drainingTimeoutSec"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1211,30 +1211,30 @@ func flattenComputeBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(
 	return v
 }
 
-func flattenComputeBackendServiceCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceFingerprint(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceEnableCDN(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceEnableCDN(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceHealthChecks(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceHealthChecks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
-func flattenComputeBackendServiceIap(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceIap(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1244,50 +1244,50 @@ func flattenComputeBackendServiceIap(v interface{}, d *schema.ResourceData) inte
 	}
 	transformed := make(map[string]interface{})
 	transformed["oauth2_client_id"] =
-		flattenComputeBackendServiceIapOauth2ClientId(original["oauth2ClientId"], d)
+		flattenComputeBackendServiceIapOauth2ClientId(original["oauth2ClientId"], d, config)
 	transformed["oauth2_client_secret"] =
-		flattenComputeBackendServiceIapOauth2ClientSecret(original["oauth2ClientSecret"], d)
+		flattenComputeBackendServiceIapOauth2ClientSecret(original["oauth2ClientSecret"], d, config)
 	transformed["oauth2_client_secret_sha256"] =
-		flattenComputeBackendServiceIapOauth2ClientSecretSha256(original["oauth2ClientSecretSha256"], d)
+		flattenComputeBackendServiceIapOauth2ClientSecretSha256(original["oauth2ClientSecretSha256"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeBackendServiceIapOauth2ClientId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceIapOauth2ClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceIapOauth2ClientSecret(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceIapOauth2ClientSecret(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return d.Get("iap.0.oauth2_client_secret")
 }
 
-func flattenComputeBackendServiceIapOauth2ClientSecretSha256(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceIapOauth2ClientSecretSha256(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceLoadBalancingScheme(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceLoadBalancingScheme(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServicePortName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServicePortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceProtocol(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceSecurityPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceSecurityPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceSessionAffinity(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceSessionAffinity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendServiceTimeoutSec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {

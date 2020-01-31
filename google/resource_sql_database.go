@@ -183,16 +183,16 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
-	if err := d.Set("charset", flattenSQLDatabaseCharset(res["charset"], d)); err != nil {
+	if err := d.Set("charset", flattenSQLDatabaseCharset(res["charset"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("collation", flattenSQLDatabaseCollation(res["collation"], d)); err != nil {
+	if err := d.Set("collation", flattenSQLDatabaseCollation(res["collation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("name", flattenSQLDatabaseName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenSQLDatabaseName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("instance", flattenSQLDatabaseInstance(res["instance"], d)); err != nil {
+	if err := d.Set("instance", flattenSQLDatabaseInstance(res["instance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -328,19 +328,19 @@ func resourceSQLDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSQLDatabaseCharset(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSQLDatabaseCharset(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSQLDatabaseCollation(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSQLDatabaseCollation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSQLDatabaseName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSQLDatabaseName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSQLDatabaseInstance(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSQLDatabaseInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

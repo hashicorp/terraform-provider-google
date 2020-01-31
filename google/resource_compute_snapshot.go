@@ -309,37 +309,37 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeSnapshotCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeSnapshotCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
-	if err := d.Set("snapshot_id", flattenComputeSnapshotSnapshotId(res["id"], d)); err != nil {
+	if err := d.Set("snapshot_id", flattenComputeSnapshotSnapshotId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
-	if err := d.Set("disk_size_gb", flattenComputeSnapshotDiskSizeGb(res["diskSizeGb"], d)); err != nil {
+	if err := d.Set("disk_size_gb", flattenComputeSnapshotDiskSizeGb(res["diskSizeGb"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
-	if err := d.Set("name", flattenComputeSnapshotName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeSnapshotName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
-	if err := d.Set("description", flattenComputeSnapshotDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeSnapshotDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
-	if err := d.Set("storage_bytes", flattenComputeSnapshotStorageBytes(res["storageBytes"], d)); err != nil {
+	if err := d.Set("storage_bytes", flattenComputeSnapshotStorageBytes(res["storageBytes"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
-	if err := d.Set("licenses", flattenComputeSnapshotLicenses(res["licenses"], d)); err != nil {
+	if err := d.Set("licenses", flattenComputeSnapshotLicenses(res["licenses"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
-	if err := d.Set("labels", flattenComputeSnapshotLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenComputeSnapshotLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
-	if err := d.Set("label_fingerprint", flattenComputeSnapshotLabelFingerprint(res["labelFingerprint"], d)); err != nil {
+	if err := d.Set("label_fingerprint", flattenComputeSnapshotLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
-	if err := d.Set("source_disk", flattenComputeSnapshotSourceDisk(res["sourceDisk"], d)); err != nil {
+	if err := d.Set("source_disk", flattenComputeSnapshotSourceDisk(res["sourceDisk"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
-	if err := d.Set("snapshot_encryption_key", flattenComputeSnapshotSnapshotEncryptionKey(res["snapshotEncryptionKey"], d)); err != nil {
+	if err := d.Set("snapshot_encryption_key", flattenComputeSnapshotSnapshotEncryptionKey(res["snapshotEncryptionKey"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -453,11 +453,11 @@ func resourceComputeSnapshotImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeSnapshotCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSnapshotCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotSnapshotId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSnapshotSnapshotId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -467,7 +467,7 @@ func flattenComputeSnapshotSnapshotId(v interface{}, d *schema.ResourceData) int
 	return v
 }
 
-func flattenComputeSnapshotDiskSizeGb(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSnapshotDiskSizeGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -477,15 +477,15 @@ func flattenComputeSnapshotDiskSizeGb(v interface{}, d *schema.ResourceData) int
 	return v
 }
 
-func flattenComputeSnapshotName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSnapshotName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSnapshotDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotStorageBytes(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSnapshotStorageBytes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -495,29 +495,29 @@ func flattenComputeSnapshotStorageBytes(v interface{}, d *schema.ResourceData) i
 	return v
 }
 
-func flattenComputeSnapshotLicenses(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSnapshotLicenses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
-func flattenComputeSnapshotLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSnapshotLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotLabelFingerprint(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSnapshotLabelFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotSourceDisk(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSnapshotSourceDisk(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenComputeSnapshotSnapshotEncryptionKey(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSnapshotSnapshotEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -527,16 +527,16 @@ func flattenComputeSnapshotSnapshotEncryptionKey(v interface{}, d *schema.Resour
 	}
 	transformed := make(map[string]interface{})
 	transformed["raw_key"] =
-		flattenComputeSnapshotSnapshotEncryptionKeyRawKey(original["rawKey"], d)
+		flattenComputeSnapshotSnapshotEncryptionKeyRawKey(original["rawKey"], d, config)
 	transformed["sha256"] =
-		flattenComputeSnapshotSnapshotEncryptionKeySha256(original["sha256"], d)
+		flattenComputeSnapshotSnapshotEncryptionKeySha256(original["sha256"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeSnapshotSnapshotEncryptionKeyRawKey(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSnapshotSnapshotEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return d.Get("snapshot_encryption_key.0.raw_key")
 }
 
-func flattenComputeSnapshotSnapshotEncryptionKeySha256(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeSnapshotSnapshotEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

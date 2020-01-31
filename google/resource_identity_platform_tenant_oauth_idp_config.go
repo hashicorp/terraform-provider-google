@@ -178,22 +178,22 @@ func resourceIdentityPlatformTenantOauthIdpConfigRead(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenIdentityPlatformTenantOauthIdpConfigName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenIdentityPlatformTenantOauthIdpConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
-	if err := d.Set("display_name", flattenIdentityPlatformTenantOauthIdpConfigDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenIdentityPlatformTenantOauthIdpConfigDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
-	if err := d.Set("enabled", flattenIdentityPlatformTenantOauthIdpConfigEnabled(res["enabled"], d)); err != nil {
+	if err := d.Set("enabled", flattenIdentityPlatformTenantOauthIdpConfigEnabled(res["enabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
-	if err := d.Set("issuer", flattenIdentityPlatformTenantOauthIdpConfigIssuer(res["issuer"], d)); err != nil {
+	if err := d.Set("issuer", flattenIdentityPlatformTenantOauthIdpConfigIssuer(res["issuer"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
-	if err := d.Set("client_id", flattenIdentityPlatformTenantOauthIdpConfigClientId(res["clientId"], d)); err != nil {
+	if err := d.Set("client_id", flattenIdentityPlatformTenantOauthIdpConfigClientId(res["clientId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
-	if err := d.Set("client_secret", flattenIdentityPlatformTenantOauthIdpConfigClientSecret(res["clientSecret"], d)); err != nil {
+	if err := d.Set("client_secret", flattenIdentityPlatformTenantOauthIdpConfigClientSecret(res["clientSecret"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
 
@@ -327,30 +327,30 @@ func resourceIdentityPlatformTenantOauthIdpConfigImport(d *schema.ResourceData, 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIdentityPlatformTenantOauthIdpConfigName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantOauthIdpConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenIdentityPlatformTenantOauthIdpConfigDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantOauthIdpConfigDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantOauthIdpConfigEnabled(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantOauthIdpConfigEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantOauthIdpConfigIssuer(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantOauthIdpConfigIssuer(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantOauthIdpConfigClientId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantOauthIdpConfigClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantOauthIdpConfigClientSecret(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantOauthIdpConfigClientSecret(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
