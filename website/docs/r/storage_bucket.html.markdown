@@ -12,7 +12,7 @@ description: |-
 Creates a new bucket in Google cloud storage service (GCS).
 Once a bucket has been created, its location can't be changed.
 [ACLs](https://cloud.google.com/storage/docs/access-control/lists) can be applied
-using the [`google_storage_bucket_acl` resource](/docs/providers/google/r/storage_bucket_acl.html).
+using the [`google_storage_bucket_acl`](/docs/providers/google/r/storage_bucket_acl.html) resource.
 
 For more information see
 [the official documentation](https://cloud.google.com/storage/docs/overview)
@@ -170,4 +170,3 @@ $ terraform import google_storage_bucket.image-store tf-test-project/image-store
 `false` in state. If you've set it to `true` in config, run `terraform apply` to
 update the value set in state. If you delete this resource before updating the
 value, objects in the bucket will not be destroyed.
-
