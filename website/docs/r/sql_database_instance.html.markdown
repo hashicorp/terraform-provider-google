@@ -232,6 +232,8 @@ The required `settings` block supports:
 
 * `availability_type` - (Optional) This specifies whether a PostgreSQL instance
     should be set up for high availability (`REGIONAL`) or single zone (`ZONAL`).
+    It can be also applied for MySQL 2nd Gen. For MySQL,
+    it should be set up for high availability (`REGIONAL`) without creating Failover replica instance using terraform apply command.
 
 * `crash_safe_replication` - (Optional, Deprecated) This property is only applicable to First Generation instances.
     First Generation instances are now deprecated, see [here](https://cloud.google.com/sql/docs/mysql/upgrade-2nd-gen)
