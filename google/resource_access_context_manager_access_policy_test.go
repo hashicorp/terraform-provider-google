@@ -74,11 +74,12 @@ func testSweepAccessContextManagerPolicies(region string) error {
 // can exist, they need to be ran serially
 func TestAccAccessContextManager(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"access_policy":            testAccAccessContextManagerAccessPolicy_basicTest,
-		"service_perimeter":        testAccAccessContextManagerServicePerimeter_basicTest,
-		"service_perimeter_update": testAccAccessContextManagerServicePerimeter_updateTest,
-		"access_level":             testAccAccessContextManagerAccessLevel_basicTest,
-		"access_level_full":        testAccAccessContextManagerAccessLevel_fullTest,
+		"access_policy":              testAccAccessContextManagerAccessPolicy_basicTest,
+		"service_perimeter":          testAccAccessContextManagerServicePerimeter_basicTest,
+		"service_perimeter_update":   testAccAccessContextManagerServicePerimeter_updateTest,
+		"service_perimeter_resource": testAccAccessContextManagerServicePerimeterResource_basicTest,
+		"access_level":               testAccAccessContextManagerAccessLevel_basicTest,
+		"access_level_full":          testAccAccessContextManagerAccessLevel_fullTest,
 	}
 
 	for name, tc := range testCases {
