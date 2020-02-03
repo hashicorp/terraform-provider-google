@@ -37,7 +37,7 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `secret_data` - The secret data. No larger than 64KiB. A base64-encoded string.
+* `secret_data` - The secret data. No larger than 64KiB.
 
 * `name` - The resource name of the SecretVersion. Format:
   `projects/{{project}}/secrets/{{secret_id}}/versions/{{version}}`
