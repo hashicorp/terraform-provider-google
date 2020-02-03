@@ -683,9 +683,11 @@ func resourceComputeRouterBgpPeerPatchCreateEncoder(d *schema.ResourceData, meta
 	}
 
 	// Return list with the resource to create appended
-	return map[string]interface{}{
+	res := map[string]interface{}{
 		"bgpPeers": append(currItems, obj),
-	}, nil
+	}
+
+	return res, nil
 }
 
 // PatchUpdateEncoder handles creating request data to PATCH parent resource
@@ -713,9 +715,11 @@ func resourceComputeRouterBgpPeerPatchUpdateEncoder(d *schema.ResourceData, meta
 	items[idx] = item
 
 	// Return list with new item added
-	return map[string]interface{}{
+	res := map[string]interface{}{
 		"bgpPeers": items,
-	}, nil
+	}
+
+	return res, nil
 }
 
 // PatchDeleteEncoder handles creating request data to PATCH parent resource
@@ -739,9 +743,11 @@ func resourceComputeRouterBgpPeerPatchDeleteEncoder(d *schema.ResourceData, meta
 	}
 
 	updatedItems := append(currItems[:idx], currItems[idx+1:]...)
-	return map[string]interface{}{
+	res := map[string]interface{}{
 		"bgpPeers": updatedItems,
-	}, nil
+	}
+
+	return res, nil
 }
 
 // ListForPatch handles making API request to get parent resource and
@@ -761,7 +767,10 @@ func resourceComputeRouterBgpPeerListForPatch(d *schema.ResourceData, meta inter
 		return nil, err
 	}
 
-	v, ok := res["bgpPeers"]
+	var v interface{}
+	var ok bool
+
+	v, ok = res["bgpPeers"]
 	if ok && v != nil {
 		ls, lsOk := v.([]interface{})
 		if !lsOk {
