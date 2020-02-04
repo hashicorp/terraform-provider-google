@@ -306,42 +306,6 @@ func resourceAccessContextManagerServicePerimeterResourcePatchCreateEncoder(d *s
 	return res, nil
 }
 
-// PatchUpdateEncoder handles creating request data to PATCH parent resource
-// with list including updated object.
-func resourceAccessContextManagerServicePerimeterResourcePatchUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	items, err := resourceAccessContextManagerServicePerimeterResourceListForPatch(d, meta)
-	if err != nil {
-		return nil, err
-	}
-
-	idx, item, err := resourceAccessContextManagerServicePerimeterResourceFindNestedObjectInList(d, meta, items)
-	if err != nil {
-		return nil, err
-	}
-
-	// Return error if item to update does not exist.
-	if item == nil {
-		return nil, fmt.Errorf("Unable to update ServicePerimeterResource %q - not found in list", d.Id())
-	}
-
-	// Merge new object into old.
-	for k, v := range obj {
-		item[k] = v
-	}
-	items[idx] = item
-
-	// Return list with new item added
-	res := map[string]interface{}{
-		"resources": items,
-	}
-	wrapped := map[string]interface{}{
-		"status": res,
-	}
-	res = wrapped
-
-	return res, nil
-}
-
 // PatchDeleteEncoder handles creating request data to PATCH parent resource
 // with list excluding object to delete.
 func resourceAccessContextManagerServicePerimeterResourcePatchDeleteEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
