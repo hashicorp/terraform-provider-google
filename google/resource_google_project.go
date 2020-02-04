@@ -293,11 +293,8 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 	if ok := d.HasChange("name"); ok {
 		p.Name = project_name
 		// Do update on project
-		if err = retryTimeDuration(func() (updateErr error) {
-			p, updateErr = config.clientResourceManager.Projects.Update(p.ProjectId, p).Do()
-			return updateErr
-		}, d.Timeout(schema.TimeoutUpdate)); err != nil {
-			return fmt.Errorf("Error updating project %q: %s", project_name, err)
+		if p, err = updateProject(config, d, project_name, p); err != nil {
+			return err
 		}
 
 		d.SetPartial("name")
@@ -310,11 +307,8 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 
 		// Do update on project
-		if err = retryTimeDuration(func() (updateErr error) {
-			p, updateErr = config.clientResourceManager.Projects.Update(p.ProjectId, p).Do()
-			return updateErr
-		}, d.Timeout(schema.TimeoutUpdate)); err != nil {
-			return fmt.Errorf("Error updating project %q: %s", project_name, err)
+		if p, err = updateProject(config, d, project_name, p); err != nil {
+			return err
 		}
 		d.SetPartial("org_id")
 		d.SetPartial("folder_id")
@@ -333,17 +327,25 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		p.Labels = expandLabels(d)
 
 		// Do Update on project
-		if err = retryTimeDuration(func() (updateErr error) {
-			p, updateErr = config.clientResourceManager.Projects.Update(p.ProjectId, p).Do()
-			return updateErr
-		}, d.Timeout(schema.TimeoutUpdate)); err != nil {
-			return fmt.Errorf("Error updating project %q: %s", project_name, err)
+		if p, err = updateProject(config, d, project_name, p); err != nil {
+			return err
 		}
 		d.SetPartial("labels")
 	}
 
 	d.Partial(false)
 	return resourceGoogleProjectRead(d, meta)
+}
+
+func updateProject(config *Config, d *schema.ResourceData, projectName string, desiredProject *cloudresourcemanager.Project) (*cloudresourcemanager.Project, error) {
+	var newProj *cloudresourcemanager.Project
+	if err := retryTimeDuration(func() (updateErr error) {
+		newProj, updateErr = config.clientResourceManager.Projects.Update(desiredProject.ProjectId, desiredProject).Do()
+		return updateErr
+	}, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return nil, fmt.Errorf("Error updating project %q: %s", projectName, err)
+	}
+	return newProj, nil
 }
 
 func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error {
@@ -429,7 +431,11 @@ func updateProjectBillingAccount(d *schema.ResourceData, config *Config) error {
 	if name != "" {
 		ba.BillingAccountName = "billingAccounts/" + name
 	}
-	_, err := config.clientBilling.Projects.UpdateBillingInfo(prefixedProject(pid), ba).Do()
+	updateBillingInfoFunc := func() error {
+		_, err := config.clientBilling.Projects.UpdateBillingInfo(prefixedProject(pid), ba).Do()
+		return err
+	}
+	err := retryTimeDuration(updateBillingInfoFunc, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		d.Set("billing_account", "")
 		if _err, ok := err.(*googleapi.Error); ok {
@@ -438,9 +444,13 @@ func updateProjectBillingAccount(d *schema.ResourceData, config *Config) error {
 		return fmt.Errorf("Error setting billing account %q for project %q: %v", name, prefixedProject(pid), err)
 	}
 	for retries := 0; retries < 3; retries++ {
-		ba, err = config.clientBilling.Projects.GetBillingInfo(prefixedProject(pid)).Do()
+		var ba *cloudbilling.ProjectBillingInfo
+		err = retryTimeDuration(func() (reqErr error) {
+			ba, reqErr = config.clientBilling.Projects.GetBillingInfo(prefixedProject(pid)).Do()
+			return reqErr
+		}, d.Timeout(schema.TimeoutRead))
 		if err != nil {
-			return err
+			return fmt.Errorf("Error getting billing info for project %q: %v", prefixedProject(pid), err)
 		}
 		baName := strings.TrimPrefix(ba.BillingAccountName, "billingAccounts/")
 		if baName == name {
