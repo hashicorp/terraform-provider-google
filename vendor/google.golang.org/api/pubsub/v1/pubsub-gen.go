@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -275,6 +275,38 @@ type Binding struct {
 	// group.
 	//    For example, `admins@example.com`.
 	//
+	// * `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique
+	//    identifier) representing a user that has been recently deleted.
+	// For
+	//    example, `alice@example.com?uid=123456789012345678901`. If the
+	// user is
+	//    recovered, this value reverts to `user:{emailid}` and the
+	// recovered user
+	//    retains the role in the binding.
+	//
+	// * `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
+	// (plus
+	//    unique identifier) representing a service account that has been
+	// recently
+	//    deleted. For example,
+	//
+	// `my-other-app@appspot.gserviceaccount.com?uid=123456789012345678901`.
+	//
+	//    If the service account is undeleted, this value reverts to
+	//    `serviceAccount:{emailid}` and the undeleted service account
+	// retains the
+	//    role in the binding.
+	//
+	// * `deleted:group:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique
+	//    identifier) representing a Google group that has been recently
+	//    deleted. For example,
+	// `admins@example.com?uid=123456789012345678901`. If
+	//    the group is recovered, this value reverts to `group:{emailid}`
+	// and the
+	//    recovered group retains the role in the binding.
+	//
 	//
 	// * `domain:{domain}`: The G Suite domain (primary) that represents all
 	// the
@@ -355,6 +387,73 @@ func (s *CreateSnapshotRequest) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// DeadLetterPolicy: Dead lettering is done on a best effort basis. The
+// same message might be
+// dead lettered multiple times.
+//
+// If validation on any of the fields fails at subscription
+// creation/updation,
+// the create/update subscription request will fail.
+type DeadLetterPolicy struct {
+	// DeadLetterTopic: The name of the topic to which dead letter messages
+	// should be published.
+	// Format is `projects/{project}/topics/{topic}`.The Cloud Pub/Sub
+	// service
+	// account associated with the enclosing subscription's parent project
+	// (i.e.,
+	// service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com)
+	//  must have
+	// permission to Publish() to this topic.
+	//
+	// The operation will fail if the topic does not exist.
+	// Users should ensure that there is a subscription attached to this
+	// topic
+	// since messages published to a topic with no subscriptions are lost.
+	DeadLetterTopic string `json:"deadLetterTopic,omitempty"`
+
+	// MaxDeliveryAttempts: The maximum number of delivery attempts for any
+	// message. The value must be
+	// between 5 and 100.
+	//
+	// The number of delivery attempts is defined as 1 + (the sum of number
+	// of
+	// NACKs and number of times the acknowledgement deadline has been
+	// exceeded
+	// for the message).
+	//
+	// A NACK is any call to ModifyAckDeadline with a 0 deadline. Note
+	// that
+	// client libraries may automatically extend ack_deadlines.
+	//
+	// This field will be honored on a best effort basis.
+	//
+	// If this parameter is 0, a default value of 5 is used.
+	MaxDeliveryAttempts int64 `json:"maxDeliveryAttempts,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DeadLetterTopic") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DeadLetterTopic") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *DeadLetterPolicy) MarshalJSON() ([]byte, error) {
+	type NoMethod DeadLetterPolicy
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Empty: A generic empty message that you can re-use to avoid defining
 // duplicated
 // empty messages in your APIs. A typical example is to use it as the
@@ -413,31 +512,62 @@ func (s *ExpirationPolicy) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Expr: Represents an expression text. Example:
+// Expr: Represents a textual expression in the Common Expression
+// Language (CEL)
+// syntax. CEL is a C-like expression language. The syntax and semantics
+// of CEL
+// are documented at https://github.com/google/cel-spec.
 //
-//     title: "User account presence"
-//     description: "Determines whether the request has a user account"
-//     expression: "size(request.user) > 0"
+// Example (Comparison):
+//
+//     title: "Summary size limit"
+//     description: "Determines if a summary is less than 100 chars"
+//     expression: "document.summary.size() < 100"
+//
+// Example (Equality):
+//
+//     title: "Requestor is owner"
+//     description: "Determines if requestor is the document owner"
+//     expression: "document.owner ==
+// request.auth.claims.email"
+//
+// Example (Logic):
+//
+//     title: "Public documents"
+//     description: "Determine whether the document should be publicly
+// visible"
+//     expression: "document.type != 'private' && document.type !=
+// 'internal'"
+//
+// Example (Data Manipulation):
+//
+//     title: "Notification string"
+//     description: "Create a notification string with a timestamp."
+//     expression: "'New message received at ' +
+// string(document.create_time)"
+//
+// The exact variables and functions that may be referenced within an
+// expression
+// are determined by the service that evaluates it. See the
+// service
+// documentation for additional information.
 type Expr struct {
-	// Description: An optional description of the expression. This is a
+	// Description: Optional. Description of the expression. This is a
 	// longer text which
 	// describes the expression, e.g. when hovered over it in a UI.
 	Description string `json:"description,omitempty"`
 
-	// Expression: Textual representation of an expression in
-	// Common Expression Language syntax.
-	//
-	// The application context of the containing message determines
-	// which
-	// well-known feature set of CEL is supported.
+	// Expression: Textual representation of an expression in Common
+	// Expression Language
+	// syntax.
 	Expression string `json:"expression,omitempty"`
 
-	// Location: An optional string indicating the location of the
-	// expression for error
+	// Location: Optional. String indicating the location of the expression
+	// for error
 	// reporting, e.g. a file name and a position in the file.
 	Location string `json:"location,omitempty"`
 
-	// Title: An optional title for the expression, i.e. a short string
+	// Title: Optional. Title for the expression, i.e. a short string
 	// describing
 	// its purpose. This can be used e.g. in UIs which allow to enter
 	// the
@@ -828,9 +958,9 @@ func (s *OidcToken) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Policy: Defines an Identity and Access Management (IAM) policy. It is
-// used to
-// specify access control policies for Cloud Platform resources.
+// Policy: An Identity and Access Management (IAM) policy, which
+// specifies access
+// controls for Google Cloud resources.
 //
 //
 // A `Policy` is a collection of `bindings`. A `binding` binds one or
@@ -839,15 +969,19 @@ func (s *OidcToken) MarshalJSON() ([]byte, error) {
 // accounts,
 // Google groups, and domains (such as G Suite). A `role` is a named
 // list of
-// permissions (defined by IAM or configured by users). A `binding`
-// can
-// optionally specify a `condition`, which is a logic expression that
-// further
-// constrains the role binding based on attributes about the request
-// and/or
-// target resource.
+// permissions; each `role` can be an IAM predefined role or a
+// user-created
+// custom role.
 //
-// **JSON Example**
+// Optionally, a `binding` can specify a `condition`, which is a
+// logical
+// expression that allows access to a resource only if the expression
+// evaluates
+// to `true`. A condition can add constraints based on attributes of
+// the
+// request, the resource, or both.
+//
+// **JSON example:**
 //
 //     {
 //       "bindings": [
@@ -868,13 +1002,15 @@ func (s *OidcToken) MarshalJSON() ([]byte, error) {
 //             "title": "expirable access",
 //             "description": "Does not grant access after Sep 2020",
 //             "expression": "request.time <
-//             timestamp('2020-10-01T00:00:00.000Z')",
+// timestamp('2020-10-01T00:00:00.000Z')",
 //           }
 //         }
-//       ]
+//       ],
+//       "etag": "BwWWja0YfJA=",
+//       "version": 3
 //     }
 //
-// **YAML Example**
+// **YAML example:**
 //
 //     bindings:
 //     - members:
@@ -891,14 +1027,17 @@ func (s *OidcToken) MarshalJSON() ([]byte, error) {
 //         description: Does not grant access after Sep 2020
 //         expression: request.time <
 // timestamp('2020-10-01T00:00:00.000Z')
+//     - etag: BwWWja0YfJA=
+//     - version: 3
 //
 // For a description of IAM and its features, see the
-// [IAM developer's guide](https://cloud.google.com/iam/docs).
+// [IAM documentation](https://cloud.google.com/iam/docs/).
 type Policy struct {
-	// Bindings: Associates a list of `members` to a `role`. Optionally may
+	// Bindings: Associates a list of `members` to a `role`. Optionally, may
 	// specify a
-	// `condition` that determines when binding is in effect.
-	// `bindings` with no members will result in an error.
+	// `condition` that determines how and when the `bindings` are applied.
+	// Each
+	// of the `bindings` must contain at least one member.
 	Bindings []*Binding `json:"bindings,omitempty"`
 
 	// Etag: `etag` is used for optimistic concurrency control as a way to
@@ -916,34 +1055,43 @@ type Policy struct {
 	// ensure that their change will be applied to the same version of the
 	// policy.
 	//
-	// If no `etag` is provided in the call to `setIamPolicy`, then the
-	// existing
-	// policy is overwritten. Due to blind-set semantics of an etag-less
-	// policy,
-	// 'setIamPolicy' will not fail even if either of incoming or stored
-	// policy
-	// does not meet the version requirements.
+	// **Important:** If you use IAM Conditions, you must include the `etag`
+	// field
+	// whenever you call `setIamPolicy`. If you omit this field, then IAM
+	// allows
+	// you to overwrite a version `3` policy with a version `1` policy, and
+	// all of
+	// the conditions in the version `3` policy are lost.
 	Etag string `json:"etag,omitempty"`
 
 	// Version: Specifies the format of the policy.
 	//
-	// Valid values are 0, 1, and 3. Requests specifying an invalid value
-	// will be
-	// rejected.
+	// Valid values are `0`, `1`, and `3`. Requests that specify an invalid
+	// value
+	// are rejected.
 	//
-	// Operations affecting conditional bindings must specify version 3.
-	// This can
-	// be either setting a conditional policy, modifying a conditional
-	// binding,
-	// or removing a conditional binding from the stored conditional
-	// policy.
-	// Operations on non-conditional policies may specify any valid value
-	// or
-	// leave the field unset.
-	//
-	// If no etag is provided in the call to `setIamPolicy`, any
+	// Any operation that affects conditional role bindings must specify
 	// version
-	// compliance checks on the incoming and/or stored policy is skipped.
+	// `3`. This requirement applies to the following operations:
+	//
+	// * Getting a policy that includes a conditional role binding
+	// * Adding a conditional role binding to a policy
+	// * Changing a conditional role binding in a policy
+	// * Removing any role binding, with or without a condition, from a
+	// policy
+	//   that includes conditions
+	//
+	// **Important:** If you use IAM Conditions, you must include the `etag`
+	// field
+	// whenever you call `setIamPolicy`. If you omit this field, then IAM
+	// allows
+	// you to overwrite a version `3` policy with a version `1` policy, and
+	// all of
+	// the conditions in the version `3` policy are lost.
+	//
+	// If a policy does not include any conditions, operations on that
+	// policy may
+	// specify any valid version or leave the field unset.
 	Version int64 `json:"version,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -1052,7 +1200,9 @@ func (s *PublishResponse) MarshalJSON() ([]byte, error) {
 // limits</a>
 // for more information about message limits.
 type PubsubMessage struct {
-	// Attributes: Optional attributes for this message.
+	// Attributes: Attributes for this message. If this field is empty, the
+	// message must
+	// contain non-empty data.
 	Attributes map[string]string `json:"attributes,omitempty"`
 
 	// Data: The message data field. If this field is empty, the message
@@ -1253,6 +1403,34 @@ func (s *PushConfig) MarshalJSON() ([]byte, error) {
 type ReceivedMessage struct {
 	// AckId: This ID can be used to acknowledge the received message.
 	AckId string `json:"ackId,omitempty"`
+
+	// DeliveryAttempt: Delivery attempt counter is 1 + (the sum of number
+	// of NACKs and number of
+	// ack_deadline exceeds) for this message.
+	//
+	// A NACK is any call to ModifyAckDeadline with a 0 deadline. An
+	// ack_deadline
+	// exceeds event is whenever a message is not acknowledged
+	// within
+	// ack_deadline. Note that ack_deadline is
+	// initially
+	// Subscription.ackDeadlineSeconds, but may get extended automatically
+	// by
+	// the client library.
+	//
+	// The first delivery of a given message will have this value as 1. The
+	// value
+	// is calculated at best effort and is approximate.
+	//
+	// If a DeadLetterPolicy is not set on the subscription, this will be
+	// 0.
+	// <b>EXPERIMENTAL:</b> This feature is part of a closed alpha release.
+	// This
+	// API might be changed in backward-incompatible ways and is not
+	// recommended
+	// for production use. It is not subject to any SLA or deprecation
+	// policy.
+	DeliveryAttempt int64 `json:"deliveryAttempt,omitempty"`
 
 	// Message: The message.
 	Message *PubsubMessage `json:"message,omitempty"`
@@ -1476,6 +1654,28 @@ type Subscription struct {
 	// If the subscriber never acknowledges the message, the Pub/Sub
 	// system will eventually redeliver the message.
 	AckDeadlineSeconds int64 `json:"ackDeadlineSeconds,omitempty"`
+
+	// DeadLetterPolicy: A policy that specifies the conditions for dead
+	// lettering messages in
+	// this subscription. If dead_letter_policy is not set, dead
+	// lettering
+	// is disabled.
+	//
+	// The Cloud Pub/Sub service account associated with this
+	// subscriptions's
+	// parent project
+	// (i.e.,
+	// service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com)
+	//  must have
+	// permission to Acknowledge() messages on this
+	// subscription.
+	// <b>EXPERIMENTAL:</b> This feature is part of a closed alpha release.
+	// This
+	// API might be changed in backward-incompatible ways and is not
+	// recommended
+	// for production use. It is not subject to any SLA or deprecation
+	// policy.
+	DeadLetterPolicy *DeadLetterPolicy `json:"deadLetterPolicy,omitempty"`
 
 	// ExpirationPolicy: A policy that specifies the conditions for this
 	// subscription's expiration.
@@ -1890,7 +2090,7 @@ func (c *ProjectsSnapshotsCreateCall) Header() http.Header {
 
 func (c *ProjectsSnapshotsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -1963,7 +2163,7 @@ func (c *ProjectsSnapshotsCreateCall) Do(opts ...googleapi.CallOption) (*Snapsho
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "Optional user-provided name for this snapshot.\nIf the name is not provided in the request, the server will assign a random\nname for this snapshot on the same project as the subscription.\nNote that for REST API requests, you must specify a name.  See the\n\u003ca href=\"https://cloud.google.com/pubsub/docs/admin#resource_names\"\u003e\nresource name rules\u003c/a\u003e.\nFormat is `projects/{project}/snapshots/{snap}`.",
+	//       "description": "User-provided name for this snapshot. If the name is not provided in the\nrequest, the server will assign a random name for this snapshot on the same\nproject as the subscription. Note that for REST API requests, you must\nspecify a name.  See the \u003ca\nhref=\"https://cloud.google.com/pubsub/docs/admin#resource_names\"\u003e resource\nname rules\u003c/a\u003e. Format is `projects/{project}/snapshots/{snap}`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/snapshots/[^/]+$",
 	//       "required": true,
@@ -2046,7 +2246,7 @@ func (c *ProjectsSnapshotsDeleteCall) Header() http.Header {
 
 func (c *ProjectsSnapshotsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2197,7 +2397,7 @@ func (c *ProjectsSnapshotsGetCall) Header() http.Header {
 
 func (c *ProjectsSnapshotsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2363,7 +2563,7 @@ func (c *ProjectsSnapshotsGetIamPolicyCall) Header() http.Header {
 
 func (c *ProjectsSnapshotsGetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2540,7 +2740,7 @@ func (c *ProjectsSnapshotsListCall) Header() http.Header {
 
 func (c *ProjectsSnapshotsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2717,7 +2917,7 @@ func (c *ProjectsSnapshotsPatchCall) Header() http.Header {
 
 func (c *ProjectsSnapshotsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2863,7 +3063,7 @@ func (c *ProjectsSnapshotsSetIamPolicyCall) Header() http.Header {
 
 func (c *ProjectsSnapshotsSetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3014,7 +3214,7 @@ func (c *ProjectsSnapshotsTestIamPermissionsCall) Header() http.Header {
 
 func (c *ProjectsSnapshotsTestIamPermissionsCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3165,7 +3365,7 @@ func (c *ProjectsSubscriptionsAcknowledgeCall) Header() http.Header {
 
 func (c *ProjectsSubscriptionsAcknowledgeCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3325,7 +3525,7 @@ func (c *ProjectsSubscriptionsCreateCall) Header() http.Header {
 
 func (c *ProjectsSubscriptionsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3472,7 +3672,7 @@ func (c *ProjectsSubscriptionsDeleteCall) Header() http.Header {
 
 func (c *ProjectsSubscriptionsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3614,7 +3814,7 @@ func (c *ProjectsSubscriptionsGetCall) Header() http.Header {
 
 func (c *ProjectsSubscriptionsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3780,7 +3980,7 @@ func (c *ProjectsSubscriptionsGetIamPolicyCall) Header() http.Header {
 
 func (c *ProjectsSubscriptionsGetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3948,7 +4148,7 @@ func (c *ProjectsSubscriptionsListCall) Header() http.Header {
 
 func (c *ProjectsSubscriptionsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4124,7 +4324,7 @@ func (c *ProjectsSubscriptionsModifyAckDeadlineCall) Header() http.Header {
 
 func (c *ProjectsSubscriptionsModifyAckDeadlineCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4275,7 +4475,7 @@ func (c *ProjectsSubscriptionsModifyPushConfigCall) Header() http.Header {
 
 func (c *ProjectsSubscriptionsModifyPushConfigCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4418,7 +4618,7 @@ func (c *ProjectsSubscriptionsPatchCall) Header() http.Header {
 
 func (c *ProjectsSubscriptionsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4563,7 +4763,7 @@ func (c *ProjectsSubscriptionsPullCall) Header() http.Header {
 
 func (c *ProjectsSubscriptionsPullCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4717,7 +4917,7 @@ func (c *ProjectsSubscriptionsSeekCall) Header() http.Header {
 
 func (c *ProjectsSubscriptionsSeekCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4863,7 +5063,7 @@ func (c *ProjectsSubscriptionsSetIamPolicyCall) Header() http.Header {
 
 func (c *ProjectsSubscriptionsSetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5014,7 +5214,7 @@ func (c *ProjectsSubscriptionsTestIamPermissionsCall) Header() http.Header {
 
 func (c *ProjectsSubscriptionsTestIamPermissionsCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5159,7 +5359,7 @@ func (c *ProjectsTopicsCreateCall) Header() http.Header {
 
 func (c *ProjectsTopicsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5306,7 +5506,7 @@ func (c *ProjectsTopicsDeleteCall) Header() http.Header {
 
 func (c *ProjectsTopicsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5448,7 +5648,7 @@ func (c *ProjectsTopicsGetCall) Header() http.Header {
 
 func (c *ProjectsTopicsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5614,7 +5814,7 @@ func (c *ProjectsTopicsGetIamPolicyCall) Header() http.Header {
 
 func (c *ProjectsTopicsGetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5782,7 +5982,7 @@ func (c *ProjectsTopicsListCall) Header() http.Header {
 
 func (c *ProjectsTopicsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5952,7 +6152,7 @@ func (c *ProjectsTopicsPatchCall) Header() http.Header {
 
 func (c *ProjectsTopicsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6095,7 +6295,7 @@ func (c *ProjectsTopicsPublishCall) Header() http.Header {
 
 func (c *ProjectsTopicsPublishCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6241,7 +6441,7 @@ func (c *ProjectsTopicsSetIamPolicyCall) Header() http.Header {
 
 func (c *ProjectsTopicsSetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6392,7 +6592,7 @@ func (c *ProjectsTopicsTestIamPermissionsCall) Header() http.Header {
 
 func (c *ProjectsTopicsTestIamPermissionsCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6569,7 +6769,7 @@ func (c *ProjectsTopicsSnapshotsListCall) Header() http.Header {
 
 func (c *ProjectsTopicsSnapshotsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6763,7 +6963,7 @@ func (c *ProjectsTopicsSubscriptionsListCall) Header() http.Header {
 
 func (c *ProjectsTopicsSubscriptionsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}

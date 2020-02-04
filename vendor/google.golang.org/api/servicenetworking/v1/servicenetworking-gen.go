@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -195,7 +195,7 @@ type AddSubnetworkRequest struct {
 	// VPC network in the project.
 	ConsumerNetwork string `json:"consumerNetwork,omitempty"`
 
-	// Description: An optional description of the subnet.
+	// Description: Optional. Description of the subnet.
 	Description string `json:"description,omitempty"`
 
 	// IpPrefixLength: Required. The prefix length of the subnet's IP
@@ -655,13 +655,30 @@ type BackendRule struct {
 	Address string `json:"address,omitempty"`
 
 	// Deadline: The number of seconds to wait for a response from a
-	// request.  The default
-	// deadline for gRPC is infinite (no deadline) and HTTP requests is 5
-	// seconds.
+	// request. The default
+	// varies based on the request protocol and deployment environment.
 	Deadline float64 `json:"deadline,omitempty"`
 
-	// JwtAudience: The JWT audience is used when generating a JWT id token
+	// DisableAuth: When disable_auth is false,  a JWT ID token will be
+	// generated with the
+	// value from BackendRule.address as jwt_audience, overrode to the
+	// HTTP
+	// "Authorization" request header and sent to the backend.
+	//
+	// When disable_auth is true, a JWT ID token won't be generated and
+	// the
+	// original "Authorization" HTTP header will be preserved. If the header
+	// is
+	// used to carry the original token and is expected by the backend,
+	// this
+	// field must be set to true to preserve the header.
+	DisableAuth bool `json:"disableAuth,omitempty"`
+
+	// JwtAudience: The JWT audience is used when generating a JWT ID token
 	// for the backend.
+	// This ID token will be added in the HTTP "authorization" header, and
+	// sent
+	// to the backend.
 	JwtAudience string `json:"jwtAudience,omitempty"`
 
 	// MinDeadline: Minimum deadline in seconds needed for this method.
@@ -943,6 +960,38 @@ func (s *Connection) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// ConsumerProject: Represents a consumer project.
+type ConsumerProject struct {
+	// ProjectNum: Required. Project number of the consumer that is
+	// launching the service instance. It
+	// can own the network that is peered with Google or, be a service
+	// project in
+	// an XPN where the host project has the network.
+	ProjectNum int64 `json:"projectNum,omitempty,string"`
+
+	// ForceSendFields is a list of field names (e.g. "ProjectNum") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ProjectNum") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ConsumerProject) MarshalJSON() ([]byte, error) {
+	type NoMethod ConsumerProject
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Context: `Context` defines which contexts an API
 // requests.
 //
@@ -1220,6 +1269,41 @@ func (s *CustomHttpPattern) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// DisableVpcServiceControlsRequest: Request to disable VPC service
+// controls.
+type DisableVpcServiceControlsRequest struct {
+	// ConsumerNetwork: Required. The network that the consumer is using to
+	// connect with services.
+	// Must be in the form of
+	// projects/{project}/global/networks/{network}
+	// {project} is a project number, as in '12345'
+	// {network} is network name.
+	ConsumerNetwork string `json:"consumerNetwork,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ConsumerNetwork") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ConsumerNetwork") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *DisableVpcServiceControlsRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod DisableVpcServiceControlsRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Documentation: `Documentation` provides the information for
 // describing a service.
 //
@@ -1420,6 +1504,41 @@ type Empty struct {
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
 	googleapi.ServerResponse `json:"-"`
+}
+
+// EnableVpcServiceControlsRequest: Request to enable VPC service
+// controls.
+type EnableVpcServiceControlsRequest struct {
+	// ConsumerNetwork: Required. The network that the consumer is using to
+	// connect with services.
+	// Must be in the form of
+	// projects/{project}/global/networks/{network}
+	// {project} is a project number, as in '12345'
+	// {network} is network name.
+	ConsumerNetwork string `json:"consumerNetwork,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ConsumerNetwork") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ConsumerNetwork") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *EnableVpcServiceControlsRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod EnableVpcServiceControlsRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // Endpoint: `Endpoint` describes a network endpoint that serves a set
@@ -2133,6 +2252,11 @@ type HttpRule struct {
 	// the nesting may only be one level deep).
 	AdditionalBindings []*HttpRule `json:"additionalBindings,omitempty"`
 
+	// AllowHalfDuplex: When this flag is set to true, HTTP requests will be
+	// allowed to invoke a
+	// half-duplex streaming method.
+	AllowHalfDuplex bool `json:"allowHalfDuplex,omitempty"`
+
 	// Body: The name of the request field whose value is mapped to the HTTP
 	// request
 	// body, or `*` for mapping all request fields not captured by the
@@ -2671,11 +2795,39 @@ type MetricDescriptor struct {
 	//     "appengine.googleapis.com/http/server/response_latencies"
 	Type string `json:"type,omitempty"`
 
-	// Unit: The unit in which the metric value is reported. It is only
+	// Unit: The units in which the metric value is reported. It is only
 	// applicable
-	// if the `value_type` is `INT64`, `DOUBLE`, or `DISTRIBUTION`.
-	// The
-	// supported units are a subset of [The Unified Code for Units
+	// if the `value_type` is `INT64`, `DOUBLE`, or `DISTRIBUTION`. The
+	// `unit`
+	// defines the representation of the stored metric values.
+	//
+	// Different systems may scale the values to be more easily displayed
+	// (so a
+	// value of `0.02KBy` _might_ be displayed as `20By`, and a value
+	// of
+	// `3523KBy` _might_ be displayed as `3.5MBy`). However, if the `unit`
+	// is
+	// `KBy`, then the value of the metric is always in thousands of bytes,
+	// no
+	// matter how it may be displayed..
+	//
+	// If you want a custom metric to record the exact number of CPU-seconds
+	// used
+	// by a job, you can create an `INT64 CUMULATIVE` metric whose `unit`
+	// is
+	// `s{CPU}` (or equivalently `1s{CPU}` or just `s`). If the job uses
+	// 12,005
+	// CPU-seconds, then the value is written as `12005`.
+	//
+	// Alternatively, if you want a custom metric to record data in a
+	// more
+	// granular way, you can create a `DOUBLE CUMULATIVE` metric whose
+	// `unit` is
+	// `ks{CPU}`, and then write the value `12.005` (which is
+	// `12005/1000`),
+	// or use `Kis{CPU}` and write `11.723` (which is `12005/1024`).
+	//
+	// The supported units are a subset of [The Unified Code for Units
 	// of
 	// Measure](http://unitsofmeasure.org/ucum.html) standard:
 	//
@@ -2690,33 +2842,42 @@ type MetricDescriptor struct {
 	//
 	// **Prefixes (PREFIX)**
 	//
-	// * `k`     kilo    (10**3)
-	// * `M`     mega    (10**6)
-	// * `G`     giga    (10**9)
-	// * `T`     tera    (10**12)
-	// * `P`     peta    (10**15)
-	// * `E`     exa     (10**18)
-	// * `Z`     zetta   (10**21)
-	// * `Y`     yotta   (10**24)
-	// * `m`     milli   (10**-3)
-	// * `u`     micro   (10**-6)
-	// * `n`     nano    (10**-9)
-	// * `p`     pico    (10**-12)
-	// * `f`     femto   (10**-15)
-	// * `a`     atto    (10**-18)
-	// * `z`     zepto   (10**-21)
-	// * `y`     yocto   (10**-24)
-	// * `Ki`    kibi    (2**10)
-	// * `Mi`    mebi    (2**20)
-	// * `Gi`    gibi    (2**30)
-	// * `Ti`    tebi    (2**40)
+	// * `k`     kilo    (10^3)
+	// * `M`     mega    (10^6)
+	// * `G`     giga    (10^9)
+	// * `T`     tera    (10^12)
+	// * `P`     peta    (10^15)
+	// * `E`     exa     (10^18)
+	// * `Z`     zetta   (10^21)
+	// * `Y`     yotta   (10^24)
+	//
+	// * `m`     milli   (10^-3)
+	// * `u`     micro   (10^-6)
+	// * `n`     nano    (10^-9)
+	// * `p`     pico    (10^-12)
+	// * `f`     femto   (10^-15)
+	// * `a`     atto    (10^-18)
+	// * `z`     zepto   (10^-21)
+	// * `y`     yocto   (10^-24)
+	//
+	// * `Ki`    kibi    (2^10)
+	// * `Mi`    mebi    (2^20)
+	// * `Gi`    gibi    (2^30)
+	// * `Ti`    tebi    (2^40)
+	// * `Pi`    pebi    (2^50)
 	//
 	// **Grammar**
 	//
 	// The grammar also includes these connectors:
 	//
-	// * `/`    division (as an infix operator, e.g. `1/s`).
-	// * `.`    multiplication (as an infix operator, e.g. `GBy.d`)
+	// * `/`    division or ratio (as an infix operator). For examples,
+	//          `kBy/{email}` or `MiBy/10ms` (although you should almost
+	// never
+	//          have `/s` in a metric `unit`; rates should always be
+	// computed at
+	//          query time from the underlying cumulative or delta value).
+	// * `.`    multiplication or composition (as an infix operator). For
+	//          examples, `GBy.d` or `k{watt}.h`.
 	//
 	// The grammar for a unit is as follows:
 	//
@@ -2731,15 +2892,35 @@ type MetricDescriptor struct {
 	//
 	// Notes:
 	//
-	// * `Annotation` is just a comment if it follows a `UNIT` and is
-	//    equivalent to `1` if it is used alone. For examples,
-	//    `{requests}/s == 1/s`, `By{transmitted}/s == By/s`.
+	// * `Annotation` is just a comment if it follows a `UNIT`. If the
+	// annotation
+	//    is used alone, then the unit is equivalent to `1`. For examples,
+	//    `{request}/s == 1/s`, `By{transmitted}/s == By/s`.
 	// * `NAME` is a sequence of non-blank printable ASCII characters not
-	//    containing '{' or '}'.
-	// * `1` represents dimensionless value 1, such as in `1/s`.
-	// * `%` represents dimensionless value 1/100, and annotates values
+	//    containing `{` or `}`.
+	// * `1` represents a unitary [dimensionless
+	//    unit](https://en.wikipedia.org/wiki/Dimensionless_quantity) of 1,
+	// such
+	//    as in `1/s`. It is typically used when none of the basic units
+	// are
+	//    appropriate. For example, "new users per day" can be represented
+	// as
+	//    `1/d` or `{new-users}/d` (and a metric value `5` would mean "5
+	// new
+	//    users). Alternatively, "thousands of page views per day" would be
+	//    represented as `1000/d` or `k1/d` or `k{page_views}/d` (and a
+	// metric
+	//    value of `5.3` would mean "5300 page views per day").
+	// * `%` represents dimensionless value of 1/100, and annotates values
 	// giving
-	//    a percentage.
+	//    a percentage (so the metric values are typically in the range of
+	// 0..100,
+	//    and a metric value `3` means "3 percent").
+	// * `10^2.%` indicates a metric contains a ratio, typically in the
+	// range
+	//    0..1, that will be multiplied by 100 and displayed as a
+	// percentage
+	//    (so a metric value `0.03` means "3 percent").
 	Unit string `json:"unit,omitempty"`
 
 	// ValueType: Whether the measurement is an integer, a floating-point
@@ -3804,26 +3985,61 @@ func (s *Range) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// RangeReservation: Represents a range reservation.
+type RangeReservation struct {
+	// IpPrefixLength: Required. The size of the desired subnet. Use usual
+	// CIDR range notation. For example,
+	// '30' to find unused x.x.x.x/30 CIDR range. The goal is to determine
+	// if one
+	// of the allocated ranges has enough free space for a subnet of the
+	// requested
+	// size.
+	IpPrefixLength int64 `json:"ipPrefixLength,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "IpPrefixLength") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "IpPrefixLength") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *RangeReservation) MarshalJSON() ([]byte, error) {
+	type NoMethod RangeReservation
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // SearchRangeRequest: Request to search for an unused range within
 // allocated ranges.
 type SearchRangeRequest struct {
-	// IpPrefixLength: Required. The prefix length of the IP range.
-	// Use usual CIDR range notation.
-	// For example, '30' to find unused x.x.x.x/30 CIDR range.
-	// Actual range will be determined using allocated range for the
-	// consumer
-	// peered network and returned in the result.
+	// IpPrefixLength: Required. The prefix length of the IP range. Use
+	// usual CIDR range notation. For
+	// example, '30' to find unused x.x.x.x/30 CIDR range. Actual range will
+	// be
+	// determined using allocated range for the consumer peered network
+	// and
+	// returned in the result.
 	IpPrefixLength int64 `json:"ipPrefixLength,omitempty"`
 
-	// Network: Network name in the consumer project.   This network must
-	// have been
+	// Network: Network name in the consumer project. This network must have
+	// been
 	// already peered with a shared VPC network using
 	// CreateConnection
-	// method.
-	// Must be in a form
+	// method. Must be in a form
 	// 'projects/{project}/global/networks/{network}'.
-	// {project} is a project number, as in '12345'
-	// {network} is network name.
+	// {project} is a project number, as in '12345' {network} is network
+	// name.
 	Network string `json:"network,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "IpPrefixLength") to
@@ -3944,9 +4160,11 @@ type Service struct {
 
 	// Id: A unique ID for a specific instance of this message, typically
 	// assigned
-	// by the client for tracking purpose. If empty, the server may choose
-	// to
-	// generate one instead. Must be no longer than 60 characters.
+	// by the client for tracking purpose. Must be no longer than 63
+	// characters
+	// and only lower case letters, digits, '.', '_' and '-' are allowed.
+	// If
+	// empty, the server may choose to generate one instead.
 	Id string `json:"id,omitempty"`
 
 	// Logging: Logging configuration.
@@ -4036,6 +4254,61 @@ type Service struct {
 
 func (s *Service) MarshalJSON() ([]byte, error) {
 	type NoMethod Service
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ServiceIdentity: The per-product per-project service identity for a
+// service.
+//
+//
+// Use this field to configure per-product per-project service
+// identity.
+// Example of a service identity configuration.
+//
+//     usage:
+//       service_identity:
+//       - service_account_parent: "projects/123456789"
+//         display_name: "Cloud XXX Service Agent"
+//         description: "Used as the identity of Cloud XXX to access
+// resources"
+type ServiceIdentity struct {
+	// Description: Optional. A user-specified opaque description of the
+	// service account.
+	// Must be less than or equal to 256 UTF-8 bytes.
+	Description string `json:"description,omitempty"`
+
+	// DisplayName: Optional. A user-specified name for the service
+	// account.
+	// Must be less than or equal to 100 UTF-8 bytes.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// ServiceAccountParent: A service account project that hosts the
+	// service accounts.
+	//
+	// An example name would be:
+	// `projects/123456789`
+	ServiceAccountParent string `json:"serviceAccountParent,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Description") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Description") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ServiceIdentity) MarshalJSON() ([]byte, error) {
+	type NoMethod ServiceIdentity
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -4432,6 +4705,10 @@ type Usage struct {
 	// order.
 	Rules []*UsageRule `json:"rules,omitempty"`
 
+	// ServiceIdentity: The configuration of a per-product per-project
+	// service identity.
+	ServiceIdentity *ServiceIdentity `json:"serviceIdentity,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g.
 	// "ProducerNotificationChannel") to unconditionally include in API
 	// requests. By default, fields with empty values are omitted from API
@@ -4535,6 +4812,125 @@ func (s *UsageRule) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+type ValidateConsumerConfigRequest struct {
+	// ConsumerNetwork: Required. The network that the consumer is using to
+	// connect with services. Must be in
+	// the form of projects/{project}/global/networks/{network} {project} is
+	// a
+	// project number, as in '12345' {network} is network name.
+	ConsumerNetwork string `json:"consumerNetwork,omitempty"`
+
+	// ConsumerProject: NETWORK_NOT_IN_CONSUMERS_PROJECT,
+	// NETWORK_NOT_IN_CONSUMERS_HOST_PROJECT,
+	// and HOST_PROJECT_NOT_FOUND are done when consumer_project is
+	// provided.
+	ConsumerProject *ConsumerProject `json:"consumerProject,omitempty"`
+
+	// RangeReservation: RANGES_EXHAUSTED, RANGES_EXHAUSTED, and
+	// RANGES_DELETED_LATER are done
+	// when range_reservation is provided.
+	RangeReservation *RangeReservation `json:"rangeReservation,omitempty"`
+
+	// ValidateNetwork: The validations will be performed in the order
+	// listed in the
+	// ValidationError enum. The first failure will return. If a validation
+	// is not
+	// requested, then the next one will be
+	// performed.
+	// SERVICE_NETWORKING_NOT_ENABLED and NETWORK_NOT_PEERED checks are
+	// performed
+	// for all requests where validation is requested. NETWORK_NOT_FOUND
+	// and
+	// NETWORK_DISCONNECTED checks are done for requests that
+	// have
+	// validate_network set to true.
+	ValidateNetwork bool `json:"validateNetwork,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "ConsumerNetwork") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "ConsumerNetwork") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ValidateConsumerConfigRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod ValidateConsumerConfigRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type ValidateConsumerConfigResponse struct {
+	IsValid bool `json:"isValid,omitempty"`
+
+	// Possible values:
+	//   "VALIDATION_ERROR_UNSPECIFIED"
+	//   "VALIDATION_NOT_REQUESTED" - In case none of the validations are
+	// requested.
+	//   "SERVICE_NETWORKING_NOT_ENABLED"
+	//   "NETWORK_NOT_FOUND" - The network provided by the consumer does not
+	// exist.
+	//   "NETWORK_NOT_PEERED" - The network has not been peered with the
+	// producer org.
+	//   "NETWORK_PEERING_DELETED" - The peering was created and later
+	// deleted.
+	//   "NETWORK_NOT_IN_CONSUMERS_PROJECT" - The network is a regular VPC
+	// but the network is not in the consumer's
+	// project.
+	//   "NETWORK_NOT_IN_CONSUMERS_HOST_PROJECT" - The consumer project is a
+	// service project, and network is a shared VPC,
+	// but the network is not in the host project of this consumer project.
+	//   "HOST_PROJECT_NOT_FOUND" - The host project associated with the
+	// consumer project
+	// was not found.
+	//   "CONSUMER_PROJECT_NOT_SERVICE_PROJECT" - The consumer project is
+	// not a service project for
+	// the specified host project.
+	//   "RANGES_EXHAUSTED" - The reserved IP ranges do not have enough
+	// space to create
+	// a subnet of desired size.
+	//   "RANGES_NOT_RESERVED" - The IP ranges were not reserved.
+	//   "RANGES_DELETED_LATER" - The IP ranges were reserved but deleted
+	// later.
+	ValidationError string `json:"validationError,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "IsValid") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "IsValid") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ValidateConsumerConfigResponse) MarshalJSON() ([]byte, error) {
+	type NoMethod ValidateConsumerConfigResponse
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // method id "servicenetworking.operations.cancel":
 
 type OperationsCancelCall struct {
@@ -4598,7 +4994,7 @@ func (c *OperationsCancelCall) Header() http.Header {
 
 func (c *OperationsCancelCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4743,7 +5139,7 @@ func (c *OperationsDeleteCall) Header() http.Header {
 
 func (c *OperationsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4889,7 +5285,7 @@ func (c *OperationsGetCall) Header() http.Header {
 
 func (c *OperationsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5071,7 +5467,7 @@ func (c *OperationsListCall) Header() http.Header {
 
 func (c *OperationsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5260,7 +5656,7 @@ func (c *ServicesAddSubnetworkCall) Header() http.Header {
 
 func (c *ServicesAddSubnetworkCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5355,6 +5751,290 @@ func (c *ServicesAddSubnetworkCall) Do(opts ...googleapi.CallOption) (*Operation
 
 }
 
+// method id "servicenetworking.services.disableVpcServiceControls":
+
+type ServicesDisableVpcServiceControlsCall struct {
+	s                                *APIService
+	parent                           string
+	disablevpcservicecontrolsrequest *DisableVpcServiceControlsRequest
+	urlParams_                       gensupport.URLParams
+	ctx_                             context.Context
+	header_                          http.Header
+}
+
+// DisableVpcServiceControls: Disables VPC service controls for a
+// connection.
+func (r *ServicesService) DisableVpcServiceControls(parent string, disablevpcservicecontrolsrequest *DisableVpcServiceControlsRequest) *ServicesDisableVpcServiceControlsCall {
+	c := &ServicesDisableVpcServiceControlsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.disablevpcservicecontrolsrequest = disablevpcservicecontrolsrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ServicesDisableVpcServiceControlsCall) Fields(s ...googleapi.Field) *ServicesDisableVpcServiceControlsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ServicesDisableVpcServiceControlsCall) Context(ctx context.Context) *ServicesDisableVpcServiceControlsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ServicesDisableVpcServiceControlsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ServicesDisableVpcServiceControlsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.disablevpcservicecontrolsrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}:disableVpcServiceControls")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "servicenetworking.services.disableVpcServiceControls" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *ServicesDisableVpcServiceControlsCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Disables VPC service controls for a connection.",
+	//   "flatPath": "v1/services/{servicesId}:disableVpcServiceControls",
+	//   "httpMethod": "PATCH",
+	//   "id": "servicenetworking.services.disableVpcServiceControls",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "The service that is managing peering connectivity for a service producer's\norganization. For Google services that support this functionality, this\nvalue is `services/servicenetworking.googleapis.com`.",
+	//       "location": "path",
+	//       "pattern": "^services/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+parent}:disableVpcServiceControls",
+	//   "request": {
+	//     "$ref": "DisableVpcServiceControlsRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/service.management"
+	//   ]
+	// }
+
+}
+
+// method id "servicenetworking.services.enableVpcServiceControls":
+
+type ServicesEnableVpcServiceControlsCall struct {
+	s                               *APIService
+	parent                          string
+	enablevpcservicecontrolsrequest *EnableVpcServiceControlsRequest
+	urlParams_                      gensupport.URLParams
+	ctx_                            context.Context
+	header_                         http.Header
+}
+
+// EnableVpcServiceControls: Enables VPC service controls for a
+// connection.
+func (r *ServicesService) EnableVpcServiceControls(parent string, enablevpcservicecontrolsrequest *EnableVpcServiceControlsRequest) *ServicesEnableVpcServiceControlsCall {
+	c := &ServicesEnableVpcServiceControlsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.enablevpcservicecontrolsrequest = enablevpcservicecontrolsrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ServicesEnableVpcServiceControlsCall) Fields(s ...googleapi.Field) *ServicesEnableVpcServiceControlsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ServicesEnableVpcServiceControlsCall) Context(ctx context.Context) *ServicesEnableVpcServiceControlsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ServicesEnableVpcServiceControlsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ServicesEnableVpcServiceControlsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.enablevpcservicecontrolsrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}:enableVpcServiceControls")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "servicenetworking.services.enableVpcServiceControls" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *ServicesEnableVpcServiceControlsCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Enables VPC service controls for a connection.",
+	//   "flatPath": "v1/services/{servicesId}:enableVpcServiceControls",
+	//   "httpMethod": "PATCH",
+	//   "id": "servicenetworking.services.enableVpcServiceControls",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "The service that is managing peering connectivity for a service producer's\norganization. For Google services that support this functionality, this\nvalue is `services/servicenetworking.googleapis.com`.",
+	//       "location": "path",
+	//       "pattern": "^services/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+parent}:enableVpcServiceControls",
+	//   "request": {
+	//     "$ref": "EnableVpcServiceControlsRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/service.management"
+	//   ]
+	// }
+
+}
+
 // method id "servicenetworking.services.searchRange":
 
 type ServicesSearchRangeCall struct {
@@ -5412,7 +6092,7 @@ func (c *ServicesSearchRangeCall) Header() http.Header {
 
 func (c *ServicesSearchRangeCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5485,7 +6165,7 @@ func (c *ServicesSearchRangeCall) Do(opts ...googleapi.CallOption) (*Operation, 
 	//   ],
 	//   "parameters": {
 	//     "parent": {
-	//       "description": "Required. This is in a form services/{service}.\n{service} the name of the private access management service, for example\n'service-peering.example.com'.",
+	//       "description": "Required. This is in a form services/{service}. {service} the name of the private\naccess management service, for example 'service-peering.example.com'.",
 	//       "location": "path",
 	//       "pattern": "^services/[^/]+$",
 	//       "required": true,
@@ -5498,6 +6178,154 @@ func (c *ServicesSearchRangeCall) Do(opts ...googleapi.CallOption) (*Operation, 
 	//   },
 	//   "response": {
 	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/service.management"
+	//   ]
+	// }
+
+}
+
+// method id "servicenetworking.services.validate":
+
+type ServicesValidateCall struct {
+	s                             *APIService
+	parent                        string
+	validateconsumerconfigrequest *ValidateConsumerConfigRequest
+	urlParams_                    gensupport.URLParams
+	ctx_                          context.Context
+	header_                       http.Header
+}
+
+// Validate: Service producers use this method to validate if the
+// consumer provided
+// network, project and the requested range is valid. This allows them
+// to use
+// a fail-fast mechanism for consumer requests, and not have to wait
+// for
+// AddSubnetwork operation completion to determine if user request is
+// invalid.
+func (r *ServicesService) Validate(parent string, validateconsumerconfigrequest *ValidateConsumerConfigRequest) *ServicesValidateCall {
+	c := &ServicesValidateCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.parent = parent
+	c.validateconsumerconfigrequest = validateconsumerconfigrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ServicesValidateCall) Fields(s ...googleapi.Field) *ServicesValidateCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ServicesValidateCall) Context(ctx context.Context) *ServicesValidateCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ServicesValidateCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ServicesValidateCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.validateconsumerconfigrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+parent}:validate")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("POST", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"parent": c.parent,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "servicenetworking.services.validate" call.
+// Exactly one of *ValidateConsumerConfigResponse or error will be
+// non-nil. Any non-2xx status code is an error. Response headers are in
+// either *ValidateConsumerConfigResponse.ServerResponse.Header or (if a
+// response was returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ServicesValidateCall) Do(opts ...googleapi.CallOption) (*ValidateConsumerConfigResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &ValidateConsumerConfigResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Service producers use this method to validate if the consumer provided\nnetwork, project and the requested range is valid. This allows them to use\na fail-fast mechanism for consumer requests, and not have to wait for\nAddSubnetwork operation completion to determine if user request is invalid.",
+	//   "flatPath": "v1/services/{servicesId}:validate",
+	//   "httpMethod": "POST",
+	//   "id": "servicenetworking.services.validate",
+	//   "parameterOrder": [
+	//     "parent"
+	//   ],
+	//   "parameters": {
+	//     "parent": {
+	//       "description": "Required. This is in a form services/{service} where {service} is the name of the\nprivate access management service. For example\n'service-peering.example.com'.",
+	//       "location": "path",
+	//       "pattern": "^services/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+parent}:validate",
+	//   "request": {
+	//     "$ref": "ValidateConsumerConfigRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "ValidateConsumerConfigResponse"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform",
@@ -5569,7 +6397,7 @@ func (c *ServicesConnectionsCreateCall) Header() http.Header {
 
 func (c *ServicesConnectionsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5738,7 +6566,7 @@ func (c *ServicesConnectionsListCall) Header() http.Header {
 
 func (c *ServicesConnectionsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5899,7 +6727,7 @@ func (c *ServicesConnectionsPatchCall) Header() http.Header {
 
 func (c *ServicesConnectionsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}

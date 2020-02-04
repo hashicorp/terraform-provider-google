@@ -901,17 +901,17 @@
               "required": true,
               "type": "string"
             },
-            "fieldMask": {
-              "description": "If set, only the Routine fields in the field mask are returned in the\nresponse. If unset, all Routine fields are returned.",
-              "format": "google-fieldmask",
-              "location": "query",
-              "type": "string"
-            },
             "projectId": {
               "description": "Required. Project ID of the requested routine",
               "location": "path",
               "pattern": "^[^/]+$",
               "required": true,
+              "type": "string"
+            },
+            "readMask": {
+              "description": "If set, only the Routine fields in the field mask are returned in the\nresponse. If unset, all Routine fields are returned.",
+              "format": "google-fieldmask",
+              "location": "query",
               "type": "string"
             },
             "routineId": {
@@ -987,6 +987,11 @@
               "required": true,
               "type": "string"
             },
+            "filter": {
+              "description": "If set, then only the Routines matching this filter are returned.\nThe current supported form is either \"routine_type:\u003cRoutineType\u003e\" or\n\"routineType:\u003cRoutineType\u003e\", where \u003cRoutineType\u003e is a RoutineType enum.\nExample: \"routineType:SCALAR_FUNCTION\".",
+              "location": "query",
+              "type": "string"
+            },
             "maxResults": {
               "description": "The maximum number of results to return in a single response page.\nLeverage the page tokens to iterate through the entire collection.",
               "format": "uint32",
@@ -1003,6 +1008,12 @@
               "location": "path",
               "pattern": "^[^/]+$",
               "required": true,
+              "type": "string"
+            },
+            "readMask": {
+              "description": "If set, then only the Routine fields in the field mask, as well as\nproject_id, dataset_id and routine_id, are returned in the response.\nIf unset, then the following Routine fields are returned:\netag, project_id, dataset_id, routine_id, routine_type, creation_time,\nlast_modified_time, and language.",
+              "format": "google-fieldmask",
+              "location": "query",
               "type": "string"
             }
           },
@@ -1417,7 +1428,7 @@
       }
     }
   },
-  "revision": "20191011",
+  "revision": "20191211",
   "rootUrl": "https://bigquery.googleapis.com/",
   "schemas": {
     "AggregateClassificationMetrics": {
@@ -2068,6 +2079,21 @@
       },
       "type": "object"
     },
+    "DataSplitResult": {
+      "description": "Data split result. This contains references to the training and evaluation\ndata tables that were used to train the model.",
+      "id": "DataSplitResult",
+      "properties": {
+        "evaluationTable": {
+          "$ref": "TableReference",
+          "description": "Table reference of the evaluation data after split."
+        },
+        "trainingTable": {
+          "$ref": "TableReference",
+          "description": "Table reference of the training data after split."
+        }
+      },
+      "type": "object"
+    },
     "Dataset": {
       "id": "Dataset",
       "properties": {
@@ -2438,6 +2464,11 @@
         },
         "shuffleOutputBytesSpilled": {
           "description": "Total number of bytes written to shuffle and spilled to disk.",
+          "format": "int64",
+          "type": "string"
+        },
+        "slotMs": {
+          "description": "Slot-milliseconds used by the stage.",
           "format": "int64",
           "type": "string"
         },
@@ -3595,7 +3626,7 @@
           "type": "string"
         },
         "routines": {
-          "description": "Routines in the requested dataset. Only the following fields are populated:\netag, project_id, dataset_id, routine_id, routine_type, creation_time,\nlast_modified_time, language.",
+          "description": "Routines in the requested dataset. Unless read_mask is set in the request,\nonly the following fields are populated:\netag, project_id, dataset_id, routine_id, routine_type, creation_time,\nlast_modified_time, and language.",
           "items": {
             "$ref": "Routine"
           },
@@ -3618,6 +3649,10 @@
     "MaterializedViewDefinition": {
       "id": "MaterializedViewDefinition",
       "properties": {
+        "enableRefresh": {
+          "description": "[Optional] [TrustedTester] Enable automatic refresh of the materialized view when the base table is updated. The default value is \"true\".",
+          "type": "boolean"
+        },
         "lastRefreshTime": {
           "description": "[Output-only] [TrustedTester] The time when this materialized view was last modified, in milliseconds since the epoch.",
           "format": "int64",
@@ -3625,6 +3660,11 @@
         },
         "query": {
           "description": "[Required] A query whose result is persisted.",
+          "type": "string"
+        },
+        "refreshIntervalMs": {
+          "description": "[Optional] [TrustedTester] The maximum frequency at which this materialized view will be refreshed. The default value is \"1800000\" (30 minutes).",
+          "format": "int64",
           "type": "string"
         }
       },
@@ -3644,7 +3684,7 @@
         },
         "encryptionConfiguration": {
           "$ref": "EncryptionConfiguration",
-          "description": "Custom encryption configuration (e.g., Cloud KMS keys). This shows the\nencryption configuration of the model data while stored in BigQuery\nstorage."
+          "description": "Custom encryption configuration (e.g., Cloud KMS keys). This shows the\nencryption configuration of the model data while stored in BigQuery\nstorage. This field can be used with PatchModel to update encryption key\nfor an already encrypted model."
         },
         "etag": {
           "description": "Output only. A hash of this resource.",
@@ -4512,7 +4552,7 @@
         },
         "requirePartitionFilter": {
           "default": "false",
-          "description": "[Beta] [Optional] If set to true, queries over this table require a partition filter that can be used for partition elimination to be specified.",
+          "description": "[Optional] If set to true, queries over this table require a partition filter that can be used for partition elimination to be specified.",
           "type": "boolean"
         },
         "schema": {
@@ -4692,6 +4732,18 @@
         "name": {
           "description": "[Required] The field name. The name must contain only letters (a-z, A-Z), numbers (0-9), or underscores (_), and must start with a letter or underscore. The maximum length is 128 characters.",
           "type": "string"
+        },
+        "policyTags": {
+          "properties": {
+            "names": {
+              "description": "A list of category resource names. For example, \"projects/1/location/eu/taxonomies/2/policyTags/3\". At most 1 policy tag is allowed.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
         },
         "type": {
           "description": "[Required] The field data type. Possible values include STRING, BYTES, INTEGER, INT64 (same as INTEGER), FLOAT, FLOAT64 (same as FLOAT), BOOLEAN, BOOL (same as BOOLEAN), TIMESTAMP, DATE, TIME, DATETIME, RECORD (where RECORD indicates that the field contains a nested schema) or STRUCT (same as RECORD).",
@@ -4945,12 +4997,14 @@
           "enum": [
             "KMEANS_INITIALIZATION_METHOD_UNSPECIFIED",
             "RANDOM",
-            "CUSTOM"
+            "CUSTOM",
+            "KMEANS_PLUS_PLUS"
           ],
           "enumDescriptions": [
             "",
             "Initializes the centroids randomly.",
-            "Initializes the centroids using data specified in\nkmeans_initialization_column."
+            "Initializes the centroids using data specified in\nkmeans_initialization_column.",
+            "Initializes with kmeans++."
           ],
           "type": "string"
         },
@@ -5049,6 +5103,10 @@
       "description": "Information about a single training query run for the model.",
       "id": "TrainingRun",
       "properties": {
+        "dataSplitResult": {
+          "$ref": "DataSplitResult",
+          "description": "Data split result of the training run. Only set when the input data is\nactually split."
+        },
         "evaluationMetrics": {
           "$ref": "EvaluationMetrics",
           "description": "The evaluation metrics over training/eval data that were computed at the\nend of training."
