@@ -678,6 +678,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_target_pool":                   resourceComputeTargetPool(),
 			"google_container_cluster":                     resourceContainerCluster(),
 			"google_container_node_pool":                   resourceContainerNodePool(),
+			"google_container_registry":                    resourceContainerRegistry(),
 			"google_dataflow_job":                          resourceDataflowJob(),
 			"google_dataproc_cluster":                      resourceDataprocCluster(),
 			"google_dataproc_cluster_iam_binding":          ResourceIamBinding(IamDataprocClusterSchema, NewDataprocClusterUpdater, DataprocClusterIdParseFunc),
