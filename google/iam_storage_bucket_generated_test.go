@@ -124,7 +124,7 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 func testAccStorageBucketIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
-  name               = "my-bucket%{random_suffix}"
+  name               = "tf-test-my-bucket%{random_suffix}"
   bucket_policy_only = true
 }
 
@@ -139,7 +139,7 @@ resource "google_storage_bucket_iam_member" "foo" {
 func testAccStorageBucketIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
-  name               = "my-bucket%{random_suffix}"
+  name               = "tf-test-my-bucket%{random_suffix}"
   bucket_policy_only = true
 }
 
@@ -164,7 +164,7 @@ resource "google_storage_bucket_iam_policy" "foo" {
 func testAccStorageBucketIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
-  name               = "my-bucket%{random_suffix}"
+  name               = "tf-test-my-bucket%{random_suffix}"
   bucket_policy_only = true
 }
 
@@ -181,7 +181,7 @@ resource "google_storage_bucket_iam_policy" "foo" {
 func testAccStorageBucketIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
-  name               = "my-bucket%{random_suffix}"
+  name               = "tf-test-my-bucket%{random_suffix}"
   bucket_policy_only = true
 }
 
@@ -196,7 +196,7 @@ resource "google_storage_bucket_iam_binding" "foo" {
 func testAccStorageBucketIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
-  name               = "my-bucket%{random_suffix}"
+  name               = "tf-test-my-bucket%{random_suffix}"
   bucket_policy_only = true
 }
 

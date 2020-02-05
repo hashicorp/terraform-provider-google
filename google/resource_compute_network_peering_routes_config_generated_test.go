@@ -60,7 +60,7 @@ resource "google_compute_network_peering_routes_config" "peering_primary_routes"
 }
 
 resource "google_compute_network_peering" "peering_primary" {
-  name         = "primary-peering%{random_suffix}"
+  name         = "tf-test-primary-peering%{random_suffix}"
   network      = google_compute_network.network_primary.self_link
   peer_network = google_compute_network.network_secondary.self_link
 
@@ -69,18 +69,18 @@ resource "google_compute_network_peering" "peering_primary" {
 }
 
 resource "google_compute_network_peering" "peering_secondary" {
-  name         = "secondary-peering%{random_suffix}"
+  name         = "tf-test-secondary-peering%{random_suffix}"
   network      = google_compute_network.network_secondary.self_link
   peer_network = google_compute_network.network_primary.self_link
 }
 
 resource "google_compute_network" "network_primary" {
-  name                    = "primary-network%{random_suffix}"
+  name                    = "tf-test-primary-network%{random_suffix}"
   auto_create_subnetworks = "false"
 }
 
 resource "google_compute_network" "network_secondary" {
-  name                    = "secondary-network%{random_suffix}"
+  name                    = "tf-test-secondary-network%{random_suffix}"
   auto_create_subnetworks = "false"
 }
 `, context)
@@ -122,12 +122,12 @@ resource "google_compute_network_peering_routes_config" "peering_gke_routes" {
 }
 
 resource "google_compute_network" "container_network" {
-  name                    = "container-network%{random_suffix}"
+  name                    = "tf-test-container-network%{random_suffix}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "container_subnetwork" {
-  name                     = "container-subnetwork%{random_suffix}"
+  name                     = "tf-test-container-subnetwork%{random_suffix}"
   region                   = "us-central1"
   network                  = google_compute_network.container_network.name
   ip_cidr_range            = "10.0.36.0/24"
@@ -145,7 +145,7 @@ resource "google_compute_subnetwork" "container_subnetwork" {
 }
 
 resource "google_container_cluster" "private_cluster" {
-  name               = "private-cluster%{random_suffix}"
+  name               = "tf-test-private-cluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
 

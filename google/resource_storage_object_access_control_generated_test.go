@@ -58,11 +58,11 @@ resource "google_storage_object_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "static-content-bucket%{random_suffix}"
+  name = "tf-test-static-content-bucket%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "object" {
-  name   = "public-object%{random_suffix}"
+  name   = "tf-test-public-object%{random_suffix}"
   bucket = google_storage_bucket.bucket.name
   source = "test-fixtures/header-logo.png"
 }

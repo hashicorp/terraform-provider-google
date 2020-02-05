@@ -51,7 +51,7 @@ func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 func testAccComputeNetwork_networkBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network" "vpc_network" {
-  name = "vpc-network%{random_suffix}"
+  name = "tf-test-vpc-network%{random_suffix}"
 }
 `, context)
 }

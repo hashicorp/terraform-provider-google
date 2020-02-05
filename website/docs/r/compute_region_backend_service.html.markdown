@@ -43,7 +43,7 @@ To get more information about RegionBackendService, see:
 
 ```hcl
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-rbs"
+  name                            = "region-service"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.self_link]
   connection_draining_timeout_sec = 10
@@ -51,7 +51,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-hc"
+  name               = "rbs-health-check"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -73,7 +73,7 @@ resource "google_compute_region_backend_service" "default" {
   provider = "google-beta"
 
   region = "us-central1"
-  name = "tf-test-rbs"
+  name = "region-service"
   health_checks = ["${google_compute_health_check.health_check.self_link}"]
   protocol = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -83,7 +83,7 @@ resource "google_compute_region_backend_service" "default" {
 resource "google_compute_health_check" "health_check" {
   provider = "google-beta"
 
-  name               = "tf-test-hc"
+  name               = "rbs-health-check"
   http_health_check {
     port = 80
   }
@@ -102,7 +102,7 @@ resource "google_compute_region_backend_service" "default" {
   provider = "google-beta"
 
   region = "us-central1"
-  name = "tf-test-rbs"
+  name = "region-service"
   health_checks = ["${google_compute_health_check.health_check.self_link}"]
   load_balancing_scheme = "INTERNAL_MANAGED"
   locality_lb_policy = "RING_HASH"
@@ -128,7 +128,7 @@ resource "google_compute_region_backend_service" "default" {
 resource "google_compute_health_check" "health_check" {
   provider = "google-beta"
 
-  name               = "tf-test-hc"
+  name               = "rbs-health-check"
   http_health_check {
     port = 80
   }
@@ -155,7 +155,7 @@ resource "google_compute_region_backend_service" "default" {
   }
 
   region      = "us-central1"
-  name        = "tf-test-rbs"
+  name        = "region-service"
   protocol    = "HTTP"
   timeout_sec = 10
 
@@ -173,7 +173,7 @@ resource "google_compute_region_instance_group_manager" "rigm" {
   provider = google-beta
 
   region   = "us-central1"
-  name     = "tf-test-rigm"
+  name     = "rbs-rigm"
   version {
     instance_template = google_compute_instance_template.instance_template.self_link
     name              = "primary"
@@ -185,7 +185,7 @@ resource "google_compute_region_instance_group_manager" "rigm" {
 resource "google_compute_instance_template" "instance_template" {
   provider     = google-beta
 
-  name         = "template-tf-test-rbs"
+  name         = "template-region-service"
   machine_type = "n1-standard-1"
 
   network_interface {
@@ -206,7 +206,7 @@ resource "google_compute_region_health_check" "default" {
   provider = google-beta
 
   region = "us-central1"
-  name   = "tf-test-hc"
+  name   = "rbs-health-check"
   http_health_check {
     port_specification = "USE_SERVING_PORT"
   }
@@ -215,7 +215,7 @@ resource "google_compute_region_health_check" "default" {
 resource "google_compute_network" "default" {
   provider = google-beta
 
-  name                    = "tf-test-net"
+  name                    = "rbs-net"
   auto_create_subnetworks = false
   routing_mode            = "REGIONAL"
 }
@@ -223,7 +223,7 @@ resource "google_compute_network" "default" {
 resource "google_compute_subnetwork" "default" {
   provider = google-beta
 
-  name          = "tf-test-net-default"
+  name          = "rbs-net-default"
   ip_cidr_range = "10.1.2.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.self_link

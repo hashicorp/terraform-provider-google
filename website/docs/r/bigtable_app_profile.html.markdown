@@ -36,9 +36,9 @@ App profile is a configuration object describing how Cloud Bigtable should treat
 
 ```hcl
 resource "google_bigtable_instance" "instance" {
-  name = "tf-test-instance-"
+  name = "bt-instance"
   cluster {
-    cluster_id   = "tf-test-instance-"
+    cluster_id   = "bt-instance"
     zone         = "us-central1-b"
     num_nodes    = 3
     storage_type = "HDD"
@@ -47,7 +47,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_app_profile" "ap" {
   instance       = google_bigtable_instance.instance.name
-  app_profile_id = "tf-test-profile-"
+  app_profile_id = "bt-profile"
 
   multi_cluster_routing_use_any = true
   ignore_warnings               = true
@@ -63,9 +63,9 @@ resource "google_bigtable_app_profile" "ap" {
 
 ```hcl
 resource "google_bigtable_instance" "instance" {
-  name = "tf-test-instance-"
+  name = "bt-instance"
   cluster {
-    cluster_id   = "tf-test-instance-"
+    cluster_id   = "bt-instance"
     zone         = "us-central1-b"
     num_nodes    = 3
     storage_type = "HDD"
@@ -74,10 +74,10 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_app_profile" "ap" {
   instance       = google_bigtable_instance.instance.name
-  app_profile_id = "tf-test-profile-"
+  app_profile_id = "bt-profile"
 
   single_cluster_routing {
-    cluster_id                 = "tf-test-instance-"
+    cluster_id                 = "bt-instance"
     allow_transactional_writes = true
   }
 

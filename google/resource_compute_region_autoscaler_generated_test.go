@@ -51,7 +51,7 @@ func TestAccComputeRegionAutoscaler_regionAutoscalerBasicExample(t *testing.T) {
 func testAccComputeRegionAutoscaler_regionAutoscalerBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_autoscaler" "foobar" {
-  name   = "my-region-autoscaler%{random_suffix}"
+  name   = "tf-test-my-region-autoscaler%{random_suffix}"
   region = "us-central1"
   target = google_compute_region_instance_group_manager.foobar.self_link
 
@@ -67,7 +67,7 @@ resource "google_compute_region_autoscaler" "foobar" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name           = "my-instance-template%{random_suffix}"
+  name           = "tf-test-my-instance-template%{random_suffix}"
   machine_type   = "n1-standard-1"
   can_ip_forward = false
 
@@ -91,11 +91,11 @@ resource "google_compute_instance_template" "foobar" {
 }
 
 resource "google_compute_target_pool" "foobar" {
-  name = "my-target-pool%{random_suffix}"
+  name = "tf-test-my-target-pool%{random_suffix}"
 }
 
 resource "google_compute_region_instance_group_manager" "foobar" {
-  name   = "my-region-igm%{random_suffix}"
+  name   = "tf-test-my-region-igm%{random_suffix}"
   region = "us-central1"
 
   version {

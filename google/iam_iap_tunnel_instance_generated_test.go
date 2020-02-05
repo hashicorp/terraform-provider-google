@@ -120,7 +120,7 @@ func TestAccIapTunnelInstanceIamPolicyGenerated(t *testing.T) {
 func testAccIapTunnelInstanceIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel%{random_suffix}"
+  name         = "tf-test-tunnel-vm%{random_suffix}"
   zone         = ""
   machine_type = "n1-standard-1"
 
@@ -148,7 +148,7 @@ resource "google_iap_tunnel_instance_iam_member" "foo" {
 func testAccIapTunnelInstanceIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel%{random_suffix}"
+  name         = "tf-test-tunnel-vm%{random_suffix}"
   zone         = ""
   machine_type = "n1-standard-1"
 
@@ -182,7 +182,7 @@ resource "google_iap_tunnel_instance_iam_policy" "foo" {
 func testAccIapTunnelInstanceIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel%{random_suffix}"
+  name         = "tf-test-tunnel-vm%{random_suffix}"
   zone         = ""
   machine_type = "n1-standard-1"
 
@@ -212,7 +212,7 @@ resource "google_iap_tunnel_instance_iam_policy" "foo" {
 func testAccIapTunnelInstanceIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel%{random_suffix}"
+  name         = "tf-test-tunnel-vm%{random_suffix}"
   zone         = ""
   machine_type = "n1-standard-1"
 
@@ -240,7 +240,7 @@ resource "google_iap_tunnel_instance_iam_binding" "foo" {
 func testAccIapTunnelInstanceIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_instance" "tunnelvm" {
-  name         = "tf-test-tunnel%{random_suffix}"
+  name         = "tf-test-tunnel-vm%{random_suffix}"
   zone         = ""
   machine_type = "n1-standard-1"
 

@@ -51,7 +51,7 @@ func TestAccLoggingMetric_loggingMetricBasicExample(t *testing.T) {
 func testAccLoggingMetric_loggingMetricBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_logging_metric" "logging_metric" {
-  name   = "my-(custom)/metric%{random_suffix}"
+  name   = "tf-test-my-(custom)/metric%{random_suffix}"
   filter = "resource.type=gae_app AND severity>=ERROR"
   metric_descriptor {
     metric_kind = "DELTA"
@@ -112,7 +112,7 @@ func TestAccLoggingMetric_loggingMetricCounterBasicExample(t *testing.T) {
 func testAccLoggingMetric_loggingMetricCounterBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_logging_metric" "logging_metric" {
-  name   = "my-(custom)/metric%{random_suffix}"
+  name   = "tf-test-my-(custom)/metric%{random_suffix}"
   filter = "resource.type=gae_app AND severity>=ERROR"
   metric_descriptor {
     metric_kind = "DELTA"
@@ -149,7 +149,7 @@ func TestAccLoggingMetric_loggingMetricCounterLabelsExample(t *testing.T) {
 func testAccLoggingMetric_loggingMetricCounterLabelsExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_logging_metric" "logging_metric" {
-  name   = "my-(custom)/metric%{random_suffix}"
+  name   = "tf-test-my-(custom)/metric%{random_suffix}"
   filter = "resource.type=gae_app AND severity>=ERROR"
   metric_descriptor {
     metric_kind = "DELTA"

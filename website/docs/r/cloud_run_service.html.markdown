@@ -54,7 +54,7 @@ To get more information about Service, see:
 
 ```hcl
 resource "google_cloud_run_service" "default" {
-  name     = "tftest-cloudrun"
+  name     = "cloudrun-srv"
   location = "us-central1"
 
   template {
@@ -81,7 +81,7 @@ resource "google_cloud_run_service" "default" {
 
 ```hcl
 resource "google_cloud_run_service" "default" {
-  name     = "tftest-cloudrun"
+  name     = "cloudrun-srv"
   location = "us-central1"
 
   template {
@@ -119,7 +119,7 @@ resource "google_sql_database_instance" "instance" {
 
 ```hcl
 resource "google_cloud_run_service" "default" {
-  name     = "tftest-cloudrun"
+  name     = "cloudrun-srv"
   location = "us-central1"
 
   template {
@@ -158,7 +158,7 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
 
 ```hcl
 resource "google_cloud_run_service" "default" {
-  name     = "tftest-cloudrun"
+  name     = "cloudrun-srv"
   location = "us-central1"
 
   template {

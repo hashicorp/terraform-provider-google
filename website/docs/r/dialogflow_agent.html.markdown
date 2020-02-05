@@ -44,7 +44,7 @@ To get more information about Agent, see:
 
 ```hcl
 resource "google_dialogflow_agent" "full_agent" {
-  display_name = "tf-test-full-agent"
+  display_name = "dialogflow-agent"
   default_language_code = "en"
   supported_language_codes = ["fr","de","es"]
   time_zone = "America/New_York"

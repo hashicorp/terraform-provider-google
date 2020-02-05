@@ -120,7 +120,7 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 func testAccBinaryAuthorizationAttestorIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "test-attestor%{random_suffix}"
+  name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
     note_reference = google_container_analysis_note.note.name
     public_keys {
@@ -147,7 +147,7 @@ EOF
 }
 
 resource "google_container_analysis_note" "note" {
-  name = "test-attestor-note%{random_suffix}"
+  name = "tf-test-test-attestor-note%{random_suffix}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -167,7 +167,7 @@ resource "google_binary_authorization_attestor_iam_member" "foo" {
 func testAccBinaryAuthorizationAttestorIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "test-attestor%{random_suffix}"
+  name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
     note_reference = google_container_analysis_note.note.name
     public_keys {
@@ -194,7 +194,7 @@ EOF
 }
 
 resource "google_container_analysis_note" "note" {
-  name = "test-attestor-note%{random_suffix}"
+  name = "tf-test-test-attestor-note%{random_suffix}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -220,7 +220,7 @@ resource "google_binary_authorization_attestor_iam_policy" "foo" {
 func testAccBinaryAuthorizationAttestorIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "test-attestor%{random_suffix}"
+  name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
     note_reference = google_container_analysis_note.note.name
     public_keys {
@@ -247,7 +247,7 @@ EOF
 }
 
 resource "google_container_analysis_note" "note" {
-  name = "test-attestor-note%{random_suffix}"
+  name = "tf-test-test-attestor-note%{random_suffix}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -269,7 +269,7 @@ resource "google_binary_authorization_attestor_iam_policy" "foo" {
 func testAccBinaryAuthorizationAttestorIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "test-attestor%{random_suffix}"
+  name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
     note_reference = google_container_analysis_note.note.name
     public_keys {
@@ -296,7 +296,7 @@ EOF
 }
 
 resource "google_container_analysis_note" "note" {
-  name = "test-attestor-note%{random_suffix}"
+  name = "tf-test-test-attestor-note%{random_suffix}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -316,7 +316,7 @@ resource "google_binary_authorization_attestor_iam_binding" "foo" {
 func testAccBinaryAuthorizationAttestorIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "test-attestor%{random_suffix}"
+  name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
     note_reference = google_container_analysis_note.note.name
     public_keys {
@@ -343,7 +343,7 @@ EOF
 }
 
 resource "google_container_analysis_note" "note" {
-  name = "test-attestor-note%{random_suffix}"
+  name = "tf-test-test-attestor-note%{random_suffix}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"

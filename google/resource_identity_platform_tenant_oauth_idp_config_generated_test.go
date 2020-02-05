@@ -28,6 +28,7 @@ func TestAccIdentityPlatformTenantOauthIdpConfig_identityPlatformTenantOauthIdpC
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"name":          "oidc.oauth-idp-config-" + acctest.RandString(10),
 		"random_suffix": acctest.RandString(10),
 	}
 
@@ -56,7 +57,7 @@ resource "google_identity_platform_tenant" "tenant" {
 }
 
 resource "google_identity_platform_tenant_oauth_idp_config" "tenant_oauth_idp_config" {
-  name          = "oidc.oauth-idp-config%{random_suffix}"
+  name          = "%{name}"
   tenant        = google_identity_platform_tenant.tenant.name
   display_name  = "Display Name"
   client_id     = "client-id"
