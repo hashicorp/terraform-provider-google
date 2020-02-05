@@ -52,7 +52,7 @@ func TestAccCloudTasksQueue_queueBasicExample(t *testing.T) {
 func testAccCloudTasksQueue_queueBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_cloud_tasks_queue" "default" {
-  name = "cloud-tasks-queue-test%{random_suffix}"
+  name = "tf-test-cloud-tasks-queue-test%{random_suffix}"
   location = "us-central1"
 }
 `, context)

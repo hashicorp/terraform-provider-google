@@ -51,7 +51,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *test
 func testAccComputeRegionBackendService_regionBackendServiceBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_backend_service" "default" {
-  name                            = "tf-test-rbs%{random_suffix}"
+  name                            = "tf-test-region-service%{random_suffix}"
   region                          = "us-central1"
   health_checks                   = [google_compute_health_check.default.self_link]
   connection_draining_timeout_sec = 10
@@ -59,7 +59,7 @@ resource "google_compute_region_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "tf-test-hc%{random_suffix}"
+  name               = "tf-test-rbs-health-check%{random_suffix}"
   check_interval_sec = 1
   timeout_sec        = 1
 

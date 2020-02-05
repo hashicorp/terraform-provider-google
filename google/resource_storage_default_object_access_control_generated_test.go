@@ -58,7 +58,7 @@ resource "google_storage_default_object_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "static-content-bucket%{random_suffix}"
+  name = "tf-test-static-content-bucket%{random_suffix}"
 }
 `, context)
 }

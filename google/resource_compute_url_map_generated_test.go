@@ -107,20 +107,20 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_backend_bucket" "static" {
-  name        = "static-asset-backend-bucket%{random_suffix}"
+  name        = "tf-test-static-asset-backend-bucket%{random_suffix}"
   bucket_name = google_storage_bucket.static.name
   enable_cdn  = true
 }
 
 resource "google_storage_bucket" "static" {
-  name     = "static-asset-bucket%{random_suffix}"
+  name     = "tf-test-static-asset-bucket%{random_suffix}"
   location = "US"
 }
 `, context)
@@ -230,7 +230,7 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   http_health_check {
     port = 80
   }
@@ -313,7 +313,7 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   http_health_check {
     port = 80
   }
@@ -445,7 +445,7 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   http_health_check {
     port = 80
   }
@@ -546,7 +546,7 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   http_health_check {
     port = 80
   }

@@ -51,7 +51,7 @@ func TestAccBigQueryDataset_bigqueryDatasetBasicExample(t *testing.T) {
 func testAccBigQueryDataset_bigqueryDatasetBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id                  = "example_dataset%{random_suffix}"
+  dataset_id                  = "tf_test_example_dataset%{random_suffix}"
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "EU"

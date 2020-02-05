@@ -83,16 +83,16 @@ func TestAccSourceRepoRepository_sourcerepoRepositoryFullExample(t *testing.T) {
 func testAccSourceRepoRepository_sourcerepoRepositoryFullExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_service_account" "test-account" {
-  account_id   = "my-account%{random_suffix}"
+  account_id   = "tf-test-my-account%{random_suffix}"
   display_name = "Test Service Account"
 }
 
 resource "google_pubsub_topic" "topic" {
-  name     = "my-topic%{random_suffix}"
+  name     = "tf-test-my-topic%{random_suffix}"
 }
 
 resource "google_sourcerepo_repository" "my-repo" {
-  name = "my-repository%{random_suffix}"
+  name = "tf-test-my-repository%{random_suffix}"
   pubsub_configs {
       topic = google_pubsub_topic.topic.id
       message_format = "JSON"

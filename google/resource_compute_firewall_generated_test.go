@@ -51,7 +51,7 @@ func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 func testAccComputeFirewall_firewallBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_firewall" "default" {
-  name    = "test-firewall%{random_suffix}"
+  name    = "tf-test-test-firewall%{random_suffix}"
   network = google_compute_network.default.name
 
   allow {
@@ -67,7 +67,7 @@ resource "google_compute_firewall" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name = "test-network%{random_suffix}"
+  name = "tf-test-test-network%{random_suffix}"
 }
 `, context)
 }

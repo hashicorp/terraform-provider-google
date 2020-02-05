@@ -52,7 +52,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.
 func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_monitoring_uptime_check_config" "http" {
-  display_name = "http-uptime-check%{random_suffix}"
+  display_name = "tf-test-http-uptime-check%{random_suffix}"
   timeout      = "60s"
 
   http_check {
@@ -103,7 +103,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpsExample(t *testing
 func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpsExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_monitoring_uptime_check_config" "https" {
-  display_name = "https-uptime-check%{random_suffix}"
+  display_name = "tf-test-https-uptime-check%{random_suffix}"
   timeout = "60s"
 
   http_check {
@@ -155,7 +155,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(t *testing.T) {
 func testAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_monitoring_uptime_check_config" "tcp_group" {
-  display_name = "tcp-uptime-check%{random_suffix}"
+  display_name = "tf-test-tcp-uptime-check%{random_suffix}"
   timeout      = "60s"
 
   tcp_check {
@@ -169,7 +169,7 @@ resource "google_monitoring_uptime_check_config" "tcp_group" {
 }
 
 resource "google_monitoring_group" "check" {
-  display_name = "uptime-check-group%{random_suffix}"
+  display_name = "tf-test-uptime-check-group%{random_suffix}"
   filter       = "resource.metadata.name=has_substring(\"foo\")"
 }
 `, context)

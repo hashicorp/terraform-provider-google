@@ -51,7 +51,7 @@ func TestAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(
 func testAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "test-attestor%{random_suffix}"
+  name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
     note_reference = google_container_analysis_note.note.name
     public_keys {
@@ -78,7 +78,7 @@ EOF
 }
 
 resource "google_container_analysis_note" "note" {
-  name = "test-attestor-note%{random_suffix}"
+  name = "tf-test-test-attestor-note%{random_suffix}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"

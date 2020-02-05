@@ -52,7 +52,7 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 func testAccRedisInstance_redisInstanceBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_redis_instance" "cache" {
-  name           = "memory-cache%{random_suffix}"
+  name           = "tf-test-memory-cache%{random_suffix}"
   memory_size_gb = 1
 }
 `, context)
@@ -87,7 +87,7 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 func testAccRedisInstance_redisInstanceFullExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_redis_instance" "cache" {
-  name           = "ha-memory-cache%{random_suffix}"
+  name           = "tf-test-ha-memory-cache%{random_suffix}"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
 

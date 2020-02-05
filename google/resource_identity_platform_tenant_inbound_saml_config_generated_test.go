@@ -28,6 +28,7 @@ func TestAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboun
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"name":          "saml.tf-config-" + acctest.RandString(10),
 		"random_suffix": acctest.RandString(10),
 	}
 
@@ -56,11 +57,11 @@ resource "google_identity_platform_tenant" "tenant" {
 }
 
 resource "google_identity_platform_tenant_inbound_saml_config" "tenant_saml_config" {
-  name         = "saml.tf-config%{random_suffix}"
+  name         = "%{name}"
   display_name = "Display Name"
   tenant       = google_identity_platform_tenant.tenant.name
   idp_config {
-    idp_entity_id = "tf-idp%{random_suffix}"
+    idp_entity_id = "tf-test-tf-idp%{random_suffix}"
     sign_request  = true
     sso_url       = "example.com"
     idp_certificates {
@@ -69,7 +70,7 @@ resource "google_identity_platform_tenant_inbound_saml_config" "tenant_saml_conf
   }
 
   sp_config {
-    sp_entity_id = "tf-sp%{random_suffix}"
+    sp_entity_id = "tf-test-tf-sp%{random_suffix}"
     callback_uri = "https://example.com"
   }
 }

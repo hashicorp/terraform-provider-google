@@ -51,7 +51,7 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckTcpExample(t *testing.T) {
 func testAccComputeRegionHealthCheck_regionHealthCheckTcpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_health_check" "tcp-region-health-check" {
-  name     = "tcp-region-health-check%{random_suffix}"
+  name     = "tf-test-tcp-region-health-check%{random_suffix}"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -90,7 +90,7 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckTcpFullExample(t *testing.
 func testAccComputeRegionHealthCheck_regionHealthCheckTcpFullExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_health_check" "tcp-region-health-check" {
-  name        = "tcp-region-health-check%{random_suffix}"
+  name        = "tf-test-tcp-region-health-check%{random_suffix}"
   description = "Health check via tcp"
 
   timeout_sec         = 1
@@ -136,7 +136,7 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckSslExample(t *testing.T) {
 func testAccComputeRegionHealthCheck_regionHealthCheckSslExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_health_check" "ssl-region-health-check" {
-  name     = "ssl-region-health-check%{random_suffix}"
+  name     = "tf-test-ssl-region-health-check%{random_suffix}"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -175,7 +175,7 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckSslFullExample(t *testing.
 func testAccComputeRegionHealthCheck_regionHealthCheckSslFullExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_health_check" "ssl-region-health-check" {
-  name        = "ssl-region-health-check%{random_suffix}"
+  name        = "tf-test-ssl-region-health-check%{random_suffix}"
   description = "Health check via ssl"
 
   timeout_sec         = 1
@@ -221,7 +221,7 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttpExample(t *testing.T) 
 func testAccComputeRegionHealthCheck_regionHealthCheckHttpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_health_check" "http-region-health-check" {
-  name     = "http-region-health-check%{random_suffix}"
+  name     = "tf-test-http-region-health-check%{random_suffix}"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -260,7 +260,7 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttpFullExample(t *testing
 func testAccComputeRegionHealthCheck_regionHealthCheckHttpFullExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_health_check" "http-region-health-check" {
-  name        = "http-region-health-check%{random_suffix}"
+  name        = "tf-test-http-region-health-check%{random_suffix}"
   description = "Health check via http"
 
   timeout_sec         = 1
@@ -307,7 +307,7 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttpsExample(t *testing.T)
 func testAccComputeRegionHealthCheck_regionHealthCheckHttpsExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_health_check" "https-region-health-check" {
-  name     = "https-region-health-check%{random_suffix}"
+  name     = "tf-test-https-region-health-check%{random_suffix}"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -346,7 +346,7 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttpsFullExample(t *testin
 func testAccComputeRegionHealthCheck_regionHealthCheckHttpsFullExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_health_check" "https-region-health-check" {
-  name        = "https-region-health-check%{random_suffix}"
+  name        = "tf-test-https-region-health-check%{random_suffix}"
   description = "Health check via https"
 
   timeout_sec         = 1
@@ -393,7 +393,7 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttp2Example(t *testing.T)
 func testAccComputeRegionHealthCheck_regionHealthCheckHttp2Example(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_health_check" "http2-region-health-check" {
-  name     = "http2-region-health-check%{random_suffix}"
+  name     = "tf-test-http2-region-health-check%{random_suffix}"
 
   timeout_sec        = 1
   check_interval_sec = 1
@@ -432,7 +432,7 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttp2FullExample(t *testin
 func testAccComputeRegionHealthCheck_regionHealthCheckHttp2FullExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_health_check" "http2-region-health-check" {
-  name        = "http2-region-health-check%{random_suffix}"
+  name        = "tf-test-http2-region-health-check%{random_suffix}"
   description = "Health check via http2"
 
   timeout_sec         = 1

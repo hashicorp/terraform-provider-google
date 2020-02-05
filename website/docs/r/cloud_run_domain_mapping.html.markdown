@@ -42,7 +42,7 @@ To get more information about DomainMapping, see:
 ```hcl
 
 resource "google_cloud_run_service" "default" {
-  name     = "tftest-cloudrun"
+  name     = "cloudrun-srv"
   location = "us-central1"
 
   metadata {

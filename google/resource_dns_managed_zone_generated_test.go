@@ -92,7 +92,7 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateExample(t *testing.T) {
 func testAccDNSManagedZone_dnsManagedZonePrivateExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_dns_managed_zone" "private-zone" {
-  name        = "private-zone%{random_suffix}"
+  name        = "tf-test-private-zone%{random_suffix}"
   dns_name    = "private.example.com."
   description = "Example private DNS zone"
   labels = {
@@ -112,12 +112,12 @@ resource "google_dns_managed_zone" "private-zone" {
 }
 
 resource "google_compute_network" "network-1" {
-  name                    = "network-1%{random_suffix}"
+  name                    = "tf-test-network-1%{random_suffix}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "network-2" {
-  name                    = "network-2%{random_suffix}"
+  name                    = "tf-test-network-2%{random_suffix}"
   auto_create_subnetworks = false
 }
 `, context)

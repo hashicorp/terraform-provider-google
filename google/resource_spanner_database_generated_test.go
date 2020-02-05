@@ -58,7 +58,7 @@ resource "google_spanner_instance" "main" {
 
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.main.name
-  name     = "my-database%{random_suffix}"
+  name     = "tf-test-my-database%{random_suffix}"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
     "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)",

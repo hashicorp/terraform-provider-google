@@ -61,7 +61,7 @@ data "google_compute_image" "vmimage" {
 }
 
 resource "google_compute_instance" "target-vm" {
-  name         = "target-vm%{random_suffix}"
+  name         = "tf-test-target-vm%{random_suffix}"
   machine_type = "n1-standard-1"
   zone         = "us-central1-a"
 
