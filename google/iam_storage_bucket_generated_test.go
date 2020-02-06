@@ -40,7 +40,7 @@ func TestAccStorageBucketIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_storage_bucket_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("b/%s roles/storage.objectViewer", fmt.Sprintf("my-bucket%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("b/%s roles/storage.objectViewer", fmt.Sprintf("tf-test-my-bucket%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -50,7 +50,7 @@ func TestAccStorageBucketIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_storage_bucket_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("b/%s roles/storage.objectViewer", fmt.Sprintf("my-bucket%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("b/%s roles/storage.objectViewer", fmt.Sprintf("tf-test-my-bucket%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -77,7 +77,7 @@ func TestAccStorageBucketIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_storage_bucket_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("b/%s roles/storage.objectViewer user:admin@hashicorptest.com", fmt.Sprintf("my-bucket%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("b/%s roles/storage.objectViewer user:admin@hashicorptest.com", fmt.Sprintf("tf-test-my-bucket%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -104,7 +104,7 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_storage_bucket_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("b/%s", fmt.Sprintf("my-bucket%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("b/%s", fmt.Sprintf("tf-test-my-bucket%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -113,7 +113,7 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_storage_bucket_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("b/%s", fmt.Sprintf("my-bucket%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("b/%s", fmt.Sprintf("tf-test-my-bucket%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
