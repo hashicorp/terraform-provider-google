@@ -40,7 +40,7 @@ func TestAccCloudFunctionsCloudFunctionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("my-function%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -50,7 +50,7 @@ func TestAccCloudFunctionsCloudFunctionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("my-function%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -77,7 +77,7 @@ func TestAccCloudFunctionsCloudFunctionIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("my-function%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -103,7 +103,7 @@ func TestAccCloudFunctionsCloudFunctionIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("my-function%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -112,7 +112,7 @@ func TestAccCloudFunctionsCloudFunctionIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("my-function%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

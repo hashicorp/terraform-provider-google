@@ -39,7 +39,7 @@ func TestAccRuntimeConfigConfigIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_runtimeconfig_config_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("my-config%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("tf-test-my-config%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,7 +49,7 @@ func TestAccRuntimeConfigConfigIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_runtimeconfig_config_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("my-config%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("tf-test-my-config%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -75,7 +75,7 @@ func TestAccRuntimeConfigConfigIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_runtimeconfig_config_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("my-config%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("tf-test-my-config%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -100,7 +100,7 @@ func TestAccRuntimeConfigConfigIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_runtimeconfig_config_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s", getTestProjectFromEnv(), fmt.Sprintf("my-config%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s", getTestProjectFromEnv(), fmt.Sprintf("tf-test-my-config%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -109,7 +109,7 @@ func TestAccRuntimeConfigConfigIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_runtimeconfig_config_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s", getTestProjectFromEnv(), fmt.Sprintf("my-config%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s", getTestProjectFromEnv(), fmt.Sprintf("tf-test-my-config%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

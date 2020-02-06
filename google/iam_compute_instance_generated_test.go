@@ -39,7 +39,7 @@ func TestAccComputeInstanceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instance_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s roles/compute.osLogin", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s roles/compute.osLogin", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,7 +49,7 @@ func TestAccComputeInstanceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instance_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s roles/compute.osLogin", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s roles/compute.osLogin", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -75,7 +75,7 @@ func TestAccComputeInstanceIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instance_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s roles/compute.osLogin user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s roles/compute.osLogin user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -100,7 +100,7 @@ func TestAccComputeInstanceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instance_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -109,7 +109,7 @@ func TestAccComputeInstanceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instance_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

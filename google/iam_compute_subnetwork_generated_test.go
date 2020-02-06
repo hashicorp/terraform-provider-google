@@ -39,7 +39,7 @@ func TestAccComputeSubnetworkIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_subnetwork_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s roles/compute.networkUser", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("test-subnetwork%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s roles/compute.networkUser", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-test-subnetwork%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,7 +49,7 @@ func TestAccComputeSubnetworkIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_subnetwork_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s roles/compute.networkUser", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("test-subnetwork%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s roles/compute.networkUser", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-test-subnetwork%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -75,7 +75,7 @@ func TestAccComputeSubnetworkIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_subnetwork_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s roles/compute.networkUser user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("test-subnetwork%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s roles/compute.networkUser user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-test-subnetwork%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -100,7 +100,7 @@ func TestAccComputeSubnetworkIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_subnetwork_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("test-subnetwork%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-test-subnetwork%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -109,7 +109,7 @@ func TestAccComputeSubnetworkIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_subnetwork_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("test-subnetwork%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf-test-test-subnetwork%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
