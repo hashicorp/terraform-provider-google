@@ -176,9 +176,12 @@ access Google APIs and services by using Private Google Access.`,
 contained in this subnetwork. The primary IP of such VM must belong
 to the primary ipCidrRange of the subnetwork. The alias IPs may belong
 to either primary or secondary ranges.
-This field uses attr-as-block mode to avoid breaking
-users during the 0.12 upgrade. See [the Attr-as-Block page](https://www.terraform.io/docs/configuration/attr-as-blocks.html)
-for more details.`,
+
+**Note**: This field uses [attr-as-block mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html) to avoid
+breaking users during the 0.12 upgrade. To explicitly send a list
+of zero objects you must use the following syntax:
+'example=[]'
+For more details about this behavior, see [this section](https://www.terraform.io/docs/configuration/attr-as-blocks.html#defining-a-fixed-object-collection-value).`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ip_cidr_range": {
