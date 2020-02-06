@@ -101,6 +101,11 @@ The following arguments are supported:
 
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure documented below.
     **Note:** GPU accelerators can only be used with [`on_host_maintenance`](#on_host_maintenance) option set to TERMINATE.
+    **Note**: This field uses [attr-as-block mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html) to avoid
+    breaking users during the 0.12 upgrade. To explicitly send a list
+    of zero objects you must use the following syntax:
+    `example=[]`
+    For more details about this behavior, see [this section](https://www.terraform.io/docs/configuration/attr-as-blocks.html#defining-a-fixed-object-collection-value).
 
 * `labels` - (Optional) A map of key/value label pairs to assign to the instance.
 
