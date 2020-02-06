@@ -262,8 +262,8 @@ func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) err
 				return res, res["tier"].(string), nil
 			},
 			Timeout:                   40 * time.Minute,
-			MinTimeout:                10 * time.Second,
-			ContinuousTargetOccurence: 10,
+			MinTimeout:                30 * time.Second,
+			ContinuousTargetOccurence: 12,
 		}
 		_, err = stateConf.WaitForState()
 		if err != nil {
@@ -439,8 +439,8 @@ func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) err
 				return res, res["tier"].(string), nil
 			},
 			Timeout:                   40 * time.Minute,
-			MinTimeout:                10 * time.Second,
-			ContinuousTargetOccurence: 10,
+			MinTimeout:                30 * time.Second,
+			ContinuousTargetOccurence: 12,
 		}
 		_, err = stateConf.WaitForState()
 		if err != nil {
