@@ -159,14 +159,14 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 	if !d.Get("auto_create_network").(bool) {
 		// The compute API has to be enabled before we can delete a network.
 		if err = enableServiceUsageProjectServices([]string{"compute.googleapis.com"}, project.ProjectId, config, d.Timeout(schema.TimeoutCreate)); err != nil {
-			return fmt.Errorf("Error enabling the Compute Engine API required to delete the default network: %s", err)
+			return errwrap.Wrapf("Error enabling the Compute Engine API required to delete the default network: ", err)
 		}
 
 		if err = forceDeleteComputeNetwork(d, config, project.ProjectId, "default"); err != nil {
 			if isGoogleApiErrorWithCode(err, 404) {
 				log.Printf("[DEBUG] Default network not found for project %q, no need to delete it", project.ProjectId)
 			} else {
-				return fmt.Errorf("Error deleting default network in project %s: %s", project.ProjectId, err)
+				return errwrap.Wrapf(fmt.Sprintf("Error deleting default network in project %s: ", project.ProjectId), err)
 			}
 		}
 	}
@@ -397,7 +397,7 @@ func forceDeleteComputeNetwork(d *schema.ResourceData, config *Config, projectId
 		filter := fmt.Sprintf("network eq %s", networkLink)
 		resp, err := config.clientCompute.Firewalls.List(projectId).Filter(filter).Do()
 		if err != nil {
-			return fmt.Errorf("Error listing firewall rules in proj: %s", err)
+			return errwrap.Wrapf("Error listing firewall rules in proj:", err)
 		}
 
 		log.Printf("[DEBUG] Found %d firewall rules in %q network", len(resp.Items), networkName)
@@ -405,7 +405,7 @@ func forceDeleteComputeNetwork(d *schema.ResourceData, config *Config, projectId
 		for _, firewall := range resp.Items {
 			op, err := config.clientCompute.Firewalls.Delete(projectId, firewall.Name).Do()
 			if err != nil {
-				return fmt.Errorf("Error deleting firewall: %s", err)
+				return errwrap.Wrapf("Error deleting firewall: ", err)
 			}
 			err = computeOperationWait(config, op, projectId, "Deleting Firewall")
 			if err != nil {
@@ -456,7 +456,7 @@ func deleteComputeNetwork(project, network string, config *Config) error {
 	op, err := config.clientCompute.Networks.Delete(
 		project, network).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting network: %s", err)
+		return errwrap.Wrapf("Error deleting network: ", err)
 	}
 
 	err = computeOperationWaitTime(config, op, project, "Deleting Network", 10)
