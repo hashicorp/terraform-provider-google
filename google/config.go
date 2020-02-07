@@ -47,6 +47,7 @@ import (
 	"google.golang.org/api/serviceusage/v1"
 	"google.golang.org/api/sourcerepo/v1"
 	"google.golang.org/api/spanner/v1"
+	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 	"google.golang.org/api/storage/v1"
 	"google.golang.org/api/storagetransfer/v1"
 )
