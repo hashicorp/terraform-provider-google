@@ -53,14 +53,14 @@ func NewTransport(ctx context.Context, base http.RoundTripper, opts ...option.Cl
 }
 
 func newTransport(ctx context.Context, base http.RoundTripper, settings *internal.DialSettings) (http.RoundTripper, error) {
-	trans := base
-	trans = parameterTransport{
-		base:          trans,
+	paramTransport := &parameterTransport{
+		base:          base,
 		userAgent:     settings.UserAgent,
 		quotaProject:  settings.QuotaProject,
 		requestReason: settings.RequestReason,
 	}
-	trans = addOCTransport(trans)
+	var trans http.RoundTripper = paramTransport
+	trans = addOCTransport(trans, settings)
 	switch {
 	case settings.NoAuth:
 		// Do nothing.
@@ -73,6 +73,9 @@ func newTransport(ctx context.Context, base http.RoundTripper, settings *interna
 		creds, err := internal.Creds(ctx, settings)
 		if err != nil {
 			return nil, err
+		}
+		if paramTransport.quotaProject == "" {
+			paramTransport.quotaProject = internal.QuotaProjectFromCreds(creds)
 		}
 		trans = &oauth2.Transport{
 			Base:   trans,
@@ -104,21 +107,20 @@ type parameterTransport struct {
 	base http.RoundTripper
 }
 
-func (t parameterTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+func (t *parameterTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	rt := t.base
 	if rt == nil {
 		return nil, errors.New("transport: no Transport specified")
-	}
-	if t.userAgent == "" {
-		return rt.RoundTrip(req)
 	}
 	newReq := *req
 	newReq.Header = make(http.Header)
 	for k, vv := range req.Header {
 		newReq.Header[k] = vv
 	}
-	// TODO(cbro): append to existing User-Agent header?
-	newReq.Header.Set("User-Agent", t.userAgent)
+	if t.userAgent != "" {
+		// TODO(cbro): append to existing User-Agent header?
+		newReq.Header.Set("User-Agent", t.userAgent)
+	}
 
 	// Attach system parameters into the header
 	if t.quotaProject != "" {
@@ -143,7 +145,10 @@ func defaultBaseTransport(ctx context.Context) http.RoundTripper {
 	return http.DefaultTransport
 }
 
-func addOCTransport(trans http.RoundTripper) http.RoundTripper {
+func addOCTransport(trans http.RoundTripper, settings *internal.DialSettings) http.RoundTripper {
+	if settings.TelemetryDisabled {
+		return trans
+	}
 	return &ochttp.Transport{
 		Base:        trans,
 		Propagation: &propagation.HTTPFormat{},

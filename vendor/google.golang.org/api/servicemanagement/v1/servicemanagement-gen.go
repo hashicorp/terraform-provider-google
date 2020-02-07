@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -792,8 +792,26 @@ type BackendRule struct {
 	// seconds.
 	Deadline float64 `json:"deadline,omitempty"`
 
-	// JwtAudience: The JWT audience is used when generating a JWT id token
+	// DisableAuth: When disable_auth is false,  a JWT ID token will be
+	// generated with the
+	// value from BackendRule.address as jwt_audience, overrode to the
+	// HTTP
+	// "Authorization" request header and sent to the backend.
+	//
+	// When disable_auth is true, a JWT ID token won't be generated and
+	// the
+	// original "Authorization" HTTP header will be preserved. If the header
+	// is
+	// used to carry the original token and is expected by the backend,
+	// this
+	// field must be set to true to preserve the header.
+	DisableAuth bool `json:"disableAuth,omitempty"`
+
+	// JwtAudience: The JWT audience is used when generating a JWT ID token
 	// for the backend.
+	// This ID token will be added in the HTTP "authorization" header, and
+	// sent
+	// to the backend.
 	JwtAudience string `json:"jwtAudience,omitempty"`
 
 	// MinDeadline: Minimum deadline in seconds needed for this method.
@@ -1040,6 +1058,38 @@ type Binding struct {
 	// * `group:{emailid}`: An email address that represents a Google
 	// group.
 	//    For example, `admins@example.com`.
+	//
+	// * `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique
+	//    identifier) representing a user that has been recently deleted.
+	// For
+	//    example, `alice@example.com?uid=123456789012345678901`. If the
+	// user is
+	//    recovered, this value reverts to `user:{emailid}` and the
+	// recovered user
+	//    retains the role in the binding.
+	//
+	// * `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
+	// (plus
+	//    unique identifier) representing a service account that has been
+	// recently
+	//    deleted. For example,
+	//
+	// `my-other-app@appspot.gserviceaccount.com?uid=123456789012345678901`.
+	//
+	//    If the service account is undeleted, this value reverts to
+	//    `serviceAccount:{emailid}` and the undeleted service account
+	// retains the
+	//    role in the binding.
+	//
+	// * `deleted:group:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique
+	//    identifier) representing a Google group that has been recently
+	//    deleted. For example,
+	// `admins@example.com?uid=123456789012345678901`. If
+	//    the group is recovered, this value reverts to `group:{emailid}`
+	// and the
+	//    recovered group retains the role in the binding.
 	//
 	//
 	// * `domain:{domain}`: The G Suite domain (primary) that represents all
@@ -2083,31 +2133,62 @@ func (s *EnumValue) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Expr: Represents an expression text. Example:
+// Expr: Represents a textual expression in the Common Expression
+// Language (CEL)
+// syntax. CEL is a C-like expression language. The syntax and semantics
+// of CEL
+// are documented at https://github.com/google/cel-spec.
 //
-//     title: "User account presence"
-//     description: "Determines whether the request has a user account"
-//     expression: "size(request.user) > 0"
+// Example (Comparison):
+//
+//     title: "Summary size limit"
+//     description: "Determines if a summary is less than 100 chars"
+//     expression: "document.summary.size() < 100"
+//
+// Example (Equality):
+//
+//     title: "Requestor is owner"
+//     description: "Determines if requestor is the document owner"
+//     expression: "document.owner ==
+// request.auth.claims.email"
+//
+// Example (Logic):
+//
+//     title: "Public documents"
+//     description: "Determine whether the document should be publicly
+// visible"
+//     expression: "document.type != 'private' && document.type !=
+// 'internal'"
+//
+// Example (Data Manipulation):
+//
+//     title: "Notification string"
+//     description: "Create a notification string with a timestamp."
+//     expression: "'New message received at ' +
+// string(document.create_time)"
+//
+// The exact variables and functions that may be referenced within an
+// expression
+// are determined by the service that evaluates it. See the
+// service
+// documentation for additional information.
 type Expr struct {
-	// Description: An optional description of the expression. This is a
+	// Description: Optional. Description of the expression. This is a
 	// longer text which
 	// describes the expression, e.g. when hovered over it in a UI.
 	Description string `json:"description,omitempty"`
 
-	// Expression: Textual representation of an expression in
-	// Common Expression Language syntax.
-	//
-	// The application context of the containing message determines
-	// which
-	// well-known feature set of CEL is supported.
+	// Expression: Textual representation of an expression in Common
+	// Expression Language
+	// syntax.
 	Expression string `json:"expression,omitempty"`
 
-	// Location: An optional string indicating the location of the
-	// expression for error
+	// Location: Optional. String indicating the location of the expression
+	// for error
 	// reporting, e.g. a file name and a position in the file.
 	Location string `json:"location,omitempty"`
 
-	// Title: An optional title for the expression, i.e. a short string
+	// Title: Optional. Title for the expression, i.e. a short string
 	// describing
 	// its purpose. This can be used e.g. in UIs which allow to enter
 	// the
@@ -2838,6 +2919,11 @@ type HttpRule struct {
 	// the nesting may only be one level deep).
 	AdditionalBindings []*HttpRule `json:"additionalBindings,omitempty"`
 
+	// AllowHalfDuplex: When this flag is set to true, HTTP requests will be
+	// allowed to invoke a
+	// half-duplex streaming method.
+	AllowHalfDuplex bool `json:"allowHalfDuplex,omitempty"`
+
 	// Body: The name of the request field whose value is mapped to the HTTP
 	// request
 	// body, or `*` for mapping all request fields not captured by the
@@ -3491,11 +3577,39 @@ type MetricDescriptor struct {
 	//     "appengine.googleapis.com/http/server/response_latencies"
 	Type string `json:"type,omitempty"`
 
-	// Unit: The unit in which the metric value is reported. It is only
+	// Unit: The units in which the metric value is reported. It is only
 	// applicable
-	// if the `value_type` is `INT64`, `DOUBLE`, or `DISTRIBUTION`.
-	// The
-	// supported units are a subset of [The Unified Code for Units
+	// if the `value_type` is `INT64`, `DOUBLE`, or `DISTRIBUTION`. The
+	// `unit`
+	// defines the representation of the stored metric values.
+	//
+	// Different systems may scale the values to be more easily displayed
+	// (so a
+	// value of `0.02KBy` _might_ be displayed as `20By`, and a value
+	// of
+	// `3523KBy` _might_ be displayed as `3.5MBy`). However, if the `unit`
+	// is
+	// `KBy`, then the value of the metric is always in thousands of bytes,
+	// no
+	// matter how it may be displayed..
+	//
+	// If you want a custom metric to record the exact number of CPU-seconds
+	// used
+	// by a job, you can create an `INT64 CUMULATIVE` metric whose `unit`
+	// is
+	// `s{CPU}` (or equivalently `1s{CPU}` or just `s`). If the job uses
+	// 12,005
+	// CPU-seconds, then the value is written as `12005`.
+	//
+	// Alternatively, if you want a custom metric to record data in a
+	// more
+	// granular way, you can create a `DOUBLE CUMULATIVE` metric whose
+	// `unit` is
+	// `ks{CPU}`, and then write the value `12.005` (which is
+	// `12005/1000`),
+	// or use `Kis{CPU}` and write `11.723` (which is `12005/1024`).
+	//
+	// The supported units are a subset of [The Unified Code for Units
 	// of
 	// Measure](http://unitsofmeasure.org/ucum.html) standard:
 	//
@@ -3510,33 +3624,42 @@ type MetricDescriptor struct {
 	//
 	// **Prefixes (PREFIX)**
 	//
-	// * `k`     kilo    (10**3)
-	// * `M`     mega    (10**6)
-	// * `G`     giga    (10**9)
-	// * `T`     tera    (10**12)
-	// * `P`     peta    (10**15)
-	// * `E`     exa     (10**18)
-	// * `Z`     zetta   (10**21)
-	// * `Y`     yotta   (10**24)
-	// * `m`     milli   (10**-3)
-	// * `u`     micro   (10**-6)
-	// * `n`     nano    (10**-9)
-	// * `p`     pico    (10**-12)
-	// * `f`     femto   (10**-15)
-	// * `a`     atto    (10**-18)
-	// * `z`     zepto   (10**-21)
-	// * `y`     yocto   (10**-24)
-	// * `Ki`    kibi    (2**10)
-	// * `Mi`    mebi    (2**20)
-	// * `Gi`    gibi    (2**30)
-	// * `Ti`    tebi    (2**40)
+	// * `k`     kilo    (10^3)
+	// * `M`     mega    (10^6)
+	// * `G`     giga    (10^9)
+	// * `T`     tera    (10^12)
+	// * `P`     peta    (10^15)
+	// * `E`     exa     (10^18)
+	// * `Z`     zetta   (10^21)
+	// * `Y`     yotta   (10^24)
+	//
+	// * `m`     milli   (10^-3)
+	// * `u`     micro   (10^-6)
+	// * `n`     nano    (10^-9)
+	// * `p`     pico    (10^-12)
+	// * `f`     femto   (10^-15)
+	// * `a`     atto    (10^-18)
+	// * `z`     zepto   (10^-21)
+	// * `y`     yocto   (10^-24)
+	//
+	// * `Ki`    kibi    (2^10)
+	// * `Mi`    mebi    (2^20)
+	// * `Gi`    gibi    (2^30)
+	// * `Ti`    tebi    (2^40)
+	// * `Pi`    pebi    (2^50)
 	//
 	// **Grammar**
 	//
 	// The grammar also includes these connectors:
 	//
-	// * `/`    division (as an infix operator, e.g. `1/s`).
-	// * `.`    multiplication (as an infix operator, e.g. `GBy.d`)
+	// * `/`    division or ratio (as an infix operator). For examples,
+	//          `kBy/{email}` or `MiBy/10ms` (although you should almost
+	// never
+	//          have `/s` in a metric `unit`; rates should always be
+	// computed at
+	//          query time from the underlying cumulative or delta value).
+	// * `.`    multiplication or composition (as an infix operator). For
+	//          examples, `GBy.d` or `k{watt}.h`.
 	//
 	// The grammar for a unit is as follows:
 	//
@@ -3551,15 +3674,35 @@ type MetricDescriptor struct {
 	//
 	// Notes:
 	//
-	// * `Annotation` is just a comment if it follows a `UNIT` and is
-	//    equivalent to `1` if it is used alone. For examples,
-	//    `{requests}/s == 1/s`, `By{transmitted}/s == By/s`.
+	// * `Annotation` is just a comment if it follows a `UNIT`. If the
+	// annotation
+	//    is used alone, then the unit is equivalent to `1`. For examples,
+	//    `{request}/s == 1/s`, `By{transmitted}/s == By/s`.
 	// * `NAME` is a sequence of non-blank printable ASCII characters not
-	//    containing '{' or '}'.
-	// * `1` represents dimensionless value 1, such as in `1/s`.
-	// * `%` represents dimensionless value 1/100, and annotates values
+	//    containing `{` or `}`.
+	// * `1` represents a unitary [dimensionless
+	//    unit](https://en.wikipedia.org/wiki/Dimensionless_quantity) of 1,
+	// such
+	//    as in `1/s`. It is typically used when none of the basic units
+	// are
+	//    appropriate. For example, "new users per day" can be represented
+	// as
+	//    `1/d` or `{new-users}/d` (and a metric value `5` would mean "5
+	// new
+	//    users). Alternatively, "thousands of page views per day" would be
+	//    represented as `1000/d` or `k1/d` or `k{page_views}/d` (and a
+	// metric
+	//    value of `5.3` would mean "5300 page views per day").
+	// * `%` represents dimensionless value of 1/100, and annotates values
 	// giving
-	//    a percentage.
+	//    a percentage (so the metric values are typically in the range of
+	// 0..100,
+	//    and a metric value `3` means "3 percent").
+	// * `10^2.%` indicates a metric contains a ratio, typically in the
+	// range
+	//    0..1, that will be multiplied by 100 and displayed as a
+	// percentage
+	//    (so a metric value `0.03` means "3 percent").
 	Unit string `json:"unit,omitempty"`
 
 	// ValueType: Whether the measurement is an integer, a floating-point
@@ -4407,9 +4550,9 @@ func (s *Page) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Policy: Defines an Identity and Access Management (IAM) policy. It is
-// used to
-// specify access control policies for Cloud Platform resources.
+// Policy: An Identity and Access Management (IAM) policy, which
+// specifies access
+// controls for Google Cloud resources.
 //
 //
 // A `Policy` is a collection of `bindings`. A `binding` binds one or
@@ -4418,15 +4561,19 @@ func (s *Page) MarshalJSON() ([]byte, error) {
 // accounts,
 // Google groups, and domains (such as G Suite). A `role` is a named
 // list of
-// permissions (defined by IAM or configured by users). A `binding`
-// can
-// optionally specify a `condition`, which is a logic expression that
-// further
-// constrains the role binding based on attributes about the request
-// and/or
-// target resource.
+// permissions; each `role` can be an IAM predefined role or a
+// user-created
+// custom role.
 //
-// **JSON Example**
+// Optionally, a `binding` can specify a `condition`, which is a
+// logical
+// expression that allows access to a resource only if the expression
+// evaluates
+// to `true`. A condition can add constraints based on attributes of
+// the
+// request, the resource, or both.
+//
+// **JSON example:**
 //
 //     {
 //       "bindings": [
@@ -4447,13 +4594,15 @@ func (s *Page) MarshalJSON() ([]byte, error) {
 //             "title": "expirable access",
 //             "description": "Does not grant access after Sep 2020",
 //             "expression": "request.time <
-//             timestamp('2020-10-01T00:00:00.000Z')",
+// timestamp('2020-10-01T00:00:00.000Z')",
 //           }
 //         }
-//       ]
+//       ],
+//       "etag": "BwWWja0YfJA=",
+//       "version": 3
 //     }
 //
-// **YAML Example**
+// **YAML example:**
 //
 //     bindings:
 //     - members:
@@ -4470,18 +4619,21 @@ func (s *Page) MarshalJSON() ([]byte, error) {
 //         description: Does not grant access after Sep 2020
 //         expression: request.time <
 // timestamp('2020-10-01T00:00:00.000Z')
+//     - etag: BwWWja0YfJA=
+//     - version: 3
 //
 // For a description of IAM and its features, see the
-// [IAM developer's guide](https://cloud.google.com/iam/docs).
+// [IAM documentation](https://cloud.google.com/iam/docs/).
 type Policy struct {
 	// AuditConfigs: Specifies cloud audit logging configuration for this
 	// policy.
 	AuditConfigs []*AuditConfig `json:"auditConfigs,omitempty"`
 
-	// Bindings: Associates a list of `members` to a `role`. Optionally may
+	// Bindings: Associates a list of `members` to a `role`. Optionally, may
 	// specify a
-	// `condition` that determines when binding is in effect.
-	// `bindings` with no members will result in an error.
+	// `condition` that determines how and when the `bindings` are applied.
+	// Each
+	// of the `bindings` must contain at least one member.
 	Bindings []*Binding `json:"bindings,omitempty"`
 
 	// Etag: `etag` is used for optimistic concurrency control as a way to
@@ -4499,34 +4651,43 @@ type Policy struct {
 	// ensure that their change will be applied to the same version of the
 	// policy.
 	//
-	// If no `etag` is provided in the call to `setIamPolicy`, then the
-	// existing
-	// policy is overwritten. Due to blind-set semantics of an etag-less
-	// policy,
-	// 'setIamPolicy' will not fail even if either of incoming or stored
-	// policy
-	// does not meet the version requirements.
+	// **Important:** If you use IAM Conditions, you must include the `etag`
+	// field
+	// whenever you call `setIamPolicy`. If you omit this field, then IAM
+	// allows
+	// you to overwrite a version `3` policy with a version `1` policy, and
+	// all of
+	// the conditions in the version `3` policy are lost.
 	Etag string `json:"etag,omitempty"`
 
 	// Version: Specifies the format of the policy.
 	//
-	// Valid values are 0, 1, and 3. Requests specifying an invalid value
-	// will be
-	// rejected.
+	// Valid values are `0`, `1`, and `3`. Requests that specify an invalid
+	// value
+	// are rejected.
 	//
-	// Operations affecting conditional bindings must specify version 3.
-	// This can
-	// be either setting a conditional policy, modifying a conditional
-	// binding,
-	// or removing a conditional binding from the stored conditional
-	// policy.
-	// Operations on non-conditional policies may specify any valid value
-	// or
-	// leave the field unset.
-	//
-	// If no etag is provided in the call to `setIamPolicy`, any
+	// Any operation that affects conditional role bindings must specify
 	// version
-	// compliance checks on the incoming and/or stored policy is skipped.
+	// `3`. This requirement applies to the following operations:
+	//
+	// * Getting a policy that includes a conditional role binding
+	// * Adding a conditional role binding to a policy
+	// * Changing a conditional role binding in a policy
+	// * Removing any role binding, with or without a condition, from a
+	// policy
+	//   that includes conditions
+	//
+	// **Important:** If you use IAM Conditions, you must include the `etag`
+	// field
+	// whenever you call `setIamPolicy`. If you omit this field, then IAM
+	// allows
+	// you to overwrite a version `3` policy with a version `1` policy, and
+	// all of
+	// the conditions in the version `3` policy are lost.
+	//
+	// If a policy does not include any conditions, operations on that
+	// policy may
+	// specify any valid version or leave the field unset.
 	Version int64 `json:"version,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -4796,9 +4957,10 @@ type Rollout struct {
 	// Readonly.
 	DeleteServiceStrategy *DeleteServiceStrategy `json:"deleteServiceStrategy,omitempty"`
 
-	// RolloutId: Optional. Unique identifier of this Rollout. Only lower
-	// case letters, digits
-	//  and '-' are allowed.
+	// RolloutId: Optional. Unique identifier of this Rollout. Must be no
+	// longer than 63 characters
+	// and only lower case letters, digits, '.', '_' and '-' are
+	// allowed.
 	//
 	// If not specified by client, the server will generate one. The
 	// generated id
@@ -4961,9 +5123,11 @@ type Service struct {
 
 	// Id: A unique ID for a specific instance of this message, typically
 	// assigned
-	// by the client for tracking purpose. If empty, the server may choose
-	// to
-	// generate one instead. Must be no longer than 60 characters.
+	// by the client for tracking purpose. Must be no longer than 63
+	// characters
+	// and only lower case letters, digits, '.', '_' and '-' are allowed.
+	// If
+	// empty, the server may choose to generate one instead.
 	Id string `json:"id,omitempty"`
 
 	// Logging: Logging configuration.
@@ -5057,6 +5221,61 @@ type Service struct {
 
 func (s *Service) MarshalJSON() ([]byte, error) {
 	type NoMethod Service
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// ServiceIdentity: The per-product per-project service identity for a
+// service.
+//
+//
+// Use this field to configure per-product per-project service
+// identity.
+// Example of a service identity configuration.
+//
+//     usage:
+//       service_identity:
+//       - service_account_parent: "projects/123456789"
+//         display_name: "Cloud XXX Service Agent"
+//         description: "Used as the identity of Cloud XXX to access
+// resources"
+type ServiceIdentity struct {
+	// Description: Optional. A user-specified opaque description of the
+	// service account.
+	// Must be less than or equal to 256 UTF-8 bytes.
+	Description string `json:"description,omitempty"`
+
+	// DisplayName: Optional. A user-specified name for the service
+	// account.
+	// Must be less than or equal to 100 UTF-8 bytes.
+	DisplayName string `json:"displayName,omitempty"`
+
+	// ServiceAccountParent: A service account project that hosts the
+	// service accounts.
+	//
+	// An example name would be:
+	// `projects/123456789`
+	ServiceAccountParent string `json:"serviceAccountParent,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Description") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Description") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ServiceIdentity) MarshalJSON() ([]byte, error) {
+	type NoMethod ServiceIdentity
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -5718,6 +5937,10 @@ type Usage struct {
 	// order.
 	Rules []*UsageRule `json:"rules,omitempty"`
 
+	// ServiceIdentity: The configuration of a per-product per-project
+	// service identity.
+	ServiceIdentity *ServiceIdentity `json:"serviceIdentity,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g.
 	// "ProducerNotificationChannel") to unconditionally include in API
 	// requests. By default, fields with empty values are omitted from API
@@ -5880,7 +6103,7 @@ func (c *OperationsGetCall) Header() http.Header {
 
 func (c *OperationsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6076,7 +6299,7 @@ func (c *OperationsListCall) Header() http.Header {
 
 func (c *OperationsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6244,7 +6467,7 @@ func (c *ServicesCreateCall) Header() http.Header {
 
 func (c *ServicesCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6378,7 +6601,7 @@ func (c *ServicesDeleteCall) Header() http.Header {
 
 func (c *ServicesDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6515,7 +6738,7 @@ func (c *ServicesDisableCall) Header() http.Header {
 
 func (c *ServicesDisableCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6661,7 +6884,7 @@ func (c *ServicesEnableCall) Header() http.Header {
 
 func (c *ServicesEnableCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6816,7 +7039,7 @@ func (c *ServicesGenerateConfigReportCall) Header() http.Header {
 
 func (c *ServicesGenerateConfigReportCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6955,7 +7178,7 @@ func (c *ServicesGetCall) Header() http.Header {
 
 func (c *ServicesGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7125,7 +7348,7 @@ func (c *ServicesGetConfigCall) Header() http.Header {
 
 func (c *ServicesGetConfigCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7279,7 +7502,7 @@ func (c *ServicesGetIamPolicyCall) Header() http.Header {
 
 func (c *ServicesGetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7476,7 +7699,7 @@ func (c *ServicesListCall) Header() http.Header {
 
 func (c *ServicesListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7649,7 +7872,7 @@ func (c *ServicesSetIamPolicyCall) Header() http.Header {
 
 func (c *ServicesSetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7800,7 +8023,7 @@ func (c *ServicesTestIamPermissionsCall) Header() http.Header {
 
 func (c *ServicesTestIamPermissionsCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7949,7 +8172,7 @@ func (c *ServicesUndeleteCall) Header() http.Header {
 
 func (c *ServicesUndeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8093,7 +8316,7 @@ func (c *ServicesConfigsCreateCall) Header() http.Header {
 
 func (c *ServicesConfigsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8256,7 +8479,7 @@ func (c *ServicesConfigsGetCall) Header() http.Header {
 
 func (c *ServicesConfigsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8436,7 +8659,7 @@ func (c *ServicesConfigsListCall) Header() http.Header {
 
 func (c *ServicesConfigsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8623,7 +8846,7 @@ func (c *ServicesConfigsSubmitCall) Header() http.Header {
 
 func (c *ServicesConfigsSubmitCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8766,7 +8989,7 @@ func (c *ServicesConsumersGetIamPolicyCall) Header() http.Header {
 
 func (c *ServicesConsumersGetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8914,7 +9137,7 @@ func (c *ServicesConsumersSetIamPolicyCall) Header() http.Header {
 
 func (c *ServicesConsumersSetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -9065,7 +9288,7 @@ func (c *ServicesConsumersTestIamPermissionsCall) Header() http.Header {
 
 func (c *ServicesConsumersTestIamPermissionsCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -9201,24 +9424,6 @@ func (r *ServicesRolloutsService) Create(serviceName string, rollout *Rollout) *
 	return c
 }
 
-// BaseRolloutId sets the optional parameter "baseRolloutId":
-// Unimplemented. Do not use this feature until this comment is
-// removed.
-//
-// The rollout id that rollout to be created based on.
-//
-// Rollout should be constructed based on current successful rollout,
-// this
-// field indicates the current successful rollout id that new rollout
-// based on
-// to construct, if current successful rollout changed when server
-// receives
-// the request, request will be rejected for safety.
-func (c *ServicesRolloutsCreateCall) BaseRolloutId(baseRolloutId string) *ServicesRolloutsCreateCall {
-	c.urlParams_.Set("baseRolloutId", baseRolloutId)
-	return c
-}
-
 // Fields allows partial responses to be retrieved. See
 // https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
 // for more information.
@@ -9246,7 +9451,7 @@ func (c *ServicesRolloutsCreateCall) Header() http.Header {
 
 func (c *ServicesRolloutsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -9318,11 +9523,6 @@ func (c *ServicesRolloutsCreateCall) Do(opts ...googleapi.CallOption) (*Operatio
 	//     "serviceName"
 	//   ],
 	//   "parameters": {
-	//     "baseRolloutId": {
-	//       "description": "Unimplemented. Do not use this feature until this comment is removed.\n\nThe rollout id that rollout to be created based on.\n\nRollout should be constructed based on current successful rollout, this\nfield indicates the current successful rollout id that new rollout based on\nto construct, if current successful rollout changed when server receives\nthe request, request will be rejected for safety.",
-	//       "location": "query",
-	//       "type": "string"
-	//     },
 	//     "serviceName": {
 	//       "description": "Required. The name of the service.  See the [overview](/service-management/overview)\nfor naming requirements.  For example: `example.googleapis.com`.",
 	//       "location": "path",
@@ -9402,7 +9602,7 @@ func (c *ServicesRolloutsGetCall) Header() http.Header {
 
 func (c *ServicesRolloutsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -9589,7 +9789,7 @@ func (c *ServicesRolloutsListCall) Header() http.Header {
 
 func (c *ServicesRolloutsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}

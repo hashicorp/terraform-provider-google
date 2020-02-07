@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -142,6 +142,7 @@ func New(client *http.Client) (*Service, error) {
 	s.Organizations = NewOrganizationsService(s)
 	s.Projects = NewProjectsService(s)
 	s.Sinks = NewSinksService(s)
+	s.V2 = NewV2Service(s)
 	return s, nil
 }
 
@@ -167,6 +168,8 @@ type Service struct {
 	Projects *ProjectsService
 
 	Sinks *SinksService
+
+	V2 *V2Service
 }
 
 func (s *Service) userAgent() string {
@@ -413,6 +416,15 @@ type SinksService struct {
 	s *Service
 }
 
+func NewV2Service(s *Service) *V2Service {
+	rs := &V2Service{s: s}
+	return rs
+}
+
+type V2Service struct {
+	s *Service
+}
+
 // BigQueryOptions: Options that change functionality of a sink
 // exporting data to BigQuery.
 type BigQueryOptions struct {
@@ -423,6 +435,15 @@ type BigQueryOptions struct {
 	// be used instead. In both cases, tables are sharded based on UTC
 	// timezone.
 	UsePartitionedTables bool `json:"usePartitionedTables,omitempty"`
+
+	// UsesTimestampColumnPartitioning: Output only. True if new timestamp
+	// column based partitioning is in use, false if legacy ingestion-time
+	// partitioning is in use. All new sinks will have this field set true
+	// and will use timestamp column based partitioning. If
+	// use_partitioned_tables is false, this value has no meaning and will
+	// be false. Legacy sinks using partitioned tables will have this field
+	// set to false.
+	UsesTimestampColumnPartitioning bool `json:"usesTimestampColumnPartitioning,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
 	// "UsePartitionedTables") to unconditionally include in API requests.
@@ -494,6 +515,70 @@ type BucketOptions struct {
 
 func (s *BucketOptions) MarshalJSON() ([]byte, error) {
 	type NoMethod BucketOptions
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// CmekSettings: Describes the customer-managed encryption key (CMEK)
+// settings associated with a project, folder, organization, billing
+// account, or flexible resource.Note: CMEK for the Logs Router can
+// currently only be configured for GCP organizations. Once configured,
+// it applies to all projects and folders in the GCP organization.See
+// Enabling CMEK for Logs Router for more information.
+type CmekSettings struct {
+	// KmsKeyName: The resource name for the configured Cloud KMS key.KMS
+	// key name format:
+	// "projects/PROJECT_ID/locations/LOCATION/keyRings/KEYRING/cryptoKeys/KE
+	// Y"For example:
+	// "projects/my-project-id/locations/my-region/keyRings/key-ring-name/cry
+	// ptoKeys/key-name"To enable CMEK for the Logs Router, set this field
+	// to a valid kms_key_name for which the associated service account has
+	// the required roles/cloudkms.cryptoKeyEncrypterDecrypter role assigned
+	// for the key.The Cloud KMS key used by the Log Router can be updated
+	// by changing the kms_key_name to a new valid key name. Encryption
+	// operations that are in progress will be completed with the key that
+	// was in use when they started. Decryption operations will be completed
+	// using the key that was used at the time of encryption unless access
+	// to that key has been revoked.To disable CMEK for the Logs Router, set
+	// this field to an empty string.See Enabling CMEK for Logs Router for
+	// more information.
+	KmsKeyName string `json:"kmsKeyName,omitempty"`
+
+	// Name: Output Only. The resource name of the CMEK settings.
+	Name string `json:"name,omitempty"`
+
+	// ServiceAccountId: Output Only. The service account that will be used
+	// by the Logs Router to access your Cloud KMS key.Before enabling CMEK
+	// for Logs Router, you must first assign the role
+	// roles/cloudkms.cryptoKeyEncrypterDecrypter to the service account
+	// that the Logs Router will use to access your Cloud KMS key. Use
+	// GetCmekSettings to obtain the service account ID.See Enabling CMEK
+	// for Logs Router for more information.
+	ServiceAccountId string `json:"serviceAccountId,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "KmsKeyName") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "KmsKeyName") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CmekSettings) MarshalJSON() ([]byte, error) {
+	type NoMethod CmekSettings
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1110,9 +1195,12 @@ type LogEntry struct {
 	// InsertId: Optional. A unique identifier for the log entry. If you
 	// provide a value, then Logging considers other log entries in the same
 	// project, with the same timestamp, and with the same insert_id to be
-	// duplicates which can be removed. If omitted in new log entries, then
-	// Logging assigns its own unique identifier. The insert_id is also used
-	// to order log entries that have the same timestamp value.
+	// duplicates which are removed in a single query result. However, there
+	// are no guarantees of de-duplication in the export of logs.If the
+	// insert_id is omitted when writing a log entry, the Logging API
+	// assigns its own unique identifier in this field.In queries, the
+	// insert_id is also used to order log entries that have the same
+	// log_name and timestamp values.
 	InsertId string `json:"insertId,omitempty"`
 
 	// JsonPayload: The log entry payload, represented as a structure that
@@ -1379,7 +1467,7 @@ type LogExclusion struct {
 	// Name: Required. A client-assigned identifier, such as
 	// "load-balancer-exclusion". Identifiers are limited to 100 characters
 	// and can include only letters, digits, underscores, hyphens, and
-	// periods.
+	// periods. First character has to be alphanumeric.
 	Name string `json:"name,omitempty"`
 
 	// UpdateTime: Output only. The last update timestamp of the
@@ -1609,6 +1697,10 @@ type LogSink struct {
 	// field may not be present for older sinks.
 	CreateTime string `json:"createTime,omitempty"`
 
+	// Description: Optional. A description of this sink. The maximum length
+	// of the description is 8000 characters.
+	Description string `json:"description,omitempty"`
+
 	// Destination: Required. The export
 	// destination:
 	// "storage.googleapis.com/[GCS_BUCKET]"
@@ -1620,6 +1712,10 @@ type LogSink struct {
 	// permission to write to the destination or else the log entries are
 	// not exported. For more information, see Exporting Logs with Sinks.
 	Destination string `json:"destination,omitempty"`
+
+	// Disabled: Optional. If set to True, then this sink is disabled and it
+	// does not export any log entries.
+	Disabled bool `json:"disabled,omitempty"`
 
 	// EndTime: Do not use. This field is ignored.
 	EndTime string `json:"endTime,omitempty"`
@@ -1654,7 +1750,8 @@ type LogSink struct {
 	// the project. Example: "my-syslog-errors-to-pubsub". Sink identifiers
 	// are limited to 100 characters and can include only the following
 	// characters: upper and lower-case alphanumeric characters,
-	// underscores, hyphens, and periods.
+	// underscores, hyphens, and periods. First character has to be
+	// alphanumeric.
 	Name string `json:"name,omitempty"`
 
 	// OutputVersionFormat: Deprecated. The log entry format to use for this
@@ -1811,39 +1908,58 @@ type MetricDescriptor struct {
 	//
 	Type string `json:"type,omitempty"`
 
-	// Unit: The unit in which the metric value is reported. It is only
+	// Unit: The units in which the metric value is reported. It is only
 	// applicable if the value_type is INT64, DOUBLE, or DISTRIBUTION. The
-	// supported units are a subset of The Unified Code for Units of Measure
-	// (http://unitsofmeasure.org/ucum.html) standard:Basic units (UNIT)
+	// unit defines the representation of the stored metric values.Different
+	// systems may scale the values to be more easily displayed (so a value
+	// of 0.02KBy might be displayed as 20By, and a value of 3523KBy might
+	// be displayed as 3.5MBy). However, if the unit is KBy, then the value
+	// of the metric is always in thousands of bytes, no matter how it may
+	// be displayed..If you want a custom metric to record the exact number
+	// of CPU-seconds used by a job, you can create an INT64 CUMULATIVE
+	// metric whose unit is s{CPU} (or equivalently 1s{CPU} or just s). If
+	// the job uses 12,005 CPU-seconds, then the value is written as
+	// 12005.Alternatively, if you want a custom metric to record data in a
+	// more granular way, you can create a DOUBLE CUMULATIVE metric whose
+	// unit is ks{CPU}, and then write the value 12.005 (which is
+	// 12005/1000), or use Kis{CPU} and write 11.723 (which is
+	// 12005/1024).The supported units are a subset of The Unified Code for
+	// Units of Measure (http://unitsofmeasure.org/ucum.html) standard:Basic
+	// units (UNIT)
 	// bit bit
 	// By byte
 	// s second
 	// min minute
 	// h hour
 	// d dayPrefixes (PREFIX)
-	// k kilo (10**3)
-	// M mega (10**6)
-	// G giga (10**9)
-	// T tera (10**12)
-	// P peta (10**15)
-	// E exa (10**18)
-	// Z zetta (10**21)
-	// Y yotta (10**24)
-	// m milli (10**-3)
-	// u micro (10**-6)
-	// n nano (10**-9)
-	// p pico (10**-12)
-	// f femto (10**-15)
-	// a atto (10**-18)
-	// z zepto (10**-21)
-	// y yocto (10**-24)
-	// Ki kibi (2**10)
-	// Mi mebi (2**20)
-	// Gi gibi (2**30)
-	// Ti tebi (2**40)GrammarThe grammar also includes these connectors:
-	// / division (as an infix operator, e.g. 1/s).
-	// . multiplication (as an infix operator, e.g. GBy.d)The grammar for a
-	// unit is as follows:
+	// k kilo (10^3)
+	// M mega (10^6)
+	// G giga (10^9)
+	// T tera (10^12)
+	// P peta (10^15)
+	// E exa (10^18)
+	// Z zetta (10^21)
+	// Y yotta (10^24)
+	// m milli (10^-3)
+	// u micro (10^-6)
+	// n nano (10^-9)
+	// p pico (10^-12)
+	// f femto (10^-15)
+	// a atto (10^-18)
+	// z zepto (10^-21)
+	// y yocto (10^-24)
+	// Ki kibi (2^10)
+	// Mi mebi (2^20)
+	// Gi gibi (2^30)
+	// Ti tebi (2^40)
+	// Pi pebi (2^50)GrammarThe grammar also includes these connectors:
+	// / division or ratio (as an infix operator). For examples,
+	// kBy/{email} or MiBy/10ms (although you should almost never  have /s
+	// in a metric unit; rates should always be computed at  query time from
+	// the underlying cumulative or delta value).
+	// . multiplication or composition (as an infix operator). For
+	// examples, GBy.d or k{watt}.h.The grammar for a unit is as
+	// follows:
 	// Expression = Component { "." Component } { "/" Component }
 	// ;
 	//
@@ -1854,14 +1970,25 @@ type MetricDescriptor struct {
 	//
 	// Annotation = "{" NAME "}" ;
 	// Notes:
-	// Annotation is just a comment if it follows a UNIT and is  equivalent
-	// to 1 if it is used alone. For examples,  {requests}/s == 1/s,
-	// By{transmitted}/s == By/s.
+	// Annotation is just a comment if it follows a UNIT. If the annotation
+	// is used alone, then the unit is equivalent to 1. For examples,
+	// {request}/s == 1/s, By{transmitted}/s == By/s.
 	// NAME is a sequence of non-blank printable ASCII characters not
-	// containing '{' or '}'.
-	// 1 represents dimensionless value 1, such as in 1/s.
-	// % represents dimensionless value 1/100, and annotates values giving
-	// a percentage.
+	// containing { or }.
+	// 1 represents a unitary dimensionless  unit
+	// (https://en.wikipedia.org/wiki/Dimensionless_quantity) of 1, such  as
+	// in 1/s. It is typically used when none of the basic units are
+	// appropriate. For example, "new users per day" can be represented as
+	// 1/d or {new-users}/d (and a metric value 5 would mean "5 new  users).
+	// Alternatively, "thousands of page views per day" would be
+	// represented as 1000/d or k1/d or k{page_views}/d (and a metric  value
+	// of 5.3 would mean "5300 page views per day").
+	// % represents dimensionless value of 1/100, and annotates values
+	// giving  a percentage (so the metric values are typically in the range
+	// of 0..100,  and a metric value 3 means "3 percent").
+	// 10^2.% indicates a metric contains a ratio, typically in the range
+	// 0..1, that will be multiplied by 100 and displayed as a percentage
+	// (so a metric value 0.03 means "3 percent").
 	Unit string `json:"unit,omitempty"`
 
 	// ValueType: Whether the measurement is an integer, a floating-point
@@ -2550,7 +2677,7 @@ func (c *BillingAccountsExclusionsCreateCall) Header() http.Header {
 
 func (c *BillingAccountsExclusionsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2689,7 +2816,7 @@ func (c *BillingAccountsExclusionsDeleteCall) Header() http.Header {
 
 func (c *BillingAccountsExclusionsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2831,7 +2958,7 @@ func (c *BillingAccountsExclusionsGetCall) Header() http.Header {
 
 func (c *BillingAccountsExclusionsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2997,7 +3124,7 @@ func (c *BillingAccountsExclusionsListCall) Header() http.Header {
 
 func (c *BillingAccountsExclusionsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3179,7 +3306,7 @@ func (c *BillingAccountsExclusionsPatchCall) Header() http.Header {
 
 func (c *BillingAccountsExclusionsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3327,7 +3454,7 @@ func (c *BillingAccountsLogsDeleteCall) Header() http.Header {
 
 func (c *BillingAccountsLogsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3489,7 +3616,7 @@ func (c *BillingAccountsLogsListCall) Header() http.Header {
 
 func (c *BillingAccountsLogsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3679,7 +3806,7 @@ func (c *BillingAccountsSinksCreateCall) Header() http.Header {
 
 func (c *BillingAccountsSinksCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3824,7 +3951,7 @@ func (c *BillingAccountsSinksDeleteCall) Header() http.Header {
 
 func (c *BillingAccountsSinksDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3966,7 +4093,7 @@ func (c *BillingAccountsSinksGetCall) Header() http.Header {
 
 func (c *BillingAccountsSinksGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4132,7 +4259,7 @@ func (c *BillingAccountsSinksListCall) Header() http.Header {
 
 func (c *BillingAccountsSinksListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4336,7 +4463,7 @@ func (c *BillingAccountsSinksPatchCall) Header() http.Header {
 
 func (c *BillingAccountsSinksPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4522,7 +4649,7 @@ func (c *BillingAccountsSinksUpdateCall) Header() http.Header {
 
 func (c *BillingAccountsSinksUpdateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4674,7 +4801,7 @@ func (c *EntriesListCall) Header() http.Header {
 
 func (c *EntriesListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4828,7 +4955,7 @@ func (c *EntriesWriteCall) Header() http.Header {
 
 func (c *EntriesWriteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4959,7 +5086,7 @@ func (c *ExclusionsCreateCall) Header() http.Header {
 
 func (c *ExclusionsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5098,7 +5225,7 @@ func (c *ExclusionsDeleteCall) Header() http.Header {
 
 func (c *ExclusionsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5240,7 +5367,7 @@ func (c *ExclusionsGetCall) Header() http.Header {
 
 func (c *ExclusionsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5406,7 +5533,7 @@ func (c *ExclusionsListCall) Header() http.Header {
 
 func (c *ExclusionsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5588,7 +5715,7 @@ func (c *ExclusionsPatchCall) Header() http.Header {
 
 func (c *ExclusionsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5737,7 +5864,7 @@ func (c *FoldersExclusionsCreateCall) Header() http.Header {
 
 func (c *FoldersExclusionsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5876,7 +6003,7 @@ func (c *FoldersExclusionsDeleteCall) Header() http.Header {
 
 func (c *FoldersExclusionsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6018,7 +6145,7 @@ func (c *FoldersExclusionsGetCall) Header() http.Header {
 
 func (c *FoldersExclusionsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6184,7 +6311,7 @@ func (c *FoldersExclusionsListCall) Header() http.Header {
 
 func (c *FoldersExclusionsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6366,7 +6493,7 @@ func (c *FoldersExclusionsPatchCall) Header() http.Header {
 
 func (c *FoldersExclusionsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6514,7 +6641,7 @@ func (c *FoldersLogsDeleteCall) Header() http.Header {
 
 func (c *FoldersLogsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6676,7 +6803,7 @@ func (c *FoldersLogsListCall) Header() http.Header {
 
 func (c *FoldersLogsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6866,7 +6993,7 @@ func (c *FoldersSinksCreateCall) Header() http.Header {
 
 func (c *FoldersSinksCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7011,7 +7138,7 @@ func (c *FoldersSinksDeleteCall) Header() http.Header {
 
 func (c *FoldersSinksDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7153,7 +7280,7 @@ func (c *FoldersSinksGetCall) Header() http.Header {
 
 func (c *FoldersSinksGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7319,7 +7446,7 @@ func (c *FoldersSinksListCall) Header() http.Header {
 
 func (c *FoldersSinksListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7523,7 +7650,7 @@ func (c *FoldersSinksPatchCall) Header() http.Header {
 
 func (c *FoldersSinksPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7709,7 +7836,7 @@ func (c *FoldersSinksUpdateCall) Header() http.Header {
 
 func (c *FoldersSinksUpdateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7862,7 +7989,7 @@ func (c *LogsDeleteCall) Header() http.Header {
 
 func (c *LogsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8024,7 +8151,7 @@ func (c *LogsListCall) Header() http.Header {
 
 func (c *LogsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8221,7 +8348,7 @@ func (c *MonitoredResourceDescriptorsListCall) Header() http.Header {
 
 func (c *MonitoredResourceDescriptorsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8335,6 +8462,322 @@ func (c *MonitoredResourceDescriptorsListCall) Pages(ctx context.Context, f func
 	}
 }
 
+// method id "logging.organizations.getCmekSettings":
+
+type OrganizationsGetCmekSettingsCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// GetCmekSettings: Gets the Logs Router CMEK settings for the given
+// resource.Note: CMEK for the Logs Router can currently only be
+// configured for GCP organizations. Once configured, it applies to all
+// projects and folders in the GCP organization.See Enabling CMEK for
+// Logs Router for more information.
+func (r *OrganizationsService) GetCmekSettings(name string) *OrganizationsGetCmekSettingsCall {
+	c := &OrganizationsGetCmekSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OrganizationsGetCmekSettingsCall) Fields(s ...googleapi.Field) *OrganizationsGetCmekSettingsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *OrganizationsGetCmekSettingsCall) IfNoneMatch(entityTag string) *OrganizationsGetCmekSettingsCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OrganizationsGetCmekSettingsCall) Context(ctx context.Context) *OrganizationsGetCmekSettingsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OrganizationsGetCmekSettingsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OrganizationsGetCmekSettingsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v2/{+name}/cmekSettings")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "logging.organizations.getCmekSettings" call.
+// Exactly one of *CmekSettings or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *CmekSettings.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *OrganizationsGetCmekSettingsCall) Do(opts ...googleapi.CallOption) (*CmekSettings, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &CmekSettings{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the Logs Router CMEK settings for the given resource.Note: CMEK for the Logs Router can currently only be configured for GCP organizations. Once configured, it applies to all projects and folders in the GCP organization.See Enabling CMEK for Logs Router for more information.",
+	//   "flatPath": "v2/organizations/{organizationsId}/cmekSettings",
+	//   "httpMethod": "GET",
+	//   "id": "logging.organizations.getCmekSettings",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The resource for which to retrieve CMEK settings.\n\"projects/[PROJECT_ID]/cmekSettings\"\n\"organizations/[ORGANIZATION_ID]/cmekSettings\"\n\"billingAccounts/[BILLING_ACCOUNT_ID]/cmekSettings\"\n\"folders/[FOLDER_ID]/cmekSettings\"\nExample: \"organizations/12345/cmekSettings\".Note: CMEK for the Logs Router can currently only be configured for GCP organizations. Once configured, it applies to all projects and folders in the GCP organization.",
+	//       "location": "path",
+	//       "pattern": "^organizations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v2/{+name}/cmekSettings",
+	//   "response": {
+	//     "$ref": "CmekSettings"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/cloud-platform.read-only",
+	//     "https://www.googleapis.com/auth/logging.admin",
+	//     "https://www.googleapis.com/auth/logging.read"
+	//   ]
+	// }
+
+}
+
+// method id "logging.organizations.updateCmekSettings":
+
+type OrganizationsUpdateCmekSettingsCall struct {
+	s            *Service
+	name         string
+	cmeksettings *CmekSettings
+	urlParams_   gensupport.URLParams
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// UpdateCmekSettings: Updates the Logs Router CMEK settings for the
+// given resource.Note: CMEK for the Logs Router can currently only be
+// configured for GCP organizations. Once configured, it applies to all
+// projects and folders in the GCP organization.UpdateCmekSettings will
+// fail if 1) kms_key_name is invalid, or 2) the associated service
+// account does not have the required
+// roles/cloudkms.cryptoKeyEncrypterDecrypter role assigned for the key,
+// or 3) access to the key is disabled.See Enabling CMEK for Logs Router
+// for more information.
+func (r *OrganizationsService) UpdateCmekSettings(name string, cmeksettings *CmekSettings) *OrganizationsUpdateCmekSettingsCall {
+	c := &OrganizationsUpdateCmekSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.cmeksettings = cmeksettings
+	return c
+}
+
+// UpdateMask sets the optional parameter "updateMask": Field mask
+// identifying which fields from cmek_settings should be updated. A
+// field will be overwritten if and only if it is in the update mask.
+// Output only fields cannot be updated.See FieldMask for more
+// information.Example: "updateMask=kmsKeyName"
+func (c *OrganizationsUpdateCmekSettingsCall) UpdateMask(updateMask string) *OrganizationsUpdateCmekSettingsCall {
+	c.urlParams_.Set("updateMask", updateMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *OrganizationsUpdateCmekSettingsCall) Fields(s ...googleapi.Field) *OrganizationsUpdateCmekSettingsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *OrganizationsUpdateCmekSettingsCall) Context(ctx context.Context) *OrganizationsUpdateCmekSettingsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *OrganizationsUpdateCmekSettingsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *OrganizationsUpdateCmekSettingsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.cmeksettings)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v2/{+name}/cmekSettings")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "logging.organizations.updateCmekSettings" call.
+// Exactly one of *CmekSettings or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *CmekSettings.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *OrganizationsUpdateCmekSettingsCall) Do(opts ...googleapi.CallOption) (*CmekSettings, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &CmekSettings{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Updates the Logs Router CMEK settings for the given resource.Note: CMEK for the Logs Router can currently only be configured for GCP organizations. Once configured, it applies to all projects and folders in the GCP organization.UpdateCmekSettings will fail if 1) kms_key_name is invalid, or 2) the associated service account does not have the required roles/cloudkms.cryptoKeyEncrypterDecrypter role assigned for the key, or 3) access to the key is disabled.See Enabling CMEK for Logs Router for more information.",
+	//   "flatPath": "v2/organizations/{organizationsId}/cmekSettings",
+	//   "httpMethod": "PATCH",
+	//   "id": "logging.organizations.updateCmekSettings",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The resource name for the CMEK settings to update.\n\"projects/[PROJECT_ID]/cmekSettings\"\n\"organizations/[ORGANIZATION_ID]/cmekSettings\"\n\"billingAccounts/[BILLING_ACCOUNT_ID]/cmekSettings\"\n\"folders/[FOLDER_ID]/cmekSettings\"\nExample: \"organizations/12345/cmekSettings\".Note: CMEK for the Logs Router can currently only be configured for GCP organizations. Once configured, it applies to all projects and folders in the GCP organization.",
+	//       "location": "path",
+	//       "pattern": "^organizations/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "updateMask": {
+	//       "description": "Optional. Field mask identifying which fields from cmek_settings should be updated. A field will be overwritten if and only if it is in the update mask. Output only fields cannot be updated.See FieldMask for more information.Example: \"updateMask=kmsKeyName\"",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v2/{+name}/cmekSettings",
+	//   "request": {
+	//     "$ref": "CmekSettings"
+	//   },
+	//   "response": {
+	//     "$ref": "CmekSettings"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/logging.admin"
+	//   ]
+	// }
+
+}
+
 // method id "logging.organizations.exclusions.create":
 
 type OrganizationsExclusionsCreateCall struct {
@@ -8383,7 +8826,7 @@ func (c *OrganizationsExclusionsCreateCall) Header() http.Header {
 
 func (c *OrganizationsExclusionsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8522,7 +8965,7 @@ func (c *OrganizationsExclusionsDeleteCall) Header() http.Header {
 
 func (c *OrganizationsExclusionsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8664,7 +9107,7 @@ func (c *OrganizationsExclusionsGetCall) Header() http.Header {
 
 func (c *OrganizationsExclusionsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8830,7 +9273,7 @@ func (c *OrganizationsExclusionsListCall) Header() http.Header {
 
 func (c *OrganizationsExclusionsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -9012,7 +9455,7 @@ func (c *OrganizationsExclusionsPatchCall) Header() http.Header {
 
 func (c *OrganizationsExclusionsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -9160,7 +9603,7 @@ func (c *OrganizationsLogsDeleteCall) Header() http.Header {
 
 func (c *OrganizationsLogsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -9322,7 +9765,7 @@ func (c *OrganizationsLogsListCall) Header() http.Header {
 
 func (c *OrganizationsLogsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -9512,7 +9955,7 @@ func (c *OrganizationsSinksCreateCall) Header() http.Header {
 
 func (c *OrganizationsSinksCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -9657,7 +10100,7 @@ func (c *OrganizationsSinksDeleteCall) Header() http.Header {
 
 func (c *OrganizationsSinksDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -9799,7 +10242,7 @@ func (c *OrganizationsSinksGetCall) Header() http.Header {
 
 func (c *OrganizationsSinksGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -9965,7 +10408,7 @@ func (c *OrganizationsSinksListCall) Header() http.Header {
 
 func (c *OrganizationsSinksListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -10169,7 +10612,7 @@ func (c *OrganizationsSinksPatchCall) Header() http.Header {
 
 func (c *OrganizationsSinksPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -10355,7 +10798,7 @@ func (c *OrganizationsSinksUpdateCall) Header() http.Header {
 
 func (c *OrganizationsSinksUpdateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -10509,7 +10952,7 @@ func (c *ProjectsExclusionsCreateCall) Header() http.Header {
 
 func (c *ProjectsExclusionsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -10648,7 +11091,7 @@ func (c *ProjectsExclusionsDeleteCall) Header() http.Header {
 
 func (c *ProjectsExclusionsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -10790,7 +11233,7 @@ func (c *ProjectsExclusionsGetCall) Header() http.Header {
 
 func (c *ProjectsExclusionsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -10956,7 +11399,7 @@ func (c *ProjectsExclusionsListCall) Header() http.Header {
 
 func (c *ProjectsExclusionsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -11138,7 +11581,7 @@ func (c *ProjectsExclusionsPatchCall) Header() http.Header {
 
 func (c *ProjectsExclusionsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -11286,7 +11729,7 @@ func (c *ProjectsLogsDeleteCall) Header() http.Header {
 
 func (c *ProjectsLogsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -11448,7 +11891,7 @@ func (c *ProjectsLogsListCall) Header() http.Header {
 
 func (c *ProjectsLogsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -11618,7 +12061,7 @@ func (c *ProjectsMetricsCreateCall) Header() http.Header {
 
 func (c *ProjectsMetricsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -11758,7 +12201,7 @@ func (c *ProjectsMetricsDeleteCall) Header() http.Header {
 
 func (c *ProjectsMetricsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -11901,7 +12344,7 @@ func (c *ProjectsMetricsGetCall) Header() http.Header {
 
 func (c *ProjectsMetricsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -12067,7 +12510,7 @@ func (c *ProjectsMetricsListCall) Header() http.Header {
 
 func (c *ProjectsMetricsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -12237,7 +12680,7 @@ func (c *ProjectsMetricsUpdateCall) Header() http.Header {
 
 func (c *ProjectsMetricsUpdateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -12399,7 +12842,7 @@ func (c *ProjectsSinksCreateCall) Header() http.Header {
 
 func (c *ProjectsSinksCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -12544,7 +12987,7 @@ func (c *ProjectsSinksDeleteCall) Header() http.Header {
 
 func (c *ProjectsSinksDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -12686,7 +13129,7 @@ func (c *ProjectsSinksGetCall) Header() http.Header {
 
 func (c *ProjectsSinksGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -12852,7 +13295,7 @@ func (c *ProjectsSinksListCall) Header() http.Header {
 
 func (c *ProjectsSinksListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -13056,7 +13499,7 @@ func (c *ProjectsSinksPatchCall) Header() http.Header {
 
 func (c *ProjectsSinksPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -13242,7 +13685,7 @@ func (c *ProjectsSinksUpdateCall) Header() http.Header {
 
 func (c *ProjectsSinksUpdateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -13414,7 +13857,7 @@ func (c *SinksCreateCall) Header() http.Header {
 
 func (c *SinksCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -13559,7 +14002,7 @@ func (c *SinksDeleteCall) Header() http.Header {
 
 func (c *SinksDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -13701,7 +14144,7 @@ func (c *SinksGetCall) Header() http.Header {
 
 func (c *SinksGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -13867,7 +14310,7 @@ func (c *SinksListCall) Header() http.Header {
 
 func (c *SinksListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -14071,7 +14514,7 @@ func (c *SinksUpdateCall) Header() http.Header {
 
 func (c *SinksUpdateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.0 gdcl/20191026")
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -14168,6 +14611,322 @@ func (c *SinksUpdateCall) Do(opts ...googleapi.CallOption) (*LogSink, error) {
 	//   },
 	//   "response": {
 	//     "$ref": "LogSink"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/logging.admin"
+	//   ]
+	// }
+
+}
+
+// method id "logging.getCmekSettings":
+
+type V2GetCmekSettingsCall struct {
+	s            *Service
+	name         string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// GetCmekSettings: Gets the Logs Router CMEK settings for the given
+// resource.Note: CMEK for the Logs Router can currently only be
+// configured for GCP organizations. Once configured, it applies to all
+// projects and folders in the GCP organization.See Enabling CMEK for
+// Logs Router for more information.
+func (r *V2Service) GetCmekSettings(name string) *V2GetCmekSettingsCall {
+	c := &V2GetCmekSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *V2GetCmekSettingsCall) Fields(s ...googleapi.Field) *V2GetCmekSettingsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *V2GetCmekSettingsCall) IfNoneMatch(entityTag string) *V2GetCmekSettingsCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *V2GetCmekSettingsCall) Context(ctx context.Context) *V2GetCmekSettingsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *V2GetCmekSettingsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *V2GetCmekSettingsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v2/{+name}/cmekSettings")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("GET", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "logging.getCmekSettings" call.
+// Exactly one of *CmekSettings or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *CmekSettings.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *V2GetCmekSettingsCall) Do(opts ...googleapi.CallOption) (*CmekSettings, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &CmekSettings{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the Logs Router CMEK settings for the given resource.Note: CMEK for the Logs Router can currently only be configured for GCP organizations. Once configured, it applies to all projects and folders in the GCP organization.See Enabling CMEK for Logs Router for more information.",
+	//   "flatPath": "v2/{v2Id}/{v2Id1}/cmekSettings",
+	//   "httpMethod": "GET",
+	//   "id": "logging.getCmekSettings",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The resource for which to retrieve CMEK settings.\n\"projects/[PROJECT_ID]/cmekSettings\"\n\"organizations/[ORGANIZATION_ID]/cmekSettings\"\n\"billingAccounts/[BILLING_ACCOUNT_ID]/cmekSettings\"\n\"folders/[FOLDER_ID]/cmekSettings\"\nExample: \"organizations/12345/cmekSettings\".Note: CMEK for the Logs Router can currently only be configured for GCP organizations. Once configured, it applies to all projects and folders in the GCP organization.",
+	//       "location": "path",
+	//       "pattern": "^[^/]+/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v2/{+name}/cmekSettings",
+	//   "response": {
+	//     "$ref": "CmekSettings"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/cloud-platform.read-only",
+	//     "https://www.googleapis.com/auth/logging.admin",
+	//     "https://www.googleapis.com/auth/logging.read"
+	//   ]
+	// }
+
+}
+
+// method id "logging.updateCmekSettings":
+
+type V2UpdateCmekSettingsCall struct {
+	s            *Service
+	name         string
+	cmeksettings *CmekSettings
+	urlParams_   gensupport.URLParams
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// UpdateCmekSettings: Updates the Logs Router CMEK settings for the
+// given resource.Note: CMEK for the Logs Router can currently only be
+// configured for GCP organizations. Once configured, it applies to all
+// projects and folders in the GCP organization.UpdateCmekSettings will
+// fail if 1) kms_key_name is invalid, or 2) the associated service
+// account does not have the required
+// roles/cloudkms.cryptoKeyEncrypterDecrypter role assigned for the key,
+// or 3) access to the key is disabled.See Enabling CMEK for Logs Router
+// for more information.
+func (r *V2Service) UpdateCmekSettings(name string, cmeksettings *CmekSettings) *V2UpdateCmekSettingsCall {
+	c := &V2UpdateCmekSettingsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.name = name
+	c.cmeksettings = cmeksettings
+	return c
+}
+
+// UpdateMask sets the optional parameter "updateMask": Field mask
+// identifying which fields from cmek_settings should be updated. A
+// field will be overwritten if and only if it is in the update mask.
+// Output only fields cannot be updated.See FieldMask for more
+// information.Example: "updateMask=kmsKeyName"
+func (c *V2UpdateCmekSettingsCall) UpdateMask(updateMask string) *V2UpdateCmekSettingsCall {
+	c.urlParams_.Set("updateMask", updateMask)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *V2UpdateCmekSettingsCall) Fields(s ...googleapi.Field) *V2UpdateCmekSettingsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *V2UpdateCmekSettingsCall) Context(ctx context.Context) *V2UpdateCmekSettingsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *V2UpdateCmekSettingsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *V2UpdateCmekSettingsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.cmeksettings)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	c.urlParams_.Set("prettyPrint", "false")
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v2/{+name}/cmekSettings")
+	urls += "?" + c.urlParams_.Encode()
+	req, err := http.NewRequest("PATCH", urls, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"name": c.name,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "logging.updateCmekSettings" call.
+// Exactly one of *CmekSettings or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *CmekSettings.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *V2UpdateCmekSettingsCall) Do(opts ...googleapi.CallOption) (*CmekSettings, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &CmekSettings{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Updates the Logs Router CMEK settings for the given resource.Note: CMEK for the Logs Router can currently only be configured for GCP organizations. Once configured, it applies to all projects and folders in the GCP organization.UpdateCmekSettings will fail if 1) kms_key_name is invalid, or 2) the associated service account does not have the required roles/cloudkms.cryptoKeyEncrypterDecrypter role assigned for the key, or 3) access to the key is disabled.See Enabling CMEK for Logs Router for more information.",
+	//   "flatPath": "v2/{v2Id}/{v2Id1}/cmekSettings",
+	//   "httpMethod": "PATCH",
+	//   "id": "logging.updateCmekSettings",
+	//   "parameterOrder": [
+	//     "name"
+	//   ],
+	//   "parameters": {
+	//     "name": {
+	//       "description": "Required. The resource name for the CMEK settings to update.\n\"projects/[PROJECT_ID]/cmekSettings\"\n\"organizations/[ORGANIZATION_ID]/cmekSettings\"\n\"billingAccounts/[BILLING_ACCOUNT_ID]/cmekSettings\"\n\"folders/[FOLDER_ID]/cmekSettings\"\nExample: \"organizations/12345/cmekSettings\".Note: CMEK for the Logs Router can currently only be configured for GCP organizations. Once configured, it applies to all projects and folders in the GCP organization.",
+	//       "location": "path",
+	//       "pattern": "^[^/]+/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "updateMask": {
+	//       "description": "Optional. Field mask identifying which fields from cmek_settings should be updated. A field will be overwritten if and only if it is in the update mask. Output only fields cannot be updated.See FieldMask for more information.Example: \"updateMask=kmsKeyName\"",
+	//       "format": "google-fieldmask",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v2/{+name}/cmekSettings",
+	//   "request": {
+	//     "$ref": "CmekSettings"
+	//   },
+	//   "response": {
+	//     "$ref": "CmekSettings"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/cloud-platform",
