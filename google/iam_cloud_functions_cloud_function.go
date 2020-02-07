@@ -53,14 +53,14 @@ type CloudFunctionsCloudFunctionIamUpdater struct {
 func CloudFunctionsCloudFunctionIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
 	values["project"] = project
-	region, err := getRegion(d, config)
-	if err != nil {
-		return nil, err
+	region, _ := getRegion(d, config)
+	if region != "" {
+		values["region"] = region
 	}
 	values["region"] = region
 	if v, ok := d.GetOk("cloud_function"); ok {
@@ -95,16 +95,15 @@ func CloudFunctionsCloudFunctionIamUpdaterProducer(d *schema.ResourceData, confi
 func CloudFunctionsCloudFunctionIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
-	values["project"] = project
-	region, err := getRegion(d, config)
-	if err != nil {
-		return err
+
+	region, _ := getRegion(d, config)
+	if region != "" {
+		values["region"] = region
 	}
-	values["region"] = region
 
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<cloud_function>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<cloud_function>[^/]+)"}, d, config, d.Id())
 	if err != nil {

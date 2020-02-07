@@ -53,14 +53,14 @@ type IapTunnelInstanceIamUpdater struct {
 func IapTunnelInstanceIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
 	values["project"] = project
-	zone, err := getZone(d, config)
-	if err != nil {
-		return nil, err
+	zone, _ := getZone(d, config)
+	if zone != "" {
+		values["zone"] = zone
 	}
 	values["zone"] = zone
 	if v, ok := d.GetOk("instance"); ok {
@@ -95,16 +95,15 @@ func IapTunnelInstanceIamUpdaterProducer(d *schema.ResourceData, config *Config)
 func IapTunnelInstanceIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
-	values["project"] = project
-	zone, err := getZone(d, config)
-	if err != nil {
-		return err
+
+	zone, _ := getZone(d, config)
+	if zone != "" {
+		values["zone"] = zone
 	}
-	values["zone"] = zone
 
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_tunnel/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<instance>[^/]+)"}, d, config, d.Id())
 	if err != nil {
