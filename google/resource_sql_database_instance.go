@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
-	"google.golang.org/api/googleapi"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
@@ -610,7 +609,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		for _, u := range users.Items {
 			if u.Name == "root" && u.Host == "%" {
 				err = retry(func() error {
-					op, err = config.clientSqlAdmin.Users.Delete(project, instance.Name, u.Host, u.Name).Do()
+					op, err = config.clientSqlAdmin.Users.Delete(project, instance.Name).Do()
 					if err == nil {
 						err = sqlAdminOperationWaitTime(config, op, project, "Delete default root User", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 					}
@@ -656,7 +655,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, secondGen bool)
 	// 1st Generation instances don't support the disk_autoresize parameter
 	// and it defaults to true - so we shouldn't set it if this is first gen
 	if secondGen {
-		settings.StorageAutoResize = googleapi.Bool(_settings["disk_autoresize"].(bool))
+		settings.StorageAutoResize = _settings["disk_autoresize"].(bool)
 	}
 
 	return settings
@@ -967,9 +966,7 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		data["maintenance_window"] = flattenMaintenanceWindow(settings.MaintenanceWindow)
 	}
 
-	if settings.StorageAutoResize != nil {
-		data["disk_autoresize"] = *settings.StorageAutoResize
-	}
+	data["disk_autoresize"] = settings.StorageAutoResize
 
 	if settings.UserLabels != nil {
 		data["user_labels"] = settings.UserLabels
