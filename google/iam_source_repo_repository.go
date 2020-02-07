@@ -55,9 +55,9 @@ type SourceRepoRepositoryIamUpdater struct {
 func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("repository"); ok {
@@ -90,11 +90,10 @@ func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Conf
 func SourceRepoRepositoryIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
-	values["project"] = project
 
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/repos/(?P<repository>.+)", "(?P<repository>.+)"}, d, config, d.Id())
 	if err != nil {

@@ -53,14 +53,14 @@ type ComputeSubnetworkIamUpdater struct {
 func ComputeSubnetworkIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
 	values["project"] = project
-	region, err := getRegion(d, config)
-	if err != nil {
-		return nil, err
+	region, _ := getRegion(d, config)
+	if region != "" {
+		values["region"] = region
 	}
 	values["region"] = region
 	if v, ok := d.GetOk("subnetwork"); ok {
@@ -95,16 +95,15 @@ func ComputeSubnetworkIamUpdaterProducer(d *schema.ResourceData, config *Config)
 func ComputeSubnetworkIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
-	values["project"] = project
-	region, err := getRegion(d, config)
-	if err != nil {
-		return err
+
+	region, _ := getRegion(d, config)
+	if region != "" {
+		values["region"] = region
 	}
-	values["region"] = region
 
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<subnetwork>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<subnetwork>[^/]+)"}, d, config, d.Id())
 	if err != nil {

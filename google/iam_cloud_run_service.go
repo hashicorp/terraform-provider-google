@@ -53,14 +53,14 @@ type CloudRunServiceIamUpdater struct {
 func CloudRunServiceIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
 	values["project"] = project
-	location, err := getLocation(d, config)
-	if err != nil {
-		return nil, err
+	location, _ := getLocation(d, config)
+	if location != "" {
+		values["location"] = location
 	}
 	values["location"] = location
 	if v, ok := d.GetOk("service"); ok {
@@ -95,16 +95,15 @@ func CloudRunServiceIamUpdaterProducer(d *schema.ResourceData, config *Config) (
 func CloudRunServiceIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
-	values["project"] = project
-	location, err := getLocation(d, config)
-	if err != nil {
-		return err
+
+	location, _ := getLocation(d, config)
+	if location != "" {
+		values["location"] = location
 	}
-	values["location"] = location
 
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<service>[^/]+)", "(?P<location>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Id())
 	if err != nil {

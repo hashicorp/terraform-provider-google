@@ -133,6 +133,10 @@ func getImportIdQualifiers(idRegexes []string, d TerraformResourceData, config *
 
 			for k, v := range defaults {
 				if _, ok := result[k]; !ok {
+					if v == "" {
+						// No default was found and no value was specified in the import ID
+						return nil, fmt.Errorf("No value was found for %s during import", k)
+					}
 					// Set any fields that are defaultable and not specified in import ID
 					result[k] = v
 				}
@@ -149,24 +153,15 @@ func getImportIdQualifiers(idRegexes []string, d TerraformResourceData, config *
 func getDefaultValues(idRegex string, d TerraformResourceData, config *Config) (map[string]string, error) {
 	result := make(map[string]string)
 	if _, ok := d.GetOk("project"); !ok && strings.Contains(idRegex, "?P<project>") {
-		project, err := getProject(d, config)
-		if err != nil {
-			return nil, err
-		}
+		project, _ := getProject(d, config)
 		result["project"] = project
 	}
 	if _, ok := d.GetOk("region"); !ok && strings.Contains(idRegex, "?P<region>") {
-		region, err := getRegion(d, config)
-		if err != nil {
-			return nil, err
-		}
+		region, _ := getRegion(d, config)
 		result["region"] = region
 	}
 	if _, ok := d.GetOk("zone"); !ok && strings.Contains(idRegex, "?P<zone>") {
-		zone, err := getZone(d, config)
-		if err != nil {
-			return nil, err
-		}
+		zone, _ := getZone(d, config)
 		result["zone"] = zone
 	}
 	return result, nil

@@ -52,9 +52,9 @@ type IapAppEngineServiceIamUpdater struct {
 func IapAppEngineServiceIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("app_id"); ok {
@@ -93,11 +93,10 @@ func IapAppEngineServiceIamUpdaterProducer(d *schema.ResourceData, config *Confi
 func IapAppEngineServiceIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
-	values["project"] = project
 
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Id())
 	if err != nil {
