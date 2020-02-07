@@ -985,9 +985,15 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	if err := waitForContainerClusterReady(config, project, location, clusterName, d.Timeout(schema.TimeoutCreate)); err != nil {
+	state, err := containerClusterAwaitRestingState(config, project, location, clusterName, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
 		return err
 	}
+
+	if containerClusterRestingStates[state] == ErrorState {
+		return fmt.Errorf("Cluster %s was created in the error state %q", clusterName, state)
+	}
+
 	return nil
 }
 
@@ -1126,7 +1132,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
 
-	if err := waitForContainerClusterReady(config, project, location, clusterName, d.Timeout(schema.TimeoutUpdate)); err != nil {
+	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, d.Timeout(schema.TimeoutUpdate)); err != nil {
 		return err
 	}
 
@@ -1601,6 +1607,10 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	d.Partial(false)
 
+	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return err
+	}
+
 	return resourceContainerClusterRead(d, meta)
 }
 
@@ -1620,7 +1630,7 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 	clusterName := d.Get("name").(string)
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
-	if err := waitForContainerClusterReady(config, project, location, clusterName, d.Timeout(schema.TimeoutDelete)); err != nil {
+	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, d.Timeout(schema.TimeoutDelete)); err != nil {
 		return err
 	}
 
@@ -1702,22 +1712,36 @@ func cleanFailedContainerCluster(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
-func waitForContainerClusterReady(config *Config, project, location, clusterName string, timeout time.Duration) error {
-	return resource.Retry(timeout, func() *resource.RetryError {
+var containerClusterRestingStates = RestingStates{
+	"RUNNING":  ReadyState,
+	"DEGRADED": ErrorState,
+	"ERROR":    ErrorState,
+}
+
+// returns a state with no error if the state is a resting state, and the last state with an error otherwise
+func containerClusterAwaitRestingState(config *Config, project, location, clusterName string, timeout time.Duration) (state string, err error) {
+	err = resource.Retry(timeout, func() *resource.RetryError {
 		name := containerClusterFullName(project, location, clusterName)
-		cluster, err := config.clientContainerBeta.Projects.Locations.Clusters.Get(name).Do()
-		if err != nil {
-			return resource.NonRetryableError(err)
+		cluster, gErr := config.clientContainerBeta.Projects.Locations.Clusters.Get(name).Do()
+		if gErr != nil {
+			return resource.NonRetryableError(gErr)
 		}
-		if cluster.Status == "PROVISIONING" || cluster.Status == "RECONCILING" || cluster.Status == "STOPPING" {
-			return resource.RetryableError(fmt.Errorf("Cluster %q has status %q with message %q", clusterName, cluster.Status, cluster.StatusMessage))
-		} else if cluster.Status == "RUNNING" {
-			log.Printf("Cluster %q has status 'RUNNING'.", clusterName)
+
+		state = cluster.Status
+
+		switch stateType := containerClusterRestingStates[cluster.Status]; stateType {
+		case ReadyState:
+			log.Printf("[DEBUG] Cluster %q has status %q with message %q.", clusterName, state, cluster.StatusMessage)
 			return nil
-		} else {
-			return resource.NonRetryableError(fmt.Errorf("Cluster %q has terminal state %q with message %q.", clusterName, cluster.Status, cluster.StatusMessage))
+		case ErrorState:
+			log.Printf("[DEBUG] Cluster %q has error state %q with message %q.", clusterName, state, cluster.StatusMessage)
+			return nil
+		default:
+			return resource.RetryableError(fmt.Errorf("Cluster %q has state %q with message %q", clusterName, state, cluster.StatusMessage))
 		}
 	})
+
+	return state, err
 }
 
 // container engine's API returns the instance group manager's URL instead of the instance
@@ -2253,7 +2277,7 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 	clusterName := d.Get("name").(string)
 
 	d.Set("location", location)
-	if err := waitForContainerClusterReady(config, project, location, clusterName, d.Timeout(schema.TimeoutCreate)); err != nil {
+	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return nil, err
 	}
 
