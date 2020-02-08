@@ -1224,7 +1224,7 @@ func TestAccComputeInstance_enableDisplay(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_statusTerminatedUpdateFields(t *testing.T) {
+func TestAccComputeInstance_desiredStatusOnCreation(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
@@ -1236,7 +1236,41 @@ func TestAccComputeInstance_statusTerminatedUpdateFields(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstance_statusRunning(instanceName),
+				Config:      testAccComputeInstance_desiredStatusTerminated(instanceName),
+				ExpectError: regexp.MustCompile("When creating an instance, desired_status can only accept RUNNING value"),
+			},
+			{
+				Config: testAccComputeInstance_desiredStatusRunning(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatusRunning(&instance),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_desiredStatusSetAfterCreation(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_desiredStatusNotSet(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_desiredStatusRunning(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
@@ -1244,7 +1278,38 @@ func TestAccComputeInstance_statusTerminatedUpdateFields(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccComputeInstance_statusTerminated(instanceName),
+				Config: testAccComputeInstance_desiredStatusTerminated(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatusTerminated(&instance),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_desiredStatusUnsetAfterCreation(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_desiredStatusRunning(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatusRunning(&instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_desiredStatusTerminated(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
@@ -1252,7 +1317,83 @@ func TestAccComputeInstance_statusTerminatedUpdateFields(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccComputeInstance_statusTerminatedUpdate(instanceName),
+				Config: testAccComputeInstance_desiredStatusNotSet(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatusTerminated(&instance),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_desiredStatusTerminatedToRunning(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_desiredStatusNotSet(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_desiredStatusTerminated(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatusTerminated(&instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_desiredStatusRunning(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatusRunning(&instance),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_desiredStatusTerminatedUpdateFields(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_desiredStatusNotSet(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_desiredStatusTerminated(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatusTerminated(&instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_desiredStatusTerminatedUpdate(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
@@ -1265,105 +1406,12 @@ func TestAccComputeInstance_statusTerminatedUpdateFields(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccComputeInstance_statusTerminatedUpdateRequiringStopping(instanceName),
+				Config: testAccComputeInstance_desiredStatusTerminatedUpdateRequiringStopping(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasMachineType(&instance, "n1-standard-2"),
 					testAccCheckComputeInstanceHasStatusTerminated(&instance),
-				),
-			},
-		},
-	})
-}
-
-func TestAccComputeInstance_statusTerminatedToRunning(t *testing.T) {
-	t.Parallel()
-
-	var instance compute.Instance
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeInstance_statusRunning(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasStatusRunning(&instance),
-				),
-			},
-			{
-				Config: testAccComputeInstance_statusTerminated(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasStatusTerminated(&instance),
-				),
-			},
-			{
-				Config: testAccComputeInstance_statusRunning(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasStatusRunning(&instance),
-				),
-			},
-		},
-	})
-}
-
-func TestAccComputeInstance_statusTerminatedOnCreation(t *testing.T) {
-	t.Parallel()
-
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccComputeInstance_statusTerminated(instanceName),
-				ExpectError: regexp.MustCompile("On creation, status can only be RUNNING"),
-			},
-		},
-	})
-}
-
-func TestAccComputeInstance_statusTerminatedManuallyAndRestart(t *testing.T) {
-	t.Parallel()
-
-	var instance compute.Instance
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeInstance_basic(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasStatusRunning(&instance),
-					testAccCheckComputeInstanceStop("google_compute_instance.foobar"),
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasStatusTerminated(&instance),
-				),
-				ExpectNonEmptyPlan: true,
-			},
-			{
-				Config: testAccComputeInstance_basic(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasStatusRunning(&instance),
 				),
 			},
 		},
@@ -3920,7 +3968,7 @@ resource "google_compute_instance" "foobar" {
 `, instance)
 }
 
-func testAccComputeInstance_statusRunning(instance string) string {
+func testAccComputeInstance_desiredStatusNotSet(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
@@ -3944,8 +3992,6 @@ resource "google_compute_instance" "foobar" {
 		network = "default"
 	}
 
-	status = "RUNNING"
-
 	metadata = {
 		foo = "bar"
 	}
@@ -3953,7 +3999,7 @@ resource "google_compute_instance" "foobar" {
 `, instance)
 }
 
-func testAccComputeInstance_statusTerminated(instance string) string {
+func testAccComputeInstance_desiredStatusRunning(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
@@ -3977,7 +4023,7 @@ resource "google_compute_instance" "foobar" {
 		network = "default"
 	}
 
-	status = "TERMINATED"
+	desired_status = "RUNNING"
 
 	metadata = {
 		foo = "bar"
@@ -3986,7 +4032,40 @@ resource "google_compute_instance" "foobar" {
 `, instance)
 }
 
-func testAccComputeInstance_statusTerminatedUpdate(instance string) string {
+func testAccComputeInstance_desiredStatusTerminated(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%s"
+	machine_type   = "n1-standard-1"
+	zone           = "us-central1-a"
+	can_ip_forward = false
+	tags           = ["foo", "bar"]
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	desired_status = "TERMINATED"
+
+	metadata = {
+		foo = "bar"
+	}
+}
+`, instance)
+}
+
+func testAccComputeInstance_desiredStatusTerminatedUpdate(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
@@ -4011,7 +4090,7 @@ resource "google_compute_instance" "foobar" {
 		access_config { }
 	}
 
-	status = "TERMINATED"
+	desired_status = "TERMINATED"
 
 	metadata = {
 		bar = "baz"
@@ -4024,7 +4103,7 @@ resource "google_compute_instance" "foobar" {
 `, instance)
 }
 
-func testAccComputeInstance_statusTerminatedUpdateRequiringStopping(instance string) string {
+func testAccComputeInstance_desiredStatusTerminatedUpdateRequiringStopping(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "debian-9"
@@ -4049,7 +4128,7 @@ resource "google_compute_instance" "foobar" {
 		access_config { }
 	}
 
-	status = "TERMINATED"
+	desired_status = "TERMINATED"
 
 	metadata = {
 		bar = "baz"
@@ -4058,6 +4137,8 @@ resource "google_compute_instance" "foobar" {
 	labels = {
 		only_me = "nothing_else"
 	}
+
+	allow_stopping_for_update = true
 }
 `, instance)
 }

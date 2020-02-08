@@ -564,10 +564,9 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
-			"status": {
+			"desired_status": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "RUNNING",
 				ValidateFunc: validation.StringInSlice([]string{"RUNNING", "TERMINATED"}, false),
 			},
 
@@ -628,6 +627,7 @@ func resourceComputeInstance() *schema.Resource {
 				},
 				suppressEmptyGuestAcceleratorDiff,
 			),
+			desiredStatusDiff,
 		),
 	}
 }
@@ -726,10 +726,6 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 		return nil, fmt.Errorf("Error creating guest accelerators: %s", err)
 	}
 
-	if d.Get("status") != "RUNNING" {
-		return nil, fmt.Errorf("On creation, status can only be RUNNING")
-	}
-
 	// Create the instance information
 	return &computeBeta.Instance{
 		CanIpForward:       d.Get("can_ip_forward").(bool),
@@ -753,7 +749,8 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 	}, nil
 }
 
-func getAllStatusExcept(exceptedStatus string) []string {
+// return all possible Compute instances status except the one passed as parameter
+func getAllStatusBut(status string) []string {
 	allStatus := []string{
 		"PROVISIONING",
 		"REPAIRING",
@@ -765,37 +762,40 @@ func getAllStatusExcept(exceptedStatus string) []string {
 		"SUSPENDING",
 		"TERMINATED",
 	}
-	for i, status := range allStatus {
-		if exceptedStatus == status {
+	for i, s := range allStatus {
+		if status == s {
 			return append(allStatus[:i], allStatus[i+1:]...)
 		}
 	}
 	return nil
 }
 
-func waitUntilInstanceHaveTheExpectedStatus(config *Config, d *schema.ResourceData) error {
-	expectedStatus := d.Get("status").(string)
-	stateRefreshFunc := func() (interface{}, string, error) {
-		instance, err := getInstance(config, d)
-		if err != nil || instance == nil {
-			log.Printf("Error on InstanceStateRefresh: %s", err)
-			return nil, "", err
-		}
-		return instance.Id, instance.Status, nil
-	}
-	stateChangeConf := resource.StateChangeConf{
-		Delay:      5 * time.Second,
-		Pending:    getAllStatusExcept(expectedStatus),
-		Refresh:    stateRefreshFunc,
-		Target:     []string{expectedStatus},
-		Timeout:    120 * time.Second,
-		MinTimeout: 5 * time.Second,
-	}
-	_, err := stateChangeConf.WaitForState()
+func waitUntilInstanceHasDesiredStatus(config *Config, d *schema.ResourceData) error {
+	desiredStatus := d.Get("desired_status").(string)
 
-	if err != nil {
-		return fmt.Errorf(
-			"Error waiting for instance to reach status %s: %s", expectedStatus, err)
+	if desiredStatus != "" {
+		stateRefreshFunc := func() (interface{}, string, error) {
+			instance, err := getInstance(config, d)
+			if err != nil || instance == nil {
+				log.Printf("Error on InstanceStateRefresh: %s", err)
+				return nil, "", err
+			}
+			return instance.Id, instance.Status, nil
+		}
+		stateChangeConf := resource.StateChangeConf{
+			Delay:      5 * time.Second,
+			Pending:    getAllStatusBut(desiredStatus),
+			Refresh:    stateRefreshFunc,
+			Target:     []string{desiredStatus},
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
+			MinTimeout: 2 * time.Second,
+		}
+		_, err := stateChangeConf.WaitForState()
+
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for instance to reach desired status %s: %s", desiredStatus, err)
+		}
 	}
 
 	return nil
@@ -846,7 +846,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return waitErr
 	}
 
-	err = waitUntilInstanceHaveTheExpectedStatus(config, d)
+	err = waitUntilInstanceHasDesiredStatus(config, d)
 	if err != nil {
 		return fmt.Errorf("Error waiting for status: %s", err)
 	}
@@ -1034,7 +1034,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("name", instance.Name)
 	d.Set("description", instance.Description)
 	d.Set("hostname", instance.Hostname)
-	d.Set("status", instance.Status)
+
+	if d.Get("desired_status") != "" {
+		d.Set("desired_status", instance.Status)
+	}
+
 	d.SetId(instance.Name)
 
 	return nil
@@ -1167,27 +1171,29 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		d.SetPartial("scheduling")
 	}
 
-	if d.HasChange("status") {
-		var op *compute.Operation
-		expectedStatus := d.Get("status").(string)
-		if expectedStatus == "RUNNING" {
-			op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
-			if err != nil {
-				return err
+	if d.HasChange("desired_status") {
+		desiredStatus := d.Get("desired_status").(string)
+
+		if desiredStatus != "" {
+			var op *compute.Operation
+
+			if desiredStatus == "RUNNING" {
+				op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+				if err != nil {
+					return err
+				}
+			} else if desiredStatus == "TERMINATED" {
+				op, err = config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+				if err != nil {
+					return err
+				}
 			}
-		} else if expectedStatus == "TERMINATED" {
-			op, err = config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
-			if err != nil {
-				return err
+			opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating status", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
 			}
-		} else {
-			return fmt.Errorf("Unknown status : %s", expectedStatus)
 		}
-		opErr := computeOperationWaitTime(config.clientCompute, op, project, "updating status", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-		if opErr != nil {
-			return opErr
-		}
-		d.SetPartial("status")
+		d.SetPartial("desired_status")
 	}
 
 	networkInterfacesCount := d.Get("network_interface.#").(int)
@@ -1426,22 +1432,18 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	// Attributes which can only be changed if the instance is stopped
 	if scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") {
-		status := d.Get("status").(string)
+		if !d.Get("allow_stopping_for_update").(bool) {
+			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, or enable display on an instance requires stopping it. " +
+				"To acknowledge this, please set allow_stopping_for_update = true in your config.")
+		}
+		op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+		if err != nil {
+			return errwrap.Wrapf("Error stopping instance: {{err}}", err)
+		}
 
-		if status != "TERMINATED" {
-			if !d.Get("allow_stopping_for_update").(bool) {
-				return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, or enable display on an instance requires stopping it. " +
-					"To acknowledge this, please set allow_stopping_for_update = true in your config.")
-			}
-			op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
-			if err != nil {
-				return errwrap.Wrapf("Error stopping instance: {{err}}", err)
-			}
-
-			opErr := computeOperationWaitTime(config.clientCompute, op, project, "stopping instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-			if opErr != nil {
-				return opErr
-			}
+		opErr := computeOperationWaitTime(config.clientCompute, op, project, "stopping instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		if opErr != nil {
+			return opErr
 		}
 
 		if d.HasChange("machine_type") {
@@ -1518,18 +1520,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return opErr
 			}
 			d.SetPartial("enable_display")
-		}
-
-		if status != "TERMINATED" {
-			op, err := config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
-			if err != nil {
-				return errwrap.Wrapf("Error starting instance: {{err}}", err)
-			}
-
-			opErr := computeOperationWaitTime(config.clientCompute, op, project, "starting instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-			if opErr != nil {
-				return opErr
-			}
 		}
 	}
 
@@ -1673,6 +1663,24 @@ func suppressEmptyGuestAcceleratorDiff(d *schema.ResourceDiff, meta interface{})
 		if err := d.Clear("guest_accelerator"); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func desiredStatusDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	// when creating an instance, name is not set
+	oldName, _ := diff.GetChange("name")
+
+	if oldName == nil || oldName == "" {
+		_, newDesiredStatus := diff.GetChange("desired_status")
+
+		if newDesiredStatus == nil || newDesiredStatus == "" {
+			return nil
+		} else if newDesiredStatus != "RUNNING" {
+			return fmt.Errorf("When creating an instance, desired_status can only accept RUNNING value")
+		}
+		return nil
 	}
 
 	return nil
