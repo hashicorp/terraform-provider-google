@@ -1,4 +1,5 @@
 ---
+subcategory: "Container Registry"
 layout: "google"
 page_title: "Google: google_container_registry_image"
 sidebar_current: "docs-google-datasource-container-image"
@@ -16,11 +17,11 @@ The URLs are computed entirely offline - as long as the project exists, they wil
 
 ```hcl
 data "google_container_registry_image" "debian" {
-    name = "debian"
+  name = "debian"
 }
 
 output "gcr_location" {
-    value = "${data.google_container_registry_image.debian.image_url}"
+  value = data.google_container_registry_image.debian.image_url
 }
 ```
 

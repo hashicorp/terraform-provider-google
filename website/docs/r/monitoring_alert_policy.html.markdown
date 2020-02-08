@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Stackdriver Monitoring"
 layout: "google"
 page_title: "Google: google_monitoring_alert_policy"
 sidebar_current: "docs-google-monitoring-alert-policy"
@@ -40,15 +41,15 @@ To get more information about AlertPolicy, see:
 ```hcl
 resource "google_monitoring_alert_policy" "alert_policy" {
   display_name = "My Alert Policy"
-  combiner = "OR"
+  combiner     = "OR"
   conditions {
     display_name = "test condition"
     condition_threshold {
-      filter = "metric.type=\"compute.googleapis.com/instance/disk/write_bytes_count\" AND resource.type=\"gce_instance\""
-      duration = "60s"
+      filter     = "metric.type=\"compute.googleapis.com/instance/disk/write_bytes_count\" AND resource.type=\"gce_instance\""
+      duration   = "60s"
       comparison = "COMPARISON_GT"
       aggregations {
-        alignment_period = "60s"
+        alignment_period   = "60s"
         per_series_aligner = "ALIGN_RATE"
       }
     }
@@ -620,6 +621,7 @@ The `documentation` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   The unique resource name for this policy.
@@ -661,4 +663,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

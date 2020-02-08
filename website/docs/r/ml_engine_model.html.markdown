@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "ML Engine"
 layout: "google"
 page_title: "Google: google_ml_engine_model"
 sidebar_current: "docs-google-ml-engine-model"
@@ -38,9 +39,9 @@ ready to receive prediction requests. The model itself is just a container.
 
 ```hcl
 resource "google_ml_engine_model" "default" {
-  name = "default"
+  name        = "default"
   description = "My model"
-  regions = ["us-central1"]
+  regions     = ["us-central1"]
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -53,13 +54,13 @@ resource "google_ml_engine_model" "default" {
 
 ```hcl
 resource "google_ml_engine_model" "default" {
-  name = "default"
+  name        = "default"
   description = "My model"
-  regions = ["us-central1"]
-  labels  = {
+  regions     = ["us-central1"]
+  labels = {
     my_model = "foo"
   }
-  online_prediction_logging = true
+  online_prediction_logging         = true
   online_prediction_console_logging = true
 }
 ```
@@ -110,8 +111,14 @@ The following arguments are supported:
 The `default_version` block supports:
 
 * `name` -
-  (Optional)
+  (Required)
   The name specified for the version when it was created.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/models/{{name}}`
 
 
 ## Timeouts
@@ -137,4 +144,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

@@ -23,7 +23,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeResourcePolicy() *schema.Resource {
@@ -46,6 +45,13 @@ func resourceComputeResourcePolicy() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The name of the resource, provided by the client when initially creating
+the resource. The resource name must be 1-63 characters long, and comply
+with RFC1035. Specifically, the name must be 1-63 characters long and
+match the regular expression '[a-z]([-a-z0-9]*[a-z0-9])'? which means the
+first character must be a lowercase letter, and all following characters
+must be a dash, lowercase letter, or digit, except the last character,
+which cannot be a dash.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -53,132 +59,165 @@ func resourceComputeResourcePolicy() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Region where resource policy resides.`,
 			},
 			"snapshot_schedule_policy": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Policy for creating snapshots of persistent disks.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"schedule": {
-							Type:     schema.TypeList,
-							Required: true,
-							ForceNew: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Contains one of an 'hourlySchedule', 'dailySchedule', or 'weeklySchedule'.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"daily_schedule": {
-										Type:     schema.TypeList,
-										Optional: true,
-										ForceNew: true,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The policy will execute every nth day at the specified time.`,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"days_in_cycle": {
-													Type:     schema.TypeInt,
-													Required: true,
-													ForceNew: true,
+													Type:        schema.TypeInt,
+													Required:    true,
+													ForceNew:    true,
+													Description: `The number of days between snapshots.`,
 												},
 												"start_time": {
-													Type:     schema.TypeString,
-													Required: true,
-													ForceNew: true,
+													Type:         schema.TypeString,
+													Required:     true,
+													ForceNew:     true,
+													ValidateFunc: validateHourlyOnly,
+													Description: `This must be in UTC format that resolves to one of
+00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example,
+both 13:00-5 and 08:00 are valid.`,
 												},
 											},
 										},
+										ExactlyOneOf: []string{"snapshot_schedule_policy.0.schedule.0.hourly_schedule", "snapshot_schedule_policy.0.schedule.0.daily_schedule", "snapshot_schedule_policy.0.schedule.0.weekly_schedule"},
 									},
 									"hourly_schedule": {
-										Type:     schema.TypeList,
-										Optional: true,
-										ForceNew: true,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The policy will execute every nth hour starting at the specified time.`,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"hours_in_cycle": {
-													Type:     schema.TypeInt,
-													Required: true,
-													ForceNew: true,
+													Type:        schema.TypeInt,
+													Required:    true,
+													ForceNew:    true,
+													Description: `The number of hours between snapshots.`,
 												},
 												"start_time": {
-													Type:     schema.TypeString,
-													Required: true,
-													ForceNew: true,
+													Type:         schema.TypeString,
+													Required:     true,
+													ForceNew:     true,
+													ValidateFunc: validateHourlyOnly,
+													Description: `Time within the window to start the operations.
+It must be in an hourly format "HH:MM",
+where HH : [00-23] and MM : [00] GMT.
+eg: 21:00`,
 												},
 											},
 										},
+										ExactlyOneOf: []string{"snapshot_schedule_policy.0.schedule.0.hourly_schedule", "snapshot_schedule_policy.0.schedule.0.daily_schedule", "snapshot_schedule_policy.0.schedule.0.weekly_schedule"},
 									},
 									"weekly_schedule": {
-										Type:     schema.TypeList,
-										Optional: true,
-										ForceNew: true,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Allows specifying a snapshot time for each day of the week.`,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"day_of_weeks": {
-													Type:     schema.TypeSet,
-													Required: true,
-													ForceNew: true,
-													MinItems: 1,
-													MaxItems: 7,
-													Elem:     computeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeksSchema(),
+													Type:        schema.TypeSet,
+													Required:    true,
+													ForceNew:    true,
+													Description: `May contain up to seven (one for each day of the week) snapshot times.`,
+													MinItems:    1,
+													MaxItems:    7,
+													Elem:        computeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeksSchema(),
 													// Default schema.HashSchema is used.
 												},
 											},
 										},
+										ExactlyOneOf: []string{"snapshot_schedule_policy.0.schedule.0.hourly_schedule", "snapshot_schedule_policy.0.schedule.0.daily_schedule", "snapshot_schedule_policy.0.schedule.0.weekly_schedule"},
 									},
 								},
 							},
 						},
 						"retention_policy": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Retention policy applied to snapshots created by this resource policy.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"max_retention_days": {
-										Type:     schema.TypeInt,
-										Required: true,
-										ForceNew: true,
+										Type:        schema.TypeInt,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Maximum age of the snapshot that is allowed to be kept.`,
 									},
 									"on_source_disk_delete": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"KEEP_AUTO_SNAPSHOTS", "APPLY_RETENTION_POLICY", ""}, false),
-										Default:      "KEEP_AUTO_SNAPSHOTS",
+										Description: `Specifies the behavior to apply to scheduled snapshots when
+the source disk is deleted.
+Valid options are KEEP_AUTO_SNAPSHOTS and APPLY_RETENTION_POLICY`,
+										Default: "KEEP_AUTO_SNAPSHOTS",
 									},
 								},
 							},
 						},
 						"snapshot_properties": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Properties with which the snapshots are created, such as labels.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"guest_flush": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										ForceNew: true,
+										Type:         schema.TypeBool,
+										Optional:     true,
+										ForceNew:     true,
+										Description:  `Whether to perform a 'guest aware' snapshot.`,
+										AtLeastOneOf: []string{"snapshot_schedule_policy.0.snapshot_properties.0.labels", "snapshot_schedule_policy.0.snapshot_properties.0.storage_locations", "snapshot_schedule_policy.0.snapshot_properties.0.guest_flush"},
 									},
 									"labels": {
-										Type:     schema.TypeMap,
-										Optional: true,
-										ForceNew: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Type:         schema.TypeMap,
+										Optional:     true,
+										ForceNew:     true,
+										Description:  `A set of key-value pairs.`,
+										Elem:         &schema.Schema{Type: schema.TypeString},
+										AtLeastOneOf: []string{"snapshot_schedule_policy.0.snapshot_properties.0.labels", "snapshot_schedule_policy.0.snapshot_properties.0.storage_locations", "snapshot_schedule_policy.0.snapshot_properties.0.guest_flush"},
 									},
 									"storage_locations": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										ForceNew: true,
-										MaxItems: 1,
+										Type:        schema.TypeSet,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `GCS bucket location in which to store the snapshot (regional or multi-regional).`,
+										MaxItems:    1,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
+										Set:          schema.HashString,
+										AtLeastOneOf: []string{"snapshot_schedule_policy.0.snapshot_properties.0.labels", "snapshot_schedule_policy.0.snapshot_properties.0.storage_locations", "snapshot_schedule_policy.0.snapshot_properties.0.guest_flush"},
 									},
 								},
 							},
@@ -208,11 +247,14 @@ func computeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeks
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}, false),
+				Description:  `The day of the week to create the snapshot. e.g. MONDAY`,
 			},
 			"start_time": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Time within the window to start the operations.
+It must be in format "HH:MM", where HH : [00-23] and MM : [00-00] GMT.`,
 			},
 		},
 	}
@@ -257,26 +299,20 @@ func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating ResourcePolicy",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating ResourcePolicy",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create ResourcePolicy: %s", waitErr)
+		return fmt.Errorf("Error waiting to create ResourcePolicy: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating ResourcePolicy %q: %#v", d.Id(), res)
@@ -305,13 +341,13 @@ func resourceComputeResourcePolicyRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeResourcePolicyName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeResourcePolicyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
 	}
-	if err := d.Set("snapshot_schedule_policy", flattenComputeResourcePolicySnapshotSchedulePolicy(res["snapshotSchedulePolicy"], d)); err != nil {
+	if err := d.Set("snapshot_schedule_policy", flattenComputeResourcePolicySnapshotSchedulePolicy(res["snapshotSchedulePolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
 	}
-	if err := d.Set("region", flattenComputeResourcePolicyRegion(res["region"], d)); err != nil {
+	if err := d.Set("region", flattenComputeResourcePolicyRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -342,14 +378,8 @@ func resourceComputeResourcePolicyDelete(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, "ResourcePolicy")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting ResourcePolicy",
+		config, res, project, "Deleting ResourcePolicy",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -372,7 +402,7 @@ func resourceComputeResourcePolicyImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -381,11 +411,11 @@ func resourceComputeResourcePolicyImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeResourcePolicyName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeResourcePolicySnapshotSchedulePolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -395,14 +425,14 @@ func flattenComputeResourcePolicySnapshotSchedulePolicy(v interface{}, d *schema
 	}
 	transformed := make(map[string]interface{})
 	transformed["schedule"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicySchedule(original["schedule"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicySchedule(original["schedule"], d, config)
 	transformed["retention_policy"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicy(original["retentionPolicy"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicy(original["retentionPolicy"], d, config)
 	transformed["snapshot_properties"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicySnapshotProperties(original["snapshotProperties"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicySnapshotProperties(original["snapshotProperties"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeResourcePolicySnapshotSchedulePolicySchedule(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicySchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -412,14 +442,14 @@ func flattenComputeResourcePolicySnapshotSchedulePolicySchedule(v interface{}, d
 	}
 	transformed := make(map[string]interface{})
 	transformed["hourly_schedule"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlySchedule(original["hourlySchedule"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlySchedule(original["hourlySchedule"], d, config)
 	transformed["daily_schedule"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailySchedule(original["dailySchedule"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailySchedule(original["dailySchedule"], d, config)
 	transformed["weekly_schedule"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklySchedule(original["weeklySchedule"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklySchedule(original["weeklySchedule"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlySchedule(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlySchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -429,12 +459,12 @@ func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlySchedule(v 
 	}
 	transformed := make(map[string]interface{})
 	transformed["hours_in_cycle"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlyScheduleHoursInCycle(original["hoursInCycle"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlyScheduleHoursInCycle(original["hoursInCycle"], d, config)
 	transformed["start_time"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlyScheduleStartTime(original["startTime"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlyScheduleStartTime(original["startTime"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlyScheduleHoursInCycle(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlyScheduleHoursInCycle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -444,11 +474,11 @@ func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlyScheduleHou
 	return v
 }
 
-func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlyScheduleStartTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleHourlyScheduleStartTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailySchedule(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailySchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -458,12 +488,12 @@ func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailySchedule(v i
 	}
 	transformed := make(map[string]interface{})
 	transformed["days_in_cycle"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailyScheduleDaysInCycle(original["daysInCycle"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailyScheduleDaysInCycle(original["daysInCycle"], d, config)
 	transformed["start_time"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailyScheduleStartTime(original["startTime"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailyScheduleStartTime(original["startTime"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailyScheduleDaysInCycle(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailyScheduleDaysInCycle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -473,11 +503,11 @@ func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailyScheduleDays
 	return v
 }
 
-func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailyScheduleStartTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleDailyScheduleStartTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklySchedule(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklySchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -487,10 +517,10 @@ func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklySchedule(v 
 	}
 	transformed := make(map[string]interface{})
 	transformed["day_of_weeks"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeks(original["dayOfWeeks"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeks(original["dayOfWeeks"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeks(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -503,21 +533,21 @@ func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDay
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"start_time": flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeksStartTime(original["startTime"], d),
-			"day":        flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeksDay(original["day"], d),
+			"start_time": flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeksStartTime(original["startTime"], d, config),
+			"day":        flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeksDay(original["day"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeksStartTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeksStartTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeksDay(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeksDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -527,12 +557,12 @@ func flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicy(v interfa
 	}
 	transformed := make(map[string]interface{})
 	transformed["max_retention_days"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicyMaxRetentionDays(original["maxRetentionDays"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicyMaxRetentionDays(original["maxRetentionDays"], d, config)
 	transformed["on_source_disk_delete"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicyOnSourceDiskDelete(original["onSourceDiskDelete"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicyOnSourceDiskDelete(original["onSourceDiskDelete"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicyMaxRetentionDays(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicyMaxRetentionDays(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -542,11 +572,11 @@ func flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicyMaxRetenti
 	return v
 }
 
-func flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicyOnSourceDiskDelete(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicyRetentionPolicyOnSourceDiskDelete(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotProperties(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotProperties(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -556,29 +586,29 @@ func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotProperties(v inte
 	}
 	transformed := make(map[string]interface{})
 	transformed["labels"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesLabels(original["labels"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesLabels(original["labels"], d, config)
 	transformed["storage_locations"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesStorageLocations(original["storageLocations"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesStorageLocations(original["storageLocations"], d, config)
 	transformed["guest_flush"] =
-		flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesGuestFlush(original["guestFlush"], d)
+		flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesGuestFlush(original["guestFlush"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesStorageLocations(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesStorageLocations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesGuestFlush(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesGuestFlush(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeResourcePolicyRegion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeResourcePolicyRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

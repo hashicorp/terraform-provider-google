@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Dataproc"
 layout: "google"
 page_title: "Google: google_dataproc_cluster"
 sidebar_current: "docs-google-dataproc-cluster"
@@ -20,8 +21,8 @@ whole cluster!
 
 ```hcl
 resource "google_dataproc_cluster" "simplecluster" {
-    name       = "simplecluster"
-    region     = "us-central1"
+  name   = "simplecluster"
+  region = "us-central1"
 }
 ```
 
@@ -29,69 +30,62 @@ resource "google_dataproc_cluster" "simplecluster" {
 
 ```hcl
 resource "google_dataproc_cluster" "mycluster" {
-    name       = "mycluster"
-    region     = "us-central1"
-    labels = {
-        foo = "bar"
+  name     = "mycluster"
+  region   = "us-central1"
+  labels = {
+    foo = "bar"
+  }
+
+  cluster_config {
+    staging_bucket = "dataproc-staging-bucket"
+
+    master_config {
+      num_instances = 1
+      machine_type  = "n1-standard-1"
+      disk_config {
+        boot_disk_type    = "pd-ssd"
+        boot_disk_size_gb = 15
+      }
     }
 
-    cluster_config {
-        staging_bucket        = "dataproc-staging-bucket"
-
-        master_config {
-            num_instances     = 1
-            machine_type      = "n1-standard-1"
-            disk_config {
-                boot_disk_type = "pd-ssd"
-                boot_disk_size_gb = 15
-            }
-        }
-
-        worker_config {
-            num_instances     = 2
-            machine_type      = "n1-standard-1"
-            min_cpu_platform  = "Intel Skylake"
-            disk_config {
-                boot_disk_size_gb = 15
-                num_local_ssds    = 1
-            }
-        }
-
-        preemptible_worker_config {
-            num_instances     = 0
-        }
-
-        # Override or set some custom properties
-        software_config {
-            image_version       = "1.3.7-deb9"
-            override_properties = {
-                "dataproc:dataproc.allow.zero.workers" = "true"
-            }
-        }
-
-        gce_cluster_config {
-            #network = "${google_compute_network.dataproc_network.name}"
-            tags    = ["foo", "bar"]
-			service_account_scopes = [
-				#	User supplied scopes
-				"https://www.googleapis.com/auth/monitoring",
-
-				#	The following scopes necessary for the cluster to function properly are
-				#	always added, even if not explicitly specified:
-				#		useraccounts-ro: https://www.googleapis.com/auth/cloud.useraccounts.readonly
-				#		storage-rw:      https://www.googleapis.com/auth/devstorage.read_write
-				#		logging-write:   https://www.googleapis.com/auth/logging.write
-				"useraccounts-ro","storage-rw","logging-write"
-			]
-        }
-
-        # You can define multiple initialization_action blocks
-        initialization_action {
-            script      = "gs://dataproc-initialization-actions/stackdriver/stackdriver.sh"
-            timeout_sec = 500
-        }
-
+    worker_config {
+      num_instances    = 2
+      machine_type     = "n1-standard-1"
+      min_cpu_platform = "Intel Skylake"
+      disk_config {
+        boot_disk_size_gb = 15
+        num_local_ssds    = 1
+      }
     }
+
+    preemptible_worker_config {
+      num_instances = 0
+    }
+
+    # Override or set some custom properties
+    software_config {
+      image_version = "1.3.7-deb9"
+      override_properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+      }
+    }
+
+    gce_cluster_config {
+      tags = ["foo", "bar"]
+      service_account_scopes = [
+        "https://www.googleapis.com/auth/monitoring",
+        "useraccounts-ro",
+        "storage-rw",
+        "logging-write",
+      ]
+    }
+
+    # You can define multiple initialization_action blocks
+    initialization_action {
+      script      = "gs://dataproc-initialization-actions/stackdriver/stackdriver.sh"
+      timeout_sec = 500
+    }
+  }
 }
 ```
 
@@ -99,21 +93,21 @@ resource "google_dataproc_cluster" "mycluster" {
 
 ```hcl
 resource "google_dataproc_cluster" "accelerated_cluster" {
-    name   = "my-cluster-with-gpu"
-    region = "us-central1"
+  name   = "my-cluster-with-gpu"
+  region = "us-central1"
 
-    cluster_config {
-        gce_cluster_config {
-            zone = "us-central1-a"
-        }
-
-        master_config {
-            accelerators {
-                accelerator_type  = "nvidia-tesla-k80"
-                accelerator_count = "1"
-            }
-        }
+  cluster_config {
+    gce_cluster_config {
+      zone = "us-central1-a"
     }
+
+    master_config {
+      accelerators {
+        accelerator_type  = "nvidia-tesla-k80"
+        accelerator_count = "1"
+      }
+    }
+  }
 }
 ```
 
@@ -178,28 +172,36 @@ The `cluster_config` block supports:
 * `software_config` (Optional) The config settings for software inside the cluster.
    Structure defined below.
 
+* `security_config` (Optional) Security related configuration. Structure defined below.
+
+* `autoscaling_config` (Optional)  The autoscaling policy config associated with the cluster.
+   Structure defined below.
+
 * `initialization_action` (Optional) Commands to execute on each node after config is completed.
    You can specify multiple versions of these. Structure defined below.
 
 * `encryption_config` (Optional) The Customer managed encryption keys settings for the cluster.
    Structure defined below.
+
+* `lifecycle_config` (Optional, Beta) The settings for auto deletion cluster schedule.
+   Structure defined below.
+
 - - -
 
 The `cluster_config.gce_cluster_config` block supports:
 
 ```hcl
-    cluster_config {
-        gce_cluster_config {
+  cluster_config {
+    gce_cluster_config {
+      zone = "us-central1-a"
 
-            zone = "us-central1-a"
+      # One of the below to hook into a custom network / subnetwork
+      network    = google_compute_network.dataproc_network.name
+      subnetwork = google_compute_network.dataproc_subnetwork.name
 
-            # One of the below to hook into a custom network / subnetwork
-            network    = "${google_compute_network.dataproc_network.name}"
-            subnetwork = "${google_compute_network.dataproc_subnetwork.name}"
-
-            tags    = ["foo", "bar"]
-        }
+      tags = ["foo", "bar"]
     }
+  }
 ```
 
 * `zone` - (Optional, Computed) The GCP zone where your data is stored and used (i.e. where
@@ -247,18 +249,19 @@ The `cluster_config.gce_cluster_config` block supports:
 The `cluster_config.master_config` block supports:
 
 ```hcl
-    cluster_config {
-        master_config {
-            num_instances     = 1
-            machine_type      = "n1-standard-1"
-            min_cpu_platform  = "Intel Skylake"
-            disk_config {
-                boot_disk_type    = "pd-ssd"
-                boot_disk_size_gb = 15
-                num_local_ssds    = 1
-            }
-        }
+cluster_config {
+  master_config {
+    num_instances    = 1
+    machine_type     = "n1-standard-1"
+    min_cpu_platform = "Intel Skylake"
+
+    disk_config {
+      boot_disk_type    = "pd-ssd"
+      boot_disk_size_gb = 15
+      num_local_ssds    = 1
     }
+  }
+}
 ```
 
 * `num_instances`- (Optional, Computed) Specifies the number of master nodes to create.
@@ -268,7 +271,7 @@ The `cluster_config.master_config` block supports:
    to create for the master. If not specified, GCP will default to a predetermined
    computed value (currently `n1-standard-4`).
 
-* `min_cpu_platform` - (Optional, Computed, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The name of a minimum generation of CPU family
+* `min_cpu_platform` - (Optional, Computed) The name of a minimum generation of CPU family
    for the master. If not specified, GCP will default to a predetermined computed value
    for each zone. See [the guide](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform)
    for details about which CPU families are available (and defaulted) for each zone.
@@ -305,18 +308,19 @@ if you are trying to use accelerators in a given zone.
 The `cluster_config.worker_config` block supports:
 
 ```hcl
-    cluster_config {
-        worker_config {
-            num_instances     = 3
-            machine_type      = "n1-standard-1"
-            min_cpu_platform  = "Intel Skylake"
-            disk_config {
-                boot_disk_type    = "pd-standard"
-                boot_disk_size_gb = 15
-                num_local_ssds    = 1
-            }
-        }
+cluster_config {
+  worker_config {
+    num_instances    = 3
+    machine_type     = "n1-standard-1"
+    min_cpu_platform = "Intel Skylake"
+
+    disk_config {
+      boot_disk_type    = "pd-standard"
+      boot_disk_size_gb = 15
+      num_local_ssds    = 1
     }
+  }
+}
 ```
 
 * `num_instances`- (Optional, Computed) Specifies the number of worker nodes to create.
@@ -331,7 +335,7 @@ The `cluster_config.worker_config` block supports:
    to create for the worker nodes. If not specified, GCP will default to a predetermined
    computed value (currently `n1-standard-4`).
 
-* `min_cpu_platform` - (Optional, Computed, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) The name of a minimum generation of CPU family
+* `min_cpu_platform` - (Optional, Computed) The name of a minimum generation of CPU family
    for the master. If not specified, GCP will default to a predetermined computed value
    for each zone. See [the guide](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform)
    for details about which CPU families are available (and defaulted) for each zone.
@@ -367,16 +371,17 @@ if you are trying to use accelerators in a given zone.
 The `cluster_config.preemptible_worker_config` block supports:
 
 ```hcl
-    cluster_config {
-        preemptible_worker_config {
-            num_instances     = 1
-            disk_config {
-                boot_disk_type    = "pd-standard"
-                boot_disk_size_gb = 15
-                num_local_ssds    = 1
-            }
-        }
+cluster_config {
+  preemptible_worker_config {
+    num_instances = 1
+
+    disk_config {
+      boot_disk_type    = "pd-standard"
+      boot_disk_size_gb = 15
+      num_local_ssds    = 1
     }
+  }
+}
 ```
 
 Note: Unlike `worker_config`, you cannot set the `machine_type` value directly. This
@@ -403,15 +408,16 @@ will be set for you based on whatever was set for the `worker_config.machine_typ
 The `cluster_config.software_config` block supports:
 
 ```hcl
-    cluster_config {
-        # Override or set some custom properties
-        software_config {
-            image_version       = "1.3.7-deb9"
-            override_properties = {
-                "dataproc:dataproc.allow.zero.workers" = "true"
-            }
-        }
+cluster_config {
+  # Override or set some custom properties
+  software_config {
+    image_version = "1.3.7-deb9"
+
+    override_properties = {
+      "dataproc:dataproc.allow.zero.workers" = "true"
     }
+  }
+}
 ```
 
 * `image_version` - (Optional, Computed) The Cloud Dataproc image version to use
@@ -427,16 +433,101 @@ The `cluster_config.software_config` block supports:
 
 - - -
 
+The `cluster_config.security_config` block supports:
+
+```hcl
+cluster_config {
+  # Override or set some custom properties
+  security_config {
+    kerberos_config {
+      kms_key_uri = "projects/projectId/locations/locationId/keyRings/keyRingId/cryptoKeys/keyId"
+      root_principal_password_uri = "bucketId/o/objectId"
+    }
+  }
+}
+```
+
+* `kerberos_config` (Required) Kerberos Configuration
+
+    * `cross_realm_trust_admin_server` - (Optional) The admin server (IP or hostname) for the
+       remote trusted realm in a cross realm trust relationship.
+
+    * `cross_realm_trust_kdc` - (Optional) The KDC (IP or hostname) for the
+       remote trusted realm in a cross realm trust relationship.
+
+    * `cross_realm_trust_realm` - (Optional) The remote realm the Dataproc on-cluster KDC will
+       trust, should the user enable cross realm trust.
+
+    * `cross_realm_trust_shared_password_uri` - (Optional) The Cloud Storage URI of a KMS
+       encrypted file containing the shared password between the on-cluster Kerberos realm
+       and the remote trusted realm, in a cross realm trust relationship.
+
+    * `enable_kerberos` - (Optional) Flag to indicate whether to Kerberize the cluster.
+
+    * `kdc_db_key_uri` - (Optional) The Cloud Storage URI of a KMS encrypted file containing
+       the master key of the KDC database.
+
+    * `key_password_uri` - (Optional) The Cloud Storage URI of a KMS encrypted file containing
+       the password to the user provided key. For the self-signed certificate, this password
+       is generated by Dataproc.
+
+    * `keystore_uri` - (Optional) The Cloud Storage URI of the keystore file used for SSL encryption.
+       If not provided, Dataproc will provide a self-signed certificate.
+
+    * `keystore_password_uri` - (Optional) The Cloud Storage URI of a KMS encrypted file containing
+       the password to the user provided keystore. For the self-signed certificated, the password
+       is generated by Dataproc.
+
+    * `kms_key_uri` - (Required) The URI of the KMS key used to encrypt various sensitive files.
+
+    * `realm` - (Optional) The name of the on-cluster Kerberos realm. If not specified, the
+       uppercased domain of hostnames will be the realm.
+
+    * `root_principal_password_uri` - (Required) The Cloud Storage URI of a KMS encrypted file
+       containing the root principal password.
+
+    * `tgt_lifetime_hours` - (Optional) The lifetime of the ticket granting ticket, in hours.
+
+    * `truststore_password_uri` - (Optional) The Cloud Storage URI of a KMS encrypted file
+       containing the password to the user provided truststore. For the self-signed
+       certificate, this password is generated by Dataproc.
+
+    * `truststore_uri` - (Optional) The Cloud Storage URI of the truststore file used for
+       SSL encryption. If not provided, Dataproc will provide a self-signed certificate.
+
+- - -
+
+The `cluster_config.autoscaling_config` block supports:
+
+```hcl
+cluster_config {
+  # Override or set some custom properties
+  autoscaling_config {
+    policy_uri = "projects/projectId/locations/region/autoscalingPolicies/policyId"
+  }
+}
+```
+
+* `policy_uri` - (Required) The autoscaling policy used by the cluster.
+
+Only resource names including projectid and location (region) are valid. Examples:
+
+`https://www.googleapis.com/compute/v1/projects/[projectId]/locations/[dataproc_region]/autoscalingPolicies/[policy_id]`
+`projects/[projectId]/locations/[dataproc_region]/autoscalingPolicies/[policy_id]`
+Note that the policy must be in the same project and Cloud Dataproc region.
+
+- - -
+
 The `initialization_action` block (Optional) can be specified multiple times and supports:
 
 ```hcl
-    cluster_config {
-        # You can define multiple initialization_action blocks
-        initialization_action {
-            script      = "gs://dataproc-initialization-actions/stackdriver/stackdriver.sh"
-            timeout_sec = 500
-        }
-    }
+cluster_config {
+  # You can define multiple initialization_action blocks
+  initialization_action {
+    script      = "gs://dataproc-initialization-actions/stackdriver/stackdriver.sh"
+    timeout_sec = 500
+  }
+}
 ```
 
 * `script`- (Required) The script to be executed during initialization of the cluster.
@@ -451,16 +542,35 @@ The `initialization_action` block (Optional) can be specified multiple times and
 The `encryption_config` block supports:
 
 ```hcl
-    cluster_config {
-        encryption_config {
-            kms_key_name = "projects/projectId/locations/region/keyRings/keyRingName/cryptoKeys/keyName"
-        }
-    }
+cluster_config {
+  encryption_config {
+    kms_key_name = "projects/projectId/locations/region/keyRings/keyRingName/cryptoKeys/keyName"
+  }
 }
 ```
 
 * `kms_key_name` - (Required) The Cloud KMS key name to use for PD disk encryption for
    all instances in the cluster.
+
+- - -
+
+The `lifecycle_config` block supports:
+
+```hcl
+cluster_config {
+  lifecycle_config {
+    idle_delete_ttl = "10m"
+    auto_delete_time = "2120-01-01T12:00:00.01Z"
+  }
+}
+```
+
+* `idle_delete_ttl` - (Optional) The duration to keep the cluster alive while idling
+  (no jobs running). After this TTL, the cluster will be deleted. Valid range: [10m, 14d].
+
+* `auto_delete_time` - (Optional) The time when cluster will be auto-deleted.
+  A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds.
+  Example: "2014-10-02T15:01:23.045123456Z".
 
 ## Attributes Reference
 
@@ -483,6 +593,8 @@ exported:
 * `cluster_config.0.software_config.0.properties` - A list of the properties used to set the daemon config files.
    This will include any values supplied by the user via `cluster_config.software_config.override_properties`
 
+* `cluster_config.0.lifecycle_config.0.idle_start_time` - Time when the cluster became idle
+  (most recent job finished) and became eligible for deletion due to idleness.
 
 ## Timeouts
 

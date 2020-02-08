@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Stackdriver Monitoring"
 layout: "google"
 page_title: "Google: google_monitoring_uptime_check_config"
 sidebar_current: "docs-google-monitoring-uptime-check-config"
@@ -41,11 +42,44 @@ To get more information about UptimeCheckConfig, see:
 ```hcl
 resource "google_monitoring_uptime_check_config" "http" {
   display_name = "http-uptime-check"
-  timeout = "60s"
+  timeout      = "60s"
 
   http_check {
     path = "/some-path"
     port = "8010"
+  }
+
+  monitored_resource {
+    type = "uptime_url"
+    labels = {
+      project_id = "my-project-name"
+      host       = "192.168.1.1"
+    }
+  }
+
+  content_matchers {
+    content = "example"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=uptime_check_config_https&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Uptime Check Config Https
+
+
+```hcl
+resource "google_monitoring_uptime_check_config" "https" {
+  display_name = "https-uptime-check"
+  timeout = "60s"
+
+  http_check {
+    path = "/some-path"
+    port = "443"
+    use_ssl = true
+    validate_ssl = true
   }
 
   monitored_resource {
@@ -72,7 +106,7 @@ resource "google_monitoring_uptime_check_config" "http" {
 ```hcl
 resource "google_monitoring_uptime_check_config" "tcp_group" {
   display_name = "tcp-uptime-check"
-  timeout = "60s"
+  timeout      = "60s"
 
   tcp_check {
     port = 888
@@ -80,14 +114,13 @@ resource "google_monitoring_uptime_check_config" "tcp_group" {
 
   resource_group {
     resource_type = "INSTANCE"
-    group_id = "${google_monitoring_group.check.name}"
+    group_id      = google_monitoring_group.check.name
   }
 }
 
-
 resource "google_monitoring_group" "check" {
   display_name = "uptime-check-group"
-  filter = "resource.metadata.name=has_substring(\"foo\")"
+  filter       = "resource.metadata.name=has_substring(\"foo\")"
 }
 ```
 
@@ -143,7 +176,7 @@ The following arguments are supported:
 The `content_matchers` block supports:
 
 * `content` -
-  (Optional)
+  (Required)
   String or regex content to match (max 1024 bytes)
 
 The `http_check` block supports:
@@ -168,6 +201,10 @@ The `http_check` block supports:
   (Optional)
   If true, use HTTPS instead of HTTP to run the check.
 
+* `validate_ssl` -
+  (Optional)
+  Boolean specifying whether to include SSL certificate validation as a part of the Uptime check. Only applies to checks where monitoredResource is set to uptime_url. If useSsl is false, setting validateSsl to true has no effect.
+
 * `mask_headers` -
   (Optional)
   Boolean specifying whether to encrypt the header information. Encryption should be specified for any headers related to authentication that you do not wish to be seen when retrieving the configuration. The server will be responsible for encrypting the headers. On Get/List calls, if mask_headers is set to True then the headers will be obscured with ******.
@@ -176,11 +213,11 @@ The `http_check` block supports:
 The `auth_info` block supports:
 
 * `password` -
-  (Optional)
+  (Required)
   The password to authenticate.
 
 * `username` -
-  (Optional)
+  (Required)
   The username to authenticate.
 
 The `tcp_check` block supports:
@@ -213,6 +250,7 @@ The `monitored_resource` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   A unique resource name for this UptimeCheckConfig. The format is projects/[PROJECT_ID]/uptimeCheckConfigs/[UPTIME_CHECK_ID].
@@ -243,4 +281,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

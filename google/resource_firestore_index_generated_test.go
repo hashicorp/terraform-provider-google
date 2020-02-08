@@ -53,7 +53,7 @@ func TestAccFirestoreIndex_firestoreIndexBasicExample(t *testing.T) {
 func testAccFirestoreIndex_firestoreIndexBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_firestore_index" "my-index" {
-  project    = "%{project_id}"
+  project = "%{project_id}"
 
   collection = "chatrooms"
 

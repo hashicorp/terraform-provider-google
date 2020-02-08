@@ -51,12 +51,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionPullExample(t *testing.T) {
 func testAccPubsubSubscription_pubsubSubscriptionPullExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "example-topic%{random_suffix}"
+  name = "tf-test-example-topic%{random_suffix}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "example-subscription%{random_suffix}"
-  topic = "${google_pubsub_topic.example.name}"
+  name  = "tf-test-example-subscription%{random_suffix}"
+  topic = google_pubsub_topic.example.name
 
   labels = {
     foo = "bar"
@@ -64,7 +64,7 @@ resource "google_pubsub_subscription" "example" {
 
   # 20 minutes
   message_retention_duration = "1200s"
-  retain_acked_messages = true
+  retain_acked_messages      = true
 
   ack_deadline_seconds = 20
 

@@ -13,7 +13,7 @@ func TestAccComputeProjectDefaultNetworkTier_basic(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	projectID := "terraform-test-" + acctest.RandString(10)
+	projectID := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -36,7 +36,7 @@ func TestAccComputeProjectDefaultNetworkTier_modify(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	projectID := "terraform-test-" + acctest.RandString(10)
+	projectID := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -73,15 +73,16 @@ resource "google_project" "project" {
 }
 
 resource "google_project_service" "compute" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
   service = "compute.googleapis.com"
 }
 
 resource "google_compute_project_default_network_tier" "fizzbuzz" {
-  project      = "${google_project.project.project_id}"
+  project      = google_project.project.project_id
   network_tier = "PREMIUM"
-  depends_on   = ["google_project_service.compute"]
-}`, projectID, name, org, billing)
+  depends_on   = [google_project_service.compute]
+}
+`, projectID, name, org, billing)
 }
 
 func testAccComputeProject_defaultNetworkTier_standard(projectID, name, org, billing string) string {
@@ -94,13 +95,14 @@ resource "google_project" "project" {
 }
 
 resource "google_project_service" "compute" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
   service = "compute.googleapis.com"
 }
 
 resource "google_compute_project_default_network_tier" "fizzbuzz" {
-  project      = "${google_project.project.project_id}"
+  project      = google_project.project.project_id
   network_tier = "STANDARD"
-  depends_on   = ["google_project_service.compute"]
-}`, projectID, name, org, billing)
+  depends_on   = [google_project_service.compute]
+}
+`, projectID, name, org, billing)
 }

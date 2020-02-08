@@ -68,7 +68,23 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccBigtableInstance_cluster_reordered(instanceName, 5),
+				Config: testAccBigtableInstance_clusterReordered(instanceName, 5),
+			},
+			{
+				ResourceName:      "google_bigtable_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccBigtableInstance_clusterModified(instanceName, 5),
+			},
+			{
+				ResourceName:      "google_bigtable_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccBigtableInstance_clusterReordered(instanceName, 5),
 			},
 			{
 				ResourceName:      "google_bigtable_instance.instance",
@@ -136,13 +152,13 @@ func testAccCheckBigtableInstanceDestroy(s *terraform.State) error {
 func testAccBigtableInstance(instanceName string, numNodes int) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-	name = "%s"
-	cluster {
-		cluster_id   = "%s"
-		zone         = "us-central1-b"
-		num_nodes    = %d
-		storage_type = "HDD"
-	}
+  name = "%s"
+  cluster {
+    cluster_id   = "%s"
+    zone         = "us-central1-b"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
 }
 `, instanceName, instanceName, numNodes)
 }
@@ -150,7 +166,7 @@ resource "google_bigtable_instance" "instance" {
 func testAccBigtableInstance_invalid(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-	name = "%s"
+  name = "%s"
 }
 `, instanceName)
 }
@@ -158,31 +174,31 @@ resource "google_bigtable_instance" "instance" {
 func testAccBigtableInstance_cluster(instanceName string, numNodes int) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-	name = "%s"
-	cluster {
-		cluster_id   = "%s-a"
-		zone         = "us-central1-a"
-		num_nodes    = %d
-		storage_type = "HDD"
-	}
-	cluster {
-		cluster_id   = "%s-b"
-		zone         = "us-central1-b"
-		num_nodes    = %d
-		storage_type = "HDD"
-	}
-	cluster {
-		cluster_id   = "%s-c"
-		zone         = "us-central1-c"
-		num_nodes    = %d
-		storage_type = "HDD"
-	}
-	cluster {
-		cluster_id   = "%s-d"
-		zone         = "us-central1-f"
-		num_nodes    = %d
-		storage_type = "HDD"
-	}
+  name = "%s"
+  cluster {
+    cluster_id   = "%s-a"
+    zone         = "us-central1-a"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-b"
+    zone         = "us-central1-b"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-c"
+    zone         = "us-central1-c"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-d"
+    zone         = "us-central1-f"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
 }
 `, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
 }
@@ -190,82 +206,108 @@ resource "google_bigtable_instance" "instance" {
 func testAccBigtableInstance_clusterMax(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-	name = "%s"
-	cluster {
-		cluster_id   = "%s-a"
-		zone         = "us-central1-a"
-		num_nodes    = 3
-		storage_type = "HDD"
-	}
-	cluster {
-		cluster_id   = "%s-b"
-		zone         = "us-central1-b"
-		num_nodes    = 3
-		storage_type = "HDD"
-	}
-	cluster {
-		cluster_id   = "%s-c"
-		zone         = "us-central1-c"
-		num_nodes    = 3
-		storage_type = "HDD"
-	}
-	cluster {
-		cluster_id   = "%s-d"
-		zone         = "us-central1-f"
-		num_nodes    = 3
-		storage_type = "HDD"
-	}
-	cluster {
-		cluster_id   = "%s-e"
-		zone         = "us-east1-a"
-		num_nodes    = 3
-		storage_type = "HDD"
-	}
+  name = "%s"
+  cluster {
+    cluster_id   = "%s-a"
+    zone         = "us-central1-a"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-b"
+    zone         = "us-central1-b"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-c"
+    zone         = "us-central1-c"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-d"
+    zone         = "us-central1-f"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-e"
+    zone         = "us-east1-a"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
 }
 `, instanceName, instanceName, instanceName, instanceName, instanceName, instanceName)
 }
 
-func testAccBigtableInstance_cluster_reordered(instanceName string, numNodes int) string {
+func testAccBigtableInstance_clusterReordered(instanceName string, numNodes int) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-	name = "%s"
-	cluster {
-		cluster_id   = "%s-c"
-		zone         = "us-central1-c"
-		num_nodes    = %d
-		storage_type = "HDD"
-	}
-	cluster {
-		cluster_id   = "%s-d"
-		zone         = "us-central1-f"
-		num_nodes    = %d
-		storage_type = "HDD"
-	}
-	cluster {
-		cluster_id   = "%s-a"
-		zone         = "us-central1-a"
-		num_nodes    = %d
-		storage_type = "HDD"
-	}
-	cluster {
-		cluster_id   = "%s-b"
-		zone         = "us-central1-b"
-		num_nodes    = %d
-		storage_type = "HDD"
-	}
+  name = "%s"
+  cluster {
+    cluster_id   = "%s-c"
+    zone         = "us-central1-c"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-d"
+    zone         = "us-central1-f"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-a"
+    zone         = "us-central1-a"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-b"
+    zone         = "us-central1-b"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
 }
 `, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
+}
+
+func testAccBigtableInstance_clusterModified(instanceName string, numNodes int) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "%s"
+  cluster {
+    cluster_id   = "%s-c"
+    zone         = "us-central1-c"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-a"
+    zone         = "us-central1-a"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+  cluster {
+    cluster_id   = "%s-b"
+    zone         = "us-central1-b"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+}
+`, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
 }
 
 func testAccBigtableInstance_development(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-	name = "%s"
-	cluster {
-		cluster_id    = "%s"
-		zone          = "us-central1-b"
-	}
-	instance_type = "DEVELOPMENT"
+  name = "%s"
+  cluster {
+    cluster_id = "%s"
+    zone       = "us-central1-b"
+  }
+  instance_type = "DEVELOPMENT"
 }
 `, instanceName, instanceName)
 }
@@ -273,13 +315,13 @@ resource "google_bigtable_instance" "instance" {
 func testAccBigtableInstance_development_invalid_num_nodes(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-	name = "%s"
-	cluster {
-		cluster_id    = "%s"
-		zone          = "us-central1-b"
-        num_nodes     = 3
-	}
-	instance_type = "DEVELOPMENT"
+  name = "%s"
+  cluster {
+    cluster_id = "%s"
+    zone       = "us-central1-b"
+    num_nodes  = 3
+  }
+  instance_type = "DEVELOPMENT"
 }
 `, instanceName, instanceName)
 }
@@ -287,8 +329,8 @@ resource "google_bigtable_instance" "instance" {
 func testAccBigtableInstance_development_invalid_no_cluster(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-	name = "%s"
-	instance_type = "DEVELOPMENT"
+  name          = "%s"
+  instance_type = "DEVELOPMENT"
 }
 `, instanceName)
 }

@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Storage"
 layout: "google"
 page_title: "Google: google_storage_notification"
 sidebar_current: "docs-google-storage-notification"
@@ -24,35 +25,35 @@ for an example of enabling notifications by granting the correct IAM permission.
 
 ```hcl
 resource "google_storage_notification" "notification" {
-	bucket            = "${google_storage_bucket.bucket.name}"
-	payload_format    = "JSON_API_V1"
-	topic             = "${google_pubsub_topic.topic.name}"
-	event_types       = ["OBJECT_FINALIZE", "OBJECT_METADATA_UPDATE"]
-	custom_attributes = {
-		new-attribute = "new-attribute-value"
-	}
-	depends_on        = ["google_pubsub_topic_iam_binding.binding"]
+  bucket         = google_storage_bucket.bucket.name
+  payload_format = "JSON_API_V1"
+  topic          = google_pubsub_topic.topic.id
+  event_types    = ["OBJECT_FINALIZE", "OBJECT_METADATA_UPDATE"]
+  custom_attributes = {
+    new-attribute = "new-attribute-value"
+  }
+  depends_on = [google_pubsub_topic_iam_binding.binding]
 }
 
 // Enable notifications by giving the correct IAM permission to the unique service account.
 
-data "google_storage_project_service_account" "gcs_account" {}
+data "google_storage_project_service_account" "gcs_account" {
+}
 
 resource "google_pubsub_topic_iam_binding" "binding" {
-	topic       = "${google_pubsub_topic.topic.name}"
-	role        = "roles/pubsub.publisher"
-	members     = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
+  topic   = google_pubsub_topic.topic.id
+  role    = "roles/pubsub.publisher"
+  members = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
 }
 
 // End enabling notifications
 
-
 resource "google_storage_bucket" "bucket" {
-	name = "default_bucket"
+  name = "default_bucket"
 }
 
 resource "google_pubsub_topic" "topic" {
-	name = "default_topic"
+  name = "default_topic"
 }
 ```
 
@@ -66,7 +67,8 @@ The following arguments are supported:
 
 * `topic` - (Required) The Cloud PubSub topic to which this subscription publishes. Expects either the 
     topic name, assumed to belong to the default GCP provider project, or the project-level name, 
-    i.e. `projects/my-gcp-project/topics/my-topic` or `my-topic`.
+    i.e. `projects/my-gcp-project/topics/my-topic` or `my-topic`. If the project is not set in the provider,
+    you will need to use the project-level name.
     
 - - -
 
@@ -80,6 +82,8 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
+
+* `notification_id` - The ID of the created notification.
 
 * `self_link` - The URI of the created resource.
 

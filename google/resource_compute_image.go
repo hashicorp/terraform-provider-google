@@ -23,7 +23,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeImage() *schema.Resource {
@@ -48,69 +47,98 @@ func resourceComputeImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Name of the resource; provided by the client when the resource is
+created. The name must be 1-63 characters long, and comply with
+RFC1035. Specifically, the name must be 1-63 characters long and
+match the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means
+the first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the
+last character, which cannot be a dash.`,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Description: `An optional description of this resource. Provide this property when
+you create the resource.`,
 			},
 			"disk_size_gb": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Size of the image when restored onto a persistent disk (in GB).`,
 			},
 			"family": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Description: `The name of the image family to which this image belongs. You can
+create disks by specifying an image family instead of a specific
+image name. The image family always returns its latest image that is
+not deprecated. The name of the image family must comply with
+RFC1035.`,
 			},
 			"guest_os_features": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
-				Elem:     computeImageGuestOsFeaturesSchema(),
+				Description: `A list of features to enable on the guest operating system.
+Applicable only for bootable images.`,
+				Elem: computeImageGuestOsFeaturesSchema(),
 				// Default schema.HashSchema is used.
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Labels to apply to this Image.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"licenses": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Any applicable license URI.`,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
 				},
 			},
 			"raw_disk": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The parameters of the raw disk image.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"source": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
+							Description: `The full Google Cloud Storage URL where disk storage is stored
+You must provide either this property or the sourceDisk property
+but not both.`,
 						},
 						"container_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"TAR", ""}, false),
-							Default:      "TAR",
+							Description: `The format used to encode and transmit the block device, which
+should be TAR. This is just a container and transmission format
+and not a runtime format. Provided by the client when the disk
+image is created.`,
+							Default: "TAR",
 						},
 						"sha1": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
+							Description: `An optional SHA1 checksum of the disk image before unpackaging.
+This is provided by the client when the disk image is created.`,
 						},
 					},
 				},
@@ -120,18 +148,26 @@ func resourceComputeImage() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The source disk to create this image based on.
+You must provide either this property or the
+rawDisk.source property but not both to create an image.`,
 			},
 			"archive_size_bytes": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				Description: `Size of the image tar.gz archive stored in Google Cloud Storage (in
+bytes).`,
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"label_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `The fingerprint used for optimistic locking of this resource. Used
+internally during updates.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -152,9 +188,10 @@ func computeImageGuestOsFeaturesSchema() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"type": {
 				Type:         schema.TypeString,
-				Optional:     true,
+				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"MULTI_IP_SUBNET", "SECURE_BOOT", "UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"MULTI_IP_SUBNET", "SECURE_BOOT", "UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS"}, false),
+				Description:  `The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.`,
 			},
 		},
 	}
@@ -241,26 +278,20 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/images/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating Image",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating Image",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Image: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Image: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Image %q: %#v", d.Id(), res)
@@ -289,37 +320,37 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 
-	if err := d.Set("archive_size_bytes", flattenComputeImageArchiveSizeBytes(res["archiveSizeBytes"], d)); err != nil {
+	if err := d.Set("archive_size_bytes", flattenComputeImageArchiveSizeBytes(res["archiveSizeBytes"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
-	if err := d.Set("creation_timestamp", flattenComputeImageCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeImageCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
-	if err := d.Set("description", flattenComputeImageDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeImageDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
-	if err := d.Set("disk_size_gb", flattenComputeImageDiskSizeGb(res["diskSizeGb"], d)); err != nil {
+	if err := d.Set("disk_size_gb", flattenComputeImageDiskSizeGb(res["diskSizeGb"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
-	if err := d.Set("family", flattenComputeImageFamily(res["family"], d)); err != nil {
+	if err := d.Set("family", flattenComputeImageFamily(res["family"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
-	if err := d.Set("guest_os_features", flattenComputeImageGuestOsFeatures(res["guestOsFeatures"], d)); err != nil {
+	if err := d.Set("guest_os_features", flattenComputeImageGuestOsFeatures(res["guestOsFeatures"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
-	if err := d.Set("labels", flattenComputeImageLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenComputeImageLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
-	if err := d.Set("label_fingerprint", flattenComputeImageLabelFingerprint(res["labelFingerprint"], d)); err != nil {
+	if err := d.Set("label_fingerprint", flattenComputeImageLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
-	if err := d.Set("licenses", flattenComputeImageLicenses(res["licenses"], d)); err != nil {
+	if err := d.Set("licenses", flattenComputeImageLicenses(res["licenses"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
-	if err := d.Set("name", flattenComputeImageName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeImageName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
-	if err := d.Set("source_disk", flattenComputeImageSourceDisk(res["sourceDisk"], d)); err != nil {
+	if err := d.Set("source_disk", flattenComputeImageSourceDisk(res["sourceDisk"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -364,16 +395,9 @@ func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error 
 			return fmt.Errorf("Error updating Image %q: %s", d.Id(), err)
 		}
 
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
 		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating Image",
+			config, res, project, "Updating Image",
 			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
 		if err != nil {
 			return err
 		}
@@ -408,14 +432,8 @@ func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error 
 		return handleNotFoundError(err, d, "Image")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting Image",
+		config, res, project, "Deleting Image",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -437,7 +455,7 @@ func resourceComputeImageImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/images/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -446,7 +464,7 @@ func resourceComputeImageImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeImageArchiveSizeBytes(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeImageArchiveSizeBytes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -456,15 +474,15 @@ func flattenComputeImageArchiveSizeBytes(v interface{}, d *schema.ResourceData) 
 	return v
 }
 
-func flattenComputeImageCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeImageCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeImageDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeImageDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeImageDiskSizeGb(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeImageDiskSizeGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -474,11 +492,11 @@ func flattenComputeImageDiskSizeGb(v interface{}, d *schema.ResourceData) interf
 	return v
 }
 
-func flattenComputeImageFamily(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeImageFamily(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeImageGuestOsFeatures(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeImageGuestOsFeatures(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -491,35 +509,35 @@ func flattenComputeImageGuestOsFeatures(v interface{}, d *schema.ResourceData) i
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"type": flattenComputeImageGuestOsFeaturesType(original["type"], d),
+			"type": flattenComputeImageGuestOsFeaturesType(original["type"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeImageGuestOsFeaturesType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeImageGuestOsFeaturesType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeImageLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeImageLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeImageLabelFingerprint(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeImageLabelFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeImageLicenses(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeImageLicenses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
-func flattenComputeImageName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeImageName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeImageSourceDisk(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeImageSourceDisk(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

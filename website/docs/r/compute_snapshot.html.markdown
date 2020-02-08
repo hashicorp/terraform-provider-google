@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_snapshot"
 sidebar_current: "docs-google-compute-snapshot"
@@ -51,25 +52,25 @@ To get more information about Snapshot, see:
 
 ```hcl
 resource "google_compute_snapshot" "snapshot" {
-	name = "my-snapshot"
-	source_disk = "${google_compute_disk.persistent.name}"
-	zone = "us-central1-a"
-	labels = {
-		my_label = "value"
-	}
+  name        = "my-snapshot"
+  source_disk = google_compute_disk.persistent.name
+  zone        = "us-central1-a"
+  labels = {
+    my_label = "value"
+  }
 }
 
 data "google_compute_image" "debian" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "persistent" {
-	name = "debian-disk"
-	image = "${data.google_compute_image.debian.self_link}"
-	size = 10
-	type = "pd-ssd"
-	zone = "us-central1-a"
+  name  = "debian-disk"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
 }
 ```
 
@@ -126,7 +127,7 @@ The following arguments are supported:
 The `snapshot_encryption_key` block supports:
 
 * `raw_key` -
-  (Optional)
+  (Required)
   Specifies a 256-bit customer-supplied encryption key, encoded in
   RFC 4648 base64 to either encrypt or decrypt this resource.
 
@@ -145,6 +146,7 @@ The `source_disk_encryption_key` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/snapshots/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -196,4 +198,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

@@ -110,6 +110,15 @@ func TestAccIapWebTypeAppEngineIamPolicyGenerated(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccIapWebTypeAppEngineIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_iap_web_type_app_engine_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s", context["project_id"], context["project_id"]),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -117,26 +126,26 @@ func TestAccIapWebTypeAppEngineIamPolicyGenerated(t *testing.T) {
 func testAccIapWebTypeAppEngineIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "my_project" {
-	name       = "%{project_id}"
-	project_id = "%{project_id}"
-	org_id     = "%{org_id}"
+  name       = "%{project_id}"
+  project_id = "%{project_id}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.my_project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.my_project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_app_engine_application" "app" {
-	project     = "${google_project_service.project_service.project}"
-	location_id = "us-central"
+  project     = google_project_service.project_service.project
+  location_id = "us-central"
 }
 
 resource "google_iap_web_type_app_engine_iam_member" "foo" {
-	project = "${google_app_engine_application.app.project}"
-	app_id = "${google_app_engine_application.app.app_id}"
-	role = "%{role}"
-	member = "user:admin@hashicorptest.com"
+  project = google_app_engine_application.app.project
+  app_id = google_app_engine_application.app.app_id
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -144,32 +153,61 @@ resource "google_iap_web_type_app_engine_iam_member" "foo" {
 func testAccIapWebTypeAppEngineIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "my_project" {
-	name       = "%{project_id}"
-	project_id = "%{project_id}"
-	org_id     = "%{org_id}"
+  name       = "%{project_id}"
+  project_id = "%{project_id}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.my_project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.my_project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_app_engine_application" "app" {
-	project     = "${google_project_service.project_service.project}"
-	location_id = "us-central"
+  project     = google_project_service.project_service.project
+  location_id = "us-central"
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%{role}"
-		members = ["user:admin@hashicorptest.com"]
-	}
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+  }
 }
 
 resource "google_iap_web_type_app_engine_iam_policy" "foo" {
-	project = "${google_app_engine_application.app.project}"
-	app_id = "${google_app_engine_application.app.app_id}"
-	policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = google_app_engine_application.app.project
+  app_id = google_app_engine_application.app.app_id
+  policy_data = data.google_iam_policy.foo.policy_data
+}
+`, context)
+}
+
+func testAccIapWebTypeAppEngineIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_project" "my_project" {
+  name       = "%{project_id}"
+  project_id = "%{project_id}"
+  org_id     = "%{org_id}"
+}
+
+resource "google_project_service" "project_service" {
+  project = google_project.my_project.project_id
+  service = "iap.googleapis.com"
+}
+
+resource "google_app_engine_application" "app" {
+  project     = google_project_service.project_service.project
+  location_id = "us-central"
+}
+
+data "google_iam_policy" "foo" {
+}
+
+resource "google_iap_web_type_app_engine_iam_policy" "foo" {
+  project = google_app_engine_application.app.project
+  app_id = google_app_engine_application.app.app_id
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -177,26 +215,26 @@ resource "google_iap_web_type_app_engine_iam_policy" "foo" {
 func testAccIapWebTypeAppEngineIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "my_project" {
-	name       = "%{project_id}"
-	project_id = "%{project_id}"
-	org_id     = "%{org_id}"
+  name       = "%{project_id}"
+  project_id = "%{project_id}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.my_project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.my_project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_app_engine_application" "app" {
-	project     = "${google_project_service.project_service.project}"
-	location_id = "us-central"
+  project     = google_project_service.project_service.project
+  location_id = "us-central"
 }
 
 resource "google_iap_web_type_app_engine_iam_binding" "foo" {
-	project = "${google_app_engine_application.app.project}"
-	app_id = "${google_app_engine_application.app.app_id}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com"]
+  project = google_app_engine_application.app.project
+  app_id = google_app_engine_application.app.app_id
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -204,26 +242,26 @@ resource "google_iap_web_type_app_engine_iam_binding" "foo" {
 func testAccIapWebTypeAppEngineIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "my_project" {
-	name       = "%{project_id}"
-	project_id = "%{project_id}"
-	org_id     = "%{org_id}"
+  name       = "%{project_id}"
+  project_id = "%{project_id}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.my_project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.my_project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_app_engine_application" "app" {
-	project     = "${google_project_service.project_service.project}"
-	location_id = "us-central"
+  project     = google_project_service.project_service.project
+  location_id = "us-central"
 }
 
 resource "google_iap_web_type_app_engine_iam_binding" "foo" {
-	project = "${google_app_engine_application.app.project}"
-	app_id = "${google_app_engine_application.app.app_id}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  project = google_app_engine_application.app.project
+  app_id = google_app_engine_application.app.app_id
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }

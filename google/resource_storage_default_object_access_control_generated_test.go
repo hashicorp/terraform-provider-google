@@ -52,13 +52,13 @@ func TestAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlP
 func testAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlPublicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_default_object_access_control" "public_rule" {
-  bucket = "${google_storage_bucket.bucket.name}"
+  bucket = google_storage_bucket.bucket.name
   role   = "READER"
   entity = "allUsers"
 }
 
 resource "google_storage_bucket" "bucket" {
-	name = "static-content-bucket%{random_suffix}"
+  name = "tf-test-static-content-bucket%{random_suffix}"
 }
 `, context)
 }

@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud SQL"
 layout: "google"
 page_title: "Google: google_sql_ssl_cert"
 sidebar_current: "docs-google-sql-ssl-cert"
@@ -26,13 +27,13 @@ resource "google_sql_database_instance" "master" {
   name = "master-instance-${random_id.db_name_suffix.hex}"
 
   settings {
-    tier = "D0"
+    tier = "db-f1-micro"
   }
 }
 
 resource "google_sql_ssl_cert" "client_cert" {
   common_name = "client-name"
-  instance    = "${google_sql_database_instance.master.name}"
+  instance    = google_sql_database_instance.master.name
 }
 ```
 

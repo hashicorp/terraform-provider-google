@@ -288,7 +288,7 @@ resource "google_folder" "acceptance" {
 }
 
 resource "google_folder_iam_binding" "acceptance" {
-  folder = "${google_folder.acceptance.name}"
+  folder  = google_folder.acceptance.name
   members = ["user:admin@hashicorptest.com"]
   role    = "roles/compute.instanceAdmin"
 }
@@ -303,13 +303,13 @@ resource "google_folder" "acceptance" {
 }
 
 resource "google_folder_iam_binding" "acceptance" {
-  folder = "${google_folder.acceptance.name}"
+  folder  = google_folder.acceptance.name
   members = ["user:admin@hashicorptest.com"]
   role    = "roles/compute.instanceAdmin"
 }
 
 resource "google_folder_iam_binding" "multiple" {
-  folder = "${google_folder.acceptance.name}"
+  folder  = google_folder.acceptance.name
   members = ["user:paddy@hashicorp.com"]
   role    = "roles/viewer"
 }
@@ -324,7 +324,7 @@ resource "google_folder" "acceptance" {
 }
 
 resource "google_folder_iam_binding" "acceptance" {
-  folder = "${google_folder.acceptance.name}"
+  folder  = google_folder.acceptance.name
   members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
   role    = "roles/compute.instanceAdmin"
 }
@@ -339,7 +339,7 @@ resource "google_folder" "acceptance" {
 }
 
 resource "google_folder_iam_binding" "acceptance" {
-  folder = "${google_folder.acceptance.name}"
+  folder  = google_folder.acceptance.name
   members = ["user:paddy@hashicorp.com"]
   role    = "roles/compute.instanceAdmin"
 }

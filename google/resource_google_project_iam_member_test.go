@@ -22,7 +22,7 @@ func TestAccProjectIamMember_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	resourceName := "google_project_iam_member.acceptance"
 	role := "roles/compute.instanceAdmin"
 	member := "user:admin@hashicorptest.com"
@@ -53,7 +53,7 @@ func TestAccProjectIamMember_multiple(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	resourceName := "google_project_iam_member.acceptance"
 	resourceName2 := "google_project_iam_member.multiple"
 	role := "roles/compute.instanceAdmin"
@@ -94,7 +94,7 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	skipIfEnvNotSet(t, "GOOGLE_ORG")
 
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	resourceName := "google_project_iam_member.acceptance"
 	role := "roles/compute.instanceAdmin"
 	member := "user:admin@hashicorptest.com"
@@ -139,7 +139,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_member" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   role    = "%s"
   member  = "%s"
 }
@@ -155,13 +155,13 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_member" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   role    = "%s"
   member  = "%s"
 }
 
 resource "google_project_iam_member" "multiple" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   role    = "%s"
   member  = "%s"
 }

@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_target_ssl_proxy"
 sidebar_current: "docs-google-compute-target-ssl-proxy"
@@ -45,20 +46,20 @@ To get more information about TargetSslProxy, see:
 ```hcl
 resource "google_compute_target_ssl_proxy" "default" {
   name             = "test-proxy"
-  backend_service  = "${google_compute_backend_service.default.self_link}"
-  ssl_certificates = ["${google_compute_ssl_certificate.default.self_link}"]
+  backend_service  = google_compute_backend_service.default.self_link
+  ssl_certificates = [google_compute_ssl_certificate.default.self_link]
 }
 
 resource "google_compute_ssl_certificate" "default" {
   name        = "default-cert"
-  private_key = "${file("path/to/private.key")}"
-  certificate = "${file("path/to/certificate.crt")}"
+  private_key = file("path/to/private.key")
+  certificate = file("path/to/certificate.crt")
 }
 
 resource "google_compute_backend_service" "default" {
   name          = "backend-service"
   protocol      = "SSL"
-  health_checks = ["${google_compute_health_check.default.self_link}"]
+  health_checks = [google_compute_health_check.default.self_link]
 }
 
 resource "google_compute_health_check" "default" {
@@ -123,6 +124,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/targetSslProxies/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -156,4 +158,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

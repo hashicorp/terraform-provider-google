@@ -15,7 +15,45 @@ import (
 	dataproc "google.golang.org/api/dataproc/v1beta2"
 )
 
-var resolveDataprocImageVersion = regexp.MustCompile(`(?P<Major>[^\s.-]+)\.(?P<Minor>[^\s.-]+)(?:\.(?P<Subminor>[^\s.-]+))?(?:\-(?P<Distr>[^\s.-]+))?`)
+var (
+	resolveDataprocImageVersion = regexp.MustCompile(`(?P<Major>[^\s.-]+)\.(?P<Minor>[^\s.-]+)(?:\.(?P<Subminor>[^\s.-]+))?(?:\-(?P<Distr>[^\s.-]+))?`)
+
+	gceClusterConfigKeys = []string{
+		"cluster_config.0.gce_cluster_config.0.zone",
+		"cluster_config.0.gce_cluster_config.0.network",
+		"cluster_config.0.gce_cluster_config.0.subnetwork",
+		"cluster_config.0.gce_cluster_config.0.tags",
+		"cluster_config.0.gce_cluster_config.0.service_account",
+		"cluster_config.0.gce_cluster_config.0.service_account_scopes",
+		"cluster_config.0.gce_cluster_config.0.internal_ip_only",
+		"cluster_config.0.gce_cluster_config.0.metadata",
+	}
+
+	preemptibleWorkerDiskConfigKeys = []string{
+		"cluster_config.0.preemptible_worker_config.0.disk_config.0.num_local_ssds",
+		"cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_size_gb",
+		"cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_type",
+	}
+
+	clusterSoftwareConfigKeys = []string{
+		"cluster_config.0.software_config.0.image_version",
+		"cluster_config.0.software_config.0.override_properties",
+		"cluster_config.0.software_config.0.optional_components",
+	}
+
+	clusterConfigKeys = []string{
+		"cluster_config.0.staging_bucket",
+		"cluster_config.0.gce_cluster_config",
+		"cluster_config.0.master_config",
+		"cluster_config.0.worker_config",
+		"cluster_config.0.preemptible_worker_config",
+		"cluster_config.0.security_config",
+		"cluster_config.0.software_config",
+		"cluster_config.0.initialization_action",
+		"cluster_config.0.encryption_config",
+		"cluster_config.0.autoscaling_config",
+	}
+)
 
 func resourceDataprocCluster() *schema.Resource {
 	return &schema.Resource{
@@ -90,18 +128,11 @@ func resourceDataprocCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
-						"delete_autogen_bucket": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
-							Removed: "If you need a bucket that can be deleted, please create" +
-								"a new one and set the `staging_bucket` field",
-						},
-
 						"staging_bucket": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							ForceNew:     true,
 						},
 						// If the user does not specify a staging bucket, GCP will allocate one automatically.
 						// The staging_bucket field provides a way for the user to supply their own
@@ -114,24 +145,27 @@ func resourceDataprocCluster() *schema.Resource {
 						},
 
 						"gce_cluster_config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							MaxItems: 1,
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							Computed:     true,
+							MaxItems:     1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
 									"zone": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										AtLeastOneOf: gceClusterConfigKeys,
+										ForceNew:     true,
 									},
 
 									"network": {
 										Type:             schema.TypeString,
 										Optional:         true,
 										Computed:         true,
+										AtLeastOneOf:     gceClusterConfigKeys,
 										ForceNew:         true,
 										ConflictsWith:    []string{"cluster_config.0.gce_cluster_config.0.subnetwork"},
 										DiffSuppressFunc: compareSelfLinkOrResourceName,
@@ -140,29 +174,33 @@ func resourceDataprocCluster() *schema.Resource {
 									"subnetwork": {
 										Type:             schema.TypeString,
 										Optional:         true,
+										AtLeastOneOf:     gceClusterConfigKeys,
 										ForceNew:         true,
 										ConflictsWith:    []string{"cluster_config.0.gce_cluster_config.0.network"},
 										DiffSuppressFunc: compareSelfLinkOrResourceName,
 									},
 
 									"tags": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										ForceNew: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Type:         schema.TypeSet,
+										Optional:     true,
+										AtLeastOneOf: gceClusterConfigKeys,
+										ForceNew:     true,
+										Elem:         &schema.Schema{Type: schema.TypeString},
 									},
 
 									"service_account": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
+										Type:         schema.TypeString,
+										Optional:     true,
+										AtLeastOneOf: gceClusterConfigKeys,
+										ForceNew:     true,
 									},
 
 									"service_account_scopes": {
-										Type:     schema.TypeSet,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Type:         schema.TypeSet,
+										Optional:     true,
+										Computed:     true,
+										AtLeastOneOf: gceClusterConfigKeys,
+										ForceNew:     true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 											StateFunc: func(v interface{}) string {
@@ -173,60 +211,74 @@ func resourceDataprocCluster() *schema.Resource {
 									},
 
 									"internal_ip_only": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										ForceNew: true,
-										Default:  false,
+										Type:         schema.TypeBool,
+										Optional:     true,
+										AtLeastOneOf: gceClusterConfigKeys,
+										ForceNew:     true,
+										Default:      false,
 									},
 
 									"metadata": {
-										Type:     schema.TypeMap,
-										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-										ForceNew: true,
+										Type:         schema.TypeMap,
+										Optional:     true,
+										AtLeastOneOf: gceClusterConfigKeys,
+										Elem:         &schema.Schema{Type: schema.TypeString},
+										ForceNew:     true,
 									},
 								},
 							},
 						},
 
-						"master_config": instanceConfigSchema(),
-						"worker_config": instanceConfigSchema(),
+						"master_config": instanceConfigSchema("master_config"),
+						"worker_config": instanceConfigSchema("worker_config"),
 						// preemptible_worker_config has a slightly different config
 						"preemptible_worker_config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							MaxItems: 1,
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							Computed:     true,
+							MaxItems:     1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"num_instances": {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Computed: true,
+										AtLeastOneOf: []string{
+											"cluster_config.0.preemptible_worker_config.0.num_instances",
+											"cluster_config.0.preemptible_worker_config.0.disk_config",
+										},
 									},
 
 									// API does not honour this if set ...
 									// It always uses whatever is specified for the worker_config
 									// "machine_type": { ... }
+									// "min_cpu_platform": { ... }
 									"disk_config": {
 										Type:     schema.TypeList,
 										Optional: true,
 										Computed: true,
+										AtLeastOneOf: []string{
+											"cluster_config.0.preemptible_worker_config.0.num_instances",
+											"cluster_config.0.preemptible_worker_config.0.disk_config",
+										},
 										MaxItems: 1,
 
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"num_local_ssds": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Computed: true,
-													ForceNew: true,
+													Type:         schema.TypeInt,
+													Optional:     true,
+													Computed:     true,
+													AtLeastOneOf: preemptibleWorkerDiskConfigKeys,
+													ForceNew:     true,
 												},
 
 												"boot_disk_size_gb": {
 													Type:         schema.TypeInt,
 													Optional:     true,
 													Computed:     true,
+													AtLeastOneOf: preemptibleWorkerDiskConfigKeys,
 													ForceNew:     true,
 													ValidateFunc: validation.IntAtLeast(10),
 												},
@@ -234,6 +286,7 @@ func resourceDataprocCluster() *schema.Resource {
 												"boot_disk_type": {
 													Type:         schema.TypeString,
 													Optional:     true,
+													AtLeastOneOf: preemptibleWorkerDiskConfigKeys,
 													ForceNew:     true,
 													ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd", ""}, false),
 													Default:      "pd-standard",
@@ -251,11 +304,111 @@ func resourceDataprocCluster() *schema.Resource {
 							},
 						},
 
+						"security_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Security related configuration",
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"kerberos_config": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "Kerberos related configuration",
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"cross_realm_trust_admin_server": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The admin server (IP or hostname) for the remote trusted realm in a cross realm trust relationship.`,
+												},
+												"cross_realm_trust_kdc": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The KDC (IP or hostname) for the remote trusted realm in a cross realm trust relationship.`,
+												},
+												"cross_realm_trust_realm": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The remote realm the Dataproc on-cluster KDC will trust, should the user enable cross realm trust.`,
+												},
+												"cross_realm_trust_shared_password_uri": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `The Cloud Storage URI of a KMS encrypted file containing the shared password between the on-cluster
+Kerberos realm and the remote trusted realm, in a cross realm trust relationship.`,
+												},
+												"enable_kerberos": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Flag to indicate whether to Kerberize the cluster.`,
+												},
+												"kdc_db_key_uri": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The Cloud Storage URI of a KMS encrypted file containing the master key of the KDC database.`,
+												},
+												"key_password_uri": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The Cloud Storage URI of a KMS encrypted file containing the password to the user provided key. For the self-signed certificate, this password is generated by Dataproc.`,
+												},
+												"keystore_uri": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The Cloud Storage URI of the keystore file used for SSL encryption. If not provided, Dataproc will provide a self-signed certificate.`,
+												},
+												"keystore_password_uri": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `The Cloud Storage URI of a KMS encrypted file containing
+the password to the user provided keystore. For the self-signed certificate, this password is generated
+by Dataproc`,
+												},
+												"kms_key_uri": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The uri of the KMS key used to encrypt various sensitive files.`,
+												},
+												"realm": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The name of the on-cluster Kerberos realm. If not specified, the uppercased domain of hostnames will be the realm.`,
+												},
+												"root_principal_password_uri": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The cloud Storage URI of a KMS encrypted file containing the root principal password.`,
+												},
+												"tgt_lifetime_hours": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `The lifetime of the ticket granting ticket, in hours.`,
+												},
+												"truststore_password_uri": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The Cloud Storage URI of a KMS encrypted file containing the password to the user provided truststore. For the self-signed certificate, this password is generated by Dataproc.`,
+												},
+												"truststore_uri": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The Cloud Storage URI of the truststore file used for SSL encryption. If not provided, Dataproc will provide a self-signed certificate.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+
 						"software_config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							MaxItems: 1,
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							Computed:     true,
+							MaxItems:     1,
 
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -263,15 +416,17 @@ func resourceDataprocCluster() *schema.Resource {
 										Type:             schema.TypeString,
 										Optional:         true,
 										Computed:         true,
+										AtLeastOneOf:     clusterSoftwareConfigKeys,
 										ForceNew:         true,
 										DiffSuppressFunc: dataprocImageVersionDiffSuppress,
 									},
 
 									"override_properties": {
-										Type:     schema.TypeMap,
-										Optional: true,
-										ForceNew: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Type:         schema.TypeMap,
+										Optional:     true,
+										AtLeastOneOf: clusterSoftwareConfigKeys,
+										ForceNew:     true,
+										Elem:         &schema.Schema{Type: schema.TypeString},
 									},
 
 									"properties": {
@@ -289,8 +444,9 @@ func resourceDataprocCluster() *schema.Resource {
 									// is overridden, this will be empty.
 
 									"optional_components": {
-										Type:     schema.TypeSet,
-										Optional: true,
+										Type:         schema.TypeSet,
+										Optional:     true,
+										AtLeastOneOf: clusterSoftwareConfigKeys,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 											ValidateFunc: validation.StringInSlice([]string{"COMPONENT_UNSPECIFIED", "ANACONDA", "DRUID", "HIVE_WEBHCAT",
@@ -302,9 +458,10 @@ func resourceDataprocCluster() *schema.Resource {
 						},
 
 						"initialization_action": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							ForceNew:     true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"script": {
@@ -323,12 +480,27 @@ func resourceDataprocCluster() *schema.Resource {
 							},
 						},
 						"encryption_config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							MaxItems:     1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"kms_key_name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+						"autoscaling_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							MaxItems:     1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"policy_uri": {
 										Type:     schema.TypeString,
 										Required: true,
 									},
@@ -342,39 +514,60 @@ func resourceDataprocCluster() *schema.Resource {
 	}
 }
 
-func instanceConfigSchema() *schema.Schema {
+func instanceConfigSchema(parent string) *schema.Schema {
+	var instanceConfigKeys = []string{
+		"cluster_config.0." + parent + ".0.num_instances",
+		"cluster_config.0." + parent + ".0.image_uri",
+		"cluster_config.0." + parent + ".0.machine_type",
+		"cluster_config.0." + parent + ".0.min_cpu_platform",
+		"cluster_config.0." + parent + ".0.disk_config",
+		"cluster_config.0." + parent + ".0.accelerators",
+	}
+
 	return &schema.Schema{
-		Type:     schema.TypeList,
-		Optional: true,
-		Computed: true,
-		MaxItems: 1,
+		Type:         schema.TypeList,
+		Optional:     true,
+		Computed:     true,
+		AtLeastOneOf: clusterConfigKeys,
+		MaxItems:     1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"num_instances": {
-					Type:     schema.TypeInt,
-					Optional: true,
-					Computed: true,
+					Type:         schema.TypeInt,
+					Optional:     true,
+					Computed:     true,
+					AtLeastOneOf: instanceConfigKeys,
 				},
 
 				"image_uri": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Computed: true,
-					ForceNew: true,
+					Type:         schema.TypeString,
+					Optional:     true,
+					Computed:     true,
+					AtLeastOneOf: instanceConfigKeys,
+					ForceNew:     true,
 				},
 
 				"machine_type": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Computed: true,
-					ForceNew: true,
+					Type:         schema.TypeString,
+					Optional:     true,
+					Computed:     true,
+					AtLeastOneOf: instanceConfigKeys,
+					ForceNew:     true,
 				},
 
+				"min_cpu_platform": {
+					Type:         schema.TypeString,
+					Optional:     true,
+					Computed:     true,
+					AtLeastOneOf: instanceConfigKeys,
+					ForceNew:     true,
+				},
 				"disk_config": {
-					Type:     schema.TypeList,
-					Optional: true,
-					Computed: true,
-					MaxItems: 1,
+					Type:         schema.TypeList,
+					Optional:     true,
+					Computed:     true,
+					AtLeastOneOf: instanceConfigKeys,
+					MaxItems:     1,
 
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
@@ -382,20 +575,35 @@ func instanceConfigSchema() *schema.Schema {
 								Type:     schema.TypeInt,
 								Optional: true,
 								Computed: true,
+								AtLeastOneOf: []string{
+									"cluster_config.0." + parent + ".0.disk_config.0.num_local_ssds",
+									"cluster_config.0." + parent + ".0.disk_config.0.boot_disk_size_gb",
+									"cluster_config.0." + parent + ".0.disk_config.0.boot_disk_type",
+								},
 								ForceNew: true,
 							},
 
 							"boot_disk_size_gb": {
-								Type:         schema.TypeInt,
-								Optional:     true,
-								Computed:     true,
+								Type:     schema.TypeInt,
+								Optional: true,
+								Computed: true,
+								AtLeastOneOf: []string{
+									"cluster_config.0." + parent + ".0.disk_config.0.num_local_ssds",
+									"cluster_config.0." + parent + ".0.disk_config.0.boot_disk_size_gb",
+									"cluster_config.0." + parent + ".0.disk_config.0.boot_disk_type",
+								},
 								ForceNew:     true,
 								ValidateFunc: validation.IntAtLeast(10),
 							},
 
 							"boot_disk_type": {
-								Type:         schema.TypeString,
-								Optional:     true,
+								Type:     schema.TypeString,
+								Optional: true,
+								AtLeastOneOf: []string{
+									"cluster_config.0." + parent + ".0.disk_config.0.num_local_ssds",
+									"cluster_config.0." + parent + ".0.disk_config.0.boot_disk_size_gb",
+									"cluster_config.0." + parent + ".0.disk_config.0.boot_disk_type",
+								},
 								ForceNew:     true,
 								ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd", ""}, false),
 								Default:      "pd-standard",
@@ -406,10 +614,11 @@ func instanceConfigSchema() *schema.Schema {
 
 				// Note: preemptible workers don't support accelerators
 				"accelerators": {
-					Type:     schema.TypeSet,
-					Optional: true,
-					ForceNew: true,
-					Elem:     acceleratorsSchema(),
+					Type:         schema.TypeSet,
+					Optional:     true,
+					AtLeastOneOf: instanceConfigKeys,
+					ForceNew:     true,
+					Elem:         acceleratorsSchema(),
 				},
 
 				"instance_names": {
@@ -477,7 +686,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error creating Dataproc cluster: %s", err)
 	}
 
-	d.SetId(cluster.ClusterName)
+	d.SetId(fmt.Sprintf("projects/%s/regions/%s/clusters/%s", project, region, cluster.ClusterName))
 
 	// Wait until it's created
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
@@ -492,7 +701,6 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[INFO] Dataproc cluster %s has been created", cluster.ClusterName)
 	return resourceDataprocClusterRead(d, meta)
-
 }
 
 func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.ClusterConfig, error) {
@@ -519,6 +727,10 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 	}
 	conf.GceClusterConfig = c
 
+	if cfg, ok := configOptions(d, "cluster_config.0.security_config"); ok {
+		conf.SecurityConfig = expandSecurityConfig(cfg)
+	}
+
 	if cfg, ok := configOptions(d, "cluster_config.0.software_config"); ok {
 		conf.SoftwareConfig = expandSoftwareConfig(cfg)
 	}
@@ -529,6 +741,10 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 
 	if cfg, ok := configOptions(d, "cluster_config.0.encryption_config"); ok {
 		conf.EncryptionConfig = expandEncryptionConfig(cfg)
+	}
+
+	if cfg, ok := configOptions(d, "cluster_config.0.autoscaling_config"); ok {
+		conf.AutoscalingConfig = expandAutoscalingConfig(cfg)
 	}
 
 	if cfg, ok := configOptions(d, "cluster_config.0.master_config"); ok {
@@ -602,6 +818,65 @@ func expandGceClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.G
 	return conf, nil
 }
 
+func expandSecurityConfig(cfg map[string]interface{}) *dataproc.SecurityConfig {
+	conf := &dataproc.SecurityConfig{}
+	if kfg, ok := cfg["kerberos_config"]; ok {
+		conf.KerberosConfig = expandKerberosConfig(kfg.([]interface{})[0].(map[string]interface{}))
+	}
+	return conf
+}
+
+func expandKerberosConfig(cfg map[string]interface{}) *dataproc.KerberosConfig {
+	conf := &dataproc.KerberosConfig{}
+	if v, ok := cfg["enable_kerberos"]; ok {
+		conf.EnableKerberos = v.(bool)
+	}
+	if v, ok := cfg["root_principal_password_uri"]; ok {
+		conf.RootPrincipalPasswordUri = v.(string)
+	}
+	if v, ok := cfg["kms_key_uri"]; ok {
+		conf.KmsKeyUri = v.(string)
+	}
+	if v, ok := cfg["keystore_uri"]; ok {
+		conf.KeystoreUri = v.(string)
+	}
+	if v, ok := cfg["truststore_uri"]; ok {
+		conf.TruststoreUri = v.(string)
+	}
+	if v, ok := cfg["keystore_password_uri"]; ok {
+		conf.KeystorePasswordUri = v.(string)
+	}
+	if v, ok := cfg["key_password_uri"]; ok {
+		conf.KeyPasswordUri = v.(string)
+	}
+	if v, ok := cfg["truststore_password_uri"]; ok {
+		conf.TruststorePasswordUri = v.(string)
+	}
+	if v, ok := cfg["cross_realm_trust_realm"]; ok {
+		conf.CrossRealmTrustRealm = v.(string)
+	}
+	if v, ok := cfg["cross_realm_trust_kdc"]; ok {
+		conf.CrossRealmTrustKdc = v.(string)
+	}
+	if v, ok := cfg["cross_realm_trust_admin_server"]; ok {
+		conf.CrossRealmTrustAdminServer = v.(string)
+	}
+	if v, ok := cfg["cross_realm_trust_shared_password_uri"]; ok {
+		conf.CrossRealmTrustSharedPasswordUri = v.(string)
+	}
+	if v, ok := cfg["kdc_db_key_uri"]; ok {
+		conf.KdcDbKeyUri = v.(string)
+	}
+	if v, ok := cfg["tgt_lifetime_hours"]; ok {
+		conf.TgtLifetimeHours = int64(v.(int))
+	}
+	if v, ok := cfg["realm"]; ok {
+		conf.Realm = v.(string)
+	}
+
+	return conf
+}
+
 func expandSoftwareConfig(cfg map[string]interface{}) *dataproc.SoftwareConfig {
 	conf := &dataproc.SoftwareConfig{}
 	if v, ok := cfg["override_properties"]; ok {
@@ -629,6 +904,14 @@ func expandEncryptionConfig(cfg map[string]interface{}) *dataproc.EncryptionConf
 	conf := &dataproc.EncryptionConfig{}
 	if v, ok := cfg["kms_key_name"]; ok {
 		conf.GcePdKmsKeyName = v.(string)
+	}
+	return conf
+}
+
+func expandAutoscalingConfig(cfg map[string]interface{}) *dataproc.AutoscalingConfig {
+	conf := &dataproc.AutoscalingConfig{}
+	if v, ok := cfg["policy_uri"]; ok {
+		conf.PolicyUri = v.(string)
 	}
 	return conf
 }
@@ -685,6 +968,9 @@ func expandInstanceGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGro
 	}
 	if v, ok := cfg["machine_type"]; ok {
 		icg.MachineTypeUri = GetResourceNameFromSelfLink(v.(string))
+	}
+	if v, ok := cfg["min_cpu_platform"]; ok {
+		icg.MinCpuPlatform = v.(string)
 	}
 	if v, ok := cfg["image_uri"]; ok {
 		icg.ImageUri = v.(string)
@@ -837,11 +1123,13 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 
 		"bucket":                    cfg.ConfigBucket,
 		"gce_cluster_config":        flattenGceClusterConfig(d, cfg.GceClusterConfig),
+		"security_config":           flattenSecurityConfig(d, cfg.SecurityConfig),
 		"software_config":           flattenSoftwareConfig(d, cfg.SoftwareConfig),
 		"master_config":             flattenInstanceGroupConfig(d, cfg.MasterConfig),
 		"worker_config":             flattenInstanceGroupConfig(d, cfg.WorkerConfig),
 		"preemptible_worker_config": flattenPreemptibleInstanceGroupConfig(d, cfg.SecondaryWorkerConfig),
 		"encryption_config":         flattenEncryptionConfig(d, cfg.EncryptionConfig),
+		"autoscaling_config":        flattenAutoscalingConfig(d, cfg.AutoscalingConfig),
 	}
 
 	if len(cfg.InitializationActions) > 0 {
@@ -852,6 +1140,39 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 		data["initialization_action"] = val
 	}
 	return []map[string]interface{}{data}, nil
+}
+
+func flattenSecurityConfig(d *schema.ResourceData, sc *dataproc.SecurityConfig) []map[string]interface{} {
+	if sc == nil {
+		return nil
+	}
+	data := map[string]interface{}{
+		"kerberos_config": flattenKerberosConfig(d, sc.KerberosConfig),
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenKerberosConfig(d *schema.ResourceData, kfg *dataproc.KerberosConfig) []map[string]interface{} {
+	data := map[string]interface{}{
+		"enable_kerberos":                       kfg.EnableKerberos,
+		"root_principal_password_uri":           kfg.RootPrincipalPasswordUri,
+		"kms_key_uri":                           kfg.KmsKeyUri,
+		"keystore_uri":                          kfg.KeystoreUri,
+		"truststore_uri":                        kfg.TruststoreUri,
+		"keystore_password_uri":                 kfg.KeystorePasswordUri,
+		"key_password_uri":                      kfg.KeyPasswordUri,
+		"truststore_password_uri":               kfg.TruststorePasswordUri,
+		"cross_realm_trust_realm":               kfg.CrossRealmTrustRealm,
+		"cross_realm_trust_kdc":                 kfg.CrossRealmTrustKdc,
+		"cross_realm_trust_admin_server":        kfg.CrossRealmTrustAdminServer,
+		"cross_realm_trust_shared_password_uri": kfg.CrossRealmTrustSharedPasswordUri,
+		"kdc_db_key_uri":                        kfg.KdcDbKeyUri,
+		"tgt_lifetime_hours":                    kfg.TgtLifetimeHours,
+		"realm":                                 kfg.Realm,
+	}
+
+	return []map[string]interface{}{data}
 }
 
 func flattenSoftwareConfig(d *schema.ResourceData, sc *dataproc.SoftwareConfig) []map[string]interface{} {
@@ -872,6 +1193,18 @@ func flattenEncryptionConfig(d *schema.ResourceData, ec *dataproc.EncryptionConf
 
 	data := map[string]interface{}{
 		"kms_key_name": ec.GcePdKmsKeyName,
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenAutoscalingConfig(d *schema.ResourceData, ec *dataproc.AutoscalingConfig) []map[string]interface{} {
+	if ec == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"policy_uri": ec.PolicyUri,
 	}
 
 	return []map[string]interface{}{data}
@@ -960,6 +1293,7 @@ func flattenInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGr
 	if icg != nil {
 		data["num_instances"] = icg.NumInstances
 		data["machine_type"] = GetResourceNameFromSelfLink(icg.MachineTypeUri)
+		data["min_cpu_platform"] = icg.MinCpuPlatform
 		data["image_uri"] = icg.ImageUri
 		data["instance_names"] = icg.InstanceNames
 		if icg.DiskConfig != nil {

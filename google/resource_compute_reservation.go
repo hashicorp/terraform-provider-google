@@ -23,7 +23,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeReservation() *schema.Resource {
@@ -46,46 +45,65 @@ func resourceComputeReservation() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Name of the resource. Provided by the client when the resource is
+created. The name must be 1-63 characters long, and comply with
+RFC1035. Specifically, the name must be 1-63 characters long and match
+the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
+first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the last
+character, which cannot be a dash.`,
 			},
 			"specific_reservation": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Reservation for instances with specific machine shapes.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"count": {
-							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The number of resources that are allocated.`,
 						},
 						"instance_properties": {
-							Type:     schema.TypeList,
-							Required: true,
-							ForceNew: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The instance properties for the reservation.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"machine_type": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `The name of the machine type to reserve.`,
 									},
 									"guest_accelerators": {
-										Type:     schema.TypeList,
-										Optional: true,
-										ForceNew: true,
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Guest accelerator type and count.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"accelerator_count": {
 													Type:     schema.TypeInt,
 													Required: true,
 													ForceNew: true,
+													Description: `The number of the guest accelerator cards exposed to
+this instance.`,
 												},
 												"accelerator_type": {
 													Type:     schema.TypeString,
 													Required: true,
 													ForceNew: true,
+													Description: `The full or partial URL of the accelerator type to
+attach to this instance. For example:
+'projects/my-project/zones/us-central1-c/acceleratorTypes/nvidia-tesla-p100'
+
+If you are creating an instance template, specify only the accelerator name.`,
 												},
 											},
 										},
@@ -94,19 +112,24 @@ func resourceComputeReservation() *schema.Resource {
 										Type:     schema.TypeList,
 										Optional: true,
 										ForceNew: true,
+										Description: `The amount of local ssd to reserve with each instance. This
+reserves disks of type 'local-ssd'.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"disk_size_gb": {
-													Type:     schema.TypeInt,
-													Required: true,
-													ForceNew: true,
+													Type:        schema.TypeInt,
+													Required:    true,
+													ForceNew:    true,
+													Description: `The size of the disk in base-2 GB.`,
 												},
 												"interface": {
 													Type:         schema.TypeString,
 													Optional:     true,
 													ForceNew:     true,
 													ValidateFunc: validation.StringInSlice([]string{"SCSI", "NVME", ""}, false),
-													Default:      "SCSI",
+													Description: `The disk interface to use for attaching this disk, one
+of 'SCSI' or 'NVME'. The default is 'SCSI'.`,
+													Default: "SCSI",
 												},
 											},
 										},
@@ -116,13 +139,18 @@ func resourceComputeReservation() *schema.Resource {
 										Computed: true,
 										Optional: true,
 										ForceNew: true,
+										Description: `The minimum CPU platform for the reservation. For example,
+'"Intel Skylake"'. See
+the CPU platform availability reference](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform#availablezones)
+for information on available CPU platforms.`,
 									},
 								},
 							},
 						},
 						"in_use_count": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `How many instances are in use.`,
 						},
 					},
 				},
@@ -132,29 +160,38 @@ func resourceComputeReservation() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The zone where the reservation is made.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An optional description of this resource.`,
 			},
 			"specific_reservation_required": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
-				Default:  false,
+				Description: `When set to true, only VMs that target this reservation by name can
+consume this reservation. Otherwise, it can be consumed by VMs with
+affinity for any reservation. Defaults to false.`,
+				Default: false,
 			},
 			"commitment": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `Full or partial URL to a parent commitment. This field displays for
+reservations that are tied to a commitment.`,
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The status of the reservation.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -221,26 +258,20 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating Reservation",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating Reservation",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Reservation: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Reservation: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Reservation %q: %#v", d.Id(), res)
@@ -269,28 +300,28 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeReservationCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeReservationCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("description", flattenComputeReservationDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeReservationDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("name", flattenComputeReservationName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeReservationName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("commitment", flattenComputeReservationCommitment(res["commitment"], d)); err != nil {
+	if err := d.Set("commitment", flattenComputeReservationCommitment(res["commitment"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("specific_reservation_required", flattenComputeReservationSpecificReservationRequired(res["specificReservationRequired"], d)); err != nil {
+	if err := d.Set("specific_reservation_required", flattenComputeReservationSpecificReservationRequired(res["specificReservationRequired"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("status", flattenComputeReservationStatus(res["status"], d)); err != nil {
+	if err := d.Set("status", flattenComputeReservationStatus(res["status"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("specific_reservation", flattenComputeReservationSpecificReservation(res["specificReservation"], d)); err != nil {
+	if err := d.Set("specific_reservation", flattenComputeReservationSpecificReservation(res["specificReservation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("zone", flattenComputeReservationZone(res["zone"], d)); err != nil {
+	if err := d.Set("zone", flattenComputeReservationZone(res["zone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -321,14 +352,8 @@ func resourceComputeReservationDelete(d *schema.ResourceData, meta interface{}) 
 		return handleNotFoundError(err, d, "Reservation")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting Reservation",
+		config, res, project, "Deleting Reservation",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -351,7 +376,7 @@ func resourceComputeReservationImport(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -360,31 +385,31 @@ func resourceComputeReservationImport(d *schema.ResourceData, meta interface{}) 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeReservationCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationCommitment(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationCommitment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationSpecificReservationRequired(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationRequired(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationStatus(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationSpecificReservation(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -394,14 +419,14 @@ func flattenComputeReservationSpecificReservation(v interface{}, d *schema.Resou
 	}
 	transformed := make(map[string]interface{})
 	transformed["count"] =
-		flattenComputeReservationSpecificReservationCount(original["count"], d)
+		flattenComputeReservationSpecificReservationCount(original["count"], d, config)
 	transformed["in_use_count"] =
-		flattenComputeReservationSpecificReservationInUseCount(original["inUseCount"], d)
+		flattenComputeReservationSpecificReservationInUseCount(original["inUseCount"], d, config)
 	transformed["instance_properties"] =
-		flattenComputeReservationSpecificReservationInstanceProperties(original["instanceProperties"], d)
+		flattenComputeReservationSpecificReservationInstanceProperties(original["instanceProperties"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeReservationSpecificReservationCount(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -411,7 +436,7 @@ func flattenComputeReservationSpecificReservationCount(v interface{}, d *schema.
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInUseCount(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInUseCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -421,7 +446,7 @@ func flattenComputeReservationSpecificReservationInUseCount(v interface{}, d *sc
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInstanceProperties(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstanceProperties(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -431,24 +456,24 @@ func flattenComputeReservationSpecificReservationInstanceProperties(v interface{
 	}
 	transformed := make(map[string]interface{})
 	transformed["machine_type"] =
-		flattenComputeReservationSpecificReservationInstancePropertiesMachineType(original["machineType"], d)
+		flattenComputeReservationSpecificReservationInstancePropertiesMachineType(original["machineType"], d, config)
 	transformed["min_cpu_platform"] =
-		flattenComputeReservationSpecificReservationInstancePropertiesMinCpuPlatform(original["minCpuPlatform"], d)
+		flattenComputeReservationSpecificReservationInstancePropertiesMinCpuPlatform(original["minCpuPlatform"], d, config)
 	transformed["guest_accelerators"] =
-		flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelerators(original["guestAccelerators"], d)
+		flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelerators(original["guestAccelerators"], d, config)
 	transformed["local_ssds"] =
-		flattenComputeReservationSpecificReservationInstancePropertiesLocalSsds(original["localSsds"], d)
+		flattenComputeReservationSpecificReservationInstancePropertiesLocalSsds(original["localSsds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeReservationSpecificReservationInstancePropertiesMachineType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesMachineType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInstancePropertiesMinCpuPlatform(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesMinCpuPlatform(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelerators(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelerators(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -461,17 +486,17 @@ func flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelera
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"accelerator_type":  flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorType(original["acceleratorType"], d),
-			"accelerator_count": flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorCount(original["acceleratorCount"], d),
+			"accelerator_type":  flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorType(original["acceleratorType"], d, config),
+			"accelerator_count": flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorCount(original["acceleratorCount"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorCount(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesGuestAcceleratorsAcceleratorCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -481,7 +506,7 @@ func flattenComputeReservationSpecificReservationInstancePropertiesGuestAccelera
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsds(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -494,17 +519,17 @@ func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsds(v i
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"interface":    flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsInterface(original["interface"], d),
-			"disk_size_gb": flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsDiskSizeGb(original["diskSizeGb"], d),
+			"interface":    flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsInterface(original["interface"], d, config),
+			"disk_size_gb": flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsDiskSizeGb(original["diskSizeGb"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsInterface(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsInterface(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsDiskSizeGb(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsDiskSizeGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -514,7 +539,7 @@ func flattenComputeReservationSpecificReservationInstancePropertiesLocalSsdsDisk
 	return v
 }
 
-func flattenComputeReservationZone(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeReservationZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

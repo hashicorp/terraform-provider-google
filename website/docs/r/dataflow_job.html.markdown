@@ -1,4 +1,5 @@
 ---
+subcategory: "Dataflow"
 layout: "google"
 page_title: "Google: google_dataflow_job"
 sidebar_current: "docs-google-dataflow-job"
@@ -12,18 +13,17 @@ Creates a job on Dataflow, which is an implementation of Apache Beam running on 
 the official documentation for
 [Beam](https://beam.apache.org) and [Dataflow](https://cloud.google.com/dataflow/).
 
-
 ## Example Usage
 
 ```hcl
 resource "google_dataflow_job" "big_data_job" {
-    name = "dataflow-job"
-    template_gcs_path = "gs://my-bucket/templates/template_file"
-    temp_gcs_location = "gs://my-bucket/tmp_dir"
-    parameters = {
-        foo = "bar"
-        baz = "qux"
-    }
+  name              = "dataflow-job"
+  template_gcs_path = "gs://my-bucket/templates/template_file"
+  temp_gcs_location = "gs://my-bucket/tmp_dir"
+  parameters = {
+    foo = "bar"
+    baz = "qux"
+  }
 }
 ```
 
@@ -45,7 +45,10 @@ The following arguments are supported:
 - - -
 
 * `parameters` - (Optional) Key/Value pairs to be passed to the Dataflow job (as used in the template).
-* `labels` - (Optional) User labels to be specified for the job. Keys and values should follow the restrictions specified in the [labeling restrictions](https://cloud.google.com/compute/docs/labeling-resources#restrictions) page.
+* `labels` - (Optional) User labels to be specified for the job. Keys and values should follow the restrictions
+   specified in the [labeling restrictions](https://cloud.google.com/compute/docs/labeling-resources#restrictions) page.
+   **NOTE**: Google-provided Dataflow templates often provide default labels that begin with `goog-dataflow-provided`.
+   Unless explicitly set in config, these labels will be ignored to prevent diffs on re-apply. 
 * `max_workers` - (Optional) The number of workers permitted to work on the job.  More workers may improve processing speed at additional cost.
 * `on_delete` - (Optional) One of "drain" or "cancel".  Specifies behavior of deletion during `terraform destroy`.  See above note.
 * `project` - (Optional) The project in which the resource belongs. If it is not provided, the provider project is used.
@@ -54,7 +57,7 @@ The following arguments are supported:
 * `network` - (Optional) The network to which VMs will be assigned. If it is not provided, "default" will be used.
 * `subnetwork` - (Optional) The subnetwork to which VMs will be assigned. Should be of the form "regions/REGION/subnetworks/SUBNETWORK".
 * `machine_type` - (Optional) The machine type to use for the job.
-* `ip_configuration` - (Optional) The configuration for VM IPs.  Options are `"WORKER_IP_PUBLIC"` or `"WORKER_IP_PUBLIC"`.
+* `ip_configuration` - (Optional) The configuration for VM IPs.  Options are `"WORKER_IP_PUBLIC"` or `"WORKER_IP_PRIVATE"`.
 
 
 ## Attributes Reference

@@ -43,7 +43,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(t *testing.
 				ResourceName:            "google_bigtable_app_profile.ap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+				ImportStateVerifyIgnore: []string{"app_profile_id", "instance", "ignore_warnings", "ignore_warnings"},
 			},
 		},
 	})
@@ -52,21 +52,21 @@ func TestAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(t *testing.
 func testAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_bigtable_instance" "instance" {
-	name = "tf-test-instance-%{random_suffix}"
-	cluster {
-		cluster_id   = "tf-test-instance-%{random_suffix}"
-		zone         = "us-central1-b"
-		num_nodes    = 3
-		storage_type = "HDD"
-	}
+  name = "tf-test-bt-instance%{random_suffix}"
+  cluster {
+    cluster_id   = "tf-test-bt-instance%{random_suffix}"
+    zone         = "us-central1-b"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
 }
 
 resource "google_bigtable_app_profile" "ap" {
-	instance = google_bigtable_instance.instance.name
-	app_profile_id = "tf-test-profile-%{random_suffix}"
+  instance       = google_bigtable_instance.instance.name
+  app_profile_id = "tf-test-bt-profile%{random_suffix}"
 
-	multi_cluster_routing_use_any = true
-	ignore_warnings = true
+  multi_cluster_routing_use_any = true
+  ignore_warnings               = true
 }
 `, context)
 }
@@ -90,7 +90,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(t *testing
 				ResourceName:            "google_bigtable_app_profile.ap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+				ImportStateVerifyIgnore: []string{"app_profile_id", "instance", "ignore_warnings", "ignore_warnings"},
 			},
 		},
 	})
@@ -99,25 +99,25 @@ func TestAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(t *testing
 func testAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_bigtable_instance" "instance" {
-	name = "tf-test-instance-%{random_suffix}"
-	cluster {
-		cluster_id   = "tf-test-instance-%{random_suffix}"
-		zone         = "us-central1-b"
-		num_nodes    = 3
-		storage_type = "HDD"
-	}
+  name = "tf-test-bt-instance%{random_suffix}"
+  cluster {
+    cluster_id   = "tf-test-bt-instance%{random_suffix}"
+    zone         = "us-central1-b"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
 }
 
 resource "google_bigtable_app_profile" "ap" {
-	instance = google_bigtable_instance.instance.name
-	app_profile_id = "tf-test-profile-%{random_suffix}"
+  instance       = google_bigtable_instance.instance.name
+  app_profile_id = "tf-test-bt-profile%{random_suffix}"
 
-	single_cluster_routing {
-		cluster_id = "tf-test-instance-%{random_suffix}"
-		allow_transactional_writes = true
-	}
+  single_cluster_routing {
+    cluster_id                 = "tf-test-bt-instance%{random_suffix}"
+    allow_transactional_writes = true
+  }
 
-	ignore_warnings = true
+  ignore_warnings = true
 }
 `, context)
 }

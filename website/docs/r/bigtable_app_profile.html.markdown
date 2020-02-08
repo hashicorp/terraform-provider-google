@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Bigtable"
 layout: "google"
 page_title: "Google: google_bigtable_app_profile"
 sidebar_current: "docs-google-bigtable-app-profile"
@@ -35,21 +36,21 @@ App profile is a configuration object describing how Cloud Bigtable should treat
 
 ```hcl
 resource "google_bigtable_instance" "instance" {
-	name = "tf-test-instance-"
-	cluster {
-		cluster_id   = "tf-test-instance-"
-		zone         = "us-central1-b"
-		num_nodes    = 3
-		storage_type = "HDD"
-	}
+  name = "bt-instance"
+  cluster {
+    cluster_id   = "bt-instance"
+    zone         = "us-central1-b"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
 }
 
 resource "google_bigtable_app_profile" "ap" {
-	instance = google_bigtable_instance.instance.name
-	app_profile_id = "tf-test-profile-"
+  instance       = google_bigtable_instance.instance.name
+  app_profile_id = "bt-profile"
 
-	multi_cluster_routing_use_any = true
-	ignore_warnings = true
+  multi_cluster_routing_use_any = true
+  ignore_warnings               = true
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -62,25 +63,25 @@ resource "google_bigtable_app_profile" "ap" {
 
 ```hcl
 resource "google_bigtable_instance" "instance" {
-	name = "tf-test-instance-"
-	cluster {
-		cluster_id   = "tf-test-instance-"
-		zone         = "us-central1-b"
-		num_nodes    = 3
-		storage_type = "HDD"
-	}
+  name = "bt-instance"
+  cluster {
+    cluster_id   = "bt-instance"
+    zone         = "us-central1-b"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
 }
 
 resource "google_bigtable_app_profile" "ap" {
-	instance = google_bigtable_instance.instance.name
-	app_profile_id = "tf-test-profile-"
+  instance       = google_bigtable_instance.instance.name
+  app_profile_id = "bt-profile"
 
-	single_cluster_routing {
-		cluster_id = "tf-test-instance-"
-		allow_transactional_writes = true
-	}
+  single_cluster_routing {
+    cluster_id                 = "bt-instance"
+    allow_transactional_writes = true
+  }
 
-	ignore_warnings = true
+  ignore_warnings = true
 }
 ```
 
@@ -126,7 +127,7 @@ The following arguments are supported:
 The `single_cluster_routing` block supports:
 
 * `cluster_id` -
-  (Optional)
+  (Required)
   The cluster to which read/write requests should be routed.
 
 * `allow_transactional_writes` -
@@ -138,6 +139,7 @@ The `single_cluster_routing` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}`
 
 * `name` -
   The unique name of the requested app profile. Values are of the form `projects/<project>/instances/<instance>/appProfiles/<appProfileId>`.
@@ -167,4 +169,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

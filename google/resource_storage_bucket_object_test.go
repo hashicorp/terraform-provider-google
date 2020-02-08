@@ -302,13 +302,13 @@ func testAccStorageObjectDestroy(s *terraform.State) error {
 func testGoogleStorageBucketsObjectContent(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
-	content = "%s"
+  name    = "%s"
+  bucket  = google_storage_bucket.bucket.name
+  content = "%s"
 }
 `, bucketName, objectName, content)
 }
@@ -316,13 +316,13 @@ resource "google_storage_bucket_object" "object" {
 func testGoogleStorageBucketsObjectDynamicContent(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
-	content = "${google_storage_bucket.bucket.project}"
+  name    = "%s"
+  bucket  = google_storage_bucket.bucket.name
+  content = google_storage_bucket.bucket.project
 }
 `, bucketName, objectName)
 }
@@ -330,13 +330,13 @@ resource "google_storage_bucket_object" "object" {
 func testGoogleStorageBucketsObjectBasic(bucketName, sourceFilename string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "%s"
+  name   = "%s"
+  bucket = google_storage_bucket.bucket.name
+  source = "%s"
 }
 `, bucketName, objectName, sourceFilename)
 }
@@ -345,17 +345,17 @@ func testGoogleStorageBucketsObject_optionalContentFields(
 	bucketName, disposition, encoding, language, content_type string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
-	content = "%s"
-	content_disposition = "%s"
-	content_encoding = "%s"
-	content_language = "%s"
-	content_type = "%s"
+  name                = "%s"
+  bucket              = google_storage_bucket.bucket.name
+  content             = "%s"
+  content_disposition = "%s"
+  content_encoding    = "%s"
+  content_language    = "%s"
+  content_type        = "%s"
 }
 `, bucketName, objectName, content, disposition, encoding, language, content_type)
 }
@@ -363,14 +363,14 @@ resource "google_storage_bucket_object" "object" {
 func testGoogleStorageBucketsObject_cacheControl(bucketName, sourceFilename, cacheControl string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "%s"
-	cache_control = "%s"
+  name          = "%s"
+  bucket        = google_storage_bucket.bucket.name
+  source        = "%s"
+  cache_control = "%s"
 }
 `, bucketName, objectName, sourceFilename, cacheControl)
 }
@@ -378,14 +378,14 @@ resource "google_storage_bucket_object" "object" {
 func testGoogleStorageBucketsObject_storageClass(bucketName string, storageClass string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
-	content = "%s"
-	storage_class = "%s"
+  name          = "%s"
+  bucket        = google_storage_bucket.bucket.name
+  content       = "%s"
+  storage_class = "%s"
 }
 `, bucketName, objectName, content, storageClass)
 }

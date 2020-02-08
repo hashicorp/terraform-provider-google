@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeBackendServiceSignedUrlKey() *schema.Resource {
@@ -41,11 +40,14 @@ func resourceComputeBackendServiceSignedUrlKey() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The backend service this signed URL key belongs.`,
 			},
 			"key_value": {
-				Type:      schema.TypeString,
-				Required:  true,
-				ForceNew:  true,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `128-bit key value used for signing the URL. The key value must be a
+valid RFC 4648 Section 5 base64url encoded string.`,
 				Sensitive: true,
 			},
 			"name": {
@@ -53,6 +55,7 @@ func resourceComputeBackendServiceSignedUrlKey() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRegexp(`^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$`),
+				Description:  `Name of the signed URL key.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -110,26 +113,20 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/backendServices/{{backend_service}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating BackendServiceSignedUrlKey",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating BackendServiceSignedUrlKey",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create BackendServiceSignedUrlKey: %s", waitErr)
+		return fmt.Errorf("Error waiting to create BackendServiceSignedUrlKey: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating BackendServiceSignedUrlKey %q: %#v", d.Id(), res)
@@ -170,7 +167,7 @@ func resourceComputeBackendServiceSignedUrlKeyRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading BackendServiceSignedUrlKey: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeBackendServiceSignedUrlKeyName(res["keyName"], d)); err != nil {
+	if err := d.Set("name", flattenComputeBackendServiceSignedUrlKeyName(res["keyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendServiceSignedUrlKey: %s", err)
 	}
 
@@ -205,14 +202,8 @@ func resourceComputeBackendServiceSignedUrlKeyDelete(d *schema.ResourceData, met
 		return handleNotFoundError(err, d, "BackendServiceSignedUrlKey")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting BackendServiceSignedUrlKey",
+		config, res, project, "Deleting BackendServiceSignedUrlKey",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -223,7 +214,7 @@ func resourceComputeBackendServiceSignedUrlKeyDelete(d *schema.ResourceData, met
 	return nil
 }
 
-func flattenComputeBackendServiceSignedUrlKeyName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendServiceSignedUrlKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -291,7 +282,7 @@ func resourceComputeBackendServiceSignedUrlKeyFindNestedObjectInList(d *schema.R
 			"keyName": itemRaw,
 		}
 
-		itemName := flattenComputeBackendServiceSignedUrlKeyName(item["keyName"], d)
+		itemName := flattenComputeBackendServiceSignedUrlKeyName(item["keyName"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemName, expectedName) {
 			log.Printf("[DEBUG] Skipping item with keyName= %#v, looking for %#v)", itemName, expectedName)
 			continue

@@ -70,6 +70,11 @@ func resourceStorageRoleEntityCustomizeDiff(diff *schema.ResourceDiff, meta inte
 	}
 	for k := range state {
 		if _, ok := conf[k]; !ok {
+			// project-owners- is explicitly stripped from the roles that this
+			// resource will delete
+			if strings.Contains(k, "OWNER:project-owners-") {
+				continue
+			}
 			return nil
 		}
 	}
@@ -274,7 +279,7 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 
 		for entity, role := range old_re_map {
 			if entity == fmt.Sprintf("project-owners-%s", project) && role == "OWNER" {
-				log.Printf("Skipping %s-%s; not deleting owner ACL.", role, entity)
+				log.Printf("[WARN]: Skipping %s-%s; not deleting owner ACL.", role, entity)
 				continue
 			}
 			log.Printf("[DEBUG]: removing entity %s", entity)
@@ -329,7 +334,7 @@ func resourceStorageBucketAclDelete(d *schema.ResourceData, meta interface{}) er
 		}
 
 		if res.Entity == fmt.Sprintf("project-owners-%s", project) && res.Role == "OWNER" {
-			log.Printf("Skipping %s-%s; not deleting owner ACL.", res.Role, res.Entity)
+			log.Printf("[WARN]: Skipping %s-%s; not deleting owner ACL.", res.Role, res.Entity)
 			continue
 		}
 

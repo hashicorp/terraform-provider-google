@@ -153,8 +153,13 @@ func resourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	dnsType := d.Get("type").(string)
 
-	resp, err := config.clientDns.ResourceRecordSets.List(
-		project, zone).Name(name).Type(dnsType).Do()
+	var resp *dns.ResourceRecordSetsListResponse
+	err = retry(func() error {
+		var reqErr error
+		resp, reqErr = config.clientDns.ResourceRecordSets.List(
+			project, zone).Name(name).Type(dnsType).Do()
+		return reqErr
+	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DNS Record Set %q", d.Get("name").(string)))
 	}
@@ -221,7 +226,7 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] DNS Record delete request: %#v", chg)
 	chg, err = config.clientDns.Changes.Create(project, zone, chg).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting DNS RecordSet: %s", err)
+		return handleNotFoundError(err, d, "google_dns_record_set")
 	}
 
 	w := &DnsChangeWaiter{

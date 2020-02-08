@@ -52,7 +52,7 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 func testAccRedisInstance_redisInstanceBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_redis_instance" "cache" {
-  name           = "memory-cache%{random_suffix}"
+  name           = "tf-test-memory-cache%{random_suffix}"
   memory_size_gb = 1
 }
 `, context)
@@ -62,6 +62,7 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  BootstrapSharedTestNetwork(t, "redis-full"),
 		"random_suffix": acctest.RandString(10),
 	}
 
@@ -86,14 +87,14 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 func testAccRedisInstance_redisInstanceFullExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_redis_instance" "cache" {
-  name           = "ha-memory-cache%{random_suffix}"
+  name           = "tf-test-ha-memory-cache%{random_suffix}"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
 
   location_id             = "us-central1-a"
   alternative_location_id = "us-central1-f"
 
-  authorized_network = "${google_compute_network.auto-network.self_link}"
+  authorized_network = data.google_compute_network.redis-network.self_link
 
   redis_version     = "REDIS_3_2"
   display_name      = "Terraform Test Instance"
@@ -105,8 +106,16 @@ resource "google_redis_instance" "cache" {
   }
 }
 
-resource "google_compute_network" "auto-network" {
-  name = "authorized-network%{random_suffix}"
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Redis instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
+data "google_compute_network" "redis-network" {
+  name = "%{network_name}"
 }
 `, context)
 }

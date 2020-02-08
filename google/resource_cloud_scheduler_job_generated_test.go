@@ -52,17 +52,18 @@ func TestAccCloudSchedulerJob_schedulerJobPubsubExample(t *testing.T) {
 func testAccCloudSchedulerJob_schedulerJobPubsubExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_pubsub_topic" "topic" {
-  name = "job-topic%{random_suffix}"
+  name = "tf-test-job-topic%{random_suffix}"
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job%{random_suffix}"
+  name        = "tf-test-test-job%{random_suffix}"
   description = "test job"
-  schedule = "*/2 * * * *"
+  schedule    = "*/2 * * * *"
 
   pubsub_target {
-    topic_name = "${google_pubsub_topic.topic.id}"
-    data = "${base64encode("test")}"
+    # topic.id is the topic's full resource name.
+    topic_name = google_pubsub_topic.topic.id
+    data       = base64encode("test")
   }
 }
 `, context)
@@ -96,14 +97,15 @@ func TestAccCloudSchedulerJob_schedulerJobHttpExample(t *testing.T) {
 func testAccCloudSchedulerJob_schedulerJobHttpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job%{random_suffix}"
-  description = "test http job"
-  schedule = "*/8 * * * *"
-  time_zone = "America/New_York"
+  name             = "tf-test-test-job%{random_suffix}"
+  description      = "test http job"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
 
   http_target {
     http_method = "POST"
-    uri = "https://example.com/ping"
+    uri         = "https://example.com/ping"
   }
 }
 `, context)
@@ -137,17 +139,18 @@ func TestAccCloudSchedulerJob_schedulerJobAppEngineExample(t *testing.T) {
 func testAccCloudSchedulerJob_schedulerJobAppEngineExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job%{random_suffix}"
-  schedule = "*/4 * * * *"
-  description = "test app engine job"
-  time_zone = "Europe/London"
+  name             = "tf-test-test-job%{random_suffix}"
+  schedule         = "*/4 * * * *"
+  description      = "test app engine job"
+  time_zone        = "Europe/London"
+  attempt_deadline = "320s"
 
   app_engine_http_target {
     http_method = "POST"
 
     app_engine_routing {
-      service = "web"
-      version = "prod"
+      service  = "web"
+      version  = "prod"
       instance = "my-instance-001"
     }
 
@@ -186,20 +189,22 @@ func TestAccCloudSchedulerJob_schedulerJobOauthExample(t *testing.T) {
 
 func testAccCloudSchedulerJob_schedulerJobOauthExample(context map[string]interface{}) string {
 	return Nprintf(`
-data "google_compute_default_service_account" "default" { }
+data "google_compute_default_service_account" "default" {
+}
 
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job%{random_suffix}"
-  description = "test http job"
-  schedule = "*/8 * * * *"
-  time_zone = "America/New_York"
+  name             = "tf-test-test-job%{random_suffix}"
+  description      = "test http job"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
 
   http_target {
     http_method = "GET"
-    uri = "https://cloudscheduler.googleapis.com/v1/projects/%{project_name}/locations/%{region}/jobs"
+    uri         = "https://cloudscheduler.googleapis.com/v1/projects/%{project_name}/locations/%{region}/jobs"
 
     oauth_token {
-      service_account_email = "${data.google_compute_default_service_account.default.email}"
+      service_account_email = data.google_compute_default_service_account.default.email
     }
   }
 }
@@ -233,20 +238,22 @@ func TestAccCloudSchedulerJob_schedulerJobOidcExample(t *testing.T) {
 
 func testAccCloudSchedulerJob_schedulerJobOidcExample(context map[string]interface{}) string {
 	return Nprintf(`
-data "google_compute_default_service_account" "default" { }
+data "google_compute_default_service_account" "default" {
+}
 
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job%{random_suffix}"
-  description = "test http job"
-  schedule = "*/8 * * * *"
-  time_zone = "America/New_York"
+  name             = "tf-test-test-job%{random_suffix}"
+  description      = "test http job"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
 
   http_target {
     http_method = "GET"
-    uri = "https://example.com/ping"
+    uri         = "https://example.com/ping"
 
     oidc_token {
-      service_account_email = "${data.google_compute_default_service_account.default.email}"
+      service_account_email = data.google_compute_default_service_account.default.email
     }
   }
 }

@@ -40,50 +40,60 @@ func resourceMLEngineModel() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name specified for the model.`,
 			},
 			"default_version": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				Description: `The default version of the model. This version will be used to handle
+prediction requests that do not specify a version.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The name specified for the version when it was created.`,
 						},
 					},
 				},
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The description specified for the model when it was created.`,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `One or more labels that you can add, to organize your models.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"online_prediction_console_logging": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `If true, online prediction nodes send stderr and stdout streams to Stackdriver Logging`,
 			},
 			"online_prediction_logging": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `If true, online prediction access logs are sent to StackDriver Logging.`,
 			},
 			"regions": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				Description: `The list of regions where the model is going to be deployed.
+Currently only one region per model is supported`,
 				MaxItems: 1,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -162,7 +172,7 @@ func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/models/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -194,25 +204,25 @@ func resourceMLEngineModelRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
 
-	if err := d.Set("name", flattenMLEngineModelName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenMLEngineModelName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
-	if err := d.Set("description", flattenMLEngineModelDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenMLEngineModelDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
-	if err := d.Set("default_version", flattenMLEngineModelDefaultVersion(res["defaultVersion"], d)); err != nil {
+	if err := d.Set("default_version", flattenMLEngineModelDefaultVersion(res["defaultVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
-	if err := d.Set("regions", flattenMLEngineModelRegions(res["regions"], d)); err != nil {
+	if err := d.Set("regions", flattenMLEngineModelRegions(res["regions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
-	if err := d.Set("online_prediction_logging", flattenMLEngineModelOnlinePredictionLogging(res["onlinePredictionLogging"], d)); err != nil {
+	if err := d.Set("online_prediction_logging", flattenMLEngineModelOnlinePredictionLogging(res["onlinePredictionLogging"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
-	if err := d.Set("online_prediction_console_logging", flattenMLEngineModelOnlinePredictionConsoleLogging(res["onlinePredictionConsoleLogging"], d)); err != nil {
+	if err := d.Set("online_prediction_console_logging", flattenMLEngineModelOnlinePredictionConsoleLogging(res["onlinePredictionConsoleLogging"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
-	if err := d.Set("labels", flattenMLEngineModelLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenMLEngineModelLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
 
@@ -263,7 +273,7 @@ func resourceMLEngineModelImport(d *schema.ResourceData, meta interface{}) ([]*s
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/models/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -272,18 +282,18 @@ func resourceMLEngineModelImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenMLEngineModelName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenMLEngineModelDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMLEngineModelDefaultVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelDefaultVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -293,26 +303,26 @@ func flattenMLEngineModelDefaultVersion(v interface{}, d *schema.ResourceData) i
 	}
 	transformed := make(map[string]interface{})
 	transformed["name"] =
-		flattenMLEngineModelDefaultVersionName(original["name"], d)
+		flattenMLEngineModelDefaultVersionName(original["name"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMLEngineModelDefaultVersionName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelDefaultVersionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMLEngineModelRegions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelRegions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMLEngineModelOnlinePredictionLogging(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelOnlinePredictionLogging(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMLEngineModelOnlinePredictionConsoleLogging(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelOnlinePredictionConsoleLogging(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMLEngineModelLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

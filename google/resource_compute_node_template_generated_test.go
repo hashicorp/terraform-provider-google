@@ -55,9 +55,9 @@ data "google_compute_node_types" "central1a" {
 }
 
 resource "google_compute_node_template" "template" {
-  name = "soletenant-tmpl%{random_suffix}"
-  region = "us-central1"
-  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+  name      = "tf-test-soletenant-tmpl%{random_suffix}"
+  region    = "us-central1"
+  node_type = data.google_compute_node_types.central1a.names[0]
 }
 `, context)
 }

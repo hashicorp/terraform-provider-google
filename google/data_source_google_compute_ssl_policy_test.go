@@ -68,16 +68,15 @@ func testAccDataSourceGoogleSslPolicyCheck(data_source_name string, resource_nam
 
 func testAccDataSourceGoogleSslPolicy() string {
 	return fmt.Sprintf(`
-
 resource "google_compute_ssl_policy" "foobar" {
-	name = "%s"
-	description = "my-description"
-	min_tls_version = "TLS_1_2"
-	profile = "MODERN"
+  name            = "%s"
+  description     = "my-description"
+  min_tls_version = "TLS_1_2"
+  profile         = "MODERN"
 }
 
 data "google_compute_ssl_policy" "ssl_policy" {
-	name = "${google_compute_ssl_policy.foobar.name}"
+  name = google_compute_ssl_policy.foobar.name
 }
 `, acctest.RandomWithPrefix("test-ssl-policy"))
 }

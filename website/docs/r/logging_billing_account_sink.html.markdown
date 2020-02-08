@@ -1,4 +1,5 @@
 ---
+subcategory: "Stackdriver Logging"
 layout: "google"
 page_title: "Google: google_logging_billing_account_sink"
 sidebar_current: "docs-google-logging-billing-account-sink"
@@ -21,23 +22,23 @@ typical IAM roles granted on a project.
 
 ```hcl
 resource "google_logging_billing_account_sink" "my-sink" {
-    name = "my-sink"
-    billing_account = "ABCDEF-012345-GHIJKL"
+  name            = "my-sink"
+  billing_account = "ABCDEF-012345-GHIJKL"
 
-    # Can export to pubsub, cloud storage, or bigquery
-    destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  # Can export to pubsub, cloud storage, or bigquery
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 }
 
 resource "google_storage_bucket" "log-bucket" {
-    name     = "billing-logging-bucket"
+  name = "billing-logging-bucket"
 }
 
 resource "google_project_iam_binding" "log-writer" {
-    role = "roles/storage.objectCreator"
+  role = "roles/storage.objectCreator"
 
-    members = [
-        "${google_logging_billing_account_sink.my-sink.writer_identity}",
-    ]
+  members = [
+    google_logging_billing_account_sink.my-sink.writer_identity,
+  ]
 }
 ```
 
@@ -61,6 +62,15 @@ The following arguments are supported:
 * `filter` - (Optional) The filter to apply when exporting logs. Only log entries that match the filter are exported.
     See [Advanced Log Filters](https://cloud.google.com/logging/docs/view/advanced_filters) for information on how to
     write a filter.
+
+* `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure documented below.
+
+The `bigquery_options` block supports:
+
+* `use_partitioned_tables` - (Required) Whether to use [BigQuery's partition tables](https://cloud.google.com/bigquery/docs/partitioned-tables).
+    By default, Logging creates dated tables based on the log entries' timestamps, e.g. syslog_20170523. With partitioned
+    tables the date suffix is no longer present and [special query syntax](https://cloud.google.com/bigquery/docs/querying-partitioned-tables)
+    has to be used instead. In both cases, tables are sharded based on UTC timezone.
 
 ## Attributes Reference
 

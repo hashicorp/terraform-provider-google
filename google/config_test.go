@@ -24,7 +24,7 @@ func TestConfigLoadAndValidate_accountFilePath(t *testing.T) {
 
 	ConfigureBasePaths(config)
 
-	err := config.LoadAndValidate()
+	err := config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -43,7 +43,7 @@ func TestConfigLoadAndValidate_accountFileJSON(t *testing.T) {
 
 	ConfigureBasePaths(config)
 
-	err = config.LoadAndValidate()
+	err = config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -58,7 +58,7 @@ func TestConfigLoadAndValidate_accountFileJSONInvalid(t *testing.T) {
 
 	ConfigureBasePaths(config)
 
-	if config.LoadAndValidate() == nil {
+	if config.LoadAndValidate(context.Background()) == nil {
 		t.Fatalf("expected error, but got nil")
 	}
 }
@@ -80,7 +80,7 @@ func TestAccConfigLoadValidate_credentials(t *testing.T) {
 
 	ConfigureBasePaths(config)
 
-	err := config.LoadAndValidate()
+	err := config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -118,7 +118,7 @@ func TestAccConfigLoadValidate_accessToken(t *testing.T) {
 
 	ConfigureBasePaths(config)
 
-	err = config.LoadAndValidate()
+	err = config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -139,7 +139,7 @@ func TestConfigLoadAndValidate_customScopes(t *testing.T) {
 
 	ConfigureBasePaths(config)
 
-	err := config.LoadAndValidate()
+	err := config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -165,7 +165,7 @@ func TestConfigLoadAndValidate_defaultBatchingConfig(t *testing.T) {
 		BatchingConfig: batchCfg,
 	}
 
-	err = config.LoadAndValidate()
+	err = config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -202,7 +202,7 @@ func TestConfigLoadAndValidate_customBatchingConfig(t *testing.T) {
 		BatchingConfig: batchCfg,
 	}
 
-	err = config.LoadAndValidate()
+	err = config.LoadAndValidate(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -216,5 +216,25 @@ func TestConfigLoadAndValidate_customBatchingConfig(t *testing.T) {
 
 	if config.requestBatcherServiceUsage.enableBatching {
 		t.Fatalf("expected enableBatching to be false")
+	}
+}
+
+func TestRemoveBasePathVersion(t *testing.T) {
+	cases := []struct {
+		BaseURL  string
+		Expected string
+	}{
+		{"https://www.googleapis.com/compute/version_v1/", "https://www.googleapis.com/compute/"},
+		{"https://runtimeconfig.googleapis.com/v1beta1/", "https://runtimeconfig.googleapis.com/"},
+		{"https://www.googleapis.com/compute/v1/", "https://www.googleapis.com/compute/"},
+		{"https://staging-version.googleapis.com/", "https://staging-version.googleapis.com/"},
+		// For URLs with any parts, the last part is always removed- it's assumed to be the version.
+		{"https://runtimeconfig.googleapis.com/runtimeconfig/", "https://runtimeconfig.googleapis.com/"},
+	}
+
+	for _, c := range cases {
+		if c.Expected != removeBasePathVersion(c.BaseURL) {
+			t.Errorf("replace url failed: got %s wanted %s", removeBasePathVersion(c.BaseURL), c.Expected)
+		}
 	}
 }

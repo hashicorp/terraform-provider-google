@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Scheduler"
 layout: "google"
 page_title: "Google: google_cloud_scheduler_job"
 sidebar_current: "docs-google-cloud-scheduler-job"
@@ -50,13 +51,14 @@ resource "google_pubsub_topic" "topic" {
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job"
+  name        = "test-job"
   description = "test job"
-  schedule = "*/2 * * * *"
+  schedule    = "*/2 * * * *"
 
   pubsub_target {
-    topic_name = "${google_pubsub_topic.topic.id}"
-    data = "${base64encode("test")}"
+    # topic.id is the topic's full resource name.
+    topic_name = google_pubsub_topic.topic.id
+    data       = base64encode("test")
   }
 }
 ```
@@ -70,14 +72,15 @@ resource "google_cloud_scheduler_job" "job" {
 
 ```hcl
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job"
-  description = "test http job"
-  schedule = "*/8 * * * *"
-  time_zone = "America/New_York"
+  name             = "test-job"
+  description      = "test http job"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
 
   http_target {
     http_method = "POST"
-    uri = "https://example.com/ping"
+    uri         = "https://example.com/ping"
   }
 }
 ```
@@ -91,17 +94,18 @@ resource "google_cloud_scheduler_job" "job" {
 
 ```hcl
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job"
-  schedule = "*/4 * * * *"
-  description = "test app engine job"
-  time_zone = "Europe/London"
+  name             = "test-job"
+  schedule         = "*/4 * * * *"
+  description      = "test app engine job"
+  time_zone        = "Europe/London"
+  attempt_deadline = "320s"
 
   app_engine_http_target {
     http_method = "POST"
 
     app_engine_routing {
-      service = "web"
-      version = "prod"
+      service  = "web"
+      version  = "prod"
       instance = "my-instance-001"
     }
 
@@ -118,20 +122,22 @@ resource "google_cloud_scheduler_job" "job" {
 
 
 ```hcl
-data "google_compute_default_service_account" "default" { }
+data "google_compute_default_service_account" "default" {
+}
 
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job"
-  description = "test http job"
-  schedule = "*/8 * * * *"
-  time_zone = "America/New_York"
+  name             = "test-job"
+  description      = "test http job"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
 
   http_target {
     http_method = "GET"
-    uri = "https://cloudscheduler.googleapis.com/v1/projects/my-project-name/locations/us-west1/jobs"
+    uri         = "https://cloudscheduler.googleapis.com/v1/projects/my-project-name/locations/us-west1/jobs"
 
     oauth_token {
-      service_account_email = "${data.google_compute_default_service_account.default.email}"
+      service_account_email = data.google_compute_default_service_account.default.email
     }
   }
 }
@@ -145,20 +151,22 @@ resource "google_cloud_scheduler_job" "job" {
 
 
 ```hcl
-data "google_compute_default_service_account" "default" { }
+data "google_compute_default_service_account" "default" {
+}
 
 resource "google_cloud_scheduler_job" "job" {
-  name     = "test-job"
-  description = "test http job"
-  schedule = "*/8 * * * *"
-  time_zone = "America/New_York"
+  name             = "test-job"
+  description      = "test http job"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
 
   http_target {
     http_method = "GET"
-    uri = "https://example.com/ping"
+    uri         = "https://example.com/ping"
 
     oidc_token {
-      service_account_email = "${data.google_compute_default_service_account.default.email}"
+      service_account_email = data.google_compute_default_service_account.default.email
     }
   }
 }
@@ -194,6 +202,16 @@ The following arguments are supported:
   (Optional)
   Specifies the time zone to be used in interpreting schedule.
   The value of this field must be a time zone name from the tz database.
+
+* `attempt_deadline` -
+  (Optional)
+  The deadline for job attempts. If the request handler does not respond by this deadline then the request is
+  cancelled and the attempt is marked as a DEADLINE_EXCEEDED failure. The failed attempt can be viewed in
+  execution logs. Cloud Scheduler will retry the job according to the RetryConfig.
+  The allowed duration for this deadline is:
+  * For HTTP targets, between 15 seconds and 30 minutes.
+  * For App Engine HTTP targets, between 15 seconds and 24 hours.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s"
 
 * `retry_config` -
   (Optional)
@@ -258,9 +276,10 @@ The `pubsub_target` block supports:
 
 * `topic_name` -
   (Required)
-  The name of the Cloud Pub/Sub topic to which messages will be published when a job is delivered. 
-  The topic name must be in the same format as required by PubSub's PublishRequest.name, 
-  for example projects/PROJECT_ID/topics/TOPIC_ID.
+  The full resource name for the Cloud Pub/Sub topic to which
+  messages will be published when a job is delivered. ~>**NOTE**:
+  The topic name must be in the same format as required by PubSub's
+  PublishRequest.name, e.g. `projects/my-project/topics/my-topic`.
 
 * `data` -
   (Optional)
@@ -355,7 +374,7 @@ The `http_target` block supports:
 The `oauth_token` block supports:
 
 * `service_account_email` -
-  (Optional)
+  (Required)
   Service account email to be used for generating OAuth token.
   The service account must be within the same project as the job.
 
@@ -367,7 +386,7 @@ The `oauth_token` block supports:
 The `oidc_token` block supports:
 
 * `service_account_email` -
-  (Optional)
+  (Required)
   Service account email to be used for generating OAuth token.
   The service account must be within the same project as the job.
 
@@ -375,6 +394,12 @@ The `oidc_token` block supports:
   (Optional)
   Audience to be used when generating OIDC token. If not specified,
   the URI specified in target will be used.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{region}}/jobs/{{name}}`
 
 
 ## Timeouts
@@ -401,4 +426,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

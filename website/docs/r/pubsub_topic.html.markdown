@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Pub/Sub"
 layout: "google"
 page_title: "Google: google_pubsub_topic"
 sidebar_current: "docs-google-pubsub-topic"
@@ -53,12 +54,12 @@ resource "google_pubsub_topic" "example" {
 ```hcl
 resource "google_pubsub_topic" "example" {
   name         = "example-topic"
-  kms_key_name = "${google_kms_crypto_key.crypto_key.self_link}"
+  kms_key_name = google_kms_crypto_key.crypto_key.self_link
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
   name     = "example-key"
-  key_ring = "${google_kms_key_ring.key_ring.self_link}"
+  key_ring = google_kms_key_ring.key_ring.self_link
 }
 
 resource "google_kms_key_ring" "key_ring" {
@@ -83,7 +84,6 @@ resource "google_pubsub_topic" "example" {
       "europe-west3",
     ]
   }
-
 }
 ```
 
@@ -133,6 +133,12 @@ The `message_storage_policy` block supports:
   allowed regions. An empty list means that no regions are allowed,
   and is not a valid configuration.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/topics/{{name}}`
+
 
 ## Timeouts
 
@@ -158,4 +164,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

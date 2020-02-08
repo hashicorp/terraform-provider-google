@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud KMS"
 layout: "google"
 page_title: "Google: google_kms_secret"
 sidebar_current: "docs-google-kms-secret"
@@ -32,7 +33,7 @@ resource "google_kms_key_ring" "my_key_ring" {
 
 resource "google_kms_crypto_key" "my_crypto_key" {
   name     = "my-crypto-key"
-  key_ring = "${google_kms_key_ring.my_key_ring.self_link}"
+  key_ring = google_kms_key_ring.my_key_ring.self_link
 }
 ```
 
@@ -55,7 +56,7 @@ Finally, reference the encrypted ciphertext in your resource definitions:
 
 ```hcl
 data "google_kms_secret" "sql_user_password" {
-  crypto_key = "${google_kms_crypto_key.my_crypto_key.self_link}"
+  crypto_key = google_kms_crypto_key.my_crypto_key.self_link
   ciphertext = "CiQAqD+xX4SXOSziF4a8JYvq4spfAuWhhYSNul33H85HnVtNQW4SOgDu2UZ46dQCRFl5MF6ekabviN8xq+F+2035ZJ85B+xTYXqNf4mZs0RJitnWWuXlYQh6axnnJYu3kDU="
 }
 
@@ -67,15 +68,15 @@ resource "google_sql_database_instance" "master" {
   name = "master-instance-${random_id.db_name_suffix.hex}"
 
   settings {
-    tier = "D0"
+    tier = "db-f1-micro"
   }
 }
 
 resource "google_sql_user" "users" {
   name     = "me"
-  instance = "${google_sql_database_instance.master.name}"
+  instance = google_sql_database_instance.master.name
   host     = "me.com"
-  password = "${data.google_kms_secret.sql_user_password.plaintext}"
+  password = data.google_kms_secret.sql_user_password.plaintext
 }
 ```
 

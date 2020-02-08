@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_instance_group"
 sidebar_current: "docs-google-compute-instance-group-x"
@@ -23,7 +24,7 @@ resource "google_compute_instance_group" "test" {
   name        = "terraform-test"
   description = "Terraform test instance group"
   zone        = "us-central1-a"
-  network     = "${google_compute_network.default.self_link}"
+  network     = google_compute_network.default.self_link
 }
 ```
 
@@ -35,8 +36,8 @@ resource "google_compute_instance_group" "webservers" {
   description = "Terraform test instance group"
 
   instances = [
-    "${google_compute_instance.test.self_link}",
-    "${google_compute_instance.test2.self_link}",
+    google_compute_instance.test.self_link,
+    google_compute_instance.test2.self_link,
   ]
 
   named_port {
@@ -60,9 +61,9 @@ as shown in this example to avoid this type of error.
 
 ```hcl
 resource "google_compute_instance_group" "staging_group" {
-  name = "staging-instance-group"
-  zone = "us-central1-c"
-  instances = [ "${google_compute_instance.staging_vm.self_link}" ]
+  name      = "staging-instance-group"
+  zone      = "us-central1-c"
+  instances = [google_compute_instance.staging_vm.self_link]
   named_port {
     name = "http"
     port = "8080"
@@ -84,12 +85,12 @@ data "google_compute_image" "debian_image" {
 }
 
 resource "google_compute_instance" "staging_vm" {
-  name = "staging-vm"
+  name         = "staging-vm"
   machine_type = "n1-standard-1"
-  zone = "us-central1-c"
+  zone         = "us-central1-c"
   boot_disk {
     initialize_params {
-      image = "${data.google_compute_image.debian_image.self_link}"
+      image = data.google_compute_image.debian_image.self_link
     }
   }
 
@@ -104,11 +105,11 @@ resource "google_compute_backend_service" "staging_service" {
   protocol  = "HTTPS"
 
   backend {
-    group = "${google_compute_instance_group.staging_group.self_link}"
+    group = google_compute_instance_group.staging_group.self_link
   }
 
   health_checks = [
-    "${google_compute_https_health_check.staging_health.self_link}",
+    google_compute_https_health_check.staging_health.self_link,
   ]
 }
 
@@ -180,4 +181,5 @@ Instance group can be imported using the `zone` and `name` with an optional `pro
 ```
 $ terraform import google_compute_instance_group.webservers us-central1-a/terraform-webservers
 $ terraform import google_compute_instance_group.webservers big-project/us-central1-a/terraform-webservers
+$ terraform import google_compute_instance_group.webservers projects/big-project/zones/us-central1-a/instanceGroups/terraform-webservers
 ```

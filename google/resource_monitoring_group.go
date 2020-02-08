@@ -44,23 +44,35 @@ func resourceMonitoringGroup() *schema.Resource {
 			"display_name": {
 				Type:     schema.TypeString,
 				Required: true,
+				Description: `A user-assigned name for this group, used only for display
+purposes.`,
 			},
 			"filter": {
 				Type:     schema.TypeString,
 				Required: true,
+				Description: `The filter used to determine which monitored resources
+belong to this group.`,
 			},
 			"is_cluster": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Description: `If true, the members of this group are considered to be a
+cluster. The system can perform additional analysis on
+groups that are clusters.`,
 			},
 			"parent_name": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				Description: `The name of the group's parent, if it has one. The format is
+"projects/{project_id_or_number}/groups/{group_id}". For
+groups with no parent, parentName is the empty string, "".`,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `A unique identifier for this group. The format is
+"projects/{project_id_or_number}/groups/{group_id}".`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -118,7 +130,7 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringRetryableError)
 	if err != nil {
 		return fmt.Errorf("Error creating Group: %s", err)
 	}
@@ -155,7 +167,7 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringGroup %q", d.Id()))
 	}
@@ -164,19 +176,19 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
 
-	if err := d.Set("parent_name", flattenMonitoringGroupParentName(res["parentName"], d)); err != nil {
+	if err := d.Set("parent_name", flattenMonitoringGroupParentName(res["parentName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
-	if err := d.Set("name", flattenMonitoringGroupName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenMonitoringGroupName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
-	if err := d.Set("is_cluster", flattenMonitoringGroupIsCluster(res["isCluster"], d)); err != nil {
+	if err := d.Set("is_cluster", flattenMonitoringGroupIsCluster(res["isCluster"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
-	if err := d.Set("display_name", flattenMonitoringGroupDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenMonitoringGroupDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
-	if err := d.Set("filter", flattenMonitoringGroupFilter(res["filter"], d)); err != nil {
+	if err := d.Set("filter", flattenMonitoringGroupFilter(res["filter"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
 
@@ -230,7 +242,7 @@ func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Updating Group %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	_, err = sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringRetryableError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Group %q: %s", d.Id(), err)
@@ -262,7 +274,7 @@ func resourceMonitoringGroupDelete(d *schema.ResourceData, meta interface{}) err
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Group %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, "Group")
 	}
@@ -283,23 +295,23 @@ func resourceMonitoringGroupImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenMonitoringGroupParentName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringGroupParentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGroupName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringGroupName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGroupIsCluster(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringGroupIsCluster(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGroupDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringGroupDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGroupFilter(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringGroupFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

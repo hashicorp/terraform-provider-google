@@ -14,6 +14,8 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+const resourceDataflowJobGoogleProvidedLabelPrefix = "labels.goog-dataflow-provided"
+
 var dataflowTerminalStatesMap = map[string]struct{}{
 	"JOB_STATE_DONE":      {},
 	"JOB_STATE_FAILED":    {},
@@ -22,12 +24,27 @@ var dataflowTerminalStatesMap = map[string]struct{}{
 	"JOB_STATE_DRAINED":   {},
 }
 
+func resourceDataflowJobLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Example Diff: "labels.goog-dataflow-provided-template-version": "word_count" => ""
+	if strings.HasPrefix(k, resourceDataflowJobGoogleProvidedLabelPrefix) && new == "" {
+		// Suppress diff if field is a Google Dataflow-provided label key and has no explicitly set value in Config.
+		return true
+	}
+
+	// Let diff be determined by labels (above)
+	if strings.HasPrefix(k, "labels.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
+
 func resourceDataflowJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataflowJobCreate,
 		Read:   resourceDataflowJobRead,
 		Delete: resourceDataflowJobDelete,
-
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -72,9 +89,10 @@ func resourceDataflowJob() *schema.Resource {
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeMap,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: resourceDataflowJobLabelDiffSuppress,
 			},
 
 			"on_delete": {

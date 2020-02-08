@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -43,21 +42,19 @@ func (s *cloudFunctionId) locationId() string {
 	return fmt.Sprintf("projects/%s/locations/%s", s.Project, s.Region)
 }
 
-func (s *cloudFunctionId) terraformId() string {
-	return fmt.Sprintf("%s/%s/%s", s.Project, s.Region, s.Name)
-}
-
-func parseCloudFunctionId(id string, config *Config) (*cloudFunctionId, error) {
-	if parts := strings.Split(id, "/"); len(parts) == 3 {
-		return &cloudFunctionId{
-			Project: parts[0],
-			Region:  parts[1],
-			Name:    parts[2],
-		}, nil
+func parseCloudFunctionId(d *schema.ResourceData, config *Config) (*cloudFunctionId, error) {
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
+		"(?P<name>[^/]+)",
+	}, d, config); err != nil {
+		return nil, err
 	}
-
-	return nil, fmt.Errorf("Invalid CloudFunction id format, expecting " +
-		"`{projectId}/{regionId}/{cloudFunctionName}`")
+	return &cloudFunctionId{
+		Project: d.Get("project").(string),
+		Region:  d.Get("region").(string),
+		Name:    d.Get("name").(string),
+	}, nil
 }
 
 func joinMapKeys(mapToJoin *map[int]bool) string {
@@ -68,26 +65,11 @@ func joinMapKeys(mapToJoin *map[int]bool) string {
 	return strings.Join(keys, ",")
 }
 
+// Differs from validateGcpName because Cloud Functions allow capital letters
+// at start/end
 func validateResourceCloudFunctionsFunctionName(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-
-	if len(value) > 48 {
-		errors = append(errors, fmt.Errorf(
-			"%q cannot be longer than 48 characters", k))
-	}
-	if !regexp.MustCompile("^[a-zA-Z0-9-_]+$").MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q can only contain letters, numbers, underscores and hyphens", k))
-	}
-	if !regexp.MustCompile("^[a-zA-Z]").MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q must start with a letter", k))
-	}
-	if !regexp.MustCompile("[a-zA-Z0-9]$").MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q must end with a number or a letter", k))
-	}
-	return
+	re := `^(?:[a-zA-Z](?:[-_a-zA-Z0-9]{0,61}[a-zA-Z0-9])?)$`
+	return validateRegexp(re)(v, k)
 }
 
 // based on compareSelfLinkOrResourceName, but less reusable and allows multi-/
@@ -110,6 +92,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
 			Read:   schema.DefaultTimeout(5 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
@@ -162,7 +145,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					availableMemoryMB := v.(int)
 
-					if functionAllowedMemory[availableMemoryMB] != true {
+					if !functionAllowedMemory[availableMemoryMB] {
 						errors = append(errors, fmt.Errorf("Allowed values for memory (in MB) are: %s . Got %d",
 							joinMapKeys(&functionAllowedMemory), availableMemoryMB))
 					}
@@ -190,8 +173,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 
 			"runtime": {
 				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "nodejs6",
+				Required: true,
 			},
 
 			"service_account_email": {
@@ -212,27 +194,10 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Optional: true,
 			},
 
-			"trigger_bucket": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				Removed:       "This field is removed. Use `event_trigger` instead.",
-				ConflictsWith: []string{"trigger_http", "trigger_topic"},
-			},
-
 			"trigger_http": {
-				Type:          schema.TypeBool,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"trigger_bucket", "trigger_topic"},
-			},
-
-			"trigger_topic": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				Removed:       "This field is removed. Use `event_trigger` instead.",
-				ConflictsWith: []string{"trigger_http", "trigger_bucket"},
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
 			},
 
 			"event_trigger": {
@@ -389,7 +354,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Name of function should be unique
-	d.SetId(cloudFuncId.terraformId())
+	d.SetId(cloudFuncId.cloudFunctionId())
 
 	err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Creating CloudFunctions Function",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
@@ -403,7 +368,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	cloudFuncId, err := parseCloudFunctionId(d.Id(), config)
+	cloudFuncId, err := parseCloudFunctionId(d, config)
 	if err != nil {
 		return err
 	}
@@ -464,7 +429,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	cloudFuncId, err := parseCloudFunctionId(d.Id(), config)
+	cloudFuncId, err := parseCloudFunctionId(d, config)
 	if err != nil {
 		return err
 	}
@@ -553,7 +518,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	cloudFuncId, err := parseCloudFunctionId(d.Id(), config)
+	cloudFuncId, err := parseCloudFunctionId(d, config)
 	if err != nil {
 		return err
 	}

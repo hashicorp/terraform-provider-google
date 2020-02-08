@@ -107,6 +107,15 @@ func TestAccIapWebTypeComputeIamPolicyGenerated(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccIapWebTypeComputeIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_iap_web_type_compute_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute", fmt.Sprintf("tf-test%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -114,20 +123,20 @@ func TestAccIapWebTypeComputeIamPolicyGenerated(t *testing.T) {
 func testAccIapWebTypeComputeIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "project" {
-	project_id = "tf-test%{random_suffix}"
-	name = "tf-test%{random_suffix}"
-	org_id = "%{org_id}"
+  project_id = "tf-test%{random_suffix}"
+  name       = "tf-test%{random_suffix}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_iap_web_type_compute_iam_member" "foo" {
-	project = "${google_project_service.project_service.project}"
-	role = "%{role}"
-	member = "user:admin@hashicorptest.com"
+  project = google_project_service.project_service.project
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -135,26 +144,49 @@ resource "google_iap_web_type_compute_iam_member" "foo" {
 func testAccIapWebTypeComputeIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "project" {
-	project_id = "tf-test%{random_suffix}"
-	name = "tf-test%{random_suffix}"
-	org_id = "%{org_id}"
+  project_id = "tf-test%{random_suffix}"
+  name       = "tf-test%{random_suffix}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.project.project_id
+  service = "iap.googleapis.com"
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%{role}"
-		members = ["user:admin@hashicorptest.com"]
-	}
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+  }
 }
 
 resource "google_iap_web_type_compute_iam_policy" "foo" {
-	project = "${google_project_service.project_service.project}"
-	policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = google_project_service.project_service.project
+  policy_data = data.google_iam_policy.foo.policy_data
+}
+`, context)
+}
+
+func testAccIapWebTypeComputeIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_project" "project" {
+  project_id = "tf-test%{random_suffix}"
+  name       = "tf-test%{random_suffix}"
+  org_id     = "%{org_id}"
+}
+
+resource "google_project_service" "project_service" {
+  project = google_project.project.project_id
+  service = "iap.googleapis.com"
+}
+
+data "google_iam_policy" "foo" {
+}
+
+resource "google_iap_web_type_compute_iam_policy" "foo" {
+  project = google_project_service.project_service.project
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -162,20 +194,20 @@ resource "google_iap_web_type_compute_iam_policy" "foo" {
 func testAccIapWebTypeComputeIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "project" {
-	project_id = "tf-test%{random_suffix}"
-	name = "tf-test%{random_suffix}"
-	org_id = "%{org_id}"
+  project_id = "tf-test%{random_suffix}"
+  name       = "tf-test%{random_suffix}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_iap_web_type_compute_iam_binding" "foo" {
-	project = "${google_project_service.project_service.project}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com"]
+  project = google_project_service.project_service.project
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -183,20 +215,20 @@ resource "google_iap_web_type_compute_iam_binding" "foo" {
 func testAccIapWebTypeComputeIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "project" {
-	project_id = "tf-test%{random_suffix}"
-	name = "tf-test%{random_suffix}"
-	org_id = "%{org_id}"
+  project_id = "tf-test%{random_suffix}"
+  name       = "tf-test%{random_suffix}"
+  org_id     = "%{org_id}"
 }
 
 resource "google_project_service" "project_service" {
-	project = "${google_project.project.project_id}"
-	service = "iap.googleapis.com"
+  project = google_project.project.project_id
+  service = "iap.googleapis.com"
 }
 
 resource "google_iap_web_type_compute_iam_binding" "foo" {
-	project = "${google_project_service.project_service.project}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  project = google_project_service.project_service.project
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }

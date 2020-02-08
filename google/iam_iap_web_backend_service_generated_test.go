@@ -39,7 +39,7 @@ func TestAccIapWebBackendServiceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor", getTestProjectFromEnv(), fmt.Sprintf("backend-service%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor", getTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,7 +49,7 @@ func TestAccIapWebBackendServiceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor", getTestProjectFromEnv(), fmt.Sprintf("backend-service%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor", getTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -75,7 +75,7 @@ func TestAccIapWebBackendServiceIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("backend-service%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -100,7 +100,16 @@ func TestAccIapWebBackendServiceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s", getTestProjectFromEnv(), fmt.Sprintf("backend-service%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s", getTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccIapWebBackendServiceIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_iap_web_backend_service_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s", getTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -111,22 +120,22 @@ func TestAccIapWebBackendServiceIamPolicyGenerated(t *testing.T) {
 func testAccIapWebBackendServiceIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "backend-service%{random_suffix}"
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  name          = "tf-test-backend-service%{random_suffix}"
+  health_checks = [google_compute_http_health_check.default.self_link]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_iap_web_backend_service_iam_member" "foo" {
-	project = "${google_compute_backend_service.default.project}"
-	web_backend_service = "${google_compute_backend_service.default.name}"
-	role = "%{role}"
-	member = "user:admin@hashicorptest.com"
+  project = google_compute_backend_service.default.project
+  web_backend_service = google_compute_backend_service.default.name
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -134,28 +143,53 @@ resource "google_iap_web_backend_service_iam_member" "foo" {
 func testAccIapWebBackendServiceIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "backend-service%{random_suffix}"
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  name          = "tf-test-backend-service%{random_suffix}"
+  health_checks = [google_compute_http_health_check.default.self_link]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%{role}"
-		members = ["user:admin@hashicorptest.com"]
-	}
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+  }
 }
 
 resource "google_iap_web_backend_service_iam_policy" "foo" {
-	project = "${google_compute_backend_service.default.project}"
-	web_backend_service = "${google_compute_backend_service.default.name}"
-	policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = google_compute_backend_service.default.project
+  web_backend_service = google_compute_backend_service.default.name
+  policy_data = data.google_iam_policy.foo.policy_data
+}
+`, context)
+}
+
+func testAccIapWebBackendServiceIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_backend_service" "default" {
+  name          = "tf-test-backend-service%{random_suffix}"
+  health_checks = [google_compute_http_health_check.default.self_link]
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "tf-test-health-check%{random_suffix}"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+
+data "google_iam_policy" "foo" {
+}
+
+resource "google_iap_web_backend_service_iam_policy" "foo" {
+  project = google_compute_backend_service.default.project
+  web_backend_service = google_compute_backend_service.default.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -163,22 +197,22 @@ resource "google_iap_web_backend_service_iam_policy" "foo" {
 func testAccIapWebBackendServiceIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "backend-service%{random_suffix}"
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  name          = "tf-test-backend-service%{random_suffix}"
+  health_checks = [google_compute_http_health_check.default.self_link]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_iap_web_backend_service_iam_binding" "foo" {
-	project = "${google_compute_backend_service.default.project}"
-	web_backend_service = "${google_compute_backend_service.default.name}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com"]
+  project = google_compute_backend_service.default.project
+  web_backend_service = google_compute_backend_service.default.name
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -186,22 +220,22 @@ resource "google_iap_web_backend_service_iam_binding" "foo" {
 func testAccIapWebBackendServiceIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "backend-service%{random_suffix}"
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  name          = "tf-test-backend-service%{random_suffix}"
+  health_checks = [google_compute_http_health_check.default.self_link]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_iap_web_backend_service_iam_binding" "foo" {
-	project = "${google_compute_backend_service.default.project}"
-	web_backend_service = "${google_compute_backend_service.default.name}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  project = google_compute_backend_service.default.project
+  web_backend_service = google_compute_backend_service.default.name
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }

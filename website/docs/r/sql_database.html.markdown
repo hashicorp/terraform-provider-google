@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud SQL"
 layout: "google"
 page_title: "Google: google_sql_database"
 sidebar_current: "docs-google-sql-database"
@@ -37,16 +38,16 @@ Google's cloud.
 
 ```hcl
 resource "google_sql_database" "database" {
-	name = "my-database"
-	instance = "${google_sql_database_instance.instance.name}"
+  name     = "my-database"
+  instance = google_sql_database_instance.instance.name
 }
 
 resource "google_sql_database_instance" "instance" {
-	name = "my-database-instance"
-	region = "us-central"
-	settings {
-		tier = "D0"
-	}
+  name   = "my-database-instance"
+  region = "us-central1"
+  settings {
+    tier = "db-f1-micro"
+  }
 }
 ```
 
@@ -89,6 +90,13 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/instances/{{instance}}/databases/{{name}}`
+* `self_link` - The URI of the created resource.
+
 
 ## Timeouts
 
@@ -108,7 +116,6 @@ $ terraform import google_sql_database.default projects/{{project}}/instances/{{
 $ terraform import google_sql_database.default instances/{{instance}}/databases/{{name}}
 $ terraform import google_sql_database.default {{project}}/{{instance}}/{{name}}
 $ terraform import google_sql_database.default {{instance}}/{{name}}
-$ terraform import google_sql_database.default {{instance}}:{{name}}
 $ terraform import google_sql_database.default {{name}}
 ```
 
@@ -117,4 +124,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

@@ -93,9 +93,10 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 	d.Set("network", subnetwork.Network)
 	d.Set("project", project)
 	d.Set("region", region)
+	d.Set("name", name)
 	d.Set("secondary_ip_range", flattenSecondaryRanges(subnetwork.SecondaryIpRanges))
 
-	d.SetId(fmt.Sprintf("%s/%s", region, name))
+	d.SetId(fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", project, region, name))
 	return nil
 }
 

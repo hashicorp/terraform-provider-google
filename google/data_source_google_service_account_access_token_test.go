@@ -52,15 +52,14 @@ func TestAccDataSourceGoogleServiceAccountAccessToken_basic(t *testing.T) {
 func testAccCheckGoogleServiceAccountAccessToken_datasource(targetServiceAccountID string) string {
 
 	return fmt.Sprintf(`
+data "google_service_account_access_token" "default" {
+  target_service_account = "%s"
+  scopes                 = ["userinfo-email", "https://www.googleapis.com/auth/cloud-platform"]
+  lifetime               = "30s"
+}
 
-	data "google_service_account_access_token" "default" {
-		target_service_account = "%s"
-		scopes = ["userinfo-email", "https://www.googleapis.com/auth/cloud-platform"]
-		lifetime = "30s"
-	}
-
-	output "access_token" {
-		value = "${data.google_service_account_access_token.default.access_token}"
-	}
-	`, targetServiceAccountID)
+output "access_token" {
+  value = data.google_service_account_access_token.default.access_token
+}
+`, targetServiceAccountID)
 }

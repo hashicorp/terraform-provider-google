@@ -72,7 +72,7 @@ func TestKeyRingIdParsing(t *testing.T) {
 }
 
 func TestAccKmsKeyRing_basic(t *testing.T) {
-	projectId := "terraform-" + acctest.RandString(10)
+	projectId := acctest.RandomWithPrefix("tf-test")
 	projectOrg := getTestOrgFromEnv(t)
 	projectBillingAccount := getTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -123,37 +123,37 @@ func testAccCheckGoogleKmsKeyRingWasRemovedFromState(resourceName string) resour
 func testGoogleKmsKeyRing_basic(projectId, projectOrg, projectBillingAccount, keyRingName string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-	name			= "%s"
-	project_id		= "%s"
-	org_id			= "%s"
-	billing_account	= "%s"
+  name            = "%s"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project_service" "acceptance" {
-	project  = "${google_project.acceptance.project_id}"
-	service = "cloudkms.googleapis.com"
+  project = google_project.acceptance.project_id
+  service = "cloudkms.googleapis.com"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-	project  = "${google_project_service.acceptance.project}"
-	name     = "%s"
-	location = "us-central1"
+  project  = google_project_service.acceptance.project
+  name     = "%s"
+  location = "us-central1"
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName)
+`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName)
 }
 
 func testGoogleKmsKeyRing_removed(projectId, projectOrg, projectBillingAccount string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-	name 			= "%s"
-	project_id		= "%s"
-	org_id			= "%s"
-	billing_account	= "%s"
+  name            = "%s"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
 }
 
 resource "google_project_service" "acceptance" {
-	project  = "${google_project.acceptance.project_id}"
-	service = "cloudkms.googleapis.com"
+  project = google_project.acceptance.project_id
+  service = "cloudkms.googleapis.com"
 }
-	`, projectId, projectId, projectOrg, projectBillingAccount)
+`, projectId, projectId, projectOrg, projectBillingAccount)
 }

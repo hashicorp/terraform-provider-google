@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_project_iam_custom_role"
 sidebar_current: "docs-google-project-iam-custom-role"
@@ -37,7 +38,7 @@ resource "google_project_iam_custom_role" "my-custom-role" {
 
 The following arguments are supported:
 
-* `role_id` - (Required) The role id to use for this role.
+* `role_id` - (Required) The camel case role id to use for this role. Cannot contain `-` characters.
 
 * `title` - (Required) A human-readable title for the role.
 

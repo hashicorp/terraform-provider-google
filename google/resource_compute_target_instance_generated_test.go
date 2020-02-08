@@ -51,8 +51,8 @@ func TestAccComputeTargetInstance_targetInstanceBasicExample(t *testing.T) {
 func testAccComputeTargetInstance_targetInstanceBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_target_instance" "default" {
-  name        = "target%{random_suffix}"
-  instance    = "${google_compute_instance.target-vm.self_link}"
+  name     = "target%{random_suffix}"
+  instance = google_compute_instance.target-vm.self_link
 }
 
 data "google_compute_image" "vmimage" {
@@ -61,13 +61,13 @@ data "google_compute_image" "vmimage" {
 }
 
 resource "google_compute_instance" "target-vm" {
-  name         = "target-vm%{random_suffix}"
+  name         = "tf-test-target-vm%{random_suffix}"
   machine_type = "n1-standard-1"
   zone         = "us-central1-a"
 
   boot_disk {
-    initialize_params{
-      image = "${data.google_compute_image.vmimage.self_link}"
+    initialize_params {
+      image = data.google_compute_image.vmimage.self_link
     }
   }
 

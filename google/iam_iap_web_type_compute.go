@@ -40,9 +40,9 @@ type IapWebTypeComputeIamUpdater struct {
 func IapWebTypeComputeIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
 	values["project"] = project
 
@@ -64,19 +64,16 @@ func IapWebTypeComputeIamUpdaterProducer(d *schema.ResourceData, config *Config)
 
 	d.Set("project", u.project)
 
-	d.SetId(u.GetResourceId())
-
 	return u, nil
 }
 
 func IapWebTypeComputeIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
-	values["project"] = project
 
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute", "(?P<project>[^/]+)"}, d, config, d.Id())
 	if err != nil {
@@ -98,14 +95,23 @@ func IapWebTypeComputeIdParseFunc(d *schema.ResourceData, config *Config) error 
 }
 
 func (u *IapWebTypeComputeIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyWebTypeComputeUrl("getIamPolicy")
+	url, err := u.qualifyWebTypeComputeUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
+	var obj map[string]interface{}
+	obj = map[string]interface{}{
+		"options": map[string]interface{}{
+			"requestedPolicyVersion": iamPolicyVersion,
+		},
+	}
 
-	policy, err := sendRequest(u.Config, "POST", project, url, nil)
+	policy, err := sendRequest(u.Config, "POST", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -128,8 +134,10 @@ func (u *IapWebTypeComputeIamUpdater) SetResourceIamPolicy(policy *cloudresource
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyWebTypeComputeUrl("setIamPolicy")
-
+	url, err := u.qualifyWebTypeComputeUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return err
@@ -143,8 +151,13 @@ func (u *IapWebTypeComputeIamUpdater) SetResourceIamPolicy(policy *cloudresource
 	return nil
 }
 
-func (u *IapWebTypeComputeIamUpdater) qualifyWebTypeComputeUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://iap.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/iap_web/compute", u.project), methodIdentifier)
+func (u *IapWebTypeComputeIamUpdater) qualifyWebTypeComputeUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web/compute", u.project), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *IapWebTypeComputeIamUpdater) GetResourceId() string {

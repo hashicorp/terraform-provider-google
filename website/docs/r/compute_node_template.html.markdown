@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_node_template"
 sidebar_current: "docs-google-compute-node-template"
@@ -46,9 +47,9 @@ data "google_compute_node_types" "central1a" {
 }
 
 resource "google_compute_node_template" "template" {
-  name = "soletenant-tmpl"
-  region = "us-central1"
-  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+  name      = "soletenant-tmpl"
+  region    = "us-central1"
+  node_type = data.google_compute_node_types.central1a.names[0]
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -66,16 +67,16 @@ provider "google-beta" {
 }
 
 data "google_compute_node_types" "central1a" {
-  provider = "google-beta"
-  zone = "us-central1-a"
+  provider = google-beta
+  zone     = "us-central1-a"
 }
 
 resource "google_compute_node_template" "template" {
-  provider = "google-beta"
+  provider = google-beta
 
-  name = "soletenant-with-licenses"
-  region = "us-central1"
-  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+  name      = "soletenant-with-licenses"
+  region    = "us-central1"
+  node_type = data.google_compute_node_types.central1a.names[0]
 
   node_affinity_labels = {
     foo = "baz"
@@ -147,6 +148,7 @@ The `node_type_flexibility` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -177,4 +179,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Stackdriver Monitoring"
 layout: "google"
 page_title: "Google: google_monitoring_group"
 sidebar_current: "docs-google-monitoring-group"
@@ -43,7 +44,7 @@ To get more information about Group, see:
 
 ```hcl
 resource "google_monitoring_group" "basic" {
-  display_name = "New Test Group"
+  display_name = "tf-test MonitoringGroup"
 
   filter = "resource.metadata.region=\"europe-west2\""
 }
@@ -58,14 +59,14 @@ resource "google_monitoring_group" "basic" {
 
 ```hcl
 resource "google_monitoring_group" "parent" {
-  display_name = "New Test SubGroup"
-  filter = "resource.metadata.region=\"europe-west2\""
+  display_name = "tf-test MonitoringParentGroup"
+  filter       = "resource.metadata.region=\"europe-west2\""
 }
 
 resource "google_monitoring_group" "subgroup" {
-  display_name = "New Test SubGroup"
-  filter = "resource.metadata.region=\"europe-west2\""
-  parent_name =  "${google_monitoring_group.parent.name}"
+  display_name = "tf-test MonitoringSubGroup"
+  filter       = "resource.metadata.region=\"europe-west2\""
+  parent_name  =  google_monitoring_group.parent.name
 }
 ```
 
@@ -108,6 +109,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   A unique identifier for this group. The format is
@@ -136,4 +138,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

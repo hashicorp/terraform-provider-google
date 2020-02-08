@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Spanner"
 layout: "google"
 page_title: "Google: google_spanner_instance"
 sidebar_current: "docs-google-spanner-instance"
@@ -42,9 +43,9 @@ To get more information about Instance, see:
 
 ```hcl
 resource "google_spanner_instance" "example" {
-  config        = "regional-us-central1"
-  display_name  = "Test Spanner Instance"
-  num_nodes     = 2
+  config       = "regional-us-central1"
+  display_name = "Test Spanner Instance"
+  num_nodes    = 2
   labels = {
     "foo" = "bar"
   }
@@ -99,6 +100,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{project}}/{{name}}`
 
 * `state` -
   Instance status: `CREATING` or `READY`.
@@ -128,4 +130,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeNetworkEndpoint() *schema.Resource {
@@ -45,22 +44,30 @@ func resourceComputeNetworkEndpoint() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The name for a specific VM instance that the IP address belongs to.
+This is required for network endpoints of type GCE_VM_IP_PORT.
+The instance must be in the same zone of network endpoint group.`,
 			},
 			"ip_address": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `IPv4 address of network endpoint. The IP address must belong
+to a VM in GCE (either the primary IP or as part of an aliased IP
+range).`,
 			},
 			"network_endpoint_group": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The network endpoint group this endpoint is part of.`,
 			},
 			"port": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Port number of network endpoint.`,
 			},
 			"zone": {
 				Type:             schema.TypeString,
@@ -68,6 +75,7 @@ func resourceComputeNetworkEndpoint() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Zone where the containing network endpoint group is located.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -136,20 +144,14 @@ func resourceComputeNetworkEndpointCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating NetworkEndpoint",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating NetworkEndpoint",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create NetworkEndpoint: %s", waitErr)
+		return fmt.Errorf("Error waiting to create NetworkEndpoint: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating NetworkEndpoint %q: %#v", d.Id(), res)
@@ -202,13 +204,13 @@ func resourceComputeNetworkEndpointRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
 	}
 
-	if err := d.Set("instance", flattenComputeNetworkEndpointInstance(res["instance"], d)); err != nil {
+	if err := d.Set("instance", flattenComputeNetworkEndpointInstance(res["instance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
 	}
-	if err := d.Set("port", flattenComputeNetworkEndpointPort(res["port"], d)); err != nil {
+	if err := d.Set("port", flattenComputeNetworkEndpointPort(res["port"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
 	}
-	if err := d.Set("ip_address", flattenComputeNetworkEndpointIpAddress(res["ipAddress"], d)); err != nil {
+	if err := d.Set("ip_address", flattenComputeNetworkEndpointIpAddress(res["ipAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
 	}
 
@@ -265,14 +267,8 @@ func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface
 		return handleNotFoundError(err, d, "NetworkEndpoint")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting NetworkEndpoint",
+		config, res, project, "Deleting NetworkEndpoint",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -304,14 +300,14 @@ func resourceComputeNetworkEndpointImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNetworkEndpointInstance(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeNetworkEndpointPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles int given in float64 format
 	if floatVal, ok := v.(float64); ok {
 		return int(floatVal)
@@ -319,7 +315,7 @@ func flattenComputeNetworkEndpointPort(v interface{}, d *schema.ResourceData) in
 	return v
 }
 
-func flattenComputeNetworkEndpointIpAddress(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -395,17 +391,17 @@ func resourceComputeNetworkEndpointFindNestedObjectInList(d *schema.ResourceData
 			return -1, nil, err
 		}
 
-		itemInstance := flattenComputeNetworkEndpointInstance(item["instance"], d)
+		itemInstance := flattenComputeNetworkEndpointInstance(item["instance"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemInstance, expectedInstance) {
 			log.Printf("[DEBUG] Skipping item with instance= %#v, looking for %#v)", itemInstance, expectedInstance)
 			continue
 		}
-		itemIpAddress := flattenComputeNetworkEndpointIpAddress(item["ipAddress"], d)
+		itemIpAddress := flattenComputeNetworkEndpointIpAddress(item["ipAddress"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemIpAddress, expectedIpAddress) {
 			log.Printf("[DEBUG] Skipping item with ipAddress= %#v, looking for %#v)", itemIpAddress, expectedIpAddress)
 			continue
 		}
-		itemPort := flattenComputeNetworkEndpointPort(item["port"], d)
+		itemPort := flattenComputeNetworkEndpointPort(item["port"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemPort, expectedPort) {
 			log.Printf("[DEBUG] Skipping item with port= %#v, looking for %#v)", itemPort, expectedPort)
 			continue

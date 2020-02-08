@@ -23,7 +23,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
 
@@ -129,53 +128,77 @@ func resourceComputeRouterNat() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRFC1035Name(2, 63),
+				Description: `Name of the NAT service. The name must be 1-63 characters long and
+comply with RFC1035.`,
 			},
 			"nat_ip_allocate_option": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"MANUAL_ONLY", "AUTO_ONLY"}, false),
+				Description: `How external IPs should be allocated for this NAT. Valid values are
+'AUTO_ONLY' for only allowing NAT IPs allocated by Google Cloud
+Platform, or 'MANUAL_ONLY' for only user-allocated NAT IP addresses.`,
 			},
 			"router": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The name of the Cloud Router in which this NAT will be configured.`,
 			},
 			"source_subnetwork_ip_ranges_to_nat": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"ALL_SUBNETWORKS_ALL_IP_RANGES", "ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES", "LIST_OF_SUBNETWORKS"}, false),
+				Description: `How NAT should be configured per Subnetwork.
+If 'ALL_SUBNETWORKS_ALL_IP_RANGES', all of the
+IP ranges in every Subnetwork are allowed to Nat.
+If 'ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES', all of the primary IP
+ranges in every Subnetwork are allowed to Nat.
+'LIST_OF_SUBNETWORKS': A list of Subnetworks are allowed to Nat
+(specified in the field subnetwork below). Note that if this field
+contains ALL_SUBNETWORKS_ALL_IP_RANGES or
+ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES, then there should not be any
+other RouterNat section in any Router for this network in this region.`,
 			},
 			"icmp_idle_timeout_sec": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  30,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `Timeout (in seconds) for ICMP connections. Defaults to 30s if not set.`,
+				Default:     30,
 			},
 			"log_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration for logging on NAT`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enable": {
-							Type:     schema.TypeBool,
-							Required: true,
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `Indicates whether or not to export logs.`,
 						},
 						"filter": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"}, false),
+							Description: `Specifies the desired filtering of logs on this NAT. Valid
+values are: '"ERRORS_ONLY"', '"TRANSLATIONS_ONLY"', '"ALL"'`,
 						},
 					},
 				},
 			},
 			"min_ports_per_vm": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `Minimum number of ports allocated to a VM from this NAT.`,
 			},
 			"nat_ips": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Description: `Self-links of NAT IPs. Only valid if natIpAllocateOption
+is set to MANUAL_ONLY.`,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
@@ -188,27 +211,35 @@ func resourceComputeRouterNat() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Region where the router and NAT reside.`,
 			},
 			"subnetwork": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Elem:     computeRouterNatSubnetworkSchema(),
-				Set:      computeRouterNatSubnetworkHash,
+				Description: `One or more subnetwork NAT configurations. Only used if
+'source_subnetwork_ip_ranges_to_nat' is set to 'LIST_OF_SUBNETWORKS'`,
+				Elem: computeRouterNatSubnetworkSchema(),
+				Set:  computeRouterNatSubnetworkHash,
 			},
 			"tcp_established_idle_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  1200,
+				Description: `Timeout (in seconds) for TCP established connections.
+Defaults to 1200s if not set.`,
+				Default: 1200,
 			},
 			"tcp_transitory_idle_timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  30,
+				Description: `Timeout (in seconds) for TCP transitory connections.
+Defaults to 30s if not set.`,
+				Default: 30,
 			},
 			"udp_idle_timeout_sec": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  30,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `Timeout (in seconds) for UDP connections. Defaults to 30s if not set.`,
+				Default:     30,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -227,10 +258,15 @@ func computeRouterNatSubnetworkSchema() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Self-link of subnetwork to NAT`,
 			},
 			"source_ip_ranges_to_nat": {
 				Type:     schema.TypeSet,
 				Required: true,
+				Description: `List of options for which source IPs in the subnetwork
+should have NAT enabled. Supported values include:
+'ALL_IP_RANGES', 'LIST_OF_SECONDARY_IP_RANGES',
+'PRIMARY_IP_RANGE'.`,
 				MinItems: 1,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -240,6 +276,10 @@ func computeRouterNatSubnetworkSchema() *schema.Resource {
 			"secondary_ip_range_names": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Description: `List of the secondary ranges of the subnetwork that are allowed
+to use NAT. This can be populated only if
+'LIST_OF_SECONDARY_IP_RANGES' is one of the values in
+sourceIpRangesToNat`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -354,20 +394,14 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId(id)
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating RouterNat",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating RouterNat",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create RouterNat: %s", waitErr)
+		return fmt.Errorf("Error waiting to create RouterNat: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating RouterNat %q: %#v", d.Id(), res)
@@ -408,37 +442,37 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeRouterNatName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeRouterNatName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
-	if err := d.Set("nat_ip_allocate_option", flattenComputeRouterNatNatIpAllocateOption(res["natIpAllocateOption"], d)); err != nil {
+	if err := d.Set("nat_ip_allocate_option", flattenComputeRouterNatNatIpAllocateOption(res["natIpAllocateOption"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
-	if err := d.Set("nat_ips", flattenComputeRouterNatNatIps(res["natIps"], d)); err != nil {
+	if err := d.Set("nat_ips", flattenComputeRouterNatNatIps(res["natIps"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
-	if err := d.Set("source_subnetwork_ip_ranges_to_nat", flattenComputeRouterNatSourceSubnetworkIpRangesToNat(res["sourceSubnetworkIpRangesToNat"], d)); err != nil {
+	if err := d.Set("source_subnetwork_ip_ranges_to_nat", flattenComputeRouterNatSourceSubnetworkIpRangesToNat(res["sourceSubnetworkIpRangesToNat"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
-	if err := d.Set("subnetwork", flattenComputeRouterNatSubnetwork(res["subnetworks"], d)); err != nil {
+	if err := d.Set("subnetwork", flattenComputeRouterNatSubnetwork(res["subnetworks"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
-	if err := d.Set("min_ports_per_vm", flattenComputeRouterNatMinPortsPerVm(res["minPortsPerVm"], d)); err != nil {
+	if err := d.Set("min_ports_per_vm", flattenComputeRouterNatMinPortsPerVm(res["minPortsPerVm"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
-	if err := d.Set("udp_idle_timeout_sec", flattenComputeRouterNatUdpIdleTimeoutSec(res["udpIdleTimeoutSec"], d)); err != nil {
+	if err := d.Set("udp_idle_timeout_sec", flattenComputeRouterNatUdpIdleTimeoutSec(res["udpIdleTimeoutSec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
-	if err := d.Set("icmp_idle_timeout_sec", flattenComputeRouterNatIcmpIdleTimeoutSec(res["icmpIdleTimeoutSec"], d)); err != nil {
+	if err := d.Set("icmp_idle_timeout_sec", flattenComputeRouterNatIcmpIdleTimeoutSec(res["icmpIdleTimeoutSec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
-	if err := d.Set("tcp_established_idle_timeout_sec", flattenComputeRouterNatTcpEstablishedIdleTimeoutSec(res["tcpEstablishedIdleTimeoutSec"], d)); err != nil {
+	if err := d.Set("tcp_established_idle_timeout_sec", flattenComputeRouterNatTcpEstablishedIdleTimeoutSec(res["tcpEstablishedIdleTimeoutSec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
-	if err := d.Set("tcp_transitory_idle_timeout_sec", flattenComputeRouterNatTcpTransitoryIdleTimeoutSec(res["tcpTransitoryIdleTimeoutSec"], d)); err != nil {
+	if err := d.Set("tcp_transitory_idle_timeout_sec", flattenComputeRouterNatTcpTransitoryIdleTimeoutSec(res["tcpTransitoryIdleTimeoutSec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
-	if err := d.Set("log_config", flattenComputeRouterNatLogConfig(res["logConfig"], d)); err != nil {
+	if err := d.Set("log_config", flattenComputeRouterNatLogConfig(res["logConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
 
@@ -539,14 +573,8 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error updating RouterNat %q: %s", d.Id(), err)
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Updating RouterNat",
+		config, res, project, "Updating RouterNat",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -589,14 +617,8 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, "RouterNat")
 	}
 
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting RouterNat",
+		config, res, project, "Deleting RouterNat",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -628,26 +650,26 @@ func resourceComputeRouterNatImport(d *schema.ResourceData, meta interface{}) ([
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeRouterNatName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterNatNatIpAllocateOption(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatNatIpAllocateOption(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterNatNatIps(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatNatIps(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
-func flattenComputeRouterNatSourceSubnetworkIpRangesToNat(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatSourceSubnetworkIpRangesToNat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterNatSubnetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatSubnetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -660,35 +682,35 @@ func flattenComputeRouterNatSubnetwork(v interface{}, d *schema.ResourceData) in
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"name":                     flattenComputeRouterNatSubnetworkName(original["name"], d),
-			"source_ip_ranges_to_nat":  flattenComputeRouterNatSubnetworkSourceIpRangesToNat(original["sourceIpRangesToNat"], d),
-			"secondary_ip_range_names": flattenComputeRouterNatSubnetworkSecondaryIpRangeNames(original["secondaryIpRangeNames"], d),
+			"name":                     flattenComputeRouterNatSubnetworkName(original["name"], d, config),
+			"source_ip_ranges_to_nat":  flattenComputeRouterNatSubnetworkSourceIpRangesToNat(original["sourceIpRangesToNat"], d, config),
+			"secondary_ip_range_names": flattenComputeRouterNatSubnetworkSecondaryIpRangeNames(original["secondaryIpRangeNames"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeRouterNatSubnetworkName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatSubnetworkName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeRouterNatSubnetworkSourceIpRangesToNat(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatSubnetworkSourceIpRangesToNat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeRouterNatMinPortsPerVm(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatMinPortsPerVm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -698,47 +720,63 @@ func flattenComputeRouterNatMinPortsPerVm(v interface{}, d *schema.ResourceData)
 	return v
 }
 
-func flattenComputeRouterNatUdpIdleTimeoutSec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatUdpIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return 30
+	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
+
 	return v
 }
 
-func flattenComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return 30
+	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
+
 	return v
 }
 
-func flattenComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return 1200
+	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
+
 	return v
 }
 
-func flattenComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return 30
+	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
 		} // let terraform core handle it if we can't convert the string to an int.
 	}
+
 	return v
 }
 
-func flattenComputeRouterNatLogConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatLogConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -748,16 +786,16 @@ func flattenComputeRouterNatLogConfig(v interface{}, d *schema.ResourceData) int
 	}
 	transformed := make(map[string]interface{})
 	transformed["enable"] =
-		flattenComputeRouterNatLogConfigEnable(original["enable"], d)
+		flattenComputeRouterNatLogConfigEnable(original["enable"], d, config)
 	transformed["filter"] =
-		flattenComputeRouterNatLogConfigFilter(original["filter"], d)
+		flattenComputeRouterNatLogConfigFilter(original["filter"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRouterNatLogConfigEnable(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatLogConfigEnable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterNatLogConfigFilter(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNatLogConfigFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -938,7 +976,7 @@ func resourceComputeRouterNatFindNestedObjectInList(d *schema.ResourceData, meta
 		}
 		item := itemRaw.(map[string]interface{})
 
-		itemName := flattenComputeRouterNatName(item["name"], d)
+		itemName := flattenComputeRouterNatName(item["name"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemName, expectedName) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedName)
 			continue
@@ -968,9 +1006,11 @@ func resourceComputeRouterNatPatchCreateEncoder(d *schema.ResourceData, meta int
 	}
 
 	// Return list with the resource to create appended
-	return map[string]interface{}{
+	res := map[string]interface{}{
 		"nats": append(currItems, obj),
-	}, nil
+	}
+
+	return res, nil
 }
 
 // PatchUpdateEncoder handles creating request data to PATCH parent resource
@@ -998,9 +1038,11 @@ func resourceComputeRouterNatPatchUpdateEncoder(d *schema.ResourceData, meta int
 	items[idx] = item
 
 	// Return list with new item added
-	return map[string]interface{}{
+	res := map[string]interface{}{
 		"nats": items,
-	}, nil
+	}
+
+	return res, nil
 }
 
 // PatchDeleteEncoder handles creating request data to PATCH parent resource
@@ -1024,9 +1066,11 @@ func resourceComputeRouterNatPatchDeleteEncoder(d *schema.ResourceData, meta int
 	}
 
 	updatedItems := append(currItems[:idx], currItems[idx+1:]...)
-	return map[string]interface{}{
+	res := map[string]interface{}{
 		"nats": updatedItems,
-	}, nil
+	}
+
+	return res, nil
 }
 
 // ListForPatch handles making API request to get parent resource and
@@ -1046,7 +1090,10 @@ func resourceComputeRouterNatListForPatch(d *schema.ResourceData, meta interface
 		return nil, err
 	}
 
-	v, ok := res["nats"]
+	var v interface{}
+	var ok bool
+
+	v, ok = res["nats"]
 	if ok && v != nil {
 		ls, lsOk := v.([]interface{})
 		if !lsOk {

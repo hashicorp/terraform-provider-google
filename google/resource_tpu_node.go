@@ -46,9 +46,9 @@ func validateHttpHeaders() schema.SchemaValidateFunc {
 			es = append(es, fmt.Errorf("Cannot set the Content-Length header on %s", k))
 			return
 		}
+		r := regexp.MustCompile(`(X-Google-|X-AppEngine-).*`)
 		for key := range headers {
-			match, _ := regexp.MatchString("(X-Google-|X-AppEngine-).*", key)
-			if match {
+			if r.MatchString(key) {
 				es = append(es, fmt.Errorf("Cannot set the %s header on %s", key, k))
 				return
 			}
@@ -77,39 +77,54 @@ func resourceTPUNode() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"accelerator_type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The type of hardware accelerators associated with this node.`,
 			},
 			"cidr_block": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The CIDR block that the TPU node will use when selecting an IP
+address. This CIDR block must be a /29 block; the Compute Engine
+networks API forbids a smaller block, and using a larger block would
+be wasteful (a node can only consume one IP address).
+
+Errors will occur if the CIDR block has already been used for a
+currently existing TPU node, the CIDR block conflicts with any
+subnetworks in the user's provided network, or the provided network
+is peered with another network that is using that CIDR block.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The immutable name of the TPU.`,
 			},
 			"tensorflow_version": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The version of Tensorflow running in the Node.`,
 			},
 			"zone": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The GCP location for the TPU.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The user-supplied description of the TPU. Maximum of 512 characters.`,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Resource labels to represent user provided metadata.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"network": {
 				Type:             schema.TypeString,
@@ -117,21 +132,26 @@ func resourceTPUNode() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The name of a network to peer the TPU node to. It must be a
+preexisting Compute Engine network inside of the project on which
+this API has been activated. If none is provided, "default" will be
+used.`,
 			},
 			"scheduling_config": {
 				Type:             schema.TypeList,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareTpuNodeSchedulingConfig,
+				Description:      `Sets the scheduling options for this TPU instance.`,
 				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"preemptible": {
 							Type:             schema.TypeBool,
-							Optional:         true,
+							Required:         true,
 							ForceNew:         true,
 							DiffSuppressFunc: compareTpuNodeSchedulingConfig,
-							Default:          false,
+							Description:      `Defines whether the TPU instance is preemptible.`,
 						},
 					},
 				},
@@ -139,15 +159,20 @@ func resourceTPUNode() *schema.Resource {
 			"network_endpoints": {
 				Type:     schema.TypeList,
 				Computed: true,
+				Description: `The network endpoints where TPU workers can be accessed and sent work.
+It is recommended that Tensorflow clients of the node first reach out
+to the first (index 0) entry.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ip_address": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The IP address of this network endpoint.`,
 						},
 						"port": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The port of this network endpoint.`,
 						},
 					},
 				},
@@ -155,6 +180,10 @@ func resourceTPUNode() *schema.Resource {
 			"service_account": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Description: `The service account used to run the tensor flow services within the
+node. To share resources, including Google Cloud Storage data, with
+the Tensorflow job running in the Node, this account must have
+permissions to that data.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -235,20 +264,20 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{zone}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	waitErr := tpuOperationWaitTime(
+	err = tpuOperationWaitTime(
 		config, res, project, "Creating Node",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Node: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Node: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Node %q: %#v", d.Id(), res)
@@ -277,34 +306,34 @@ func resourceTPUNodeRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
 
-	if err := d.Set("name", flattenTPUNodeName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenTPUNodeName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("description", flattenTPUNodeDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenTPUNodeDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("accelerator_type", flattenTPUNodeAcceleratorType(res["acceleratorType"], d)); err != nil {
+	if err := d.Set("accelerator_type", flattenTPUNodeAcceleratorType(res["acceleratorType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("tensorflow_version", flattenTPUNodeTensorflowVersion(res["tensorflowVersion"], d)); err != nil {
+	if err := d.Set("tensorflow_version", flattenTPUNodeTensorflowVersion(res["tensorflowVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("network", flattenTPUNodeNetwork(res["network"], d)); err != nil {
+	if err := d.Set("network", flattenTPUNodeNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("cidr_block", flattenTPUNodeCidrBlock(res["cidrBlock"], d)); err != nil {
+	if err := d.Set("cidr_block", flattenTPUNodeCidrBlock(res["cidrBlock"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("service_account", flattenTPUNodeServiceAccount(res["serviceAccount"], d)); err != nil {
+	if err := d.Set("service_account", flattenTPUNodeServiceAccount(res["serviceAccount"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("scheduling_config", flattenTPUNodeSchedulingConfig(res["schedulingConfig"], d)); err != nil {
+	if err := d.Set("scheduling_config", flattenTPUNodeSchedulingConfig(res["schedulingConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("network_endpoints", flattenTPUNodeNetworkEndpoints(res["networkEndpoints"], d)); err != nil {
+	if err := d.Set("network_endpoints", flattenTPUNodeNetworkEndpoints(res["networkEndpoints"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
-	if err := d.Set("labels", flattenTPUNodeLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenTPUNodeLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
 
@@ -343,7 +372,6 @@ func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 		err = tpuOperationWaitTime(
 			config, res, project, "Updating Node",
 			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
 		if err != nil {
 			return err
 		}
@@ -401,7 +429,7 @@ func resourceTPUNodeImport(d *schema.ResourceData, meta interface{}) ([]*schema.
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{zone}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -410,38 +438,38 @@ func resourceTPUNodeImport(d *schema.ResourceData, meta interface{}) ([]*schema.
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenTPUNodeName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenTPUNodeDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeAcceleratorType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeAcceleratorType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeTensorflowVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeTensorflowVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeNetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeCidrBlock(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeCidrBlock(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeServiceAccount(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeSchedulingConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeSchedulingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -451,14 +479,14 @@ func flattenTPUNodeSchedulingConfig(v interface{}, d *schema.ResourceData) inter
 	}
 	transformed := make(map[string]interface{})
 	transformed["preemptible"] =
-		flattenTPUNodeSchedulingConfigPreemptible(original["preemptible"], d)
+		flattenTPUNodeSchedulingConfigPreemptible(original["preemptible"], d, config)
 	return []interface{}{transformed}
 }
-func flattenTPUNodeSchedulingConfigPreemptible(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeSchedulingConfigPreemptible(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeNetworkEndpoints(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeNetworkEndpoints(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -471,17 +499,17 @@ func flattenTPUNodeNetworkEndpoints(v interface{}, d *schema.ResourceData) inter
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"ip_address": flattenTPUNodeNetworkEndpointsIpAddress(original["ipAddress"], d),
-			"port":       flattenTPUNodeNetworkEndpointsPort(original["port"], d),
+			"ip_address": flattenTPUNodeNetworkEndpointsIpAddress(original["ipAddress"], d, config),
+			"port":       flattenTPUNodeNetworkEndpointsPort(original["port"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenTPUNodeNetworkEndpointsIpAddress(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeNetworkEndpointsIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -491,7 +519,7 @@ func flattenTPUNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData) i
 	return v
 }
 
-func flattenTPUNodeLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenTPUNodeLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

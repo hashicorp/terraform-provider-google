@@ -15,6 +15,7 @@ import (
 )
 
 const maxBackoffSeconds = 30
+const iamPolicyVersion = 3
 
 // These types are implemented per GCP resource type and specify how to do per-resource IAM operations.
 // They are used in the generic Terraform IAM resource definitions
@@ -232,10 +233,21 @@ func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[iamBindi
 			// <type> is case sensitive
 			// <value> isn't
 			// so let's lowercase the value and leave the type alone
-			pieces := strings.SplitN(m, ":", 2)
-			if len(pieces) > 1 {
-				pieces[1] = strings.ToLower(pieces[1])
+			// since Dec '19 members can be prefixed with "deleted:" to indicate the principal
+			// has been deleted
+			var pieces []string
+			if strings.HasPrefix(m, "deleted:") {
+				pieces = strings.SplitN(m, ":", 3)
+				if len(pieces) > 2 {
+					pieces[2] = strings.ToLower(pieces[2])
+				}
+			} else {
+				pieces = strings.SplitN(m, ":", 2)
+				if len(pieces) > 1 {
+					pieces[1] = strings.ToLower(pieces[1])
+				}
 			}
+
 			m = strings.Join(pieces, ":")
 
 			// Add the member
@@ -261,15 +273,16 @@ func listFromIamBindingMap(bm map[iamBindingKey]map[string]struct{}) []*cloudres
 			Role:    key.Role,
 			Members: stringSliceFromGolangSet(members),
 		}
+		if !key.Condition.Empty() {
+			b.Condition = &cloudresourcemanager.Expr{
+				Description: key.Condition.Description,
+				Expression:  key.Condition.Expression,
+				Title:       key.Condition.Title,
+			}
+		}
 		rb = append(rb, b)
 	}
 	return rb
-}
-
-// Flatten AuditConfigs so each service has a single exemption list of log type to members
-func mergeAuditConfigs(auditConfigs []*cloudresourcemanager.AuditConfig) []*cloudresourcemanager.AuditConfig {
-	am := createIamAuditConfigsMap(auditConfigs)
-	return listFromIamAuditConfigMap(am)
 }
 
 // Flattens AuditConfigs so each role has a single Binding with combined members\

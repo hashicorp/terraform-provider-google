@@ -1,4 +1,5 @@
 ---
+subcategory: "Stackdriver Logging"
 layout: "google"
 page_title: "Google: google_logging_project_exclusion"
 sidebar_current: "docs-google-logging-project-exclusion"
@@ -19,12 +20,12 @@ granted to the credentials used with Terraform.
 
 ```hcl
 resource "google_logging_project_exclusion" "my-exclusion" {
-    name = "my-instance-debug-exclusion"
+  name = "my-instance-debug-exclusion"
 
-    description = "Exclude GCE instance debug logs"
+  description = "Exclude GCE instance debug logs"
 
-    # Exclude all DEBUG or lower severity messages relating to instances
-    filter = "resource.type = gce_instance AND severity <= DEBUG"
+  # Exclude all DEBUG or lower severity messages relating to instances
+  filter = "resource.type = gce_instance AND severity <= DEBUG"
 }
 ```
 

@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Source Repositories"
 layout: "google"
 page_title: "Google: google_sourcerepo_repository"
 sidebar_current: "docs-google-sourcerepo-repository"
@@ -40,7 +41,34 @@ To get more information about Repository, see:
 
 ```hcl
 resource "google_sourcerepo_repository" "my-repo" {
+  name = "my/repository"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=sourcerepo_repository_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Sourcerepo Repository Full
+
+
+```hcl
+resource "google_service_account" "test-account" {
+  account_id   = "my-account"
+  display_name = "Test Service Account"
+}
+
+resource "google_pubsub_topic" "topic" {
+  name     = "my-topic"
+}
+
+resource "google_sourcerepo_repository" "my-repo" {
   name = "my-repository"
+  pubsub_configs {
+      topic = google_pubsub_topic.topic.id
+      message_format = "JSON"
+      service_account_email = google_service_account.test-account.email
+  }
 }
 ```
 
@@ -58,14 +86,37 @@ The following arguments are supported:
 - - -
 
 
+* `pubsub_configs` -
+  (Optional)
+  How this repository publishes a change in the repository through Cloud Pub/Sub. 
+  Keyed by the topic names.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `pubsub_configs` block supports:
+
+* `topic` - (Required) The identifier for this object. Format specified above.
+
+* `message_format` -
+  (Required)
+  The format of the Cloud Pub/Sub messages. 
+  - PROTOBUF: The message payload is a serialized protocol buffer of SourceRepoEvent.
+  - JSON: The message payload is a JSON string of SourceRepoEvent.
+
+* `service_account_email` -
+  (Optional)
+  Email address of the service account used for publishing Cloud Pub/Sub messages. 
+  This service account needs to be in the same project as the PubsubConfig. When added, 
+  the caller needs to have iam.serviceAccounts.actAs permission on this service account. 
+  If unspecified, it defaults to the compute engine default service account.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/repos/{{name}}`
 
 * `url` -
   URL to clone the repository from Google Cloud Source Repositories.
@@ -80,6 +131,7 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import
@@ -88,7 +140,6 @@ Repository can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_sourcerepo_repository.default projects/{{project}}/repos/{{name}}
-$ terraform import google_sourcerepo_repository.default {{project}}/{{name}}
 $ terraform import google_sourcerepo_repository.default {{name}}
 ```
 
@@ -97,4 +148,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud KMS"
 layout: "google"
 page_title: "Google: google_kms_crypto_key_version"
 sidebar_current: "docs-google-datasource-kms-crypto-key-version"
@@ -6,7 +7,7 @@ description: |-
  Provides access to KMS key version data with Google Cloud KMS.
 ---
 
-# google\_kms\_crypto\_key
+# google\_kms\_crypto\_key\_version
 
 Provides access to a Google Cloud Platform KMS CryptoKeyVersion. For more information see
 [the official documentation](https://cloud.google.com/kms/docs/object-hierarchy#key_version)
@@ -25,11 +26,11 @@ data "google_kms_key_ring" "my_key_ring" {
 
 data "google_kms_crypto_key" "my_crypto_key" {
   name     = "my-crypto-key"
-  key_ring = "${data.google_kms_key_ring.my_key_ring.self_link}"
+  key_ring = data.google_kms_key_ring.my_key_ring.self_link
 }
 
 data "google_kms_crypto_key_version" "my_crypto_key_version" {
-  crypto_key = "${data.google_kms_key.my_key.self_link}"
+  crypto_key = data.google_kms_key.my_key.self_link
 }
 ```
 

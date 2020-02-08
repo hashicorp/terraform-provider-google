@@ -10,6 +10,10 @@ import (
 )
 
 var schemaOrganizationPolicy = map[string]*schema.Schema{
+	// Although the API suggests that boolean_policy, list_policy, or restore_policy must be set,
+	// Organization policies can be "inherited from parent" in the UI, and this is the default
+	// state of the resource without any policy set.
+	// See https://github.com/terraform-providers/terraform-provider-google/issues/3607
 	"constraint": {
 		Type:             schema.TypeString,
 		Required:         true,
@@ -17,10 +21,9 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
 	},
 	"boolean_policy": {
-		Type:          schema.TypeList,
-		Optional:      true,
-		MaxItems:      1,
-		ConflictsWith: []string{"list_policy", "restore_policy"},
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"enforced": {
@@ -31,30 +34,33 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		},
 	},
 	"list_policy": {
-		Type:          schema.TypeList,
-		Optional:      true,
-		MaxItems:      1,
-		ConflictsWith: []string{"boolean_policy", "restore_policy"},
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"allow": {
-					Type:          schema.TypeList,
-					Optional:      true,
-					MaxItems:      1,
+					Type:     schema.TypeList,
+					Optional: true,
+					MaxItems: 1,
+					// TODO(terraform-providers/terraform-provider-google#5193): Change back to exactly_one_of
+					// once hashicorp/terraform-plugin-sdk#280 is fixed
+					AtLeastOneOf:  []string{"list_policy.0.allow", "list_policy.0.deny"},
 					ConflictsWith: []string{"list_policy.0.deny"},
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"all": {
-								Type:          schema.TypeBool,
-								Optional:      true,
-								Default:       false,
-								ConflictsWith: []string{"list_policy.0.allow.0.values"},
+								Type:         schema.TypeBool,
+								Optional:     true,
+								Default:      false,
+								ExactlyOneOf: []string{"list_policy.0.allow.0.all", "list_policy.0.allow.0.values"},
 							},
 							"values": {
-								Type:     schema.TypeSet,
-								Optional: true,
-								Elem:     &schema.Schema{Type: schema.TypeString},
-								Set:      schema.HashString,
+								Type:         schema.TypeSet,
+								Optional:     true,
+								ExactlyOneOf: []string{"list_policy.0.allow.0.all", "list_policy.0.allow.0.values"},
+								Elem:         &schema.Schema{Type: schema.TypeString},
+								Set:          schema.HashString,
 							},
 						},
 					},
@@ -63,19 +69,24 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 					Type:     schema.TypeList,
 					Optional: true,
 					MaxItems: 1,
+					// TODO(terraform-providers/terraform-provider-google#5193): Change back to exactly_one_of
+					// once hashicorp/terraform-plugin-sdk#280 is fixed
+					AtLeastOneOf:  []string{"list_policy.0.allow", "list_policy.0.deny"},
+					ConflictsWith: []string{"list_policy.0.allow"},
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"all": {
-								Type:          schema.TypeBool,
-								Optional:      true,
-								Default:       false,
-								ConflictsWith: []string{"list_policy.0.deny.0.values"},
+								Type:         schema.TypeBool,
+								Optional:     true,
+								Default:      false,
+								ExactlyOneOf: []string{"list_policy.0.deny.0.all", "list_policy.0.deny.0.values"},
 							},
 							"values": {
-								Type:     schema.TypeSet,
-								Optional: true,
-								Elem:     &schema.Schema{Type: schema.TypeString},
-								Set:      schema.HashString,
+								Type:         schema.TypeSet,
+								Optional:     true,
+								ExactlyOneOf: []string{"list_policy.0.deny.0.all", "list_policy.0.deny.0.values"},
+								Elem:         &schema.Schema{Type: schema.TypeString},
+								Set:          schema.HashString,
 							},
 						},
 					},
@@ -106,10 +117,9 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		Computed: true,
 	},
 	"restore_policy": {
-		Type:          schema.TypeList,
-		Optional:      true,
-		MaxItems:      1,
-		ConflictsWith: []string{"boolean_policy", "list_policy"},
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"default": {
@@ -152,7 +162,7 @@ func resourceGoogleOrganizationPolicy() *schema.Resource {
 }
 
 func resourceGoogleOrganizationPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	d.SetId(fmt.Sprintf("%s:%s", d.Get("org_id"), d.Get("constraint").(string)))
+	d.SetId(fmt.Sprintf("%s/%s", d.Get("org_id"), d.Get("constraint").(string)))
 
 	if isOrganizationPolicyUnset(d) {
 		return resourceGoogleOrganizationPolicyDelete(d, meta)
@@ -221,9 +231,9 @@ func resourceGoogleOrganizationPolicyDelete(d *schema.ResourceData, meta interfa
 }
 
 func resourceGoogleOrganizationPolicyImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), ":")
+	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("Invalid id format. Expecting {org_id}:{constraint}, got '%s' instead.", d.Id())
+		return nil, fmt.Errorf("Invalid id format. Expecting {org_id}/{constraint}, got '%s' instead.", d.Id())
 	}
 
 	d.Set("org_id", parts[0])

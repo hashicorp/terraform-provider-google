@@ -1,4 +1,5 @@
 ---
+subcategory: "Kubernetes (Container) Engine"
 layout: "google"
 page_title: "Google: google_container_engine_versions"
 sidebar_current: "docs-google-datasource-container-versions"
@@ -20,14 +21,14 @@ support the same version.
 
 ```hcl
 data "google_container_engine_versions" "central1b" {
-  location           = "us-central1-b"
+  location       = "us-central1-b"
   version_prefix = "1.12."
 }
 
 resource "google_container_cluster" "foo" {
   name               = "terraform-test-cluster"
-  location               = "us-central1-b"
-  node_version       = "${data.google_container_engine_versions.central1b.latest_node_version}"
+  location           = "us-central1-b"
+  node_version       = data.google_container_engine_versions.central1b.latest_node_version
   initial_node_count = 1
 
   master_auth {
@@ -45,14 +46,6 @@ The following arguments are supported:
 Must exactly match the location the cluster will be deployed in, or listed
 versions may not be available. If `location`, `region`, and `zone` are not
 specified, the provider-level zone must be set and is used instead.
-
-* `zone` (Optional, Deprecated) - Zone to list available cluster versions for.
-Should match the zone the cluster will be deployed in. `zone` has been
-deprecated in favour of `location`.
-
-* `region` (Optional, Deprecated) - Region to list available cluster versions
-for. Should match the region the cluster will be deployed in. `region` has been
-deprecated in favour of `location`.
 
 * `project` (Optional) - ID of the project to list available cluster versions for. Should match the project the cluster will be deployed to.
   Defaults to the project that the provider is authenticated with.

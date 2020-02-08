@@ -23,7 +23,7 @@ func TestAccProjectIamAuditConfig_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	service := "cloudkms.googleapis.com"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -50,7 +50,7 @@ func TestAccProjectIamAuditConfig_multiple(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
@@ -84,7 +84,7 @@ func TestAccProjectIamAuditConfig_multipleAtOnce(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
@@ -114,7 +114,7 @@ func TestAccProjectIamAuditConfig_update(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	service := "cloudkms.googleapis.com"
 
 	resource.Test(t, resource.TestCase{
@@ -154,7 +154,7 @@ func TestAccProjectIamAuditConfig_remove(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
@@ -192,7 +192,7 @@ func TestAccProjectIamAuditConfig_addFirstExemptMember(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	service := "cloudkms.googleapis.com"
 	members := []string{}
 	members2 := []string{"user:paddy@hashicorp.com"}
@@ -228,7 +228,7 @@ func TestAccProjectIamAuditConfig_removeLastExemptMember(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	service := "cloudkms.googleapis.com"
 	members2 := []string{}
 	members := []string{"user:paddy@hashicorp.com"}
@@ -264,7 +264,7 @@ func TestAccProjectIamAuditConfig_updateNoExemptMembers(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	logType := "DATA_READ"
 	logType2 := "DATA_WRITE"
 	service := "cloudkms.googleapis.com"
@@ -304,13 +304,13 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_audit_config" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
     log_type = "DATA_READ"
     exempted_members = [
       "user:paddy@hashicorp.com",
-      "user:paddy@carvers.co"
+      "user:paddy@carvers.co",
     ]
   }
 }
@@ -326,19 +326,19 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_audit_config" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
-    log_type = "DATA_READ" 
+    log_type = "DATA_READ"
     exempted_members = [
       "user:paddy@hashicorp.com",
-      "user:paddy@carvers.co"
+      "user:paddy@carvers.co",
     ]
   }
 }
 
 resource "google_project_iam_audit_config" "multiple" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
     log_type = "DATA_WRITE"
@@ -356,13 +356,13 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_audit_config" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
     log_type = "DATA_WRITE"
     exempted_members = [
       "user:admin@hashicorptest.com",
-      "user:paddy@carvers.co"
+      "user:paddy@carvers.co",
     ]
   }
 }
@@ -378,7 +378,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_audit_config" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
     log_type = "DATA_READ"
@@ -406,7 +406,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_audit_config" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
     log_type = "DATA_READ"%s
@@ -424,7 +424,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_audit_config" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
     log_type = "%s"

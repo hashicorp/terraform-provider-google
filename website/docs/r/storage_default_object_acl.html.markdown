@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Storage"
 layout: "google"
 page_title: "Google: google_storage_default_object_acl"
 sidebar_current: "docs-google-storage-default-object-acl"
@@ -33,7 +34,7 @@ resource "google_storage_bucket" "image-store" {
 }
 
 resource "google_storage_default_object_acl" "image-store-default-acl" {
-  bucket = "${google_storage_bucket.image-store.name}"
+  bucket = google_storage_bucket.image-store.name
   role_entity = [
     "OWNER:user-my.email@gmail.com",
     "READER:group-mygroup",

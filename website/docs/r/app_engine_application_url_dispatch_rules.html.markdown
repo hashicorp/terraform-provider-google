@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "App Engine"
 layout: "google"
 page_title: "Google: google_app_engine_application_url_dispatch_rules"
 sidebar_current: "docs-google-app-engine-application-url-dispatch-rules"
@@ -39,22 +40,22 @@ To get more information about ApplicationUrlDispatchRules, see:
 ```hcl
 resource "google_app_engine_application_url_dispatch_rules" "web_service" {
   dispatch_rules {
-    domain = "*"
-    path = "/*"
+    domain  = "*"
+    path    = "/*"
     service = "default"
   }
 
   dispatch_rules {
-    domain = "*"
-    path = "/admin/*"
-    service = "${google_app_engine_standard_app_version.admin_v3.service}"
+    domain  = "*"
+    path    = "/admin/*"
+    service = google_app_engine_standard_app_version.admin_v3.service
   }
 }
 
 resource "google_app_engine_standard_app_version" "admin_v3" {
   version_id = "v3"
-  service = "admin"
-  runtime = "nodejs10"
+  service    = "admin"
+  runtime    = "nodejs10"
 
   entrypoint {
     shell = "node ./app.js"
@@ -74,13 +75,13 @@ resource "google_app_engine_standard_app_version" "admin_v3" {
 }
 
 resource "google_storage_bucket" "bucket" {
-	name = "appengine-test-bucket"
+  name = "appengine-test-bucket"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name   = "hello-world.zip"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "./test-fixtures/appengine/hello-world.zip"
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/appengine/hello-world.zip"
 }
 ```
 
@@ -118,6 +119,12 @@ The `dispatch_rules` block supports:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{project}}`
+
 
 ## Timeouts
 
@@ -141,4 +148,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

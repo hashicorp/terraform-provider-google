@@ -14,8 +14,8 @@ import (
 func TestAccPubsubTopicIamBinding(t *testing.T) {
 	t.Parallel()
 
-	topic := "test-topic-iam-" + acctest.RandString(10)
-	account := "test-topic-iam-" + acctest.RandString(10)
+	topic := "tf-test-topic-iam-" + acctest.RandString(10)
+	account := "tf-test-topic-iam-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -55,8 +55,8 @@ func TestAccPubsubTopicIamBinding(t *testing.T) {
 func TestAccPubsubTopicIamBinding_topicName(t *testing.T) {
 	t.Parallel()
 
-	topic := "test-topic-iam-" + acctest.RandString(10)
-	account := "test-topic-iam-" + acctest.RandString(10)
+	topic := "tf-test-topic-iam-" + acctest.RandString(10)
+	account := "tf-test-topic-iam-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -77,8 +77,8 @@ func TestAccPubsubTopicIamBinding_topicName(t *testing.T) {
 func TestAccPubsubTopicIamMember(t *testing.T) {
 	t.Parallel()
 
-	topic := "test-topic-iam-" + acctest.RandString(10)
-	account := "test-topic-iam-" + acctest.RandString(10)
+	topic := "tf-test-topic-iam-" + acctest.RandString(10)
+	account := "tf-test-topic-iam-" + acctest.RandString(10)
 	accountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv())
 
 	resource.Test(t, resource.TestCase{
@@ -105,8 +105,8 @@ func TestAccPubsubTopicIamMember(t *testing.T) {
 func TestAccPubsubTopicIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	topic := "test-topic-iam-" + acctest.RandString(10)
-	account := "test-topic-iam-" + acctest.RandString(10)
+	topic := "tf-test-topic-iam-" + acctest.RandString(10)
+	account := "tf-test-topic-iam-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -172,7 +172,7 @@ resource "google_service_account" "test-account-1" {
 
 resource "google_pubsub_topic_iam_binding" "foo" {
   project = "%s"
-  topic   = "${google_pubsub_topic.topic.name}"
+  topic   = google_pubsub_topic.topic.name
   role    = "roles/pubsub.publisher"
   members = [
     "serviceAccount:${google_service_account.test-account-1.email}",
@@ -194,8 +194,8 @@ resource "google_service_account" "test-account-1" {
 
 resource "google_pubsub_topic_iam_binding" "foo" {
   # use the id instead of the name because it's more compatible with import
-  topic   = "${google_pubsub_topic.topic.id}"
-  role    = "roles/pubsub.publisher"
+  topic = google_pubsub_topic.topic.id
+  role  = "roles/pubsub.publisher"
   members = [
     "serviceAccount:${google_service_account.test-account-1.email}",
   ]
@@ -221,8 +221,8 @@ resource "google_service_account" "test-account-2" {
 
 resource "google_pubsub_topic_iam_binding" "foo" {
   # use the id instead of the name because it's more compatible with import
-  topic   = "${google_pubsub_topic.topic.id}"
-  role    = "roles/pubsub.publisher"
+  topic = google_pubsub_topic.topic.id
+  role  = "roles/pubsub.publisher"
   members = [
     "serviceAccount:${google_service_account.test-account-1.email}",
     "serviceAccount:${google_service_account.test-account-2.email}",
@@ -243,8 +243,8 @@ resource "google_service_account" "test-account" {
 }
 
 resource "google_pubsub_topic_iam_member" "foo" {
-  topic = "${google_pubsub_topic.topic.id}"
-  role    = "roles/pubsub.publisher"
+  topic  = google_pubsub_topic.topic.id
+  role   = "roles/pubsub.publisher"
   member = "serviceAccount:${google_service_account.test-account.email}"
 }
 `, topic, account)
@@ -262,15 +262,15 @@ resource "google_service_account" "test-account" {
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%s"
-		members = ["serviceAccount:${google_service_account.test-account.email}"]
-	}
+  binding {
+    role    = "%s"
+    members = ["serviceAccount:${google_service_account.test-account.email}"]
+  }
 }
 
 resource "google_pubsub_topic_iam_policy" "foo" {
-  topic = "${google_pubsub_topic.topic.id}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  topic       = google_pubsub_topic.topic.id
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, topic, account, role)
 }

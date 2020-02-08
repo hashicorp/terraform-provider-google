@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "App Engine"
 layout: "google"
 page_title: "Google: google_app_engine_firewall_rule"
 sidebar_current: "docs-google-app-engine-firewall-rule"
@@ -43,19 +44,19 @@ To get more information about FirewallRule, see:
 ```hcl
 resource "google_project" "my_project" {
   name       = "tf-test-project"
-  project_id = "test-project"
+  project_id = "ae-project"
   org_id     = "123456789"
 }
 
 resource "google_app_engine_application" "app" {
-  project     = "${google_project.my_project.project_id}"
+  project     = google_project.my_project.project_id
   location_id = "us-central"
 }
 
 resource "google_app_engine_firewall_rule" "rule" {
-  project = "${google_app_engine_application.app.project}"
-  priority = 1000
-  action = "ALLOW"
+  project      = google_app_engine_application.app.project
+  priority     = 1000
+  action       = "ALLOW"
   source_range = "*"
 }
 ```
@@ -93,6 +94,12 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `apps/{{project}}/firewall/ingressRules/{{priority}}`
+
 
 ## Timeouts
 
@@ -108,6 +115,7 @@ This resource provides the following
 FirewallRule can be imported using any of these accepted formats:
 
 ```
+$ terraform import google_app_engine_firewall_rule.default apps/{{project}}/firewall/ingressRules/{{priority}}
 $ terraform import google_app_engine_firewall_rule.default {{project}}/{{priority}}
 $ terraform import google_app_engine_firewall_rule.default {{priority}}
 ```
@@ -117,4 +125,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

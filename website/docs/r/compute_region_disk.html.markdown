@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_region_disk"
 sidebar_current: "docs-google-compute-region-disk"
@@ -59,27 +60,27 @@ state as plain-text.
 
 ```hcl
 resource "google_compute_region_disk" "regiondisk" {
-  name = "my-region-disk"
-  snapshot = "${google_compute_snapshot.snapdisk.self_link}"
-  type = "pd-ssd"
-  region = "us-central1"
+  name                      = "my-region-disk"
+  snapshot                  = google_compute_snapshot.snapdisk.self_link
+  type                      = "pd-ssd"
+  region                    = "us-central1"
   physical_block_size_bytes = 4096
 
   replica_zones = ["us-central1-a", "us-central1-f"]
 }
 
 resource "google_compute_disk" "disk" {
-  name = "my-disk"
+  name  = "my-disk"
   image = "debian-cloud/debian-9"
-  size = 50
-  type = "pd-ssd"
-  zone = "us-central1-a"
+  size  = 50
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
 }
 
 resource "google_compute_snapshot" "snapdisk" {
-  name = "my-snapshot"
-  source_disk = "${google_compute_disk.disk.name}"
-  zone = "us-central1-a"
+  name        = "my-snapshot"
+  source_disk = google_compute_disk.disk.name
+  zone        = "us-central1-a"
 }
 ```
 
@@ -200,6 +201,7 @@ The `source_snapshot_encryption_key` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/disks/{{name}}`
 
 * `label_fingerprint` -
   The fingerprint used for optimistic locking of this resource.  Used
@@ -253,4 +255,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_instance"
 sidebar_current: "docs-google-compute-instance-x"
@@ -32,6 +33,7 @@ resource "google_compute_instance" "default" {
 
   // Local SSD disk
   scratch_disk {
+    interface = "SCSI"
   }
 
   network_interface {
@@ -99,6 +101,11 @@ The following arguments are supported:
 
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure documented below.
     **Note:** GPU accelerators can only be used with [`on_host_maintenance`](#on_host_maintenance) option set to TERMINATE.
+    **Note**: This field uses [attr-as-block mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html) to avoid
+    breaking users during the 0.12 upgrade. To explicitly send a list
+    of zero objects you must use the following syntax:
+    `example=[]`
+    For more details about this behavior, see [this section](https://www.terraform.io/docs/configuration/attr-as-blocks.html#defining-a-fixed-object-collection-value).
 
 * `labels` - (Optional) A map of key/value label pairs to assign to the instance.
 
@@ -195,15 +202,14 @@ The `initialize_params` block supports:
 
 The `scratch_disk` block supports:
 
-* `interface` - (Optional) The disk interface to use for attaching this disk; either SCSI or NVME.
-    Defaults to SCSI.
+* `interface` - (Required) The disk interface to use for attaching this disk; either SCSI or NVME.
 
 The `attached_disk` block supports:
 
 * `source` - (Required) The name or self_link of the disk to attach to this instance.
 
 * `device_name` - (Optional) Name with which the attached disk will be accessible
-    under `/dev/disk/by-id/`
+    under `/dev/disk/by-id/google-*`
 
 * `mode` - (Optional) Either "READ_ONLY" or "READ_WRITE", defaults to "READ_WRITE"
     If you have a persistent disk with data that you want to share

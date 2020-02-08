@@ -64,6 +64,37 @@ func TestAccLoggingProjectSink_updatePreservesUniqueWriter(t *testing.T) {
 	})
 }
 
+func TestAccLoggingProjectSink_updateBigquerySink(t *testing.T) {
+	t.Parallel()
+
+	sinkName := "tf-test-sink-" + acctest.RandString(10)
+	bqDatasetID := "tf_test_sink_" + acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingProjectSinkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingProjectSink_bigquery_before(sinkName, bqDatasetID),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.bigquery",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingProjectSink_bigquery_after(sinkName, bqDatasetID),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.bigquery",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccLoggingProjectSink_heredoc(t *testing.T) {
 	t.Parallel()
 
@@ -109,16 +140,16 @@ func testAccCheckLoggingProjectSinkDestroy(s *terraform.State) error {
 func testAccLoggingProjectSink_basic(name, project, bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_logging_project_sink" "basic" {
-	name        = "%s"
-	project     = "%s"
-	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  name        = "%s"
+  project     = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 
-	unique_writer_identity = false
+  unique_writer_identity = false
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
+  name = "%s"
 }
 `, name, project, project, bucketName)
 }
@@ -126,15 +157,15 @@ resource "google_storage_bucket" "log-bucket" {
 func testAccLoggingProjectSink_uniqueWriter(name, bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_logging_project_sink" "unique_writer" {
-	name        = "%s"
-	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  name        = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 
-	unique_writer_identity = true
+  unique_writer_identity = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
+  name = "%s"
 }
 `, name, getTestProjectFromEnv(), bucketName)
 }
@@ -142,15 +173,15 @@ resource "google_storage_bucket" "log-bucket" {
 func testAccLoggingProjectSink_uniqueWriterUpdated(name, bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_logging_project_sink" "unique_writer" {
-	name        = "%s"
-	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=WARNING"
+  name        = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=WARNING"
 
-	unique_writer_identity = true
+  unique_writer_identity = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
+  name = "%s"
 }
 `, name, getTestProjectFromEnv(), bucketName)
 }
@@ -158,22 +189,61 @@ resource "google_storage_bucket" "log-bucket" {
 func testAccLoggingProjectSink_heredoc(name, project, bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_logging_project_sink" "heredoc" {
-	name        = "%s"
-	project     = "%s"
-	destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  name        = "%s"
+  project     = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 
-	filter = <<EOS
+  filter = <<EOS
 
 	logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
 AND severity>=ERROR
 
-	EOS
 
-	unique_writer_identity = false
+EOS
+
+  unique_writer_identity = false
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
+  name = "%s"
 }
 `, name, project, project, bucketName)
+}
+
+func testAccLoggingProjectSink_bigquery_before(sinkName, bqDatasetID string) string {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "bigquery" {
+  name        = "%s"
+  destination = "bigquery.googleapis.com/projects/%s/datasets/${google_bigquery_dataset.logging_sink.dataset_id}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+
+  unique_writer_identity = true
+
+  bigquery_options {
+    use_partitioned_tables = true
+  }
+}
+
+resource "google_bigquery_dataset" "logging_sink" {
+  dataset_id  = "%s"
+  description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
+}
+`, sinkName, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID)
+}
+
+func testAccLoggingProjectSink_bigquery_after(sinkName, bqDatasetID string) string {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "bigquery" {
+  name        = "%s"
+  destination = "bigquery.googleapis.com/projects/%s/datasets/${google_bigquery_dataset.logging_sink.dataset_id}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=WARNING"
+
+  unique_writer_identity = false
+}
+
+resource "google_bigquery_dataset" "logging_sink" {
+  dataset_id  = "%s"
+  description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
+}
+`, sinkName, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID)
 }

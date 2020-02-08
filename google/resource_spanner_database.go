@@ -44,24 +44,32 @@ func resourceSpannerDatabase() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The instance to create the database on.`,
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRegexp(`^[a-z][a-z0-9_\-]*[a-z0-9]$`),
+				Description: `A unique identifier for the database, which cannot be changed after
+the instance is created. Values are of the form [a-z][-a-z0-9]*[a-z0-9].`,
 			},
 			"ddl": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				Description: `An optional list of DDL statements to run inside the newly created
+database. Statements can create tables, indexes, etc. These statements
+execute atomically with the creation of the database: if there is an
+error in any statement, the database is not created.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"state": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `An explanation of the status of the database.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -117,20 +125,20 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{instance}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	waitErr := spannerOperationWaitTime(
+	err = spannerOperationWaitTime(
 		config, res, project, "Creating Database",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Database: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Database: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
@@ -171,13 +179,13 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
-	if err := d.Set("name", flattenSpannerDatabaseName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenSpannerDatabaseName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("state", flattenSpannerDatabaseState(res["state"], d)); err != nil {
+	if err := d.Set("state", flattenSpannerDatabaseState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("instance", flattenSpannerDatabaseInstance(res["instance"], d)); err != nil {
+	if err := d.Set("instance", flattenSpannerDatabaseInstance(res["instance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
@@ -221,7 +229,7 @@ func resourceSpannerDatabaseImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{instance}}/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -230,15 +238,15 @@ func resourceSpannerDatabaseImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSpannerDatabaseName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerDatabaseName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSpannerDatabaseState(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerDatabaseState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSpannerDatabaseInstance(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerDatabaseInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

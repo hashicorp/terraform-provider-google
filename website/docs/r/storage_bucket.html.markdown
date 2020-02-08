@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Storage"
 layout: "google"
 page_title: "Google: google_storage_bucket"
 sidebar_current: "docs-google-storage-bucket-x"
@@ -11,7 +12,7 @@ description: |-
 Creates a new bucket in Google cloud storage service (GCS).
 Once a bucket has been created, its location can't be changed.
 [ACLs](https://cloud.google.com/storage/docs/access-control/lists) can be applied
-using the [`google_storage_bucket_acl` resource](/docs/providers/google/r/storage_bucket_acl.html).
+using the [`google_storage_bucket_acl`](/docs/providers/google/r/storage_bucket_acl.html) resource.
 
 For more information see
 [the official documentation](https://cloud.google.com/storage/docs/overview)
@@ -95,9 +96,7 @@ The `condition` block supports the following elements, and requires at least one
 
 * `created_before` - (Optional) Creation date of an object in RFC 3339 (e.g. `2017-06-13`) to satisfy this condition.
 
-* `with_state` - (Optional) Match to live and/or archived objects. Unversioned buckets have only live objects. Supported values include: `"LIVE"`, `"ARCHIVED"`, `"ANY"`. Unset or empty strings will be treated as `ARCHIVED` to maintain backwards compatibility with `is_live`.
-
-* `is_live` - (Optional, Deprecated) Defaults to `false` to match archived objects. If `true`, this condition matches live objects. Unversioned buckets have only live objects.
+* `with_state` - (Optional) Match to live and/or archived objects. Unversioned buckets have only live objects. Supported values include: `"LIVE"`, `"ARCHIVED"`, `"ANY"`.
 
 * `matches_storage_class` - (Optional) [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects to satisfy this condition. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `STANDARD`, `DURABLE_REDUCED_AVAILABILITY`.
 
@@ -105,7 +104,7 @@ The `condition` block supports the following elements, and requires at least one
 
 The `versioning` block supports:
 
-* `enabled` - (Optional) While set to `true`, versioning is fully enabled for this bucket.
+* `enabled` - (Required) While set to `true`, versioning is fully enabled for this bucket.
 
 The `website` block supports:
 
@@ -171,4 +170,3 @@ $ terraform import google_storage_bucket.image-store tf-test-project/image-store
 `false` in state. If you've set it to `true` in config, run `terraform apply` to
 update the value set in state. If you delete this resource before updating the
 value, objects in the bucket will not be destroyed.
-

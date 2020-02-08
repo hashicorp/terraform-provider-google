@@ -51,14 +51,14 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 func testAccComputeBackendBucket_backendBucketBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
-  name        = "image-backend-bucket%{random_suffix}"
+  name        = "tf-test-image-backend-bucket%{random_suffix}"
   description = "Contains beautiful images"
-  bucket_name = "${google_storage_bucket.image_bucket.name}"
+  bucket_name = google_storage_bucket.image_bucket.name
   enable_cdn  = true
 }
 
 resource "google_storage_bucket" "image_bucket" {
-  name     = "image-store-bucket%{random_suffix}"
+  name     = "tf-test-image-store-bucket%{random_suffix}"
   location = "EU"
 }
 `, context)

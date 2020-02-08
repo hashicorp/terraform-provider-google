@@ -1,4 +1,5 @@
 ---
+subcategory: "Bigtable"
 layout: "google"
 page_title: "Google: google_bigtable_instance_iam"
 sidebar_current: "docs-google-bigtable-instance-iam"
@@ -23,7 +24,7 @@ Three different resources help you manage IAM policies on bigtable instances. Ea
 ```hcl
 data "google_iam_policy" "admin" {
   binding {
-    role    = "roles/editor"
+    role = "roles/editor"
     members = [
       "user:jane@example.com",
     ]
@@ -31,9 +32,9 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_bigtable_instance_iam_policy" "editor" {
-  project      = "your-project"
-  instance      = "your-bigtable-instance"
-  policy_data  = "${data.google_iam_policy.admin.policy_data}"
+  project     = "your-project"
+  instance    = "your-bigtable-instance"
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -41,9 +42,9 @@ resource "google_bigtable_instance_iam_policy" "editor" {
 
 ```hcl
 resource "google_bigtable_instance_iam_binding" "editor" {
-  instance      = "your-bigtable-instance"
-  role         = "roles/editor"
-  members      = [
+  instance = "your-bigtable-instance"
+  role     = "roles/editor"
+  members = [
     "user:jane@example.com",
   ]
 }
@@ -53,9 +54,9 @@ resource "google_bigtable_instance_iam_binding" "editor" {
 
 ```hcl
 resource "google_bigtable_instance_iam_member" "editor" {
-  instance      = "your-bigtable-instance"
-  role         = "roles/editor"
-  member       = "user:jane@example.com"
+  instance = "your-bigtable-instance"
+  role     = "roles/editor"
+  member   = "user:jane@example.com"
 }
 ```
 
@@ -106,3 +107,6 @@ $ terraform import google_bigtable_instance_iam_binding.editor "projects/{projec
 
 $ terraform import google_bigtable_instance_iam_member.editor "projects/{project}/instances/{instance} roles/editor user:jane@example.com"
 ```
+
+-> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
+ full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.

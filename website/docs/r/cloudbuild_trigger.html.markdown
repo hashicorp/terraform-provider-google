@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Build"
 layout: "google"
 page_title: "Google: google_cloudbuild_trigger"
 sidebar_current: "docs-google-cloudbuild-trigger"
@@ -85,7 +86,7 @@ The following arguments are supported:
 
 * `ignored_files` -
   (Optional)
-  ignoredFiles and includedFiles are file glob matches using http://godoc/pkg/path/filepath#Match
+  ignoredFiles and includedFiles are file glob matches using https://golang.org/pkg/path/filepath/#Match
   extended with support for `**`.
   If ignoredFiles and changed files are both empty, then they are not
   used to determine whether or not to trigger a build.
@@ -111,7 +112,7 @@ The following arguments are supported:
   Branch and tag names in trigger templates are interpreted as regular
   expressions. Any branch or tag change that matches that regular
   expression will trigger a build.
-  This field is required, and will be validated as such in 3.0.0.  Structure is documented below.
+  One of `trigger_template` or `github` must be provided.  Structure is documented below.
 
 * `build` -
   (Optional)
@@ -166,15 +167,23 @@ The `build` block supports:
   The digests of the pushed images will be stored in the Build resource's results field.
   If any of the images fail to be pushed, the build status is marked FAILURE.
 
-* `step` -
+* `timeout` -
   (Optional)
+  Amount of time that this build should be allowed to run, to second granularity. 
+  If this amount of time elapses, work on the build will cease and the build status will be TIMEOUT.
+  This timeout must be equal to or greater than the sum of the timeouts for build steps within the build.
+  The expected format is the number of seconds followed by s.
+  Default time is ten minutes (600s).
+
+* `step` -
+  (Required)
   The operations to be performed on the workspace.  Structure is documented below.
 
 
 The `step` block supports:
 
 * `name` -
-  (Optional)
+  (Required)
   The name of the container image that will run this particular build step.
   If the image is available in the host's Docker daemon's cache, it will be
   run directly. If not, the host will attempt to pull the image first, using
@@ -266,13 +275,13 @@ The `step` block supports:
 The `volumes` block supports:
 
 * `name` -
-  (Optional)
+  (Required)
   Name of the volume to mount.
   Volume names must be unique per build step and must be valid names for
   Docker volumes. Each named volume must be used by at least two build steps.
 
 * `path` -
-  (Optional)
+  (Required)
   Path at which to mount the volume.
   Paths must be absolute and cannot conflict with other volume paths on
   the same build step or with certain reserved volume paths.
@@ -281,6 +290,7 @@ The `volumes` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/triggers/{{trigger_id}}`
 
 * `trigger_id` -
   The unique identifier for the trigger.
@@ -313,4 +323,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

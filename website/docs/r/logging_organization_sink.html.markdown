@@ -1,4 +1,5 @@
 ---
+subcategory: "Stackdriver Logging"
 layout: "google"
 page_title: "Google: google_logging_organization_sink"
 sidebar_current: "docs-google-logging-organization-sink"
@@ -19,24 +20,24 @@ granted to the credentials used with terraform.
 
 ```hcl
 resource "google_logging_organization_sink" "my-sink" {
-    name        = "my-sink"
-    org_id      = "123456789"
+  name   = "my-sink"
+  org_id = "123456789"
 
-    # Can export to pubsub, cloud storage, or bigquery
-    destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  # Can export to pubsub, cloud storage, or bigquery
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 
-    # Log all WARN or higher severity messages relating to instances
-    filter      = "resource.type = gce_instance AND severity >= WARN"
+  # Log all WARN or higher severity messages relating to instances
+  filter = "resource.type = gce_instance AND severity >= WARN"
 }
 
 resource "google_storage_bucket" "log-bucket" {
-    name = "organization-logging-bucket"
+  name = "organization-logging-bucket"
 }
 
 resource "google_project_iam_member" "log-writer" {
-    role    = "roles/storage.objectCreator"
+  role = "roles/storage.objectCreator"
 
-    member = "${google_logging_organization_sink.my-sink.writer_identity}"
+  member = google_logging_organization_sink.my-sink.writer_identity
 }
 ```
 
@@ -63,6 +64,15 @@ The following arguments are supported:
 
 * `include_children` - (Optional) Whether or not to include children organizations in the sink export. If true, logs
     associated with child projects are also exported; otherwise only logs relating to the provided organization are included.
+
+* `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure documented below.
+
+The `bigquery_options` block supports:
+
+* `use_partitioned_tables` - (Required) Whether to use [BigQuery's partition tables](https://cloud.google.com/bigquery/docs/partitioned-tables).
+    By default, Logging creates dated tables based on the log entries' timestamps, e.g. syslog_20170523. With partitioned
+    tables the date suffix is no longer present and [special query syntax](https://cloud.google.com/bigquery/docs/querying-partitioned-tables)
+    has to be used instead. In both cases, tables are sharded based on UTC timezone.
 
 ## Attributes Reference
 

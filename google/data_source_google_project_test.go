@@ -11,7 +11,7 @@ import (
 func TestAccDataSourceGoogleProject_basic(t *testing.T) {
 	t.Parallel()
 	org := getTestOrgFromEnv(t)
-	project := "terraform-" + acctest.RandString(10)
+	project := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -37,12 +37,13 @@ func TestAccDataSourceGoogleProject_basic(t *testing.T) {
 func testAccCheckGoogleProjectConfig(project, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "project" {
-	project_id = "%s"
-	name = "%s"
-	org_id = "%s"
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 }
-	
+
 data "google_project" "project" {
-	project_id = "${google_project.project.project_id}"
-}`, project, project, org)
+  project_id = google_project.project.project_id
+}
+`, project, project, org)
 }

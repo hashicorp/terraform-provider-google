@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_node_types"
 sidebar_current: "docs-google-datasource-compute-node-types"
@@ -22,7 +23,7 @@ data "google_compute_node_types" "central1b" {
 resource "google_compute_node_template" "tmpl" {
   name      = "terraform-test-tmpl"
   region    = "us-central1"
-  node_type = "${data.google_compute_node_types.types.names[0]}"
+  node_type = data.google_compute_node_types.types.names[0]
 }
 ```
 

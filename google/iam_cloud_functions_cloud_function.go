@@ -53,14 +53,14 @@ type CloudFunctionsCloudFunctionIamUpdater struct {
 func CloudFunctionsCloudFunctionIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
 	values["project"] = project
-	region, err := getRegion(d, config)
-	if err != nil {
-		return nil, err
+	region, _ := getRegion(d, config)
+	if region != "" {
+		values["region"] = region
 	}
 	values["region"] = region
 	if v, ok := d.GetOk("cloud_function"); ok {
@@ -89,24 +89,21 @@ func CloudFunctionsCloudFunctionIamUpdaterProducer(d *schema.ResourceData, confi
 	d.Set("region", u.region)
 	d.Set("cloud_function", u.GetResourceId())
 
-	d.SetId(u.GetResourceId())
-
 	return u, nil
 }
 
 func CloudFunctionsCloudFunctionIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
-	values["project"] = project
-	region, err := getRegion(d, config)
-	if err != nil {
-		return err
+
+	region, _ := getRegion(d, config)
+	if region != "" {
+		values["region"] = region
 	}
-	values["region"] = region
 
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<cloud_function>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<cloud_function>[^/]+)"}, d, config, d.Id())
 	if err != nil {
@@ -130,14 +127,18 @@ func CloudFunctionsCloudFunctionIdParseFunc(d *schema.ResourceData, config *Conf
 }
 
 func (u *CloudFunctionsCloudFunctionIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyCloudFunctionUrl("getIamPolicy")
+	url, err := u.qualifyCloudFunctionUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
+	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "GET", project, url, nil)
+	policy, err := sendRequest(u.Config, "GET", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -160,8 +161,10 @@ func (u *CloudFunctionsCloudFunctionIamUpdater) SetResourceIamPolicy(policy *clo
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyCloudFunctionUrl("setIamPolicy")
-
+	url, err := u.qualifyCloudFunctionUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return err
@@ -175,12 +178,17 @@ func (u *CloudFunctionsCloudFunctionIamUpdater) SetResourceIamPolicy(policy *clo
 	return nil
 }
 
-func (u *CloudFunctionsCloudFunctionIamUpdater) qualifyCloudFunctionUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://cloudfunctions.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/locations/%s/functions/%s", u.project, u.region, u.cloudFunction), methodIdentifier)
+func (u *CloudFunctionsCloudFunctionIamUpdater) qualifyCloudFunctionUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{CloudFunctionsBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/functions/%s", u.project, u.region, u.cloudFunction), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *CloudFunctionsCloudFunctionIamUpdater) GetResourceId() string {
-	return fmt.Sprintf("%s/%s/%s", u.project, u.region, u.cloudFunction)
+	return fmt.Sprintf("projects/%s/locations/%s/functions/%s", u.project, u.region, u.cloudFunction)
 }
 
 func (u *CloudFunctionsCloudFunctionIamUpdater) GetMutexKey() string {

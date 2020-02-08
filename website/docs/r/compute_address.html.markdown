@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_address"
 sidebar_current: "docs-google-compute-address"
@@ -73,12 +74,12 @@ resource "google_compute_subnetwork" "default" {
   name          = "my-subnet"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.default.self_link}"
+  network       = google_compute_network.default.self_link
 }
 
 resource "google_compute_address" "internal_with_subnet_and_address" {
   name         = "my-internal-address"
-  subnetwork   = "${google_compute_subnetwork.default.self_link}"
+  subnetwork   = google_compute_subnetwork.default.self_link
   address_type = "INTERNAL"
   address      = "10.0.42.42"
   region       = "us-central1"
@@ -113,27 +114,27 @@ resource "google_compute_address" "static" {
 }
 
 data "google_compute_image" "debian_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance" "instance_with_ip" {
-	name         = "vm-instance"
-	machine_type = "f1-micro"
-	zone         = "us-central1-a"
+  name         = "vm-instance"
+  machine_type = "f1-micro"
+  zone         = "us-central1-a"
 
-	boot_disk {
-		initialize_params{
-			image = "${data.google_compute_image.debian_image.self_link}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.debian_image.self_link
+    }
+  }
 
-	network_interface {
-		network = "default"
-		access_config {
-			nat_ip = "${google_compute_address.static.address}"
-		}
-	}
+  network_interface {
+    network = "default"
+    access_config {
+      nat_ip = google_compute_address.static.address
+    }
+  }
 }
 ```
 
@@ -203,6 +204,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/addresses/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -238,4 +240,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

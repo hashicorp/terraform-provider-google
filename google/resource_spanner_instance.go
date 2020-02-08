@@ -49,10 +49,18 @@ func resourceSpannerInstance() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The name of the instance's configuration (similar but not
+quite the same as a region) which defines defines the geographic placement and
+replication of your databases in this instance. It determines where your data
+is stored. Values are typically of the form 'regional-europe-west1' , 'us-central' etc.
+In order to obtain a valid list please consult the
+[Configuration section of the docs](https://cloud.google.com/spanner/docs/instances).`,
 			},
 			"display_name": {
 				Type:     schema.TypeString,
 				Required: true,
+				Description: `The descriptive name for this instance as it appears in UIs. Must be
+unique per project and between 4 and 30 characters in length.`,
 			},
 			"name": {
 				Type:         schema.TypeString,
@@ -60,20 +68,30 @@ func resourceSpannerInstance() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRegexp(`^[a-z][-a-z0-9]*[a-z0-9]$`),
+				Description: `A unique identifier for the instance, which cannot be changed after
+the instance is created. The name must be between 6 and 30 characters
+in length.
+
+
+If not provided, a random string starting with 'tf-' will be selected.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: `An object containing a list of "key": value pairs.
+Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"num_nodes": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  1,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `The number of nodes allocated to this instance.`,
+				Default:     1,
 			},
 			"state": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Instance status: 'CREATING' or 'READY'.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -147,14 +165,14 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	waitErr := spannerOperationWaitTime(
+	err = spannerOperationWaitTime(
 		config, res, project, "Creating Instance",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Instance: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Instance: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)
@@ -200,22 +218,22 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
-	if err := d.Set("name", flattenSpannerInstanceName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenSpannerInstanceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("config", flattenSpannerInstanceConfig(res["config"], d)); err != nil {
+	if err := d.Set("config", flattenSpannerInstanceConfig(res["config"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("display_name", flattenSpannerInstanceDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenSpannerInstanceDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("num_nodes", flattenSpannerInstanceNumNodes(res["nodeCount"], d)); err != nil {
+	if err := d.Set("num_nodes", flattenSpannerInstanceNumNodes(res["nodeCount"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("labels", flattenSpannerInstanceLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenSpannerInstanceLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("state", flattenSpannerInstanceState(res["state"], d)); err != nil {
+	if err := d.Set("state", flattenSpannerInstanceState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 
@@ -329,22 +347,22 @@ func resourceSpannerInstanceImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSpannerInstanceName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerInstanceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSpannerInstanceConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerInstanceConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenSpannerInstanceDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerInstanceDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSpannerInstanceNumNodes(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerInstanceNumNodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -354,11 +372,11 @@ func flattenSpannerInstanceNumNodes(v interface{}, d *schema.ResourceData) inter
 	return v
 }
 
-func flattenSpannerInstanceLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerInstanceLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSpannerInstanceState(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSpannerInstanceState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

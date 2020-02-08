@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Runtime Configuration"
 layout: "google"
 page_title: "Google: google_runtimeconfig_config"
 sidebar_current: "docs-google-runtimeconfig-config"
@@ -19,8 +20,8 @@ Example creating a RuntimeConfig resource.
 
 ```hcl
 resource "google_runtimeconfig_config" "my-runtime-config" {
- 	name = "my-service-runtime-config"
- 	description = "Runtime configuration values for my service"
+  name        = "my-service-runtime-config"
+  description = "Runtime configuration values for my service"
 }
 ```
 

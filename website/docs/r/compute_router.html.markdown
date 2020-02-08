@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_router"
 sidebar_current: "docs-google-compute-router"
@@ -41,7 +42,7 @@ To get more information about Router, see:
 ```hcl
 resource "google_compute_router" "foobar" {
   name    = "my-router"
-  network = "${google_compute_network.foobar.name}"
+  network = google_compute_network.foobar.name
   bgp {
     asn               = 64514
     advertise_mode    = "CUSTOM"
@@ -56,7 +57,7 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_network" "foobar" {
-  name = "my-network"
+  name                    = "my-network"
   auto_create_subnetworks = false
 }
 ```
@@ -134,7 +135,7 @@ The `bgp` block supports:
 The `advertised_ip_ranges` block supports:
 
 * `range` -
-  (Optional)
+  (Required)
   The IP range to advertise. The value must be a
   CIDR-formatted string.
 
@@ -146,6 +147,7 @@ The `advertised_ip_ranges` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/routers/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -177,4 +179,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

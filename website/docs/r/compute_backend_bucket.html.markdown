@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_backend_bucket"
 sidebar_current: "docs-google-compute-backend-bucket"
@@ -49,7 +50,7 @@ To get more information about BackendBucket, see:
 resource "google_compute_backend_bucket" "image_backend" {
   name        = "image-backend-bucket"
   description = "Contains beautiful images"
-  bucket_name = "${google_storage_bucket.image_bucket.name}"
+  bucket_name = google_storage_bucket.image_bucket.name
   enable_cdn  = true
 }
 
@@ -102,9 +103,9 @@ The following arguments are supported:
 The `cdn_policy` block supports:
 
 * `signed_url_cache_max_age_sec` -
-  (Optional)
+  (Required)
   Maximum number of seconds the response to a signed URL request will
-  be considered fresh. Defaults to 1hr (3600s). After this time period,
+  be considered fresh. After this time period,
   the response will be revalidated before being served.
   When serving responses to signed URL requests,
   Cloud CDN will internally behave as though
@@ -116,6 +117,7 @@ The `cdn_policy` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/backendBuckets/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -146,4 +148,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

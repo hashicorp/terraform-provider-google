@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Binary Authorization"
 layout: "google"
 page_title: "Google: google_binary_authorization_policy"
 sidebar_current: "docs-google-binary-authorization-policy"
@@ -36,19 +37,19 @@ To get more information about Policy, see:
 ```hcl
 resource "google_binary_authorization_policy" "policy" {
   admission_whitelist_patterns {
-    name_pattern= "gcr.io/google_containers/*"
+    name_pattern = "gcr.io/google_containers/*"
   }
 
   default_admission_rule {
-    evaluation_mode = "ALWAYS_ALLOW"
+    evaluation_mode  = "ALWAYS_ALLOW"
     enforcement_mode = "ENFORCED_BLOCK_AND_AUDIT_LOG"
   }
 
   cluster_admission_rules {
-    cluster = "us-central1-a.prod-cluster"
-    evaluation_mode = "REQUIRE_ATTESTATION"
-    enforcement_mode = "ENFORCED_BLOCK_AND_AUDIT_LOG"
-    require_attestations_by = ["${google_binary_authorization_attestor.attestor.name}"]
+    cluster                 = "us-central1-a.prod-cluster"
+    evaluation_mode         = "REQUIRE_ATTESTATION"
+    enforcement_mode        = "ENFORCED_BLOCK_AND_AUDIT_LOG"
+    require_attestations_by = [google_binary_authorization_attestor.attestor.name]
   }
 }
 
@@ -64,7 +65,7 @@ resource "google_container_analysis_note" "note" {
 resource "google_binary_authorization_attestor" "attestor" {
   name = "test-attestor"
   attestation_authority_note {
-    note_reference = "${google_container_analysis_note.note.name}"
+    note_reference = google_container_analysis_note.note.name
   }
 }
 ```
@@ -73,15 +74,13 @@ resource "google_binary_authorization_attestor" "attestor" {
 
 ```hcl
 resource "google_binary_authorization_policy" "policy" {
-
   default_admission_rule {
-    evaluation_mode = "REQUIRE_ATTESTATION"
-    enforcement_mode = "ENFORCED_BLOCK_AND_AUDIT_LOG"
-    require_attestations_by = ["${google_binary_authorization_attestor.attestor.name}"]
+    evaluation_mode         = "REQUIRE_ATTESTATION"
+    enforcement_mode        = "ENFORCED_BLOCK_AND_AUDIT_LOG"
+    require_attestations_by = [google_binary_authorization_attestor.attestor.name]
   }
 
   global_policy_evaluation_mode = "ENABLE"
-
 }
 
 resource "google_container_analysis_note" "note" {
@@ -96,7 +95,7 @@ resource "google_container_analysis_note" "note" {
 resource "google_binary_authorization_attestor" "attestor" {
   name = "test-attestor"
   attestation_authority_note {
-    note_reference = "${google_container_analysis_note.note.name}"
+    note_reference = google_container_analysis_note.note.name
   }
 }
 ```
@@ -171,7 +170,7 @@ The `default_admission_rule` block supports:
 The `admission_whitelist_patterns` block supports:
 
 * `name_pattern` -
-  (Optional)
+  (Required)
   An image name pattern to whitelist, in the form
   `registry/path/to/image`. This supports a trailing * as a
   wildcard, but this is allowed only in text after the registry/
@@ -182,7 +181,7 @@ The `cluster_admission_rules` block supports:
 * `cluster` - (Required) The identifier for this object. Format specified above.
 
 * `evaluation_mode` -
-  (Optional)
+  (Required)
   How this admission rule will be evaluated.
 
 * `require_attestations_by` -
@@ -197,8 +196,14 @@ The `cluster_admission_rules` block supports:
   specifies REQUIRE_ATTESTATION, otherwise it must be empty.
 
 * `enforcement_mode` -
-  (Optional)
+  (Required)
   The action when a pod creation is denied by the admission rule.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}`
 
 
 ## Timeouts
@@ -224,4 +229,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

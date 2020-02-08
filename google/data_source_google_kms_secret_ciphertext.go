@@ -5,14 +5,16 @@ import (
 
 	"encoding/base64"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceGoogleKmsSecretCiphertext() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGoogleKmsSecretCiphertextRead,
+		DeprecationMessage: "Use the google_kms_secret_ciphertext resource instead.",
+		Read:               dataSourceGoogleKmsSecretCiphertextRead,
 		Schema: map[string]*schema.Schema{
 			"crypto_key": {
 				Type:     schema.TypeString,
@@ -46,7 +48,11 @@ func dataSourceGoogleKmsSecretCiphertextRead(d *schema.ResourceData, meta interf
 		Plaintext: plaintext,
 	}
 
-	encryptResponse, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Encrypt(cryptoKeyId.cryptoKeyId(), kmsEncryptRequest).Do()
+	encryptCall := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Encrypt(cryptoKeyId.cryptoKeyId(), kmsEncryptRequest)
+	if config.UserProjectOverride {
+		encryptCall.Header().Set("X-Goog-User-Project", cryptoKeyId.KeyRingId.Project)
+	}
+	encryptResponse, err := encryptCall.Do()
 
 	if err != nil {
 		return fmt.Errorf("Error encrypting plaintext: %s", err)

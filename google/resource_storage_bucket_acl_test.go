@@ -151,6 +151,23 @@ func TestAccStorageBucketAcl_unordered(t *testing.T) {
 	})
 }
 
+// Test that project owner doesn't get removed or cause a diff
+func TestAccStorageBucketAcl_RemoveOwner(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName()
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketAclDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleStorageBucketsAclRemoveOwner(bucketName),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleStorageBucketAclDelete(bucket, roleEntityS string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		roleEntity, _ := getRoleEntityPair(roleEntityS)
@@ -208,12 +225,12 @@ func testAccStorageBucketAclDestroy(s *terraform.State) error {
 func testGoogleStorageBucketsAclBasic1(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_acl" "acl" {
-	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s", "%s", "%s", "%s"]
+  bucket      = google_storage_bucket.bucket.name
+  role_entity = ["%s", "%s", "%s", "%s", "%s"]
 }
 `, bucketName, roleEntityOwners, roleEntityEditors, roleEntityViewers, roleEntityBasic1, roleEntityBasic2)
 }
@@ -221,12 +238,12 @@ resource "google_storage_bucket_acl" "acl" {
 func testGoogleStorageBucketsAclBasic2(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_acl" "acl" {
-	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s", "%s", "%s", "%s"]
+  bucket      = google_storage_bucket.bucket.name
+  role_entity = ["%s", "%s", "%s", "%s", "%s"]
 }
 `, bucketName, roleEntityOwners, roleEntityEditors, roleEntityViewers, roleEntityBasic2, roleEntityBasic3_owner)
 }
@@ -234,12 +251,12 @@ resource "google_storage_bucket_acl" "acl" {
 func testGoogleStorageBucketsAclBasicDelete(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_acl" "acl" {
-	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = []
+  bucket      = google_storage_bucket.bucket.name
+  role_entity = []
 }
 `, bucketName)
 }
@@ -247,12 +264,12 @@ resource "google_storage_bucket_acl" "acl" {
 func testGoogleStorageBucketsAclBasic3(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_acl" "acl" {
-	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s", "%s", "%s", "%s"]
+  bucket      = google_storage_bucket.bucket.name
+  role_entity = ["%s", "%s", "%s", "%s", "%s"]
 }
 `, bucketName, roleEntityOwners, roleEntityEditors, roleEntityViewers, roleEntityBasic2, roleEntityBasic3_reader)
 }
@@ -264,7 +281,7 @@ resource "google_storage_bucket" "bucket" {
 }
 
 resource "google_storage_bucket_acl" "acl" {
-  bucket = "${google_storage_bucket.bucket.name}"
+  bucket      = google_storage_bucket.bucket.name
   role_entity = ["%s", "%s", "%s", "%s", "%s"]
 }
 `, bucketName, roleEntityBasic1, roleEntityViewers, roleEntityOwners, roleEntityBasic2, roleEntityEditors)
@@ -273,13 +290,28 @@ resource "google_storage_bucket_acl" "acl" {
 func testGoogleStorageBucketsAclPredefined(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_acl" "acl" {
-	bucket = "${google_storage_bucket.bucket.name}"
-	predefined_acl = "projectPrivate"
-	default_acl = "projectPrivate"
+  bucket         = google_storage_bucket.bucket.name
+  predefined_acl = "projectPrivate"
+  default_acl    = "projectPrivate"
+}
+`, bucketName)
+}
+
+func testGoogleStorageBucketsAclRemoveOwner(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+}
+
+resource "google_storage_bucket_acl" "acl" {
+  bucket         = google_storage_bucket.bucket.name
+  role_entity = [
+	"READER:user-paddy@carvers.co"
+  ]
 }
 `, bucketName)
 }

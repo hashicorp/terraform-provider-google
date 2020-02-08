@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "BigQueryDataTransfer"
 layout: "google"
 page_title: "Google: google_bigquery_data_transfer_config"
 sidebar_current: "docs-google-bigquery-data-transfer-config"
@@ -35,37 +36,36 @@ To get more information about Config, see:
 
 
 ```hcl
-data "google_project" "project" {}
+data "google_project" "project" {
+}
 
 resource "google_project_iam_member" "permissions" {
-  role = "roles/iam.serviceAccountShortTermTokenMinter"
+  role   = "roles/iam.serviceAccountShortTermTokenMinter"
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
 }
 
 resource "google_bigquery_data_transfer_config" "query_config" {
-
   depends_on = [google_project_iam_member.permissions]
 
-  display_name = "my-query"
-  location = "asia-northeast1"
-  data_source_id = "scheduled_query"
-  schedule = "first sunday of quarter 00:00"
-  destination_dataset_id = "${google_bigquery_dataset.my_dataset.dataset_id}"
+  display_name           = "my-query"
+  location               = "asia-northeast1"
+  data_source_id         = "scheduled_query"
+  schedule               = "first sunday of quarter 00:00"
+  destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
   params = {
     destination_table_name_template = "my-table"
-    write_disposition = "WRITE_APPEND"
-    query = "SELECT name FROM tabl WHERE x = 'y'"
+    write_disposition               = "WRITE_APPEND"
+    query                           = "SELECT name FROM tabl WHERE x = 'y'"
   }
 }
 
 resource "google_bigquery_dataset" "my_dataset" {
-
   depends_on = [google_project_iam_member.permissions]
 
-  dataset_id = "my_dataset"
+  dataset_id    = "my_dataset"
   friendly_name = "foo"
-  description = "bar"
-  location = "asia-northeast1"
+  description   = "bar"
+  location      = "asia-northeast1"
 }
 ```
 
@@ -130,6 +130,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   The resource name of the transfer config. Transfer config names have the
@@ -160,4 +161,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

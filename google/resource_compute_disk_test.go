@@ -442,12 +442,12 @@ func testAccCheckComputeDiskExists(n, p string, disk *compute.Disk) resource.Tes
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Disks.Get(
-			p, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			p, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != rs.Primary.Attributes["name"] {
 			return fmt.Errorf("Disk not found")
 		}
 
@@ -478,116 +478,121 @@ func testAccCheckEncryptionKey(n string, disk *compute.Disk) resource.TestCheckF
 func testAccComputeDisk_basic(diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
-	name = "%s"
-	image = "${data.google_compute_image.my_image.self_link}"
-	size = 50
-	type = "pd-ssd"
-	zone = "us-central1-a"
-	labels = {
-		my-label = "my-label-value"
-	}
-}`, diskName)
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 50
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+  labels = {
+    my-label = "my-label-value"
+  }
+}
+`, diskName)
 }
 
 func testAccComputeDisk_timeout(diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
-	name  = "%s"
-	image = "${data.google_compute_image.my_image.self_link}"
-	type  = "pd-ssd"
-	zone  = "us-central1-a"
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
 
-	timeouts {
-		create = "1s"
-	}
-}`, diskName)
+  timeouts {
+    create = "1s"
+  }
+}
+`, diskName)
 }
 
 func testAccComputeDisk_updated(diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
-	name = "%s"
-	image = "${data.google_compute_image.my_image.self_link}"
-	size = 100
-	type = "pd-ssd"
-	zone = "us-central1-a"
-	labels = {
-		my-label = "my-updated-label-value"
-		a-new-label = "a-new-label-value"
-	}
-}`, diskName)
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 100
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+  labels = {
+    my-label    = "my-updated-label-value"
+    a-new-label = "a-new-label-value"
+  }
+}
+`, diskName)
 }
 
 func testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, ref_selector string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
-	name = "d1-%s"
-	image = "${data.google_compute_image.my_image.self_link}"
-	size = 50
-	type = "pd-ssd"
-	zone = "us-central1-a"
-	project = "%s"
+  name    = "d1-%s"
+  image   = data.google_compute_image.my_image.self_link
+  size    = 50
+  type    = "pd-ssd"
+  zone    = "us-central1-a"
+  project = "%s"
 }
 
 resource "google_compute_snapshot" "snapdisk" {
-	name = "%s"
-	source_disk = "${google_compute_disk.foobar.name}"
-	zone = "us-central1-a"
-	project = "%s"
+  name        = "%s"
+  source_disk = google_compute_disk.foobar.name
+  zone        = "us-central1-a"
+  project     = "%s"
 }
 
 resource "google_compute_disk" "seconddisk" {
-	name = "d2-%s"
-	snapshot = "${google_compute_snapshot.snapdisk.%s}"
-	type = "pd-ssd"
-	zone = "us-central1-a"
-	project = "%s"
-}`, firstDiskName, projectName, snapshotName, projectName, diskName, ref_selector, projectName)
+  name     = "d2-%s"
+  snapshot = google_compute_snapshot.snapdisk.%s
+  type     = "pd-ssd"
+  zone     = "us-central1-a"
+  project  = "%s"
+}
+`, firstDiskName, projectName, snapshotName, projectName, diskName, ref_selector, projectName)
 }
 
 func testAccComputeDisk_encryption(diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
-	name = "%s"
-	image = "${data.google_compute_image.my_image.self_link}"
-	size = 50
-	type = "pd-ssd"
-	zone = "us-central1-a"
-	disk_encryption_key {
-		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
-	}
-}`, diskName)
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 50
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+  disk_encryption_key {
+    raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+  }
+}
+`, diskName)
 }
 
 func testAccComputeDisk_encryptionKMS(pid, diskName, kmsKey string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {
-	project_id = "%s"
+  project_id = "%s"
 }
 
 data "google_compute_image" "my_image" {
@@ -596,7 +601,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_project_iam_member" "kms-project-binding" {
-  project = "${data.google_project.project.project_id}"
+  project = data.google_project.project.project_id
   role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
 }
@@ -604,11 +609,11 @@ resource "google_project_iam_member" "kms-project-binding" {
 resource "google_compute_disk" "foobar" {
   depends_on = [google_project_iam_member.kms-project-binding]
 
-  name    = "%s"
-  image   = "${data.google_compute_image.my_image.self_link}"
-  size    = 10
-  type    = "pd-ssd"
-  zone    = "us-central1-a"
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
 
   disk_encryption_key {
     kms_key_self_link = "%s"
@@ -620,81 +625,91 @@ resource "google_compute_disk" "foobar" {
 func testAccComputeDisk_deleteDetach(instanceName, diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foo" {
-	name = "%s"
-	image = "${data.google_compute_image.my_image.self_link}"
-	size = 50
-	type = "pd-ssd"
-	zone = "us-central1-a"
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 50
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
 }
 
 resource "google_compute_instance" "bar" {
-	name = "%s"
-	machine_type = "n1-standard-1"
-	zone = "us-central1-a"
+  name         = "%s"
+  machine_type = "n1-standard-1"
+  zone         = "us-central1-a"
 
-	boot_disk {
-		initialize_params {
-			image = "${data.google_compute_image.my_image.self_link}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
 
-	attached_disk {
-		source = "${google_compute_disk.foo.self_link}"
-	}
+  attached_disk {
+    source = google_compute_disk.foo.self_link
+  }
 
-	network_interface {
-		network = "default"
-	}
-}`, diskName, instanceName)
+  network_interface {
+    network = "default"
+  }
+}
+`, diskName, instanceName)
 }
 
 func testAccComputeDisk_deleteDetachIGM(diskName, mgrName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foo" {
-	name = "%s"
-	image = "${data.google_compute_image.my_image.self_link}"
-	size = 50
-	type = "pd-ssd"
-	zone = "us-central1-a"
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 50
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
 }
 
 resource "google_compute_instance_template" "template" {
-	machine_type = "g1-small"
+  machine_type = "g1-small"
 
-	disk {
-		boot        = true
-		source      = "${google_compute_disk.foo.name}"
-		auto_delete = false
-	}
+  disk {
+    boot        = true
+    source      = google_compute_disk.foo.name
+    auto_delete = false
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 
-	lifecycle {
-		create_before_destroy = true
-	}
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "google_compute_instance_group_manager" "manager" {
   name               = "%s"
   base_instance_name = "disk-igm"
-  instance_template  = "${google_compute_instance_template.template.self_link}"
-  zone               = "us-central1-a"
-  target_size        = 1
+  version {
+    instance_template = google_compute_instance_template.template.self_link
+    name              = "primary"
+  }
+  update_policy {
+    minimal_action        = "RESTART"
+    type                  = "PROACTIVE"
+    max_unavailable_fixed = 1
+  }
+  zone        = "us-central1-a"
+  target_size = 1
 
   // block on instances being ready so that when they get deleted, we don't try
   // to continue interacting with them in other resources
   wait_for_instances = true
-}`, diskName, mgrName)
+}
+`, diskName, mgrName)
 }

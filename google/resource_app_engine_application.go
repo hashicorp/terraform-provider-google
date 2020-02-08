@@ -89,6 +89,30 @@ func resourceAppEngineApplication() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"iap": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Settings for enabling Cloud Identity Aware Proxy`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"oauth2_client_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"oauth2_client_secret": {
+							Type:      schema.TypeString,
+							Required:  true,
+							Sensitive: true,
+						},
+						"oauth2_client_secret_sha256": {
+							Type:      schema.TypeString,
+							Computed:  true,
+							Sensitive: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -117,7 +141,7 @@ func appEngineApplicationFeatureSettingsResource() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"split_health_checks": {
 				Type:     schema.TypeBool,
-				Optional: true,
+				Required: true,
 			},
 		},
 	}
@@ -151,7 +175,7 @@ func resourceAppEngineApplicationCreate(d *schema.ResourceData, meta interface{}
 	d.SetId(project)
 
 	// Wait for the operation to complete
-	waitErr := appEngineOperationWait(config.clientAppEngine, op, project, "App Engine app to create")
+	waitErr := appEngineOperationWait(config, op, project, "App Engine app to create")
 	if waitErr != nil {
 		d.SetId("")
 		return waitErr
@@ -195,6 +219,14 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return fmt.Errorf("Error setting feature settings in state. This is a bug, please report it at https://github.com/terraform-providers/terraform-provider-google/issues. Error is:\n%s", err.Error())
 	}
+	iap, err := flattenAppEngineApplicationIap(d, app.Iap)
+	if err != nil {
+		return err
+	}
+	err = d.Set("iap", iap)
+	if err != nil {
+		return fmt.Errorf("Error setting iap in state. This is a bug, please report it at https://github.com/terraform-providers/terraform-provider-google/issues. Error is:\n%s", err.Error())
+	}
 	return nil
 }
 
@@ -212,7 +244,7 @@ func resourceAppEngineApplicationUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	// Wait for the operation to complete
-	waitErr := appEngineOperationWait(config.clientAppEngine, op, pid, "App Engine app to update")
+	waitErr := appEngineOperationWait(config, op, pid, "App Engine app to update")
 	if waitErr != nil {
 		return waitErr
 	}
@@ -239,6 +271,11 @@ func expandAppEngineApplication(d *schema.ResourceData, project string) (*appeng
 		return nil, err
 	}
 	result.FeatureSettings = featureSettings
+	iap, err := expandAppEngineApplicationIap(d)
+	if err != nil {
+		return nil, err
+	}
+	result.Iap = iap
 	return result, nil
 }
 
@@ -254,12 +291,36 @@ func expandAppEngineApplicationFeatureSettings(d *schema.ResourceData) (*appengi
 	}, nil
 }
 
+func expandAppEngineApplicationIap(d *schema.ResourceData) (*appengine.IdentityAwareProxy, error) {
+	blocks := d.Get("iap").([]interface{})
+	if len(blocks) < 1 {
+		return nil, nil
+	}
+	return &appengine.IdentityAwareProxy{
+		Oauth2ClientId:           d.Get("iap.0.oauth2_client_id").(string),
+		Oauth2ClientSecret:       d.Get("iap.0.oauth2_client_secret").(string),
+		Oauth2ClientSecretSha256: d.Get("iap.0.oauth2_client_secret_sha256").(string),
+	}, nil
+}
+
 func flattenAppEngineApplicationFeatureSettings(settings *appengine.FeatureSettings) ([]map[string]interface{}, error) {
 	if settings == nil {
 		return []map[string]interface{}{}, nil
 	}
 	result := map[string]interface{}{
 		"split_health_checks": settings.SplitHealthChecks,
+	}
+	return []map[string]interface{}{result}, nil
+}
+
+func flattenAppEngineApplicationIap(d *schema.ResourceData, iap *appengine.IdentityAwareProxy) ([]map[string]interface{}, error) {
+	if iap == nil {
+		return []map[string]interface{}{}, nil
+	}
+	result := map[string]interface{}{
+		"oauth2_client_id":            iap.Oauth2ClientId,
+		"oauth2_client_secret":        d.Get("iap.0.oauth2_client_secret"),
+		"oauth2_client_secret_sha256": iap.Oauth2ClientSecretSha256,
 	}
 	return []map[string]interface{}{result}, nil
 }

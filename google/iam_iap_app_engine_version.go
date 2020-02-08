@@ -58,9 +58,9 @@ type IapAppEngineVersionIamUpdater struct {
 func IapAppEngineVersionIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("app_id"); ok {
@@ -99,19 +99,16 @@ func IapAppEngineVersionIamUpdaterProducer(d *schema.ResourceData, config *Confi
 	d.Set("service", u.service)
 	d.Set("version_id", u.GetResourceId())
 
-	d.SetId(u.GetResourceId())
-
 	return u, nil
 }
 
 func IapAppEngineVersionIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
-	values["project"] = project
 
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)/versions/(?P<versionId>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)/(?P<versionId>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)/(?P<versionId>[^/]+)", "(?P<version>[^/]+)"}, d, config, d.Id())
 	if err != nil {
@@ -136,14 +133,23 @@ func IapAppEngineVersionIdParseFunc(d *schema.ResourceData, config *Config) erro
 }
 
 func (u *IapAppEngineVersionIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyAppEngineVersionUrl("getIamPolicy")
+	url, err := u.qualifyAppEngineVersionUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
+	var obj map[string]interface{}
+	obj = map[string]interface{}{
+		"options": map[string]interface{}{
+			"requestedPolicyVersion": iamPolicyVersion,
+		},
+	}
 
-	policy, err := sendRequest(u.Config, "POST", project, url, nil)
+	policy, err := sendRequest(u.Config, "POST", project, url, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -166,8 +172,10 @@ func (u *IapAppEngineVersionIamUpdater) SetResourceIamPolicy(policy *cloudresour
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyAppEngineVersionUrl("setIamPolicy")
-
+	url, err := u.qualifyAppEngineVersionUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return err
@@ -181,8 +189,13 @@ func (u *IapAppEngineVersionIamUpdater) SetResourceIamPolicy(policy *cloudresour
 	return nil
 }
 
-func (u *IapAppEngineVersionIamUpdater) qualifyAppEngineVersionUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://iap.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", u.project, u.appId, u.service, u.versionId), methodIdentifier)
+func (u *IapAppEngineVersionIamUpdater) qualifyAppEngineVersionUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", u.project, u.appId, u.service, u.versionId), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *IapAppEngineVersionIamUpdater) GetResourceId() string {

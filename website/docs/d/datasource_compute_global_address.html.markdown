@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_global_address"
 sidebar_current: "docs-google-datasource-compute-global-address"
@@ -23,9 +24,9 @@ resource "google_dns_record_set" "frontend" {
   type = "A"
   ttl  = 300
 
-  managed_zone = "${google_dns_managed_zone.prod.name}"
+  managed_zone = google_dns_managed_zone.prod.name
 
-  rrdatas = ["${data.google_compute_global_address.my_address.address}"]
+  rrdatas = [data.google_compute_global_address.my_address.address]
 }
 
 resource "google_dns_managed_zone" "prod" {

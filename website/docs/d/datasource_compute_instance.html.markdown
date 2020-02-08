@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_instance"
 sidebar_current: "docs-google-datasource-compute-instance-x"
@@ -18,8 +19,8 @@ and
 
 ```hcl
 data "google_compute_instance" "appserver" {
-	name = "primary-application-server"
-	zone = "us-central1-a"
+  name = "primary-application-server"
+  zone = "us-central1-a"
 }
 ```
 

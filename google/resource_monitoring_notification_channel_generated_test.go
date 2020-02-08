@@ -52,7 +52,7 @@ func testAccMonitoringNotificationChannel_notificationChannelBasicExample(contex
 	return Nprintf(`
 resource "google_monitoring_notification_channel" "basic" {
   display_name = "Test Notification Channel%{random_suffix}"
-  type = "email"
+  type         = "email"
   labels = {
     email_address = "fake_email@blahblah.com"
   }
@@ -76,7 +76,7 @@ func testAccCheckMonitoringNotificationChannelDestroy(s *terraform.State) error 
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", "", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil, isMonitoringRetryableError)
 		if err == nil {
 			return fmt.Errorf("MonitoringNotificationChannel still exists at %s", url)
 		}

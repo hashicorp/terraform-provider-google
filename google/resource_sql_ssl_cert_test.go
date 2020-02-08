@@ -98,9 +98,9 @@ func testGoogleSqlClientCert_mysql(instance string) string {
 	return fmt.Sprintf(`
 	resource "google_sql_database_instance" "instance" {
 		name = "%s"
-		region = "us-central"
+		region = "us-central1"
 		settings {
-			tier = "D0"
+			tier = "db-f1-micro"
 		}
 	}
 

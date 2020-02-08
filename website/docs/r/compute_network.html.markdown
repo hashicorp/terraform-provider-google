@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_network"
 sidebar_current: "docs-google-compute-network"
@@ -68,16 +69,6 @@ The following arguments are supported:
   An optional description of this resource. The resource must be
   recreated to modify this field.
 
-* `ipv4_range` -
-  (Optional, Deprecated)
-  If this field is specified, a deprecated legacy network is created.
-  You will no longer be able to create a legacy network on Feb 1, 2020.
-  See the [legacy network docs](https://cloud.google.com/vpc/docs/legacy)
-  for more details.
-  The range of internal addresses that are legal on this legacy network.
-  This range is a CIDR specification, for example: `192.168.0.0/16`.
-  The resource must be recreated to modify this field.
-
 * `auto_create_subnetworks` -
   (Optional)
   When set to `true`, the network is created in "auto subnet mode" and
@@ -104,6 +95,7 @@ immediately after network creation. Defaults to `false`.
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/networks/{{name}}`
 
 * `gateway_ipv4` -
   The gateway address for default routing out of the network. This value
@@ -135,4 +127,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

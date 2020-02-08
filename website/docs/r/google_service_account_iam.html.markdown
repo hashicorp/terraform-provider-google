@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_service_account_iam"
 sidebar_current: "docs-google-service-account-iam"
@@ -39,22 +40,21 @@ resource "google_service_account" "sa" {
 }
 
 resource "google_service_account_iam_policy" "admin-account-iam" {
-  service_account_id = "${google_service_account.sa.name}"
-  policy_data        = "${data.google_iam_policy.admin.policy_data}"
+  service_account_id = google_service_account.sa.name
+  policy_data        = data.google_iam_policy.admin.policy_data
 }
 ```
 
 ## google\_service\_account\_iam\_binding
 
 ```hcl
-
 resource "google_service_account" "sa" {
   account_id   = "my-service-account"
   display_name = "A service account that only Jane can use"
 }
 
 resource "google_service_account_iam_binding" "admin-account-iam" {
-  service_account_id = "${google_service_account.sa.name}"
+  service_account_id = google_service_account.sa.name
   role               = "roles/iam.serviceAccountUser"
 
   members = [
@@ -90,7 +90,8 @@ resource "google_service_account_iam_binding" "admin-account-iam" {
 ## google\_service\_account\_iam\_member
 
 ```hcl
-data "google_compute_default_service_account" "default" { }
+data "google_compute_default_service_account" "default" {
+}
 
 resource "google_service_account" "sa" {
   account_id   = "my-service-account"
@@ -98,14 +99,14 @@ resource "google_service_account" "sa" {
 }
 
 resource "google_service_account_iam_member" "admin-account-iam" {
-  service_account_id = "${google_service_account.sa.name}"
+  service_account_id = google_service_account.sa.name
   role               = "roles/iam.serviceAccountUser"
   member             = "user:jane@example.com"
 }
 
 # Allow SA service account use the default GCE account
 resource "google_service_account_iam_member" "gce-default-account-iam" {
-  service_account_id = "${data.google_compute_default_service_account.default.name}"
+  service_account_id = data.google_compute_default_service_account.default.name
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:${google_service_account.sa.email}"
 }
@@ -185,11 +186,15 @@ $ terraform import google_service_account_iam_policy.admin-account-iam projects/
 
 $ terraform import google_service_account_iam_binding.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} iam.serviceAccountUser"
 
-$ terraform import google_service_account_iam_member.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} iam.serviceAccountUser user:foo@example.com"
+$ terraform import google_service_account_iam_member.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} roles/editor user:foo@example.com"
 ```
+
+-> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
+full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
 
 With conditions:
 ```
 $ terraform import -provider=google-beta google_service_account_iam_binding.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} iam.serviceAccountUser expires_after_2019_12_31"
 
 $ terraform import -provider=google-beta google_service_account_iam_member.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} iam.serviceAccountUser user:foo@example.com expires_after_2019_12_31"
+```

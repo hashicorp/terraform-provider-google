@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Binary Authorization"
 layout: "google"
 page_title: "Google: google_binary_authorization_attestor"
 sidebar_current: "docs-google-binary-authorization-attestor"
@@ -42,7 +43,7 @@ To get more information about Attestor, see:
 resource "google_binary_authorization_attestor" "attestor" {
   name = "test-attestor"
   attestation_authority_note {
-    note_reference = "${google_container_analysis_note.note.name}"
+    note_reference = google_container_analysis_note.note.name
     public_keys {
       ascii_armored_pgp_public_key = <<EOF
 mQENBFtP0doBCADF+joTiXWKVuP8kJt3fgpBSjT9h8ezMfKA4aXZctYLx5wslWQl
@@ -61,6 +62,7 @@ MAU9vdm1DIv567meMqTaVZgR3w7bck2P49AO8lO5ERFpVkErtu/98y+rUy9d789l
 qoIRW6y0+UlAc+MbqfL0ziHDOAmcqz1GnROg
 =6Bvm
 EOF
+
     }
   }
 }
@@ -81,19 +83,19 @@ resource "google_container_analysis_note" "note" {
 resource "google_binary_authorization_attestor" "attestor" {
   name = "test-attestor"
   attestation_authority_note {
-    note_reference = "${google_container_analysis_note.note.name}"
+    note_reference = google_container_analysis_note.note.name
     public_keys {
-      id = "${data.google_kms_crypto_key_version.version.id}"
+      id = data.google_kms_crypto_key_version.version.id
       pkix_public_key {
-        public_key_pem     = "${data.google_kms_crypto_key_version.version.public_key[0].pem}"
-        signature_algorithm = "${data.google_kms_crypto_key_version.version.public_key[0].algorithm}"
+        public_key_pem      = data.google_kms_crypto_key_version.version.public_key[0].pem
+        signature_algorithm = data.google_kms_crypto_key_version.version.public_key[0].algorithm
       }
     }
   }
 }
 
 data "google_kms_crypto_key_version" "version" {
-  crypto_key = "${google_kms_crypto_key.crypto-key.self_link}"
+  crypto_key = google_kms_crypto_key.crypto-key.self_link
 }
 
 resource "google_container_analysis_note" "note" {
@@ -107,7 +109,7 @@ resource "google_container_analysis_note" "note" {
 
 resource "google_kms_crypto_key" "crypto-key" {
   name     = "test-attestor-key"
-  key_ring = "${google_kms_key_ring.keyring.self_link}"
+  key_ring = google_kms_key_ring.keyring.self_link
   purpose  = "ASYMMETRIC_SIGN"
 
   version_template {
@@ -236,6 +238,12 @@ The `pkix_public_key` block supports:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/attestors/{{name}}`
+
 
 ## Timeouts
 
@@ -261,4 +269,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

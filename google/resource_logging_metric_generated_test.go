@@ -51,25 +51,34 @@ func TestAccLoggingMetric_loggingMetricBasicExample(t *testing.T) {
 func testAccLoggingMetric_loggingMetricBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_logging_metric" "logging_metric" {
-  name = "my-(custom)/metric%{random_suffix}"
+  name   = "tf-test-my-(custom)/metric%{random_suffix}"
   filter = "resource.type=gae_app AND severity>=ERROR"
   metric_descriptor {
     metric_kind = "DELTA"
-    value_type = "DISTRIBUTION"
-    unit = "1"
+    value_type  = "DISTRIBUTION"
+    unit        = "1"
     labels {
-        key = "mass"
-        value_type = "STRING"
-        description = "amount of matter"
+      key         = "mass"
+      value_type  = "STRING"
+      description = "amount of matter"
     }
+    labels {
+      key         = "sku"
+      value_type  = "INT64"
+      description = "Identifying number for item"
+    }
+    display_name = "My metric"
   }
   value_extractor = "EXTRACT(jsonPayload.request)"
-  label_extractors = { "mass": "EXTRACT(jsonPayload.request)" }
+  label_extractors = {
+    "mass" = "EXTRACT(jsonPayload.request)"
+    "sku"  = "EXTRACT(jsonPayload.id)"
+  }
   bucket_options {
     linear_buckets {
       num_finite_buckets = 3
-      width = 1
-      offset = 1
+      width              = 1
+      offset             = 1
     }
   }
 }
@@ -103,11 +112,11 @@ func TestAccLoggingMetric_loggingMetricCounterBasicExample(t *testing.T) {
 func testAccLoggingMetric_loggingMetricCounterBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_logging_metric" "logging_metric" {
-  name = "my-(custom)/metric%{random_suffix}"
+  name   = "tf-test-my-(custom)/metric%{random_suffix}"
   filter = "resource.type=gae_app AND severity>=ERROR"
   metric_descriptor {
     metric_kind = "DELTA"
-    value_type = "INT64"
+    value_type  = "INT64"
   }
 }
 `, context)
@@ -140,18 +149,20 @@ func TestAccLoggingMetric_loggingMetricCounterLabelsExample(t *testing.T) {
 func testAccLoggingMetric_loggingMetricCounterLabelsExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_logging_metric" "logging_metric" {
-  name = "my-(custom)/metric%{random_suffix}"
+  name   = "tf-test-my-(custom)/metric%{random_suffix}"
   filter = "resource.type=gae_app AND severity>=ERROR"
   metric_descriptor {
     metric_kind = "DELTA"
-    value_type = "INT64"
+    value_type  = "INT64"
     labels {
-        key = "mass"
-        value_type = "STRING"
-        description = "amount of matter"
+      key         = "mass"
+      value_type  = "STRING"
+      description = "amount of matter"
     }
   }
-  label_extractors = { "mass": "EXTRACT(jsonPayload.request)" }
+  label_extractors = {
+    "mass" = "EXTRACT(jsonPayload.request)"
+  }
 }
 `, context)
 }

@@ -1,5 +1,6 @@
 ---
 layout: "google"
+subcategory: "Cloud Healthcare"
 page_title: "Google: google_healthcare_fhir_store_iam"
 sidebar_current: "docs-google-healthcare-fhir-store-iam"
 description: |-
@@ -9,7 +10,7 @@ description: |-
 # IAM policy for Google Cloud Healthcare FHIR store
 
 ~> **Warning:** These resources are in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta resources.
+See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 Three different resources help you manage your IAM policy for Healthcare FHIR store. Each of these resources serves a different use case:
 
@@ -35,8 +36,8 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_healthcare_fhir_store_iam_policy" "fhir_store" {
-	fhir_store_id = "your-fhir-store-id"
-	policy_data = "${data.google_iam_policy.admin.policy_data}"
+  fhir_store_id = "your-fhir-store-id"
+  policy_data   = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -45,7 +46,7 @@ resource "google_healthcare_fhir_store_iam_policy" "fhir_store" {
 ```hcl
 resource "google_healthcare_fhir_store_iam_binding" "fhir_store" {
   fhir_store_id = "your-fhir-store-id"
-  role        = "roles/editor"
+  role          = "roles/editor"
 
   members = [
     "user:jane@example.com",
@@ -58,8 +59,8 @@ resource "google_healthcare_fhir_store_iam_binding" "fhir_store" {
 ```hcl
 resource "google_healthcare_fhir_store_iam_member" "fhir_store" {
   fhir_store_id = "your-fhir-store-id"
-  role        = "roles/editor"
-  member      = "user:jane@example.com"
+  role          = "roles/editor"
+  member        = "user:jane@example.com"
 }
 ```
 

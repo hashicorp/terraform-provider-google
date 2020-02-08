@@ -1,16 +1,6 @@
-// Copyright 2015 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright 2015 Google LLC.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
 
 // Package grpc supports network connections to GRPC servers.
 // This package is not intended for use by end developers. Use the
@@ -46,21 +36,66 @@ var timeoutDialerOption grpc.DialOption
 // Dial returns a GRPC connection for use communicating with a Google cloud
 // service, configured with the given ClientOptions.
 func Dial(ctx context.Context, opts ...option.ClientOption) (*grpc.ClientConn, error) {
-	return dial(ctx, false, opts)
+	var o internal.DialSettings
+	for _, opt := range opts {
+		opt.Apply(&o)
+	}
+	if o.GRPCConnPool != 0 {
+		// NOTE(cbro): RoundRobin and WithBalancer are deprecated and we need to remove usages of it.
+		balancer := grpc.RoundRobin(internal.NewPoolResolver(o.GRPCConnPool, &o))
+		o.GRPCDialOpts = append(o.GRPCDialOpts, grpc.WithBalancer(balancer))
+	}
+	return dial(ctx, false, o)
 }
 
 // DialInsecure returns an insecure GRPC connection for use communicating
 // with fake or mock Google cloud service implementations, such as emulators.
 // The connection is configured with the given ClientOptions.
 func DialInsecure(ctx context.Context, opts ...option.ClientOption) (*grpc.ClientConn, error) {
-	return dial(ctx, true, opts)
-}
-
-func dial(ctx context.Context, insecure bool, opts []option.ClientOption) (*grpc.ClientConn, error) {
 	var o internal.DialSettings
 	for _, opt := range opts {
 		opt.Apply(&o)
 	}
+	return dial(ctx, true, o)
+}
+
+// DialPool returns a pool of GRPC connections for the given service.
+// This differs from the connection pooling implementation used by Dial, which uses a custom GRPC load balancer.
+// DialPool should be used instead of Dial when a pool is used by default or a different custom GRPC load balancer is needed.
+// The context and options are shared between each Conn in the pool.
+// The pool size is configured using the WithGRPCConnectionPool option.
+//
+// This API is subject to change as we further refine requirements. It will go away if gRPC stubs accept an interface instead of the concrete ClientConn type. See https://github.com/grpc/grpc-go/issues/1287.
+func DialPool(ctx context.Context, opts ...option.ClientOption) (ConnPool, error) {
+	var o internal.DialSettings
+	for _, opt := range opts {
+		opt.Apply(&o)
+	}
+	poolSize := o.GRPCConnPool
+	o.GRPCConnPool = 0 // we don't *need* to set this to zero, but it's safe to.
+
+	if poolSize == 0 || poolSize == 1 {
+		// Fast path for common case for a connection pool with a single connection.
+		conn, err := dial(ctx, false, o)
+		if err != nil {
+			return nil, err
+		}
+		return &singleConnPool{conn}, nil
+	}
+
+	pool := &roundRobinConnPool{}
+	for i := 0; i < poolSize; i++ {
+		conn, err := dial(ctx, false, o)
+		if err != nil {
+			defer pool.Close() // NOTE: error from Close is ignored.
+			return nil, err
+		}
+		pool.conns = append(pool.conns, conn)
+	}
+	return pool, nil
+}
+
+func dial(ctx context.Context, insecure bool, o internal.DialSettings) (*grpc.ClientConn, error) {
 	if err := o.Validate(); err != nil {
 		return nil, err
 	}
@@ -81,6 +116,11 @@ func dial(ctx context.Context, insecure bool, opts []option.ClientOption) (*grpc
 		if err != nil {
 			return nil, err
 		}
+
+		if o.QuotaProject == "" {
+			o.QuotaProject = internal.QuotaProjectFromCreds(creds)
+		}
+
 		// Attempt Direct Path only if:
 		// * The endpoint is a host:port (or dns:///host:port).
 		// * Credentials are obtained via GCE metadata server, using the default
@@ -95,6 +135,11 @@ func dial(ctx context.Context, insecure bool, opts []option.ClientOption) (*grpc
 				grpc.WithCredentialsBundle(
 					grpcgoogle.NewComputeEngineCredentials(),
 				),
+				// For now all DirectPath go clients will be using the following lb config, but in future
+				// when different services need different configs, then we should change this to a
+				// per-service config.
+				grpc.WithDisableServiceConfig(),
+				grpc.WithDefaultServiceConfig(`{"loadBalancingConfig":[{"grpclb":{"childPolicy":[{"pick_first":{}}]}}]}`),
 			}
 			// TODO(cbro): add support for system parameters (quota project, request reason) via chained interceptor.
 		} else {
@@ -118,7 +163,7 @@ func dial(ctx context.Context, insecure bool, opts []option.ClientOption) (*grpc
 	// Add tracing, but before the other options, so that clients can override the
 	// gRPC stats handler.
 	// This assumes that gRPC options are processed in order, left to right.
-	grpcOpts = addOCStatsHandler(grpcOpts)
+	grpcOpts = addOCStatsHandler(grpcOpts, o)
 	grpcOpts = append(grpcOpts, o.GRPCDialOpts...)
 	if o.UserAgent != "" {
 		grpcOpts = append(grpcOpts, grpc.WithUserAgent(o.UserAgent))
@@ -135,7 +180,10 @@ func dial(ctx context.Context, insecure bool, opts []option.ClientOption) (*grpc
 	return grpc.DialContext(ctx, o.Endpoint, grpcOpts...)
 }
 
-func addOCStatsHandler(opts []grpc.DialOption) []grpc.DialOption {
+func addOCStatsHandler(opts []grpc.DialOption, settings internal.DialSettings) []grpc.DialOption {
+	if settings.TelemetryDisabled {
+		return opts
+	}
 	return append(opts, grpc.WithStatsHandler(&ocgrpc.ClientHandler{}))
 }
 

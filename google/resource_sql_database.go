@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
 func resourceSQLDatabase() *schema.Resource {
@@ -46,21 +45,35 @@ func resourceSQLDatabase() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The name of the Cloud SQL instance. This does not include the project
+ID.`,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The name of the database in the Cloud SQL instance.
+This does not include the project ID or instance name.`,
 			},
 			"charset": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
+				Description: `The charset value. See MySQL's
+[Supported Character Sets and Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
+and Postgres' [Character Set Support](https://www.postgresql.org/docs/9.6/static/multibyte.html)
+for more details and supported values. Postgres databases only support
+a value of 'UTF8' at creation time.`,
 			},
 			"collation": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
+				Description: `The collation value. See MySQL's
+[Supported Character Sets and Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
+and Postgres' [Collation Support](https://www.postgresql.org/docs/9.6/static/collation.html)
+for more details and supported values. Postgres databases only support
+a value of 'en_US.UTF8' at creation time.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -128,26 +141,20 @@ func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{instance}}:{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	op := &sqladmin.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := sqlAdminOperationWaitTime(
-		config.clientSqlAdmin, op, project, "Creating Database",
+	err = sqlAdminOperationWaitTime(
+		config, res, project, "Creating Database",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create Database: %s", waitErr)
+		return fmt.Errorf("Error waiting to create Database: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
@@ -176,16 +183,16 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
-	if err := d.Set("charset", flattenSQLDatabaseCharset(res["charset"], d)); err != nil {
+	if err := d.Set("charset", flattenSQLDatabaseCharset(res["charset"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("collation", flattenSQLDatabaseCollation(res["collation"], d)); err != nil {
+	if err := d.Set("collation", flattenSQLDatabaseCollation(res["collation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("name", flattenSQLDatabaseName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenSQLDatabaseName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("instance", flattenSQLDatabaseInstance(res["instance"], d)); err != nil {
+	if err := d.Set("instance", flattenSQLDatabaseInstance(res["instance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -248,14 +255,8 @@ func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error updating Database %q: %s", d.Id(), err)
 	}
 
-	op := &sqladmin.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = sqlAdminOperationWaitTime(
-		config.clientSqlAdmin, op, project, "Updating Database",
+		config, res, project, "Updating Database",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -293,14 +294,8 @@ func resourceSQLDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, "Database")
 	}
 
-	op := &sqladmin.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = sqlAdminOperationWaitTime(
-		config.clientSqlAdmin, op, project, "Deleting Database",
+		config, res, project, "Deleting Database",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -318,14 +313,13 @@ func resourceSQLDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*sch
 		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
 		"(?P<instance>[^/]+)/(?P<name>[^/]+)",
-		"(?P<instance>[^/]+):(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{instance}}:{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -334,19 +328,19 @@ func resourceSQLDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSQLDatabaseCharset(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSQLDatabaseCharset(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSQLDatabaseCollation(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSQLDatabaseCollation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSQLDatabaseName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSQLDatabaseName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSQLDatabaseInstance(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSQLDatabaseInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

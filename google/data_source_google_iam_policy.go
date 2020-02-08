@@ -2,11 +2,13 @@ package google
 
 import (
 	"encoding/json"
+	"regexp"
 	"sort"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -27,8 +29,10 @@ func dataSourceGoogleIamPolicy() *schema.Resource {
 		Read: dataSourceGoogleIamPolicyRead,
 		Schema: map[string]*schema.Schema{
 			"binding": {
-				Type:     schema.TypeSet,
-				Required: true,
+				Type: schema.TypeSet,
+				// Binding is optional because a user may want to set an IAM policy with no bindings
+				// This allows users to ensure that no bindings were created outside of terraform
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"role": {
@@ -38,8 +42,11 @@ func dataSourceGoogleIamPolicy() *schema.Resource {
 						"members": {
 							Type:     schema.TypeSet,
 							Required: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validation.StringDoesNotMatch(regexp.MustCompile("^deleted:"), "Terraform does not support IAM policies for deleted principals"),
+							},
+							Set: schema.HashString,
 						},
 					},
 				},

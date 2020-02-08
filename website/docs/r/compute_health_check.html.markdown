@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_health_check"
 sidebar_current: "docs-google-compute-health-check"
@@ -50,14 +51,14 @@ To get more information about HealthCheck, see:
 
 ```hcl
 resource "google_compute_health_check" "tcp-health-check" {
- name = "tcp-health-check"
+  name = "tcp-health-check"
 
- timeout_sec        = 1
- check_interval_sec = 1
+  timeout_sec        = 1
+  check_interval_sec = 1
 
- tcp_health_check {
-   port = "80"
- }
+  tcp_health_check {
+    port = "80"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -70,7 +71,7 @@ resource "google_compute_health_check" "tcp-health-check" {
 
 ```hcl
 resource "google_compute_health_check" "tcp-health-check" {
-  name = "tcp-health-check"
+  name        = "tcp-health-check"
   description = "Health check via tcp"
 
   timeout_sec         = 1
@@ -79,11 +80,11 @@ resource "google_compute_health_check" "tcp-health-check" {
   unhealthy_threshold = 5
 
   tcp_health_check {
-    port_name = "health-check-port"
+    port_name          = "health-check-port"
     port_specification = "USE_NAMED_PORT"
-    request = "ARE YOU HEALTHY?"
-    proxy_header = "NONE"
-    response = "I AM HEALTHY"
+    request            = "ARE YOU HEALTHY?"
+    proxy_header       = "NONE"
+    response           = "I AM HEALTHY"
   }
 }
 ```
@@ -97,14 +98,14 @@ resource "google_compute_health_check" "tcp-health-check" {
 
 ```hcl
 resource "google_compute_health_check" "ssl-health-check" {
- name = "ssl-health-check"
+  name = "ssl-health-check"
 
- timeout_sec        = 1
- check_interval_sec = 1
+  timeout_sec        = 1
+  check_interval_sec = 1
 
- ssl_health_check {
-   port = "443"
- }
+  ssl_health_check {
+    port = "443"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -117,7 +118,7 @@ resource "google_compute_health_check" "ssl-health-check" {
 
 ```hcl
 resource "google_compute_health_check" "ssl-health-check" {
-  name = "ssl-health-check"
+  name        = "ssl-health-check"
   description = "Health check via ssl"
 
   timeout_sec         = 1
@@ -126,11 +127,11 @@ resource "google_compute_health_check" "ssl-health-check" {
   unhealthy_threshold = 5
 
   ssl_health_check {
-    port_name = "health-check-port"
+    port_name          = "health-check-port"
     port_specification = "USE_NAMED_PORT"
-    request = "ARE YOU HEALTHY?"
-    proxy_header = "NONE"
-    response = "I AM HEALTHY"
+    request            = "ARE YOU HEALTHY?"
+    proxy_header       = "NONE"
+    response           = "I AM HEALTHY"
   }
 }
 ```
@@ -144,14 +145,14 @@ resource "google_compute_health_check" "ssl-health-check" {
 
 ```hcl
 resource "google_compute_health_check" "http-health-check" {
- name = "http-health-check"
+  name = "http-health-check"
 
- timeout_sec        = 1
- check_interval_sec = 1
+  timeout_sec        = 1
+  check_interval_sec = 1
 
- http_health_check {
-   port = 80
- }
+  http_health_check {
+    port = 80
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -164,7 +165,7 @@ resource "google_compute_health_check" "http-health-check" {
 
 ```hcl
 resource "google_compute_health_check" "http-health-check" {
-  name = "http-health-check"
+  name        = "http-health-check"
   description = "Health check via http"
 
   timeout_sec         = 1
@@ -173,12 +174,12 @@ resource "google_compute_health_check" "http-health-check" {
   unhealthy_threshold = 5
 
   http_health_check {
-    port_name = "health-check-port"
+    port_name          = "health-check-port"
     port_specification = "USE_NAMED_PORT"
-    host = "1.2.3.4"
-    request_path = "/mypath"
-    proxy_header = "NONE"
-    response = "I AM HEALTHY"
+    host               = "1.2.3.4"
+    request_path       = "/mypath"
+    proxy_header       = "NONE"
+    response           = "I AM HEALTHY"
   }
 }
 ```
@@ -192,14 +193,14 @@ resource "google_compute_health_check" "http-health-check" {
 
 ```hcl
 resource "google_compute_health_check" "https-health-check" {
- name = "https-health-check"
+  name = "https-health-check"
 
- timeout_sec        = 1
- check_interval_sec = 1
+  timeout_sec        = 1
+  check_interval_sec = 1
 
- https_health_check {
-   port = "443"
- }
+  https_health_check {
+    port = "443"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -212,7 +213,7 @@ resource "google_compute_health_check" "https-health-check" {
 
 ```hcl
 resource "google_compute_health_check" "https-health-check" {
-  name = "https-health-check"
+  name        = "https-health-check"
   description = "Health check via https"
 
   timeout_sec         = 1
@@ -221,12 +222,12 @@ resource "google_compute_health_check" "https-health-check" {
   unhealthy_threshold = 5
 
   https_health_check {
-    port_name = "health-check-port"
+    port_name          = "health-check-port"
     port_specification = "USE_NAMED_PORT"
-    host = "1.2.3.4"
-    request_path = "/mypath"
-    proxy_header = "NONE"
-    response = "I AM HEALTHY"
+    host               = "1.2.3.4"
+    request_path       = "/mypath"
+    proxy_header       = "NONE"
+    response           = "I AM HEALTHY"
   }
 }
 ```
@@ -240,14 +241,14 @@ resource "google_compute_health_check" "https-health-check" {
 
 ```hcl
 resource "google_compute_health_check" "http2-health-check" {
- name = "http2-health-check"
+  name = "http2-health-check"
 
- timeout_sec        = 1
- check_interval_sec = 1
+  timeout_sec        = 1
+  check_interval_sec = 1
 
- http2_health_check {
-   port = "443"
- }
+  http2_health_check {
+    port = "443"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -260,7 +261,7 @@ resource "google_compute_health_check" "http2-health-check" {
 
 ```hcl
 resource "google_compute_health_check" "http2-health-check" {
-  name = "http2-health-check"
+  name        = "http2-health-check"
   description = "Health check via http2"
 
   timeout_sec         = 1
@@ -269,12 +270,12 @@ resource "google_compute_health_check" "http2-health-check" {
   unhealthy_threshold = 5
 
   http2_health_check {
-    port_name = "health-check-port"
+    port_name          = "health-check-port"
     port_specification = "USE_NAMED_PORT"
-    host = "1.2.3.4"
-    request_path = "/mypath"
-    proxy_header = "NONE"
-    response = "I AM HEALTHY"
+    host               = "1.2.3.4"
+    request_path       = "/mypath"
+    proxy_header       = "NONE"
+    response           = "I AM HEALTHY"
   }
 }
 ```
@@ -579,6 +580,7 @@ The `http2_health_check` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/healthChecks/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -612,4 +614,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

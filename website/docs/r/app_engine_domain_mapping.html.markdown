@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "App Engine"
 layout: "google"
 page_title: "Google: google_app_engine_domain_mapping"
 sidebar_current: "docs-google-app-engine-domain-mapping"
@@ -40,8 +41,8 @@ To get more information about DomainMapping, see:
 
 ```hcl
 resource "google_app_engine_domain_mapping" "domain_mapping" {
-  domain_name = "dm-test-.gcp.tfacc.hashicorptest.com"
-  
+  domain_name = "verified-domain.com"
+
   ssl_settings {
     ssl_management_type = "AUTOMATIC"
   }
@@ -86,7 +87,7 @@ The `ssl_settings` block supports:
   Example: 12345.
 
 * `ssl_management_type` -
-  (Optional)
+  (Required)
   SSL management type for this domain. If `AUTOMATIC`, a managed certificate is automatically provisioned.
   If `MANUAL`, `certificateId` must be manually specified in order to configure SSL for this domain.
 
@@ -101,6 +102,7 @@ The `ssl_settings` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `apps/{{project}}/domainMappings/{{domain_name}}`
 
 * `name` -
   Full path to the DomainMapping resource in the API. Example: apps/myapp/domainMapping/example.com.
@@ -138,6 +140,8 @@ This resource provides the following
 DomainMapping can be imported using any of these accepted formats:
 
 ```
+$ terraform import google_app_engine_domain_mapping.default apps/{{project}}/domainMappings/{{domain_name}}
+$ terraform import google_app_engine_domain_mapping.default {{project}}/{{domain_name}}
 $ terraform import google_app_engine_domain_mapping.default {{domain_name}}
 ```
 
@@ -146,4 +150,4 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 ## User Project Overrides
 
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/provider_reference.html#user_project_override).
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

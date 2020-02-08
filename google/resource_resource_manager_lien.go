@@ -45,32 +45,48 @@ func resourceResourceManagerLien() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `A stable, user-visible/meaningful string identifying the origin
+of the Lien, intended to be inspected programmatically. Maximum length of
+200 characters.`,
 			},
 			"parent": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `A reference to the resource this Lien is attached to.
+The server will validate the parent against those for which Liens are supported.
+Since a variety of objects can have Liens against them, you must provide the type
+prefix (e.g. "projects/my-project-name").`,
 			},
 			"reason": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Concise user-visible strings indicating why an action cannot be performed
+on a resource. Maximum length of 200 characters.`,
 			},
 			"restrictions": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
+				Description: `The types of operations which should be blocked as a result of this Lien.
+Each value should correspond to an IAM permission. The server will validate
+the permissions against those for which Liens are supported.  An empty
+list is meaningless and will be rejected.
+e.g. ['resourcemanager.projects.delete']`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Time of creation`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `A system-generated unique identifier for this Lien.`,
 			},
 		},
 	}
@@ -132,8 +148,8 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	// us to know the server-side generated name of the object we're
 	// trying to fetch, and the only way to know that is to capture
 	// it here.  The following two lines do that.
-	d.SetId(flattenResourceManagerLienName(res["name"], d).(string))
-	d.Set("name", flattenResourceManagerLienName(res["name"], d))
+	d.SetId(flattenResourceManagerLienName(res["name"], d, config).(string))
+	d.Set("name", flattenResourceManagerLienName(res["name"], d, config))
 
 	return resourceResourceManagerLienRead(d, meta)
 }
@@ -175,22 +191,22 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 		return nil
 	}
 
-	if err := d.Set("name", flattenResourceManagerLienName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenResourceManagerLienName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("reason", flattenResourceManagerLienReason(res["reason"], d)); err != nil {
+	if err := d.Set("reason", flattenResourceManagerLienReason(res["reason"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("origin", flattenResourceManagerLienOrigin(res["origin"], d)); err != nil {
+	if err := d.Set("origin", flattenResourceManagerLienOrigin(res["origin"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("create_time", flattenResourceManagerLienCreateTime(res["createTime"], d)); err != nil {
+	if err := d.Set("create_time", flattenResourceManagerLienCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("parent", flattenResourceManagerLienParent(res["parent"], d)); err != nil {
+	if err := d.Set("parent", flattenResourceManagerLienParent(res["parent"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("restrictions", flattenResourceManagerLienRestrictions(res["restrictions"], d)); err != nil {
+	if err := d.Set("restrictions", flattenResourceManagerLienRestrictions(res["restrictions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
 
@@ -249,30 +265,30 @@ func resourceResourceManagerLienImport(d *schema.ResourceData, meta interface{})
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenResourceManagerLienName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenResourceManagerLienName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenResourceManagerLienReason(v interface{}, d *schema.ResourceData) interface{} {
+func flattenResourceManagerLienReason(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenResourceManagerLienOrigin(v interface{}, d *schema.ResourceData) interface{} {
+func flattenResourceManagerLienOrigin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenResourceManagerLienCreateTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenResourceManagerLienCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenResourceManagerLienParent(v interface{}, d *schema.ResourceData) interface{} {
+func flattenResourceManagerLienParent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenResourceManagerLienRestrictions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenResourceManagerLienRestrictions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -334,7 +350,7 @@ func resourceResourceManagerLienFindNestedObjectInList(d *schema.ResourceData, m
 			return -1, nil, err
 		}
 
-		itemName := flattenResourceManagerLienName(item["name"], d)
+		itemName := flattenResourceManagerLienName(item["name"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemName, expectedName) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedName)
 			continue

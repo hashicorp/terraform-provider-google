@@ -107,19 +107,19 @@ func testAccCheckComputeImageExists(n string, image *compute.Image) resource.Tes
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+		if rs.Primary.Attributes["name"] == "" {
+			return fmt.Errorf("No name is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.Images.Get(
-			config.Project, rs.Primary.ID).Do()
+			config.Project, rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != rs.Primary.Attributes["name"] {
 			return fmt.Errorf("Image not found")
 		}
 
@@ -273,19 +273,20 @@ func testAccCheckComputeImageHasSourceDisk(image *compute.Image) resource.TestCh
 func testAccComputeImage_resolving(name, family string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
-	name = "%s"
-	zone = "us-central1-a"
-	image = "${data.google_compute_image.my_image.self_link}"
+  name  = "%s"
+  zone  = "us-central1-a"
+  image = data.google_compute_image.my_image.self_link
 }
+
 resource "google_compute_image" "foobar" {
-	name = "%s"
-	family = "%s"
-	source_disk = "${google_compute_disk.foobar.self_link}"
+  name        = "%s"
+  family      = "%s"
+  source_disk = google_compute_disk.foobar.self_link
 }
 `, name, name, family)
 }
@@ -293,78 +294,82 @@ resource "google_compute_image" "foobar" {
 func testAccComputeImage_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_compute_image" "foobar" {
-	name = "%s"
-	description = "description-test"
-	family = "family-test"
-	raw_disk {
-	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
-	}
-	labels = {
-		my-label = "my-label-value"
-		empty-label = ""
-	}
-}`, name)
+  name        = "%s"
+  description = "description-test"
+  family      = "family-test"
+  raw_disk {
+    source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+  }
+  labels = {
+    my-label    = "my-label-value"
+    empty-label = ""
+  }
+}
+`, name)
 }
 
 func testAccComputeImage_license(name string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
-	name = "disk-test-%s"
-	zone = "us-central1-a"
-	image = "${data.google_compute_image.my_image.self_link}"
+  name  = "disk-test-%s"
+  zone  = "us-central1-a"
+  image = data.google_compute_image.my_image.self_link
 }
 
 resource "google_compute_image" "foobar" {
-	name = "%s"
-	description = "description-test"
-	source_disk = "${google_compute_disk.foobar.self_link}"
+  name        = "%s"
+  description = "description-test"
+  source_disk = google_compute_disk.foobar.self_link
 
-	labels = {
-		my-label = "my-label-value"
-		empty-label = ""
-	}
-	licenses = [
-		"https://www.googleapis.com/compute/v1/projects/debian-cloud/global/licenses/debian-9-stretch",
-	]
-}`, name, name)
+  labels = {
+    my-label    = "my-label-value"
+    empty-label = ""
+  }
+  licenses = [
+    "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/licenses/debian-9-stretch",
+  ]
+}
+`, name, name)
 }
 
 func testAccComputeImage_update(name string) string {
 	return fmt.Sprintf(`
 resource "google_compute_image" "foobar" {
-	name = "%s"
-	description = "description-test"
-	family = "family-test"
-	raw_disk {
-	  source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
-	}
-	labels = {
-		empty-label = "oh-look-theres-a-label-now"
-		new-field = "only-shows-up-when-updated"
-	}
-}`, name)
+  name        = "%s"
+  description = "description-test"
+  family      = "family-test"
+  raw_disk {
+    source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+  }
+  labels = {
+    empty-label = "oh-look-theres-a-label-now"
+    new-field   = "only-shows-up-when-updated"
+  }
+}
+`, name)
 }
 
 func testAccComputeImage_basedondisk() string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "foobar" {
-	name = "disk-test-%s"
-	zone = "us-central1-a"
-	image = "${data.google_compute_image.my_image.self_link}"
+  name  = "disk-test-%s"
+  zone  = "us-central1-a"
+  image = data.google_compute_image.my_image.self_link
 }
 
 resource "google_compute_image" "foobar" {
-	name = "image-test-%s"
-	source_disk = "${google_compute_disk.foobar.self_link}"
-}`, acctest.RandString(10), acctest.RandString(10))
+  name        = "image-test-%s"
+  source_disk = google_compute_disk.foobar.self_link
+}
+`, acctest.RandString(10), acctest.RandString(10))
 }
