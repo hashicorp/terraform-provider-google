@@ -2071,32 +2071,6 @@ func testAccCheckComputeInstanceHasStatusTerminated(instance *compute.Instance) 
 	}
 }
 
-func testAccCheckComputeInstanceStop(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		op, err := config.clientCompute.Instances.Stop(config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
-		if err != nil {
-			return fmt.Errorf("Could not stop instance: %s", err)
-		}
-		err = computeOperationWait(config.clientCompute, op, config.Project, "Waiting on stop")
-		if err != nil {
-			return fmt.Errorf("Could not stop instance: %s", err)
-		}
-
-		return nil
-	}
-}
-
 func testAccComputeInstance_basic(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
