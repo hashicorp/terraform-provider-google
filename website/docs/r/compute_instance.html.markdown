@@ -133,8 +133,8 @@ The following arguments are supported:
     Structure is documented below.
     **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
 
-* `status` - (Optional) Status of the instance.
-    Either "RUNNING" or "TERMINATED", defaults to "RUNNING"
+* `desired_status` - (Optional) Desired status of the instance.
+    Either "RUNNING" or "TERMINATED".
 
 * `tags` - (Optional) A list of tags to attach to the instance.
 
