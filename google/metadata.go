@@ -3,6 +3,7 @@ package google
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
@@ -21,14 +22,14 @@ func MetadataRetryWrapper(update func() error) error {
 			return nil
 		}
 
-		if !isFingerprintError(err) {
+		if ok, _ := isFingerprintError(err); !ok {
 			// Something else went wrong, don't retry
 			return err
 		}
 
+		log.Printf("[DEBUG] Dismissed an error as retryable as a fingerprint mismatch: %s", err)
 		attempt++
 	}
-
 	return fmt.Errorf("Failed to update metadata after %d retries", attempt)
 }
 
