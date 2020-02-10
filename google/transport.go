@@ -35,11 +35,11 @@ func isEmptyValue(v reflect.Value) bool {
 	return false
 }
 
-func sendRequest(config *Config, method, project, rawurl string, body map[string]interface{}, errorRetryPredicates ...func(e error) (bool, string)) (map[string]interface{}, error) {
+func sendRequest(config *Config, method, project, rawurl string, body map[string]interface{}, errorRetryPredicates ...RetryErrorPredicateFunc) (map[string]interface{}, error) {
 	return sendRequestWithTimeout(config, method, project, rawurl, body, DefaultRequestTimeout, errorRetryPredicates...)
 }
 
-func sendRequestWithTimeout(config *Config, method, project, rawurl string, body map[string]interface{}, timeout time.Duration, errorRetryPredicates ...func(e error) (bool, string)) (map[string]interface{}, error) {
+func sendRequestWithTimeout(config *Config, method, project, rawurl string, body map[string]interface{}, timeout time.Duration, errorRetryPredicates ...RetryErrorPredicateFunc) (map[string]interface{}, error) {
 	reqHeaders := make(http.Header)
 	reqHeaders.Set("User-Agent", config.userAgent)
 	reqHeaders.Set("Content-Type", "application/json")

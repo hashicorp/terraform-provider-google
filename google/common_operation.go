@@ -103,19 +103,9 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		op, err := w.QueryOp()
 		if err != nil {
-			// Importantly, this error is in the GET to the operation, and isn't an error
-			// with the resource CRUD request itself.
-			notFoundRetryPredicate := func(e error) (bool, string) {
-				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-					return true, "should retry 404s on a GET of an Operation"
-				}
-				return false, ""
-			}
-			predicates := []func(e error) (bool, string){
-				notFoundRetryPredicate,
-			}
 			for _, e := range getAllTypes(err, &googleapi.Error{}, &url.Error{}) {
-				if isRetryableError(e, predicates) {
+				// Retry 404 when getting operation (not resource state)
+				if isRetryableError(e, isNotFoundRetryableError("GET operation")) {
 					log.Printf("[DEBUG] Dismissed error on GET of operation '%v' retryable: %s", w.OpName(), err)
 					return nil, "done: false", nil
 				}
