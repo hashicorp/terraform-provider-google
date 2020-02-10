@@ -13,7 +13,7 @@ description: |-
 Generates an IAM policy document that may be referenced by and applied to
 other Google Cloud Platform resources, such as the `google_project` resource.
 
-**Note:** Several restrictions apply when setting IAM policies through this API, including some caveats which could cause service interruptions.
+**Note:** Several restrictions apply when setting IAM policies through this API.
 See the [setIamPolicy docs](https://cloud.google.com/resource-manager/reference/rest/v1/projects/setIamPolicy)
 for a list of these restrictions.
 
