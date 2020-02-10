@@ -282,6 +282,8 @@ func resourceFirestoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*
 	}
 
 	d.Set("project", stringParts[1])
+	d.Set("database", stringParts[3])
+	d.Set("collection", stringParts[5])
 	return []*schema.ResourceData{d}, nil
 }
 
