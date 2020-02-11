@@ -609,7 +609,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		for _, u := range users.Items {
 			if u.Name == "root" && u.Host == "%" {
 				err = retry(func() error {
-					op, err = config.clientSqlAdmin.Users.Delete(project, instance.Name).Do()
+					op, err = config.clientSqlAdmin.Users.Delete(project, instance.Name).Host(u.Host).Name(u.Name).Do()
 					if err == nil {
 						err = sqlAdminOperationWaitTime(config, op, project, "Delete default root User", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 					}

@@ -179,8 +179,7 @@ func resourceSqlUserUpdate(d *schema.ResourceData, meta interface{}) error {
 		defer mutexKV.Unlock(instanceMutexKey(project, instance))
 		var op *sqladmin.Operation
 		updateFunc := func() error {
-			op, err = config.clientSqlAdmin.Users.Update(project, instance,
-				user).Host(host).Do()
+			op, err = config.clientSqlAdmin.Users.Update(project, instance, user).Host(host).Name(name).Do()
 			return err
 		}
 		err = retryTimeDuration(updateFunc, d.Timeout(schema.TimeoutUpdate))
@@ -212,6 +211,7 @@ func resourceSqlUserDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	name := d.Get("name").(string)
+	host := d.Get("host").(string)
 	instance := d.Get("instance").(string)
 
 	mutexKV.Lock(instanceMutexKey(project, instance))
@@ -219,7 +219,7 @@ func resourceSqlUserDelete(d *schema.ResourceData, meta interface{}) error {
 
 	var op *sqladmin.Operation
 	err = retryTimeDuration(func() error {
-		op, err = config.clientSqlAdmin.Users.Delete(project, instance).Do()
+		op, err = config.clientSqlAdmin.Users.Delete(project, instance).Host(host).Name(name).Do()
 		return err
 	}, d.Timeout(schema.TimeoutDelete))
 
