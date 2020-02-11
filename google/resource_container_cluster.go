@@ -267,19 +267,11 @@ func resourceContainerCluster() *schema.Resource {
 										Computed:         true,
 										Elem:             &schema.Schema{Type: schema.TypeString},
 										DiffSuppressFunc: containerClusterAddedScopesSuppress,
-										ExactlyOneOf: []string{
-											"cluster_autoscaling.0.auto_provisioning_defaults.0.oauth_scopes",
-											"cluster_autoscaling.0.auto_provisioning_defaults.0.service_account",
-										},
 									},
 									"service_account": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "default",
-										ExactlyOneOf: []string{
-											"cluster_autoscaling.0.auto_provisioning_defaults.0.oauth_scopes",
-											"cluster_autoscaling.0.auto_provisioning_defaults.0.service_account",
-										},
 									},
 								},
 							},
