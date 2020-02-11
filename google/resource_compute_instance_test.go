@@ -3046,7 +3046,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_network" "inst-test-network" {
-  name = "inst-test-network-%s"
+  name = "tf-test-network-%s"
 
   auto_create_subnetworks = true
 }
@@ -3079,7 +3079,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_network" "inst-test-network" {
-  name = "inst-test-network-%s"
+  name = "tf-test-network-%s"
 
   auto_create_subnetworks = false
 }
@@ -3152,7 +3152,7 @@ resource "google_compute_shared_vpc_service_project" "service_project" {
 }
 
 resource "google_compute_network" "inst-test-network" {
-  name    = "inst-test-network-%s"
+  name    = "tf-test-network-%s"
   project = google_compute_shared_vpc_host_project.host_project.project
 
   auto_create_subnetworks = false
@@ -3196,7 +3196,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_network" "inst-test-network" {
-  name = "inst-test-network-%s"
+  name = "tf-test-network-%s"
 }
 
 resource "google_compute_subnetwork" "inst-test-subnetwork" {
@@ -3234,7 +3234,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_network" "inst-test-network" {
-  name = "inst-test-network-%s"
+  name = "tf-test-network-%s"
 }
 
 resource "google_compute_subnetwork" "inst-test-subnetwork" {
