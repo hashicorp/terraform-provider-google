@@ -24,7 +24,6 @@ func resourceBigtableInstance() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
-			resourceBigtableInstanceValidateDevelopment,
 			resourceBigtableInstanceClusterReorderTypeList,
 		),
 
@@ -69,14 +68,12 @@ func resourceBigtableInstance() *schema.Resource {
 			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 
 			"instance_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				Default:      "PRODUCTION",
 				ValidateFunc: validation.StringInSlice([]string{"DEVELOPMENT", "PRODUCTION"}, false),
 			},
@@ -167,14 +164,6 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("project", project)
 
-	var instanceType string
-	if instance.InstanceType == bigtable.DEVELOPMENT {
-		instanceType = "DEVELOPMENT"
-	} else {
-		instanceType = "PRODUCTION"
-	}
-	d.Set("instance_type", instanceType)
-
 	clusters, err := c.Clusters(ctx, instance.Name)
 	if err != nil {
 		return fmt.Errorf("Error retrieving instance clusters. %s", err)
@@ -193,6 +182,8 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("name", instance.Name)
 	d.Set("display_name", instance.DisplayName)
+	// Don't set instance_type: we don't want to detect drift on it because it can
+	// change under-the-hood.
 
 	return nil
 }
@@ -304,20 +295,6 @@ func expandBigtableClusters(clusters []interface{}, instanceID string) []bigtabl
 		})
 	}
 	return results
-}
-
-// resourceBigtableInstanceValidateDevelopment validates restrictions specific to DEVELOPMENT clusters
-func resourceBigtableInstanceValidateDevelopment(diff *schema.ResourceDiff, meta interface{}) error {
-	if diff.Get("instance_type").(string) != "DEVELOPMENT" {
-		return nil
-	}
-	if diff.Get("cluster.#").(int) != 1 {
-		return fmt.Errorf("config is invalid: instance with instance_type=\"DEVELOPMENT\" should have exactly one \"cluster\" block")
-	}
-	if diff.Get("cluster.0.num_nodes").(int) > 1 {
-		return fmt.Errorf("config is invalid: num_nodes cannot be set for instance_type=\"DEVELOPMENT\"")
-	}
-	return nil
 }
 
 // resourceBigtableInstanceClusterReorderTypeList causes the cluster block to
