@@ -62,4 +62,5 @@ The following arguments are supported:
 
 ## Attributes Reference
 
+* `job_id` - The unique ID of this job.
 * `state` - The current state of the resource, selected from the [JobState enum](https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#Job.JobState)
