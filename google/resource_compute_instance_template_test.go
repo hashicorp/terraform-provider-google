@@ -1760,7 +1760,7 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_secondaryAliasIpRange(i string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "inst-test-network" {
-  name = "inst-test-network-%s"
+  name = "tf-test-network-%s"
 }
 
 resource "google_compute_subnetwork" "inst-test-subnetwork" {
