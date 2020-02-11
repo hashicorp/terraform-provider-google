@@ -378,12 +378,10 @@ for a list of types.
 The `auto_provisioning_defaults` block supports:
 
 * `oauth_scopes` - (Optional) Scopes that are used by NAP when creating node pools.
-If `oauth_scopes` are specified, `service_account` must be empty.
 
 -> `monitoring.write` is always enabled regardless of user input.  `monitoring` and `logging.write` may also be enabled depending on the values for `monitoring_service` and `logging_service`.
 
 * `service_account` - (Optional) The Google Cloud Platform Service Account to be used by the node VMs.
-If `service_account` is specified, `oauth_scopes` must be empty.
 
 The `authenticator_groups_config` block supports:
 
