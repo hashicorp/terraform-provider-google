@@ -29,17 +29,19 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 				Config: testAccBigtableInstance(instanceName, 3),
 			},
 			{
-				ResourceName:      "google_bigtable_instance.instance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance(instanceName, 4),
 			},
 			{
-				ResourceName:      "google_bigtable_instance.instance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
 			},
 		},
 	})
@@ -63,33 +65,37 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				Config: testAccBigtableInstance_cluster(instanceName, 3),
 			},
 			{
-				ResourceName:      "google_bigtable_instance.instance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterReordered(instanceName, 5),
 			},
 			{
-				ResourceName:      "google_bigtable_instance.instance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterModified(instanceName, 5),
 			},
 			{
-				ResourceName:      "google_bigtable_instance.instance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterReordered(instanceName, 5),
 			},
 			{
-				ResourceName:      "google_bigtable_instance.instance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
 			},
 		},
 	})
@@ -106,20 +112,13 @@ func TestAccBigtableInstance_development(t *testing.T) {
 		CheckDestroy: testAccCheckBigtableInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccBigtableInstance_development_invalid_no_cluster(instanceName),
-				ExpectError: regexp.MustCompile("config is invalid: instance with instance_type=\"DEVELOPMENT\" should have exactly one \"cluster\" block"),
-			},
-			{
-				Config:      testAccBigtableInstance_development_invalid_num_nodes(instanceName),
-				ExpectError: regexp.MustCompile("config is invalid: num_nodes cannot be set for instance_type=\"DEVELOPMENT\""),
-			},
-			{
 				Config: testAccBigtableInstance_development(instanceName),
 			},
 			{
-				ResourceName:      "google_bigtable_instance.instance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
 			},
 		},
 	})
@@ -310,27 +309,4 @@ resource "google_bigtable_instance" "instance" {
   instance_type = "DEVELOPMENT"
 }
 `, instanceName, instanceName)
-}
-
-func testAccBigtableInstance_development_invalid_num_nodes(instanceName string) string {
-	return fmt.Sprintf(`
-resource "google_bigtable_instance" "instance" {
-  name = "%s"
-  cluster {
-    cluster_id = "%s"
-    zone       = "us-central1-b"
-    num_nodes  = 3
-  }
-  instance_type = "DEVELOPMENT"
-}
-`, instanceName, instanceName)
-}
-
-func testAccBigtableInstance_development_invalid_no_cluster(instanceName string) string {
-	return fmt.Sprintf(`
-resource "google_bigtable_instance" "instance" {
-  name          = "%s"
-  instance_type = "DEVELOPMENT"
-}
-`, instanceName)
 }
