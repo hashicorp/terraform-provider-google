@@ -173,8 +173,9 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	err = firestoreOperationWaitTime(
-		config, res, project, "Creating Index",
+	var response map[string]interface{}
+	err = firestoreOperationWaitTimeWithResponse(
+		config, res, &response, project, "Creating Index",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if err != nil {
@@ -182,6 +183,16 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create Index: %s", err)
 	}
+	if err := d.Set("name", flattenFirestoreIndexName(response["name"], d, config)); err != nil {
+		return err
+	}
+
+	// This may have caused the ID to update - update it if so.
+	id, err = replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Index %q: %#v", d.Id(), res)
 
