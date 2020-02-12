@@ -270,8 +270,9 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
-	err = tpuOperationWaitTime(
-		config, res, project, "Creating Node",
+	var response map[string]interface{}
+	err = tpuOperationWaitTimeWithResponse(
+		config, res, &response, project, "Creating Node",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if err != nil {
@@ -279,6 +280,16 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create Node: %s", err)
 	}
+	if err := d.Set("name", flattenTPUNodeName(response["name"], d, config)); err != nil {
+		return err
+	}
+
+	// This may have caused the ID to update - update it if so.
+	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Node %q: %#v", d.Id(), res)
 
