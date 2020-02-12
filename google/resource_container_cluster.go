@@ -1021,9 +1021,6 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Container Cluster %q", d.Get("name").(string)))
 	}
-	if cluster.Status == "ERROR" || cluster.Status == "DEGRADED" {
-		return fmt.Errorf("Cluster %q has status %q with message %q", d.Get("name"), cluster.Status, cluster.StatusMessage)
-	}
 
 	d.Set("name", cluster.Name)
 	if err := d.Set("network_policy", flattenNetworkPolicy(cluster.NetworkPolicy)); err != nil {
