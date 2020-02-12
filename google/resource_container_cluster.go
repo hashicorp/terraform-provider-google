@@ -2221,6 +2221,7 @@ func flattenClusterAutoscaling(a *containerBeta.ClusterAutoscaling) []map[string
 		r["enabled"] = true
 		r["auto_provisioning_defaults"] = flattenAutoProvisioningDefaults(a.AutoprovisioningNodePoolDefaults)
 	}
+
 	return []map[string]interface{}{r}
 }
 
