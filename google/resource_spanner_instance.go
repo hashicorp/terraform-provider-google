@@ -359,7 +359,10 @@ func resourceSpannerInstanceImport(d *schema.ResourceData, meta interface{}) ([]
 }
 
 func flattenSpannerInstanceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return NameFromSelfLinkStateFunc(v)
 }
 
 func flattenSpannerInstanceConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {

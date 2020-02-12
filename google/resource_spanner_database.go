@@ -250,7 +250,10 @@ func resourceSpannerDatabaseImport(d *schema.ResourceData, meta interface{}) ([]
 }
 
 func flattenSpannerDatabaseName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return NameFromSelfLinkStateFunc(v)
 }
 
 func flattenSpannerDatabaseState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
