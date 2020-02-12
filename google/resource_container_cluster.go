@@ -607,21 +607,6 @@ func resourceContainerCluster() *schema.Resource {
 							ConflictsWith: ipAllocationCidrBlockFields,
 						},
 
-						"use_ip_aliases": {
-							Type:     schema.TypeBool,
-							Removed:  "This field is removed as of 3.0.0. If previously set to true, remove it from your config. If false, remove it.",
-							Computed: true,
-							Optional: true,
-						},
-
-						// GKE creates subnetwork automatically
-						"create_subnetwork": {
-							Type:     schema.TypeBool,
-							Removed:  "This field is removed as of 3.0.0. Define an explicit google_compute_subnetwork and use subnetwork instead.",
-							Computed: true,
-							Optional: true,
-						},
-
 						"subnetwork_name": {
 							Type:     schema.TypeString,
 							Removed:  "This field is removed as of 3.0.0. Define an explicit google_compute_subnetwork and use subnetwork instead.",
