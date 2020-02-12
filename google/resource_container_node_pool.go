@@ -272,7 +272,20 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[INFO] GKE NodePool %s has been created", nodePool.Name)
 
-	return resourceContainerNodePoolRead(d, meta)
+	if err = resourceContainerNodePoolRead(d, meta); err != nil {
+		return err
+	}
+
+	state, err := containerNodePoolAwaitRestingState(config, d.Id(), d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return err
+	}
+
+	if containerNodePoolRestingStates[state] == ErrorState {
+		return fmt.Errorf("NodePool %s was created in the error state %q", nodePool.Name, state)
+	}
+
+	return nil
 }
 
 func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) error {
@@ -327,11 +340,21 @@ func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
+	_, err = containerNodePoolAwaitRestingState(config, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
 	d.Partial(true)
 	if err := nodePoolUpdate(d, meta, nodePoolInfo, "", timeoutInMinutes); err != nil {
 		return err
 	}
 	d.Partial(false)
+
+	_, err = containerNodePoolAwaitRestingState(config, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
 
 	return resourceContainerNodePoolRead(d, meta)
 }
@@ -345,6 +368,11 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	name := getNodePoolName(d.Id())
+
+	_, err = containerNodePoolAwaitRestingState(config, d.Id(), d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return err
+	}
 
 	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
@@ -416,7 +444,12 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return nil, err
 	}
+
 	d.SetId(id)
+
+	if _, err := containerNodePoolAwaitRestingState(config, d.Id(), d.Timeout(schema.TimeoutCreate)); err != nil {
+		return nil, err
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -734,4 +767,35 @@ func getNodePoolName(id string) string {
 	// name can be specified with name, name_prefix, or neither, so read it from the id.
 	splits := strings.Split(id, "/")
 	return splits[len(splits)-1]
+}
+
+var containerNodePoolRestingStates = RestingStates{
+	"RUNNING":            ReadyState,
+	"RUNNING_WITH_ERROR": ErrorState,
+	"ERROR":              ErrorState,
+}
+
+// takes in a config object, full node pool name, and the current CRUD action timeout
+// returns a state with no error if the state is a resting state, and the last state with an error otherwise
+func containerNodePoolAwaitRestingState(config *Config, name string, timeout time.Duration) (state string, err error) {
+	err = resource.Retry(timeout, func() *resource.RetryError {
+		nodePool, gErr := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(name).Do()
+		if gErr != nil {
+			return resource.NonRetryableError(gErr)
+		}
+
+		state = nodePool.Status
+		switch stateType := containerNodePoolRestingStates[state]; stateType {
+		case ReadyState:
+			log.Printf("[DEBUG] NodePool %q has status %q with message %q.", name, state, nodePool.StatusMessage)
+			return nil
+		case ErrorState:
+			log.Printf("[DEBUG] NodePool %q has error state %q with message %q.", name, state, nodePool.StatusMessage)
+			return nil
+		default:
+			return resource.RetryableError(fmt.Errorf("NodePool %q has state %q with message %q", name, state, nodePool.StatusMessage))
+		}
+	})
+
+	return state, err
 }
