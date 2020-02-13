@@ -179,18 +179,19 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceGoogleProjectCheckPreRequisites(config *Config, d *schema.ResourceData) error {
 	ib, ok := d.GetOk("billing_account")
-	if ok {
-		ba := "billingAccounts/" + ib.(string)
-		req := &cloudbilling.TestIamPermissionsRequest{
-			Permissions: []string{"billing.resourceAssociations.create"},
-		}
-		resp, err := config.clientBilling.BillingAccounts.TestIamPermissions(ba, req).Do()
-		if err != nil {
-			return fmt.Errorf("failed to check permissions on billing account %q: %v", ba, err)
-		}
-		if diff := diffStringSlices(resp.Permissions, req.Permissions); len(diff) > 0 {
-			return fmt.Errorf("missing permissions on org %q: %v", ba, diff)
-		}
+	if !ok {
+		return nil
+	}
+	ba := "billingAccounts/" + ib.(string)
+	req := &cloudbilling.TestIamPermissionsRequest{
+		Permissions: []string{"billing.resourceAssociations.create"},
+	}
+	resp, err := config.clientBilling.BillingAccounts.TestIamPermissions(ba, req).Do()
+	if err != nil {
+		return fmt.Errorf("failed to check permissions on billing account %q: %v", ba, err)
+	}
+	if diff := diffStringSlices(resp.Permissions, req.Permissions); len(diff) > 0 {
+		return fmt.Errorf("missing permissions on org %q: %v", ba, diff)
 	}
 	return nil
 }
