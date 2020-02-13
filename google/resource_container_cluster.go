@@ -273,6 +273,7 @@ func resourceContainerCluster() *schema.Resource {
 										Optional: true,
 										Default:  "default",
 									},
+									"upgrade_settings": schemaUpgradeSettings,
 								},
 							},
 						},
@@ -1895,8 +1896,9 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 	config := l[0].(map[string]interface{})
 
 	return &containerBeta.AutoprovisioningNodePoolDefaults{
-		OauthScopes:    convertStringArr(config["oauth_scopes"].([]interface{})),
-		ServiceAccount: config["service_account"].(string),
+		OauthScopes:     convertStringArr(config["oauth_scopes"].([]interface{})),
+		ServiceAccount:  config["service_account"].(string),
+		UpgradeSettings: expandUpgradeSettings(config["upgrade_settings"]),
 	}
 }
 
@@ -2211,6 +2213,7 @@ func flattenAutoProvisioningDefaults(a *containerBeta.AutoprovisioningNodePoolDe
 	r := make(map[string]interface{})
 	r["oauth_scopes"] = a.OauthScopes
 	r["service_account"] = a.ServiceAccount
+	r["upgrade_settings"] = flattenUpgradeSettings(a.UpgradeSettings)
 
 	return []map[string]interface{}{r}
 }

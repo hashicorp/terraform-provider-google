@@ -161,6 +161,8 @@ var schemaNodePool = map[string]*schema.Schema{
 		ValidateFunc: validation.IntAtLeast(0),
 	},
 
+	"upgrade_settings": schemaUpgradeSettings,
+
 	"version": {
 		Type:     schema.TypeString,
 		Optional: true,
@@ -514,6 +516,10 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodeP
 		}
 	}
 
+	if v, ok := d.GetOk(prefix + "upgrade_settings"); ok {
+		np.UpgradeSettings = expandUpgradeSettings(v)
+	}
+
 	return np, nil
 }
 
@@ -567,6 +573,8 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 			"auto_upgrade": np.Management.AutoUpgrade,
 		},
 	}
+
+	nodePool["upgrade_settings"] = flattenUpgradeSettings(np.UpgradeSettings)
 
 	return nodePool, nil
 }

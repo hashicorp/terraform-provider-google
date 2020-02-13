@@ -388,6 +388,15 @@ The `auto_provisioning_defaults` block supports:
 
 * `service_account` - (Optional) The Google Cloud Platform Service Account to be used by the node VMs.
 
+* `upgrade_settings` - (Optional) Specifies the upgrade settings for NAP created node pools. Structure is documented below.
+
+The `upgrade_settings` block supports:
+
+* `max_surge` - (Optional) The maximum number of nodes that can be created beyond the current size of the node pool during the upgrade process.
+
+* `max_unavailable` - (Optional) The maximum number of nodes that can be simultaneously unavailable during the upgrade process.
+	A node is considered available if its status is Ready.
+
 The `authenticator_groups_config` block supports:
 
 * `security_group` - (Required) The name of the RBAC security group for use with Google security groups in Kubernetes RBAC. Group name must be in format `gke-security-groups@yourdomain.com`.
