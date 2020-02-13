@@ -17,11 +17,11 @@ layout: "google"
 page_title: "Google: google_iap_web_backend_service_iam"
 sidebar_current: "docs-google-iap-web-backend-service-iam"
 description: |-
-  Collection of resources to manage IAM policy for IapWebBackendService
+  Collection of resources to manage IAM policy for Identity-Aware Proxy WebBackendService
 ---
 
-# IAM policy for IapWebBackendService
-Three different resources help you manage your IAM policy for Iap WebBackendService. Each of these resources serves a different use case:
+# IAM policy for Identity-Aware Proxy WebBackendService
+Three different resources help you manage your IAM policy for Identity-Aware Proxy WebBackendService. Each of these resources serves a different use case:
 
 * `google_iap_web_backend_service_iam_policy`: Authoritative. Sets the IAM policy for the webbackendservice and replaces any existing policy already attached.
 * `google_iap_web_backend_service_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the webbackendservice are preserved.
@@ -118,7 +118,7 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Iap webbackendservice IAM resources can be imported using the resource identifiers, role, and member.
+Identity-Aware Proxy webbackendservice IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```

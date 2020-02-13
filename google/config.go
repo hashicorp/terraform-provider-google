@@ -103,6 +103,7 @@ type Config struct {
 	ResourceManagerBasePath      string
 	RuntimeConfigBasePath        string
 	SecurityCenterBasePath       string
+	ServiceManagementBasePath    string
 	SourceRepoBasePath           string
 	SpannerBasePath              string
 	SQLBasePath                  string
@@ -170,8 +171,7 @@ type Config struct {
 	IAMBasePath string
 	clientIAM   *iam.Service
 
-	ServiceManagementBasePath string
-	clientServiceMan          *servicemanagement.APIService
+	clientServiceMan *servicemanagement.APIService
 
 	ServiceUsageBasePath string
 	clientServiceUsage   *serviceusage.Service
@@ -236,6 +236,7 @@ var RedisDefaultBasePath = "https://redis.googleapis.com/v1/"
 var ResourceManagerDefaultBasePath = "https://cloudresourcemanager.googleapis.com/v1/"
 var RuntimeConfigDefaultBasePath = "https://runtimeconfig.googleapis.com/v1beta1/"
 var SecurityCenterDefaultBasePath = "https://securitycenter.googleapis.com/v1/"
+var ServiceManagementDefaultBasePath = "https://servicemanagement.googleapis.com/v1/"
 var SourceRepoDefaultBasePath = "https://sourcerepo.googleapis.com/v1/"
 var SpannerDefaultBasePath = "https://spanner.googleapis.com/v1/"
 var SQLDefaultBasePath = "https://sqladmin.googleapis.com/sql/v1beta4/"
@@ -713,6 +714,7 @@ func ConfigureBasePaths(c *Config) {
 	c.ResourceManagerBasePath = ResourceManagerDefaultBasePath
 	c.RuntimeConfigBasePath = RuntimeConfigDefaultBasePath
 	c.SecurityCenterBasePath = SecurityCenterDefaultBasePath
+	c.ServiceManagementBasePath = ServiceManagementDefaultBasePath
 	c.SourceRepoBasePath = SourceRepoDefaultBasePath
 	c.SpannerBasePath = SpannerDefaultBasePath
 	c.SQLBasePath = SQLDefaultBasePath
@@ -731,7 +733,6 @@ func ConfigureBasePaths(c *Config) {
 	c.IamCredentialsBasePath = IamCredentialsDefaultBasePath
 	c.ResourceManagerV2Beta1BasePath = ResourceManagerV2Beta1DefaultBasePath
 	c.IAMBasePath = IAMDefaultBasePath
-	c.ServiceManagementBasePath = ServiceManagementDefaultBasePath
 	c.ServiceNetworkingBasePath = ServiceNetworkingDefaultBasePath
 	c.ServiceUsageBasePath = ServiceUsageDefaultBasePath
 	c.BigQueryBasePath = BigQueryDefaultBasePath

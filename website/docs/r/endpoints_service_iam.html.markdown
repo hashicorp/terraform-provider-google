@@ -12,28 +12,28 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Pub/Sub"
+subcategory: "Service Management"
 layout: "google"
-page_title: "Google: google_pubsub_topic_iam"
-sidebar_current: "docs-google-pubsub-topic-iam"
+page_title: "Google: google_endpoints_service_iam"
+sidebar_current: "docs-google-endpoints-service-iam"
 description: |-
-  Collection of resources to manage IAM policy for Cloud Pub/Sub Topic
+  Collection of resources to manage IAM policy for Service Management Service
 ---
 
-# IAM policy for Cloud Pub/Sub Topic
-Three different resources help you manage your IAM policy for Cloud Pub/Sub Topic. Each of these resources serves a different use case:
+# IAM policy for Service Management Service
+Three different resources help you manage your IAM policy for Service Management Service. Each of these resources serves a different use case:
 
-* `google_pubsub_topic_iam_policy`: Authoritative. Sets the IAM policy for the topic and replaces any existing policy already attached.
-* `google_pubsub_topic_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the topic are preserved.
-* `google_pubsub_topic_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the topic are preserved.
+* `google_endpoints_service_iam_policy`: Authoritative. Sets the IAM policy for the service and replaces any existing policy already attached.
+* `google_endpoints_service_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the service are preserved.
+* `google_endpoints_service_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the service are preserved.
 
-~> **Note:** `google_pubsub_topic_iam_policy` **cannot** be used in conjunction with `google_pubsub_topic_iam_binding` and `google_pubsub_topic_iam_member` or they will fight over what your policy should be.
+~> **Note:** `google_endpoints_service_iam_policy` **cannot** be used in conjunction with `google_endpoints_service_iam_binding` and `google_endpoints_service_iam_member` or they will fight over what your policy should be.
 
-~> **Note:** `google_pubsub_topic_iam_binding` resources **can be** used in conjunction with `google_pubsub_topic_iam_member` resources **only if** they do not grant privilege to the same role.
+~> **Note:** `google_endpoints_service_iam_binding` resources **can be** used in conjunction with `google_endpoints_service_iam_member` resources **only if** they do not grant privilege to the same role.
 
 
 
-## google\_pubsub\_topic\_iam\_policy
+## google\_endpoints\_service\_iam\_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -45,19 +45,17 @@ data "google_iam_policy" "admin" {
   }
 }
 
-resource "google_pubsub_topic_iam_policy" "editor" {
-  project = google_pubsub_topic.example.project
-  topic = google_pubsub_topic.example.name
+resource "google_endpoints_service_iam_policy" "editor" {
+  service_name = google_endpoints_service.endpoints_service.service_name
   policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
-## google\_pubsub\_topic\_iam\_binding
+## google\_endpoints\_service\_iam\_binding
 
 ```hcl
-resource "google_pubsub_topic_iam_binding" "editor" {
-  project = google_pubsub_topic.example.project
-  topic = google_pubsub_topic.example.name
+resource "google_endpoints_service_iam_binding" "editor" {
+  service_name = google_endpoints_service.endpoints_service.service_name
   role = "roles/viewer"
   members = [
     "user:jane@example.com",
@@ -65,12 +63,11 @@ resource "google_pubsub_topic_iam_binding" "editor" {
 }
 ```
 
-## google\_pubsub\_topic\_iam\_member
+## google\_endpoints\_service\_iam\_member
 
 ```hcl
-resource "google_pubsub_topic_iam_member" "editor" {
-  project = google_pubsub_topic.example.project
-  topic = google_pubsub_topic.example.name
+resource "google_endpoints_service_iam_member" "editor" {
+  service_name = google_endpoints_service.endpoints_service.service_name
   role = "roles/viewer"
   member = "user:jane@example.com"
 }
@@ -80,10 +77,7 @@ resource "google_pubsub_topic_iam_member" "editor" {
 
 The following arguments are supported:
 
-* `topic` - (Required) Used to find the parent resource to bind the IAM policy to
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.
+* `service_name` - (Required) The name of the service. Used to find the parent resource to bind the IAM policy to
 
 * `member/members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
@@ -95,10 +89,10 @@ The following arguments are supported:
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
 
 * `role` - (Required) The role that should be applied. Only one
-    `google_pubsub_topic_iam_binding` can be used per role. Note that custom roles must be of the format
+    `google_endpoints_service_iam_binding` can be used per role. Note that custom roles must be of the format
     `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
-* `policy_data` - (Required only by `google_pubsub_topic_iam_policy`) The policy data generated by
+* `policy_data` - (Required only by `google_endpoints_service_iam_policy`) The policy data generated by
   a `google_iam_policy` data source.
 
 ## Attributes Reference
@@ -112,27 +106,26 @@ exported:
 
 For all import syntaxes, the "resource in question" can take any of the following forms:
 
-* projects/{{project}}/topics/{{name}}
-* {{project}}/{{name}}
-* {{name}}
+* services/{{serviceName}}
+* {{serviceName}}
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Cloud Pub/Sub topic IAM resources can be imported using the resource identifiers, role, and member.
+Service Management service IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_pubsub_topic_iam_member.editor "projects/{{project}}/topics/{{topic}} roles/viewer jane@example.com"
+$ terraform import google_endpoints_service_iam_member.editor "services/{{serviceName}} roles/viewer jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
 ```
-$ terraform import google_pubsub_topic_iam_binding.editor "projects/{{project}}/topics/{{topic}} roles/viewer"
+$ terraform import google_endpoints_service_iam_binding.editor "services/{{serviceName}} roles/viewer"
 ```
 
 IAM policy imports use the identifier of the resource in question, e.g.
 ```
-$ terraform import google_pubsub_topic_iam_policy.editor projects/{{project}}/topics/{{topic}}
+$ terraform import google_endpoints_service_iam_policy.editor services/{{serviceName}}
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
@@ -140,7 +133,3 @@ as an argument so that Terraform uses the correct provider to import your resour
 
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
  full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
-
-## User Project Overrides
-
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

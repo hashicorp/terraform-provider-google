@@ -17,11 +17,11 @@ layout: "google"
 page_title: "Google: google_compute_subnetwork_iam"
 sidebar_current: "docs-google-compute-subnetwork-iam"
 description: |-
-  Collection of resources to manage IAM policy for ComputeSubnetwork
+  Collection of resources to manage IAM policy for Compute Engine Subnetwork
 ---
 
-# IAM policy for ComputeSubnetwork
-Three different resources help you manage your IAM policy for Compute Subnetwork. Each of these resources serves a different use case:
+# IAM policy for Compute Engine Subnetwork
+Three different resources help you manage your IAM policy for Compute Engine Subnetwork. Each of these resources serves a different use case:
 
 * `google_compute_subnetwork_iam_policy`: Authoritative. Sets the IAM policy for the subnetwork and replaces any existing policy already attached.
 * `google_compute_subnetwork_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the subnetwork are preserved.
@@ -126,7 +126,7 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Compute subnetwork IAM resources can be imported using the resource identifiers, role, and member.
+Compute Engine subnetwork IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
