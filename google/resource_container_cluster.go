@@ -261,6 +261,27 @@ func resourceContainerCluster() *schema.Resource {
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"management": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"auto_repair": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													Default:  false,
+												},
+
+												"auto_upgrade": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													Default:  false,
+												},
+											},
+										},
+									},
 									"oauth_scopes": {
 										Type:             schema.TypeList,
 										Optional:         true,
@@ -1895,9 +1916,28 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 	config := l[0].(map[string]interface{})
 
 	return &containerBeta.AutoprovisioningNodePoolDefaults{
+		Management:     expandManagement(config["management"], d),
 		OauthScopes:    convertStringArr(config["oauth_scopes"].([]interface{})),
 		ServiceAccount: config["service_account"].(string),
 	}
+}
+
+func expandManagement(configured interface{}, d *schema.ResourceData) *containerBeta.NodeManagement {
+	l, ok := configured.([]interface{})
+	if !ok || l == nil || len(l) == 0 || l[0] == nil {
+		return &containerBeta.NodeManagement{}
+	}
+	config := l[0].(map[string]interface{})
+	result := &containerBeta.NodeManagement{
+		ForceSendFields: []string{"AutoRepair", "AutoUpgrade"},
+	}
+	if v, ok := config["auto_repair"]; ok {
+		result.AutoRepair = v.(bool)
+	}
+	if v, ok := config["auto_upgrade"]; ok {
+		result.AutoUpgrade = v.(bool)
+	}
+	return result
 }
 
 func expandAuthenticatorGroupsConfig(configured interface{}) *containerBeta.AuthenticatorGroupsConfig {
@@ -2209,8 +2249,17 @@ func flattenClusterAutoscaling(a *containerBeta.ClusterAutoscaling) []map[string
 
 func flattenAutoProvisioningDefaults(a *containerBeta.AutoprovisioningNodePoolDefaults) []map[string]interface{} {
 	r := make(map[string]interface{})
+	r["management"] = flattenManagement(a.Management)
 	r["oauth_scopes"] = a.OauthScopes
 	r["service_account"] = a.ServiceAccount
+
+	return []map[string]interface{}{r}
+}
+
+func flattenManagement(n *containerBeta.NodeManagement) []map[string]interface{} {
+	r := make(map[string]interface{})
+	r["auto_repair"] = n.AutoRepair
+	r["auto_upgrade"] = n.AutoUpgrade
 
 	return []map[string]interface{}{r}
 }

@@ -388,6 +388,15 @@ The `auto_provisioning_defaults` block supports:
 
 * `service_account` - (Optional) The Google Cloud Platform Service Account to be used by the node VMs.
 
+* `management` - (Optional) Node management configuration, wherein auto-repair and
+	auto-upgrade is configured. Structure is documented below.
+
+The `management` block supports:
+
+* `auto_repair` - (Optional) Whether the nodes will be automatically repaired.
+
+* `auto_upgrade` - (Optional) Whether the nodes will be automatically upgraded.
+
 The `authenticator_groups_config` block supports:
 
 * `security_group` - (Required) The name of the RBAC security group for use with Google security groups in Kubernetes RBAC. Group name must be in format `gke-security-groups@yourdomain.com`.

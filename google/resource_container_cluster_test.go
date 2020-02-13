@@ -1081,10 +1081,12 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaults(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_autoprovisioningDefaults(clusterName, false),
+				Config: testAccContainerCluster_autoprovisioningDefaults(clusterName, false, false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning",
 						"cluster_autoscaling.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning",
+						"cluster_autoscaling.0.auto_provisioning_defaults.0.management.0.auto_repair", "false"),
 				),
 			},
 			{
@@ -1094,9 +1096,18 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaults(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"min_master_version"},
 			},
 			{
-				Config:             testAccContainerCluster_autoprovisioningDefaults(clusterName, true),
+				Config:             testAccContainerCluster_autoprovisioningDefaults(clusterName, true, false),
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
+			},
+			{
+				Config: testAccContainerCluster_autoprovisioningDefaults(clusterName, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning",
+						"cluster_autoscaling.0.auto_provisioning_defaults.0.management.0.auto_repair", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning",
+						"cluster_autoscaling.0.auto_provisioning_defaults.0.management.0.auto_upgrade", "true"),
+				),
 			},
 		},
 	})
@@ -2123,7 +2134,7 @@ resource "google_container_cluster" "with_autoprovisioning" {
 	return config
 }
 
-func testAccContainerCluster_autoprovisioningDefaults(cluster string, monitoringWrite bool) string {
+func testAccContainerCluster_autoprovisioningDefaults(cluster string, monitoringWrite bool, management bool) string {
 	config := fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
   location = "us-central1-a"
@@ -2149,11 +2160,21 @@ resource "google_container_cluster" "with_autoprovisioning" {
       maximum       = 2048
     }
 
-    auto_provisioning_defaults {
+    auto_provisioning_defaults {`, cluster)
+
+	if management {
+		config += `
+      management {
+        auto_repair = true
+        auto_upgrade = true
+      }
+`
+	}
+
+	config += `
       oauth_scopes = [
         "https://www.googleapis.com/auth/pubsub",
-        "https://www.googleapis.com/auth/devstorage.read_only",`,
-		cluster)
+        "https://www.googleapis.com/auth/devstorage.read_only",`
 
 	if monitoringWrite {
 		config += `
