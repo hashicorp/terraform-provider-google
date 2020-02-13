@@ -546,6 +546,7 @@ func Provider() terraform.ResourceProvider {
 			"google_secret_manager_secret_version":            dataSourceSecretManagerSecretVersion(),
 			"google_service_account":                          dataSourceGoogleServiceAccount(),
 			"google_service_account_access_token":             dataSourceGoogleServiceAccountAccessToken(),
+			"google_service_account_id_token":                 dataSourceGoogleServiceAccountIdToken(),
 			"google_service_account_key":                      dataSourceGoogleServiceAccountKey(),
 			"google_sql_ca_certs":                             dataSourceGoogleSQLCaCerts(),
 			"google_storage_bucket_object":                    dataSourceGoogleStorageBucketObject(),
