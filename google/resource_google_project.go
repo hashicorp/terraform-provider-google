@@ -183,32 +183,27 @@ func resourceGoogleProjectCheckPreRequisites(config *Config, d *schema.ResourceD
 		return nil
 	}
 	ba := "billingAccounts/" + ib.(string)
+	const perm = "billing.resourceAssociations.create"
 	req := &cloudbilling.TestIamPermissionsRequest{
-		Permissions: []string{"billing.resourceAssociations.create"},
+		Permissions: []string{perm},
 	}
 	resp, err := config.clientBilling.BillingAccounts.TestIamPermissions(ba, req).Do()
 	if err != nil {
 		return fmt.Errorf("failed to check permissions on billing account %q: %v", ba, err)
 	}
-	if diff := diffStringSlices(resp.Permissions, req.Permissions); len(diff) > 0 {
-		return fmt.Errorf("missing permissions on %q: %v", ba, diff)
+	if has := sliceContains(perm, resp.Permissions); !has {
+		return fmt.Errorf("missing permissions on %q: %v", ba, perm)
 	}
 	return nil
 }
 
-func diffStringSlices(got, want []string) []string {
-	m := make(map[string]bool)
-	for _, s := range got {
-		m[s] = true
-	}
-
-	var res []string
-	for _, s := range want {
-		if !m[s] {
-			res = append(res, s)
+func sliceContains(want string, ss []string) bool {
+	for _, s := range ss {
+		if s == want {
+			return true
 		}
 	}
-	return res
+	return false
 }
 
 func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
