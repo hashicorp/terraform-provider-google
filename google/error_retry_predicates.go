@@ -2,7 +2,9 @@ package google
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"net"
 	"net/url"
 	"strings"
 
@@ -14,21 +16,69 @@ type RetryErrorPredicateFunc func(error) (bool, string)
 /** ADD GLOBAL ERROR RETRY PREDICATES HERE **/
 // Retry predicates that shoud apply to all requests should be added here.
 var defaultErrorRetryPredicates = []RetryErrorPredicateFunc{
-	isUrlTimeoutError,
+	// Common network errors (usually wrapped by URL error)
+	isNetworkTemporaryError,
+	isNetworkTimeoutError,
+	isIoEOFError,
+	isConnectionResetNetworkError,
+
+	// Common GCP error codes
 	isCommonRetryableErrorCode,
 
 	//While this might apply only to Cloud SQL, historically,
-	// we had this in our global default error retries, so it is a default
-	// for now.
+	// we had this in our global default error retries.
+	// Keeping it as a default for now.
 	is409OperationInProgressError,
 }
 
 /** END GLOBAL ERROR RETRY PREDICATES HERE **/
 
-func isUrlTimeoutError(err error) (bool, string) {
+func isNetworkTemporaryError(err error) (bool, string) {
+	if netErr, ok := err.(*net.OpError); ok && netErr.Temporary() {
+		return true, "marked as timeout"
+	}
+	if urlerr, ok := err.(*url.Error); ok && urlerr.Temporary() {
+		return true, "marked as timeout"
+	}
+	return false, ""
+}
+
+func isNetworkTimeoutError(err error) (bool, string) {
+	if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() {
+		return true, "marked as timeout"
+	}
 	if urlerr, ok := err.(*url.Error); ok && urlerr.Timeout() {
-		log.Printf("[DEBUG] Dismissed an error as retryable based on googleapis.com target: %s", err)
-		return true, "Got URL timeout error"
+		return true, "marked as timeout"
+	}
+	return false, ""
+}
+
+func isIoEOFError(err error) (bool, string) {
+	if err == io.ErrUnexpectedEOF {
+		return true, "Got unexpected EOF"
+	}
+
+	if urlerr, urlok := err.(*url.Error); urlok {
+		wrappedErr := urlerr.Unwrap()
+		if wrappedErr == io.ErrUnexpectedEOF {
+			return true, "Got unexpected EOF"
+		}
+	}
+	return false, ""
+}
+
+const connectionResetByPeerErr = "connection reset by peer"
+
+func isConnectionResetNetworkError(err error) (bool, string) {
+	neterr, ok := err.(*net.OpError)
+	if !ok {
+		if urlerr, urlok := err.(*url.Error); urlok {
+			wrappedErr := urlerr.Unwrap()
+			neterr, ok = wrappedErr.(*net.OpError)
+		}
+	}
+	if ok && neterr.Err.Error() == connectionResetByPeerErr {
+		return true, fmt.Sprintf("Connection reset by peer")
 	}
 	return false, ""
 }
