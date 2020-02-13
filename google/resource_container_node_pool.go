@@ -116,27 +116,7 @@ var schemaNodePool = map[string]*schema.Schema{
 		Elem:     &schema.Schema{Type: schema.TypeString},
 	},
 
-	"management": {
-		Type:     schema.TypeList,
-		Optional: true,
-		Computed: true,
-		MaxItems: 1,
-		Elem: &schema.Resource{
-			Schema: map[string]*schema.Schema{
-				"auto_repair": {
-					Type:     schema.TypeBool,
-					Optional: true,
-					Default:  false,
-				},
-
-				"auto_upgrade": {
-					Type:     schema.TypeBool,
-					Optional: true,
-					Default:  false,
-				},
-			},
-		},
-	},
+	"management": schemaManagement,
 
 	"name": {
 		Type:     schema.TypeString,
@@ -502,16 +482,7 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodeP
 	}
 
 	if v, ok := d.GetOk(prefix + "management"); ok {
-		managementConfig := v.([]interface{})[0].(map[string]interface{})
-		np.Management = &containerBeta.NodeManagement{}
-
-		if v, ok := managementConfig["auto_repair"]; ok {
-			np.Management.AutoRepair = v.(bool)
-		}
-
-		if v, ok := managementConfig["auto_upgrade"]; ok {
-			np.Management.AutoUpgrade = v.(bool)
-		}
+		np.Management = expandManagement(d.Get(prefix + "management"))
 	}
 
 	return np, nil
@@ -538,6 +509,7 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 		"name":                np.Name,
 		"name_prefix":         d.Get(prefix + "name_prefix"),
 		"initial_node_count":  np.InitialNodeCount,
+		"management":          np.flattenManagement(np.Management),
 		"node_count":          size / len(np.InstanceGroupUrls),
 		"node_config":         flattenNodeConfig(np.Config),
 		"instance_group_urls": np.InstanceGroupUrls,
@@ -559,13 +531,6 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 
 	if np.MaxPodsConstraint != nil {
 		nodePool["max_pods_per_node"] = np.MaxPodsConstraint.MaxPodsPerNode
-	}
-
-	nodePool["management"] = []map[string]interface{}{
-		{
-			"auto_repair":  np.Management.AutoRepair,
-			"auto_upgrade": np.Management.AutoUpgrade,
-		},
 	}
 
 	return nodePool, nil
@@ -692,12 +657,10 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 	}
 
 	if d.HasChange(prefix + "management") {
+
 		management := &containerBeta.NodeManagement{}
 		if v, ok := d.GetOk(prefix + "management"); ok {
-			managementConfig := v.([]interface{})[0].(map[string]interface{})
-			management.AutoRepair = managementConfig["auto_repair"].(bool)
-			management.AutoUpgrade = managementConfig["auto_upgrade"].(bool)
-			management.ForceSendFields = []string{"AutoRepair", "AutoUpgrade"}
+			management = expandManagement(d.Get(prefix + "management"))
 		}
 		req := &containerBeta.SetNodePoolManagementRequest{
 			Management: management,
