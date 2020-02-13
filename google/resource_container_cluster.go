@@ -677,11 +677,6 @@ func resourceContainerCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"label_fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"default_max_pods_per_node": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -1091,7 +1086,6 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.Set("resource_labels", cluster.ResourceLabels)
-	d.Set("label_fingerprint", cluster.LabelFingerprint)
 
 	return nil
 }
@@ -1547,10 +1541,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("resource_labels") {
 		resourceLabels := d.Get("resource_labels").(map[string]interface{})
-		labelFingerprint := d.Get("label_fingerprint").(string)
 		req := &containerBeta.SetLabelsRequest{
-			ResourceLabels:   convertStringMap(resourceLabels),
-			LabelFingerprint: labelFingerprint,
+			ResourceLabels: convertStringMap(resourceLabels),
 		}
 		updateF := func() error {
 			name := containerClusterFullName(project, location, clusterName)
