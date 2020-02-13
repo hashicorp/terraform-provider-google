@@ -712,6 +712,8 @@ exported:
 * `instance_group_urls` - List of instance group URLs which have been assigned
     to the cluster.
 
+* `label_fingerprint` - The fingerprint of the set of labels for this cluster.
+
 * `maintenance_policy.0.daily_maintenance_window.0.duration` - Duration of the time window, automatically chosen to be
     smallest possible in the given scenario.
     Duration will be in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "PTnHnMnS".
