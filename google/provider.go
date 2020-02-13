@@ -501,9 +501,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 100
+// Generated resources: 101
 // Generated IAM resources: 51
-// Total generated resources: 151
+// Total generated resources: 152
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -662,6 +662,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_storage_bucket_access_control":                         resourceStorageBucketAccessControl(),
 			"google_storage_object_access_control":                         resourceStorageObjectAccessControl(),
 			"google_storage_default_object_access_control":                 resourceStorageDefaultObjectAccessControl(),
+			"google_storage_hmac_key":                                      resourceStorageHmacKey(),
 			"google_tpu_node":                                              resourceTPUNode(),
 		},
 		map[string]*schema.Resource{
