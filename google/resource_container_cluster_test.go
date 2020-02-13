@@ -1429,6 +1429,9 @@ resource "google_container_cluster" "primary" {
     network_policy_config {
       disabled = true
     }
+    dns_cache_config {
+      enabled = false
+    }
   }
 }
 `, clusterName)
@@ -1450,6 +1453,9 @@ resource "google_container_cluster" "primary" {
     }
     network_policy_config {
       disabled = false
+    }
+    dns_cache_config {
+      enabled = true
     }
   }
 }

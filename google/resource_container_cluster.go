@@ -53,6 +53,7 @@ var (
 		"addons_config.0.http_load_balancing",
 		"addons_config.0.horizontal_pod_autoscaling",
 		"addons_config.0.network_policy_config",
+		"addons_config.0.dns_cache_config",
 	}
 )
 
@@ -211,6 +212,21 @@ func resourceContainerCluster() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"disabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+								},
+							},
+						},
+						"dns_cache_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
 										Type:     schema.TypeBool,
 										Required: true,
 									},
@@ -1771,6 +1787,14 @@ func expandClusterAddonsConfig(configured interface{}) *containerBeta.AddonsConf
 		}
 	}
 
+	if v, ok := config["dns_cache_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.DnsCacheConfig = &containerBeta.DnsCacheConfig{
+			Enabled:        addon["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+	}
+
 	return ac
 }
 
@@ -2062,6 +2086,13 @@ func flattenClusterAddonsConfig(c *containerBeta.AddonsConfig) []map[string]inte
 		result["network_policy_config"] = []map[string]interface{}{
 			{
 				"disabled": c.NetworkPolicyConfig.Disabled,
+			},
+		}
+	}
+	if c.DnsCacheConfig != nil {
+		result["dns_cache_config"] = []map[string]interface{}{
+			{
+				"enabled": c.DnsCacheConfig.Enabled,
 			},
 		}
 	}
