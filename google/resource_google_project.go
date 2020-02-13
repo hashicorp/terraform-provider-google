@@ -94,6 +94,10 @@ func resourceGoogleProject() *schema.Resource {
 func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	if err := resourceGoogleProjectCheckPreRequisites(config, d); err != nil {
+		return fmt.Errorf("failed pre-requisites: %v", err)
+	}
+
 	var pid string
 	var err error
 	pid = d.Get("project_id").(string)
@@ -171,6 +175,39 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 	return nil
+}
+
+func resourceGoogleProjectCheckPreRequisites(config *Config, d *schema.ResourceData) error {
+	ib, ok := d.GetOk("billing_account")
+	if ok {
+		ba := "billingAccounts/" + ib.(string)
+		req := &cloudbilling.TestIamPermissionsRequest{
+			Permissions: []string{"billing.resourceAssociations.create"},
+		}
+		resp, err := config.clientBilling.BillingAccounts.TestIamPermissions(ba, req).Do()
+		if err != nil {
+			return fmt.Errorf("failed to check permissions on billing account %q: %v", ba, err)
+		}
+		if diff := diffStringSlices(resp.Permissions, req.Permissions); len(diff) > 0 {
+			return fmt.Errorf("missing permissions on org %q: %v", ba, diff)
+		}
+	}
+	return nil
+}
+
+func diffStringSlices(got, want []string) []string {
+	m := make(map[string]bool)
+	for _, s := range got {
+		m[s] = true
+	}
+
+	var res []string
+	for _, s := range want {
+		if !m[s] {
+			res = append(res, s)
+		}
+	}
+	return res
 }
 
 func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
