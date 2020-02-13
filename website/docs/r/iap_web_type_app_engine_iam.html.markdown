@@ -17,11 +17,11 @@ layout: "google"
 page_title: "Google: google_iap_web_type_app_engine_iam"
 sidebar_current: "docs-google-iap-web-type-app-engine-iam"
 description: |-
-  Collection of resources to manage IAM policy for IapWebTypeAppEngine
+  Collection of resources to manage IAM policy for Identity-Aware Proxy WebTypeAppEngine
 ---
 
-# IAM policy for IapWebTypeAppEngine
-Three different resources help you manage your IAM policy for Iap WebTypeAppEngine. Each of these resources serves a different use case:
+# IAM policy for Identity-Aware Proxy WebTypeAppEngine
+Three different resources help you manage your IAM policy for Identity-Aware Proxy WebTypeAppEngine. Each of these resources serves a different use case:
 
 * `google_iap_web_type_app_engine_iam_policy`: Authoritative. Sets the IAM policy for the webtypeappengine and replaces any existing policy already attached.
 * `google_iap_web_type_app_engine_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the webtypeappengine are preserved.
@@ -118,7 +118,7 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Iap webtypeappengine IAM resources can be imported using the resource identifiers, role, and member.
+Identity-Aware Proxy webtypeappengine IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```

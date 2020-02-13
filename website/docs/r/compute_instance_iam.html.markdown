@@ -17,11 +17,11 @@ layout: "google"
 page_title: "Google: google_compute_instance_iam"
 sidebar_current: "docs-google-compute-instance-iam"
 description: |-
-  Collection of resources to manage IAM policy for ComputeInstance
+  Collection of resources to manage IAM policy for Compute Engine Instance
 ---
 
-# IAM policy for ComputeInstance
-Three different resources help you manage your IAM policy for Compute Instance. Each of these resources serves a different use case:
+# IAM policy for Compute Engine Instance
+Three different resources help you manage your IAM policy for Compute Engine Instance. Each of these resources serves a different use case:
 
 * `google_compute_instance_iam_policy`: Authoritative. Sets the IAM policy for the instance and replaces any existing policy already attached.
 * `google_compute_instance_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the instance are preserved.
@@ -125,7 +125,7 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Compute instance IAM resources can be imported using the resource identifiers, role, and member.
+Compute Engine instance IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```

@@ -17,11 +17,11 @@ layout: "google"
 page_title: "Google: google_binary_authorization_attestor_iam"
 sidebar_current: "docs-google-binary-authorization-attestor-iam"
 description: |-
-  Collection of resources to manage IAM policy for BinaryAuthorizationAttestor
+  Collection of resources to manage IAM policy for Binary Authorization Attestor
 ---
 
-# IAM policy for BinaryAuthorizationAttestor
-Three different resources help you manage your IAM policy for BinaryAuthorization Attestor. Each of these resources serves a different use case:
+# IAM policy for Binary Authorization Attestor
+Three different resources help you manage your IAM policy for Binary Authorization Attestor. Each of these resources serves a different use case:
 
 * `google_binary_authorization_attestor_iam_policy`: Authoritative. Sets the IAM policy for the attestor and replaces any existing policy already attached.
 * `google_binary_authorization_attestor_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the attestor are preserved.
@@ -118,7 +118,7 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-BinaryAuthorization attestor IAM resources can be imported using the resource identifiers, role, and member.
+Binary Authorization attestor IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
