@@ -191,7 +191,7 @@ func resourceGoogleProjectCheckPreRequisites(config *Config, d *schema.ResourceD
 	if err != nil {
 		return fmt.Errorf("failed to check permissions on billing account %q: %v", ba, err)
 	}
-	if has := sliceContains(perm, resp.Permissions); !has {
+	if !stringInSlice(resp.Permissions); !has {
 		return fmt.Errorf("missing permissions on %q: %v", ba, perm)
 	}
 	return nil
