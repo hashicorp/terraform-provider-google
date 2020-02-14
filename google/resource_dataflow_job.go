@@ -115,6 +115,11 @@ func resourceDataflowJob() *schema.Resource {
 				Computed: true,
 			},
 
+			"type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"service_account_email": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -226,6 +231,7 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("job_id", job.Id)
+	d.Set("type", job.Type)
 	d.Set("state", job.CurrentState)
 	d.Set("name", job.Name)
 	d.Set("project", project)
