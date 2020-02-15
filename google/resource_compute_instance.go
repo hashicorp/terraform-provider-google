@@ -723,25 +723,26 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 	}, nil
 }
 
+var computeInstanceStatus = []string{
+	"PROVISIONING",
+	"REPAIRING",
+	"RUNNING",
+	"STAGING",
+	"STOPPED",
+	"STOPPING",
+	"SUSPENDED",
+	"SUSPENDING",
+	"TERMINATED",
+}
+
 // return all possible Compute instances status except the one passed as parameter
 func getAllStatusBut(status string) []string {
-	allStatus := []string{
-		"PROVISIONING",
-		"REPAIRING",
-		"RUNNING",
-		"STAGING",
-		"STOPPED",
-		"STOPPING",
-		"SUSPENDED",
-		"SUSPENDING",
-		"TERMINATED",
-	}
-	for i, s := range allStatus {
+	for i, s := range computeInstanceStatus {
 		if status == s {
-			return append(allStatus[:i], allStatus[i+1:]...)
+			return append(computeInstanceStatus[:i], computeInstanceStatus[i+1:]...)
 		}
 	}
-	return nil
+	return computeInstanceStatus
 }
 
 func waitUntilInstanceHasDesiredStatus(config *Config, d *schema.ResourceData) error {
@@ -1678,6 +1679,7 @@ func suppressEmptyGuestAcceleratorDiff(d *schema.ResourceDiff, meta interface{})
 	return nil
 }
 
+// return an error if the desired_status field is set to a value other than RUNNING on Create.
 func desiredStatusDiff(diff *schema.ResourceDiff, meta interface{}) error {
 	// when creating an instance, name is not set
 	oldName, _ := diff.GetChange("name")
