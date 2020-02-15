@@ -1148,33 +1148,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		d.SetPartial("scheduling")
 	}
 
-	if d.HasChange("desired_status") {
-		desiredStatus := d.Get("desired_status").(string)
-
-		if desiredStatus != "" {
-			var op *compute.Operation
-
-			if desiredStatus == "RUNNING" {
-				op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
-				if err != nil {
-					return err
-				}
-			} else if desiredStatus == "TERMINATED" {
-				op, err = config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
-				if err != nil {
-					return err
-				}
-			}
-			opErr := computeOperationWaitTime(
-				config, op, project, "updating status",
-				int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-			if opErr != nil {
-				return opErr
-			}
-		}
-		d.SetPartial("desired_status")
-	}
-
 	networkInterfacesCount := d.Get("network_interface.#").(int)
 	// Sanity check
 	if networkInterfacesCount != len(instance.NetworkInterfaces) {
@@ -1409,20 +1382,56 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		d.SetPartial("deletion_protection")
 	}
 
-	// Attributes which can only be changed if the instance is stopped
-	if scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") {
-		if !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, or enable display on an instance requires stopping it. " +
-				"To acknowledge this, please set allow_stopping_for_update = true in your config.")
+	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display")
+
+	if d.HasChange("desired_status") && !needToStopInstanceBeforeUpdating {
+		desiredStatus := d.Get("desired_status").(string)
+
+		if desiredStatus != "" {
+			var op *compute.Operation
+
+			if desiredStatus == "RUNNING" {
+				op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+				if err != nil {
+					return err
+				}
+			} else if desiredStatus == "TERMINATED" {
+				op, err = config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+				if err != nil {
+					return err
+				}
+			}
+			opErr := computeOperationWaitTime(
+				config, op, project, "updating status",
+				int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
 		}
-		op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
-		if err != nil {
-			return errwrap.Wrapf("Error stopping instance: {{err}}", err)
+		d.SetPartial("desired_status")
+	}
+
+	// Attributes which can only be changed if the instance is stopped
+	if needToStopInstanceBeforeUpdating {
+		statusBeforeUpdate := instance.Status
+		desiredStatus := d.Get("desired_status").(string)
+
+		if statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED" && !d.Get("allow_stopping_for_update").(bool) {
+			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, or enable display on a started instance requires stopping it. " +
+				"To acknowledge this, please set allow_stopping_for_update = true in your config. " +
+				"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update.")
 		}
 
-		opErr := computeOperationWaitTime(config, op, project, "stopping instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-		if opErr != nil {
-			return opErr
+		if statusBeforeUpdate == "RUNNING" {
+			op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+			if err != nil {
+				return errwrap.Wrapf("Error stopping instance: {{err}}", err)
+			}
+
+			opErr := computeOperationWaitTime(config, op, project, "stopping instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
 		}
 
 		if d.HasChange("machine_type") {
@@ -1433,7 +1442,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			req := &compute.InstancesSetMachineTypeRequest{
 				MachineType: mt.RelativeLink(),
 			}
-			op, err = config.clientCompute.Instances.SetMachineType(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.SetMachineType(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
@@ -1455,7 +1464,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			req := &compute.InstancesSetMinCpuPlatformRequest{
 				MinCpuPlatform: minCpuPlatform.(string),
 			}
-			op, err = config.clientCompute.Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
@@ -1474,7 +1483,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				req.Email = saMap["email"].(string)
 				req.Scopes = canonicalizeServiceScopes(convertStringSet(saMap["scopes"].(*schema.Set)))
 			}
-			op, err = config.clientCompute.Instances.SetServiceAccount(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.SetServiceAccount(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
@@ -1490,7 +1499,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				EnableDisplay:   d.Get("enable_display").(bool),
 				ForceSendFields: []string{"EnableDisplay"},
 			}
-			op, err = config.clientCompute.Instances.UpdateDisplayDevice(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.UpdateDisplayDevice(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return fmt.Errorf("Error updating display device: %s", err)
 			}
@@ -1501,35 +1510,40 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			d.SetPartial("enable_display")
 		}
 
-		// Retrieve instance from config to pull encryption keys if necessary
-		instanceFromConfig, err := expandComputeInstance(project, d, config)
-		if err != nil {
-			return err
-		}
-
-		var encrypted []*compute.CustomerEncryptionKeyProtectedDisk
-		for _, disk := range instanceFromConfig.Disks {
-			if disk.DiskEncryptionKey != nil {
-				key := compute.CustomerEncryptionKey{RawKey: disk.DiskEncryptionKey.RawKey, KmsKeyName: disk.DiskEncryptionKey.KmsKeyName}
-				eDisk := compute.CustomerEncryptionKeyProtectedDisk{Source: disk.Source, DiskEncryptionKey: &key}
-				encrypted = append(encrypted, &eDisk)
+		if (statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED") ||
+			(statusBeforeUpdate == "TERMINATED" && desiredStatus == "RUNNING") {
+			// Retrieve instance from config to pull encryption keys if necessary
+			instanceFromConfig, err := expandComputeInstance(project, d, config)
+			if err != nil {
+				return err
 			}
-		}
 
-		if len(encrypted) > 0 {
-			request := compute.InstancesStartWithEncryptionKeyRequest{Disks: encrypted}
-			op, err = config.clientCompute.Instances.StartWithEncryptionKey(project, zone, instance.Name, &request).Do()
-		} else {
-			op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
-		}
-		if err != nil {
-			return errwrap.Wrapf("Error starting instance: {{err}}", err)
-		}
+			var encrypted []*compute.CustomerEncryptionKeyProtectedDisk
+			for _, disk := range instanceFromConfig.Disks {
+				if disk.DiskEncryptionKey != nil {
+					key := compute.CustomerEncryptionKey{RawKey: disk.DiskEncryptionKey.RawKey, KmsKeyName: disk.DiskEncryptionKey.KmsKeyName}
+					eDisk := compute.CustomerEncryptionKeyProtectedDisk{Source: disk.Source, DiskEncryptionKey: &key}
+					encrypted = append(encrypted, &eDisk)
+				}
+			}
 
-		opErr = computeOperationWaitTime(config, op, project,
-			"starting instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-		if opErr != nil {
-			return opErr
+			var op *compute.Operation
+
+			if len(encrypted) > 0 {
+				request := compute.InstancesStartWithEncryptionKeyRequest{Disks: encrypted}
+				op, err = config.clientCompute.Instances.StartWithEncryptionKey(project, zone, instance.Name, &request).Do()
+			} else {
+				op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+			}
+			if err != nil {
+				return errwrap.Wrapf("Error starting instance: {{err}}", err)
+			}
+
+			opErr := computeOperationWaitTime(config, op, project,
+				"starting instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
 		}
 	}
 
