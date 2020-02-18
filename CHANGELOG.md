@@ -1,4 +1,8 @@
 ## 2.20.3 (Unreleased)
+
+FEATURES:
+* **New Data Source**: `google_compute_backend_bucket` ([#5690](https://github.com/terraform-providers/terraform-provider-google/issues/5690))
+
 ## 2.20.2 (February 04, 2020)
 
 BUG FIXES:
