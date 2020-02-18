@@ -35,9 +35,6 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following attributes are exported:
 
-* `network` - The network name or resource link to the parent
-    network of this network.
-
 * `description` - Description of this network.
 
 * `gateway_ipv4` - The IP address of the gateway.
