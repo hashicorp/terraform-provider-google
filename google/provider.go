@@ -458,6 +458,7 @@ func Provider() terraform.ResourceProvider {
 			"google_container_engine_versions":                dataSourceGoogleContainerEngineVersions(),
 			"google_container_registry_image":                 dataSourceGoogleContainerImage(),
 			"google_container_registry_repository":            dataSourceGoogleContainerRepo(),
+			"google_dns_keys":                                 dataSourceDNSKeys(),
 			"google_dns_managed_zone":                         dataSourceDnsManagedZone(),
 			"google_iam_policy":                               dataSourceGoogleIamPolicy(),
 			"google_iam_role":                                 dataSourceGoogleIamRole(),
