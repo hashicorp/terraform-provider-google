@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/oauth2"
 	"google.golang.org/api/googleapi"
 )
 
@@ -67,18 +68,25 @@ func isIoEOFError(err error) (bool, string) {
 	return false, ""
 }
 
-const connectionResetByPeerErr = "connection reset by peer"
+const connectionResetByPeerErr = ": connection reset by peer"
 
 func isConnectionResetNetworkError(err error) (bool, string) {
-	neterr, ok := err.(*net.OpError)
-	if !ok {
-		if urlerr, urlok := err.(*url.Error); urlok {
-			wrappedErr := urlerr.Unwrap()
-			neterr, ok = wrappedErr.(*net.OpError)
+	if strings.HasSuffix(err.Error(), connectionResetByPeerErr) {
+		//TODO(emilymye, TPG#3957): Remove these debug logs
+		log.Printf("[DEBUG] Found connection reset by peer error of type %T", err)
+		switch err.(type) {
+		case *url.Error:
+		case *net.OpError:
+			log.Printf("[DEBUG] Connection reset error returned from net/url")
+		case *googleapi.Error:
+			log.Printf("[DEBUG] Connection reset error wrapped by googleapi.Error")
+		case *oauth2.RetrieveError:
+			log.Printf("[DEBUG] Connection reset error wrapped by oauth2")
+		default:
+			log.Printf("[DEBUG] Connection reset error wrapped by %T", err)
 		}
-	}
-	if ok && neterr.Err.Error() == connectionResetByPeerErr {
-		return true, fmt.Sprintf("Connection reset by peer")
+
+		return true, fmt.Sprintf("reset connection")
 	}
 	return false, ""
 }
