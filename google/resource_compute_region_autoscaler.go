@@ -134,11 +134,9 @@ be a positive float value. If not defined, the default is 0.8.`,
 							},
 						},
 						"metric": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Description: `Defines the CPU utilization policy that allows the autoscaler to
-scale based on the average CPU utilization of a managed instance
-group.`,
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configuration parameters of autoscaling based on a custom metric.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
