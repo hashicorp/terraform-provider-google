@@ -16,6 +16,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * cloudrun: fixed permadiff caused by new API default values on `annotations` and `limits` ([#5600](https://github.com/terraform-providers/terraform-provider-google/pull/5600))
+* compute: Fixed bug where `google_project` would fail to create if the `auto_create_network` was false and the `compute-skipDefaultNetworkCreation` organization policies was enforced. ([#5601](https://github.com/terraform-providers/terraform-provider-google/pull/5601))
 * container: Removed restriction on `auto_provisioning_defaults` to allow both `oauth_scopes` and `service_account` to be set ([#5642](https://github.com/terraform-providers/terraform-provider-google/pull/5642))
 * firestore: fixed import of `google_firestore_index` when database or collection were non-default. ([#5626](https://github.com/terraform-providers/terraform-provider-google/pull/5626))
 * iam: Fixed an erroneous error during import of IAM resources when a provider default project/zone/region is not defined. ([#5613](https://github.com/terraform-providers/terraform-provider-google/pull/5613))
