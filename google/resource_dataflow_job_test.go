@@ -120,17 +120,39 @@ func TestAccDataflowJob_withSubnetwork(t *testing.T) {
 	network := "tf-test-dataflow-net" + randStr
 	subnetwork := "tf-test-dataflow-subnet" + randStr
 
+	subnetValAsSelfLink := "${google_compute_subnetwork.subnet.self_link}"
+	subnetValAsPartialURI := fmt.Sprintf("projects/%s/regions/us-central1/subnetworks/%s", getTestProjectFromEnv(), subnetwork)
+	subnetValAsFormatAcceptedByDataflow := fmt.Sprintf("regions/us-central1/subnetworks/%s", subnetwork)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataflowJobDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataflowJob_subnetwork(bucket, job, network, subnetwork),
+				Config: testAccDataflowJob_subnetwork(bucket, job, network, subnetwork, subnetValAsSelfLink),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataflowJobExists("google_dataflow_job.big_data"),
 					testAccDataflowJobHasSubnetwork("google_dataflow_job.big_data", subnetwork),
 				),
+			},
+			{
+				Config:             testAccDataflowJob_subnetwork(bucket, job, network, subnetwork, subnetValAsPartialURI),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+			{
+				Config:             testAccDataflowJob_subnetwork(bucket, job, network, subnetwork, subnetValAsFormatAcceptedByDataflow),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+			// The google_dataflow_job must refer to the google_compute_subnetwork using the "google_compute_subnetwork.<name>" expression in the
+			// first and last test steps in order allow Terraform to know about the resource dependency, ensuring that the subnetwork is created
+			// before the job is created and deleted after the job is deleted.
+			{
+				Config:             testAccDataflowJob_subnetwork(bucket, job, network, subnetwork, subnetValAsSelfLink),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
 			},
 		},
 	})
@@ -456,7 +478,7 @@ resource "google_dataflow_job" "big_data" {
 `, bucket, network, job, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
 }
 
-func testAccDataflowJob_subnetwork(bucket, job, network, subnet string) string {
+func testAccDataflowJob_subnetwork(bucket, job, network, subnet, subnetVal string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
   name = "%s"
@@ -470,6 +492,7 @@ resource "google_compute_network" "net" {
 
 resource "google_compute_subnetwork" "subnet" {
   name          = "%s"
+  region        = "us-central1"
   ip_cidr_range = "10.2.0.0/16"
   network       = google_compute_network.net.self_link
 }
@@ -477,7 +500,7 @@ resource "google_compute_subnetwork" "subnet" {
 resource "google_dataflow_job" "big_data" {
   name = "%s"
 
-  subnetwork        = google_compute_subnetwork.subnet.self_link
+  subnetwork        = "%s"
 
   template_gcs_path = "%s"
   temp_gcs_location = google_storage_bucket.temp.url
@@ -487,7 +510,7 @@ resource "google_dataflow_job" "big_data" {
   }
   on_delete = "cancel"
 }
-`, bucket, network, subnet, job, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+`, bucket, network, subnet, job, subnetVal, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
 }
 
 func testAccDataflowJob_serviceAccount(bucket, job, accountId string) string {

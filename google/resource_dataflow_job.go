@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -23,6 +24,8 @@ var dataflowTerminalStatesMap = map[string]struct{}{
 	"JOB_STATE_UPDATED":   {},
 	"JOB_STATE_DRAINED":   {},
 }
+
+var validSubnetFormatRegex = regexp.MustCompile(`regions/(?P<region>[^/]+)/subnetworks/(?P<name>[^/]+)$`)
 
 func resourceDataflowJobLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// Example Diff: "labels.goog-dataflow-provided-template-version": "word_count" => ""
@@ -135,7 +138,7 @@ func resourceDataflowJob() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				DiffSuppressFunc: resourceDataflowJobSubnetworkDiffSuppress,
 			},
 
 			"machine_type": {
@@ -177,6 +180,11 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	subnetwork, err := getSubnetwork(d)
+	if err != nil {
+		return err
+	}
+
 	params := expandStringMap(d, "parameters")
 	labels := expandStringMap(d, "labels")
 
@@ -184,7 +192,7 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 		MaxWorkers:           int64(d.Get("max_workers").(int)),
 		Network:              d.Get("network").(string),
 		ServiceAccountEmail:  d.Get("service_account_email").(string),
-		Subnetwork:           d.Get("subnetwork").(string),
+		Subnetwork:           subnetwork,
 		TempLocation:         d.Get("temp_gcs_location").(string),
 		MachineType:          d.Get("machine_type").(string),
 		IpConfiguration:      d.Get("ip_configuration").(string),
@@ -352,4 +360,34 @@ func resourceDataflowJobUpdateJob(config *Config, project string, region string,
 		return config.clientDataflow.Projects.Jobs.Update(project, id, job).Do()
 	}
 	return config.clientDataflow.Projects.Locations.Jobs.Update(project, region, id, job).Do()
+}
+
+func resourceDataflowJobSubnetworkDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	if match := validSubnetFormatRegex.FindString(new); match != "" {
+		oldMatch := validSubnetFormatRegex.FindString(old)
+		return oldMatch != "" && oldMatch == match
+	}
+	return false
+}
+
+func getSubnetwork(d *schema.ResourceData) (string, error) {
+	subnetwork := d.Get("subnetwork").(string)
+	if subnetwork == "" {
+		return "", nil
+	}
+	return toValidSubnetworkFormat(subnetwork)
+}
+
+// toValidSubnetworkFormat converts the given string to a valid subnetwork
+// string recognizable by the Dataflow API (i.e. in the format of
+// "regions/REGION/subnetworks/SUBNETWORK"). Returns an error if not possible.
+// This function exists to allow subnetworks to be specified as one of:
+// (1) self_links: https://www.googleapis.com/compute/v1/projects/PROJECT/regions/REGION/subnetworks/SUBNETWORK
+// (2) partial URIs: projects/PROJECT/regions/REGION/subnetworks/SUBNETWORK
+// (3) Dataflow subnetwork format: regions/REGION/subnetworks/SUBNETWORK
+func toValidSubnetworkFormat(subnetwork string) (string, error) {
+	if match := validSubnetFormatRegex.FindString(subnetwork); match != "" {
+		return match, nil
+	}
+	return "", fmt.Errorf("could not convert subnetwork %q to a valid format recognizable by the Dataflow API", subnetwork)
 }
