@@ -1,4 +1,26 @@
-## 3.8.1 (Unreleased)
+## 3.9.1 (Unreleased)
+## 3.9.0 (February 18, 2020)
+
+FEATURES:
+* **New Resource:** `google_container_registry` ([#5593](https://github.com/terraform-providers/terraform-provider-google/pull/5593))
+
+IMPROVEMENTS:
+* all: improve error handling of 404s. ([#5601](https://github.com/terraform-providers/terraform-provider-google/pull/5601))
+* bigtable: added update support for `display_name` and `instance_type` ([#5648](https://github.com/terraform-providers/terraform-provider-google/pull/5648))
+* container: `google_container_cluster` will wait for a stable state after updates. ([#5616](https://github.com/terraform-providers/terraform-provider-google/pull/5616))
+* container: added `boot_disk_kms_key` to `node_config` block. ([#5615](https://github.com/terraform-providers/terraform-provider-google/pull/5615))
+* dataflow: added `job_id` field to `google_dataflow_job` ([#5653](https://github.com/terraform-providers/terraform-provider-google/pull/5653))
+* dialogflow: improve error handling by increasing retry count ([#5603](https://github.com/terraform-providers/terraform-provider-google/pull/5603))
+* resourcemanager: fixed retry behavior for updates in `google_project`, added retries for billing metadata requests ([#5578](https://github.com/terraform-providers/terraform-provider-google/pull/5578))
+* sql: add `encryption_key_name` to `google_sql_database_instance` ([#5591](https://github.com/terraform-providers/terraform-provider-google/pull/5591))
+
+BUG FIXES:
+* cloudrun: fixed permadiff caused by new API default values on `annotations` and `limits` ([#5600](https://github.com/terraform-providers/terraform-provider-google/pull/5600))
+* container: Removed restriction on `auto_provisioning_defaults` to allow both `oauth_scopes` and `service_account` to be set ([#5642](https://github.com/terraform-providers/terraform-provider-google/pull/5642))
+* firestore: fixed import of `google_firestore_index` when database or collection were non-default. ([#5626](https://github.com/terraform-providers/terraform-provider-google/pull/5626))
+* iam: Fixed an erroneous error during import of IAM resources when a provider default project/zone/region is not defined. ([#5613](https://github.com/terraform-providers/terraform-provider-google/pull/5613))
+* kms: Fixed issue where `google_kms_crypto_key_version` datasource would throw an Invalid Index error on plan ([#5619](https://github.com/terraform-providers/terraform-provider-google/pull/5619))
+
 ## 3.8.0 (February 10, 2020)
 
 NOTES:
