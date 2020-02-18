@@ -53,7 +53,7 @@ func BootstrapKMSKeyWithPurpose(t *testing.T, purpose string) bootstrappedKMS {
 **/
 func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID string) bootstrappedKMS {
 	if v := os.Getenv("TF_ACC"); v == "" {
-		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
 
 		// If not running acceptance tests, return an empty object
 		return bootstrappedKMS{
@@ -204,7 +204,7 @@ func impersonationServiceAccountPermissions(config *Config, sa *iam.ServiceAccou
 
 func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
 	if v := os.Getenv("TF_ACC"); v == "" {
-		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
 		return ""
 	}
 
@@ -246,7 +246,7 @@ const SharedTestNetworkPrefix = "tf-bootstrap-net-"
 // Returns the name of an network, creating it if hasn't been created in the test projcet.
 func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 	if v := os.Getenv("TF_ACC"); v == "" {
-		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
 		// If not running acceptance tests, return an empty string
 		return ""
 	}
@@ -300,7 +300,7 @@ var SharedServicePerimeterProjectPrefix = "tf-bootstrap-sp-"
 
 func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*cloudresourcemanager.Project {
 	if v := os.Getenv("TF_ACC"); v == "" {
-		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
 		return nil
 	}
 
