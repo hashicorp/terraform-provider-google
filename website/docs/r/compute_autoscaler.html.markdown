@@ -257,9 +257,7 @@ The `autoscaling_policy` block supports:
 
 * `metric` -
   (Optional)
-  Defines the CPU utilization policy that allows the autoscaler to
-  scale based on the average CPU utilization of a managed instance
-  group.  Structure is documented below.
+  Configuration parameters of autoscaling based on a custom metric.  Structure is documented below.
 
 * `load_balancing_utilization` -
   (Optional)
