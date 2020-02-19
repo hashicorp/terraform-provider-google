@@ -169,7 +169,7 @@ The `condition` block supports:
 ~> **Warning:** Terraform considers the `role` and condition contents (`title`+`description`+`expression`) as the
   identifier for the binding. This means that if any part of the condition is changed out-of-band, Terraform will
   consider it to be an entirely different resource and will treat it as such.
-  
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
