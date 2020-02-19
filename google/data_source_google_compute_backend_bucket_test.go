@@ -11,7 +11,7 @@ import (
 func TestAccDataSourceComputeBackendBucket_basic(t *testing.T) {
 	t.Parallel()
 
-	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	backendBucketName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -20,14 +20,14 @@ func TestAccDataSourceComputeBackendBucket_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceComputeBackendBucket_basic(serviceName, bucketName),
+				Config: testAccDataSourceComputeBackendBucket_basic(backendBucketName, bucketName),
 				Check:  checkDataSourceStateMatchesResourceState("data.google_compute_backend_bucket.baz", "google_compute_backend_bucket.foobar"),
 			},
 		},
 	})
 }
 
-func testAccDataSourceComputeBackendBucket_basic(serviceName, bucketName string) string {
+func testAccDataSourceComputeBackendBucket_basic(backendBucketName, bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_bucket" "foobar" {
   name        = "%s"
@@ -35,14 +35,12 @@ resource "google_compute_backend_bucket" "foobar" {
   bucket_name = google_storage_bucket.image_bucket.name
   enable_cdn  = true
 }
-
 resource "google_storage_bucket" "image_bucket" {
   name     = "%s"
   location = "EU"
 }
-
 data "google_compute_backend_bucket" "baz" {
   name = google_compute_backend_bucket.foobar.name
 }
-`, serviceName, bucketName)
+`, backendBucketName, bucketName)
 }
