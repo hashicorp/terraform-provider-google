@@ -173,17 +173,19 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	var response map[string]interface{}
+	// Use the resource in the operation response to populate
+	// identity fields and d.Id() before read
+	var opRes map[string]interface{}
 	err = firestoreOperationWaitTimeWithResponse(
-		config, res, &response, project, "Creating Index",
+		config, res, &opRes, project, "Creating Index",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create Index: %s", err)
 	}
-	if err := d.Set("name", flattenFirestoreIndexName(response["name"], d, config)); err != nil {
+
+	if err := d.Set("name", flattenFirestoreIndexName(opRes["name"], d, config)); err != nil {
 		return err
 	}
 

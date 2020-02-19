@@ -410,7 +410,6 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 	if _, ok := d.GetOk("delete_contents_on_destroy"); !ok {
 		d.Set("delete_contents_on_destroy", false)
 	}
-
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}

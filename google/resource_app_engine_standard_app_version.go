@@ -436,7 +436,6 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 	if _, ok := d.GetOk("delete_service_on_destroy"); !ok {
 		d.Set("delete_service_on_destroy", false)
 	}
-
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}

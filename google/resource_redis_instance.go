@@ -279,17 +279,19 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(id)
 
-	var response map[string]interface{}
+	// Use the resource in the operation response to populate
+	// identity fields and d.Id() before read
+	var opRes map[string]interface{}
 	err = redisOperationWaitTimeWithResponse(
-		config, res, &response, project, "Creating Instance",
+		config, res, &opRes, project, "Creating Instance",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create Instance: %s", err)
 	}
-	if err := d.Set("name", flattenRedisInstanceName(response["name"], d, config)); err != nil {
+
+	if err := d.Set("name", flattenRedisInstanceName(opRes["name"], d, config)); err != nil {
 		return err
 	}
 

@@ -108,17 +108,19 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	var response map[string]interface{}
+	// Use the resource in the operation response to populate
+	// identity fields and d.Id() before read
+	var opRes map[string]interface{}
 	err = accessContextManagerOperationWaitTimeWithResponse(
-		config, res, &response, "Creating AccessPolicy",
+		config, res, &opRes, "Creating AccessPolicy",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create AccessPolicy: %s", err)
 	}
-	if err := d.Set("name", flattenAccessContextManagerAccessPolicyName(response["name"], d, config)); err != nil {
+
+	if err := d.Set("name", flattenAccessContextManagerAccessPolicyName(opRes["name"], d, config)); err != nil {
 		return err
 	}
 
