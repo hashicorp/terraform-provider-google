@@ -267,7 +267,7 @@ resource "google_bigquery_table" "test" {
 
 	time_partitioning {
 		type = "DAY"
-		field = "ts"	
+		field = "ts"
 	}
 
 	encryption_configuration {
