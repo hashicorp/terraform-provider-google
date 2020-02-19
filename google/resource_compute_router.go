@@ -25,6 +25,24 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
+// customizeDiff func for additional checks on google_compute_router properties:
+func resourceComputeRouterCustomDiff(diff *schema.ResourceDiff, meta interface{}) error {
+
+	block := diff.Get("bgp.0").(map[string]interface{})
+	advertiseMode := block["advertise_mode"]
+	advertisedGroups := block["advertised_groups"].([]interface{})
+	advertisedIPRanges := block["advertised_ip_ranges"].([]interface{})
+
+	if advertiseMode == "DEFAULT" && len(advertisedGroups) != 0 {
+		return fmt.Errorf("Error in bgp: advertised_groups cannot be specified when using advertise_mode DEFAULT")
+	}
+	if advertiseMode == "DEFAULT" && len(advertisedIPRanges) != 0 {
+		return fmt.Errorf("Error in bgp: advertised_ip_ranges cannot be specified when using advertise_mode DEFAULT")
+	}
+
+	return nil
+}
+
 func resourceComputeRouter() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRouterCreate,
@@ -41,6 +59,8 @@ func resourceComputeRouter() *schema.Resource {
 			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
+
+		CustomizeDiff: resourceComputeRouterCustomDiff,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
