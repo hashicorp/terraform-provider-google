@@ -139,6 +139,13 @@ func resourceStorageBucketObject() *schema.Resource {
 				Computed: true,
 			},
 
+			"metadata": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
 			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
