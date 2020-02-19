@@ -94,6 +94,10 @@ func resourceGoogleProject() *schema.Resource {
 func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	if err := resourceGoogleProjectCheckPreRequisites(config, d); err != nil {
+		return fmt.Errorf("failed pre-requisites: %v", err)
+	}
+
 	var pid string
 	var err error
 	pid = d.Get("project_id").(string)
@@ -169,6 +173,26 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 				return errwrap.Wrapf(fmt.Sprintf("Error deleting default network in project %s: {{err}}", project.ProjectId), err)
 			}
 		}
+	}
+	return nil
+}
+
+func resourceGoogleProjectCheckPreRequisites(config *Config, d *schema.ResourceData) error {
+	ib, ok := d.GetOk("billing_account")
+	if !ok {
+		return nil
+	}
+	ba := "billingAccounts/" + ib.(string)
+	const perm = "billing.resourceAssociations.create"
+	req := &cloudbilling.TestIamPermissionsRequest{
+		Permissions: []string{perm},
+	}
+	resp, err := config.clientBilling.BillingAccounts.TestIamPermissions(ba, req).Do()
+	if err != nil {
+		return fmt.Errorf("failed to check permissions on billing account %q: %v", ba, err)
+	}
+	if !stringInSlice(resp.Permissions, perm) {
+		return fmt.Errorf("missing permission on %q: %v", ba, perm)
 	}
 	return nil
 }
