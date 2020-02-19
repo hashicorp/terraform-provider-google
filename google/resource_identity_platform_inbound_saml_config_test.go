@@ -46,7 +46,7 @@ resource "google_identity_platform_inbound_saml_config" "saml_config" {
   display_name = "Display Name"
   idp_config {
     idp_entity_id = "tf-idp%{random_suffix}"
-    sso_url = "example.com"
+    sso_url = "https://example.com"
     idp_certificates {
       x509_certificate = file("test-fixtures/rsa_cert.pem")
     }
@@ -67,7 +67,7 @@ resource "google_identity_platform_inbound_saml_config" "saml_config" {
   display_name = "Display Name2"
   idp_config {
     idp_entity_id = "tf-idp%{random_suffix}"
-    sso_url = "example123.com"
+    sso_url = "https://example123.com"
     sign_request = true
     idp_certificates {
       x509_certificate = file("test-fixtures/rsa_cert.pem")

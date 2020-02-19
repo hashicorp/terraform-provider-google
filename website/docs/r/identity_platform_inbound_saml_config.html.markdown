@@ -45,7 +45,7 @@ resource "google_identity_platform_inbound_saml_config" "saml_config" {
   idp_config {
     idp_entity_id = "tf-idp"
     sign_request  = true
-    sso_url       = "example.com"
+    sso_url       = "https://example.com"
     idp_certificates {
       x509_certificate = file("test-fixtures/rsa_cert.pem")
     }
