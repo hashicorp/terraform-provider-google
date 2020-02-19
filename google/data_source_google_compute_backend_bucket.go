@@ -24,14 +24,14 @@ func dataSourceGoogleComputeBackendBucket() *schema.Resource {
 func dataSourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	serviceName := d.Get("name").(string)
+	backendBucketName := d.Get("name").(string)
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(fmt.Sprintf("projects/%s/global/backendBuckets/%s", project, serviceName))
+	d.SetId(fmt.Sprintf("projects/%s/global/backendBuckets/%s", project, backendBucketName))
 
 	return resourceComputeBackendBucketRead(d, meta)
 }
