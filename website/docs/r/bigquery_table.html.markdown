@@ -127,6 +127,9 @@ The following arguments are supported:
 * `time_partitioning` - (Optional) If specified, configures time-based
     partitioning for this table. Structure is documented below.
 
+* `range_partitioning` - (Optional, Beta) If specified, configures range-based
+    partitioning for this table. Structure is documented below.
+
 * `clustering` - (Optional) Specifies column names to use for data clustering.
     Up to four top-level columns are allowed, and should be specified in
     descending priority order.
@@ -176,7 +179,7 @@ The `csv_options` block supports:
     characters, you must also set the `allow_quoted_newlines` property to true.
     The API-side default is `"`, specified in Terraform escaped as `\"`. Due to
     limitations with Terraform default values, this value is required to be
-    explicitly set. 
+    explicitly set.
 
 * `allow_jagged_rows` (Optional) - Indicates if BigQuery should accept rows
     that are missing trailing optional columns.
@@ -219,6 +222,22 @@ The `time_partitioning` block supports:
 * `require_partition_filter` - (Optional) If set to true, queries over this table
     require a partition filter that can be used for partition elimination to be
     specified.
+
+The `range_partitioning` block supports:
+
+* `field` - (Required) The field used to determine how to create a range-based
+    partition.
+
+* `range` - (Required) Information required to partition based on ranges.
+    Structure is documented below.
+
+The `range` block supports:
+
+* `start` - (Required) Start of the range partitioning, inclusive.
+
+* `end` - (Required) End of the range partitioning, exclusive.
+
+* `interval` - (Required) The width of each range within the partition.
 
 The `view` block supports:
 
