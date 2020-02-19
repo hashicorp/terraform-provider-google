@@ -52,6 +52,7 @@ resource "google_kms_crypto_key_iam_policy" "crypto_key" {
 ```
 
 With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)):
+
 ```hcl
 data "google_iam_policy" "admin" {
   binding {
@@ -84,6 +85,7 @@ resource "google_kms_crypto_key_iam_binding" "crypto_key" {
 ```
 
 With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)):
+
 ```hcl
 resource "google_kms_crypto_key_iam_binding" "crypto_key" {
   crypto_key_id = google_kms_crypto_key.key.id
@@ -112,6 +114,7 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
 ```
 
 With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)):
+
 ```hcl
 resource "google_kms_crypto_key_iam_member" "crypto_key" {
   crypto_key_id = google_kms_crypto_key.key.id
