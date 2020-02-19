@@ -104,17 +104,27 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 	}
 	d.SetId(id)
 
-	var response map[string]interface{}
+	// Use the resource in the operation response to populate
+	// identity fields and d.Id() before read
+	var opRes map[string]interface{}
 	err = accessContextManagerOperationWaitTimeWithResponse(
-		config, res, &response, "Creating ServicePerimeterResource",
+		config, res, &opRes, "Creating ServicePerimeterResource",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create ServicePerimeterResource: %s", err)
 	}
-	if err := d.Set("resource", flattenAccessContextManagerServicePerimeterResourceResource(response["resource"], d, config)); err != nil {
+
+	opRes, err = flattenNestedAccessContextManagerServicePerimeterResource(d, meta, opRes)
+	if err != nil {
+		return fmt.Errorf("Error getting nested object from operation response: %s", err)
+	}
+	if opRes == nil {
+		// Object isn't there any more - remove it from the state.
+		return fmt.Errorf("Error decoding response from operation, could not find nested object")
+	}
+	if err := d.Set("resource", flattenAccessContextManagerServicePerimeterResourceResource(opRes["resource"], d, config)); err != nil {
 		return err
 	}
 

@@ -231,7 +231,6 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 	if _, ok := d.GetOk("delete_default_routes_on_create"); !ok {
 		d.Set("delete_default_routes_on_create", false)
 	}
-
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
