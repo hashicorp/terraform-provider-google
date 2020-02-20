@@ -29,7 +29,7 @@ of target virtual machines to forward a packet to if it matches the given
 
 To get more information about ForwardingRule, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/v1/forwardingRule)
+* [API documentation](https://cloud.google.com/compute/docs/reference/v1/forwardingRules)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/compute/docs/load-balancing/network/forwarding-rules)
 
