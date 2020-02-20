@@ -1391,9 +1391,9 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			var op *compute.Operation
 
 			if desiredStatus == "RUNNING" {
-				op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+				op, err = startInstanceOperation(d, config)
 				if err != nil {
-					return err
+					return errwrap.Wrapf("Error starting instance: {{err}}", err)
 				}
 			} else if desiredStatus == "TERMINATED" {
 				op, err = config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
@@ -1422,7 +1422,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update.")
 		}
 
-		if statusBeforeUpdate == "RUNNING" {
+		if statusBeforeUpdate != "TERMINATED" {
 			op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
 			if err != nil {
 				return errwrap.Wrapf("Error stopping instance: {{err}}", err)
@@ -1512,29 +1512,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		if (statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED") ||
 			(statusBeforeUpdate == "TERMINATED" && desiredStatus == "RUNNING") {
-			// Retrieve instance from config to pull encryption keys if necessary
-			instanceFromConfig, err := expandComputeInstance(project, d, config)
-			if err != nil {
-				return err
-			}
-
-			var encrypted []*compute.CustomerEncryptionKeyProtectedDisk
-			for _, disk := range instanceFromConfig.Disks {
-				if disk.DiskEncryptionKey != nil {
-					key := compute.CustomerEncryptionKey{RawKey: disk.DiskEncryptionKey.RawKey, KmsKeyName: disk.DiskEncryptionKey.KmsKeyName}
-					eDisk := compute.CustomerEncryptionKeyProtectedDisk{Source: disk.Source, DiskEncryptionKey: &key}
-					encrypted = append(encrypted, &eDisk)
-				}
-			}
-
-			var op *compute.Operation
-
-			if len(encrypted) > 0 {
-				request := compute.InstancesStartWithEncryptionKeyRequest{Disks: encrypted}
-				op, err = config.clientCompute.Instances.StartWithEncryptionKey(project, zone, instance.Name, &request).Do()
-			} else {
-				op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
-			}
+			op, err := startInstanceOperation(d, config)
 			if err != nil {
 				return errwrap.Wrapf("Error starting instance: {{err}}", err)
 			}
@@ -1568,6 +1546,51 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	d.Partial(false)
 
 	return resourceComputeInstanceRead(d, meta)
+}
+
+func startInstanceOperation(d *schema.ResourceData, config *Config) (*compute.Operation, error) {
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	zone, err := getZone(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	// Use beta api directly in order to read network_interface.fingerprint without having to put it in the schema.
+	// Change back to getInstance(config, d) once updating alias ips is GA.
+	instance, err := config.clientComputeBeta.Instances.Get(project, zone, d.Get("name").(string)).Do()
+	if err != nil {
+		return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", instance.Name))
+	}
+
+	// Retrieve instance from config to pull encryption keys if necessary
+	instanceFromConfig, err := expandComputeInstance(project, d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	var encrypted []*compute.CustomerEncryptionKeyProtectedDisk
+	for _, disk := range instanceFromConfig.Disks {
+		if disk.DiskEncryptionKey != nil {
+			key := compute.CustomerEncryptionKey{RawKey: disk.DiskEncryptionKey.RawKey, KmsKeyName: disk.DiskEncryptionKey.KmsKeyName}
+			eDisk := compute.CustomerEncryptionKeyProtectedDisk{Source: disk.Source, DiskEncryptionKey: &key}
+			encrypted = append(encrypted, &eDisk)
+		}
+	}
+
+	var op *compute.Operation
+
+	if len(encrypted) > 0 {
+		request := compute.InstancesStartWithEncryptionKeyRequest{Disks: encrypted}
+		op, err = config.clientCompute.Instances.StartWithEncryptionKey(project, zone, instance.Name, &request).Do()
+	} else {
+		op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+	}
+
+	return op, err
 }
 
 func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*computeBeta.AttachedDisk, error) {

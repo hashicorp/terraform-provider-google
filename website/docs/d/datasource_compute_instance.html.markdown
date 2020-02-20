@@ -72,8 +72,6 @@ The following arguments are supported:
 
 * `service_account` - The service account to attach to the instance. Structure is documented below.
 
-* `desired_status` - The desired status for this instance.
-
 * `tags` - The list of tags attached to the instance.
 
 * `instance_id` - The server-assigned unique identifier of this instance.
