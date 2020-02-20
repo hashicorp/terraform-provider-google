@@ -12,10 +12,10 @@ FEATURES:
 * **New Resource:** `google_endpoints_service_iam_policy` ([#5668](https://github.com/terraform-providers/terraform-provider-google/pull/5668))
 
 IMPROVEMENTS:
-* container: Added import/update/deletion of `google_container_cluster` in error states. ([#5663](https://github.com/terraform-providers/terraform-provider-google/pull/5663))
+* container: Allowed import/update/deletion of `google_container_cluster` in error states. ([#5663](https://github.com/terraform-providers/terraform-provider-google/pull/5663))
 * container: Changed `google_container_node_pool` so node pools created in an error state will be marked as tainted on creation. ([#5662](https://github.com/terraform-providers/terraform-provider-google/pull/5662))
-* container: Added import/update/deletion of `google_container_node_pool` in error states and updated resource to wait for a stable state after any changes. ([#5662](https://github.com/terraform-providers/terraform-provider-google/pull/5662))
-* container: added label_fingerprint ([#5647](https://github.com/terraform-providers/terraform-provider-google/pull/5647))
+* container: Allowed import/update/deletion of `google_container_node_pool` in error states and updated resource to wait for a stable state after any changes. ([#5662](https://github.com/terraform-providers/terraform-provider-google/pull/5662))
+* container: added label_fingerprint to `google_container_cluster` ([#5647](https://github.com/terraform-providers/terraform-provider-google/pull/5647))
 * container: Enabled configuring autoscaling profile in `google_container_cluster` (https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-autoscaler#autoscaling_profiles) ([#5659](https://github.com/terraform-providers/terraform-provider-google/pull/5659))
 * dataflow: added `job_id` attribute ([#5644](https://github.com/terraform-providers/terraform-provider-google/pull/5644))
 * dataflow: added computed `type` field to `google_dataflow_job`. ([#5709](https://github.com/terraform-providers/terraform-provider-google/pull/5709))
