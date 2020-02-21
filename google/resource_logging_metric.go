@@ -87,7 +87,7 @@ example, the appengine.googleapis.com/http/server/response_latencies metric type
 for the HTTP response code, response_code, so you can look at latencies for successful responses
 or just for responses that failed.`,
 							Elem: loggingMetricMetricDescriptorLabelsSchema(),
-							// Default schema.HashSchema is used.
+							Set:  schema.HashResource(loggingMetricMetricDescriptorLabelsSchema()),
 						},
 						"unit": {
 							Type:     schema.TypeString,
