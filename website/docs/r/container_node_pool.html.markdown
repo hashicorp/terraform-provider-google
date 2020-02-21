@@ -116,7 +116,7 @@ this will force recreation of the resource.
 * `management` - (Optional) Node management configuration, wherein auto-repair and
     auto-upgrade is configured. Structure is documented below.
 
-* `max_pods_per_node` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The maximum number of pods per node in this node pool.
+* `max_pods_per_node` - (Optional) The maximum number of pods per node in this node pool.
     Note that this does not work on node pools which are "route-based" - that is, node
     pools belonging to clusters that do not have IP Aliasing enabled.
     See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr)
