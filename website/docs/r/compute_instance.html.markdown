@@ -92,6 +92,9 @@ The following arguments are supported:
 
 * `description` - (Optional) A brief description of this resource.
 
+* `desired_status` - (Optional) Desired status of the instance. Either
+`"RUNNING"` or `"TERMINATED"`.
+
 * `deletion_protection` - (Optional) Enable deletion protection on this instance. Defaults to false.
     **Note:** you must disable deletion protection before removing the resource (e.g., via `terraform destroy`), or the instance cannot be deleted and the Terraform run will not complete successfully.
 
@@ -125,7 +128,7 @@ The following arguments are supported:
 
 * `min_cpu_platform` - (Optional) Specifies a minimum CPU platform for the VM instance. Applicable values are the friendly names of CPU platforms, such as
 `Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
-    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
+    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -138,10 +141,7 @@ The following arguments are supported:
 
 * `service_account` - (Optional) Service account to attach to the instance.
     Structure is documented below.
-    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
-
-* `desired_status` - (Optional) Desired status of the instance.
-    Either "RUNNING" or "TERMINATED".
+    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
 
 * `tags` - (Optional) A list of tags to attach to the instance.
 
@@ -149,7 +149,7 @@ The following arguments are supported:
 	**Note**: [`shielded_instance_config`](#shielded_instance_config) can only be used with boot images with shielded vm support. See the complete list [here](https://cloud.google.com/compute/docs/images#shielded-images).
 
 * `enable_display` - (Optional) Enable [Virtual Displays](https://cloud.google.com/compute/docs/instances/enable-instance-virtual-display#verify_display_driver) on this instance.
-**Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
+**Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
 
 
 ---
@@ -282,12 +282,12 @@ The `service_account` block supports:
 
 * `email` - (Optional) The service account e-mail address. If not given, the
     default Google Compute Engine service account is used.
-    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
+    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
 
 * `scopes` - (Required) A list of service scopes. Both OAuth2 URLs and gcloud
     short names are supported. To allow full access to all Cloud APIs, use the
     `cloud-platform` scope. See a complete list of scopes [here](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes).
-    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
+    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
 
 The `scheduling` block supports:
 
@@ -377,6 +377,9 @@ This resource provides the following
 ## Import
 
 ~> **Note:** The fields `boot_disk.0.disk_encryption_raw` and `attached_disk.*.disk_encryption_key_raw` cannot be imported automatically. The API doesn't return this information. If you are setting one of these fields in your config, you will need to update your state manually after importing the resource.
+
+-> **Note:** The `desired_status` field will not be set on import. If you have it set, Terraform will update the field on the next `terraform apply`, bringing your instance to the desired status.
+
 
 Instances can be imported using the `project`, `zone` and `name`, e.g.
 
