@@ -140,6 +140,9 @@ The following arguments are supported:
     Structure is documented below.
     **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
 
+* `desired_status` - (Optional) Desired status of the instance.
+    Either "RUNNING" or "TERMINATED".
+
 * `tags` - (Optional) A list of tags to attach to the instance.
 
 * `shielded_instance_config` - (Optional) Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is documented below.

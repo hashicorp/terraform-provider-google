@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/mitchellh/hashstructure"
@@ -537,6 +538,12 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
+			"desired_status": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"RUNNING", "TERMINATED"}, false),
+			},
+
 			"tags": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -594,6 +601,7 @@ func resourceComputeInstance() *schema.Resource {
 				},
 				suppressEmptyGuestAcceleratorDiff,
 			),
+			desiredStatusDiff,
 		),
 	}
 }
@@ -715,6 +723,59 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 	}, nil
 }
 
+var computeInstanceStatus = []string{
+	"PROVISIONING",
+	"REPAIRING",
+	"RUNNING",
+	"STAGING",
+	"STOPPED",
+	"STOPPING",
+	"SUSPENDED",
+	"SUSPENDING",
+	"TERMINATED",
+}
+
+// return all possible Compute instances status except the one passed as parameter
+func getAllStatusBut(status string) []string {
+	for i, s := range computeInstanceStatus {
+		if status == s {
+			return append(computeInstanceStatus[:i], computeInstanceStatus[i+1:]...)
+		}
+	}
+	return computeInstanceStatus
+}
+
+func waitUntilInstanceHasDesiredStatus(config *Config, d *schema.ResourceData) error {
+	desiredStatus := d.Get("desired_status").(string)
+
+	if desiredStatus != "" {
+		stateRefreshFunc := func() (interface{}, string, error) {
+			instance, err := getInstance(config, d)
+			if err != nil || instance == nil {
+				log.Printf("Error on InstanceStateRefresh: %s", err)
+				return nil, "", err
+			}
+			return instance.Id, instance.Status, nil
+		}
+		stateChangeConf := resource.StateChangeConf{
+			Delay:      5 * time.Second,
+			Pending:    getAllStatusBut(desiredStatus),
+			Refresh:    stateRefreshFunc,
+			Target:     []string{desiredStatus},
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
+			MinTimeout: 2 * time.Second,
+		}
+		_, err := stateChangeConf.WaitForState()
+
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for instance to reach desired status %s: %s", desiredStatus, err)
+		}
+	}
+
+	return nil
+}
+
 func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -758,6 +819,11 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		// The resource didn't actually create
 		d.SetId("")
 		return waitErr
+	}
+
+	err = waitUntilInstanceHasDesiredStatus(config, d)
+	if err != nil {
+		return fmt.Errorf("Error waiting for status: %s", err)
 	}
 
 	return resourceComputeInstanceRead(d, meta)
@@ -945,6 +1011,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("name", instance.Name)
 	d.Set("description", instance.Description)
 	d.Set("hostname", instance.Hostname)
+
+	if d.Get("desired_status") != "" {
+		d.Set("desired_status", instance.Status)
+	}
+
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instance.Name))
 
 	return nil
@@ -1311,20 +1382,56 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		d.SetPartial("deletion_protection")
 	}
 
-	// Attributes which can only be changed if the instance is stopped
-	if scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") {
-		if !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, or enable display on an instance requires stopping it. " +
-				"To acknowledge this, please set allow_stopping_for_update = true in your config.")
+	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display")
+
+	if d.HasChange("desired_status") && !needToStopInstanceBeforeUpdating {
+		desiredStatus := d.Get("desired_status").(string)
+
+		if desiredStatus != "" {
+			var op *compute.Operation
+
+			if desiredStatus == "RUNNING" {
+				op, err = startInstanceOperation(d, config)
+				if err != nil {
+					return errwrap.Wrapf("Error starting instance: {{err}}", err)
+				}
+			} else if desiredStatus == "TERMINATED" {
+				op, err = config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+				if err != nil {
+					return err
+				}
+			}
+			opErr := computeOperationWaitTime(
+				config, op, project, "updating status",
+				int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
 		}
-		op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
-		if err != nil {
-			return errwrap.Wrapf("Error stopping instance: {{err}}", err)
+		d.SetPartial("desired_status")
+	}
+
+	// Attributes which can only be changed if the instance is stopped
+	if needToStopInstanceBeforeUpdating {
+		statusBeforeUpdate := instance.Status
+		desiredStatus := d.Get("desired_status").(string)
+
+		if statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED" && !d.Get("allow_stopping_for_update").(bool) {
+			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, or enable display on a started instance requires stopping it. " +
+				"To acknowledge this, please set allow_stopping_for_update = true in your config. " +
+				"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update.")
 		}
 
-		opErr := computeOperationWaitTime(config, op, project, "stopping instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-		if opErr != nil {
-			return opErr
+		if statusBeforeUpdate != "TERMINATED" {
+			op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+			if err != nil {
+				return errwrap.Wrapf("Error stopping instance: {{err}}", err)
+			}
+
+			opErr := computeOperationWaitTime(config, op, project, "stopping instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
 		}
 
 		if d.HasChange("machine_type") {
@@ -1335,7 +1442,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			req := &compute.InstancesSetMachineTypeRequest{
 				MachineType: mt.RelativeLink(),
 			}
-			op, err = config.clientCompute.Instances.SetMachineType(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.SetMachineType(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
@@ -1357,7 +1464,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			req := &compute.InstancesSetMinCpuPlatformRequest{
 				MinCpuPlatform: minCpuPlatform.(string),
 			}
-			op, err = config.clientCompute.Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
@@ -1376,7 +1483,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				req.Email = saMap["email"].(string)
 				req.Scopes = canonicalizeServiceScopes(convertStringSet(saMap["scopes"].(*schema.Set)))
 			}
-			op, err = config.clientCompute.Instances.SetServiceAccount(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.SetServiceAccount(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
@@ -1392,7 +1499,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				EnableDisplay:   d.Get("enable_display").(bool),
 				ForceSendFields: []string{"EnableDisplay"},
 			}
-			op, err = config.clientCompute.Instances.UpdateDisplayDevice(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.UpdateDisplayDevice(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return fmt.Errorf("Error updating display device: %s", err)
 			}
@@ -1403,35 +1510,18 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			d.SetPartial("enable_display")
 		}
 
-		// Retrieve instance from config to pull encryption keys if necessary
-		instanceFromConfig, err := expandComputeInstance(project, d, config)
-		if err != nil {
-			return err
-		}
-
-		var encrypted []*compute.CustomerEncryptionKeyProtectedDisk
-		for _, disk := range instanceFromConfig.Disks {
-			if disk.DiskEncryptionKey != nil {
-				key := compute.CustomerEncryptionKey{RawKey: disk.DiskEncryptionKey.RawKey, KmsKeyName: disk.DiskEncryptionKey.KmsKeyName}
-				eDisk := compute.CustomerEncryptionKeyProtectedDisk{Source: disk.Source, DiskEncryptionKey: &key}
-				encrypted = append(encrypted, &eDisk)
+		if (statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED") ||
+			(statusBeforeUpdate == "TERMINATED" && desiredStatus == "RUNNING") {
+			op, err := startInstanceOperation(d, config)
+			if err != nil {
+				return errwrap.Wrapf("Error starting instance: {{err}}", err)
 			}
-		}
 
-		if len(encrypted) > 0 {
-			request := compute.InstancesStartWithEncryptionKeyRequest{Disks: encrypted}
-			op, err = config.clientCompute.Instances.StartWithEncryptionKey(project, zone, instance.Name, &request).Do()
-		} else {
-			op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
-		}
-		if err != nil {
-			return errwrap.Wrapf("Error starting instance: {{err}}", err)
-		}
-
-		opErr = computeOperationWaitTime(config, op, project,
-			"starting instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-		if opErr != nil {
-			return opErr
+			opErr := computeOperationWaitTime(config, op, project,
+				"starting instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			if opErr != nil {
+				return opErr
+			}
 		}
 	}
 
@@ -1456,6 +1546,51 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	d.Partial(false)
 
 	return resourceComputeInstanceRead(d, meta)
+}
+
+func startInstanceOperation(d *schema.ResourceData, config *Config) (*compute.Operation, error) {
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	zone, err := getZone(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	// Use beta api directly in order to read network_interface.fingerprint without having to put it in the schema.
+	// Change back to getInstance(config, d) once updating alias ips is GA.
+	instance, err := config.clientComputeBeta.Instances.Get(project, zone, d.Get("name").(string)).Do()
+	if err != nil {
+		return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", instance.Name))
+	}
+
+	// Retrieve instance from config to pull encryption keys if necessary
+	instanceFromConfig, err := expandComputeInstance(project, d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	var encrypted []*compute.CustomerEncryptionKeyProtectedDisk
+	for _, disk := range instanceFromConfig.Disks {
+		if disk.DiskEncryptionKey != nil {
+			key := compute.CustomerEncryptionKey{RawKey: disk.DiskEncryptionKey.RawKey, KmsKeyName: disk.DiskEncryptionKey.KmsKeyName}
+			eDisk := compute.CustomerEncryptionKeyProtectedDisk{Source: disk.Source, DiskEncryptionKey: &key}
+			encrypted = append(encrypted, &eDisk)
+		}
+	}
+
+	var op *compute.Operation
+
+	if len(encrypted) > 0 {
+		request := compute.InstancesStartWithEncryptionKeyRequest{Disks: encrypted}
+		op, err = config.clientCompute.Instances.StartWithEncryptionKey(project, zone, instance.Name, &request).Do()
+	} else {
+		op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+	}
+
+	return op, err
 }
 
 func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*computeBeta.AttachedDisk, error) {
@@ -1576,6 +1711,25 @@ func suppressEmptyGuestAcceleratorDiff(d *schema.ResourceDiff, meta interface{})
 		if err := d.Clear("guest_accelerator"); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+// return an error if the desired_status field is set to a value other than RUNNING on Create.
+func desiredStatusDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	// when creating an instance, name is not set
+	oldName, _ := diff.GetChange("name")
+
+	if oldName == nil || oldName == "" {
+		_, newDesiredStatus := diff.GetChange("desired_status")
+
+		if newDesiredStatus == nil || newDesiredStatus == "" {
+			return nil
+		} else if newDesiredStatus != "RUNNING" {
+			return fmt.Errorf("When creating an instance, desired_status can only accept RUNNING value")
+		}
+		return nil
 	}
 
 	return nil
