@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_folder_iam_policy"
 sidebar_current: "docs-google-folders-iam-policy"
@@ -15,13 +16,13 @@ Platform folder.
 
 ```hcl
 resource "google_folder_iam_policy" "folder_admin_policy" {
-  folder     = "${google_folder.department1.name}"
-  policy_data = "${data.google_iam_policy.admin.policy_data}"
+  folder      = google_folder.department1.name
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 
 resource "google_folder" "department1" {
   display_name = "Department 1"
-  parent     = "organizations/1234567"
+  parent       = "organizations/1234567"
 }
 
 data "google_iam_policy" "admin" {

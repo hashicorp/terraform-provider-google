@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccMonitoringUptimeCheckConfig_update(t *testing.T) {
@@ -86,7 +86,7 @@ func testAccMonitoringUptimeCheckConfig_update(path, project, pwd, host string) 
 	return fmt.Sprintf(`
 resource "google_monitoring_uptime_check_config" "http" {
   display_name = "http-uptime-check-%s"
-  timeout = "60s"
+  timeout      = "60s"
 
   http_check {
     path = "/%s"
@@ -101,7 +101,7 @@ resource "google_monitoring_uptime_check_config" "http" {
     type = "uptime_url"
     labels = {
       project_id = "%s"
-      host = "%s"
+      host       = "%s"
     }
   }
 

@@ -1,4 +1,5 @@
 ---
+subcategory: "App Engine"
 layout: "google"
 page_title: "Google: google_app_engine_application"
 sidebar_current: "docs-google-app-engine-application"
@@ -25,7 +26,7 @@ resource "google_project" "my_project" {
 }
 
 resource "google_app_engine_application" "app" {
-  project     = "${google_project.my_project.project_id}"
+  project     = google_project.my_project.project_id
   location_id = "us-central"
 }
 ```
@@ -47,7 +48,7 @@ The following arguments are supported:
 
 * `feature_settings` - (Optional) A block of optional settings to configure specific App Engine features:
 
-  * `split_health_checks` - (Optional) Set to false to use the legacy health check instead of the readiness
+  * `split_health_checks` - (Required) Set to false to use the legacy health check instead of the readiness
     and liveness checks.
 
 ## Attributes Reference
@@ -56,6 +57,8 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `name` - Unique name of the app, usually `apps/{PROJECT_ID}`
+
+* `app_id` - Identifier of the app, usually `{PROJECT_ID}`
 
 * `url_dispatch_rule` - A list of dispatch rule blocks. Each block has a `domain`, `path`, and `service` field.
 

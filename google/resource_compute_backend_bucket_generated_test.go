@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
@@ -51,14 +51,14 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 func testAccComputeBackendBucket_backendBucketBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
-  name        = "image-backend-bucket%{random_suffix}"
+  name        = "tf-test-image-backend-bucket%{random_suffix}"
   description = "Contains beautiful images"
-  bucket_name = "${google_storage_bucket.image_bucket.name}"
+  bucket_name = google_storage_bucket.image_bucket.name
   enable_cdn  = true
 }
 
 resource "google_storage_bucket" "image_bucket" {
-  name     = "image-store-bucket%{random_suffix}"
+  name     = "tf-test-image-store-bucket%{random_suffix}"
   location = "EU"
 }
 `, context)
@@ -80,7 +80,7 @@ func testAccCheckComputeBackendBucketDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("ComputeBackendBucket still exists at %s", url)
 		}

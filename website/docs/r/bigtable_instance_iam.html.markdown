@@ -1,4 +1,5 @@
 ---
+subcategory: "Bigtable"
 layout: "google"
 page_title: "Google: google_bigtable_instance_iam"
 sidebar_current: "docs-google-bigtable-instance-iam"
@@ -14,16 +15,16 @@ Three different resources help you manage IAM policies on bigtable instances. Ea
 * `google_bigtable_instance_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the instance are preserved.
 * `google_bigtable_instance_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the instance are preserved.
 
-~> **Note:** `google_bigtable_instance_iam_policy` **cannot** be used in conjunction with `google_bigtable_instance_iam_binding` and `google_bigtable_instance_iam_member` or they will fight over what your policy should be. In addition, be careful not to accidentaly unset ownership of the instance as `google_bigtable_instance_iam_policy` replaces the entire policy.
+~> **Note:** `google_bigtable_instance_iam_policy` **cannot** be used in conjunction with `google_bigtable_instance_iam_binding` and `google_bigtable_instance_iam_member` or they will fight over what your policy should be. In addition, be careful not to accidentally unset ownership of the instance as `google_bigtable_instance_iam_policy` replaces the entire policy.
 
 ~> **Note:** `google_bigtable_instance_iam_binding` resources **can be** used in conjunction with `google_bigtable_instance_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_pubsub\_subscription\_iam\_policy
+## google\_bigtable\_instance\_iam\_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
   binding {
-    role    = "roles/editor"
+    role = "roles/editor"
     members = [
       "user:jane@example.com",
     ]
@@ -31,31 +32,31 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_bigtable_instance_iam_policy" "editor" {
-  project      = "your-project"
-  instance      = "your-bigtable-instance"
-  policy_data  = "${data.google_iam_policy.admin.policy_data}"
+  project     = "your-project"
+  instance    = "your-bigtable-instance"
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
-## google\_pubsub\_subscription\_iam\_binding
+## google\_bigtable\_instance\_iam\_binding
 
 ```hcl
 resource "google_bigtable_instance_iam_binding" "editor" {
-  instance      = "your-bigtable-instance"
-  role         = "roles/editor"
-  members      = [
+  instance = "your-bigtable-instance"
+  role     = "roles/editor"
+  members = [
     "user:jane@example.com",
   ]
 }
 ```
 
-## google\_pubsub\_subscription\_iam\_member
+## google\_bigtable\_instance\_iam\_member
 
 ```hcl
 resource "google_bigtable_instance_iam_member" "editor" {
-  instance      = "your-bigtable-instance"
-  role         = "roles/editor"
-  member       = "user:jane@example.com"
+  instance = "your-bigtable-instance"
+  role     = "roles/editor"
+  member   = "user:jane@example.com"
 }
 ```
 
@@ -106,3 +107,6 @@ $ terraform import google_bigtable_instance_iam_binding.editor "projects/{projec
 
 $ terraform import google_bigtable_instance_iam_member.editor "projects/{project}/instances/{instance} roles/editor user:jane@example.com"
 ```
+
+-> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
+ full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.

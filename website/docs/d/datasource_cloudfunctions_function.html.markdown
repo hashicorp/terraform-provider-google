@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Functions"
 layout: "google"
 page_title: "Google: google_cloudfunctions_function"
 sidebar_current: "docs-google-datasource-cloudfunctions-function"
@@ -51,12 +52,13 @@ exported:
 * `event_trigger` - A source that fires events in response to a condition in another service. Structure is documented below.
 * `https_trigger_url` - If function is triggered by HTTP, trigger URL is set here.
 * `labels` - A map of labels applied to this function.
+* `service_account_email` - The service account email to be assumed by the cloud function.
 
 The `event_trigger` block contains:
 
-* `event_type` - The type of event being observed. For example: `"providers/cloud.storage/eventTypes/object.change"`
-    and `"providers/cloud.pubsub/eventTypes/topic.publish"`. See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/)
-    for a full reference.
+* `event_type` - The type of event to observe. For example: `"google.storage.object.finalize"`.
+See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/)
+for a full reference of accepted triggers.
 
 * `resource` - The name of the resource whose events are being observed, for example, `"myBucket"`
 

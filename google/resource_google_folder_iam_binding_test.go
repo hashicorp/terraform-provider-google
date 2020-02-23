@@ -5,10 +5,12 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
+	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 )
 
 // Test that an IAM binding can be applied to a folder
@@ -247,6 +249,28 @@ func testAccCheckGoogleFolderIamBindingExists(expected *cloudresourcemanager.Bin
 	}
 }
 
+func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config *Config) (*cloudresourcemanager.Policy, error) {
+	queryString := fmt.Sprintf("lifecycleState=ACTIVE AND parent=%s AND displayName=%s", parent, displayName)
+	searchRequest := &resourceManagerV2Beta1.SearchFoldersRequest{
+		Query: queryString,
+	}
+	searchResponse, err := config.clientResourceManagerV2Beta1.Folders.Search(searchRequest).Do()
+	if err != nil {
+		if isGoogleApiErrorWithCode(err, 404) {
+			return nil, fmt.Errorf("Folder not found: %s,%s", parent, displayName)
+		}
+
+		return nil, errwrap.Wrapf("Error reading folders: {{err}}", err)
+	}
+
+	folders := searchResponse.Folders
+	if len(folders) != 1 {
+		return nil, fmt.Errorf("expected exactly 1 folder, found %d", len(folders))
+	}
+
+	return getFolderIamPolicyByFolderName(folders[0].Name, config)
+}
+
 func testAccFolderIamBasic(org, fname string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "acceptance" {
@@ -264,7 +288,7 @@ resource "google_folder" "acceptance" {
 }
 
 resource "google_folder_iam_binding" "acceptance" {
-  folder = "${google_folder.acceptance.name}"
+  folder  = google_folder.acceptance.name
   members = ["user:admin@hashicorptest.com"]
   role    = "roles/compute.instanceAdmin"
 }
@@ -279,13 +303,13 @@ resource "google_folder" "acceptance" {
 }
 
 resource "google_folder_iam_binding" "acceptance" {
-  folder = "${google_folder.acceptance.name}"
+  folder  = google_folder.acceptance.name
   members = ["user:admin@hashicorptest.com"]
   role    = "roles/compute.instanceAdmin"
 }
 
 resource "google_folder_iam_binding" "multiple" {
-  folder = "${google_folder.acceptance.name}"
+  folder  = google_folder.acceptance.name
   members = ["user:paddy@hashicorp.com"]
   role    = "roles/viewer"
 }
@@ -300,7 +324,7 @@ resource "google_folder" "acceptance" {
 }
 
 resource "google_folder_iam_binding" "acceptance" {
-  folder = "${google_folder.acceptance.name}"
+  folder  = google_folder.acceptance.name
   members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
   role    = "roles/compute.instanceAdmin"
 }
@@ -315,7 +339,7 @@ resource "google_folder" "acceptance" {
 }
 
 resource "google_folder_iam_binding" "acceptance" {
-  folder = "${google_folder.acceptance.name}"
+  folder  = google_folder.acceptance.name
   members = ["user:paddy@hashicorp.com"]
   role    = "roles/compute.instanceAdmin"
 }

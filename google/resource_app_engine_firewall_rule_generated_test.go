@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(t *testing.T) {
@@ -53,19 +53,19 @@ func testAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(context map[
 	return Nprintf(`
 resource "google_project" "my_project" {
   name       = "tf-test-project"
-  project_id = "test-project%{random_suffix}"
+  project_id = "tf-test-ae-project%{random_suffix}"
   org_id     = "%{org_id}"
 }
 
 resource "google_app_engine_application" "app" {
-  project     = "${google_project.my_project.project_id}"
+  project     = google_project.my_project.project_id
   location_id = "us-central"
 }
 
 resource "google_app_engine_firewall_rule" "rule" {
-  project = "${google_app_engine_application.app.project}"
-  priority = 1000
-  action = "ALLOW"
+  project      = google_app_engine_application.app.project
+  priority     = 1000
+  action       = "ALLOW"
   source_range = "*"
 }
 `, context)
@@ -87,7 +87,7 @@ func testAccCheckAppEngineFirewallRuleDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("AppEngineFirewallRule still exists at %s", url)
 		}

@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExample(t *testing.T) {
@@ -51,20 +51,20 @@ func TestAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExa
 func testAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_object_access_control" "public_rule" {
-  object = "${google_storage_bucket_object.object.output_name}"
-  bucket = "${google_storage_bucket.bucket.name}"
+  object = google_storage_bucket_object.object.output_name
+  bucket = google_storage_bucket.bucket.name
   role   = "READER"
   entity = "allUsers"
 }
 
 resource "google_storage_bucket" "bucket" {
-	name = "static-content-bucket%{random_suffix}"
+  name = "tf-test-static-content-bucket%{random_suffix}"
 }
 
- resource "google_storage_bucket_object" "object" {
-	name   = "public-object%{random_suffix}"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "test-fixtures/header-logo.png"
+resource "google_storage_bucket_object" "object" {
+  name   = "tf-test-public-object%{random_suffix}"
+  bucket = google_storage_bucket.bucket.name
+  source = "test-fixtures/header-logo.png"
 }
 `, context)
 }
@@ -85,7 +85,7 @@ func testAccCheckStorageObjectAccessControlDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("StorageObjectAccessControl still exists at %s", url)
 		}

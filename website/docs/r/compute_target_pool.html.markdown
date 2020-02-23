@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_target_pool"
 sidebar_current: "docs-google-compute-target-pool"
@@ -27,7 +28,7 @@ resource "google_compute_target_pool" "default" {
   ]
 
   health_checks = [
-    "${google_compute_http_health_check.default.name}",
+    google_compute_http_health_check.default.name,
   ]
 }
 
@@ -84,8 +85,11 @@ exported:
 
 ## Import
 
-Target pools can be imported using the `name`, e.g.
+Target pools can be imported using any of the following formats:
 
 ```
-$ terraform import google_compute_target_pool.default instance-pool
+$ terraform import google_compute_target_pool.default projects/{{project}}/regions/{{region}}/targetPools/{{name}}
+$ terraform import google_compute_target_pool.default {{project}}/{{region}}/{{name}}
+$ terraform import google_compute_target_pool.default {{region}}/{{name}}
+$ terraform import google_compute_target_pool.default {{name}}
 ```

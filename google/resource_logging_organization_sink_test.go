@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/logging/v2"
 	"strconv"
 )
@@ -83,6 +83,38 @@ func TestAccLoggingOrganizationSink_update(t *testing.T) {
 		t.Errorf("Expected WriterIdentity to be the same, but it differs: before = %#v, after = %#v",
 			sinkBefore.WriterIdentity, sinkAfter.WriterIdentity)
 	}
+}
+
+func TestAccLoggingOrganizationSink_updateBigquerySink(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	sinkName := "tf-test-sink-" + acctest.RandString(10)
+	bqDatasetID := "tf_test_sink_" + acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingOrganizationSinkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingOrganizationSink_bigquery_before(sinkName, bqDatasetID, org),
+			},
+			{
+				ResourceName:      "google_logging_organization_sink.bigquery",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingOrganizationSink_bigquery_after(sinkName, bqDatasetID, org),
+			},
+			{
+				ResourceName:      "google_logging_organization_sink.bigquery",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
 func TestAccLoggingOrganizationSink_heredoc(t *testing.T) {
@@ -188,51 +220,91 @@ func testAccCheckLoggingOrganizationSink(sink *logging.LogSink, n string) resour
 func testAccLoggingOrganizationSink_basic(sinkName, bucketName, orgId string) string {
 	return fmt.Sprintf(`
 resource "google_logging_organization_sink" "basic" {
-	name             = "%s"
-	org_id           = "%s"
-	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
-	include_children = true
+  name             = "%s"
+  org_id           = "%s"
+  destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
-}`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
+  name = "%s"
+}
+`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingOrganizationSink_update(sinkName, bucketName, orgId string) string {
 	return fmt.Sprintf(`
 resource "google_logging_organization_sink" "update" {
-	name             = "%s"
-	org_id           = "%s"
-	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
-	include_children = false
+  name             = "%s"
+  org_id           = "%s"
+  destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = false
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name     = "%s"
-}`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
+  name = "%s"
+}
+`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingOrganizationSink_heredoc(sinkName, bucketName, orgId string) string {
 	return fmt.Sprintf(`
 resource "google_logging_organization_sink" "heredoc" {
-	name             = "%s"
-	org_id           = "%s"
-	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter           = <<EOS
+  name        = "%s"
+  org_id      = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = <<EOS
 
 	logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
 AND severity>=ERROR
 
 
 
-  EOS
-	include_children = true
+EOS
+
+  include_children = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
-}`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
+  name = "%s"
+}
+`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
+}
+
+func testAccLoggingOrganizationSink_bigquery_before(sinkName, bqDatasetID, orgId string) string {
+	return fmt.Sprintf(`
+resource "google_logging_organization_sink" "bigquery" {
+  name             = "%s"
+  org_id           = "%s"
+  destination      = "bigquery.googleapis.com/projects/%s/datasets/${google_bigquery_dataset.logging_sink.dataset_id}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = true
+
+  bigquery_options {
+    use_partitioned_tables = true
+  }
+}
+
+resource "google_bigquery_dataset" "logging_sink" {
+  dataset_id  = "%s"
+  description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
+}`, sinkName, orgId, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID)
+}
+
+func testAccLoggingOrganizationSink_bigquery_after(sinkName, bqDatasetID, orgId string) string {
+	return fmt.Sprintf(`
+resource "google_logging_organization_sink" "bigquery" {
+  name             = "%s"
+  org_id           = "%s"
+  destination      = "bigquery.googleapis.com/projects/%s/datasets/${google_bigquery_dataset.logging_sink.dataset_id}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=WARNING"
+  include_children = true
+}
+
+resource "google_bigquery_dataset" "logging_sink" {
+  dataset_id  = "%s"
+  description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
+}`, sinkName, orgId, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID)
 }

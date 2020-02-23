@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_compute_lb_ip_ranges"
 sidebar_current: "docs-google-datasource-compute-lb-ip-ranges"
@@ -15,20 +16,21 @@ https://cloud.google.com/compute/docs/load-balancing/health-checks#health_check_
 ## Example Usage
 
 ```tf
-data "google_compute_lb_ip_ranges" "ranges" {}
+data "google_compute_lb_ip_ranges" "ranges" {
+}
 
 resource "google_compute_firewall" "lb" {
   name    = "lb-firewall"
-  network = "${google_compute_network.main.name}"
+  network = google_compute_network.main.name
 
   allow {
     protocol = "tcp"
     ports    = ["80"]
   }
 
-  source_ranges = ["${data.google_compute_lb_ip_ranges.ranges.network}"]
+  source_ranges = data.google_compute_lb_ip_ranges.ranges.network
   target_tags = [
-    "InstanceBehindLoadBalancer"
+    "InstanceBehindLoadBalancer",
   ]
 }
 ```

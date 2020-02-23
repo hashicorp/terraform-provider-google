@@ -7,11 +7,12 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/terraform-providers/terraform-provider-random/random"
 )
 
@@ -184,6 +185,91 @@ func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 	})
 }
 
+func TestAccProviderUserProjectOverride(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	billing := getTestBillingAccountFromEnv(t)
+	pid := acctest.RandomWithPrefix("tf-test")
+	sa := acctest.RandomWithPrefix("tf-test")
+	topicName := "tf-test-topic-" + acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		// No TestDestroy since that's not really the point of this test
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProviderUserProjectOverride(pid, pname, org, billing, sa),
+				Check: func(s *terraform.State) error {
+					// The token creator IAM API call returns success long before the policy is
+					// actually usable. Wait a solid 2 minutes to ensure we can use it.
+					time.Sleep(2 * time.Minute)
+					return nil
+				},
+			},
+			{
+				Config:      testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, false, topicName),
+				ExpectError: regexp.MustCompile("Cloud Pub/Sub API has not been used"),
+			},
+			{
+				Config: testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, true, topicName),
+			},
+			{
+				ResourceName:      "google_pubsub_topic.project-2-topic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccProviderUserProjectOverride_step3(pid, pname, org, billing, sa, true),
+			},
+		},
+	})
+}
+
+// Do the same thing as TestAccProviderUserProjectOverride, but using a resource that gets its project via
+// a reference to a different resource instead of a project field.
+func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	billing := getTestBillingAccountFromEnv(t)
+	pid := acctest.RandomWithPrefix("tf-test")
+	sa := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		// No TestDestroy since that's not really the point of this test
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProviderIndirectUserProjectOverride(pid, pname, org, billing, sa),
+				Check: func(s *terraform.State) error {
+					// The token creator IAM API call returns success long before the policy is
+					// actually usable. Wait a solid 2 minutes to ensure we can use it.
+					time.Sleep(2 * time.Minute)
+					return nil
+				},
+			},
+			{
+				Config:      testAccProviderIndirectUserProjectOverride_step2(pid, pname, org, billing, sa, false),
+				ExpectError: regexp.MustCompile(`Cloud Key Management Service \(KMS\) API has not been used`),
+			},
+			{
+				Config: testAccProviderIndirectUserProjectOverride_step2(pid, pname, org, billing, sa, true),
+			},
+			{
+				ResourceName:      "google_kms_crypto_key.project-2-key",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccProviderIndirectUserProjectOverride_step3(pid, pname, org, billing, sa, true),
+			},
+		},
+	})
+}
+
 func testAccProviderBasePath_setBasePath(endpoint, name string) string {
 	return fmt.Sprintf(`
 provider "google" {
@@ -193,6 +279,219 @@ provider "google" {
 resource "google_compute_address" "default" {
 	name = "address-test-%s"
 }`, endpoint, name)
+}
+
+// Set up two projects. Project 1 has a service account that is used to create a
+// pubsub topic in project 2. The pubsub API is only enabled in project 2,
+// which causes the create to fail unless user_project_override is set to true.
+func testAccProviderUserProjectOverride(pid, name, org, billing, sa string) string {
+	return fmt.Sprintf(`
+resource "google_project" "project-1" {
+	project_id      = "%s"
+	name            = "%s"
+	org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_service_account" "project-1" {
+	project    = google_project.project-1.project_id
+    account_id = "%s"
+}
+
+resource "google_project" "project-2" {
+	project_id      = "%s-2"
+	name            = "%s-2"
+	org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_service" "project-2-pubsub-service" {
+	project = google_project.project-2.project_id
+	service = "pubsub.googleapis.com"
+}
+
+// Permission needed for user_project_override
+resource "google_project_iam_member" "project-2-serviceusage" {
+	project = google_project.project-2.project_id
+	role    = "roles/serviceusage.serviceUsageConsumer"
+	member  = "serviceAccount:${google_service_account.project-1.email}"
+}
+
+resource "google_project_iam_member" "project-2-pubsub-member" {
+	project = google_project.project-2.project_id
+	role    = "roles/pubsub.admin"
+	member  = "serviceAccount:${google_service_account.project-1.email}"
+}
+
+data "google_client_openid_userinfo" "me" {}
+
+// Enable the test runner to get an access token on behalf of
+// the project 1 service account
+resource "google_service_account_iam_member" "token-creator-iam" {
+	service_account_id = google_service_account.project-1.name
+	role               = "roles/iam.serviceAccountTokenCreator"
+	member             = "serviceAccount:${data.google_client_openid_userinfo.me.email}"
+}
+`, pid, name, org, billing, sa, pid, name, org, billing)
+}
+
+func testAccProviderUserProjectOverride_step2(pid, name, org, billing, sa string, override bool, topicName string) string {
+	return fmt.Sprintf(`
+// See step 3 below, which is really step 2 minus the pubsub topic.
+// Step 3 exists because provider configurations can't be removed while objects
+// created by that provider still exist in state. Step 3 will remove the
+// pubsub topic so the whole config can be deleted.
+%s
+
+resource "google_pubsub_topic" "project-2-topic" {
+	provider = google.project-1-token
+	project  = google_project.project-2.project_id
+
+	name = "%s"
+	labels = {
+	  foo = "bar"
+	}
+}
+`, testAccProviderUserProjectOverride_step3(pid, name, org, billing, sa, override), topicName)
+}
+
+func testAccProviderUserProjectOverride_step3(pid, name, org, billing, sa string, override bool) string {
+	return fmt.Sprintf(`
+%s
+
+data "google_service_account_access_token" "project-1-token" {
+	// This data source would have a depends_on t
+	// google_service_account_iam_binding.token-creator-iam, but depends_on
+	// in data sources makes them always have a diff in apply:
+	// https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
+	// Instead, rely on the other test step completing before this one.
+
+	target_service_account = google_service_account.project-1.email
+	scopes = ["userinfo-email", "https://www.googleapis.com/auth/cloud-platform"]
+	lifetime = "300s"
+}
+
+provider "google" {
+	alias  = "project-1-token"
+	access_token = data.google_service_account_access_token.project-1-token.access_token
+	user_project_override = %v
+}
+`, testAccProviderUserProjectOverride(pid, name, org, billing, sa), override)
+}
+
+// Set up two projects. Project 1 has a service account that is used to create a
+// kms crypto key in project 2. The kms API is only enabled in project 2,
+// which causes the create to fail unless user_project_override is set to true.
+func testAccProviderIndirectUserProjectOverride(pid, name, org, billing, sa string) string {
+	return fmt.Sprintf(`
+resource "google_project" "project-1" {
+	project_id      = "%s"
+	name            = "%s"
+	org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_service_account" "project-1" {
+	project    = google_project.project-1.project_id
+    account_id = "%s"
+}
+
+resource "google_project" "project-2" {
+	project_id      = "%s-2"
+	name            = "%s-2"
+	org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_service" "project-2-kms" {
+	project = google_project.project-2.project_id
+	service = "cloudkms.googleapis.com"
+}
+
+// Permission needed for user_project_override
+resource "google_project_iam_member" "project-2-serviceusage" {
+	project = google_project.project-2.project_id
+	role    = "roles/serviceusage.serviceUsageConsumer"
+	member  = "serviceAccount:${google_service_account.project-1.email}"
+}
+
+resource "google_project_iam_member" "project-2-kms" {
+	project = google_project.project-2.project_id
+	role    = "roles/cloudkms.admin"
+	member  = "serviceAccount:${google_service_account.project-1.email}"
+}
+
+resource "google_project_iam_member" "project-2-kms-encrypt" {
+	project = google_project.project-2.project_id
+	role    = "roles/cloudkms.cryptoKeyEncrypter"
+	member  = "serviceAccount:${google_service_account.project-1.email}"
+}
+
+data "google_client_openid_userinfo" "me" {}
+
+// Enable the test runner to get an access token on behalf of
+// the project 1 service account
+resource "google_service_account_iam_member" "token-creator-iam" {
+	service_account_id = google_service_account.project-1.name
+	role               = "roles/iam.serviceAccountTokenCreator"
+	member             = "serviceAccount:${data.google_client_openid_userinfo.me.email}"
+}
+`, pid, name, org, billing, sa, pid, name, org, billing)
+}
+
+func testAccProviderIndirectUserProjectOverride_step2(pid, name, org, billing, sa string, override bool) string {
+	return fmt.Sprintf(`
+// See step 3 below, which is really step 2 minus the kms resources.
+// Step 3 exists because provider configurations can't be removed while objects
+// created by that provider still exist in state. Step 3 will remove the
+// kms resources so the whole config can be deleted.
+%s
+
+resource "google_kms_key_ring" "project-2-keyring" {
+	provider = google.project-1-token
+	project  = google_project.project-2.project_id
+
+	name     = "%s"
+	location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "project-2-key" {
+	provider = google.project-1-token
+	name     = "%s"
+	key_ring = google_kms_key_ring.project-2-keyring.self_link
+}
+
+data "google_kms_secret_ciphertext" "project-2-ciphertext" {
+	provider   = google.project-1-token
+	crypto_key = google_kms_crypto_key.project-2-key.self_link
+	plaintext  = "my-secret"
+}
+`, testAccProviderIndirectUserProjectOverride_step3(pid, name, org, billing, sa, override), pid, pid)
+}
+
+func testAccProviderIndirectUserProjectOverride_step3(pid, name, org, billing, sa string, override bool) string {
+	return fmt.Sprintf(`
+%s
+
+data "google_service_account_access_token" "project-1-token" {
+	// This data source would have a depends_on to
+	// google_service_account_iam_binding.token-creator-iam, but depends_on
+	// in data sources makes them always have a diff in apply:
+	// https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
+	// Instead, rely on the other test step completing before this one.
+
+	target_service_account = google_service_account.project-1.email
+	scopes                 = ["userinfo-email", "https://www.googleapis.com/auth/cloud-platform"]
+	lifetime               = "300s"
+}
+
+provider "google" {
+	alias = "project-1-token"
+
+	access_token          = data.google_service_account_access_token.project-1-token.access_token
+	user_project_override = %v
+}
+`, testAccProviderIndirectUserProjectOverride(pid, name, org, billing, sa), override)
 }
 
 // getTestRegion has the same logic as the provider's getRegion, to be used in tests.
@@ -237,7 +536,7 @@ func getTestZoneFromEnv() string {
 }
 
 // Firestore can't be enabled at the same time as Datastore, so we need a new
-// project to manage it until we can enable Firestore programatically.
+// project to manage it until we can enable Firestore programmatically.
 func getTestFirestoreProjectFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, firestoreProjectEnvVars...)
 	return multiEnvSearch(firestoreProjectEnvVars)

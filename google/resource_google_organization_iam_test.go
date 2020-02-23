@@ -2,13 +2,14 @@ package google
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -19,6 +20,10 @@ import (
 // serially.
 // Policies are *not tested*, because testing them will ruin changes made to the test org.
 func TestAccOrganizationIam(t *testing.T) {
+	if os.Getenv("TF_RUN_ORG_IAM") != "true" {
+		t.Skip("Environment variable TF_RUN_ORG_IAM is not set, skipping.")
+	}
+
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -154,7 +159,7 @@ resource "google_organization_iam_custom_role" "test-role" {
 
 resource "google_organization_iam_binding" "foo" {
   org_id  = "%s"
-  role    = "${google_organization_iam_custom_role.test-role.id}"
+  role    = google_organization_iam_custom_role.test-role.id
   members = ["serviceAccount:${google_service_account.test-account.email}"]
 }
 `, account, role, org, org)
@@ -180,11 +185,11 @@ resource "google_service_account" "test-account-2" {
 }
 
 resource "google_organization_iam_binding" "foo" {
-  org_id  = "%s"
-  role    = "${google_organization_iam_custom_role.test-role.id}"
+  org_id = "%s"
+  role   = google_organization_iam_custom_role.test-role.id
   members = [
     "serviceAccount:${google_service_account.test-account.email}",
-    "serviceAccount:${google_service_account.test-account-2.email}"
+    "serviceAccount:${google_service_account.test-account-2.email}",
   ]
 }
 `, account, role, org, account, org)

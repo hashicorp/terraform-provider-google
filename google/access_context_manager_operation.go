@@ -14,6 +14,7 @@
 package google
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
@@ -28,18 +29,40 @@ func (w *AccessContextManagerOperationWaiter) QueryOp() (interface{}, error) {
 	}
 	// Returns the proper get.
 	url := fmt.Sprintf("https://accesscontextmanager.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
-	return sendRequest(w.Config, "GET", url, nil)
+	return sendRequest(w.Config, "GET", "", url, nil)
 }
 
-func accessContextManagerOperationWaitTime(config *Config, op map[string]interface{}, activity string, timeoutMinutes int) error {
+func createAccessContextManagerWaiter(config *Config, op map[string]interface{}, activity string) (*AccessContextManagerOperationWaiter, error) {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
-		return nil
+		return nil, nil
 	}
 	w := &AccessContextManagerOperationWaiter{
 		Config: config,
 	}
 	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
+		return nil, err
+	}
+	return w, nil
+}
+
+// nolint: deadcode,unused
+func accessContextManagerOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, activity string, timeoutMinutes int) error {
+	w, err := createAccessContextManagerWaiter(config, op, activity)
+	if err != nil || w == nil {
+		// If w is nil, the op was synchronous.
+		return err
+	}
+	if err := OperationWait(w, activity, timeoutMinutes); err != nil {
+		return err
+	}
+	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
+}
+
+func accessContextManagerOperationWaitTime(config *Config, op map[string]interface{}, activity string, timeoutMinutes int) error {
+	w, err := createAccessContextManagerWaiter(config, op, activity)
+	if err != nil || w == nil {
+		// If w is nil, the op was synchronous.
 		return err
 	}
 	return OperationWait(w, activity, timeoutMinutes)

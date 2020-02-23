@@ -1,6 +1,10 @@
 package google
 
-import "github.com/hashicorp/terraform/helper/schema"
+import (
+	"fmt"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+)
 
 func dataSourceDnsManagedZone() *schema.Resource {
 	return &schema.Resource{
@@ -23,15 +27,19 @@ func dataSourceDnsManagedZone() *schema.Resource {
 			},
 
 			"name_servers": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 
-			// Google Cloud DNS ManagedZone resources do not have a SelfLink attribute.
+			"visibility": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 
+			// Google Cloud DNS ManagedZone resources do not have a SelfLink attribute.
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -43,15 +51,16 @@ func dataSourceDnsManagedZone() *schema.Resource {
 func dataSourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	d.SetId(d.Get("name").(string))
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
+	name := d.Get("name").(string)
+	d.SetId(fmt.Sprintf("projects/%s/managedZones/%s", project, name))
+
 	zone, err := config.clientDns.ManagedZones.Get(
-		project, d.Id()).Do()
+		project, name).Do()
 	if err != nil {
 		return err
 	}
@@ -60,6 +69,8 @@ func dataSourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("name", zone.Name)
 	d.Set("dns_name", zone.DnsName)
 	d.Set("description", zone.Description)
+	d.Set("visibility", zone.Visibility)
+	d.Set("project", project)
 
 	return nil
 }

@@ -3,7 +3,7 @@ package google
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 const nonUniqueWriterAccount = "serviceAccount:cloud-logs@system.gserviceaccount.com"
@@ -81,11 +81,11 @@ func resourceLoggingProjectSinkRead(d *schema.ResourceData, meta interface{}) er
 func resourceLoggingProjectSinkUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	sink := expandResourceLoggingSinkForUpdate(d)
+	sink, updateMask := expandResourceLoggingSinkForUpdate(d)
 	uniqueWriterIdentity := d.Get("unique_writer_identity").(bool)
 
 	_, err := config.clientLogging.Projects.Sinks.Patch(d.Id(), sink).
-		UpdateMask(defaultLogSinkUpdateMask).UniqueWriterIdentity(uniqueWriterIdentity).Do()
+		UpdateMask(updateMask).UniqueWriterIdentity(uniqueWriterIdentity).Do()
 	if err != nil {
 		return err
 	}

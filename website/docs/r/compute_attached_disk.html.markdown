@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_attached_disk"
 sidebar_current: "docs-google-compute-attached-disk"
@@ -22,20 +23,19 @@ To get more information about attaching disks, see:
 * How-to Guides
     * [Adding a persistent disk](https://cloud.google.com/compute/docs/disks/add-persistent-disk)
 
-**Note:** When using `compute_attached_disk` you **must** use `lifecycle.ignore_changes = ["attached_disk"]` on the `compute_instance` resource that has the disks attached. Otherwise the two resources will fight for control of the attached disk block.
+**Note:** When using `google_compute_attached_disk` you **must** use `lifecycle.ignore_changes = ["attached_disk"]` on the `google_compute_instance` resource that has the disks attached. Otherwise the two resources will fight for control of the attached disk block.
 
 ## Example Usage
 ```hcl
 resource "google_compute_attached_disk" "default" {
-  disk = "${google_compute_disk.default.self_link}"
-  instance = "${google_compute_instance.default.self_link}"
+  disk     = google_compute_disk.default.self_link
+  instance = google_compute_instance.default.self_link
 }
 
 resource "google_compute_instance" "default" {
   name         = "attached-disk-instance"
   machine_type = "n1-standard-1"
   zone         = "us-west1-a"
-
 
   boot_disk {
     initialize_params {
@@ -48,7 +48,7 @@ resource "google_compute_instance" "default" {
   }
 
   lifecycle {
-    ignore_changes = ["attached_disk"]
+    ignore_changes = [attached_disk]
   }
 }
 ```
@@ -117,6 +117,6 @@ This resource provides the following
 Attached Disk can be imported the following ways:
 
 ```
-$ terraform import google_compute_disk.default projects/{{project}}/zones/{{zone}}/disks/{{instance.name}}:{{disk.name}}
-$ terraform import google_compute_disk.default {{project}}/{{zone}}/{{instance.name}}:{{disk.name}}
+$ terraform import google_compute_attached_disk.default projects/{{project}}/zones/{{zone}}/instances/{{instance.name}}/{{disk.name}}
+$ terraform import google_compute_attached_disk.default {{project}}/{{zone}}/{{instance.name}}/{{disk.name}}
 ```

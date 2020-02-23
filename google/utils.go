@@ -3,17 +3,13 @@
 package google
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"log"
-	"net/url"
 	"strings"
-	"time"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/googleapi"
 )
 
@@ -29,6 +25,7 @@ type TerraformResourceData interface {
 
 type TerraformResourceDiff interface {
 	GetChange(string) (interface{}, interface{})
+	Get(string) interface{}
 	Clear(string) error
 }
 
@@ -130,20 +127,6 @@ func isFailedPreconditionError(err error) bool {
 	return false
 }
 
-var FINGERPRINT_FAIL_ERRORS = []string{"Invalid fingerprint.", "Supplied fingerprint does not match current metadata fingerprint."}
-
-// We've encountered a few common fingerprint-related strings; if this is one of
-// them, we're confident this is an error due to fingerprints.
-func isFingerprintError(err error) bool {
-	for _, msg := range FINGERPRINT_FAIL_ERRORS {
-		if strings.Contains(err.Error(), msg) {
-			return true
-		}
-	}
-
-	return false
-}
-
 func isConflictError(err error) bool {
 	if e, ok := err.(*googleapi.Error); ok && e.Code == 409 {
 		return true
@@ -152,82 +135,6 @@ func isConflictError(err error) bool {
 		if e.Code == 409 {
 			return true
 		}
-	}
-	return false
-}
-
-func linkDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	if GetResourceNameFromSelfLink(old) == new {
-		return true
-	}
-	return false
-}
-
-func optionalPrefixSuppress(prefix string) schema.SchemaDiffSuppressFunc {
-	return func(k, old, new string, d *schema.ResourceData) bool {
-		return prefix+old == new || prefix+new == old
-	}
-}
-
-func optionalSurroundingSpacesSuppress(k, old, new string, d *schema.ResourceData) bool {
-	return strings.TrimSpace(old) == strings.TrimSpace(new)
-}
-
-func emptyOrDefaultStringSuppress(defaultVal string) schema.SchemaDiffSuppressFunc {
-	return func(k, old, new string, d *schema.ResourceData) bool {
-		return (old == "" && new == defaultVal) || (new == "" && old == defaultVal)
-	}
-}
-
-func ipCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	// The range may be a:
-	// A) single IP address (e.g. 10.2.3.4)
-	// B) CIDR format string (e.g. 10.1.2.0/24)
-	// C) netmask (e.g. /24)
-	//
-	// For A) and B), no diff to suppress, they have to match completely.
-	// For C), The API picks a network IP address and this creates a diff of the form:
-	// network_interface.0.alias_ip_range.0.ip_cidr_range: "10.128.1.0/24" => "/24"
-	// We should only compare the mask portion for this case.
-	if len(new) > 0 && new[0] == '/' {
-		oldNetmaskStartPos := strings.LastIndex(old, "/")
-
-		if oldNetmaskStartPos != -1 {
-			oldNetmask := old[strings.LastIndex(old, "/"):]
-			if oldNetmask == new {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-// sha256DiffSuppress
-// if old is the hex-encoded sha256 sum of new, treat them as equal
-func sha256DiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
-	return hex.EncodeToString(sha256.New().Sum([]byte(old))) == new
-}
-
-func caseDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
-	return strings.ToUpper(old) == strings.ToUpper(new)
-}
-
-// Port range '80' and '80-80' is equivalent.
-// `old` is read from the server and always has the full range format (e.g. '80-80', '1024-2048').
-// `new` can be either a single port or a port range.
-func portRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	if old == new+"-"+new {
-		return true
-	}
-	return false
-}
-
-// Single-digit hour is equivalent to hour with leading zero e.g. suppress diff 1:00 => 01:00.
-// Assume either value could be in either format.
-func rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	if (len(old) == 4 && "0"+old == new) || (len(new) == 4 && "0"+new == old) {
-		return true
 	}
 	return false
 }
@@ -318,6 +225,28 @@ func stringSliceFromGolangSet(sset map[string]struct{}) []string {
 	return ls
 }
 
+func reverseStringMap(m map[string]string) map[string]string {
+	o := map[string]string{}
+	for k, v := range m {
+		o[v] = k
+	}
+	return o
+}
+
+func mergeStringMaps(a, b map[string]string) map[string]string {
+	merged := make(map[string]string)
+
+	for k, v := range a {
+		merged[k] = v
+	}
+
+	for k, v := range b {
+		merged[k] = v
+	}
+
+	return merged
+}
+
 func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 	merged := make(map[string]*schema.Schema)
 
@@ -352,57 +281,6 @@ func mergeResourceMaps(ms ...map[string]*schema.Resource) (map[string]*schema.Re
 	}
 
 	return merged, err
-}
-
-func retry(retryFunc func() error) error {
-	return retryTime(retryFunc, 1)
-}
-
-func retryTime(retryFunc func() error, minutes int) error {
-	return retryTimeDuration(retryFunc, time.Duration(minutes)*time.Minute)
-}
-
-func retryTimeDuration(retryFunc func() error, duration time.Duration) error {
-	return resource.Retry(duration, func() *resource.RetryError {
-		err := retryFunc()
-		if err == nil {
-			return nil
-		}
-		for _, e := range errwrap.GetAllType(err, &googleapi.Error{}) {
-			if isRetryableError(e) {
-				return resource.RetryableError(e)
-			}
-		}
-		return resource.NonRetryableError(err)
-	})
-}
-
-func isRetryableError(err error) bool {
-	if gerr, ok := err.(*googleapi.Error); ok && (gerr.Code == 429 || gerr.Code == 500 || gerr.Code == 502 || gerr.Code == 503) {
-		log.Printf("[DEBUG] Dismissed an error as retryable based on error code: %s", err)
-		return true
-	}
-	// These operations are always hitting googleapis.com - they should rarely
-	// time out, and if they do, that timeout is retryable.
-	if urlerr, ok := err.(*url.Error); ok && urlerr.Timeout() {
-		log.Printf("[DEBUG] Dismissed an error as retryable based on googleapis.com target: %s", err)
-		return true
-	}
-	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Body, "operationInProgress") {
-		// 409's are retried because cloud sql throws a 409 when concurrent calls are made.
-		// The only way right now to determine it is a SQL 409 due to concurrent calls is to
-		// look at the contents of the error message.
-		// See https://github.com/terraform-providers/terraform-provider-google/issues/3279
-		log.Printf("[DEBUG] Dismissed an error as retryable based on error code 409 and error reason 'operationInProgress': %s", err)
-		return true
-	}
-
-	if gerr, ok := err.(*googleapi.Error); ok && (gerr.Code == 412) && isFingerprintError(err) {
-		log.Printf("[DEBUG] Dismissed an error as retryable as a fingerprint mismatch: %s", err)
-		return true
-	}
-
-	return false
 }
 
 func extractFirstMapConfig(m []interface{}) map[string]interface{} {
@@ -457,8 +335,8 @@ func serviceAccountFQN(serviceAccount string, d TerraformResourceData, config *C
 	return fmt.Sprintf("projects/-/serviceAccounts/%s@%s.iam.gserviceaccount.com", serviceAccount, project), nil
 }
 
-func paginatedListRequest(baseUrl string, config *Config, flattener func(map[string]interface{}) []interface{}) ([]interface{}, error) {
-	res, err := sendRequest(config, "GET", baseUrl, nil)
+func paginatedListRequest(project, baseUrl string, config *Config, flattener func(map[string]interface{}) []interface{}) ([]interface{}, error) {
+	res, err := sendRequest(config, "GET", project, baseUrl, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -470,7 +348,7 @@ func paginatedListRequest(baseUrl string, config *Config, flattener func(map[str
 			break
 		}
 		url := fmt.Sprintf("%s?pageToken=%s", baseUrl, pageToken.(string))
-		res, err = sendRequest(config, "GET", url, nil)
+		res, err = sendRequest(config, "GET", project, url, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -492,4 +370,51 @@ func getInterconnectAttachmentLink(config *Config, project, region, ic string) (
 	}
 
 	return ic, nil
+}
+
+// Given two sets of references (with "from" values in self link form),
+// determine which need to be added or removed // during an update using
+// addX/removeX APIs.
+func calcAddRemove(from []string, to []string) (add, remove []string) {
+	add = make([]string, 0)
+	remove = make([]string, 0)
+	for _, u := range to {
+		found := false
+		for _, v := range from {
+			if compareSelfLinkOrResourceName("", v, u, nil) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			add = append(add, u)
+		}
+	}
+	for _, u := range from {
+		found := false
+		for _, v := range to {
+			if compareSelfLinkOrResourceName("", u, v, nil) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			remove = append(remove, u)
+		}
+	}
+	return add, remove
+}
+
+func stringInSlice(arr []string, str string) bool {
+	for _, i := range arr {
+		if i == str {
+			return true
+		}
+	}
+
+	return false
+}
+
+func migrateStateNoop(v int, is *terraform.InstanceState, meta interface{}) (*terraform.InstanceState, error) {
+	return is, nil
 }

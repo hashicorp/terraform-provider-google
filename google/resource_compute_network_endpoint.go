@@ -20,8 +20,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/compute/v1"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceComputeNetworkEndpoint() *schema.Resource {
@@ -35,8 +34,8 @@ func resourceComputeNetworkEndpoint() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(6 * time.Minute),
+			Delete: schema.DefaultTimeout(6 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -45,22 +44,30 @@ func resourceComputeNetworkEndpoint() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The name for a specific VM instance that the IP address belongs to.
+This is required for network endpoints of type GCE_VM_IP_PORT.
+The instance must be in the same zone of network endpoint group.`,
 			},
 			"ip_address": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `IPv4 address of network endpoint. The IP address must belong
+to a VM in GCE (either the primary IP or as part of an aliased IP
+range).`,
 			},
 			"network_endpoint_group": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The network endpoint group this endpoint is part of.`,
 			},
 			"port": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Port number of network endpoint.`,
 			},
 			"zone": {
 				Type:             schema.TypeString,
@@ -68,6 +75,7 @@ func resourceComputeNetworkEndpoint() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Zone where the containing network endpoint group is located.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -120,7 +128,11 @@ func resourceComputeNetworkEndpointCreate(d *schema.ResourceData, meta interface
 	}
 
 	log.Printf("[DEBUG] Creating new NetworkEndpoint: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating NetworkEndpoint: %s", err)
 	}
@@ -132,24 +144,14 @@ func resourceComputeNetworkEndpointCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating NetworkEndpoint",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating NetworkEndpoint",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create NetworkEndpoint: %s", waitErr)
+		return fmt.Errorf("Error waiting to create NetworkEndpoint: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating NetworkEndpoint %q: %#v", d.Id(), res)
@@ -165,7 +167,11 @@ func resourceComputeNetworkEndpointRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	res, err := sendRequest(config, "POST", url, nil)
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequest(config, "POST", project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNetworkEndpoint %q", d.Id()))
 	}
@@ -194,21 +200,17 @@ func resourceComputeNetworkEndpointRead(d *schema.ResourceData, meta interface{}
 		return nil
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
 	}
 
-	if err := d.Set("instance", flattenComputeNetworkEndpointInstance(res["instance"], d)); err != nil {
+	if err := d.Set("instance", flattenComputeNetworkEndpointInstance(res["instance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
 	}
-	if err := d.Set("port", flattenComputeNetworkEndpointPort(res["port"], d)); err != nil {
+	if err := d.Set("port", flattenComputeNetworkEndpointPort(res["port"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
 	}
-	if err := d.Set("ip_address", flattenComputeNetworkEndpointIpAddress(res["ipAddress"], d)); err != nil {
+	if err := d.Set("ip_address", flattenComputeNetworkEndpointIpAddress(res["ipAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpoint: %s", err)
 	}
 
@@ -217,6 +219,11 @@ func resourceComputeNetworkEndpointRead(d *schema.ResourceData, meta interface{}
 
 func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	lockName, err := replaceVars(d, config, "networkEndpoint/{{project}}/{{zone}}/{{network_endpoint_group}}")
 	if err != nil {
@@ -254,23 +261,14 @@ func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface
 		"networkEndpoints": []map[string]interface{}{toDelete},
 	}
 	log.Printf("[DEBUG] Deleting NetworkEndpoint %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "NetworkEndpoint")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting NetworkEndpoint",
+		config, res, project, "Deleting NetworkEndpoint",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -302,14 +300,14 @@ func resourceComputeNetworkEndpointImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNetworkEndpointInstance(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeNetworkEndpointPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles int given in float64 format
 	if floatVal, ok := v.(float64); ok {
 		return int(floatVal)
@@ -317,7 +315,7 @@ func flattenComputeNetworkEndpointPort(v interface{}, d *schema.ResourceData) in
 	return v
 }
 
-func flattenComputeNetworkEndpointIpAddress(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -359,22 +357,29 @@ func flattenNestedComputeNetworkEndpoint(d *schema.ResourceData, meta interface{
 		return nil, fmt.Errorf("expected list or map for value items. Actual value: %v", v)
 	}
 
-	expectedInstance, err := expandComputeNetworkEndpointInstance(d.Get("instance"), d, meta.(*Config))
+	_, item, err := resourceComputeNetworkEndpointFindNestedObjectInList(d, meta, v.([]interface{}))
 	if err != nil {
 		return nil, err
+	}
+	return item, nil
+}
+
+func resourceComputeNetworkEndpointFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
+	expectedInstance, err := expandComputeNetworkEndpointInstance(d.Get("instance"), d, meta.(*Config))
+	if err != nil {
+		return -1, nil, err
 	}
 	expectedIpAddress, err := expandComputeNetworkEndpointIpAddress(d.Get("ip_address"), d, meta.(*Config))
 	if err != nil {
-		return nil, err
+		return -1, nil, err
 	}
 	expectedPort, err := expandComputeNetworkEndpointPort(d.Get("port"), d, meta.(*Config))
 	if err != nil {
-		return nil, err
+		return -1, nil, err
 	}
 
 	// Search list for this resource.
-	items := v.([]interface{})
-	for _, itemRaw := range items {
+	for idx, itemRaw := range items {
 		if itemRaw == nil {
 			continue
 		}
@@ -383,31 +388,29 @@ func flattenNestedComputeNetworkEndpoint(d *schema.ResourceData, meta interface{
 		// Decode list item before comparing.
 		item, err := resourceComputeNetworkEndpointDecoder(d, meta, item)
 		if err != nil {
-			return nil, err
+			return -1, nil, err
 		}
 
-		itemInstance := flattenComputeNetworkEndpointInstance(item["instance"], d)
+		itemInstance := flattenComputeNetworkEndpointInstance(item["instance"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemInstance, expectedInstance) {
 			log.Printf("[DEBUG] Skipping item with instance= %#v, looking for %#v)", itemInstance, expectedInstance)
 			continue
 		}
-		itemIpAddress := flattenComputeNetworkEndpointIpAddress(item["ipAddress"], d)
+		itemIpAddress := flattenComputeNetworkEndpointIpAddress(item["ipAddress"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemIpAddress, expectedIpAddress) {
 			log.Printf("[DEBUG] Skipping item with ipAddress= %#v, looking for %#v)", itemIpAddress, expectedIpAddress)
 			continue
 		}
-		itemPort := flattenComputeNetworkEndpointPort(item["port"], d)
+		itemPort := flattenComputeNetworkEndpointPort(item["port"], d, meta.(*Config))
 		if !reflect.DeepEqual(itemPort, expectedPort) {
 			log.Printf("[DEBUG] Skipping item with port= %#v, looking for %#v)", itemPort, expectedPort)
 			continue
 		}
 		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
-		return item, nil
+		return idx, item, nil
 	}
-
-	return nil, nil
+	return -1, nil, nil
 }
-
 func resourceComputeNetworkEndpointDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	v, ok := res["networkEndpoint"]
 	if !ok || v == nil {

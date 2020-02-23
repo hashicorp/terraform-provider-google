@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"cloud.google.com/go/bigtable"
 )
@@ -15,7 +16,16 @@ func resourceBigtableInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigtableInstanceCreate,
 		Read:   resourceBigtableInstanceRead,
+		Update: resourceBigtableInstanceUpdate,
 		Delete: resourceBigtableInstanceDestroy,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceBigtableInstanceImport,
+		},
+
+		CustomizeDiff: customdiff.All(
+			resourceBigtableInstanceClusterReorderTypeList,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -25,50 +35,45 @@ func resourceBigtableInstance() *schema.Resource {
 			},
 
 			"cluster": {
-				Type:     schema.TypeSet,
-				Required: true,
-				ForceNew: true,
-				MaxItems: 4,
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cluster_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"zone": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"num_nodes": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ForceNew:     true,
+							Type:     schema.TypeInt,
+							Optional: true,
+							// DEVELOPMENT instances could get returned with either zero or one node,
+							// so mark as computed.
+							Computed:     true,
 							ValidateFunc: validation.IntAtLeast(3),
 						},
 						"storage_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "SSD",
-							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"SSD", "HDD"}, false),
 						},
 					},
 				},
 			},
-
 			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 
 			"instance_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				Default:      "PRODUCTION",
 				ValidateFunc: validation.StringInSlice([]string{"DEVELOPMENT", "PRODUCTION"}, false),
 			},
@@ -78,34 +83,6 @@ func resourceBigtableInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
-			},
-
-			"cluster_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Removed:  "Use cluster instead.",
-			},
-
-			"zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Removed:  "Use cluster instead.",
-			},
-
-			"num_nodes": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				Removed:  "Use cluster instead.",
-			},
-
-			"storage_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Removed:  "Use cluster instead.",
 			},
 		},
 	}
@@ -137,7 +114,7 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		conf.InstanceType = bigtable.PRODUCTION
 	}
 
-	conf.Clusters = expandBigtableClusters(d.Get("cluster").(*schema.Set).List(), conf.InstanceID)
+	conf.Clusters = expandBigtableClusters(d.Get("cluster").([]interface{}), conf.InstanceID)
 
 	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
 	if err != nil {
@@ -151,7 +128,11 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error creating instance. %s", err)
 	}
 
-	d.SetId(conf.InstanceID)
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	return resourceBigtableInstanceRead(d, meta)
 }
@@ -172,39 +153,81 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	defer c.Close()
 
-	instance, err := c.InstanceInfo(ctx, d.Id())
+	instanceName := d.Get("name").(string)
+
+	instance, err := c.InstanceInfo(ctx, instanceName)
 	if err != nil {
-		log.Printf("[WARN] Removing %s because it's gone", d.Id())
+		log.Printf("[WARN] Removing %s because it's gone", instanceName)
 		d.SetId("")
-		return fmt.Errorf("Error retrieving instance. Could not find %s. %s", d.Id(), err)
+		return nil
 	}
 
 	d.Set("project", project)
 
-	clusters := d.Get("cluster").(*schema.Set).List()
-	clusterState := []map[string]interface{}{}
-	for _, cl := range clusters {
-		cluster := cl.(map[string]interface{})
-		clus, err := c.GetCluster(ctx, instance.Name, cluster["cluster_id"].(string))
-		if err != nil {
-			if isGoogleApiErrorWithCode(err, 404) {
-				log.Printf("[WARN] Cluster %q not found, not setting it in state", cluster["cluster_id"].(string))
-				continue
-			}
-			return fmt.Errorf("Error retrieving cluster %q: %s", cluster["cluster_id"].(string), err.Error())
-		}
-		clusterState = append(clusterState, flattenBigtableCluster(clus, cluster["storage_type"].(string)))
+	clusters, err := c.Clusters(ctx, instance.Name)
+	if err != nil {
+		return fmt.Errorf("Error retrieving instance clusters. %s", err)
 	}
 
-	err = d.Set("cluster", clusterState)
+	clustersNewState := []map[string]interface{}{}
+	for _, cluster := range clusters {
+		clustersNewState = append(clustersNewState, flattenBigtableCluster(cluster))
+	}
+
+	log.Printf("[DEBUG] Setting clusters in state: %#v", clustersNewState)
+	err = d.Set("cluster", clustersNewState)
 	if err != nil {
 		return fmt.Errorf("Error setting clusters in state: %s", err.Error())
 	}
 
 	d.Set("name", instance.Name)
 	d.Set("display_name", instance.DisplayName)
+	// Don't set instance_type: we don't want to detect drift on it because it can
+	// change under-the-hood.
 
 	return nil
+}
+
+func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	ctx := context.Background()
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	c, err := config.bigtableClientFactory.NewInstanceAdminClient(project)
+	if err != nil {
+		return fmt.Errorf("Error starting instance admin client. %s", err)
+	}
+	defer c.Close()
+
+	conf := &bigtable.InstanceWithClustersConfig{
+		InstanceID: d.Get("name").(string),
+	}
+
+	displayName, ok := d.GetOk("display_name")
+	if !ok {
+		displayName = conf.InstanceID
+	}
+	conf.DisplayName = displayName.(string)
+
+	switch d.Get("instance_type").(string) {
+	case "DEVELOPMENT":
+		conf.InstanceType = bigtable.DEVELOPMENT
+	case "PRODUCTION":
+		conf.InstanceType = bigtable.PRODUCTION
+	}
+
+	conf.Clusters = expandBigtableClusters(d.Get("cluster").([]interface{}), conf.InstanceID)
+
+	_, err = bigtable.UpdateInstanceAndSyncClusters(ctx, c, conf)
+	if err != nil {
+		return fmt.Errorf("Error updating instance. %s", err)
+	}
+
+	return resourceBigtableInstanceRead(d, meta)
 }
 
 func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) error {
@@ -223,7 +246,7 @@ func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) e
 
 	defer c.Close()
 
-	name := d.Id()
+	name := d.Get("name").(string)
 	err = c.DeleteInstance(ctx, name)
 	if err != nil {
 		return fmt.Errorf("Error deleting instance. %s", err)
@@ -234,7 +257,15 @@ func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
-func flattenBigtableCluster(c *bigtable.ClusterInfo, storageType string) map[string]interface{} {
+func flattenBigtableCluster(c *bigtable.ClusterInfo) map[string]interface{} {
+	var storageType string
+	switch c.StorageType {
+	case bigtable.SSD:
+		storageType = "SSD"
+	case bigtable.HDD:
+		storageType = "HDD"
+	}
+
 	return map[string]interface{}{
 		"zone":         c.Zone,
 		"num_nodes":    c.ServeNodes,
@@ -264,4 +295,136 @@ func expandBigtableClusters(clusters []interface{}, instanceID string) []bigtabl
 		})
 	}
 	return results
+}
+
+// resourceBigtableInstanceClusterReorderTypeList causes the cluster block to
+// act like a TypeSet while it's a TypeList underneath. It preserves state
+// ordering on updates, and causes the resource to get recreated if it would
+// attempt to perform an impossible change.
+// This doesn't use the standard unordered list utility (https://github.com/GoogleCloudPlatform/magic-modules/blob/master/templates/terraform/unordered_list_customize_diff.erb)
+// because some fields can't be modified using the API and we recreate the instance
+// when they're changed.
+func resourceBigtableInstanceClusterReorderTypeList(diff *schema.ResourceDiff, meta interface{}) error {
+	oldCount, newCount := diff.GetChange("cluster.#")
+
+	// simulate Required:true, MinItems:1, MaxItems:4 for "cluster"
+	if newCount.(int) < 1 {
+		return fmt.Errorf("config is invalid: Too few cluster blocks: Should have at least 1 \"cluster\" block")
+	}
+	if newCount.(int) > 4 {
+		return fmt.Errorf("config is invalid: Too many cluster blocks: No more than 4 \"cluster\" blocks are allowed")
+	}
+
+	// exit early if we're in create (name's old value is nil)
+	n, _ := diff.GetChange("name")
+	if n == nil || n == "" {
+		return nil
+	}
+
+	oldIds := []string{}
+	clusters := make(map[string]interface{}, newCount.(int))
+
+	for i := 0; i < oldCount.(int); i++ {
+		oldId, _ := diff.GetChange(fmt.Sprintf("cluster.%d.cluster_id", i))
+		if oldId != nil && oldId != "" {
+			oldIds = append(oldIds, oldId.(string))
+		}
+	}
+	log.Printf("[DEBUG] Saw old ids: %#v", oldIds)
+
+	for i := 0; i < newCount.(int); i++ {
+		_, newId := diff.GetChange(fmt.Sprintf("cluster.%d.cluster_id", i))
+		_, c := diff.GetChange(fmt.Sprintf("cluster.%d", i))
+		clusters[newId.(string)] = c
+	}
+
+	// create a list of clusters using the old order when possible to minimise
+	// diffs
+	// initially, add matching clusters to their index by id (nil otherwise)
+	// then, fill in nils with new clusters.
+	// [a, b, c, e] -> [c, a, d] becomes [a, nil, c] followed by [a, d, c]
+	var orderedClusters []interface{}
+	for i := 0; i < newCount.(int); i++ {
+		// when i is out of range of old, all values are nil
+		if i >= len(oldIds) {
+			orderedClusters = append(orderedClusters, nil)
+			continue
+		}
+
+		oldId := oldIds[i]
+		if c, ok := clusters[oldId]; ok {
+			log.Printf("[DEBUG] Matched: %#v", oldId)
+			orderedClusters = append(orderedClusters, c)
+			delete(clusters, oldId)
+		} else {
+			orderedClusters = append(orderedClusters, nil)
+		}
+	}
+
+	log.Printf("[DEBUG] Remaining clusters: %#v", clusters)
+	for _, elem := range clusters {
+		for i, e := range orderedClusters {
+			if e == nil {
+				orderedClusters[i] = elem
+			}
+		}
+	}
+
+	err := diff.SetNew("cluster", orderedClusters)
+	if err != nil {
+		return fmt.Errorf("Error setting cluster diff: %s", err)
+	}
+
+	// Clusters can't have their zone / storage_type updated, ForceNew if it's
+	// changed. This will show a diff with the old state on the left side and
+	// the unmodified new state on the right and the ForceNew attributed to the
+	// _old state index_ even if the diff appears to have moved.
+	// This depends on the clusters having been reordered already by the prior
+	// SetNew call.
+	// We've implemented it here because it doesn't return an error in the
+	// client and silently fails.
+	for i := 0; i < newCount.(int); i++ {
+		oldId, newId := diff.GetChange(fmt.Sprintf("cluster.%d.cluster_id", i))
+		if oldId != newId {
+			continue
+		}
+
+		oZone, nZone := diff.GetChange(fmt.Sprintf("cluster.%d.zone", i))
+		if oZone != nZone {
+			err := diff.ForceNew(fmt.Sprintf("cluster.%d.zone", i))
+			if err != nil {
+				return fmt.Errorf("Error setting cluster diff: %s", err)
+			}
+		}
+
+		oST, nST := diff.GetChange(fmt.Sprintf("cluster.%d.storage_type", i))
+		if oST != nST {
+			err := diff.ForceNew(fmt.Sprintf("cluster.%d.storage_type", i))
+			if err != nil {
+				return fmt.Errorf("Error setting cluster diff: %s", err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func resourceBigtableInstanceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	config := meta.(*Config)
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/instances/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<name>[^/]+)",
+		"(?P<name>[^/]+)",
+	}, d, config); err != nil {
+		return nil, err
+	}
+
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	return []*schema.ResourceData{d}, nil
 }

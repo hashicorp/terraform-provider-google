@@ -3,7 +3,7 @@ package google
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -68,11 +68,11 @@ func dataSourceGoogleComputeVpnGatewayRead(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("VPN Gateway Not Found : %s", name))
 	}
-	d.Set("network", gateway.Network)
+	d.Set("network", ConvertSelfLinkToV1(gateway.Network))
 	d.Set("region", gateway.Region)
 	d.Set("self_link", gateway.SelfLink)
 	d.Set("description", gateway.Description)
 	d.Set("project", project)
-	d.SetId(gateway.Name)
+	d.SetId(fmt.Sprintf("projects/%s/regions/%s/targetVpnGateways/%s", project, region, name))
 	return nil
 }

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccDataSourceIAMRole(t *testing.T) {
@@ -45,7 +45,7 @@ func testAccCheckGoogleIAMRoleCheck(n string) resource.TestCheckFunc {
 func testAccCheckGoogleIamRoleConfig(name string) string {
 	return fmt.Sprintf(`
 data "google_iam_role" "role" {
-	name = "%s"
+  name = "%s"
 }
 `, name)
 }

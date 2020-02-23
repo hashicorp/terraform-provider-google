@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud IoT Core"
 layout: "google"
 page_title: "Google: google_cloudiot_registry"
 sidebar_current: "docs-google-cloudiot-registry-x"
@@ -27,12 +28,12 @@ resource "google_pubsub_topic" "default-telemetry" {
 resource "google_cloudiot_registry" "default-registry" {
   name = "default-registry"
 
-  event_notification_config = {
-    pubsub_topic_name = "${google_pubsub_topic.default-telemetry.id}"
+  event_notification_configs {
+    pubsub_topic_name = google_pubsub_topic.default-telemetry.id
   }
 
   state_notification_config = {
-    pubsub_topic_name = "${google_pubsub_topic.default-devicestatus.id}"
+    pubsub_topic_name = google_pubsub_topic.default-devicestatus.id
   }
 
   http_config = {
@@ -43,14 +44,12 @@ resource "google_cloudiot_registry" "default-registry" {
     mqtt_enabled_state = "MQTT_ENABLED"
   }
 
-  credentials = [
-    {
-      public_key_certificate = {
-        format      = "X509_CERTIFICATE_PEM"
-        certificate = "${file("rsa_cert.pem")}"
-      }
-    },
-  ]
+  credentials {
+    public_key_certificate = {
+      format      = "X509_CERTIFICATE_PEM"
+      certificate = file("rsa_cert.pem")
+    }
+  }
 }
 ```
 
@@ -67,7 +66,8 @@ The following arguments are supported:
 
 * `region` - (Optional) The Region in which the created address should reside. If it is not provided, the provider region is used.
 
-* `event_notification_config` - (Optional) A PubSub topics to publish device events. Structure is documented below.
+* `event_notification_configs` - (Optional) List of configurations for event notification, such as
+PubSub topics to publish device events to. Structure is documented below.
 
 * `state_notification_config` - (Optional) A PubSub topic to publish device state updates. Structure is documented below.
 
@@ -77,9 +77,14 @@ The following arguments are supported:
 * `credentials` - (Optional) List of public key certificates to authenticate devices. Structure is documented below. 
 
 
-The `event_notification_config` block supports:
+The `event_notification_configs` block supports:
 
 * `pubsub_topic_name` - (Required) PubSub topic name to publish device events.
+
+* `subfolder_matches` - (Optional) If the subfolder name matches this string
+   exactly, this configuration will be used. The string must not include the
+   leading '/' character. If empty, all strings are matched. Empty value can
+   only be used for the last `event_notification_configs` item.
 
 The `state_notification_config` block supports:
 

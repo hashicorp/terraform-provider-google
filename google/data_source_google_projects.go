@@ -2,7 +2,8 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceGoogleProjects() *schema.Resource {
@@ -44,7 +45,7 @@ func datasourceGoogleProjectsRead(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 
-		res, err := sendRequest(config, "GET", url, nil)
+		res, err := sendRequest(config, "GET", "", url, nil)
 		if err != nil {
 			return fmt.Errorf("Error retrieving projects: %s", err)
 		}

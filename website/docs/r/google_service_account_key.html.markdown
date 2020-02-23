@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_service_account_key"
 sidebar_current: "docs-google-service-account-key"
@@ -15,13 +16,13 @@ Creates and manages service account key-pairs, which allow the user to establish
 
 ```hcl
 resource "google_service_account" "myaccount" {
-  account_id = "myaccount"
+  account_id   = "myaccount"
   display_name = "My Service Account"
 }
 
 resource "google_service_account_key" "mykey" {
-  service_account_id = "${google_service_account.myaccount.name}"
-  public_key_type = "TYPE_X509_PEM_FILE"
+  service_account_id = google_service_account.myaccount.name
+  public_key_type    = "TYPE_X509_PEM_FILE"
 }
 ```
 
@@ -34,31 +35,16 @@ resource "google_service_account" "myaccount" {
 }
 
 resource "google_service_account_key" "mykey" {
-  service_account_id = "${google_service_account.myaccount.name}"
+  service_account_id = google_service_account.myaccount.name
 }
 
 resource "kubernetes_secret" "google-application-credentials" {
-  metadata = {
+  metadata {
     name = "google-application-credentials"
   }
-  data {
-    credentials.json = "${base64decode(google_service_account_key.mykey.private_key)}"
+  data = {
+    credentials.json = base64decode(google_service_account_key.mykey.private_key)
   }
-}
-```
-
-## Create new Key Pair, encrypting the private key with a PGP Key
-
-```hcl
-resource "google_service_account" "myaccount" {
-  account_id = "myaccount"
-  display_name = "My Service Account"
-}
-
-resource "google_service_account_key" "mykey" {
-  service_account_id = "${google_service_account.myaccount.name}"
-  pgp_key = "keybase:keybaseusername"
-  public_key_type = "TYPE_X509_PEM_FILE"
 }
 ```
 
@@ -79,14 +65,6 @@ Valid values are listed at
 
 * `private_key_type` (Optional) The output format of the private key. TYPE_GOOGLE_CREDENTIALS_FILE is the default output format.
 
-* `pgp_key` – (Optional) An optional PGP key to encrypt the resulting private
-key material. Only used when creating or importing a new key pair. May either be
-a base64-encoded public key or a `keybase:keybaseusername` string for looking up
-in Vault.
-
-~> **NOTE:** a PGP key is not required, however it is strongly encouraged.
-Without a PGP key, the private key material will be stored in state unencrypted.
-
 ## Attributes Reference
 
 The following attributes are exported in addition to the arguments listed above:
@@ -96,15 +74,7 @@ The following attributes are exported in addition to the arguments listed above:
 * `public_key` - The public key, base64 encoded
 
 * `private_key` - The private key in JSON format, base64 encoded. This is what you normally get as a file when creating
-service account keys through the CLI or web console. This is only populated when creating a new key, and when no
-`pgp_key` is provided.
-
-* `private_key_encrypted` – The private key material, base 64 encoded and
-encrypted with the given `pgp_key`. This is only populated when creating a new
-key and `pgp_key` is supplied
-
-* `private_key_fingerprint` - The MD5 public key fingerprint for the encrypted
-private key. This is only populated when creating a new key and `pgp_key` is supplied
+service account keys through the CLI or web console. This is only populated when creating a new key.
 
 * `valid_after` - The key can be used after this timestamp. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
 

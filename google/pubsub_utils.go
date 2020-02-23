@@ -3,17 +3,7 @@ package google
 import (
 	"fmt"
 	"regexp"
-
-	"github.com/hashicorp/terraform/helper/schema"
 )
-
-func comparePubsubSubscriptionBasename(_, old, new string, _ *schema.ResourceData) bool {
-	if GetResourceNameFromSelfLink(old) == GetResourceNameFromSelfLink(new) {
-		return true
-	}
-
-	return false
-}
 
 func getComputedSubscriptionName(project, subscription string) string {
 	match, _ := regexp.MatchString("projects\\/.*\\/subscriptions\\/.*", subscription)

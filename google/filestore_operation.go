@@ -14,11 +14,13 @@
 package google
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
 type FilestoreOperationWaiter struct {
-	Config *Config
+	Config  *Config
+	Project string
 	CommonOperationWaiter
 }
 
@@ -28,18 +30,41 @@ func (w *FilestoreOperationWaiter) QueryOp() (interface{}, error) {
 	}
 	// Returns the proper get.
 	url := fmt.Sprintf("https://file.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
-	return sendRequest(w.Config, "GET", url, nil)
+	return sendRequest(w.Config, "GET", w.Project, url, nil)
+}
+
+func createFilestoreWaiter(config *Config, op map[string]interface{}, project, activity string) (*FilestoreOperationWaiter, error) {
+	if val, ok := op["name"]; !ok || val == "" {
+		// This was a synchronous call - there is no operation to wait for.
+		return nil, nil
+	}
+	w := &FilestoreOperationWaiter{
+		Config:  config,
+		Project: project,
+	}
+	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
+		return nil, err
+	}
+	return w, nil
+}
+
+// nolint: deadcode,unused
+func filestoreOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity string, timeoutMinutes int) error {
+	w, err := createFilestoreWaiter(config, op, project, activity)
+	if err != nil || w == nil {
+		// If w is nil, the op was synchronous.
+		return err
+	}
+	if err := OperationWait(w, activity, timeoutMinutes); err != nil {
+		return err
+	}
+	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
 func filestoreOperationWaitTime(config *Config, op map[string]interface{}, project, activity string, timeoutMinutes int) error {
-	if val, ok := op["name"]; !ok || val == "" {
-		// This was a synchronous call - there is no operation to wait for.
-		return nil
-	}
-	w := &FilestoreOperationWaiter{
-		Config: config,
-	}
-	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
+	w, err := createFilestoreWaiter(config, op, project, activity)
+	if err != nil || w == nil {
+		// If w is nil, the op was synchronous.
 		return err
 	}
 	return OperationWait(w, activity, timeoutMinutes)

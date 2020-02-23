@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccSpannerInstance_spannerInstanceBasicExample(t *testing.T) {
@@ -51,9 +51,9 @@ func TestAccSpannerInstance_spannerInstanceBasicExample(t *testing.T) {
 func testAccSpannerInstance_spannerInstanceBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_spanner_instance" "example" {
-  config        = "regional-us-central1"
-  display_name  = "Test Spanner Instance"
-  num_nodes     = 2
+  config       = "regional-us-central1"
+  display_name = "Test Spanner Instance"
+  num_nodes    = 2
   labels = {
     "foo" = "bar"
   }
@@ -77,7 +77,7 @@ func testAccCheckSpannerInstanceDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("SpannerInstance still exists at %s", url)
 		}

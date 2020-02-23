@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeNetworkEndpointGroup_networkEndpointGroupExample(t *testing.T) {
@@ -51,23 +51,23 @@ func TestAccComputeNetworkEndpointGroup_networkEndpointGroupExample(t *testing.T
 func testAccComputeNetworkEndpointGroup_networkEndpointGroupExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
-  name         = "my-lb-neg%{random_suffix}"
-  network      = "${google_compute_network.default.self_link}"
-  subnetwork   = "${google_compute_subnetwork.default.self_link}"
+  name         = "tf-test-my-lb-neg%{random_suffix}"
+  network      = google_compute_network.default.self_link
+  subnetwork   = google_compute_subnetwork.default.self_link
   default_port = "90"
   zone         = "us-central1-a"
 }
 
 resource "google_compute_network" "default" {
-  name = "neg-network%{random_suffix}"
+  name                    = "tf-test-neg-network%{random_suffix}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "neg-subnetwork%{random_suffix}"
+  name          = "tf-test-neg-subnetwork%{random_suffix}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.default.self_link}"
+  network       = google_compute_network.default.self_link
 }
 `, context)
 }
@@ -88,7 +88,7 @@ func testAccCheckComputeNetworkEndpointGroupDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("ComputeNetworkEndpointGroup still exists at %s", url)
 		}

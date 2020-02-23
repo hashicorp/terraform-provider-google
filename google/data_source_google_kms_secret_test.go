@@ -6,9 +6,9 @@ import (
 	"log"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/cloudkms/v1"
 )
 
@@ -89,8 +89,8 @@ func testAccEncryptSecretDataWithCryptoKey(s *terraform.State, cryptoKeyResource
 func testGoogleKmsSecret_datasource(cryptoKeyTerraformId, ciphertext string) string {
 	return fmt.Sprintf(`
 data "google_kms_secret" "acceptance" {
-	crypto_key = "%s"
-	ciphertext = "%s"
+  crypto_key = "%s"
+  ciphertext = "%s"
 }
-	`, cryptoKeyTerraformId, ciphertext)
+`, cryptoKeyTerraformId, ciphertext)
 }

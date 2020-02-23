@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Access Context Manager"
 layout: "google"
 page_title: "Google: google_access_context_manager_service_perimeter"
 sidebar_current: "docs-google-access-context-manager-service-perimeter"
@@ -45,18 +46,18 @@ To get more information about ServicePerimeter, see:
 
 ```hcl
 resource "google_access_context_manager_service_perimeter" "service-perimeter" {
-  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
-  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/servicePerimeters/restrict_all"
-  title       = "restrict_all"
+  parent = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}"
+  name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/servicePerimeters/restrict_all"
+  title  = "restrict_all"
   status {
     restricted_services = ["storage.googleapis.com"]
   }
 }
 
 resource "google_access_context_manager_access_level" "access-level" {
-  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
-  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/chromeos_no_lock"
-  title       = "chromeos_no_lock"
+  parent = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}"
+  name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/accessLevels/chromeos_no_lock"
+  title  = "chromeos_no_lock"
   basic {
     conditions {
       device_policy {
@@ -117,7 +118,7 @@ The following arguments are supported:
   Bridge does not contain access levels or services: those are governed
   entirely by the regular perimeter that resource is in.
   Perimeter Bridges are typically useful when building more complex
-  toplogies with many independent perimeters that need to share some data
+  topologies with many independent perimeters that need to share some data
   with a common perimeter, but should not be able to share data among
   themselves.
 
@@ -160,6 +161,7 @@ The `status` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `create_time` -
   Time the AccessPolicy was created in UTC.

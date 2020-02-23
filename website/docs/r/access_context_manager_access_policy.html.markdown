@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Access Context Manager"
 layout: "google"
 page_title: "Google: google_access_context_manager_access_policy"
 sidebar_current: "docs-google-access-context-manager-access-policy"
@@ -69,6 +70,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   Resource name of the AccessPolicy. Format: {policy_id}

@@ -2,9 +2,10 @@ package google
 
 import (
 	"fmt"
+	"reflect"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/googleapi"
 )
@@ -304,7 +305,7 @@ func resourceInstanceTags(d TerraformResourceData) *computeBeta.Tags {
 	return tags
 }
 
-func expandShieldedVmConfigs(d *schema.ResourceData) *computeBeta.ShieldedVmConfig {
+func expandShieldedVmConfigs(d TerraformResourceData) *computeBeta.ShieldedVmConfig {
 	if _, ok := d.GetOk("shielded_instance_config"); !ok {
 		return nil
 	}
@@ -328,4 +329,50 @@ func flattenShieldedVmConfig(shieldedVmConfig *computeBeta.ShieldedVmConfig) []m
 		"enable_vtpm":                 shieldedVmConfig.EnableVtpm,
 		"enable_integrity_monitoring": shieldedVmConfig.EnableIntegrityMonitoring,
 	}}
+}
+
+func expandDisplayDevice(d TerraformResourceData) *computeBeta.DisplayDevice {
+	if _, ok := d.GetOk("enable_display"); !ok {
+		return nil
+	}
+	return &computeBeta.DisplayDevice{
+		EnableDisplay:   d.Get("enable_display").(bool),
+		ForceSendFields: []string{"EnableDisplay"},
+	}
+}
+
+func flattenEnableDisplay(displayDevice *computeBeta.DisplayDevice) interface{} {
+	if displayDevice == nil {
+		return nil
+	}
+
+	return displayDevice.EnableDisplay
+}
+
+// Terraform doesn't correctly calculate changes on schema.Set, so we do it manually
+// https://github.com/hashicorp/terraform-plugin-sdk/issues/98
+func schedulingHasChange(d *schema.ResourceData) bool {
+	if !d.HasChange("scheduling") {
+		// This doesn't work correctly, which is why this method exists
+		// But it is here for posterity
+		return false
+	}
+	o, n := d.GetChange("scheduling")
+	oScheduling := o.([]interface{})[0].(map[string]interface{})
+	newScheduling := n.([]interface{})[0].(map[string]interface{})
+	originalNa := oScheduling["node_affinities"].(*schema.Set)
+	newNa := newScheduling["node_affinities"].(*schema.Set)
+	if oScheduling["automatic_restart"] != newScheduling["automatic_restart"] {
+		return true
+	}
+
+	if oScheduling["preemptible"] != newScheduling["preemptible"] {
+		return true
+	}
+
+	if oScheduling["on_host_maintenance"] != newScheduling["on_host_maintenance"] {
+		return true
+	}
+
+	return reflect.DeepEqual(newNa, originalNa)
 }

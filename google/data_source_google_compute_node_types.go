@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -62,7 +62,7 @@ func dataSourceGoogleComputeNodeTypesRead(d *schema.ResourceData, meta interface
 }
 
 func flattenComputeNodeTypes(nodeTypes []*compute.NodeType) []string {
-	result := make([]string, len(nodeTypes), len(nodeTypes))
+	result := make([]string, len(nodeTypes))
 	for i, nodeType := range nodeTypes {
 		result[i] = nodeType.Name
 	}

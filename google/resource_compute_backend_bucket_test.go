@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccComputeBackendBucket_basicModified(t *testing.T) {
@@ -68,7 +68,7 @@ func testAccComputeBackendBucket_basic(backendName, storageName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_bucket" "foobar" {
   name        = "%s"
-  bucket_name = "${google_storage_bucket.bucket_one.name}"
+  bucket_name = google_storage_bucket.bucket_one.name
 }
 
 resource "google_storage_bucket" "bucket_one" {
@@ -82,7 +82,7 @@ func testAccComputeBackendBucket_basicModified(backendName, bucketOne, bucketTwo
 	return fmt.Sprintf(`
 resource "google_compute_backend_bucket" "foobar" {
   name        = "%s"
-  bucket_name = "${google_storage_bucket.bucket_two.name}"
+  bucket_name = google_storage_bucket.bucket_two.name
 }
 
 resource "google_storage_bucket" "bucket_one" {
@@ -101,10 +101,10 @@ func testAccComputeBackendBucket_withCdnPolicy(backendName, storageName string) 
 	return fmt.Sprintf(`
 resource "google_compute_backend_bucket" "foobar" {
   name        = "%s"
-  bucket_name = "${google_storage_bucket.bucket.name}"
+  bucket_name = google_storage_bucket.bucket.name
   enable_cdn  = true
   cdn_policy {
-  	signed_url_cache_max_age_sec = 1000
+    signed_url_cache_max_age_sec = 1000
   }
 }
 

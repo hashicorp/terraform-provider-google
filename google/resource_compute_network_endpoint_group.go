@@ -21,9 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
-	"google.golang.org/api/compute/v1"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceComputeNetworkEndpointGroup() *schema.Resource {
@@ -47,35 +46,51 @@ func resourceComputeNetworkEndpointGroup() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateGCPName,
+				Description: `Name of the resource; provided by the client when the resource is
+created. The name must be 1-63 characters long, and comply with
+RFC1035. Specifically, the name must be 1-63 characters long and match
+the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
+first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the last
+character, which cannot be a dash.`,
 			},
 			"network": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The network to which all network endpoints in the NEG belong.
+Uses "default" project network if unspecified.`,
 			},
 			"default_port": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
+				Description: `The default port used if the port number is not specified in the
+network endpoint.`,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Description: `An optional description of this resource. Provide this property when
+you create the resource.`,
 			},
 			"network_endpoint_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"GCE_VM_IP_PORT", ""}, false),
-				Default:      "GCE_VM_IP_PORT",
+				Description: `Type of network endpoints in this network endpoint group. Currently
+the only supported value is GCE_VM_IP_PORT.`,
+				Default: "GCE_VM_IP_PORT",
 			},
 			"subnetwork": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Optional subnetwork to which all network endpoints in the NEG belong.`,
 			},
 			"zone": {
 				Type:             schema.TypeString,
@@ -83,10 +98,12 @@ func resourceComputeNetworkEndpointGroup() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Zone where the network endpoint group is located.`,
 			},
 			"size": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Number of network endpoints in the network endpoint group.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -155,36 +172,30 @@ func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Creating new NetworkEndpointGroup: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating NetworkEndpointGroup: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating NetworkEndpointGroup",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating NetworkEndpointGroup",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create NetworkEndpointGroup: %s", waitErr)
+		return fmt.Errorf("Error waiting to create NetworkEndpointGroup: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating NetworkEndpointGroup %q: %#v", d.Id(), res)
@@ -200,41 +211,41 @@ func resourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNetworkEndpointGroup %q", d.Id()))
-	}
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	res, err := sendRequest(config, "GET", project, url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNetworkEndpointGroup %q", d.Id()))
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeNetworkEndpointGroupName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeNetworkEndpointGroupName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("description", flattenComputeNetworkEndpointGroupDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeNetworkEndpointGroupDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("network_endpoint_type", flattenComputeNetworkEndpointGroupNetworkEndpointType(res["networkEndpointType"], d)); err != nil {
+	if err := d.Set("network_endpoint_type", flattenComputeNetworkEndpointGroupNetworkEndpointType(res["networkEndpointType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("size", flattenComputeNetworkEndpointGroupSize(res["size"], d)); err != nil {
+	if err := d.Set("size", flattenComputeNetworkEndpointGroupSize(res["size"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("network", flattenComputeNetworkEndpointGroupNetwork(res["network"], d)); err != nil {
+	if err := d.Set("network", flattenComputeNetworkEndpointGroupNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("subnetwork", flattenComputeNetworkEndpointGroupSubnetwork(res["subnetwork"], d)); err != nil {
+	if err := d.Set("subnetwork", flattenComputeNetworkEndpointGroupSubnetwork(res["subnetwork"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("default_port", flattenComputeNetworkEndpointGroupDefaultPort(res["defaultPort"], d)); err != nil {
+	if err := d.Set("default_port", flattenComputeNetworkEndpointGroupDefaultPort(res["defaultPort"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
-	if err := d.Set("zone", flattenComputeNetworkEndpointGroupZone(res["zone"], d)); err != nil {
+	if err := d.Set("zone", flattenComputeNetworkEndpointGroupZone(res["zone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpointGroup: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -247,6 +258,11 @@ func resourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interf
 func resourceComputeNetworkEndpointGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return err
@@ -254,23 +270,14 @@ func resourceComputeNetworkEndpointGroupDelete(d *schema.ResourceData, meta inte
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting NetworkEndpointGroup %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "NetworkEndpointGroup")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting NetworkEndpointGroup",
+		config, res, project, "Deleting NetworkEndpointGroup",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -293,7 +300,7 @@ func resourceComputeNetworkEndpointGroupImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -302,19 +309,19 @@ func resourceComputeNetworkEndpointGroupImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNetworkEndpointGroupName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkEndpointGroupDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkEndpointGroupNetworkEndpointType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupNetworkEndpointType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkEndpointGroupSize(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -324,21 +331,21 @@ func flattenComputeNetworkEndpointGroupSize(v interface{}, d *schema.ResourceDat
 	return v
 }
 
-func flattenComputeNetworkEndpointGroupNetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeNetworkEndpointGroupSubnetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupSubnetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeNetworkEndpointGroupDefaultPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupDefaultPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -348,7 +355,7 @@ func flattenComputeNetworkEndpointGroupDefaultPort(v interface{}, d *schema.Reso
 	return v
 }
 
-func flattenComputeNetworkEndpointGroupZone(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkEndpointGroupZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

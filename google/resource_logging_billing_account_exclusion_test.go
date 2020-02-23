@@ -4,20 +4,37 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
-	"google.golang.org/api/logging/v2"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccLoggingBillingAccountExclusion_basic(t *testing.T) {
+// Logging exclusions don't always work when making parallel requests, so run tests serially
+func TestAccLoggingBillingAccountExclusion(t *testing.T) {
 	t.Parallel()
 
+	testCases := map[string]func(t *testing.T){
+		"basic":    testAccLoggingBillingAccountExclusion_basic,
+		"update":   testAccLoggingBillingAccountExclusion_update,
+		"multiple": testAccLoggingBillingAccountExclusion_multiple,
+	}
+
+	for name, tc := range testCases {
+		// shadow the tc variable into scope so that when
+		// the loop continues, if t.Run hasn't executed tc(t)
+		// yet, we don't have a race condition
+		// see https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			tc(t)
+		})
+	}
+}
+
+func testAccLoggingBillingAccountExclusion_basic(t *testing.T) {
 	billingAccount := getTestBillingAccountFromEnv(t)
 	exclusionName := "tf-test-exclusion-" + acctest.RandString(10)
 	description := "Description " + acctest.RandString(10)
-
-	var exclusion logging.LogExclusion
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -25,11 +42,7 @@ func TestAccLoggingBillingAccountExclusion_basic(t *testing.T) {
 		CheckDestroy: testAccCheckLoggingBillingAccountExclusionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingBillingAccountExclusion_basic(exclusionName, description, billingAccount),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingBillingAccountExclusionExists("google_logging_billing_account_exclusion.basic", &exclusion),
-					testAccCheckLoggingBillingAccountExclusion(&exclusion, "google_logging_billing_account_exclusion.basic"),
-				),
+				Config: testAccLoggingBillingAccountExclusion_basicCfg(exclusionName, description, billingAccount),
 			},
 			{
 				ResourceName:      "google_logging_billing_account_exclusion.basic",
@@ -40,15 +53,11 @@ func TestAccLoggingBillingAccountExclusion_basic(t *testing.T) {
 	})
 }
 
-func TestAccLoggingBillingAccountExclusion_update(t *testing.T) {
-	t.Parallel()
-
+func testAccLoggingBillingAccountExclusion_update(t *testing.T) {
 	billingAccount := getTestBillingAccountFromEnv(t)
 	exclusionName := "tf-test-exclusion-" + acctest.RandString(10)
 	descriptionBefore := "Basic BillingAccount Logging Exclusion" + acctest.RandString(10)
 	descriptionAfter := "Updated Basic BillingAccount Logging Exclusion" + acctest.RandString(10)
-
-	var exclusionBefore, exclusionAfter logging.LogExclusion
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -56,18 +65,15 @@ func TestAccLoggingBillingAccountExclusion_update(t *testing.T) {
 		CheckDestroy: testAccCheckLoggingBillingAccountExclusionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingBillingAccountExclusion_basic(exclusionName, descriptionBefore, billingAccount),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingBillingAccountExclusionExists("google_logging_billing_account_exclusion.basic", &exclusionBefore),
-					testAccCheckLoggingBillingAccountExclusion(&exclusionBefore, "google_logging_billing_account_exclusion.basic"),
-				),
+				Config: testAccLoggingBillingAccountExclusion_basicCfg(exclusionName, descriptionBefore, billingAccount),
 			},
 			{
-				Config: testAccLoggingBillingAccountExclusion_basic(exclusionName, descriptionAfter, billingAccount),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingBillingAccountExclusionExists("google_logging_billing_account_exclusion.basic", &exclusionAfter),
-					testAccCheckLoggingBillingAccountExclusion(&exclusionAfter, "google_logging_billing_account_exclusion.basic"),
-				),
+				ResourceName:      "google_logging_billing_account_exclusion.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingBillingAccountExclusion_basicCfg(exclusionName, descriptionAfter, billingAccount),
 			},
 			{
 				ResourceName:      "google_logging_billing_account_exclusion.basic",
@@ -76,19 +82,36 @@ func TestAccLoggingBillingAccountExclusion_update(t *testing.T) {
 			},
 		},
 	})
+}
 
-	// Description should have changed, but Filter and Disabled should be the same
-	if exclusionBefore.Description == exclusionAfter.Description {
-		t.Errorf("Expected Description to change, but it didn't: Description = %#v", exclusionBefore.Description)
-	}
-	if exclusionBefore.Filter != exclusionAfter.Filter {
-		t.Errorf("Expected Filter to be the same, but it differs: before = %#v, after = %#v",
-			exclusionBefore.Filter, exclusionAfter.Filter)
-	}
-	if exclusionBefore.Disabled != exclusionAfter.Disabled {
-		t.Errorf("Expected Disabled to be the same, but it differs: before = %#v, after = %#v",
-			exclusionBefore.Disabled, exclusionAfter.Disabled)
-	}
+func testAccLoggingBillingAccountExclusion_multiple(t *testing.T) {
+	billingAccount := getTestBillingAccountFromEnv(t)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingBillingAccountExclusionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingBillingAccountExclusion_multipleCfg(billingAccount),
+			},
+			{
+				ResourceName:      "google_logging_billing_account_exclusion.basic0",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_logging_billing_account_exclusion.basic1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_logging_billing_account_exclusion.basic2",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
 func testAccCheckLoggingBillingAccountExclusionDestroy(s *terraform.State) error {
@@ -110,58 +133,28 @@ func testAccCheckLoggingBillingAccountExclusionDestroy(s *terraform.State) error
 	return nil
 }
 
-func testAccCheckLoggingBillingAccountExclusionExists(n string, exclusion *logging.LogExclusion) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		attributes, err := getResourceAttributes(n, s)
-		if err != nil {
-			return err
-		}
-		config := testAccProvider.Meta().(*Config)
-
-		si, err := config.clientLogging.BillingAccounts.Exclusions.Get(attributes["id"]).Do()
-		if err != nil {
-			return err
-		}
-		*exclusion = *si
-
-		return nil
-	}
-}
-
-func testAccCheckLoggingBillingAccountExclusion(exclusion *logging.LogExclusion, n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		attributes, err := getResourceAttributes(n, s)
-		if err != nil {
-			return err
-		}
-
-		if exclusion.Description != attributes["description"] {
-			return fmt.Errorf("mismatch on description: api has %s but client has %s", exclusion.Description, attributes["description"])
-		}
-
-		if exclusion.Filter != attributes["filter"] {
-			return fmt.Errorf("mismatch on filter: api has %s but client has %s", exclusion.Filter, attributes["filter"])
-		}
-
-		disabledAttribute, err := toBool(attributes["disabled"])
-		if err != nil {
-			return err
-		}
-		if exclusion.Disabled != disabledAttribute {
-			return fmt.Errorf("mismatch on disabled: api has %t but client has %t", exclusion.Disabled, disabledAttribute)
-		}
-
-		return nil
-	}
-}
-
-func testAccLoggingBillingAccountExclusion_basic(exclusionName, description, billingAccount string) string {
+func testAccLoggingBillingAccountExclusion_basicCfg(exclusionName, description, billingAccount string) string {
 	return fmt.Sprintf(`
 resource "google_logging_billing_account_exclusion" "basic" {
-	name             = "%s"
-	billing_account  = "%s"
-	description      = "%s"
-	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  name            = "%s"
+  billing_account = "%s"
+  description     = "%s"
+  filter          = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
 `, exclusionName, billingAccount, description, getTestProjectFromEnv())
+}
+
+func testAccLoggingBillingAccountExclusion_multipleCfg(billingAccount string) string {
+	s := ""
+	for i := 0; i < 3; i++ {
+		s += fmt.Sprintf(`
+resource "google_logging_billing_account_exclusion" "basic%d" {
+	name             = "%s"
+	billing_account  = "%s"
+	description      = "Basic BillingAccount Logging Exclusion"
+	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+}
+`, i, "tf-test-exclusion-"+acctest.RandString(10), billingAccount, getTestProjectFromEnv())
+	}
+	return s
 }

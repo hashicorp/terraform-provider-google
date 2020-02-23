@@ -1,7 +1,7 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceGoogleCloudFunctionsFunction() *schema.Resource {
@@ -39,7 +39,7 @@ func dataSourceGoogleCloudFunctionsFunctionRead(d *schema.ResourceData, meta int
 		Name:    d.Get("name").(string),
 	}
 
-	d.SetId(cloudFuncId.terraformId())
+	d.SetId(cloudFuncId.cloudFunctionId())
 
 	err = resourceCloudFunctionsRead(d, meta)
 	if err != nil {

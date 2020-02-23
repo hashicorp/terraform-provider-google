@@ -5,7 +5,7 @@ import (
 
 	"encoding/base64"
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
 	"time"
 )

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccBigtableTable_basic(t *testing.T) {
@@ -23,10 +23,11 @@ func TestAccBigtableTable_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableTable(instanceName, tableName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigtableTableExists(
-						"google_bigtable_table.table"),
-				),
+			},
+			{
+				ResourceName:      "google_bigtable_table.table",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -45,10 +46,12 @@ func TestAccBigtableTable_splitKeys(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableTable_splitKeys(instanceName, tableName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigtableTableExists(
-						"google_bigtable_table.table"),
-				),
+			},
+			{
+				ResourceName:            "google_bigtable_table.table",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"split_keys"},
 			},
 		},
 	})
@@ -68,10 +71,11 @@ func TestAccBigtableTable_family(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableTable_family(instanceName, tableName, family),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigtableTableExists(
-						"google_bigtable_table.table"),
-				),
+			},
+			{
+				ResourceName:      "google_bigtable_table.table",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -91,10 +95,11 @@ func TestAccBigtableTable_familyMany(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableTable_familyMany(instanceName, tableName, family),
-				Check: resource.ComposeTestCheckFunc(
-					testAccBigtableTableExists(
-						"google_bigtable_table.table"),
-				),
+			},
+			{
+				ResourceName:      "google_bigtable_table.table",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -125,34 +130,6 @@ func testAccCheckBigtableTableDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccBigtableTableExists(n string) resource.TestCheckFunc {
-	var ctx = context.Background()
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-		config := testAccProvider.Meta().(*Config)
-		c, err := config.bigtableClientFactory.NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
-		if err != nil {
-			return fmt.Errorf("Error starting admin client. %s", err)
-		}
-
-		_, err = c.TableInfo(ctx, rs.Primary.Attributes["name"])
-		if err != nil {
-			return fmt.Errorf("Error retrieving table. Could not find %s in %s.", rs.Primary.Attributes["name"], rs.Primary.Attributes["instance_name"])
-		}
-
-		c.Close()
-
-		return nil
-	}
-}
-
 func testAccBigtableTable(instanceName, tableName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
@@ -166,7 +143,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_table" "table" {
   name          = "%s"
-  instance_name = "${google_bigtable_instance.instance.name}"
+  instance_name = google_bigtable_instance.instance.name
 }
 `, instanceName, instanceName, tableName)
 }
@@ -184,7 +161,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_table" "table" {
   name          = "%s"
-  instance_name = "${google_bigtable_instance.instance.name}"
+  instance_name = google_bigtable_instance.instance.name
   split_keys    = ["a", "b", "c"]
 }
 `, instanceName, instanceName, tableName)
@@ -193,7 +170,7 @@ resource "google_bigtable_table" "table" {
 func testAccBigtableTable_family(instanceName, tableName, family string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-  name          = "%s"
+  name = "%s"
 
   cluster {
     cluster_id = "%s"
@@ -205,7 +182,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_table" "table" {
   name          = "%s"
-  instance_name = "${google_bigtable_instance.instance.name}"
+  instance_name = google_bigtable_instance.instance.name
 
   column_family {
     family = "%s"
@@ -217,7 +194,7 @@ resource "google_bigtable_table" "table" {
 func testAccBigtableTable_familyMany(instanceName, tableName, family string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
-  name          = "%s"
+  name = "%s"
 
   cluster {
     cluster_id = "%s"
@@ -229,7 +206,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_table" "table" {
   name          = "%s"
-  instance_name = "${google_bigtable_instance.instance.name}"
+  instance_name = google_bigtable_instance.instance.name
 
   column_family {
     family = "%s-first"

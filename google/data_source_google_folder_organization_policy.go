@@ -3,7 +3,7 @@ package google
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceGoogleFolderOrganizationPolicy() *schema.Resource {
@@ -21,7 +21,7 @@ func dataSourceGoogleFolderOrganizationPolicy() *schema.Resource {
 
 func datasourceGoogleFolderOrganizationPolicyRead(d *schema.ResourceData, meta interface{}) error {
 
-	d.SetId(fmt.Sprintf("%s:%s", d.Get("folder"), d.Get("constraint")))
+	d.SetId(fmt.Sprintf("%s/%s", d.Get("folder"), d.Get("constraint")))
 
 	return resourceGoogleFolderOrganizationPolicyRead(d, meta)
 }

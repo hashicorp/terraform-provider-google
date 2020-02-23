@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceGoogleComputeInstanceGroup() *schema.Resource {
@@ -87,7 +87,11 @@ func dataSourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return err
 		}
-		d.SetId(fmt.Sprintf("%s/%s", zone, name.(string)))
+		project, err := getProject(d, config)
+		if err != nil {
+			return err
+		}
+		d.SetId(fmt.Sprintf("projects/%s/zones/%s/instanceGroups/%s", project, zone, name.(string)))
 	} else if selfLink, ok := d.GetOk("self_link"); ok {
 		parsed, err := ParseInstanceGroupFieldValue(selfLink.(string), d, config)
 		if err != nil {
@@ -96,7 +100,7 @@ func dataSourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}
 		d.Set("name", parsed.Name)
 		d.Set("zone", parsed.Zone)
 		d.Set("project", parsed.Project)
-		d.SetId(fmt.Sprintf("%s/%s", parsed.Zone, parsed.Name))
+		d.SetId(fmt.Sprintf("projects/%s/zones/%s/instanceGroups/%s", parsed.Project, parsed.Zone, parsed.Name))
 	} else {
 		return errors.New("Must provide either `self_link` or `zone/name`")
 	}

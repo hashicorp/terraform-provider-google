@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func projectIamBindingImportStep(resourceName, pid, role string) resource.TestStep {
@@ -22,7 +22,7 @@ func TestAccProjectIamBinding_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	role := "roles/compute.instanceAdmin"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -49,7 +49,7 @@ func TestAccProjectIamBinding_multiple(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	role := "roles/compute.instanceAdmin"
 	role2 := "roles/viewer"
 
@@ -83,7 +83,7 @@ func TestAccProjectIamBinding_multipleAtOnce(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	role := "roles/compute.instanceAdmin"
 	role2 := "roles/viewer"
 
@@ -113,7 +113,7 @@ func TestAccProjectIamBinding_update(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	role := "roles/compute.instanceAdmin"
 
 	resource.Test(t, resource.TestCase{
@@ -153,7 +153,7 @@ func TestAccProjectIamBinding_remove(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	role := "roles/compute.instanceAdmin"
 	role2 := "roles/viewer"
 
@@ -191,7 +191,7 @@ func TestAccProjectIamBinding_noMembers(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	role := "roles/compute.instanceAdmin"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -222,7 +222,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_binding" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   members = ["user:admin@hashicorptest.com"]
   role    = "%s"
 }
@@ -238,13 +238,13 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_binding" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   members = ["user:admin@hashicorptest.com"]
   role    = "%s"
 }
 
 resource "google_project_iam_binding" "multiple" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   members = ["user:paddy@hashicorp.com"]
   role    = "%s"
 }
@@ -260,7 +260,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_binding" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
   role    = "%s"
 }
@@ -276,7 +276,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_binding" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   members = ["user:paddy@hashicorp.com"]
   role    = "%s"
 }
@@ -292,7 +292,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_iam_binding" "acceptance" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   members = []
   role    = "%s"
 }

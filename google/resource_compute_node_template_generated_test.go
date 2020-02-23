@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeNodeTemplate_nodeTemplateBasicExample(t *testing.T) {
@@ -55,9 +55,9 @@ data "google_compute_node_types" "central1a" {
 }
 
 resource "google_compute_node_template" "template" {
-  name = "soletenant-tmpl%{random_suffix}"
-  region = "us-central1"
-  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+  name      = "tf-test-soletenant-tmpl%{random_suffix}"
+  region    = "us-central1"
+  node_type = data.google_compute_node_types.central1a.names[0]
 }
 `, context)
 }
@@ -78,7 +78,7 @@ func testAccCheckComputeNodeTemplateDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("ComputeNodeTemplate still exists at %s", url)
 		}

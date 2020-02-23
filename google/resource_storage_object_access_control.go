@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceStorageObjectAccessControl() *schema.Resource {
@@ -47,50 +47,69 @@ func resourceStorageObjectAccessControl() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The name of the bucket.`,
 			},
 			"entity": {
 				Type:     schema.TypeString,
 				Required: true,
+				Description: `The entity holding the permission, in one of the following forms:
+  * user-{{userId}}
+  * user-{{email}} (such as "user-liz@example.com")
+  * group-{{groupId}}
+  * group-{{email}} (such as "group-example@googlegroups.com")
+  * domain-{{domain}} (such as "domain-example.com")
+  * project-team-{{projectId}}
+  * allUsers
+  * allAuthenticatedUsers`,
 			},
 			"object": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The name of the object to apply the access control to.`,
 			},
 			"role": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"OWNER", "READER"}, false),
+				Description:  `The access permission for the entity.`,
 			},
 			"domain": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The domain associated with the entity.`,
 			},
 			"email": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The email address associated with the entity.`,
 			},
 			"entity_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID for the entity`,
 			},
 			"generation": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The content generation of the object, if applied to an object.`,
 			},
 			"project_team": {
-				Type:     schema.TypeList,
-				Computed: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The project team associated with the entity`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"project_number": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The project team associated with the entity`,
 						},
 						"team": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"editors", "owners", "viewers", ""}, false),
+							Description:  `The team.`,
 						},
 					},
 				},
@@ -134,7 +153,7 @@ func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Creating new ObjectAccessControl: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ObjectAccessControl: %s", err)
 	}
@@ -159,36 +178,36 @@ func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
+	res, err := sendRequest(config, "GET", "", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("StorageObjectAccessControl %q", d.Id()))
 	}
 
-	if err := d.Set("bucket", flattenStorageObjectAccessControlBucket(res["bucket"], d)); err != nil {
+	if err := d.Set("bucket", flattenStorageObjectAccessControlBucket(res["bucket"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("domain", flattenStorageObjectAccessControlDomain(res["domain"], d)); err != nil {
+	if err := d.Set("domain", flattenStorageObjectAccessControlDomain(res["domain"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("email", flattenStorageObjectAccessControlEmail(res["email"], d)); err != nil {
+	if err := d.Set("email", flattenStorageObjectAccessControlEmail(res["email"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("entity", flattenStorageObjectAccessControlEntity(res["entity"], d)); err != nil {
+	if err := d.Set("entity", flattenStorageObjectAccessControlEntity(res["entity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("entity_id", flattenStorageObjectAccessControlEntityId(res["entityId"], d)); err != nil {
+	if err := d.Set("entity_id", flattenStorageObjectAccessControlEntityId(res["entityId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("generation", flattenStorageObjectAccessControlGeneration(res["generation"], d)); err != nil {
+	if err := d.Set("generation", flattenStorageObjectAccessControlGeneration(res["generation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("object", flattenStorageObjectAccessControlObject(res["object"], d)); err != nil {
+	if err := d.Set("object", flattenStorageObjectAccessControlObject(res["object"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("project_team", flattenStorageObjectAccessControlProjectTeam(res["projectTeam"], d)); err != nil {
+	if err := d.Set("project_team", flattenStorageObjectAccessControlProjectTeam(res["projectTeam"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
-	if err := d.Set("role", flattenStorageObjectAccessControlRole(res["role"], d)); err != nil {
+	if err := d.Set("role", flattenStorageObjectAccessControlRole(res["role"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ObjectAccessControl: %s", err)
 	}
 
@@ -230,7 +249,7 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Updating ObjectAccessControl %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PUT", url, obj, d.Timeout(schema.TimeoutUpdate))
+	_, err = sendRequestWithTimeout(config, "PUT", "", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating ObjectAccessControl %q: %s", d.Id(), err)
@@ -249,7 +268,8 @@ func resourceStorageObjectAccessControlDelete(d *schema.ResourceData, meta inter
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ObjectAccessControl %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "ObjectAccessControl")
 	}
@@ -276,30 +296,30 @@ func resourceStorageObjectAccessControlImport(d *schema.ResourceData, meta inter
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenStorageObjectAccessControlBucket(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlBucket(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenStorageObjectAccessControlDomain(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlDomain(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlEmail(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlEntity(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlEntity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlEntityId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlEntityId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlGeneration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlGeneration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -309,11 +329,11 @@ func flattenStorageObjectAccessControlGeneration(v interface{}, d *schema.Resour
 	return v
 }
 
-func flattenStorageObjectAccessControlObject(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlObject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlProjectTeam(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlProjectTeam(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -323,20 +343,20 @@ func flattenStorageObjectAccessControlProjectTeam(v interface{}, d *schema.Resou
 	}
 	transformed := make(map[string]interface{})
 	transformed["project_number"] =
-		flattenStorageObjectAccessControlProjectTeamProjectNumber(original["projectNumber"], d)
+		flattenStorageObjectAccessControlProjectTeamProjectNumber(original["projectNumber"], d, config)
 	transformed["team"] =
-		flattenStorageObjectAccessControlProjectTeamTeam(original["team"], d)
+		flattenStorageObjectAccessControlProjectTeamTeam(original["team"], d, config)
 	return []interface{}{transformed}
 }
-func flattenStorageObjectAccessControlProjectTeamProjectNumber(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlProjectTeamProjectNumber(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlProjectTeamTeam(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlProjectTeamTeam(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageObjectAccessControlRole(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageObjectAccessControlRole(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Dataproc"
 layout: "google"
 page_title: "Google: google_dataproc_job_iam"
 sidebar_current: "docs-google-dataproc-job-iam"
@@ -14,7 +15,7 @@ Three different resources help you manage IAM policies on dataproc jobs. Each of
 * `google_dataproc_job_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the job are preserved.
 * `google_dataproc_job_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the job are preserved.
 
-~> **Note:** `google_dataproc_job_iam_policy` **cannot** be used in conjunction with `google_dataproc_job_iam_binding` and `google_dataproc_job_iam_member` or they will fight over what your policy should be. In addition, be careful not to accidentaly unset ownership of the job as `google_dataproc_job_iam_policy` replaces the entire policy.
+~> **Note:** `google_dataproc_job_iam_policy` **cannot** be used in conjunction with `google_dataproc_job_iam_binding` and `google_dataproc_job_iam_member` or they will fight over what your policy should be. In addition, be careful not to accidentally unset ownership of the job as `google_dataproc_job_iam_policy` replaces the entire policy.
 
 ~> **Note:** `google_dataproc_job_iam_binding` resources **can be** used in conjunction with `google_dataproc_job_iam_member` resources **only if** they do not grant privilege to the same role.
 
@@ -23,7 +24,7 @@ Three different resources help you manage IAM policies on dataproc jobs. Each of
 ```hcl
 data "google_iam_policy" "admin" {
   binding {
-    role    = "roles/editor"
+    role = "roles/editor"
     members = [
       "user:jane@example.com",
     ]
@@ -31,10 +32,10 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_dataproc_job_iam_policy" "editor" {
-  project      = "your-project"
-  region       = "your-region"
-  job_id       = "your-dataproc-job"
-  policy_data  = "${data.google_iam_policy.admin.policy_data}"
+  project     = "your-project"
+  region      = "your-region"
+  job_id      = "your-dataproc-job"
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -42,9 +43,9 @@ resource "google_dataproc_job_iam_policy" "editor" {
 
 ```hcl
 resource "google_dataproc_job_iam_binding" "editor" {
-  job_id       = "your-dataproc-job"
-  role         = "roles/editor"
-  members      = [
+  job_id = "your-dataproc-job"
+  role   = "roles/editor"
+  members = [
     "user:jane@example.com",
   ]
 }
@@ -54,9 +55,9 @@ resource "google_dataproc_job_iam_binding" "editor" {
 
 ```hcl
 resource "google_dataproc_job_iam_member" "editor" {
-  job_id       = "your-dataproc-job"
-  role         = "roles/editor"
-  member       = "user:jane@example.com"
+  job_id = "your-dataproc-job"
+  role   = "roles/editor"
+  member = "user:jane@example.com"
 }
 ```
 
@@ -110,3 +111,6 @@ $ terraform import google_dataproc_job_iam_binding.editor "projects/{project}/re
 
 $ terraform import google_dataproc_job_iam_member.editor "projects/{project}/regions/{region}/jobs/{job_id} roles/editor user:jane@example.com"
 ```
+
+-> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
+ full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.

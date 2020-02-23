@@ -1,0 +1,3 @@
+```release-note:bug
+compute: updated `google_compute_project_metadata_item` to fail on create if its key is already present in the project metadata. 
+```

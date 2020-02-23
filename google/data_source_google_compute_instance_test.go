@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccDataSourceComputeInstance_basic(t *testing.T) {
@@ -28,6 +28,7 @@ func TestAccDataSourceComputeInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.google_compute_instance.bar", "boot_disk.0.initialize_params.0.type", "pd-standard"),
 					resource.TestCheckResourceAttr("data.google_compute_instance.bar", "scratch_disk.0.interface", "SCSI"),
 					resource.TestCheckResourceAttr("data.google_compute_instance.bar", "network_interface.0.access_config.0.network_tier", "PREMIUM"),
+					resource.TestCheckResourceAttr("data.google_compute_instance.bar", "enable_display", "true"),
 				),
 			},
 		},
@@ -87,48 +88,51 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 func testAccDataSourceComputeInstanceConfig(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance" "foo" {
-	name           = "%s"
-	machine_type   = "n1-standard-1"
-	zone           = "us-central1-a"
-	can_ip_forward = false
-	tags           = ["foo", "bar"]
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  zone           = "us-central1-a"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
 
-	boot_disk {
-		initialize_params{
-			image = "debian-8-jessie-v20160803"
-		}
-	}
-
-	scratch_disk {
-	}
-
-	network_interface {
-		network = "default"
-
-    	access_config {
-      		// Ephemeral IP
-    	}
-	}
-
-	metadata = {
-		foo = "bar"
-		baz = "qux"
-        startup-script = "echo Hello"
-	}
-
-	labels = {
-		my_key       = "my_value"
-		my_other_key = "my_other_value"
+  boot_disk {
+    initialize_params {
+      image = "debian-8-jessie-v20160803"
     }
+  }
+
+  scratch_disk {
+	interface = "SCSI"
+  }
+
+  network_interface {
+    network = "default"
+
+    access_config {
+      // Ephemeral IP
+    }
+  }
+
+  metadata = {
+    foo            = "bar"
+    baz            = "qux"
+    startup-script = "echo Hello"
+  }
+
+  labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
+
+  enable_display = true
 }
 
 data "google_compute_instance" "bar" {
-	name = "${google_compute_instance.foo.name}"
-	zone = "us-central1-a"
+  name = google_compute_instance.foo.name
+  zone = "us-central1-a"
 }
 
 data "google_compute_instance" "baz" {
-	self_link = "${google_compute_instance.foo.self_link}"
+  self_link = google_compute_instance.foo.self_link
 }
 `, instanceName)
 }

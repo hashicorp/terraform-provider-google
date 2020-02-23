@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 // Since each test here is acting on the same organization and only one AccessPolicy
@@ -72,7 +72,7 @@ func testAccCheckAccessContextManagerAccessLevelDestroy(s *terraform.State) erro
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("AccessLevel still exists at %s", url)
 		}
@@ -145,6 +145,8 @@ resource "google_access_context_manager_access_level" "test-access" {
       negate = false
       device_policy {
         require_screen_lock = false
+        require_admin_approval = false
+        require_corp_owned = true
         os_constraints {
           os_type = "DESKTOP_CHROME_OS"
         }

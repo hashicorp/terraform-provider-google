@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 // This function isn't a test of transport.go; instead, it is used as an alternative
@@ -131,6 +131,25 @@ func TestReplaceVars(t *testing.T) {
 				"name":    "instance1",
 			},
 			Expected: "projects/project1/zones/zone1/instances/instance1",
+		},
+		"zonal schema recursive replacement": {
+			Template: "projects/{{project}}/zones/{{zone}}/instances/{{name}}",
+			SchemaValues: map[string]interface{}{
+				"project":   "project1",
+				"zone":      "wrapper{{innerzone}}wrapper",
+				"name":      "instance1",
+				"innerzone": "inner",
+			},
+			Expected: "projects/project1/zones/wrapperinnerwrapper/instances/instance1",
+		},
+		"base path recursive replacement": {
+			Template: "{{CloudRunBasePath}}namespaces/{{project}}/services",
+			Config: &Config{
+				Project:          "default-project",
+				Region:           "default-region",
+				CloudRunBasePath: "https://{{region}}-run.googleapis.com/",
+			},
+			Expected: "https://default-region-run.googleapis.com/namespaces/default-project/services",
 		},
 	}
 

@@ -2,14 +2,58 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/googleapi"
-	"google.golang.org/api/serviceusage/v1"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"google.golang.org/api/serviceusage/v1"
 )
+
+// These services can only be enabled as a side-effect of enabling other services,
+// so don't bother storing them in the config or using them for diffing.
+var ignoredProjectServices = []string{"dataproc-control.googleapis.com", "source.googleapis.com", "stackdriverprovisioning.googleapis.com"}
+var ignoredProjectServicesSet = golangSetFromStringSlice(ignoredProjectServices)
+
+// Services that can't be user-specified but are otherwise valid. Renamed
+// services should be added to this set during major releases.
+var bannedProjectServices = []string{"bigquery-json.googleapis.com"}
+
+// Service Renames
+// we expect when a service is renamed:
+// - both service names will continue to be able to be set
+// - setting one will effectively enable the other as a dependent
+// - GET will return whichever service name is requested
+// - LIST responses will not contain the old service name
+// renames may be reverted, though, so we should canonicalise both ways until
+// the old service is fully removed from the provider
+//
+// We handle service renames in the provider by pretending that we've read both
+// the old and new service names from the API if we see either, and only setting
+// the one(s) that existed in prior state in config (if any). If neither exists,
+// we'll set the old service name in state.
+// Additionally, in case of service rename rollbacks or unexpected early
+// removals of services, if we fail to create or delete a service that's been
+// renamed we'll retry using an alternate name.
+// We try creation by the user-specified value followed by the other value.
+// We try deletion by the old value followed by the new value.
+
+// map from old -> new names of services that have been renamed
+// these should be removed during major provider versions. comment here with
+// "DEPRECATED FOR {{version}} next to entries slated for removal in {{version}}
+// upon removal, we should disallow the old name from being used even if it's
+// not gone from the underlying API yet
+var renamedServices = map[string]string{
+	"bigquery-json.googleapis.com": "bigquery.googleapis.com", // DEPRECATED FOR 4.0.0. Originally for 3.0.0, but the migration did not happen server-side yet.
+}
+
+// renamedServices in reverse (new -> old)
+var renamedServicesByNewServiceNames = reverseStringMap(renamedServices)
+
+// renamedServices expressed as both old -> new and new -> old
+var renamedServicesByOldAndNewServiceNames = mergeStringMaps(renamedServices, renamedServicesByNewServiceNames)
+
+const maxServiceUsageBatchSize = 20
 
 func resourceGoogleProjectService() *schema.Resource {
 	return &schema.Resource{
@@ -34,7 +78,7 @@ func resourceGoogleProjectService() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: StringNotInSlice(ignoredProjectServices, false),
+				ValidateFunc: StringNotInSlice(append(ignoredProjectServices, bannedProjectServices...), false),
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -76,7 +120,7 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	srv := d.Get("service").(string)
-	err = globalBatchEnableServices([]string{srv}, project, d, config)
+	err = BatchRequestEnableService(srv, project, d, config)
 	if err != nil {
 		return err
 	}
@@ -98,11 +142,13 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 	}
 	srv := d.Get("service").(string)
 
-	enabled, err := isServiceEnabled(project, srv, config)
+	servicesRaw, err := BatchRequestReadServices(project, d, config)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Project Service %s", d.Id()))
 	}
-	if enabled {
+	servicesList := servicesRaw.(map[string]struct{})
+
+	if _, ok := servicesList[srv]; ok {
 		d.Set("project", project)
 		d.Set("service", srv)
 		return nil
@@ -144,30 +190,25 @@ func resourceGoogleProjectServiceUpdate(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-// Retrieve enablement state for a given project's service
-func isServiceEnabled(project, serviceName string, config *Config) (bool, error) {
-	// Verify project for services still exists
-	p, err := config.clientResourceManager.Projects.Get(project).Do()
-	if err != nil {
-		return false, err
-	}
-	if p.LifecycleState == "DELETE_REQUESTED" {
-		// Construct a 404 error for handleNotFoundError
-		return false, &googleapi.Error{
-			Code:    404,
-			Message: "Project deletion was requested",
+// Disables a project service.
+func disableServiceUsageProjectService(service, project string, d *schema.ResourceData, config *Config, disableDependentServices bool) error {
+	err := retryTimeDuration(func() error {
+		name := fmt.Sprintf("projects/%s/services/%s", project, service)
+		sop, err := config.clientServiceUsage.Services.Disable(name, &serviceusage.DisableServiceRequest{
+			DisableDependentServices: disableDependentServices,
+		}).Do()
+		if err != nil {
+			return err
 		}
-	}
-
-	resourceName := fmt.Sprintf("projects/%s/services/%s", project, serviceName)
-	var srv *serviceusage.GoogleApiServiceusageV1Service
-	err = retryTime(func() error {
-		var currErr error
-		srv, currErr = config.clientServiceUsage.Services.Get(resourceName).Do()
-		return currErr
-	}, 10)
+		// Wait for the operation to complete
+		waitErr := serviceUsageOperationWait(config, sop, "api to disable")
+		if waitErr != nil {
+			return waitErr
+		}
+		return nil
+	}, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return false, errwrap.Wrapf(fmt.Sprintf("Failed to list enabled services for project %s: {{err}}", project), err)
+		return fmt.Errorf("Error disabling service %q for project %q: %v", service, project, err)
 	}
-	return srv.State == "ENABLED", nil
+	return nil
 }

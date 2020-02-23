@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeImage_imageBasicExample(t *testing.T) {
@@ -52,10 +52,55 @@ func TestAccComputeImage_imageBasicExample(t *testing.T) {
 func testAccComputeImage_imageBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_image" "example" {
-  name = "example-image%{random_suffix}"
+  name = "tf-test-example-image%{random_suffix}"
 
   raw_disk {
     source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+  }
+}
+`, context)
+}
+
+func TestAccComputeImage_imageGuestOsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeImageDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeImage_imageGuestOsExample(context),
+			},
+			{
+				ResourceName:            "google_compute_image.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"raw_disk"},
+			},
+		},
+	})
+}
+
+func testAccComputeImage_imageGuestOsExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_image" "example" {
+  name = "tf-test-example-image%{random_suffix}"
+
+  raw_disk {
+    source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+  }
+
+  guest_os_features {
+    type = "SECURE_BOOT"
+  }
+
+  guest_os_features {
+    type = "MULTI_IP_SUBNET"
   }
 }
 `, context)
@@ -77,7 +122,7 @@ func testAccCheckComputeImageDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("ComputeImage still exists at %s", url)
 		}

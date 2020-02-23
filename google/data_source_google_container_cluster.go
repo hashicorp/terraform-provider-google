@@ -1,7 +1,7 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceGoogleContainerCluster() *schema.Resource {
@@ -21,9 +21,21 @@ func dataSourceGoogleContainerCluster() *schema.Resource {
 }
 
 func datasourceContainerClusterRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
 	clusterName := d.Get("name").(string)
 
-	d.SetId(clusterName)
+	location, err := getLocation(d, config)
+	if err != nil {
+		return err
+	}
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	d.SetId(containerClusterFullName(project, location, clusterName))
 
 	return resourceContainerClusterRead(d, meta)
 }

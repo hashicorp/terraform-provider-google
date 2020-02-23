@@ -21,8 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/compute/v1"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceComputeBackendBucket() *schema.Resource {
@@ -44,26 +43,42 @@ func resourceComputeBackendBucket() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"bucket_name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Cloud Storage bucket name.`,
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRegexp(`^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$`),
+				Description: `Name of the resource. Provided by the client when the resource is
+created. The name must be 1-63 characters long, and comply with
+RFC1035.  Specifically, the name must be 1-63 characters long and
+match the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means
+the first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the
+last character, which cannot be a dash.`,
 			},
 			"cdn_policy": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Cloud CDN configuration for this Backend Bucket.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"signed_url_cache_max_age_sec": {
 							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  3600,
+							Required: true,
+							Description: `Maximum number of seconds the response to a signed URL request will
+be considered fresh. After this time period,
+the response will be revalidated before being served.
+When serving responses to signed URL requests,
+Cloud CDN will internally behave as though
+all responses from this backend had a "Cache-Control: public,
+max-age=[TTL]" header, regardless of any existing Cache-Control
+header. The actual headers served in responses will not be altered.`,
 						},
 					},
 				},
@@ -71,14 +86,18 @@ func resourceComputeBackendBucket() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: `An optional textual description of the resource; provided by the
+client when the resource is created.`,
 			},
 			"enable_cdn": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If true, enable Cloud CDN for this BackendBucket.`,
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -135,36 +154,30 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Creating new BackendBucket: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating BackendBucket: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/backendBuckets/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating BackendBucket",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating BackendBucket",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create BackendBucket: %s", waitErr)
+		return fmt.Errorf("Error waiting to create BackendBucket: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating BackendBucket %q: %#v", d.Id(), res)
@@ -180,35 +193,35 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeBackendBucket %q", d.Id()))
-	}
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	res, err := sendRequest(config, "GET", project, url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("ComputeBackendBucket %q", d.Id()))
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
 
-	if err := d.Set("bucket_name", flattenComputeBackendBucketBucketName(res["bucketName"], d)); err != nil {
+	if err := d.Set("bucket_name", flattenComputeBackendBucketBucketName(res["bucketName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
-	if err := d.Set("cdn_policy", flattenComputeBackendBucketCdnPolicy(res["cdnPolicy"], d)); err != nil {
+	if err := d.Set("cdn_policy", flattenComputeBackendBucketCdnPolicy(res["cdnPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
-	if err := d.Set("creation_timestamp", flattenComputeBackendBucketCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeBackendBucketCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
-	if err := d.Set("description", flattenComputeBackendBucketDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeBackendBucketDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
-	if err := d.Set("enable_cdn", flattenComputeBackendBucketEnableCdn(res["enableCdn"], d)); err != nil {
+	if err := d.Set("enable_cdn", flattenComputeBackendBucketEnableCdn(res["enableCdn"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
-	if err := d.Set("name", flattenComputeBackendBucketName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeBackendBucketName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendBucket: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -220,6 +233,11 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 
 func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	bucketNameProp, err := expandComputeBackendBucketBucketName(d.Get("bucket_name"), d, config)
@@ -259,24 +277,14 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Updating BackendBucket %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating BackendBucket %q: %s", d.Id(), err)
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Updating BackendBucket",
+		config, res, project, "Updating BackendBucket",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 
 	if err != nil {
@@ -289,6 +297,11 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}")
 	if err != nil {
 		return err
@@ -296,23 +309,14 @@ func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting BackendBucket %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "BackendBucket")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting BackendBucket",
+		config, res, project, "Deleting BackendBucket",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -334,7 +338,7 @@ func resourceComputeBackendBucketImport(d *schema.ResourceData, meta interface{}
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/backendBuckets/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -343,11 +347,11 @@ func resourceComputeBackendBucketImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeBackendBucketBucketName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendBucketBucketName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendBucketCdnPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendBucketCdnPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -357,10 +361,10 @@ func flattenComputeBackendBucketCdnPolicy(v interface{}, d *schema.ResourceData)
 	}
 	transformed := make(map[string]interface{})
 	transformed["signed_url_cache_max_age_sec"] =
-		flattenComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(original["signedUrlCacheMaxAgeSec"], d)
+		flattenComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(original["signedUrlCacheMaxAgeSec"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -370,19 +374,19 @@ func flattenComputeBackendBucketCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, 
 	return v
 }
 
-func flattenComputeBackendBucketCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendBucketCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendBucketDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendBucketDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendBucketEnableCdn(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendBucketEnableCdn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeBackendBucketName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeBackendBucketName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

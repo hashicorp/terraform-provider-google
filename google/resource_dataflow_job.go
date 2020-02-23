@@ -6,13 +6,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"google.golang.org/api/dataflow/v1b3"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	dataflow "google.golang.org/api/dataflow/v1b3"
 	"google.golang.org/api/googleapi"
 )
+
+const resourceDataflowJobGoogleProvidedLabelPrefix = "labels.goog-dataflow-provided"
 
 var dataflowTerminalStatesMap = map[string]struct{}{
 	"JOB_STATE_DONE":      {},
@@ -22,12 +24,27 @@ var dataflowTerminalStatesMap = map[string]struct{}{
 	"JOB_STATE_DRAINED":   {},
 }
 
+func resourceDataflowJobLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Example Diff: "labels.goog-dataflow-provided-template-version": "word_count" => ""
+	if strings.HasPrefix(k, resourceDataflowJobGoogleProvidedLabelPrefix) && new == "" {
+		// Suppress diff if field is a Google Dataflow-provided label key and has no explicitly set value in Config.
+		return true
+	}
+
+	// Let diff be determined by labels (above)
+	if strings.HasPrefix(k, "labels.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
+
 func resourceDataflowJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataflowJobCreate,
 		Read:   resourceDataflowJobRead,
 		Delete: resourceDataflowJobDelete,
-
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -72,9 +89,10 @@ func resourceDataflowJob() *schema.Resource {
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeMap,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: resourceDataflowJobLabelDiffSuppress,
 			},
 
 			"on_delete": {
@@ -96,7 +114,10 @@ func resourceDataflowJob() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
+			"type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"service_account_email": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -121,6 +142,18 @@ func resourceDataflowJob() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+			},
+
+			"ip_configuration": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"WORKER_IP_PUBLIC", "WORKER_IP_PRIVATE", ""}, false),
+			},
+
+			"job_id": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -154,6 +187,7 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 		Subnetwork:           d.Get("subnetwork").(string),
 		TempLocation:         d.Get("temp_gcs_location").(string),
 		MachineType:          d.Get("machine_type").(string),
+		IpConfiguration:      d.Get("ip_configuration").(string),
 		AdditionalUserLabels: labels,
 		Zone:                 zone,
 	}
@@ -194,8 +228,10 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("Dataflow job %s", id))
 	}
 
+	d.Set("job_id", job.Id)
 	d.Set("state", job.CurrentState)
 	d.Set("name", job.Name)
+	d.Set("type", job.Type)
 	d.Set("project", project)
 	d.Set("labels", job.Labels)
 

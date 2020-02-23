@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/storage/v1"
 )
 
@@ -178,75 +178,75 @@ func testAccCheckStorageNotificationCheckAttributes(notification *storage.Notifi
 func testGoogleStorageNotificationBasic(bucketName, topicName, topic string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
-		
+
 resource "google_pubsub_topic" "topic" {
-	name = "%s"
+  name = "%s"
 }
 
 // We have to provide GCS default storage account with the permission
 // to publish to a Cloud Pub/Sub topic from this project
 // Otherwise notification configuration won't work
-data "google_storage_project_service_account" "gcs_account" {}
+data "google_storage_project_service_account" "gcs_account" {
+}
 
 resource "google_pubsub_topic_iam_binding" "binding" {
-	topic   = "${google_pubsub_topic.topic.name}"
-	role    = "roles/pubsub.publisher"
-		  
-	members = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
+  topic = google_pubsub_topic.topic.name
+  role  = "roles/pubsub.publisher"
+
+  members = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
 }
 
 resource "google_storage_notification" "notification" {
-	bucket         = "${google_storage_bucket.bucket.name}"
-	payload_format = "JSON_API_V1"
-	topic          = "${google_pubsub_topic.topic.id}"
-	depends_on     = ["google_pubsub_topic_iam_binding.binding"]
+  bucket         = google_storage_bucket.bucket.name
+  payload_format = "JSON_API_V1"
+  topic          = google_pubsub_topic.topic.id
+  depends_on     = [google_pubsub_topic_iam_binding.binding]
 }
 
 resource "google_storage_notification" "notification_with_prefix" {
-	bucket             = "${google_storage_bucket.bucket.name}"
-	payload_format     = "JSON_API_V1"
-	topic              = "${google_pubsub_topic.topic.id}"
-	object_name_prefix = "foobar"
-	depends_on         = ["google_pubsub_topic_iam_binding.binding"]
+  bucket             = google_storage_bucket.bucket.name
+  payload_format     = "JSON_API_V1"
+  topic              = google_pubsub_topic.topic.id
+  object_name_prefix = "foobar"
+  depends_on         = [google_pubsub_topic_iam_binding.binding]
 }
-
 `, bucketName, topicName)
 }
 
 func testGoogleStorageNotificationOptionalEventsAttributes(bucketName, topicName, topic, eventType1, eventType2 string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
-		
+
 resource "google_pubsub_topic" "topic" {
-	name = "%s"
+  name = "%s"
 }
 
 // We have to provide GCS default storage account with the permission
 // to publish to a Cloud Pub/Sub topic from this project
 // Otherwise notification configuration won't work
-data "google_storage_project_service_account" "gcs_account" {}
+data "google_storage_project_service_account" "gcs_account" {
+}
 
 resource "google_pubsub_topic_iam_binding" "binding" {
-	topic       = "${google_pubsub_topic.topic.name}"
-	role        = "roles/pubsub.publisher"
-		  
-	members     = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
+  topic = google_pubsub_topic.topic.name
+  role  = "roles/pubsub.publisher"
+
+  members = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
 }
 
 resource "google_storage_notification" "notification" {
-	bucket            = "${google_storage_bucket.bucket.name}"
-	payload_format    = "JSON_API_V1"
-	topic             = "${google_pubsub_topic.topic.id}"
-	event_types       = ["%s","%s"]
-	custom_attributes = {
-		new-attribute = "new-attribute-value"
-	}
-	depends_on        = ["google_pubsub_topic_iam_binding.binding"]
+  bucket         = google_storage_bucket.bucket.name
+  payload_format = "JSON_API_V1"
+  topic          = google_pubsub_topic.topic.id
+  event_types    = ["%s", "%s"]
+  custom_attributes = {
+    new-attribute = "new-attribute-value"
+  }
+  depends_on = [google_pubsub_topic_iam_binding.binding]
 }
-
 `, bucketName, topicName, eventType1, eventType2)
 }

@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	resourceManager "google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -94,15 +94,15 @@ func testAccResourceManagerLien_basic(projectName, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "project" {
   project_id = "%s"
-  name = "some test project"
-  org_id = "%s"
+  name       = "some test project"
+  org_id     = "%s"
 }
 
 resource "google_resource_manager_lien" "lien" {
-  parent = "projects/${google_project.project.project_id}"
+  parent       = "projects/${google_project.project.project_id}"
   restrictions = ["resourcemanager.projects.delete"]
-  origin = "something"
-  reason = "something else"
+  origin       = "something"
+  reason       = "something else"
 }
 `, projectName, org)
 }

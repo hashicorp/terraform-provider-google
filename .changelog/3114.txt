@@ -1,0 +1,6 @@
+```release-note:enhancement
+container: `google_container_node_pool` will allow importing / updating / deleting node pools in error states and will wait for a stable state after any changes.
+```
+```release-note:enhancement
+container: `google_container_node_pool` resources created in an error state will be marked as tainted on creation.
+```

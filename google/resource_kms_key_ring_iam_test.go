@@ -6,9 +6,9 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 const DEFAULT_KMS_TEST_LOCATION = "us-central1"
@@ -173,30 +173,30 @@ resource "google_project" "test_project" {
   billing_account = "%s"
 }
 
-resource "google_project_services" "test_project" {
-  project = "${google_project.test_project.project_id}"
+resource "google_project_service" "kms" {
+  project = google_project.test_project.project_id
+  service = "cloudkms.googleapis.com"
+}
 
-  services = [
-     "cloudkms.googleapis.com",
-     "iam.googleapis.com",
-     "iamcredentials.googleapis.com",
-  ]
+resource "google_project_service" "iam" {
+  project = google_project_service.kms.project
+  service = "iam.googleapis.com"
 }
 
 resource "google_service_account" "test_account" {
-  project      = "${google_project_services.test_project.project}"
+  project      = google_project_service.iam.project
   account_id   = "%s"
   display_name = "Kms Key Ring Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project      = "${google_project_services.test_project.project}"
+  project  = google_project_service.iam.project
   location = "us-central1"
   name     = "%s"
 }
 
 resource "google_kms_key_ring_iam_binding" "foo" {
-  key_ring_id = "${google_kms_key_ring.key_ring.id}"
+  key_ring_id = google_kms_key_ring.key_ring.id
   role        = "%s"
   members     = ["serviceAccount:${google_service_account.test_account.email}"]
 }
@@ -212,40 +212,40 @@ resource "google_project" "test_project" {
   billing_account = "%s"
 }
 
-resource "google_project_services" "test_project" {
-  project = "${google_project.test_project.project_id}"
+resource "google_project_service" "kms" {
+  project = google_project.test_project.project_id
+  service = "cloudkms.googleapis.com"
+}
 
-  services = [
-     "cloudkms.googleapis.com",
-     "iam.googleapis.com",
-     "iamcredentials.googleapis.com",
-  ]
+resource "google_project_service" "iam" {
+  project = google_project_service.kms.project
+  service = "iam.googleapis.com"
 }
 
 resource "google_service_account" "test_account" {
-  project      = "${google_project_services.test_project.project}"
+  project      = google_project_service.iam.project
   account_id   = "%s"
   display_name = "Kms Key Ring Iam Testing Account"
 }
 
 resource "google_service_account" "test_account_2" {
-  project      = "${google_project_services.test_project.project}"
+  project      = google_project_service.iam.project
   account_id   = "%s-2"
   display_name = "Kms Key Ring Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project  = "${google_project_services.test_project.project}"
+  project  = google_project_service.iam.project
   location = "%s"
   name     = "%s"
 }
 
 resource "google_kms_key_ring_iam_binding" "foo" {
-  key_ring_id  = "${google_kms_key_ring.key_ring.id}"
-  role         = "%s"
-  members      = [
+  key_ring_id = google_kms_key_ring.key_ring.id
+  role        = "%s"
+  members = [
     "serviceAccount:${google_service_account.test_account.email}",
-    "serviceAccount:${google_service_account.test_account_2.email}"
+    "serviceAccount:${google_service_account.test_account_2.email}",
   ]
 }
 `, projectId, orgId, billingAccount, account, account, DEFAULT_KMS_TEST_LOCATION, keyRingName, roleId)
@@ -260,30 +260,30 @@ resource "google_project" "test_project" {
   billing_account = "%s"
 }
 
-resource "google_project_services" "test_project" {
-  project = "${google_project.test_project.project_id}"
+resource "google_project_service" "kms" {
+  project = google_project.test_project.project_id
+  service = "cloudkms.googleapis.com"
+}
 
-  services = [
-     "cloudkms.googleapis.com",
-     "iam.googleapis.com",
-     "iamcredentials.googleapis.com",
-  ]
+resource "google_project_service" "iam" {
+  project = google_project_service.kms.project
+  service = "iam.googleapis.com"
 }
 
 resource "google_service_account" "test_account" {
-  project      = "${google_project_services.test_project.project}"
+  project      = google_project_service.iam.project
   account_id   = "%s"
   display_name = "Kms Key Ring Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project  = "${google_project_services.test_project.project}"
+  project  = google_project_service.iam.project
   location = "%s"
   name     = "%s"
 }
 
 resource "google_kms_key_ring_iam_member" "foo" {
-  key_ring_id = "${google_kms_key_ring.key_ring.id}"
+  key_ring_id = google_kms_key_ring.key_ring.id
   role        = "%s"
   member      = "serviceAccount:${google_service_account.test_account.email}"
 }
@@ -299,39 +299,39 @@ resource "google_project" "test_project" {
   billing_account = "%s"
 }
 
-resource "google_project_services" "test_project" {
-  project = "${google_project.test_project.project_id}"
+resource "google_project_service" "kms" {
+  project = google_project.test_project.project_id
+  service = "cloudkms.googleapis.com"
+}
 
-  services = [
-     "cloudkms.googleapis.com",
-     "iam.googleapis.com",
-     "iamcredentials.googleapis.com",
-  ]
+resource "google_project_service" "iam" {
+  project = google_project_service.kms.project
+  service = "iam.googleapis.com"
 }
 
 resource "google_service_account" "test_account" {
-  project      = "${google_project_services.test_project.project}"
+  project      = google_project_service.iam.project
   account_id   = "%s"
   display_name = "Kms Key Ring Iam Testing Account"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  project  = "${google_project_services.test_project.project}"
+  project  = google_project_service.iam.project
   location = "%s"
   name     = "%s"
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%s"
+  binding {
+    role = "%s"
 
-		members = ["serviceAccount:${google_service_account.test_account.email}"]
-	}
+    members = ["serviceAccount:${google_service_account.test_account.email}"]
+  }
 }
 
 resource "google_kms_key_ring_iam_policy" "foo" {
-  key_ring_id = "${google_kms_key_ring.key_ring.id}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  key_ring_id = google_kms_key_ring.key_ring.id
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, projectId, orgId, billingAccount, account, DEFAULT_KMS_TEST_LOCATION, keyRingName, roleId)
 }

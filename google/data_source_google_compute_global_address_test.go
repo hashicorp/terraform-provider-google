@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccDataSourceComputeGlobalAddress(t *testing.T) {
@@ -47,7 +47,6 @@ func testAccDataSourceComputeGlobalAddressCheck(data_source_name string, resourc
 		rs_attr := rs.Primary.Attributes
 
 		address_attrs_to_test := []string{
-			"self_link",
 			"name",
 			"address",
 		}
@@ -63,6 +62,10 @@ func testAccDataSourceComputeGlobalAddressCheck(data_source_name string, resourc
 			}
 		}
 
+		if !compareSelfLinkOrResourceName("", ds_attr["self_link"], rs_attr["self_link"], nil) && ds_attr["self_link"] != rs_attr["self_link"] {
+			return fmt.Errorf("self link does not match: %s vs %s", ds_attr["self_link"], rs_attr["self_link"])
+		}
+
 		if ds_attr["status"] != "RESERVED" {
 			return fmt.Errorf("status is %s; want RESERVED", ds_attr["status"])
 		}
@@ -74,11 +77,11 @@ func testAccDataSourceComputeGlobalAddressCheck(data_source_name string, resourc
 func testAccDataSourceComputeGlobalAddressConfig(rsName, dsName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_global_address" "%s" {
-	name = "address-test"
+  name = "address-test"
 }
 
 data "google_compute_global_address" "%s" {
-	name = "${google_compute_global_address.%s.name}"
+  name = google_compute_global_address.%s.name
 }
 `, rsName, dsName, rsName)
 }

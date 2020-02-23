@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_image"
 sidebar_current: "docs-google-datasource-compute-image"
@@ -24,7 +25,7 @@ resource "google_compute_instance" "default" {
 
   boot_disk {
     initialize_params {
-      image = "${data.google_compute_image.my_image.self_link}"
+      image = data.google_compute_image.my_image.self_link
     }
   }
 }

@@ -20,9 +20,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
-	"google.golang.org/api/compute/v1"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceComputeGlobalForwardingRule() *schema.Resource {
@@ -47,17 +46,53 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Name of the resource; provided by the client when the resource is
+created. The name must be 1-63 characters long, and comply with
+RFC1035. Specifically, the name must be 1-63 characters long and match
+the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
+first character must be a lowercase letter, and all following
+characters must be a dash, lowercase letter, or digit, except the last
+character, which cannot be a dash.`,
 			},
 			"target": {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				Description: `The URL of the target resource to receive the matched traffic.
+The forwarded traffic must be of a type appropriate to the target object.
+For INTERNAL_SELF_MANAGED load balancing, only HTTP and HTTPS targets
+are valid.`,
 			},
 			"ip_address": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateIpAddress,
+				Description: `The IP address that this forwarding rule is serving on behalf of.
+
+Addresses are restricted based on the forwarding rule's load balancing
+scheme (EXTERNAL or INTERNAL) and scope (global or regional).
+
+When the load balancing scheme is EXTERNAL, for global forwarding
+rules, the address must be a global IP, and for regional forwarding
+rules, the address must live in the same region as the forwarding
+rule. If this field is empty, an ephemeral IPv4 address from the same
+scope (global or regional) will be assigned. A regional forwarding
+rule supports IPv4 only. A global forwarding rule supports either IPv4
+or IPv6.
+
+When the load balancing scheme is INTERNAL, this can only be an RFC
+1918 IP address belonging to the network/subnet configured for the
+forwarding rule. By default, if this field is empty, an ephemeral
+internal IP address will be automatically allocated from the IP range
+of the subnet or network configured for this forwarding rule.
+
+An address must be specified by a literal IP address. ~> **NOTE**: While
+the API allows you to specify various resource paths for an address resource
+instead, Terraform requires this to specifically be an IP address to
+avoid needing to fetching the IP address from resource paths on refresh
+or unnecessary diffs.`,
 			},
 			"ip_protocol": {
 				Type:             schema.TypeString,
@@ -66,30 +101,132 @@ func resourceComputeGlobalForwardingRule() *schema.Resource {
 				ForceNew:         true,
 				ValidateFunc:     validation.StringInSlice([]string{"TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", ""}, false),
 				DiffSuppressFunc: caseDiffSuppress,
+				Description: `The IP protocol to which this rule applies. Valid options are TCP,
+UDP, ESP, AH, SCTP or ICMP. When the load balancing scheme is
+INTERNAL_SELF_MANAGED, only TCP is valid.`,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Description: `An optional description of this resource. Provide this property when
+you create the resource.`,
 			},
 			"ip_version": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
+				Description: `The IP Version that will be used by this global forwarding rule.
+Valid options are IPV4 or IPV6.`,
 			},
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"INTERNAL_SELF_MANAGED", "EXTERNAL", ""}, false),
-				Default:      "EXTERNAL",
+				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "INTERNAL_SELF_MANAGED", ""}, false),
+				Description: `This signifies what the GlobalForwardingRule will be used for.
+The value of INTERNAL_SELF_MANAGED means that this will be used for
+Internal Global HTTP(S) LB. The value of EXTERNAL means that this
+will be used for External Global Load Balancing (HTTP(S) LB,
+External TCP/UDP LB, SSL Proxy)
+
+NOTE: Currently global forwarding rules cannot be used for INTERNAL
+load balancing.`,
+				Default: "EXTERNAL",
+			},
+			"metadata_filters": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Opaque filter criteria used by Loadbalancer to restrict routing
+configuration to a limited set xDS compliant clients. In their xDS
+requests to Loadbalancer, xDS clients present node metadata. If a
+match takes place, the relevant routing configuration is made available
+to those proxies.
+
+For each metadataFilter in this list, if its filterMatchCriteria is set
+to MATCH_ANY, at least one of the filterLabels must match the
+corresponding label provided in the metadata. If its filterMatchCriteria
+is set to MATCH_ALL, then all of its filterLabels must match with
+corresponding labels in the provided metadata.
+
+metadataFilters specified here can be overridden by those specified in
+the UrlMap that this ForwardingRule references.
+
+metadataFilters only applies to Loadbalancers that have their
+loadBalancingScheme set to INTERNAL_SELF_MANAGED.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"filter_labels": {
+							Type:     schema.TypeList,
+							Required: true,
+							ForceNew: true,
+							Description: `The list of label value pairs that must match labels in the
+provided metadata based on filterMatchCriteria
+
+This list must not be empty and can have at the most 64 entries.`,
+							MinItems: 1,
+							MaxItems: 64,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `Name of the metadata label. The length must be between
+1 and 1024 characters, inclusive.`,
+									},
+									"value": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The value that the label must match. The value has a maximum
+length of 1024 characters.`,
+									},
+								},
+							},
+						},
+						"filter_match_criteria": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"MATCH_ANY", "MATCH_ALL"}, false),
+							Description: `Specifies how individual filterLabel matches within the list of
+filterLabels contribute towards the overall metadataFilter match.
+
+MATCH_ANY - At least one of the filterLabels must have a matching
+label in the provided metadata.
+MATCH_ALL - All filterLabels must have matching labels in the
+provided metadata.`,
+						},
+					},
+				},
 			},
 			"port_range": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: portRangeDiffSuppress,
+				Description: `This field is used along with the target field for TargetHttpProxy,
+TargetHttpsProxy, TargetSslProxy, TargetTcpProxy, TargetVpnGateway,
+TargetPool, TargetInstance.
+
+Applicable only when IPProtocol is TCP, UDP, or SCTP, only packets
+addressed to ports in the specified range will be forwarded to target.
+Forwarding rules with the same [IPAddress, IPProtocol] pair must have
+disjoint port ranges.
+
+Some types of forwarding target have constraints on the acceptable
+ports:
+
+* TargetHttpProxy: 80, 8080
+* TargetHttpsProxy: 443
+* TargetTcpProxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993, 995,
+                  1883, 5222
+* TargetSslProxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993, 995,
+                  1883, 5222
+* TargetVpnGateway: 500, 4500`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -139,6 +276,12 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !isEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
 		obj["loadBalancingScheme"] = loadBalancingSchemeProp
 	}
+	metadataFiltersProp, err := expandComputeGlobalForwardingRuleMetadataFilters(d.Get("metadata_filters"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("metadata_filters"); !isEmptyValue(reflect.ValueOf(metadataFiltersProp)) && (ok || !reflect.DeepEqual(v, metadataFiltersProp)) {
+		obj["metadataFilters"] = metadataFiltersProp
+	}
 	nameProp, err := expandComputeGlobalForwardingRuleName(d.Get("name"), d, config)
 	if err != nil {
 		return err
@@ -164,36 +307,30 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Creating new GlobalForwardingRule: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating GlobalForwardingRule: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/forwardingRules/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating GlobalForwardingRule",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating GlobalForwardingRule",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create GlobalForwardingRule: %s", waitErr)
+		return fmt.Errorf("Error waiting to create GlobalForwardingRule: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating GlobalForwardingRule %q: %#v", d.Id(), res)
@@ -209,41 +346,44 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeGlobalForwardingRule %q", d.Id()))
-	}
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	res, err := sendRequest(config, "GET", project, url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("ComputeGlobalForwardingRule %q", d.Id()))
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeGlobalForwardingRuleDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeGlobalForwardingRuleDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("ip_address", flattenComputeGlobalForwardingRuleIPAddress(res["IPAddress"], d)); err != nil {
+	if err := d.Set("ip_address", flattenComputeGlobalForwardingRuleIPAddress(res["IPAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("ip_protocol", flattenComputeGlobalForwardingRuleIPProtocol(res["IPProtocol"], d)); err != nil {
+	if err := d.Set("ip_protocol", flattenComputeGlobalForwardingRuleIPProtocol(res["IPProtocol"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("ip_version", flattenComputeGlobalForwardingRuleIpVersion(res["ipVersion"], d)); err != nil {
+	if err := d.Set("ip_version", flattenComputeGlobalForwardingRuleIpVersion(res["ipVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("load_balancing_scheme", flattenComputeGlobalForwardingRuleLoadBalancingScheme(res["loadBalancingScheme"], d)); err != nil {
+	if err := d.Set("load_balancing_scheme", flattenComputeGlobalForwardingRuleLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("name", flattenComputeGlobalForwardingRuleName(res["name"], d)); err != nil {
+	if err := d.Set("metadata_filters", flattenComputeGlobalForwardingRuleMetadataFilters(res["metadataFilters"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("port_range", flattenComputeGlobalForwardingRulePortRange(res["portRange"], d)); err != nil {
+	if err := d.Set("name", flattenComputeGlobalForwardingRuleName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("target", flattenComputeGlobalForwardingRuleTarget(res["target"], d)); err != nil {
+	if err := d.Set("port_range", flattenComputeGlobalForwardingRulePortRange(res["portRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
+	}
+	if err := d.Set("target", flattenComputeGlobalForwardingRuleTarget(res["target"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -256,10 +396,16 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	d.Partial(true)
 
 	if d.HasChange("target") {
 		obj := make(map[string]interface{})
+
 		targetProp, err := expandComputeGlobalForwardingRuleTarget(d.Get("target"), d, config)
 		if err != nil {
 			return err
@@ -271,25 +417,14 @@ func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating GlobalForwardingRule %q: %s", d.Id(), err)
 		}
 
-		project, err := getProject(d, config)
-		if err != nil {
-			return err
-		}
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
 		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating GlobalForwardingRule",
+			config, res, project, "Updating GlobalForwardingRule",
 			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
 		if err != nil {
 			return err
 		}
@@ -305,6 +440,11 @@ func resourceComputeGlobalForwardingRuleUpdate(d *schema.ResourceData, meta inte
 func resourceComputeGlobalForwardingRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/forwardingRules/{{name}}")
 	if err != nil {
 		return err
@@ -312,23 +452,14 @@ func resourceComputeGlobalForwardingRuleDelete(d *schema.ResourceData, meta inte
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting GlobalForwardingRule %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "GlobalForwardingRule")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting GlobalForwardingRule",
+		config, res, project, "Deleting GlobalForwardingRule",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -350,7 +481,7 @@ func resourceComputeGlobalForwardingRuleImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/global/forwardingRules/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -359,35 +490,85 @@ func resourceComputeGlobalForwardingRuleImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeGlobalForwardingRuleDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleIPAddress(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleIPAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleIPProtocol(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleIPProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleIpVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleIpVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleLoadBalancingScheme(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleLoadBalancingScheme(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleMetadataFilters(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"filter_match_criteria": flattenComputeGlobalForwardingRuleMetadataFiltersFilterMatchCriteria(original["filterMatchCriteria"], d, config),
+			"filter_labels":         flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabels(original["filterLabels"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeGlobalForwardingRuleMetadataFiltersFilterMatchCriteria(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRulePortRange(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":  flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabelsName(original["name"], d, config),
+			"value": flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabelsValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabelsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalForwardingRuleTarget(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalForwardingRuleMetadataFiltersFilterLabelsValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeGlobalForwardingRuleName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeGlobalForwardingRulePortRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeGlobalForwardingRuleTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -408,6 +589,76 @@ func expandComputeGlobalForwardingRuleIpVersion(v interface{}, d TerraformResour
 }
 
 func expandComputeGlobalForwardingRuleLoadBalancingScheme(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeGlobalForwardingRuleMetadataFilters(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedFilterMatchCriteria, err := expandComputeGlobalForwardingRuleMetadataFiltersFilterMatchCriteria(original["filter_match_criteria"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFilterMatchCriteria); val.IsValid() && !isEmptyValue(val) {
+			transformed["filterMatchCriteria"] = transformedFilterMatchCriteria
+		}
+
+		transformedFilterLabels, err := expandComputeGlobalForwardingRuleMetadataFiltersFilterLabels(original["filter_labels"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFilterLabels); val.IsValid() && !isEmptyValue(val) {
+			transformed["filterLabels"] = transformedFilterLabels
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeGlobalForwardingRuleMetadataFiltersFilterMatchCriteria(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeGlobalForwardingRuleMetadataFiltersFilterLabels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandComputeGlobalForwardingRuleMetadataFiltersFilterLabelsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedValue, err := expandComputeGlobalForwardingRuleMetadataFiltersFilterLabelsValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !isEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeGlobalForwardingRuleMetadataFiltersFilterLabelsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeGlobalForwardingRuleMetadataFiltersFilterLabelsValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

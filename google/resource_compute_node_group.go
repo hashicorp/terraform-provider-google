@@ -21,8 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/compute/v1"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceComputeNodeGroup() *schema.Resource {
@@ -47,21 +46,25 @@ func resourceComputeNodeGroup() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The URL of the node template to which this node group belongs.`,
 			},
 			"size": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The total number of nodes in the node group.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An optional textual description of the resource.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Name of the resource.`,
 			},
 			"zone": {
 				Type:             schema.TypeString,
@@ -69,10 +72,12 @@ func resourceComputeNodeGroup() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Zone where this node group is located`,
 			},
 			"creation_timestamp": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -129,36 +134,30 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Creating new NodeGroup: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating NodeGroup: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
-	waitErr := computeOperationWaitTime(
-		config.clientCompute, op, project, "Creating NodeGroup",
+	err = computeOperationWaitTime(
+		config, res, project, "Creating NodeGroup",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create NodeGroup: %s", waitErr)
+		return fmt.Errorf("Error waiting to create NodeGroup: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating NodeGroup %q: %#v", d.Id(), res)
@@ -174,35 +173,35 @@ func resourceComputeNodeGroupRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNodeGroup %q", d.Id()))
-	}
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	res, err := sendRequest(config, "GET", project, url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNodeGroup %q", d.Id()))
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeNodeGroupCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeNodeGroupCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
-	if err := d.Set("description", flattenComputeNodeGroupDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeNodeGroupDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
-	if err := d.Set("name", flattenComputeNodeGroupName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeNodeGroupName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
-	if err := d.Set("node_template", flattenComputeNodeGroupNodeTemplate(res["nodeTemplate"], d)); err != nil {
+	if err := d.Set("node_template", flattenComputeNodeGroupNodeTemplate(res["nodeTemplate"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
-	if err := d.Set("size", flattenComputeNodeGroupSize(res["size"], d)); err != nil {
+	if err := d.Set("size", flattenComputeNodeGroupSize(res["size"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
-	if err := d.Set("zone", flattenComputeNodeGroupZone(res["zone"], d)); err != nil {
+	if err := d.Set("zone", flattenComputeNodeGroupZone(res["zone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -215,10 +214,16 @@ func resourceComputeNodeGroupRead(d *schema.ResourceData, meta interface{}) erro
 func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	d.Partial(true)
 
 	if d.HasChange("node_template") {
 		obj := make(map[string]interface{})
+
 		nodeTemplateProp, err := expandComputeNodeGroupNodeTemplate(d.Get("node_template"), d, config)
 		if err != nil {
 			return err
@@ -230,25 +235,14 @@ func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating NodeGroup %q: %s", d.Id(), err)
 		}
 
-		project, err := getProject(d, config)
-		if err != nil {
-			return err
-		}
-		op := &compute.Operation{}
-		err = Convert(res, op)
-		if err != nil {
-			return err
-		}
-
 		err = computeOperationWaitTime(
-			config.clientCompute, op, project, "Updating NodeGroup",
+			config, res, project, "Updating NodeGroup",
 			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
 		if err != nil {
 			return err
 		}
@@ -264,6 +258,11 @@ func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) er
 func resourceComputeNodeGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
 	if err != nil {
 		return err
@@ -271,23 +270,14 @@ func resourceComputeNodeGroupDelete(d *schema.ResourceData, meta interface{}) er
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting NodeGroup %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "NodeGroup")
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-	op := &compute.Operation{}
-	err = Convert(res, op)
-	if err != nil {
-		return err
-	}
-
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Deleting NodeGroup",
+		config, res, project, "Deleting NodeGroup",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 	if err != nil {
@@ -310,7 +300,7 @@ func resourceComputeNodeGroupImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -319,26 +309,26 @@ func resourceComputeNodeGroupImport(d *schema.ResourceData, meta interface{}) ([
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNodeGroupCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeGroupCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeGroupDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeGroupDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeGroupName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeGroupName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeGroupNodeTemplate(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeGroupNodeTemplate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeNodeGroupSize(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeGroupSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -348,7 +338,7 @@ func flattenComputeNodeGroupSize(v interface{}, d *schema.ResourceData) interfac
 	return v
 }
 
-func flattenComputeNodeGroupZone(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeGroupZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

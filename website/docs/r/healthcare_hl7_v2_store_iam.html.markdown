@@ -1,5 +1,6 @@
 ---
 layout: "google"
+subcategory: "Cloud Healthcare"
 page_title: "Google: google_healthcare_hl7_v2_store_iam"
 sidebar_current: "docs-google-healthcare-hl7-v2-store-iam"
 description: |-
@@ -9,7 +10,7 @@ description: |-
 # IAM policy for Google Cloud Healthcare HL7v2 store
 
 ~> **Warning:** These resources are in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/provider_versions.html) for more details on beta resources.
+See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 Three different resources help you manage your IAM policy for Healthcare HL7v2 store. Each of these resources serves a different use case:
 
@@ -35,8 +36,8 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_healthcare_hl7_v2_store_iam_policy" "hl7_v2_store" {
-	hl7_v2_store_id = "your-hl7-v2-store-id"
-	policy_data = "${data.google_iam_policy.admin.policy_data}"
+  hl7_v2_store_id = "your-hl7-v2-store-id"
+  policy_data     = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -45,12 +46,13 @@ resource "google_healthcare_hl7_v2_store_iam_policy" "hl7_v2_store" {
 ```hcl
 resource "google_healthcare_hl7_v2_store_iam_binding" "hl7_v2_store" {
   hl7_v2_store_id = "your-hl7-v2-store-id"
-  role        = "roles/editor"
+  role            = "roles/editor"
 
   members = [
     "user:jane@example.com",
   ]
 }
+
 ```
 
 ## google\_healthcare\_hl7\_v2\_store\_iam\_member
@@ -58,8 +60,8 @@ resource "google_healthcare_hl7_v2_store_iam_binding" "hl7_v2_store" {
 ```hcl
 resource "google_healthcare_hl7_v2_store_iam_member" "hl7_v2_store" {
   hl7_v2_store_id = "your-hl7-v2-store-id"
-  role        = "roles/editor"
-  member      = "user:jane@example.com"
+  role            = "roles/editor"
+  member          = "user:jane@example.com"
 }
 ```
 

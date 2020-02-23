@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_service_account"
 sidebar_current: "docs-google-service-account-x"
@@ -17,13 +18,12 @@ creation. If using these resources in the same config, you can add a
 
 ## Example Usage
 
-This snippet creates a service account, then gives it objectViewer
-permission in a project.
+This snippet creates a service account in a project.
 
 ```hcl
-resource "google_service_account" "object_viewer" {
-  account_id   = "object-viewer"
-  display_name = "Object viewer"
+resource "google_service_account" "service_account" {
+  account_id   = "service_account_id"
+  display_name = "Service Account"
 }
 ```
 
@@ -38,6 +38,9 @@ The following arguments are supported:
 
 * `display_name` - (Optional) The display name for the service account.
     Can be updated without creating a new resource.
+
+* `description` - (Optional) A text description of the service account.
+    Must be less than or equal to 256 UTF-8 bytes.
 
 * `project` - (Optional) The ID of the project that the service account will be created in.
     Defaults to the provider project configuration.

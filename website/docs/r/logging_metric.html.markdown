@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Stackdriver Logging"
 layout: "google"
 page_title: "Google: google_logging_metric"
 sidebar_current: "docs-google-logging-metric"
@@ -43,25 +44,79 @@ To get more information about Metric, see:
 
 ```hcl
 resource "google_logging_metric" "logging_metric" {
-  name = "my-(custom)/metric"
+  name   = "my-(custom)/metric"
   filter = "resource.type=gae_app AND severity>=ERROR"
   metric_descriptor {
     metric_kind = "DELTA"
-    value_type = "DISTRIBUTION"
+    value_type  = "DISTRIBUTION"
+    unit        = "1"
     labels {
-        key = "mass"
-        value_type = "STRING"
-        description = "amount of matter"
+      key         = "mass"
+      value_type  = "STRING"
+      description = "amount of matter"
     }
+    labels {
+      key         = "sku"
+      value_type  = "INT64"
+      description = "Identifying number for item"
+    }
+    display_name = "My metric"
   }
   value_extractor = "EXTRACT(jsonPayload.request)"
-  label_extractors = { "mass": "EXTRACT(jsonPayload.request)" }
+  label_extractors = {
+    "mass" = "EXTRACT(jsonPayload.request)"
+    "sku"  = "EXTRACT(jsonPayload.id)"
+  }
   bucket_options {
     linear_buckets {
       num_finite_buckets = 3
-      width = 1
-      offset = 1
+      width              = 1
+      offset             = 1
     }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=logging_metric_counter_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Logging Metric Counter Basic
+
+
+```hcl
+resource "google_logging_metric" "logging_metric" {
+  name   = "my-(custom)/metric"
+  filter = "resource.type=gae_app AND severity>=ERROR"
+  metric_descriptor {
+    metric_kind = "DELTA"
+    value_type  = "INT64"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=logging_metric_counter_labels&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Logging Metric Counter Labels
+
+
+```hcl
+resource "google_logging_metric" "logging_metric" {
+  name   = "my-(custom)/metric"
+  filter = "resource.type=gae_app AND severity>=ERROR"
+  metric_descriptor {
+    metric_kind = "DELTA"
+    value_type  = "INT64"
+    labels {
+      key         = "mass"
+      value_type  = "STRING"
+      description = "amount of matter"
+    }
+  }
+  label_extractors = {
+    "mass" = "EXTRACT(jsonPayload.request)"
   }
 }
 ```
@@ -91,15 +146,23 @@ The following arguments are supported:
 
 The `metric_descriptor` block supports:
 
+* `unit` -
+  (Optional)
+  The unit in which the metric value is reported. It is only applicable if the valueType is
+  `INT64`, `DOUBLE`, or `DISTRIBUTION`. The supported units are a subset of
+  [The Unified Code for Units of Measure](http://unitsofmeasure.org/ucum.html) standard
+
 * `value_type` -
   (Required)
   Whether the measurement is an integer, a floating-point number, etc.
   Some combinations of metricKind and valueType might not be supported.
+  For counter metrics, set this to INT64.
 
 * `metric_kind` -
   (Required)
   Whether the metric records instantaneous values, changes to a value, etc.
   Some combinations of metricKind and valueType might not be supported.
+  For counter metrics, set this to DELTA.
 
 * `labels` -
   (Optional)
@@ -107,6 +170,12 @@ The `metric_descriptor` block supports:
   example, the appengine.googleapis.com/http/server/response_latencies metric type has a label
   for the HTTP response code, response_code, so you can look at latencies for successful responses
   or just for responses that failed.  Structure is documented below.
+
+* `display_name` -
+  (Optional)
+  A concise name for the metric, which can be displayed in user interfaces. Use sentence case 
+  without an ending period, for example "Request count". This field is optional but it is 
+  recommended to be set for any metrics associated with user-visible concepts, such as Quota.
 
 
 The `labels` block supports:
@@ -169,7 +238,7 @@ The `bucket_options` block supports:
   Specifies an exponential sequence of buckets that have a width that is proportional to the value of
   the lower bound. Each bucket represents a constant relative uncertainty on a specific value in the bucket.  Structure is documented below.
 
-* `explicit` -
+* `explicit_buckets` -
   (Optional)
   Specifies a set of buckets with arbitrary widths.  Structure is documented below.
 
@@ -202,11 +271,17 @@ The `exponential_buckets` block supports:
   (Optional)
   Must be greater than 0.
 
-The `explicit` block supports:
+The `explicit_buckets` block supports:
 
 * `bounds` -
-  (Optional)
+  (Required)
   The values must be monotonically increasing.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{name}}`
 
 
 ## Timeouts
@@ -228,3 +303,7 @@ $ terraform import google_logging_metric.default {{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

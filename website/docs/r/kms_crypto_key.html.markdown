@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud KMS"
 layout: "google"
 page_title: "Google: google_kms_crypto_key"
 sidebar_current: "docs-google-kms-crypto-key"
@@ -44,13 +45,13 @@ To get more information about CryptoKey, see:
 
 ```hcl
 resource "google_kms_key_ring" "keyring" {
-  name = "keyring-example"
+  name     = "keyring-example"
   location = "global"
 }
 
 resource "google_kms_crypto_key" "example-key" {
   name            = "crypto-key-example"
-  key_ring        = "${google_kms_key_ring.keyring.self_link}"
+  key_ring        = google_kms_key_ring.keyring.self_link
   rotation_period = "100000s"
 
   lifecycle {
@@ -69,7 +70,7 @@ resource "google_kms_key_ring" "keyring" {
 
 resource "google_kms_crypto_key" "example-asymmetric-sign-key" {
   name     = "crypto-key-example"
-  key_ring = "${google_kms_key_ring.keyring.self_link}"
+  key_ring = google_kms_key_ring.keyring.self_link
   purpose  = "ASYMMETRIC_SIGN"
 
   version_template {
@@ -93,7 +94,8 @@ The following arguments are supported:
 
 * `key_ring` -
   (Required)
-  The id of the `KeyRing` to which the key shall belong.
+  The KeyRing that this key belongs to.
+  Format: `'projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}'`.
 
 
 - - -
@@ -101,7 +103,7 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Labels with user-defined metadata to apply to this reosure.
+  Labels with user-defined metadata to apply to this resource.
 
 * `purpose` -
   (Optional)
@@ -136,6 +138,7 @@ The `version_template` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{key_ring}}/cryptoKeys/{{name}}`
 
 
 * `self_link`: The self link of the created CryptoKey. Its format is `{{key_ring}}/cryptoKeys/{{name}}`.
@@ -160,3 +163,7 @@ $ terraform import google_kms_crypto_key.default {{key_ring}}/{{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

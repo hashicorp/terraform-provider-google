@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_global_forwarding_rule"
 sidebar_current: "docs-google-compute-global-forwarding-rule"
@@ -42,20 +43,20 @@ https://cloud.google.com/compute/docs/load-balancing/http/
 ```hcl
 resource "google_compute_global_forwarding_rule" "default" {
   name       = "global-rule"
-  target     = "${google_compute_target_http_proxy.default.self_link}"
+  target     = google_compute_target_http_proxy.default.self_link
   port_range = "80"
 }
 
 resource "google_compute_target_http_proxy" "default" {
   name        = "target-proxy"
   description = "a description"
-  url_map     = "${google_compute_url_map.default.self_link}"
+  url_map     = google_compute_url_map.default.self_link
 }
 
 resource "google_compute_url_map" "default" {
   name            = "url-map-target-proxy"
   description     = "a description"
-  default_service = "${google_compute_backend_service.default.self_link}"
+  default_service = google_compute_backend_service.default.self_link
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -64,11 +65,11 @@ resource "google_compute_url_map" "default" {
 
   path_matcher {
     name            = "allpaths"
-    default_service = "${google_compute_backend_service.default.self_link}"
+    default_service = google_compute_backend_service.default.self_link
 
     path_rule {
       paths   = ["/*"]
-      service = "${google_compute_backend_service.default.self_link}"
+      service = google_compute_backend_service.default.self_link
     }
   }
 }
@@ -79,7 +80,7 @@ resource "google_compute_backend_service" "default" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = ["${google_compute_http_health_check.default.self_link}"]
+  health_checks = [google_compute_http_health_check.default.self_link]
 }
 
 resource "google_compute_http_health_check" "default" {
@@ -99,26 +100,33 @@ resource "google_compute_http_health_check" "default" {
 
 ```hcl
 resource "google_compute_global_forwarding_rule" "default" {
-  provider              = "google-beta"
+  provider              = google-beta
   name                  = "global-rule"
-  target                = "${google_compute_target_http_proxy.default.self_link}"
+  target                = google_compute_target_http_proxy.default.self_link
   port_range            = "80"
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
   ip_address            = "0.0.0.0"
+  metadata_filters {
+    filter_match_criteria = "MATCH_ANY"
+    filter_labels {
+      name  = "PLANET"
+      value = "MARS"
+    }
+  }
 }
 
 resource "google_compute_target_http_proxy" "default" {
-  provider    = "google-beta"
+  provider    = google-beta
   name        = "target-proxy"
   description = "a description"
-  url_map     = "${google_compute_url_map.default.self_link}"
+  url_map     = google_compute_url_map.default.self_link
 }
 
 resource "google_compute_url_map" "default" {
-  provider         = "google-beta"
+  provider        = google-beta
   name            = "url-map-target-proxy"
   description     = "a description"
-  default_service = "${google_compute_backend_service.default.self_link}"
+  default_service = google_compute_backend_service.default.self_link
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -127,17 +135,17 @@ resource "google_compute_url_map" "default" {
 
   path_matcher {
     name            = "allpaths"
-    default_service = "${google_compute_backend_service.default.self_link}"
+    default_service = google_compute_backend_service.default.self_link
 
     path_rule {
       paths   = ["/*"]
-      service = "${google_compute_backend_service.default.self_link}"
+      service = google_compute_backend_service.default.self_link
     }
   }
 }
 
 resource "google_compute_backend_service" "default" {
-  provider              = "google-beta"
+  provider              = google-beta
   name                  = "backend"
   port_name             = "http"
   protocol              = "HTTP"
@@ -145,27 +153,27 @@ resource "google_compute_backend_service" "default" {
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
 
   backend {
-    group = "${google_compute_instance_group_manager.igm.instance_group}"
-    balancing_mode = "RATE"
-    capacity_scaler = 0.4
+    group                 = google_compute_instance_group_manager.igm.instance_group
+    balancing_mode        = "RATE"
+    capacity_scaler       = 0.4
     max_rate_per_instance = 50
   }
 
-  health_checks = ["${google_compute_health_check.default.self_link}"]
+  health_checks = [google_compute_health_check.default.self_link]
 }
 
 data "google_compute_image" "debian_image" {
-  provider = "google-beta"
+  provider = google-beta
   family   = "debian-9"
   project  = "debian-cloud"
 }
 
 resource "google_compute_instance_group_manager" "igm" {
-  provider           = "google-beta"
-  name               = "igm-internal"
+  provider = google-beta
+  name     = "igm-internal"
   version {
-    instance_template  = "${google_compute_instance_template.instance_template.self_link}"
-    name               = "primary"
+    instance_template = google_compute_instance_template.instance_template.self_link
+    name              = "primary"
   }
   base_instance_name = "internal-glb"
   zone               = "us-central1-f"
@@ -173,7 +181,7 @@ resource "google_compute_instance_group_manager" "igm" {
 }
 
 resource "google_compute_instance_template" "instance_template" {
-  provider     = "google-beta"
+  provider     = google-beta
   name         = "template-backend"
   machine_type = "n1-standard-1"
 
@@ -182,14 +190,14 @@ resource "google_compute_instance_template" "instance_template" {
   }
 
   disk {
-    source_image = "${data.google_compute_image.debian_image.self_link}"
+    source_image = data.google_compute_image.debian_image.self_link
     auto_delete  = true
     boot         = true
   }
 }
 
 resource "google_compute_health_check" "default" {
-  provider           = "google-beta"
+  provider           = google-beta
   name               = "check-backend"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -219,6 +227,8 @@ The following arguments are supported:
   (Required)
   The URL of the target resource to receive the matched traffic.
   The forwarded traffic must be of a type appropriate to the target object.
+  For INTERNAL_SELF_MANAGED load balancing, only HTTP and HTTPS targets
+  are valid.
 
 
 - - -
@@ -246,14 +256,11 @@ The following arguments are supported:
   forwarding rule. By default, if this field is empty, an ephemeral
   internal IP address will be automatically allocated from the IP range
   of the subnet or network configured for this forwarding rule.
-  ~> **NOTE** The address should be specified as a literal IP address,
-  e.g. `100.1.2.3` to avoid a permanent diff, as the server returns the
-  IP address regardless of the input value.
-  The server accepts a literal IP address or a URL reference to an existing
-  Address resource. The following examples are all valid but only the first
-  will prevent a permadiff. If you are using `google_compute_address` or
-  similar, interpolate using `.address` instead of `.self_link` or similar
-  to prevent a diff on re-apply.
+  An address must be specified by a literal IP address. ~> **NOTE**: While
+  the API allows you to specify various resource paths for an address resource
+  instead, Terraform requires this to specifically be an IP address to
+  avoid needing to fetching the IP address from resource paths on refresh
+  or unnecessary diffs.
 
 * `ip_protocol` -
   (Optional)
@@ -275,6 +282,23 @@ The following arguments are supported:
   External TCP/UDP LB, SSL Proxy)
   NOTE: Currently global forwarding rules cannot be used for INTERNAL
   load balancing.
+
+* `metadata_filters` -
+  (Optional)
+  Opaque filter criteria used by Loadbalancer to restrict routing
+  configuration to a limited set xDS compliant clients. In their xDS
+  requests to Loadbalancer, xDS clients present node metadata. If a
+  match takes place, the relevant routing configuration is made available
+  to those proxies.
+  For each metadataFilter in this list, if its filterMatchCriteria is set
+  to MATCH_ANY, at least one of the filterLabels must match the
+  corresponding label provided in the metadata. If its filterMatchCriteria
+  is set to MATCH_ALL, then all of its filterLabels must match with
+  corresponding labels in the provided metadata.
+  metadataFilters specified here can be overridden by those specified in
+  the UrlMap that this ForwardingRule references.
+  metadataFilters only applies to Loadbalancers that have their
+  loadBalancingScheme set to INTERNAL_SELF_MANAGED.  Structure is documented below.
 
 * `port_range` -
   (Optional)
@@ -299,6 +323,43 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+The `metadata_filters` block supports:
+
+* `filter_match_criteria` -
+  (Required)
+  Specifies how individual filterLabel matches within the list of
+  filterLabels contribute towards the overall metadataFilter match.
+  MATCH_ANY - At least one of the filterLabels must have a matching
+  label in the provided metadata.
+  MATCH_ALL - All filterLabels must have matching labels in the
+  provided metadata.
+
+* `filter_labels` -
+  (Required)
+  The list of label value pairs that must match labels in the
+  provided metadata based on filterMatchCriteria
+  This list must not be empty and can have at the most 64 entries.  Structure is documented below.
+
+
+The `filter_labels` block supports:
+
+* `name` -
+  (Required)
+  Name of the metadata label. The length must be between
+  1 and 1024 characters, inclusive.
+
+* `value` -
+  (Required)
+  The value that the label must match. The value has a maximum
+  length of 1024 characters.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/global/forwardingRules/{{name}}`
+* `self_link` - The URI of the created resource.
+
 
 ## Timeouts
 
@@ -321,3 +382,7 @@ $ terraform import google_compute_global_forwarding_rule.default {{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

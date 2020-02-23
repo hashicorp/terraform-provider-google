@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_subnetwork"
 sidebar_current: "docs-google-compute-subnetwork"
@@ -66,7 +67,7 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
   name          = "test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.custom-test.self_link}"
+  network       = google_compute_network.custom-test.self_link
   secondary_ip_range {
     range_name    = "tf-test-secondary-range-update1"
     ip_cidr_range = "192.168.10.0/24"
@@ -79,38 +80,57 @@ resource "google_compute_network" "custom-test" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=subnetwork_logging_config_beta&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=subnetwork_logging_config&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Subnetwork Logging Config Beta
+## Example Usage - Subnetwork Logging Config
 
 
 ```hcl
 resource "google_compute_subnetwork" "subnet-with-logging" {
-  provider      = "google-beta" 
   name          = "log-test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.custom-test.self_link}"
+  network       = google_compute_network.custom-test.self_link
 
-  enable_flow_logs = true
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
-    flow_sampling = 0.5
-    metadata = "INCLUDE_ALL_METADATA"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
   }
 }
 
 resource "google_compute_network" "custom-test" {
-  provider                = "google-beta"
   name                    = "log-test-network"
   auto_create_subnetworks = false
 }
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=subnetwork_internal_l7lb&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Subnetwork Internal L7lb
 
-provider "google-beta"{
-  region = "us-central1"
-  zone   = "us-central1-a"
+
+```hcl
+resource "google_compute_subnetwork" "network-for-l7lb" {
+  provider = google-beta
+
+  name          = "l7lb-test-subnetwork"
+  ip_cidr_range = "10.0.0.0/22"
+  region        = "us-central1"
+  purpose       = "INTERNAL_HTTPS_LOAD_BALANCER"
+  role          = "ACTIVE"
+  network       = google_compute_network.custom-test.self_link
+}
+
+resource "google_compute_network" "custom-test" {
+  provider = google-beta
+
+  name                    = "l7lb-test-network"
+  auto_create_subnetworks = false
 }
 ```
 
@@ -151,19 +171,17 @@ The following arguments are supported:
   you create the resource. This field can be set only at resource
   creation time.
 
-* `enable_flow_logs` -
-  (Optional)
-  Whether to enable flow logging for this subnetwork.
-
 * `secondary_ip_range` -
   (Optional)
   An array of configurations for secondary IP ranges for VM instances
   contained in this subnetwork. The primary IP of such VM must belong
   to the primary ipCidrRange of the subnetwork. The alias IPs may belong
   to either primary or secondary ranges.
-  This field uses attr-as-block mode to avoid breaking
-  users during the 0.12 upgrade. See [the Attr-as-Block page](https://www.terraform.io/docs/configuration/attr-as-blocks.html)
-  for more details.  Structure is documented below.
+  **Note**: This field uses [attr-as-block mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html) to avoid
+  breaking users during the 0.12 upgrade. To explicitly send a list
+  of zero objects you must use the following syntax:
+  `example=[]`
+  For more details about this behavior, see [this section](https://www.terraform.io/docs/configuration/attr-as-blocks.html#defining-a-fixed-object-collection-value).  Structure is documented below.
 
 * `private_ip_google_access` -
   (Optional)
@@ -173,6 +191,12 @@ The following arguments are supported:
 * `region` -
   (Optional)
   URL of the GCP region for this subnetwork.
+
+* `log_config` -
+  (Optional)
+  Denotes the logging options for the subnetwork flow logs. If logging is enabled
+  logs will be exported to Stackdriver. This field cannot be set if the `purpose` of this
+  subnetwork is `INTERNAL_HTTPS_LOAD_BALANCER`  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -194,10 +218,36 @@ The `secondary_ip_range` block supports:
   Ranges must be unique and non-overlapping with all primary and
   secondary IP ranges within a network. Only IPv4 is supported.
 
+The `log_config` block supports:
+
+* `aggregation_interval` -
+  (Optional)
+  Can only be specified if VPC flow logging for this subnetwork is enabled.
+  Toggles the aggregation interval for collecting flow logs. Increasing the
+  interval time will reduce the amount of generated flow logs for long
+  lasting connections. Default is an interval of 5 seconds per connection.
+  Possible values are INTERVAL_5_SEC, INTERVAL_30_SEC, INTERVAL_1_MIN,
+  INTERVAL_5_MIN, INTERVAL_10_MIN, INTERVAL_15_MIN
+
+* `flow_sampling` -
+  (Optional)
+  Can only be specified if VPC flow logging for this subnetwork is enabled.
+  The value of the field must be in [0, 1]. Set the sampling rate of VPC
+  flow logs within the subnetwork where 1.0 means all collected logs are
+  reported and 0.0 means no logs are reported. Default is 0.5 which means
+  half of all collected logs are reported.
+
+* `metadata` -
+  (Optional)
+  Can only be specified if VPC flow logging for this subnetwork is enabled.
+  Configures whether metadata fields should be added to the reported VPC
+  flow logs. Default is `INCLUDE_ALL_METADATA`.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/subnetworks/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -205,10 +255,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `gateway_address` -
   The gateway address for default routes to reach destination addresses
   outside this subnetwork.
-
-* `fingerprint` -
-  Fingerprint of this resource. This field is used internally during
-  updates of this resource.
 * `self_link` - The URI of the created resource.
 
 
@@ -234,3 +280,7 @@ $ terraform import google_compute_subnetwork.default {{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

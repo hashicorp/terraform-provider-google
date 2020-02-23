@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_network_endpoint_group"
 sidebar_current: "docs-google-datasource-compute-network-endpoint-group"
@@ -16,12 +17,12 @@ The NEG may be found by providing either a `self_link`, or a `name` and a `zone`
 
 ```hcl
 data "google_compute_network_endpoint_group" "neg1" {
-	name = "k8s1-abcdef01-myns-mysvc-8080-4b6bac43"
-	zone = "us-central1-a"
+  name = "k8s1-abcdef01-myns-mysvc-8080-4b6bac43"
+  zone = "us-central1-a"
 }
 
 data "google_compute_network_endpoint_group" "neg2" {
-	self_link = "https://www.googleapis.com/compute/v1/projects/myproject/zones/us-central1-a/networkEndpointGroups/k8s1-abcdef01-myns-mysvc-8080-4b6bac43"
+  self_link = "https://www.googleapis.com/compute/v1/projects/myproject/zones/us-central1-a/networkEndpointGroups/k8s1-abcdef01-myns-mysvc-8080-4b6bac43"
 }
 ```
 
@@ -32,12 +33,12 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project to list versions in.
     If it is not provided, the provider project is used.
 
-* `name` - (Optional) The Network Endoint Group name.
+* `name` - (Optional) The Network Endpoint Group name.
     Provide either this or a `self_link`.
 
-* `zone` - (Optional) The Network Endoint Group availability zone.
+* `zone` - (Optional) The Network Endpoint Group availability zone.
 
-* `self_link` - (Optional) The Network Endoint Group self\_link.
+* `self_link` - (Optional) The Network Endpoint Group self\_link.
 
 ## Attributes Reference
 

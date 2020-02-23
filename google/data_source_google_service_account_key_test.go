@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccDatasourceGoogleServiceAccountKey_basic(t *testing.T) {
@@ -42,15 +42,16 @@ func TestAccDatasourceGoogleServiceAccountKey_basic(t *testing.T) {
 func testAccDatasourceGoogleServiceAccountKey(account string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "acceptance" {
-	account_id = "%s"
+  account_id = "%s"
 }
 
 resource "google_service_account_key" "acceptance" {
-	service_account_id = "${google_service_account.acceptance.name}"
-	public_key_type = "TYPE_X509_PEM_FILE"
+  service_account_id = google_service_account.acceptance.name
+  public_key_type    = "TYPE_X509_PEM_FILE"
 }
 
 data "google_service_account_key" "acceptance" {
-	name = "${google_service_account_key.acceptance.name}"
-}`, account)
+  name = google_service_account_key.acceptance.name
+}
+`, account)
 }

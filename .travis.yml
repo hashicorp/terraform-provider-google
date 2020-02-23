@@ -1,13 +1,10 @@
-dist: trusty
+dist: bionic
 sudo: required
 services:
 - docker
 language: go
 go:
-- "1.11.x"
-env:
-  - GO111MODULE=on
-    GOFLAGS=-mod=vendor
+- "1.13.x"
 
 install:
 # This script is used by the Travis build to install a cookie for
@@ -18,6 +15,7 @@ install:
 - make tools
 
 script:
+- make docscheck
 - make lint
 - make test
 - make website-test
@@ -25,6 +23,7 @@ script:
 branches:
   only:
   - master
+
 matrix:
   fast_finish: true
   allow_failures:

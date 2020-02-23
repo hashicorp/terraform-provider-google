@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_iam_policy"
 sidebar_current: "docs-google-datasource-iam-policy"
@@ -12,7 +13,11 @@ description: |-
 Generates an IAM policy document that may be referenced by and applied to
 other Google Cloud Platform resources, such as the `google_project` resource.
 
-```
+**Note:** Several restrictions apply when setting IAM policies through this API.
+See the [setIamPolicy docs](https://cloud.google.com/resource-manager/reference/rest/v1/projects/setIamPolicy)
+for a list of these restrictions.
+
+```hcl
 data "google_iam_policy" "admin" {
   binding {
     role = "roles/compute.instanceAdmin"
@@ -52,10 +57,6 @@ This data source is used to define IAM policies to apply to other resources.
 Currently, defining a policy through a datasource and referencing that policy
 from another resource is the only way to apply an IAM policy to a resource.
 
-**Note:** Several restrictions apply when setting IAM policies through this API.
-See the [setIamPolicy docs](https://cloud.google.com/resource-manager/reference/rest/v1/projects/setIamPolicy)
-for a list of these restrictions.
-
 ## Argument Reference
 
 The following arguments are supported:
@@ -71,7 +72,7 @@ each accept the following arguments:
   See the [IAM Roles](https://cloud.google.com/compute/docs/access/iam) documentation for a complete list of roles.
   Note that custom roles must be of the format `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
-* `members` (Required) - An array of identites that will be granted the privilege in the `role`. For more details on format and restrictions see https://cloud.google.com/billing/reference/rest/v1/Policy#Binding
+* `members` (Required) - An array of identities that will be granted the privilege in the `role`. For more details on format and restrictions see https://cloud.google.com/billing/reference/rest/v1/Policy#Binding
   Each entry can have one of the following values:
   * **allUsers**: A special identifier that represents anyone who is on the internet; with or without a Google account. It **can't** be used with the `google_project` resource.
   * **allAuthenticatedUsers**: A special identifier that represents anyone who is authenticated with a Google account or a service account. It **can't** be used with the `google_project` resource.

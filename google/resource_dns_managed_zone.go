@@ -22,20 +22,20 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/hashcode"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
-func resourceDnsManagedZone() *schema.Resource {
+func resourceDNSManagedZone() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceDnsManagedZoneCreate,
-		Read:   resourceDnsManagedZoneRead,
-		Update: resourceDnsManagedZoneUpdate,
-		Delete: resourceDnsManagedZoneDelete,
+		Create: resourceDNSManagedZoneCreate,
+		Read:   resourceDNSManagedZoneRead,
+		Update: resourceDNSManagedZoneUpdate,
+		Delete: resourceDNSManagedZoneDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceDnsManagedZoneImport,
+			State: resourceDNSManagedZoneImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -46,25 +46,30 @@ func resourceDnsManagedZone() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"dns_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The DNS name of this managed zone, for instance "example.com.".`,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `User assigned name for this resource.
+Must be unique within the project.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "Managed by Terraform",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A textual description field. Defaults to 'Managed by Terraform'.`,
+				Default:     "Managed by Terraform",
 			},
 			"dnssec_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `DNSSEC configuration`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"default_key_specs": {
@@ -72,6 +77,9 @@ func resourceDnsManagedZone() *schema.Resource {
 							Computed: true,
 							Optional: true,
 							ForceNew: true,
+							Description: `Specifies parameters that will be used for generating initial DnsKeys
+for this ManagedZone. If you provide a spec for keySigning or zoneSigning,
+you must also provide one for the other.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"algorithm": {
@@ -79,32 +87,44 @@ func resourceDnsManagedZone() *schema.Resource {
 										Optional:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512", ""}, false),
+										Description:  `String mnemonic specifying the DNSSEC algorithm of this key`,
 									},
 									"key_length": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										ForceNew: true,
+										Type:        schema.TypeInt,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Length of the keys in bits`,
 									},
 									"key_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"keySigning", "zoneSigning", ""}, false),
+										Description: `Specifies whether this is a key signing key (KSK) or a zone
+signing key (ZSK). Key signing keys have the Secure Entry
+Point flag set and, when active, will only be used to sign
+resource record sets of type DNSKEY. Zone signing keys do
+not have the Secure Entry Point flag set and will be used
+to sign all other types of resource record sets.`,
 									},
 									"kind": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-										Default:  "dns#dnsKeySpec",
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Identifies what kind of resource this is`,
+										Default:     "dns#dnsKeySpec",
 									},
 								},
 							},
+							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
 						},
 						"kind": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Default:  "dns#managedZoneDnsSecConfig",
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							Description:  `Identifies what kind of resource this is`,
+							Default:      "dns#managedZoneDnsSecConfig",
+							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
 						},
 						"non_existence": {
 							Type:         schema.TypeString,
@@ -112,32 +132,47 @@ func resourceDnsManagedZone() *schema.Resource {
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"nsec", "nsec3", ""}, false),
+							Description:  `Specifies the mechanism used to provide authenticated denial-of-existence responses.`,
+							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
 						},
 						"state": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"off", "on", "transfer", ""}, false),
+							Description:  `Specifies whether DNSSEC is enabled, and what mode it is in`,
+							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
 						},
 					},
 				},
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `A set of key/value label pairs to assign to this ManagedZone.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"private_visibility_config": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Description: `For privately visible zones, the set of Virtual Private Cloud
+resources that the zone is visible from.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"networks": {
 							Type:     schema.TypeSet,
-							Optional: true,
-							Elem:     dnsManagedZonePrivateVisibilityConfigNetworksSchema(),
+							Required: true,
+							Description: `The list of VPC networks that can see this zone. Until the provider updates to use the Terraform 0.12 SDK in a future release, you
+may experience issues with this resource while updating. If you've defined a 'networks' block and
+add another 'networks' block while keeping the old block, Terraform will see an incorrect diff
+and apply an incorrect update to the resource. If you encounter this issue, remove all 'networks'
+blocks in an update and then apply another update adding all of them back simultaneously.`,
+							Elem: dnsManagedZonePrivateVisibilityConfigNetworksSchema(),
 							Set: func(v interface{}) int {
+								if v == nil {
+									return 0
+								}
 								raw := v.(map[string]interface{})
 								if url, ok := raw["network_url"]; ok {
 									return selfLinkNameHash(url)
@@ -156,11 +191,16 @@ func resourceDnsManagedZone() *schema.Resource {
 				ForceNew:         true,
 				ValidateFunc:     validation.StringInSlice([]string{"private", "public", ""}, false),
 				DiffSuppressFunc: caseDiffSuppress,
-				Default:          "public",
+				Description: `The zone's visibility: public zones are exposed to the Internet,
+while private zones are visible only to Virtual Private Cloud resources.
+Must be one of: 'public', 'private'.`,
+				Default: "public",
 			},
 			"name_servers": {
 				Type:     schema.TypeList,
 				Computed: true,
+				Description: `Delegate your managed_zone to these virtual name servers;
+defined by the server`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -180,73 +220,80 @@ func dnsManagedZonePrivateVisibilityConfigNetworksSchema() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"network_url": {
 				Type:             schema.TypeString,
-				Optional:         true,
+				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The fully qualified URL of the VPC network to bind to.
+This should be formatted like
+'https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}'`,
 			},
 		},
 	}
 }
 
-func resourceDnsManagedZoneCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceDNSManagedZoneCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	descriptionProp, err := expandDnsManagedZoneDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandDNSManagedZoneDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	dnsNameProp, err := expandDnsManagedZoneDnsName(d.Get("dns_name"), d, config)
+	dnsNameProp, err := expandDNSManagedZoneDnsName(d.Get("dns_name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("dns_name"); !isEmptyValue(reflect.ValueOf(dnsNameProp)) && (ok || !reflect.DeepEqual(v, dnsNameProp)) {
 		obj["dnsName"] = dnsNameProp
 	}
-	dnssecConfigProp, err := expandDnsManagedZoneDnssecConfig(d.Get("dnssec_config"), d, config)
+	dnssecConfigProp, err := expandDNSManagedZoneDnssecConfig(d.Get("dnssec_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("dnssec_config"); !isEmptyValue(reflect.ValueOf(dnssecConfigProp)) && (ok || !reflect.DeepEqual(v, dnssecConfigProp)) {
 		obj["dnssecConfig"] = dnssecConfigProp
 	}
-	nameProp, err := expandDnsManagedZoneName(d.Get("name"), d, config)
+	nameProp, err := expandDNSManagedZoneName(d.Get("name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	labelsProp, err := expandDnsManagedZoneLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandDNSManagedZoneLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
-	visibilityProp, err := expandDnsManagedZoneVisibility(d.Get("visibility"), d, config)
+	visibilityProp, err := expandDNSManagedZoneVisibility(d.Get("visibility"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("visibility"); !isEmptyValue(reflect.ValueOf(visibilityProp)) && (ok || !reflect.DeepEqual(v, visibilityProp)) {
 		obj["visibility"] = visibilityProp
 	}
-	privateVisibilityConfigProp, err := expandDnsManagedZonePrivateVisibilityConfig(d.Get("private_visibility_config"), d, config)
+	privateVisibilityConfigProp, err := expandDNSManagedZonePrivateVisibilityConfig(d.Get("private_visibility_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("private_visibility_config"); !isEmptyValue(reflect.ValueOf(privateVisibilityConfigProp)) && (ok || !reflect.DeepEqual(v, privateVisibilityConfigProp)) {
 		obj["privateVisibilityConfig"] = privateVisibilityConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{DnsBasePath}}projects/{{project}}/managedZones")
+	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Creating new ManagedZone: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ManagedZone: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/managedZones/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -254,89 +301,95 @@ func resourceDnsManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 
 	log.Printf("[DEBUG] Finished creating ManagedZone %q: %#v", d.Id(), res)
 
-	return resourceDnsManagedZoneRead(d, meta)
+	return resourceDNSManagedZoneRead(d, meta)
 }
 
-func resourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error {
+func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{DnsBasePath}}projects/{{project}}/managedZones/{{name}}")
+	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
 	if err != nil {
 		return err
-	}
-
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("DnsManagedZone %q", d.Id()))
 	}
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	res, err := sendRequest(config, "GET", project, url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("DNSManagedZone %q", d.Id()))
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 
-	if err := d.Set("description", flattenDnsManagedZoneDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenDNSManagedZoneDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
-	if err := d.Set("dns_name", flattenDnsManagedZoneDnsName(res["dnsName"], d)); err != nil {
+	if err := d.Set("dns_name", flattenDNSManagedZoneDnsName(res["dnsName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
-	if err := d.Set("dnssec_config", flattenDnsManagedZoneDnssecConfig(res["dnssecConfig"], d)); err != nil {
+	if err := d.Set("dnssec_config", flattenDNSManagedZoneDnssecConfig(res["dnssecConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
-	if err := d.Set("name", flattenDnsManagedZoneName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenDNSManagedZoneName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
-	if err := d.Set("name_servers", flattenDnsManagedZoneNameServers(res["nameServers"], d)); err != nil {
+	if err := d.Set("name_servers", flattenDNSManagedZoneNameServers(res["nameServers"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
-	if err := d.Set("labels", flattenDnsManagedZoneLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenDNSManagedZoneLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
-	if err := d.Set("visibility", flattenDnsManagedZoneVisibility(res["visibility"], d)); err != nil {
+	if err := d.Set("visibility", flattenDNSManagedZoneVisibility(res["visibility"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
-	if err := d.Set("private_visibility_config", flattenDnsManagedZonePrivateVisibilityConfig(res["privateVisibilityConfig"], d)); err != nil {
+	if err := d.Set("private_visibility_config", flattenDNSManagedZonePrivateVisibilityConfig(res["privateVisibilityConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
 
 	return nil
 }
 
-func resourceDnsManagedZoneUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	d.Partial(true)
 
 	if d.HasChange("description") || d.HasChange("labels") || d.HasChange("private_visibility_config") {
 		obj := make(map[string]interface{})
-		descriptionProp, err := expandDnsManagedZoneDescription(d.Get("description"), d, config)
+
+		descriptionProp, err := expandDNSManagedZoneDescription(d.Get("description"), d, config)
 		if err != nil {
 			return err
 		} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 			obj["description"] = descriptionProp
 		}
-		labelsProp, err := expandDnsManagedZoneLabels(d.Get("labels"), d, config)
+		labelsProp, err := expandDNSManagedZoneLabels(d.Get("labels"), d, config)
 		if err != nil {
 			return err
 		} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 			obj["labels"] = labelsProp
 		}
-		privateVisibilityConfigProp, err := expandDnsManagedZonePrivateVisibilityConfig(d.Get("private_visibility_config"), d, config)
+		privateVisibilityConfigProp, err := expandDNSManagedZonePrivateVisibilityConfig(d.Get("private_visibility_config"), d, config)
 		if err != nil {
 			return err
 		} else if v, ok := d.GetOkExists("private_visibility_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, privateVisibilityConfigProp)) {
 			obj["privateVisibilityConfig"] = privateVisibilityConfigProp
 		}
 
-		url, err := replaceVars(d, config, "{{DnsBasePath}}projects/{{project}}/managedZones/{{name}}")
+		url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
 		if err != nil {
 			return err
 		}
-		_, err = sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
+		_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating ManagedZone %q: %s", d.Id(), err)
 		}
@@ -348,20 +401,26 @@ func resourceDnsManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	d.Partial(false)
 
-	return resourceDnsManagedZoneRead(d, meta)
+	return resourceDNSManagedZoneRead(d, meta)
 }
 
-func resourceDnsManagedZoneDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{DnsBasePath}}projects/{{project}}/managedZones/{{name}}")
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ManagedZone %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "ManagedZone")
 	}
@@ -370,7 +429,7 @@ func resourceDnsManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceDnsManagedZoneImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceDNSManagedZoneImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/managedZones/(?P<name>[^/]+)",
@@ -381,7 +440,7 @@ func resourceDnsManagedZoneImport(d *schema.ResourceData, meta interface{}) ([]*
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/managedZones/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -390,15 +449,15 @@ func resourceDnsManagedZoneImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDnsManagedZoneDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneDnsName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneDnsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneDnssecConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneDnssecConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -408,28 +467,28 @@ func flattenDnsManagedZoneDnssecConfig(v interface{}, d *schema.ResourceData) in
 	}
 	transformed := make(map[string]interface{})
 	transformed["kind"] =
-		flattenDnsManagedZoneDnssecConfigKind(original["kind"], d)
+		flattenDNSManagedZoneDnssecConfigKind(original["kind"], d, config)
 	transformed["non_existence"] =
-		flattenDnsManagedZoneDnssecConfigNonExistence(original["nonExistence"], d)
+		flattenDNSManagedZoneDnssecConfigNonExistence(original["nonExistence"], d, config)
 	transformed["state"] =
-		flattenDnsManagedZoneDnssecConfigState(original["state"], d)
+		flattenDNSManagedZoneDnssecConfigState(original["state"], d, config)
 	transformed["default_key_specs"] =
-		flattenDnsManagedZoneDnssecConfigDefaultKeySpecs(original["defaultKeySpecs"], d)
+		flattenDNSManagedZoneDnssecConfigDefaultKeySpecs(original["defaultKeySpecs"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDnsManagedZoneDnssecConfigKind(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneDnssecConfigKind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneDnssecConfigNonExistence(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneDnssecConfigNonExistence(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneDnssecConfigState(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneDnssecConfigState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneDnssecConfigDefaultKeySpecs(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneDnssecConfigDefaultKeySpecs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -442,19 +501,19 @@ func flattenDnsManagedZoneDnssecConfigDefaultKeySpecs(v interface{}, d *schema.R
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"algorithm":  flattenDnsManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(original["algorithm"], d),
-			"key_length": flattenDnsManagedZoneDnssecConfigDefaultKeySpecsKeyLength(original["keyLength"], d),
-			"key_type":   flattenDnsManagedZoneDnssecConfigDefaultKeySpecsKeyType(original["keyType"], d),
-			"kind":       flattenDnsManagedZoneDnssecConfigDefaultKeySpecsKind(original["kind"], d),
+			"algorithm":  flattenDNSManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(original["algorithm"], d, config),
+			"key_length": flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(original["keyLength"], d, config),
+			"key_type":   flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyType(original["keyType"], d, config),
+			"kind":       flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKind(original["kind"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenDnsManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneDnssecConfigDefaultKeySpecsKeyLength(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -464,34 +523,35 @@ func flattenDnsManagedZoneDnssecConfigDefaultKeySpecsKeyLength(v interface{}, d 
 	return v
 }
 
-func flattenDnsManagedZoneDnssecConfigDefaultKeySpecsKeyType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKeyType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneDnssecConfigDefaultKeySpecsKind(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneDnssecConfigDefaultKeySpecsKind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneNameServers(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneNameServers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZoneLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDnsManagedZoneVisibility(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil || v.(string) == "" {
+func flattenDNSManagedZoneVisibility(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "public"
 	}
+
 	return v
 }
 
-func flattenDnsManagedZonePrivateVisibilityConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZonePrivateVisibilityConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -501,15 +561,18 @@ func flattenDnsManagedZonePrivateVisibilityConfig(v interface{}, d *schema.Resou
 	}
 	transformed := make(map[string]interface{})
 	transformed["networks"] =
-		flattenDnsManagedZonePrivateVisibilityConfigNetworks(original["networks"], d)
+		flattenDNSManagedZonePrivateVisibilityConfigNetworks(original["networks"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDnsManagedZonePrivateVisibilityConfigNetworks(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZonePrivateVisibilityConfigNetworks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(func(v interface{}) int {
+		if v == nil {
+			return 0
+		}
 		raw := v.(map[string]interface{})
 		if url, ok := raw["network_url"]; ok {
 			return selfLinkNameHash(url)
@@ -525,24 +588,24 @@ func flattenDnsManagedZonePrivateVisibilityConfigNetworks(v interface{}, d *sche
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"network_url": flattenDnsManagedZonePrivateVisibilityConfigNetworksNetworkUrl(original["networkUrl"], d),
+			"network_url": flattenDNSManagedZonePrivateVisibilityConfigNetworksNetworkUrl(original["networkUrl"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenDnsManagedZonePrivateVisibilityConfigNetworksNetworkUrl(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDNSManagedZonePrivateVisibilityConfigNetworksNetworkUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func expandDnsManagedZoneDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZoneDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZoneDnsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZoneDnsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZoneDnssecConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZoneDnssecConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -551,28 +614,28 @@ func expandDnsManagedZoneDnssecConfig(v interface{}, d TerraformResourceData, co
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedKind, err := expandDnsManagedZoneDnssecConfigKind(original["kind"], d, config)
+	transformedKind, err := expandDNSManagedZoneDnssecConfigKind(original["kind"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedKind); val.IsValid() && !isEmptyValue(val) {
 		transformed["kind"] = transformedKind
 	}
 
-	transformedNonExistence, err := expandDnsManagedZoneDnssecConfigNonExistence(original["non_existence"], d, config)
+	transformedNonExistence, err := expandDNSManagedZoneDnssecConfigNonExistence(original["non_existence"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedNonExistence); val.IsValid() && !isEmptyValue(val) {
 		transformed["nonExistence"] = transformedNonExistence
 	}
 
-	transformedState, err := expandDnsManagedZoneDnssecConfigState(original["state"], d, config)
+	transformedState, err := expandDNSManagedZoneDnssecConfigState(original["state"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedState); val.IsValid() && !isEmptyValue(val) {
 		transformed["state"] = transformedState
 	}
 
-	transformedDefaultKeySpecs, err := expandDnsManagedZoneDnssecConfigDefaultKeySpecs(original["default_key_specs"], d, config)
+	transformedDefaultKeySpecs, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecs(original["default_key_specs"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedDefaultKeySpecs); val.IsValid() && !isEmptyValue(val) {
@@ -582,19 +645,19 @@ func expandDnsManagedZoneDnssecConfig(v interface{}, d TerraformResourceData, co
 	return transformed, nil
 }
 
-func expandDnsManagedZoneDnssecConfigKind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZoneDnssecConfigKind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZoneDnssecConfigNonExistence(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZoneDnssecConfigNonExistence(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZoneDnssecConfigState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZoneDnssecConfigState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZoneDnssecConfigDefaultKeySpecs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZoneDnssecConfigDefaultKeySpecs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -604,28 +667,28 @@ func expandDnsManagedZoneDnssecConfigDefaultKeySpecs(v interface{}, d TerraformR
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedAlgorithm, err := expandDnsManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(original["algorithm"], d, config)
+		transformedAlgorithm, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(original["algorithm"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedAlgorithm); val.IsValid() && !isEmptyValue(val) {
 			transformed["algorithm"] = transformedAlgorithm
 		}
 
-		transformedKeyLength, err := expandDnsManagedZoneDnssecConfigDefaultKeySpecsKeyLength(original["key_length"], d, config)
+		transformedKeyLength, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(original["key_length"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedKeyLength); val.IsValid() && !isEmptyValue(val) {
 			transformed["keyLength"] = transformedKeyLength
 		}
 
-		transformedKeyType, err := expandDnsManagedZoneDnssecConfigDefaultKeySpecsKeyType(original["key_type"], d, config)
+		transformedKeyType, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecsKeyType(original["key_type"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedKeyType); val.IsValid() && !isEmptyValue(val) {
 			transformed["keyType"] = transformedKeyType
 		}
 
-		transformedKind, err := expandDnsManagedZoneDnssecConfigDefaultKeySpecsKind(original["kind"], d, config)
+		transformedKind, err := expandDNSManagedZoneDnssecConfigDefaultKeySpecsKind(original["kind"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedKind); val.IsValid() && !isEmptyValue(val) {
@@ -637,27 +700,27 @@ func expandDnsManagedZoneDnssecConfigDefaultKeySpecs(v interface{}, d TerraformR
 	return req, nil
 }
 
-func expandDnsManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZoneDnssecConfigDefaultKeySpecsAlgorithm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZoneDnssecConfigDefaultKeySpecsKeyLength(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZoneDnssecConfigDefaultKeySpecsKeyLength(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZoneDnssecConfigDefaultKeySpecsKeyType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZoneDnssecConfigDefaultKeySpecsKeyType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZoneDnssecConfigDefaultKeySpecsKind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZoneDnssecConfigDefaultKeySpecsKind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZoneName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZoneName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZoneLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandDNSManagedZoneLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -668,11 +731,11 @@ func expandDnsManagedZoneLabels(v interface{}, d TerraformResourceData, config *
 	return m, nil
 }
 
-func expandDnsManagedZoneVisibility(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZoneVisibility(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDnsManagedZonePrivateVisibilityConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZonePrivateVisibilityConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -681,7 +744,7 @@ func expandDnsManagedZonePrivateVisibilityConfig(v interface{}, d TerraformResou
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedNetworks, err := expandDnsManagedZonePrivateVisibilityConfigNetworks(original["networks"], d, config)
+	transformedNetworks, err := expandDNSManagedZonePrivateVisibilityConfigNetworks(original["networks"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedNetworks); val.IsValid() && !isEmptyValue(val) {
@@ -691,7 +754,7 @@ func expandDnsManagedZonePrivateVisibilityConfig(v interface{}, d TerraformResou
 	return transformed, nil
 }
 
-func expandDnsManagedZonePrivateVisibilityConfigNetworks(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZonePrivateVisibilityConfigNetworks(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -702,7 +765,7 @@ func expandDnsManagedZonePrivateVisibilityConfigNetworks(v interface{}, d Terraf
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedNetworkUrl, err := expandDnsManagedZonePrivateVisibilityConfigNetworksNetworkUrl(original["network_url"], d, config)
+		transformedNetworkUrl, err := expandDNSManagedZonePrivateVisibilityConfigNetworksNetworkUrl(original["network_url"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedNetworkUrl); val.IsValid() && !isEmptyValue(val) {
@@ -714,6 +777,6 @@ func expandDnsManagedZonePrivateVisibilityConfigNetworks(v interface{}, d Terraf
 	return req, nil
 }
 
-func expandDnsManagedZonePrivateVisibilityConfigNetworksNetworkUrl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDNSManagedZonePrivateVisibilityConfigNetworksNetworkUrl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

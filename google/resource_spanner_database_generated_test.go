@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccSpannerDatabase_spannerDatabaseBasicExample(t *testing.T) {
@@ -57,11 +57,11 @@ resource "google_spanner_instance" "main" {
 }
 
 resource "google_spanner_database" "database" {
-  instance  = "${google_spanner_instance.main.name}"
-  name      = "my-database%{random_suffix}"
-  ddl       =  [
+  instance = google_spanner_instance.main.name
+  name     = "tf-test-my-database%{random_suffix}"
+  ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
-    "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)"
+    "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)",
   ]
 }
 `, context)
@@ -83,7 +83,7 @@ func testAccCheckSpannerDatabaseDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("SpannerDatabase still exists at %s", url)
 		}

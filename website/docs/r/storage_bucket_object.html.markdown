@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Storage"
 layout: "google"
 page_title: "Google: google_storage_bucket_object"
 sidebar_current: "docs-google-storage-bucket-object"
@@ -35,6 +36,8 @@ The following arguments are supported:
 * `bucket` - (Required) The name of the containing bucket.
 
 * `name` - (Required) The name of the object. If you're interpolating the name of this object, see `output_name` instead.
+
+* `metadata` - (Optional) User-provided metadata, in key/value pairs.
 
 One of the following is required:
 

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeSecurityPolicy_basic(t *testing.T) {
@@ -101,7 +101,7 @@ func testAccCheckComputeSecurityPolicyDestroy(s *terraform.State) error {
 			continue
 		}
 
-		pol := rs.Primary.ID
+		pol := rs.Primary.Attributes["name"]
 
 		_, err := config.clientComputeBeta.SecurityPolicies.Get(config.Project, pol).Do()
 		if err == nil {
@@ -115,8 +115,8 @@ func testAccCheckComputeSecurityPolicyDestroy(s *terraform.State) error {
 func testAccComputeSecurityPolicy_basic(spName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_security_policy" "policy" {
-	name        = "%s"
-	description = "basic security policy"
+  name        = "%s"
+  description = "basic security policy"
 }
 `, spName)
 }
@@ -124,31 +124,31 @@ resource "google_compute_security_policy" "policy" {
 func testAccComputeSecurityPolicy_withRule(spName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_security_policy" "policy" {
-	name = "%s"
+  name = "%s"
 
-	rule {
-		action   = "allow"
-		priority = "2147483647"
-		match {
-			versioned_expr = "SRC_IPS_V1"
-			config {
-				src_ip_ranges = ["*"]
-			}
-		}
-		description = "default rule"
-	}
+  rule {
+    action   = "allow"
+    priority = "2147483647"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+    description = "default rule"
+  }
 
-	rule {
-		action   = "allow"
-		priority = "2000"
-		match {
-			versioned_expr = "SRC_IPS_V1"
-			config {
-				src_ip_ranges = ["10.0.0.0/24"]
-			}
-		}
-		preview = true
-	}
+  rule {
+    action   = "allow"
+    priority = "2000"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["10.0.0.0/24"]
+      }
+    }
+    preview = true
+  }
 }
 `, spName)
 }
@@ -156,47 +156,47 @@ resource "google_compute_security_policy" "policy" {
 func testAccComputeSecurityPolicy_update(spName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_security_policy" "policy" {
-	name        = "%s"
-	description = "updated description"
+  name        = "%s"
+  description = "updated description"
 
-	// keep this
-	rule {
-		action   = "allow"
-		priority = "2147483647"
-		match {
-			versioned_expr = "SRC_IPS_V1"
-			config {
-				src_ip_ranges = ["*"]
-			}
-		}
-		description = "default rule"
-	}
+  // keep this
+  rule {
+    action   = "allow"
+    priority = "2147483647"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+    description = "default rule"
+  }
 
-	// add this
-	rule {
-		action   = "deny(403)"
-		priority = "1000"
-		match {
-			versioned_expr = "SRC_IPS_V1"
-			config {
-				src_ip_ranges = ["10.0.1.0/24"]
-			}
-		}
-	}
+  // add this
+  rule {
+    action   = "deny(403)"
+    priority = "1000"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["10.0.1.0/24"]
+      }
+    }
+  }
 
-	// update this
-	rule {
-		action   = "allow"
-		priority = "2000"
-		match {
-			versioned_expr = "SRC_IPS_V1"
-			config {
-				src_ip_ranges = ["10.0.0.0/24"]
-			}
-		}
-		description = "updated description"
-		preview     = false
-	}
+  // update this
+  rule {
+    action   = "allow"
+    priority = "2000"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["10.0.0.0/24"]
+      }
+    }
+    description = "updated description"
+    preview     = false
+  }
 }
 `, spName)
 }

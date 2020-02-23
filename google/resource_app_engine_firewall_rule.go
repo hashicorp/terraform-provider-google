@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceAppEngineFirewallRule() *schema.Resource {
@@ -48,18 +48,27 @@ func resourceAppEngineFirewallRule() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED_ACTION", "ALLOW", "DENY"}, false),
+				Description:  `The action to take if this rule matches.`,
 			},
 			"source_range": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `IP address or range, defined using CIDR notation, of requests that this rule applies to.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `An optional string description of this rule.`,
 			},
 			"priority": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Description: `A positive integer that defines the order of rule evaluation.
+Rules with the lowest priority are evaluated first.
+
+A default rule at priority Int32.MaxValue matches all IPv4 and
+IPv6 traffic when no previous rule matches. Only the action of
+this rule can be modified by the user.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -106,13 +115,17 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating new FirewallRule: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating FirewallRule: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{priority}}")
+	id, err := replaceVars(d, config, "apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -131,29 +144,29 @@ func resourceAppEngineFirewallRuleRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("AppEngineFirewallRule %q", d.Id()))
-	}
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	res, err := sendRequest(config, "GET", project, url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("AppEngineFirewallRule %q", d.Id()))
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
 
-	if err := d.Set("description", flattenAppEngineFirewallRuleDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenAppEngineFirewallRuleDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
-	if err := d.Set("source_range", flattenAppEngineFirewallRuleSourceRange(res["sourceRange"], d)); err != nil {
+	if err := d.Set("source_range", flattenAppEngineFirewallRuleSourceRange(res["sourceRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
-	if err := d.Set("action", flattenAppEngineFirewallRuleAction(res["action"], d)); err != nil {
+	if err := d.Set("action", flattenAppEngineFirewallRuleAction(res["action"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
-	if err := d.Set("priority", flattenAppEngineFirewallRulePriority(res["priority"], d)); err != nil {
+	if err := d.Set("priority", flattenAppEngineFirewallRulePriority(res["priority"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FirewallRule: %s", err)
 	}
 
@@ -162,6 +175,11 @@ func resourceAppEngineFirewallRuleRead(d *schema.ResourceData, meta interface{})
 
 func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandAppEngineFirewallRuleDescription(d.Get("description"), d, config)
@@ -218,7 +236,7 @@ func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
+	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating FirewallRule %q: %s", d.Id(), err)
@@ -230,6 +248,11 @@ func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{
 func resourceAppEngineFirewallRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return err
@@ -237,7 +260,8 @@ func resourceAppEngineFirewallRuleDelete(d *schema.ResourceData, meta interface{
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting FirewallRule %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "FirewallRule")
 	}
@@ -249,6 +273,7 @@ func resourceAppEngineFirewallRuleDelete(d *schema.ResourceData, meta interface{
 func resourceAppEngineFirewallRuleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
+		"apps/(?P<project>[^/]+)/firewall/ingressRules/(?P<priority>[^/]+)",
 		"(?P<project>[^/]+)/(?P<priority>[^/]+)",
 		"(?P<priority>[^/]+)",
 	}, d, config); err != nil {
@@ -256,7 +281,7 @@ func resourceAppEngineFirewallRuleImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{priority}}")
+	id, err := replaceVars(d, config, "apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -265,19 +290,19 @@ func resourceAppEngineFirewallRuleImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAppEngineFirewallRuleDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineFirewallRuleDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineFirewallRuleSourceRange(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineFirewallRuleSourceRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineFirewallRuleAction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineFirewallRuleAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineFirewallRulePriority(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineFirewallRulePriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {

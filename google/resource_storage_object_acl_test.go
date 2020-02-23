@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 var tfObjectAcl, errObjectAcl = ioutil.TempFile("", "tf-gce-test")
@@ -341,19 +341,19 @@ func testAccStorageObjectAclDestroy(s *terraform.State) error {
 func testGoogleStorageObjectsAclBasicDelete(bucketName string, objectName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "%s"
+  name   = "%s"
+  bucket = google_storage_bucket.bucket.name
+  source = "%s"
 }
 
 resource "google_storage_object_acl" "acl" {
-	object = "${google_storage_bucket_object.object.name}"
-	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = []
+  object      = google_storage_bucket_object.object.name
+  bucket      = google_storage_bucket.bucket.name
+  role_entity = []
 }
 `, bucketName, objectName, tfObjectAcl.Name())
 }
@@ -361,19 +361,19 @@ resource "google_storage_object_acl" "acl" {
 func testGoogleStorageObjectsAclBasic1(bucketName string, objectName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "%s"
+  name   = "%s"
+  bucket = google_storage_bucket.bucket.name
+  source = "%s"
 }
 
 resource "google_storage_object_acl" "acl" {
-	object = "${google_storage_bucket_object.object.name}"
-	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s"]
+  object      = google_storage_bucket_object.object.name
+  bucket      = google_storage_bucket.bucket.name
+  role_entity = ["%s", "%s"]
 }
 `, bucketName, objectName, tfObjectAcl.Name(),
 		roleEntityBasic1, roleEntityBasic2)
@@ -382,19 +382,19 @@ resource "google_storage_object_acl" "acl" {
 func testGoogleStorageObjectsAclBasic2(bucketName string, objectName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "%s"
+  name   = "%s"
+  bucket = google_storage_bucket.bucket.name
+  source = "%s"
 }
 
 resource "google_storage_object_acl" "acl" {
-	object = "${google_storage_bucket_object.object.name}"
-	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s"]
+  object      = google_storage_bucket_object.object.name
+  bucket      = google_storage_bucket.bucket.name
+  role_entity = ["%s", "%s"]
 }
 `, bucketName, objectName, tfObjectAcl.Name(),
 		roleEntityBasic2, roleEntityBasic3_owner)
@@ -403,19 +403,19 @@ resource "google_storage_object_acl" "acl" {
 func testGoogleStorageObjectsAclBasic3(bucketName string, objectName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "%s"
+  name   = "%s"
+  bucket = google_storage_bucket.bucket.name
+  source = "%s"
 }
 
 resource "google_storage_object_acl" "acl" {
-	object = "${google_storage_bucket_object.object.name}"
-	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s"]
+  object      = google_storage_bucket_object.object.name
+  bucket      = google_storage_bucket.bucket.name
+  role_entity = ["%s", "%s"]
 }
 `, bucketName, objectName, tfObjectAcl.Name(),
 		roleEntityBasic2, roleEntityBasic3_reader)
@@ -424,19 +424,19 @@ resource "google_storage_object_acl" "acl" {
 func testGoogleStorageObjectsAclPredefined(bucketName string, objectName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "%s"
+  name   = "%s"
+  bucket = google_storage_bucket.bucket.name
+  source = "%s"
 }
 
 resource "google_storage_object_acl" "acl" {
-	object = "${google_storage_bucket_object.object.name}"
-	bucket = "${google_storage_bucket.bucket.name}"
-	predefined_acl = "projectPrivate"
+  object         = google_storage_bucket_object.object.name
+  bucket         = google_storage_bucket.bucket.name
+  predefined_acl = "projectPrivate"
 }
 `, bucketName, objectName, tfObjectAcl.Name())
 }
@@ -444,19 +444,19 @@ resource "google_storage_object_acl" "acl" {
 func testGoogleStorageObjectAclUnordered(bucketName, objectName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "%s"
+  name   = "%s"
+  bucket = google_storage_bucket.bucket.name
+  source = "%s"
 }
 
 resource "google_storage_object_acl" "acl" {
-	object = "${google_storage_bucket_object.object.name}"
-	bucket = "${google_storage_bucket.bucket.name}"
-	role_entity = ["%s", "%s", "%s", "%s", "%s"]
+  object      = google_storage_bucket_object.object.name
+  bucket      = google_storage_bucket.bucket.name
+  role_entity = ["%s", "%s", "%s", "%s", "%s"]
 }
 `, bucketName, objectName, tfObjectAcl.Name(), roleEntityBasic1, roleEntityViewers, roleEntityOwners, roleEntityBasic2, roleEntityEditors)
 }

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccSqlClientCert_mysql(t *testing.T) {
@@ -98,9 +98,9 @@ func testGoogleSqlClientCert_mysql(instance string) string {
 	return fmt.Sprintf(`
 	resource "google_sql_database_instance" "instance" {
 		name = "%s"
-		region = "us-central"
+		region = "us-central1"
 		settings {
-			tier = "D0"
+			tier = "db-f1-micro"
 		}
 	}
 

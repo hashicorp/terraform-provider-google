@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *testing.T) {
@@ -51,15 +51,15 @@ func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *test
 func testAccComputeRegionBackendService_regionBackendServiceBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_backend_service" "default" {
-  name                            = "region-backend-service%{random_suffix}"
+  name                            = "tf-test-region-service%{random_suffix}"
   region                          = "us-central1"
-  health_checks                   = ["${google_compute_health_check.default.self_link}"]
+  health_checks                   = [google_compute_health_check.default.self_link]
   connection_draining_timeout_sec = 10
   session_affinity                = "CLIENT_IP"
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-rbs-health-check%{random_suffix}"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -86,7 +86,7 @@ func testAccCheckComputeRegionBackendServiceDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("ComputeRegionBackendService still exists at %s", url)
 		}

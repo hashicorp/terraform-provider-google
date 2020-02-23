@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceAccessContextManagerAccessLevel() *schema.Resource {
@@ -47,37 +47,50 @@ func resourceAccessContextManagerAccessLevel() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Resource name for the Access Level. The short_name component must begin
+with a letter and only include alphanumeric and '_'.
+Format: accessPolicies/{policy_id}/accessLevels/{short_name}`,
 			},
 			"parent": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The AccessPolicy this AccessLevel lives in.
+Format: accessPolicies/{policy_id}`,
 			},
 			"title": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Human readable title. Must be unique within the Policy.`,
 			},
 			"basic": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `A set of predefined conditions for the access level and a combining function.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"conditions": {
-							Type:     schema.TypeList,
-							Required: true,
-							MinItems: 1,
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `A set of requirements for the AccessLevel to be granted.`,
+							MinItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"device_policy": {
 										Type:     schema.TypeList,
 										Optional: true,
+										Description: `Device specific restrictions, all restrictions must hold for
+the Condition to be true. If not specified, all devices are
+allowed.`,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"allowed_device_management_levels": {
 													Type:     schema.TypeList,
 													Optional: true,
+													Description: `A list of allowed device management levels.
+An empty list allows all management levels.`,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -85,6 +98,8 @@ func resourceAccessContextManagerAccessLevel() *schema.Resource {
 												"allowed_encryption_statuses": {
 													Type:     schema.TypeList,
 													Optional: true,
+													Description: `A list of allowed encryptions statuses.
+An empty list allows all statuses.`,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -92,23 +107,41 @@ func resourceAccessContextManagerAccessLevel() *schema.Resource {
 												"os_constraints": {
 													Type:     schema.TypeList,
 													Optional: true,
+													Description: `A list of allowed OS versions.
+An empty list allows all types and all versions.`,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
+															"os_type": {
+																Type:         schema.TypeString,
+																Required:     true,
+																ValidateFunc: validation.StringInSlice([]string{"OS_UNSPECIFIED", "DESKTOP_MAC", "DESKTOP_WINDOWS", "DESKTOP_LINUX", "DESKTOP_CHROME_OS"}, false),
+																Description:  `The operating system type of the device.`,
+															},
 															"minimum_version": {
 																Type:     schema.TypeString,
 																Optional: true,
-															},
-															"os_type": {
-																Type:         schema.TypeString,
-																Optional:     true,
-																ValidateFunc: validation.StringInSlice([]string{"OS_UNSPECIFIED", "DESKTOP_MAC", "DESKTOP_WINDOWS", "DESKTOP_LINUX", "DESKTOP_CHROME_OS", ""}, false),
+																Description: `The minimum allowed OS version. If not set, any version
+of this OS satisfies the constraint.
+Format: "major.minor.patch" such as "10.5.301", "9.2.1".`,
 															},
 														},
 													},
 												},
+												"require_admin_approval": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Whether the device needs to be approved by the customer admin.`,
+												},
+												"require_corp_owned": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Whether the device needs to be corp owned.`,
+												},
 												"require_screen_lock": {
 													Type:     schema.TypeBool,
 													Optional: true,
+													Description: `Whether or not screenlock is required for the DevicePolicy
+to be true. Defaults to false.`,
 												},
 											},
 										},
@@ -116,6 +149,16 @@ func resourceAccessContextManagerAccessLevel() *schema.Resource {
 									"ip_subnetworks": {
 										Type:     schema.TypeList,
 										Optional: true,
+										Description: `A list of CIDR block IP subnetwork specification. May be IPv4
+or IPv6.
+Note that for a CIDR IP address block, the specified IP address
+portion must be properly truncated (i.e. all the host bits must
+be zero) or the input is considered malformed. For example,
+"192.0.2.0/24" is accepted but "192.0.2.1/24" is not. Similarly,
+for IPv6, "2001:db8::/32" is accepted whereas "2001:db8::1/32"
+is not. The originating IP of a request must be in one of the
+listed subnets in order for this Condition to be true.
+If empty, all IP addresses are allowed.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -123,6 +166,14 @@ func resourceAccessContextManagerAccessLevel() *schema.Resource {
 									"members": {
 										Type:     schema.TypeList,
 										Optional: true,
+										Description: `An allowed list of members (users, service accounts).
+Using groups is not supported yet.
+
+The signed-in user originating the request must be a part of one
+of the provided members. If not specified, a request may come
+from any user (logged in/not logged in, not present in any
+groups, etc.).
+Formats: 'user:{emailid}', 'serviceAccount:{emailid}'`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -130,10 +181,18 @@ func resourceAccessContextManagerAccessLevel() *schema.Resource {
 									"negate": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Description: `Whether to negate the Condition. If true, the Condition becomes
+a NAND over its non-empty fields, each field must be false for
+the Condition overall to be satisfied. Defaults to false.`,
 									},
 									"required_access_levels": {
 										Type:     schema.TypeList,
 										Optional: true,
+										Description: `A list of other access levels defined in the same Policy,
+referenced by resource name. Referencing an AccessLevel which
+does not exist is an error. All access levels listed must be
+granted for the Condition to be true.
+Format: accessPolicies/{policy_id}/accessLevels/{short_name}`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -145,14 +204,20 @@ func resourceAccessContextManagerAccessLevel() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"AND", "OR", ""}, false),
-							Default:      "AND",
+							Description: `How the conditions list should be combined to determine if a request
+is granted this AccessLevel. If AND is used, each Condition in
+conditions must be satisfied for the AccessLevel to be applied. If
+OR is used, at least one Condition in conditions must be satisfied
+for the AccessLevel to be applied. Defaults to AND if unspecified.`,
+							Default: "AND",
 						},
 					},
 				},
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Description of the AccessLevel and its use. Does not affect behavior.`,
 			},
 		},
 	}
@@ -204,7 +269,7 @@ func resourceAccessContextManagerAccessLevelCreate(d *schema.ResourceData, meta 
 	}
 
 	log.Printf("[DEBUG] Creating new AccessLevel: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating AccessLevel: %s", err)
 	}
@@ -216,15 +281,28 @@ func resourceAccessContextManagerAccessLevelCreate(d *schema.ResourceData, meta 
 	}
 	d.SetId(id)
 
-	waitErr := accessContextManagerOperationWaitTime(
-		config, res, "Creating AccessLevel",
+	// Use the resource in the operation response to populate
+	// identity fields and d.Id() before read
+	var opRes map[string]interface{}
+	err = accessContextManagerOperationWaitTimeWithResponse(
+		config, res, &opRes, "Creating AccessLevel",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create AccessLevel: %s", waitErr)
+		return fmt.Errorf("Error waiting to create AccessLevel: %s", err)
 	}
+
+	if err := d.Set("name", flattenAccessContextManagerAccessLevelName(opRes["name"], d, config)); err != nil {
+		return err
+	}
+
+	// This may have caused the ID to update - update it if so.
+	id, err = replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating AccessLevel %q: %#v", d.Id(), res)
 
@@ -239,21 +317,21 @@ func resourceAccessContextManagerAccessLevelRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
+	res, err := sendRequest(config, "GET", "", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerAccessLevel %q", d.Id()))
 	}
 
-	if err := d.Set("title", flattenAccessContextManagerAccessLevelTitle(res["title"], d)); err != nil {
+	if err := d.Set("title", flattenAccessContextManagerAccessLevelTitle(res["title"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessLevel: %s", err)
 	}
-	if err := d.Set("description", flattenAccessContextManagerAccessLevelDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenAccessContextManagerAccessLevelDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessLevel: %s", err)
 	}
-	if err := d.Set("basic", flattenAccessContextManagerAccessLevelBasic(res["basic"], d)); err != nil {
+	if err := d.Set("basic", flattenAccessContextManagerAccessLevelBasic(res["basic"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessLevel: %s", err)
 	}
-	if err := d.Set("name", flattenAccessContextManagerAccessLevelName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenAccessContextManagerAccessLevelName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessLevel: %s", err)
 	}
 
@@ -313,7 +391,7 @@ func resourceAccessContextManagerAccessLevelUpdate(d *schema.ResourceData, meta 
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating AccessLevel %q: %s", d.Id(), err)
@@ -340,7 +418,8 @@ func resourceAccessContextManagerAccessLevelDelete(d *schema.ResourceData, meta 
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting AccessLevel %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "AccessLevel")
 	}
@@ -372,15 +451,15 @@ func resourceAccessContextManagerAccessLevelImport(d *schema.ResourceData, meta 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAccessContextManagerAccessLevelTitle(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelTitle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessLevelDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessLevelBasic(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -390,19 +469,20 @@ func flattenAccessContextManagerAccessLevelBasic(v interface{}, d *schema.Resour
 	}
 	transformed := make(map[string]interface{})
 	transformed["combining_function"] =
-		flattenAccessContextManagerAccessLevelBasicCombiningFunction(original["combiningFunction"], d)
+		flattenAccessContextManagerAccessLevelBasicCombiningFunction(original["combiningFunction"], d, config)
 	transformed["conditions"] =
-		flattenAccessContextManagerAccessLevelBasicConditions(original["conditions"], d)
+		flattenAccessContextManagerAccessLevelBasicConditions(original["conditions"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerAccessLevelBasicCombiningFunction(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil || v.(string) == "" {
+func flattenAccessContextManagerAccessLevelBasicCombiningFunction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "AND"
 	}
+
 	return v
 }
 
-func flattenAccessContextManagerAccessLevelBasicConditions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasicConditions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -415,32 +495,32 @@ func flattenAccessContextManagerAccessLevelBasicConditions(v interface{}, d *sch
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"ip_subnetworks":         flattenAccessContextManagerAccessLevelBasicConditionsIpSubnetworks(original["ipSubnetworks"], d),
-			"required_access_levels": flattenAccessContextManagerAccessLevelBasicConditionsRequiredAccessLevels(original["requiredAccessLevels"], d),
-			"members":                flattenAccessContextManagerAccessLevelBasicConditionsMembers(original["members"], d),
-			"negate":                 flattenAccessContextManagerAccessLevelBasicConditionsNegate(original["negate"], d),
-			"device_policy":          flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicy(original["devicePolicy"], d),
+			"ip_subnetworks":         flattenAccessContextManagerAccessLevelBasicConditionsIpSubnetworks(original["ipSubnetworks"], d, config),
+			"required_access_levels": flattenAccessContextManagerAccessLevelBasicConditionsRequiredAccessLevels(original["requiredAccessLevels"], d, config),
+			"members":                flattenAccessContextManagerAccessLevelBasicConditionsMembers(original["members"], d, config),
+			"negate":                 flattenAccessContextManagerAccessLevelBasicConditionsNegate(original["negate"], d, config),
+			"device_policy":          flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicy(original["devicePolicy"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenAccessContextManagerAccessLevelBasicConditionsIpSubnetworks(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasicConditionsIpSubnetworks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessLevelBasicConditionsRequiredAccessLevels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasicConditionsRequiredAccessLevels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessLevelBasicConditionsMembers(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasicConditionsMembers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessLevelBasicConditionsNegate(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasicConditionsNegate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -450,28 +530,32 @@ func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicy(v interfa
 	}
 	transformed := make(map[string]interface{})
 	transformed["require_screen_lock"] =
-		flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireScreenLock(original["requireScreenLock"], d)
+		flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireScreenLock(original["requireScreenLock"], d, config)
 	transformed["allowed_encryption_statuses"] =
-		flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyAllowedEncryptionStatuses(original["allowedEncryptionStatuses"], d)
+		flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyAllowedEncryptionStatuses(original["allowedEncryptionStatuses"], d, config)
 	transformed["allowed_device_management_levels"] =
-		flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyAllowedDeviceManagementLevels(original["allowedDeviceManagementLevels"], d)
+		flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyAllowedDeviceManagementLevels(original["allowedDeviceManagementLevels"], d, config)
 	transformed["os_constraints"] =
-		flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstraints(original["osConstraints"], d)
+		flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstraints(original["osConstraints"], d, config)
+	transformed["require_admin_approval"] =
+		flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireAdminApproval(original["requireAdminApproval"], d, config)
+	transformed["require_corp_owned"] =
+		flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireCorpOwned(original["requireCorpOwned"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireScreenLock(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireScreenLock(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyAllowedEncryptionStatuses(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyAllowedEncryptionStatuses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyAllowedDeviceManagementLevels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyAllowedDeviceManagementLevels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstraints(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstraints(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -484,21 +568,29 @@ func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstrai
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"minimum_version": flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstraintsMinimumVersion(original["minimumVersion"], d),
-			"os_type":         flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstraintsOsType(original["osType"], d),
+			"minimum_version": flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstraintsMinimumVersion(original["minimumVersion"], d, config),
+			"os_type":         flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstraintsOsType(original["osType"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstraintsMinimumVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstraintsMinimumVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstraintsOsType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstraintsOsType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessLevelName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireAdminApproval(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireCorpOwned(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerAccessLevelName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -643,6 +735,20 @@ func expandAccessContextManagerAccessLevelBasicConditionsDevicePolicy(v interfac
 		transformed["osConstraints"] = transformedOsConstraints
 	}
 
+	transformedRequireAdminApproval, err := expandAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireAdminApproval(original["require_admin_approval"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequireAdminApproval); val.IsValid() && !isEmptyValue(val) {
+		transformed["requireAdminApproval"] = transformedRequireAdminApproval
+	}
+
+	transformedRequireCorpOwned, err := expandAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireCorpOwned(original["require_corp_owned"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequireCorpOwned); val.IsValid() && !isEmptyValue(val) {
+		transformed["requireCorpOwned"] = transformedRequireCorpOwned
+	}
+
 	return transformed, nil
 }
 
@@ -692,6 +798,14 @@ func expandAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstrain
 }
 
 func expandAccessContextManagerAccessLevelBasicConditionsDevicePolicyOsConstraintsOsType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireAdminApproval(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireCorpOwned(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

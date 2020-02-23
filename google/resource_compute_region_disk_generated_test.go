@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
@@ -51,27 +51,27 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 func testAccComputeRegionDisk_regionDiskBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_disk" "regiondisk" {
-  name = "my-region-disk%{random_suffix}"
-  snapshot = "${google_compute_snapshot.snapdisk.self_link}"
-  type = "pd-ssd"
-  region = "us-central1"
+  name                      = "tf-test-my-region-disk%{random_suffix}"
+  snapshot                  = google_compute_snapshot.snapdisk.self_link
+  type                      = "pd-ssd"
+  region                    = "us-central1"
   physical_block_size_bytes = 4096
 
   replica_zones = ["us-central1-a", "us-central1-f"]
 }
 
 resource "google_compute_disk" "disk" {
-  name = "my-disk%{random_suffix}"
+  name  = "tf-test-my-disk%{random_suffix}"
   image = "debian-cloud/debian-9"
-  size = 50
-  type = "pd-ssd"
-  zone = "us-central1-a"
+  size  = 50
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
 }
 
 resource "google_compute_snapshot" "snapdisk" {
-  name = "my-snapshot%{random_suffix}"
-  source_disk = "${google_compute_disk.disk.name}"
-  zone = "us-central1-a"
+  name        = "tf-test-my-snapshot%{random_suffix}"
+  source_disk = google_compute_disk.disk.name
+  zone        = "us-central1-a"
 }
 `, context)
 }
@@ -92,7 +92,7 @@ func testAccCheckComputeRegionDiskDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("ComputeRegionDisk still exists at %s", url)
 		}

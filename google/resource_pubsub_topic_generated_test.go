@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccPubsubTopic_pubsubTopicBasicExample(t *testing.T) {
@@ -51,7 +51,7 @@ func TestAccPubsubTopic_pubsubTopicBasicExample(t *testing.T) {
 func testAccPubsubTopic_pubsubTopicBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "example-topic%{random_suffix}"
+  name = "tf-test-example-topic%{random_suffix}"
 
   labels = {
     foo = "bar"
@@ -87,14 +87,13 @@ func TestAccPubsubTopic_pubsubTopicGeoRestrictedExample(t *testing.T) {
 func testAccPubsubTopic_pubsubTopicGeoRestrictedExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "example-topic%{random_suffix}"
+  name = "tf-test-example-topic%{random_suffix}"
 
   message_storage_policy {
     allowed_persistence_regions = [
       "europe-west3",
     ]
   }
-
 }
 `, context)
 }
@@ -115,7 +114,7 @@ func testAccCheckPubsubTopicDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil, pubsubTopicProjectNotReady)
 		if err == nil {
 			return fmt.Errorf("PubsubTopic still exists at %s", url)
 		}

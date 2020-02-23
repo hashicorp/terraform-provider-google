@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Composer"
 layout: "google"
 page_title: "Google: google_composer_environment"
 sidebar_current: "docs-google-composer-environment"
@@ -49,27 +50,27 @@ on the IAM policy binding (see `google_project_iam_member` below).
 
 ```hcl
 resource "google_composer_environment" "test" {
-  name = "%s"
+  name   = "%s"
   region = "us-central1"
   config {
     node_count = 4
 
     node_config {
-      zone = "us-central1-a"
+      zone         = "us-central1-a"
       machine_type = "n1-standard-1"
 
-      network = "${google_compute_network.test.self_link}"
-      subnetwork =  "${google_compute_subnetwork.test.self_link}"
+      network    = google_compute_network.test.self_link
+      subnetwork = google_compute_subnetwork.test.self_link
 
-      service_account = "${google_service_account.test.name}"
+      service_account = google_service_account.test.name
     }
   }
 
-  depends_on = ["google_project_iam_member.composer-worker"]
+  depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_compute_network" "test" {
-  name          = "composer-test-network"
+  name                    = "composer-test-network"
   auto_create_subnetworks = false
 }
 
@@ -77,7 +78,7 @@ resource "google_compute_subnetwork" "test" {
   name          = "composer-test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.test.self_link}"
+  network       = google_compute_network.test.self_link
 }
 
 resource "google_service_account" "test" {
@@ -86,15 +87,15 @@ resource "google_service_account" "test" {
 }
 
 resource "google_project_iam_member" "composer-worker" {
-  role    = "roles/composer.worker"
-  member  = "serviceAccount:${google_service_account.test.email}"
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
 }
 ```
 
 ### With Software (Airflow) Config
 ```hcl
 resource "google_composer_environment" "test" {
-  name = "%s"
+  name   = "%s"
   region = "us-central1"
 
   config {
@@ -109,7 +110,7 @@ resource "google_composer_environment" "test" {
       }
 
       env_variables = {
-         FOO = "bar"
+        FOO = "bar"
       }
     }
   }
@@ -275,17 +276,16 @@ The `software_config` block supports:
   SQL_USER
   ```
 
-* `image_version` (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) -
+* `image_version` (Optional) -
   The version of the software running in the environment. This encapsulates both the version of Cloud Composer
   functionality and the version of Apache Airflow. It must match the regular expression 
   `composer-[0-9]+\.[0-9]+(\.[0-9]+)?-airflow-[0-9]+\.[0-9]+(\.[0-9]+.*)?`.
   The Cloud Composer portion of the version is a semantic version. 
   The portion of the image version following 'airflow-' is an official Apache Airflow repository release name.
   See [documentation](https://cloud.google.com/composer/docs/reference/rest/v1beta1/projects.locations.environments#softwareconfig)
-  for allowed release names. This field can only be set in the [Beta](https://terraform.io/docs/providers/google/provider_versions.html))
-  provider, but is an output-only attribute in the GA provider.
+  for allowed release names.
 
-* `python_version` (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) -
+* `python_version` (Optional) -
   The major version of Python used to run the Apache Airflow scheduler, worker, and webserver processes.
   Can be set to '2' or '3'. If not specified, the default is '2'. Cannot be updated.
 
@@ -305,7 +305,7 @@ The `private_environment_config` block supports:
 The `ip_allocation_policy` block supports:
 
 * `use_ip_aliases` -
-  (Optional)
+  (Required)
   Whether or not to enable Alias IPs in the GKE cluster. If true, a VPC-native cluster is created.
   Defaults to true if the `ip_allocation_block` is present in config.
 

@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccContainerEngineVersions_basic(t *testing.T) {
@@ -21,7 +21,6 @@ func TestAccContainerEngineVersions_basic(t *testing.T) {
 				Config: testAccCheckGoogleContainerEngineVersionsConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleContainerEngineVersionsMeta("data.google_container_engine_versions.location"),
-					testAccCheckGoogleContainerEngineVersionsMeta("data.google_container_engine_versions.versions"),
 				),
 			},
 		},
@@ -40,24 +39,6 @@ func TestAccContainerEngineVersions_filtered(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_container_engine_versions.versions", "valid_master_versions.#", "0"),
 					resource.TestCheckResourceAttr("data.google_container_engine_versions.versions", "valid_node_versions.#", "0"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccContainerEngineVersions_regional(t *testing.T) {
-	t.Parallel()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCheckGoogleContainerEngineVersionsRegionalConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleContainerEngineVersionsMeta("data.google_container_engine_versions.location"),
-					testAccCheckGoogleContainerEngineVersionsMeta("data.google_container_engine_versions.versions"),
 				),
 			},
 		},
@@ -138,25 +119,11 @@ var testAccCheckGoogleContainerEngineVersionsConfig = `
 data "google_container_engine_versions" "location" {
   location = "us-central1-b"
 }
-
-data "google_container_engine_versions" "versions" {
-  zone = "us-central1-b"
-}
 `
 
 var testAccCheckGoogleContainerEngineVersions_filtered = `
 data "google_container_engine_versions" "versions" {
-  zone           = "us-central1-b"
+  location       = "us-central1-b"
   version_prefix = "1.1."
-}
-`
-
-var testAccCheckGoogleContainerEngineVersionsRegionalConfig = `
-data "google_container_engine_versions" "location" {
-  location = "us-central1"
-}
-
-data "google_container_engine_versions" "versions" {
-  region = "us-central1"
 }
 `

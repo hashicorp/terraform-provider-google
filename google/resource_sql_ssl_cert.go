@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
@@ -98,14 +98,14 @@ func resourceSqlSslCertCreate(d *schema.ResourceData, meta interface{}) error {
 			"ssl cert %s into instance %s: %s", commonName, instance, err)
 	}
 
-	err = sqlAdminOperationWait(config.clientSqlAdmin, resp.Operation, project, "Create Ssl Cert")
+	err = sqlAdminOperationWait(config, resp.Operation, project, "Create Ssl Cert")
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for creation of %q "+
 			"in %q: %s", commonName, instance, err)
 	}
 
 	fingerprint := resp.ClientCert.CertInfo.Sha1Fingerprint
-	d.SetId(fmt.Sprintf("%s/%s", instance, fingerprint))
+	d.SetId(fmt.Sprintf("projects/%s/instances/%s/sslCerts/%s", project, instance, fingerprint))
 	d.Set("sha1_fingerprint", fingerprint)
 
 	// The private key is only returned on the initial insert so set it here.
@@ -148,7 +148,7 @@ func resourceSqlSslCertRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("create_time", sslCerts.CreateTime)
 	d.Set("expiration_time", sslCerts.ExpirationTime)
 
-	d.SetId(fmt.Sprintf("%s/%s", instance, fingerprint))
+	d.SetId(fmt.Sprintf("projects/%s/instances/%s/sslCerts/%s", project, instance, fingerprint))
 	return nil
 }
 
@@ -174,7 +174,7 @@ func resourceSqlSslCertDelete(d *schema.ResourceData, meta interface{}) error {
 			instance, err)
 	}
 
-	err = sqlAdminOperationWait(config.clientSqlAdmin, op, project, "Delete Ssl Cert")
+	err = sqlAdminOperationWait(config, op, project, "Delete Ssl Cert")
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for deletion of ssl cert %q "+

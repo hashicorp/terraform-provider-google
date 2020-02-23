@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccDataSourceComputeImage(t *testing.T) {
@@ -51,8 +51,7 @@ func testAccDataSourceCheckPublicImage() resource.TestCheckFunc {
 
 		ds_attr := ds.Primary.Attributes
 		attrs_to_test := map[string]string{
-			"self_link": "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20171129",
-			"family":    "debian-9",
+			"family": "debian-9",
 		}
 
 		for attr, expect_value := range attrs_to_test {
@@ -64,6 +63,12 @@ func testAccDataSourceCheckPublicImage() resource.TestCheckFunc {
 					expect_value,
 				)
 			}
+		}
+
+		selfLink := "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-9-stretch-v20171129"
+
+		if !compareSelfLinkOrResourceName("", ds_attr["self_link"], selfLink, nil) && ds_attr["self_link"] != selfLink {
+			return fmt.Errorf("self link does not match: %s vs %s", ds_attr["self_link"], selfLink)
 		}
 
 		return nil
@@ -82,19 +87,22 @@ func testAccDataSourceCustomImageConfig(family, name string) string {
 resource "google_compute_image" "image" {
   family      = "%s"
   name        = "%s"
-  source_disk = "${google_compute_disk.disk.self_link}"
+  source_disk = google_compute_disk.disk.self_link
 }
+
 resource "google_compute_disk" "disk" {
   name = "%s-disk"
   zone = "us-central1-b"
 }
+
 data "google_compute_image" "from_name" {
-  project = "${google_compute_image.image.project}"
-  name    = "${google_compute_image.image.name}"
+  project = google_compute_image.image.project
+  name    = google_compute_image.image.name
 }
+
 data "google_compute_image" "from_family" {
-  project = "${google_compute_image.image.project}"
-  family  = "${google_compute_image.image.family}"
+  project = google_compute_image.image.project
+  family  = google_compute_image.image.family
 }
 `, family, name, name)
 }

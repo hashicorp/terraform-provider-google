@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceComputeSharedVpcHostProject() *schema.Resource {
@@ -37,7 +37,7 @@ func resourceComputeSharedVpcHostProjectCreate(d *schema.ResourceData, meta inte
 
 	d.SetId(hostProject)
 
-	err = computeBetaOperationWaitTime(config.clientCompute, op, hostProject, "Enabling Shared VPC Host", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	err = computeOperationWaitTime(config, op, hostProject, "Enabling Shared VPC Host", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if err != nil {
 		d.SetId("")
 		return err
@@ -75,7 +75,7 @@ func resourceComputeSharedVpcHostProjectDelete(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error disabling Shared VPC Host %q: %s", hostProject, err)
 	}
 
-	err = computeBetaOperationWaitTime(config.clientCompute, op, hostProject, "Disabling Shared VPC Host", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	err = computeOperationWaitTime(config, op, hostProject, "Disabling Shared VPC Host", int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if err != nil {
 		return err
 	}

@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_organization_policy"
 sidebar_current: "docs-google-organization-policy"
@@ -29,7 +30,7 @@ resource "google_organization_policy" "serial_port_policy" {
 ```
 
 
-To set a policy with a [list contraint](https://cloud.google.com/resource-manager/docs/organization-policy/quickstart-list-constraints):
+To set a policy with a [list constraint](https://cloud.google.com/resource-manager/docs/organization-policy/quickstart-list-constraints):
 
 ```hcl
 resource "google_organization_policy" "services_policy" {
@@ -52,7 +53,7 @@ resource "google_organization_policy" "services_policy" {
   constraint = "serviceuser.services"
 
   list_policy {
-    suggested_values = "compute.googleapis.com"
+    suggested_value = "compute.googleapis.com"
 
     deny {
       values = ["cloudresourcemanager.googleapis.com"]
@@ -65,7 +66,7 @@ To restore the default organization policy, use the following instead:
 
 ```hcl
 resource "google_organization_policy" "services_policy" {
-  org_id   = "123456789"
+  org_id     = "123456789"
   constraint = "serviceuser.services"
 
   restore_policy {
@@ -105,7 +106,7 @@ The `list_policy` block supports:
 
 * `allow` or `deny` - (Optional) One or the other must be set.
 
-* `suggested_values` - (Optional) The Google Cloud Console will try to default to a configuration that matches the value specified in this field.
+* `suggested_value` - (Optional) The Google Cloud Console will try to default to a configuration that matches the value specified in this field.
 
 * `inherit_from_parent` - (Optional) If set to true, the values from the effective Policy of the parent resource
 are inherited, meaning the values set in this Policy are added to the values inherited up the hierarchy.
@@ -131,7 +132,10 @@ exported:
 
 ## Import
 
-Organization Policies can be imported using the `org_id` and the `contraint`, e.g.
+Organization Policies can be imported using the `org_id` and the `constraint`, e.g.
 
 ```
-$ terraform import google_organization_policy.services_policy 123456789:constraints/serviceuser.services
+$ terraform import google_organization_policy.services_policy 123456789/constraints/serviceuser.services
+```
+
+It is all right if the constraint contains a slash, as in the example above.

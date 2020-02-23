@@ -2,8 +2,9 @@ package google
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceGoogleContainerImage() *schema.Resource {
@@ -48,10 +49,11 @@ func containerRegistryImageRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("project", project)
 	region, ok := d.GetOk("region")
 	var url_base string
+	escapedProject := strings.Replace(project, ":", "/", -1)
 	if ok && region != nil && region != "" {
-		url_base = fmt.Sprintf("%s.gcr.io/%s", region, project)
+		url_base = fmt.Sprintf("%s.gcr.io/%s", region, escapedProject)
 	} else {
-		url_base = fmt.Sprintf("gcr.io/%s", project)
+		url_base = fmt.Sprintf("gcr.io/%s", escapedProject)
 	}
 	tag, t_ok := d.GetOk("tag")
 	digest, d_ok := d.GetOk("digest")

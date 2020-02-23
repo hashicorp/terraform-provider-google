@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Pub/Sub"
 layout: "google"
 page_title: "Google: google_pubsub_topic"
 sidebar_current: "docs-google-pubsub-topic"
@@ -53,12 +54,12 @@ resource "google_pubsub_topic" "example" {
 ```hcl
 resource "google_pubsub_topic" "example" {
   name         = "example-topic"
-  kms_key_name = "${google_kms_crypto_key.crypto_key.self_link}"
+  kms_key_name = google_kms_crypto_key.crypto_key.self_link
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
   name     = "example-key"
-  key_ring = "${google_kms_key_ring.key_ring.self_link}"
+  key_ring = google_kms_key_ring.key_ring.self_link
 }
 
 resource "google_kms_key_ring" "key_ring" {
@@ -83,7 +84,6 @@ resource "google_pubsub_topic" "example" {
       "europe-west3",
     ]
   }
-
 }
 ```
 
@@ -103,7 +103,7 @@ The following arguments are supported:
 * `kms_key_name` -
   (Optional)
   The resource name of the Cloud KMS CryptoKey to be used to protect access
-  to messsages published on this topic. Your project's PubSub service account
+  to messages published on this topic. Your project's PubSub service account
   (`service-{{PROJECT_NUMBER}}@gcp-sa-pubsub.iam.gserviceaccount.com`) must have
   `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
   The expected format is `projects/*/locations/*/keyRings/*/cryptoKeys/*`
@@ -133,6 +133,12 @@ The `message_storage_policy` block supports:
   allowed regions. An empty list means that no regions are allowed,
   and is not a valid configuration.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/topics/{{name}}`
+
 
 ## Timeouts
 
@@ -155,3 +161,7 @@ $ terraform import google_pubsub_topic.default {{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

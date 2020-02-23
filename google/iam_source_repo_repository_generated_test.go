@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccSourceRepoRepositoryIamBindingGenerated(t *testing.T) {
@@ -27,20 +27,19 @@ func TestAccSourceRepoRepositoryIamBindingGenerated(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(10),
-		"role":          "roles/editor",
+		"role":          "roles/viewer",
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSourceRepoRepositoryIamBinding_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/editor", getTestProjectFromEnv(), fmt.Sprintf("my-repository%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("my/repository%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -50,7 +49,7 @@ func TestAccSourceRepoRepositoryIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/editor", getTestProjectFromEnv(), fmt.Sprintf("my-repository%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("my/repository%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -63,13 +62,12 @@ func TestAccSourceRepoRepositoryIamMemberGenerated(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(10),
-		"role":          "roles/editor",
+		"role":          "roles/viewer",
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -77,7 +75,7 @@ func TestAccSourceRepoRepositoryIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/editor user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("my-repository%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("my/repository%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -90,20 +88,28 @@ func TestAccSourceRepoRepositoryIamPolicyGenerated(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(10),
-		"role":          "roles/editor",
+		"role":          "roles/viewer",
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSourceRepoRepositoryIamPolicy_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s", getTestProjectFromEnv(), fmt.Sprintf("my-repository%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s", getTestProjectFromEnv(), fmt.Sprintf("my/repository%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccSourceRepoRepositoryIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_sourcerepo_repository_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/repos/%s", getTestProjectFromEnv(), fmt.Sprintf("my/repository%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -114,13 +120,14 @@ func TestAccSourceRepoRepositoryIamPolicyGenerated(t *testing.T) {
 func testAccSourceRepoRepositoryIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sourcerepo_repository" "my-repo" {
-  name = "my-repository%{random_suffix}"
+  name = "my/repository%{random_suffix}"
 }
 
 resource "google_sourcerepo_repository_iam_member" "foo" {
-	repository = "${google_sourcerepo_repository.my-repo.id}"
-	role          = "%{role}"
-	member        = "user:admin@hashicorptest.com"
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -128,19 +135,37 @@ resource "google_sourcerepo_repository_iam_member" "foo" {
 func testAccSourceRepoRepositoryIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sourcerepo_repository" "my-repo" {
-  name = "my-repository%{random_suffix}"
+  name = "my/repository%{random_suffix}"
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role    = "%{role}"
-		members = ["user:admin@hashicorptest.com"]
-	}
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+  }
 }
 
 resource "google_sourcerepo_repository_iam_policy" "foo" {
-	repository = "${google_sourcerepo_repository.my-repo.id}"
-	policy_data   = "${data.google_iam_policy.foo.policy_data}"
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
+  policy_data = data.google_iam_policy.foo.policy_data
+}
+`, context)
+}
+
+func testAccSourceRepoRepositoryIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sourcerepo_repository" "my-repo" {
+  name = "my/repository%{random_suffix}"
+}
+
+data "google_iam_policy" "foo" {
+}
+
+resource "google_sourcerepo_repository_iam_policy" "foo" {
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -148,13 +173,14 @@ resource "google_sourcerepo_repository_iam_policy" "foo" {
 func testAccSourceRepoRepositoryIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sourcerepo_repository" "my-repo" {
-  name = "my-repository%{random_suffix}"
+  name = "my/repository%{random_suffix}"
 }
 
 resource "google_sourcerepo_repository_iam_binding" "foo" {
-	repository = "${google_sourcerepo_repository.my-repo.id}"
-	role          = "%{role}"
-	members       = ["user:admin@hashicorptest.com"]
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -162,13 +188,14 @@ resource "google_sourcerepo_repository_iam_binding" "foo" {
 func testAccSourceRepoRepositoryIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_sourcerepo_repository" "my-repo" {
-  name = "my-repository%{random_suffix}"
+  name = "my/repository%{random_suffix}"
 }
 
 resource "google_sourcerepo_repository_iam_binding" "foo" {
-	repository = "${google_sourcerepo_repository.my-repo.id}"
-	role          = "%{role}"
-	members       = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }

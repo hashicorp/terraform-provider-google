@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -53,8 +53,8 @@ import (
 	"strconv"
 	"strings"
 
-	gensupport "google.golang.org/api/gensupport"
 	googleapi "google.golang.org/api/googleapi"
+	gensupport "google.golang.org/api/internal/gensupport"
 	option "google.golang.org/api/option"
 	htransport "google.golang.org/api/transport/http"
 )
@@ -247,7 +247,7 @@ func (s *Ancestor) MarshalJSON() ([]byte, error) {
 //             {
 //               "log_type": "DATA_READ",
 //               "exempted_members": [
-//                 "user:foo@gmail.com"
+//                 "user:jose@example.com"
 //               ]
 //             },
 //             {
@@ -259,7 +259,7 @@ func (s *Ancestor) MarshalJSON() ([]byte, error) {
 //           ]
 //         },
 //         {
-//           "service": "fooservice.googleapis.com"
+//           "service": "sampleservice.googleapis.com"
 //           "audit_log_configs": [
 //             {
 //               "log_type": "DATA_READ",
@@ -267,7 +267,7 @@ func (s *Ancestor) MarshalJSON() ([]byte, error) {
 //             {
 //               "log_type": "DATA_WRITE",
 //               "exempted_members": [
-//                 "user:bar@gmail.com"
+//                 "user:aliya@example.com"
 //               ]
 //             }
 //           ]
@@ -275,11 +275,11 @@ func (s *Ancestor) MarshalJSON() ([]byte, error) {
 //       ]
 //     }
 //
-// For fooservice, this policy enables DATA_READ, DATA_WRITE and
+// For sampleservice, this policy enables DATA_READ, DATA_WRITE and
 // ADMIN_READ
-// logging. It also exempts foo@gmail.com from DATA_READ logging,
+// logging. It also exempts jose@example.com from DATA_READ logging,
 // and
-// bar@gmail.com from DATA_WRITE logging.
+// aliya@example.com from DATA_WRITE logging.
 type AuditConfig struct {
 	// AuditLogConfigs: The configuration for logging of each type of
 	// permission.
@@ -325,7 +325,7 @@ func (s *AuditConfig) MarshalJSON() ([]byte, error) {
 //         {
 //           "log_type": "DATA_READ",
 //           "exempted_members": [
-//             "user:foo@gmail.com"
+//             "user:jose@example.com"
 //           ]
 //         },
 //         {
@@ -336,7 +336,7 @@ func (s *AuditConfig) MarshalJSON() ([]byte, error) {
 //
 // This enables 'DATA_READ' and 'DATA_WRITE' logging, while
 // exempting
-// foo@gmail.com from DATA_READ logging.
+// jose@example.com from DATA_READ logging.
 type AuditLogConfig struct {
 	// ExemptedMembers: Specifies the identities that do not cause logging
 	// for this type of
@@ -401,7 +401,7 @@ type Binding struct {
 	//
 	// * `user:{emailid}`: An email address that represents a specific
 	// Google
-	//    account. For example, `alice@gmail.com` .
+	//    account. For example, `alice@example.com` .
 	//
 	//
 	// * `serviceAccount:{emailid}`: An email address that represents a
@@ -412,6 +412,38 @@ type Binding struct {
 	// * `group:{emailid}`: An email address that represents a Google
 	// group.
 	//    For example, `admins@example.com`.
+	//
+	// * `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique
+	//    identifier) representing a user that has been recently deleted.
+	// For
+	//    example, `alice@example.com?uid=123456789012345678901`. If the
+	// user is
+	//    recovered, this value reverts to `user:{emailid}` and the
+	// recovered user
+	//    retains the role in the binding.
+	//
+	// * `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
+	// (plus
+	//    unique identifier) representing a service account that has been
+	// recently
+	//    deleted. For example,
+	//
+	// `my-other-app@appspot.gserviceaccount.com?uid=123456789012345678901`.
+	//
+	//    If the service account is undeleted, this value reverts to
+	//    `serviceAccount:{emailid}` and the undeleted service account
+	// retains the
+	//    role in the binding.
+	//
+	// * `deleted:group:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique
+	//    identifier) representing a Google group that has been recently
+	//    deleted. For example,
+	// `admins@example.com?uid=123456789012345678901`. If
+	//    the group is recovered, this value reverts to `group:{emailid}`
+	// and the
+	//    recovered group retains the role in the binding.
 	//
 	//
 	// * `domain:{domain}`: The G Suite domain (primary) that represents all
@@ -688,31 +720,62 @@ type Empty struct {
 	googleapi.ServerResponse `json:"-"`
 }
 
-// Expr: Represents an expression text. Example:
+// Expr: Represents a textual expression in the Common Expression
+// Language (CEL)
+// syntax. CEL is a C-like expression language. The syntax and semantics
+// of CEL
+// are documented at https://github.com/google/cel-spec.
 //
-//     title: "User account presence"
-//     description: "Determines whether the request has a user account"
-//     expression: "size(request.user) > 0"
+// Example (Comparison):
+//
+//     title: "Summary size limit"
+//     description: "Determines if a summary is less than 100 chars"
+//     expression: "document.summary.size() < 100"
+//
+// Example (Equality):
+//
+//     title: "Requestor is owner"
+//     description: "Determines if requestor is the document owner"
+//     expression: "document.owner ==
+// request.auth.claims.email"
+//
+// Example (Logic):
+//
+//     title: "Public documents"
+//     description: "Determine whether the document should be publicly
+// visible"
+//     expression: "document.type != 'private' && document.type !=
+// 'internal'"
+//
+// Example (Data Manipulation):
+//
+//     title: "Notification string"
+//     description: "Create a notification string with a timestamp."
+//     expression: "'New message received at ' +
+// string(document.create_time)"
+//
+// The exact variables and functions that may be referenced within an
+// expression
+// are determined by the service that evaluates it. See the
+// service
+// documentation for additional information.
 type Expr struct {
-	// Description: An optional description of the expression. This is a
+	// Description: Optional. Description of the expression. This is a
 	// longer text which
 	// describes the expression, e.g. when hovered over it in a UI.
 	Description string `json:"description,omitempty"`
 
-	// Expression: Textual representation of an expression in
-	// Common Expression Language syntax.
-	//
-	// The application context of the containing message determines
-	// which
-	// well-known feature set of CEL is supported.
+	// Expression: Textual representation of an expression in Common
+	// Expression Language
+	// syntax.
 	Expression string `json:"expression,omitempty"`
 
-	// Location: An optional string indicating the location of the
-	// expression for error
+	// Location: Optional. String indicating the location of the expression
+	// for error
 	// reporting, e.g. a file name and a position in the file.
 	Location string `json:"location,omitempty"`
 
-	// Title: An optional title for the expression, i.e. a short string
+	// Title: Optional. Title for the expression, i.e. a short string
 	// describing
 	// its purpose. This can be used e.g. in UIs which allow to enter
 	// the
@@ -915,6 +978,32 @@ func (s *GetEffectiveOrgPolicyRequest) MarshalJSON() ([]byte, error) {
 
 // GetIamPolicyRequest: Request message for `GetIamPolicy` method.
 type GetIamPolicyRequest struct {
+	// Options: OPTIONAL: A `GetPolicyOptions` object for specifying options
+	// to
+	// `GetIamPolicy`. This field is only used by Cloud IAM.
+	Options *GetPolicyOptions `json:"options,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Options") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Options") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GetIamPolicyRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GetIamPolicyRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // GetOrgPolicyRequest: The request sent to the GetOrgPolicy method.
@@ -941,6 +1030,47 @@ type GetOrgPolicyRequest struct {
 
 func (s *GetOrgPolicyRequest) MarshalJSON() ([]byte, error) {
 	type NoMethod GetOrgPolicyRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GetPolicyOptions: Encapsulates settings provided to GetIamPolicy.
+type GetPolicyOptions struct {
+	// RequestedPolicyVersion: Optional. The policy format version to be
+	// returned.
+	//
+	// Valid values are 0, 1, and 3. Requests specifying an invalid value
+	// will be
+	// rejected.
+	//
+	// Requests for policies with any conditional bindings must specify
+	// version 3.
+	// Policies without any conditional bindings may specify any valid value
+	// or
+	// leave the field unset.
+	RequestedPolicyVersion int64 `json:"requestedPolicyVersion,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "RequestedPolicyVersion") to unconditionally include in API requests.
+	// By default, fields with empty values are omitted from API requests.
+	// However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "RequestedPolicyVersion")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GetPolicyOptions) MarshalJSON() ([]byte, error) {
+	type NoMethod GetPolicyOptions
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -1282,11 +1412,10 @@ func (s *ListOrgPoliciesResponse) MarshalJSON() ([]byte, error) {
 // the
 // same as values with no prefix.
 // Ancestry subtrees must be in one of the following formats:
-//     - “projects/<project-id>”, e.g.
-// “projects/tokyo-rain-123”
-//     - “folders/<folder-id>”, e.g. “folders/1234”
-//     - “organizations/<organization-id>”, e.g.
-// “organizations/1234”
+//     - "projects/<project-id>", e.g. "projects/tokyo-rain-123"
+//     - "folders/<folder-id>", e.g. "folders/1234"
+//     - "organizations/<organization-id>", e.g.
+// "organizations/1234"
 // The `supports_under` field of the associated `Constraint`  defines
 // whether
 // ancestry prefixes can be used. You can set `allowed_values`
@@ -1365,7 +1494,7 @@ type ListPolicy struct {
 	//
 	// Example 1 (no inherited values):
 	//   `organizations/foo` has a `Policy` with values:
-	//     {allowed_values: “E1” allowed_values:”E2”}
+	//     {allowed_values: "E1" allowed_values:"E2"}
 	//   `projects/bar` has `inherit_from_parent` `false` and values:
 	//     {allowed_values: "E3" allowed_values: "E4"}
 	// The accepted values at `organizations/foo` are `E1`, `E2`.
@@ -1373,9 +1502,9 @@ type ListPolicy struct {
 	//
 	// Example 2 (inherited values):
 	//   `organizations/foo` has a `Policy` with values:
-	//     {allowed_values: “E1” allowed_values:”E2”}
+	//     {allowed_values: "E1" allowed_values:"E2"}
 	//   `projects/bar` has a `Policy` with values:
-	//     {value: “E3” value: ”E4” inherit_from_parent: true}
+	//     {value: "E3" value: "E4" inherit_from_parent: true}
 	// The accepted values at `organizations/foo` are `E1`, `E2`.
 	// The accepted values at `projects/bar` are `E1`, `E2`, `E3`, and
 	// `E4`.
@@ -1390,7 +1519,7 @@ type ListPolicy struct {
 	//
 	// Example 4 (RestoreDefault):
 	//   `organizations/foo` has a `Policy` with values:
-	//     {allowed_values: “E1” allowed_values:”E2”}
+	//     {allowed_values: "E1" allowed_values:"E2"}
 	//   `projects/bar` has a `Policy` with values:
 	//     {RestoreDefault: {}}
 	// The accepted values at `organizations/foo` are `E1`, `E2`.
@@ -1409,7 +1538,7 @@ type ListPolicy struct {
 	//
 	// Example 6 (ListConstraint allowing all):
 	//   `organizations/foo` has a `Policy` with values:
-	//     {allowed_values: “E1” allowed_values: ”E2”}
+	//     {allowed_values: "E1" allowed_values: "E2"}
 	//   `projects/bar` has a `Policy` with:
 	//     {all: ALLOW}
 	// The accepted values at `organizations/foo` are `E1`, E2`.
@@ -1417,7 +1546,7 @@ type ListPolicy struct {
 	//
 	// Example 7 (ListConstraint allowing none):
 	//   `organizations/foo` has a `Policy` with values:
-	//     {allowed_values: “E1” allowed_values: ”E2”}
+	//     {allowed_values: "E1" allowed_values: "E2"}
 	//   `projects/bar` has a `Policy` with:
 	//     {all: DENY}
 	// The accepted values at `organizations/foo` are `E1`, E2`.
@@ -1700,7 +1829,6 @@ func (s *OrgPolicy) MarshalJSON() ([]byte, error) {
 type Organization struct {
 	// CreationTime: Timestamp when the Organization was created. Assigned
 	// by the server.
-	// @OutputOnly
 	CreationTime string `json:"creationTime,omitempty"`
 
 	// DisplayName: A human-readable string that refers to the Organization
@@ -1709,14 +1837,11 @@ type Organization struct {
 	// be
 	// changed. The string will be set to the primary domain (for
 	// example,
-	// "google.com") of the G Suite customer that owns the
-	// organization.
-	// @OutputOnly
+	// "google.com") of the G Suite customer that owns the organization.
 	DisplayName string `json:"displayName,omitempty"`
 
 	// LifecycleState: The organization's current lifecycle state. Assigned
 	// by the server.
-	// @OutputOnly
 	//
 	// Possible values:
 	//   "LIFECYCLE_STATE_UNSPECIFIED" - Unspecified state.  This is only
@@ -1726,7 +1851,7 @@ type Organization struct {
 	// by the user.
 	LifecycleState string `json:"lifecycleState,omitempty"`
 
-	// Name: Output Only. The resource name of the organization. This is
+	// Name: Output only. The resource name of the organization. This is
 	// the
 	// organization's relative path in the API. Its format
 	// is
@@ -1802,63 +1927,90 @@ func (s *OrganizationOwner) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Policy: Defines an Identity and Access Management (IAM) policy. It is
-// used to
-// specify access control policies for Cloud Platform resources.
+// Policy: An Identity and Access Management (IAM) policy, which
+// specifies access
+// controls for Google Cloud resources.
 //
 //
-// A `Policy` consists of a list of `bindings`. A `binding` binds a list
-// of
-// `members` to a `role`, where the members can be user accounts, Google
-// groups,
-// Google domains, and service accounts. A `role` is a named list of
-// permissions
-// defined by IAM.
+// A `Policy` is a collection of `bindings`. A `binding` binds one or
+// more
+// `members` to a single `role`. Members can be user accounts, service
+// accounts,
+// Google groups, and domains (such as G Suite). A `role` is a named
+// list of
+// permissions; each `role` can be an IAM predefined role or a
+// user-created
+// custom role.
 //
-// **JSON Example**
+// Optionally, a `binding` can specify a `condition`, which is a
+// logical
+// expression that allows access to a resource only if the expression
+// evaluates
+// to `true`. A condition can add constraints based on attributes of
+// the
+// request, the resource, or both.
+//
+// **JSON example:**
 //
 //     {
 //       "bindings": [
 //         {
-//           "role": "roles/owner",
+//           "role": "roles/resourcemanager.organizationAdmin",
 //           "members": [
 //             "user:mike@example.com",
 //             "group:admins@example.com",
 //             "domain:google.com",
 //
-// "serviceAccount:my-other-app@appspot.gserviceaccount.com"
+// "serviceAccount:my-project-id@appspot.gserviceaccount.com"
 //           ]
 //         },
 //         {
-//           "role": "roles/viewer",
-//           "members": ["user:sean@example.com"]
+//           "role": "roles/resourcemanager.organizationViewer",
+//           "members": ["user:eve@example.com"],
+//           "condition": {
+//             "title": "expirable access",
+//             "description": "Does not grant access after Sep 2020",
+//             "expression": "request.time <
+// timestamp('2020-10-01T00:00:00.000Z')",
+//           }
 //         }
-//       ]
+//       ],
+//       "etag": "BwWWja0YfJA=",
+//       "version": 3
 //     }
 //
-// **YAML Example**
+// **YAML example:**
 //
 //     bindings:
 //     - members:
 //       - user:mike@example.com
 //       - group:admins@example.com
 //       - domain:google.com
-//       - serviceAccount:my-other-app@appspot.gserviceaccount.com
-//       role: roles/owner
+//       - serviceAccount:my-project-id@appspot.gserviceaccount.com
+//       role: roles/resourcemanager.organizationAdmin
 //     - members:
-//       - user:sean@example.com
-//       role: roles/viewer
-//
+//       - user:eve@example.com
+//       role: roles/resourcemanager.organizationViewer
+//       condition:
+//         title: expirable access
+//         description: Does not grant access after Sep 2020
+//         expression: request.time <
+// timestamp('2020-10-01T00:00:00.000Z')
+//     - etag: BwWWja0YfJA=
+//     - version: 3
 //
 // For a description of IAM and its features, see the
-// [IAM developer's guide](https://cloud.google.com/iam/docs).
+// [IAM documentation](https://cloud.google.com/iam/docs/).
 type Policy struct {
 	// AuditConfigs: Specifies cloud audit logging configuration for this
 	// policy.
 	AuditConfigs []*AuditConfig `json:"auditConfigs,omitempty"`
 
-	// Bindings: Associates a list of `members` to a `role`.
-	// `bindings` with no members will result in an error.
+	// Bindings: Associates a list of `members` to a `role`. Optionally, may
+	// specify a
+	// `condition` that determines how and when the `bindings` are applied.
+	// Each
+	// of the `bindings` must contain at least one member.
 	Bindings []*Binding `json:"bindings,omitempty"`
 
 	// Etag: `etag` is used for optimistic concurrency control as a way to
@@ -1876,12 +2028,43 @@ type Policy struct {
 	// ensure that their change will be applied to the same version of the
 	// policy.
 	//
-	// If no `etag` is provided in the call to `setIamPolicy`, then the
-	// existing
-	// policy is overwritten blindly.
+	// **Important:** If you use IAM Conditions, you must include the `etag`
+	// field
+	// whenever you call `setIamPolicy`. If you omit this field, then IAM
+	// allows
+	// you to overwrite a version `3` policy with a version `1` policy, and
+	// all of
+	// the conditions in the version `3` policy are lost.
 	Etag string `json:"etag,omitempty"`
 
-	// Version: Deprecated.
+	// Version: Specifies the format of the policy.
+	//
+	// Valid values are `0`, `1`, and `3`. Requests that specify an invalid
+	// value
+	// are rejected.
+	//
+	// Any operation that affects conditional role bindings must specify
+	// version
+	// `3`. This requirement applies to the following operations:
+	//
+	// * Getting a policy that includes a conditional role binding
+	// * Adding a conditional role binding to a policy
+	// * Changing a conditional role binding in a policy
+	// * Removing any role binding, with or without a condition, from a
+	// policy
+	//   that includes conditions
+	//
+	// **Important:** If you use IAM Conditions, you must include the `etag`
+	// field
+	// whenever you call `setIamPolicy`. If you omit this field, then IAM
+	// allows
+	// you to overwrite a version `3` policy with a version `1` policy, and
+	// all of
+	// the conditions in the version `3` policy are lost.
+	//
+	// If a policy does not include any conditions, operations on that
+	// policy may
+	// specify any valid version or leave the field unset.
 	Version int64 `json:"version,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -2088,7 +2271,8 @@ type ResourceId struct {
 
 	// Type: Required field representing the resource type this id is
 	// for.
-	// At present, the valid types are: "organization" and "folder".
+	// At present, the valid types are: "organization", "folder", and
+	// "project".
 	Type string `json:"type,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Id") to
@@ -2150,15 +2334,12 @@ type SearchOrganizationsRequest struct {
 	// by
 	// `domain`, where the domain is a G Suite domain, for example:
 	//
-	// | Filter                              | Description
-	//
-	// |
-	// |-------------------------------------|-----------------------------
-	// -----|
-	// | owner.directorycustomerid:123456789 | Organizations with
-	// `owner.directory_customer_id` equal to `123456789`.|
-	// | domain:google.com                   | Organizations corresponding
-	// to the domain `google.com`.|
+	// * Filter `owner.directorycustomerid:123456789` returns
+	// Organization
+	// resources with `owner.directory_customer_id` equal to `123456789`.
+	// * Filter `domain:google.com` returns Organization resources
+	// corresponding
+	// to the domain `google.com`.
 	//
 	// This field is optional.
 	Filter string `json:"filter,omitempty"`
@@ -2318,81 +2499,14 @@ func (s *SetOrgPolicyRequest) MarshalJSON() ([]byte, error) {
 // suitable for
 // different programming environments, including REST APIs and RPC APIs.
 // It is
-// used by [gRPC](https://github.com/grpc). The error model is designed
-// to be:
+// used by [gRPC](https://github.com/grpc). Each `Status` message
+// contains
+// three pieces of data: error code, error message, and error
+// details.
 //
-// - Simple to use and understand for most users
-// - Flexible enough to meet unexpected needs
-//
-// # Overview
-//
-// The `Status` message contains three pieces of data: error code,
-// error
-// message, and error details. The error code should be an enum value
-// of
-// google.rpc.Code, but it may accept additional error codes if needed.
-// The
-// error message should be a developer-facing English message that
-// helps
-// developers *understand* and *resolve* the error. If a localized
-// user-facing
-// error message is needed, put the localized message in the error
-// details or
-// localize it in the client. The optional error details may contain
-// arbitrary
-// information about the error. There is a predefined set of error
-// detail types
-// in the package `google.rpc` that can be used for common error
-// conditions.
-//
-// # Language mapping
-//
-// The `Status` message is the logical representation of the error
-// model, but it
-// is not necessarily the actual wire format. When the `Status` message
-// is
-// exposed in different client libraries and different wire protocols,
-// it can be
-// mapped differently. For example, it will likely be mapped to some
-// exceptions
-// in Java, but more likely mapped to some error codes in C.
-//
-// # Other uses
-//
-// The error model and the `Status` message can be used in a variety
-// of
-// environments, either with or without APIs, to provide a
-// consistent developer experience across different
-// environments.
-//
-// Example uses of this error model include:
-//
-// - Partial errors. If a service needs to return partial errors to the
-// client,
-//     it may embed the `Status` in the normal response to indicate the
-// partial
-//     errors.
-//
-// - Workflow errors. A typical workflow has multiple steps. Each step
-// may
-//     have a `Status` message for error reporting.
-//
-// - Batch operations. If a client uses batch request and batch
-// response, the
-//     `Status` message should be used directly inside batch response,
-// one for
-//     each error sub-response.
-//
-// - Asynchronous operations. If an API call embeds asynchronous
-// operation
-//     results in its response, the status of those operations should
-// be
-//     represented directly using the `Status` message.
-//
-// - Logging. If some API errors are stored in logs, the message
-// `Status` could
-//     be used directly after any stripping needed for security/privacy
-// reasons.
+// You can find out more about this error model and how to work with it
+// in the
+// [API Design Guide](https://cloud.google.com/apis/design/errors).
 type Status struct {
 	// Code: The status code, which should be an enum value of
 	// google.rpc.Code.
@@ -2555,6 +2669,7 @@ func (c *FoldersClearOrgPolicyCall) Header() http.Header {
 
 func (c *FoldersClearOrgPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2702,6 +2817,7 @@ func (c *FoldersGetEffectiveOrgPolicyCall) Header() http.Header {
 
 func (c *FoldersGetEffectiveOrgPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2850,6 +2966,7 @@ func (c *FoldersGetOrgPolicyCall) Header() http.Header {
 
 func (c *FoldersGetOrgPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2991,6 +3108,7 @@ func (c *FoldersListAvailableOrgPolicyConstraintsCall) Header() http.Header {
 
 func (c *FoldersListAvailableOrgPolicyConstraintsCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3155,6 +3273,7 @@ func (c *FoldersListOrgPoliciesCall) Header() http.Header {
 
 func (c *FoldersListOrgPoliciesCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3322,6 +3441,7 @@ func (c *FoldersSetOrgPolicyCall) Header() http.Header {
 
 func (c *FoldersSetOrgPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3469,6 +3589,7 @@ func (c *LiensCreateCall) Header() http.Header {
 
 func (c *LiensCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3600,6 +3721,7 @@ func (c *LiensDeleteCall) Header() http.Header {
 
 func (c *LiensDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3749,6 +3871,7 @@ func (c *LiensGetCall) Header() http.Header {
 
 func (c *LiensGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3920,6 +4043,7 @@ func (c *LiensListCall) Header() http.Header {
 
 func (c *LiensListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4093,6 +4217,7 @@ func (c *OperationsGetCall) Header() http.Header {
 
 func (c *OperationsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4228,6 +4353,7 @@ func (c *OrganizationsClearOrgPolicyCall) Header() http.Header {
 
 func (c *OrganizationsClearOrgPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4377,6 +4503,7 @@ func (c *OrganizationsGetCall) Header() http.Header {
 
 func (c *OrganizationsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4520,6 +4647,7 @@ func (c *OrganizationsGetEffectiveOrgPolicyCall) Header() http.Header {
 
 func (c *OrganizationsGetEffectiveOrgPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4670,6 +4798,7 @@ func (c *OrganizationsGetIamPolicyCall) Header() http.Header {
 
 func (c *OrganizationsGetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4818,6 +4947,7 @@ func (c *OrganizationsGetOrgPolicyCall) Header() http.Header {
 
 func (c *OrganizationsGetOrgPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4959,6 +5089,7 @@ func (c *OrganizationsListAvailableOrgPolicyConstraintsCall) Header() http.Heade
 
 func (c *OrganizationsListAvailableOrgPolicyConstraintsCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5123,6 +5254,7 @@ func (c *OrganizationsListOrgPoliciesCall) Header() http.Header {
 
 func (c *OrganizationsListOrgPoliciesCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5292,6 +5424,7 @@ func (c *OrganizationsSearchCall) Header() http.Header {
 
 func (c *OrganizationsSearchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5449,6 +5582,7 @@ func (c *OrganizationsSetIamPolicyCall) Header() http.Header {
 
 func (c *OrganizationsSetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5594,6 +5728,7 @@ func (c *OrganizationsSetOrgPolicyCall) Header() http.Header {
 
 func (c *OrganizationsSetOrgPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5738,6 +5873,7 @@ func (c *OrganizationsTestIamPermissionsCall) Header() http.Header {
 
 func (c *OrganizationsTestIamPermissionsCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5878,6 +6014,7 @@ func (c *ProjectsClearOrgPolicyCall) Header() http.Header {
 
 func (c *ProjectsClearOrgPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5983,17 +6120,13 @@ type ProjectsCreateCall struct {
 
 // Create: Request that a new Project be created. The result is an
 // Operation which
-// can be used to track the creation process. It is automatically
-// deleted
-// after a few hours, so there is no need to call DeleteOperation.
-//
-// Our SLO permits Project creation to take up to 30 seconds at the
-// 90th
-// percentile. As of 2016-08-29, we are observing 6 seconds 50th
-// percentile
-// latency. 95th percentile latency is around 11 seconds. We
-// recommend
-// polling at the 5th second with an exponential backoff.
+// can be used to track the creation process. This process usually takes
+// a few
+// seconds, but can sometimes take much longer. The tracking Operation
+// is
+// automatically deleted after a few hours, so there is no need to
+// call
+// DeleteOperation.
 //
 // Authorization requires the Google IAM
 // permission
@@ -6043,6 +6176,7 @@ func (c *ProjectsCreateCall) Header() http.Header {
 
 func (c *ProjectsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6103,7 +6237,7 @@ func (c *ProjectsCreateCall) Do(opts ...googleapi.CallOption) (*Operation, error
 	}
 	return ret, nil
 	// {
-	//   "description": "Request that a new Project be created. The result is an Operation which\ncan be used to track the creation process. It is automatically deleted\nafter a few hours, so there is no need to call DeleteOperation.\n\nOur SLO permits Project creation to take up to 30 seconds at the 90th\npercentile. As of 2016-08-29, we are observing 6 seconds 50th percentile\nlatency. 95th percentile latency is around 11 seconds. We recommend\npolling at the 5th second with an exponential backoff.\n\nAuthorization requires the Google IAM permission\n`resourcemanager.projects.create` on the specified parent for the new\nproject. The parent is identified by a specified ResourceId,\nwhich must include both an ID and a type, such as organization.\n\nThis method does not associate the new project with a billing account.\nYou can set or update the billing account associated with a project using\nthe [`projects.updateBillingInfo`]\n(/billing/reference/rest/v1/projects/updateBillingInfo) method.",
+	//   "description": "Request that a new Project be created. The result is an Operation which\ncan be used to track the creation process. This process usually takes a few\nseconds, but can sometimes take much longer. The tracking Operation is\nautomatically deleted after a few hours, so there is no need to call\nDeleteOperation.\n\nAuthorization requires the Google IAM permission\n`resourcemanager.projects.create` on the specified parent for the new\nproject. The parent is identified by a specified ResourceId,\nwhich must include both an ID and a type, such as organization.\n\nThis method does not associate the new project with a billing account.\nYou can set or update the billing account associated with a project using\nthe [`projects.updateBillingInfo`]\n(/billing/reference/rest/v1/projects/updateBillingInfo) method.",
 	//   "flatPath": "v1/projects",
 	//   "httpMethod": "POST",
 	//   "id": "cloudresourcemanager.projects.create",
@@ -6189,6 +6323,7 @@ func (c *ProjectsDeleteCall) Header() http.Header {
 
 func (c *ProjectsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6331,6 +6466,7 @@ func (c *ProjectsGetCall) Header() http.Header {
 
 func (c *ProjectsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6470,6 +6606,7 @@ func (c *ProjectsGetAncestryCall) Header() http.Header {
 
 func (c *ProjectsGetAncestryCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6617,6 +6754,7 @@ func (c *ProjectsGetEffectiveOrgPolicyCall) Header() http.Header {
 
 func (c *ProjectsGetEffectiveOrgPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6768,6 +6906,7 @@ func (c *ProjectsGetIamPolicyCall) Header() http.Header {
 
 func (c *ProjectsGetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6915,6 +7054,7 @@ func (c *ProjectsGetOrgPolicyCall) Header() http.Header {
 
 func (c *ProjectsGetOrgPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7156,6 +7296,7 @@ func (c *ProjectsListCall) Header() http.Header {
 
 func (c *ProjectsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7317,6 +7458,7 @@ func (c *ProjectsListAvailableOrgPolicyConstraintsCall) Header() http.Header {
 
 func (c *ProjectsListAvailableOrgPolicyConstraintsCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7481,6 +7623,7 @@ func (c *ProjectsListOrgPoliciesCall) Header() http.Header {
 
 func (c *ProjectsListOrgPoliciesCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7617,8 +7760,15 @@ type ProjectsSetIamPolicyCall struct {
 // as
 // `members` in a `Binding` of a `Policy`.
 //
-// + The owner role can be granted only to `user` and
-// `serviceAccount`.
+// + The owner role can be granted to a `user`, `serviceAccount`, or a
+// group
+// that is part of an organization. For
+// example,
+// group@myownpersonaldomain.com could be added as an owner to a project
+// in
+// the myownpersonaldomain.com organization, but not the
+// examplepetstore.com
+// organization.
 //
 // + Service accounts can be made owners of a project directly
 // without any restrictions. However, to be added as an owner, a user
@@ -7708,6 +7858,7 @@ func (c *ProjectsSetIamPolicyCall) Header() http.Header {
 
 func (c *ProjectsSetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7771,7 +7922,7 @@ func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, er
 	}
 	return ret, nil
 	// {
-	//   "description": "Sets the IAM access control policy for the specified Project. Overwrites\nany existing policy.\n\nThe following constraints apply when using `setIamPolicy()`:\n\n+ Project does not support `allUsers` and `allAuthenticatedUsers` as\n`members` in a `Binding` of a `Policy`.\n\n+ The owner role can be granted only to `user` and `serviceAccount`.\n\n+ Service accounts can be made owners of a project directly\nwithout any restrictions. However, to be added as an owner, a user must be\ninvited via Cloud Platform console and must accept the invitation.\n\n+ A user cannot be granted the owner role using `setIamPolicy()`. The user\nmust be granted the owner role using the Cloud Platform Console and must\nexplicitly accept the invitation.\n\n+ You can only grant ownership of a project to a member by using the\nGCP Console. Inviting a member will deliver an invitation email that\nthey must accept. An invitation email is not generated if you are\ngranting a role other than owner, or if both the member you are inviting\nand the project are part of your organization.\n\n+ Membership changes that leave the project without any owners that have\naccepted the Terms of Service (ToS) will be rejected.\n\n+ If the project is not part of an organization, there must be at least\none owner who has accepted the Terms of Service (ToS) agreement in the\npolicy. Calling `setIamPolicy()` to remove the last ToS-accepted owner\nfrom the policy will fail. This restriction also applies to legacy\nprojects that no longer have owners who have accepted the ToS. Edits to\nIAM policies will be rejected until the lack of a ToS-accepting owner is\nrectified.\n\n+ This method will replace the existing policy, and cannot be used to\nappend additional IAM settings.\n\nNote: Removing service accounts from policies or changing their roles\ncan render services completely inoperable. It is important to understand\nhow the service account is being used before removing or updating its\nroles.\n\nAuthorization requires the Google IAM permission\n`resourcemanager.projects.setIamPolicy` on the project",
+	//   "description": "Sets the IAM access control policy for the specified Project. Overwrites\nany existing policy.\n\nThe following constraints apply when using `setIamPolicy()`:\n\n+ Project does not support `allUsers` and `allAuthenticatedUsers` as\n`members` in a `Binding` of a `Policy`.\n\n+ The owner role can be granted to a `user`, `serviceAccount`, or a group\nthat is part of an organization. For example,\ngroup@myownpersonaldomain.com could be added as an owner to a project in\nthe myownpersonaldomain.com organization, but not the examplepetstore.com\norganization.\n\n+ Service accounts can be made owners of a project directly\nwithout any restrictions. However, to be added as an owner, a user must be\ninvited via Cloud Platform console and must accept the invitation.\n\n+ A user cannot be granted the owner role using `setIamPolicy()`. The user\nmust be granted the owner role using the Cloud Platform Console and must\nexplicitly accept the invitation.\n\n+ You can only grant ownership of a project to a member by using the\nGCP Console. Inviting a member will deliver an invitation email that\nthey must accept. An invitation email is not generated if you are\ngranting a role other than owner, or if both the member you are inviting\nand the project are part of your organization.\n\n+ Membership changes that leave the project without any owners that have\naccepted the Terms of Service (ToS) will be rejected.\n\n+ If the project is not part of an organization, there must be at least\none owner who has accepted the Terms of Service (ToS) agreement in the\npolicy. Calling `setIamPolicy()` to remove the last ToS-accepted owner\nfrom the policy will fail. This restriction also applies to legacy\nprojects that no longer have owners who have accepted the ToS. Edits to\nIAM policies will be rejected until the lack of a ToS-accepting owner is\nrectified.\n\n+ This method will replace the existing policy, and cannot be used to\nappend additional IAM settings.\n\nNote: Removing service accounts from policies or changing their roles\ncan render services completely inoperable. It is important to understand\nhow the service account is being used before removing or updating its\nroles.\n\nAuthorization requires the Google IAM permission\n`resourcemanager.projects.setIamPolicy` on the project",
 	//   "flatPath": "v1/projects/{resource}:setIamPolicy",
 	//   "httpMethod": "POST",
 	//   "id": "cloudresourcemanager.projects.setIamPolicy",
@@ -7852,6 +8003,7 @@ func (c *ProjectsSetOrgPolicyCall) Header() http.Header {
 
 func (c *ProjectsSetOrgPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7994,6 +8146,7 @@ func (c *ProjectsTestIamPermissionsCall) Header() http.Header {
 
 func (c *ProjectsTestIamPermissionsCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8141,6 +8294,7 @@ func (c *ProjectsUndeleteCall) Header() http.Header {
 
 func (c *ProjectsUndeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8283,6 +8437,7 @@ func (c *ProjectsUpdateCall) Header() http.Header {
 
 func (c *ProjectsUpdateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}

@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
@@ -51,8 +51,8 @@ func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 func testAccComputeFirewall_firewallBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_firewall" "default" {
-  name    = "test-firewall%{random_suffix}"
-  network = "${google_compute_network.default.name}"
+  name    = "tf-test-test-firewall%{random_suffix}"
+  network = google_compute_network.default.name
 
   allow {
     protocol = "icmp"
@@ -67,7 +67,7 @@ resource "google_compute_firewall" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name = "test-network%{random_suffix}"
+  name = "tf-test-test-network%{random_suffix}"
 }
 `, context)
 }
@@ -88,7 +88,7 @@ func testAccCheckComputeFirewallDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("ComputeFirewall still exists at %s", url)
 		}

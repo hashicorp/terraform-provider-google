@@ -19,15 +19,16 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"project_id":    getTestProjectFromEnv(),
 		"random_suffix": acctest.RandString(10),
 	}
 
@@ -51,8 +52,8 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.
 func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_monitoring_uptime_check_config" "http" {
-  display_name = "http-uptime-check%{random_suffix}"
-  timeout = "60s"
+  display_name = "tf-test-http-uptime-check%{random_suffix}"
+  timeout      = "60s"
 
   http_check {
     path = "/some-path"
@@ -62,7 +63,60 @@ resource "google_monitoring_uptime_check_config" "http" {
   monitored_resource {
     type = "uptime_url"
     labels = {
-      project_id = "example"
+      project_id = "%{project_id}"
+      host       = "192.168.1.1"
+    }
+  }
+
+  content_matchers {
+    content = "example"
+  }
+}
+`, context)
+}
+
+func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":    getTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringUptimeCheckConfigDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpsExample(context),
+			},
+			{
+				ResourceName:      "google_monitoring_uptime_check_config.https",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpsExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_monitoring_uptime_check_config" "https" {
+  display_name = "tf-test-https-uptime-check%{random_suffix}"
+  timeout = "60s"
+
+  http_check {
+    path = "/some-path"
+    port = "443"
+    use_ssl = true
+    validate_ssl = true
+  }
+
+  monitored_resource {
+    type = "uptime_url"
+    labels = {
+      project_id = "%{project_id}"
       host = "192.168.1.1"
     }
   }
@@ -101,8 +155,8 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(t *testing.T) {
 func testAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_monitoring_uptime_check_config" "tcp_group" {
-  display_name = "tcp-uptime-check%{random_suffix}"
-  timeout = "60s"
+  display_name = "tf-test-tcp-uptime-check%{random_suffix}"
+  timeout      = "60s"
 
   tcp_check {
     port = 888
@@ -110,14 +164,13 @@ resource "google_monitoring_uptime_check_config" "tcp_group" {
 
   resource_group {
     resource_type = "INSTANCE"
-    group_id = "${google_monitoring_group.check.name}"
+    group_id      = google_monitoring_group.check.name
   }
 }
 
-
 resource "google_monitoring_group" "check" {
-  display_name = "uptime-check-group%{random_suffix}"
-  filter = "resource.metadata.name=has_substring(\"foo\")"
+  display_name = "tf-test-uptime-check-group%{random_suffix}"
+  filter       = "resource.metadata.name=has_substring(\"foo\")"
 }
 `, context)
 }
@@ -138,7 +191,7 @@ func testAccCheckMonitoringUptimeCheckConfigDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil, isMonitoringRetryableError)
 		if err == nil {
 			return fmt.Errorf("MonitoringUptimeCheckConfig still exists at %s", url)
 		}

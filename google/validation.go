@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 const (
@@ -41,7 +41,7 @@ var (
 
 	ServiceAccountLinkRegexPrefix = "projects/" + ProjectRegexWildCard + "/serviceAccounts/"
 	PossibleServiceAccountNames   = []string{
-		AppEngineServiceAccountNameRegex,
+		ServiceDefaultAccountNameRegex,
 		ComputeServiceAccountNameRegex,
 		CreatedServiceAccountNameRegex,
 	}
@@ -51,12 +51,25 @@ var (
 
 	// Format of service accounts created through the API
 	CreatedServiceAccountNameRegex = fmt.Sprintf(RFC1035NameTemplate, 4, 28) + "@" + ProjectNameInDNSFormRegex + "\\.iam\\.gserviceaccount\\.com$"
-	ProjectNameInDNSFormRegex      = "[-a-z0-9\\.]{1,63}"
 
-	// Format of default App Engine service accounts created by Google
-	AppEngineServiceAccountNameRegex = ProjectRegex + "@appspot.gserviceaccount.com"
+	// Format of service-created service account
+	// examples are:
+	// 		$PROJECTID@cloudbuild.gserviceaccount.com
+	// 		$PROJECTID@cloudservices.gserviceaccount.com
+	// 		$PROJECTID@appspot.gserviceaccount.com
+	ServiceDefaultAccountNameRegex = ProjectRegex + "@[a-z]+.gserviceaccount.com$"
 
-	ProjectNameRegex = "^[A-Za-z0-9-'\"\\s!]{4,30}$"
+	ProjectNameInDNSFormRegex = "[-a-z0-9\\.]{1,63}"
+	ProjectNameRegex          = "^[A-Za-z0-9-'\"\\s!]{4,30}$"
+
+	// Valid range for Cloud Router ASN values as per RFC6996
+	// https://tools.ietf.org/html/rfc6996
+	// Must be explicitly int64 to avoid overflow when building Terraform for 32bit architectures
+	Rfc6996Asn16BitMin  = int64(64512)
+	Rfc6996Asn16BitMax  = int64(65534)
+	Rfc6996Asn32BitMin  = int64(4200000000)
+	Rfc6996Asn32BitMax  = int64(4294967294)
+	GcpRouterPartnerAsn = int64(16550)
 )
 
 var rfc1918Networks = []string{
@@ -68,6 +81,19 @@ var rfc1918Networks = []string{
 func validateGCPName(v interface{}, k string) (ws []string, errors []error) {
 	re := `^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$`
 	return validateRegexp(re)(v, k)
+}
+
+// Ensure that the BGP ASN value of Cloud Router is a valid value as per RFC6996 or a value of 16550
+func validateRFC6996Asn(v interface{}, k string) (ws []string, errors []error) {
+	value := int64(v.(int))
+	if !(value >= Rfc6996Asn16BitMin && value <= Rfc6996Asn16BitMax) &&
+		!(value >= Rfc6996Asn32BitMin && value <= Rfc6996Asn32BitMax) &&
+		value != GcpRouterPartnerAsn {
+		errors = append(errors, fmt.Errorf(`expected %q to be a RFC6996-compliant Local ASN:
+must be either in the private ASN ranges: [64512..65534], [4200000000..4294967294];
+or be the value of [%d], got %d`, k, GcpRouterPartnerAsn, value))
+	}
+	return
 }
 
 func validateRegexp(re string) schema.SchemaValidateFunc {
@@ -141,19 +167,6 @@ func validateIpCidrRange(v interface{}, k string) (warnings []string, errors []e
 	_, _, err := net.ParseCIDR(v.(string))
 	if err != nil {
 		errors = append(errors, fmt.Errorf("%q is not a valid IP CIDR range: %s", k, err))
-	}
-	return
-}
-
-func validateCloudIoTID(v interface{}, k string) (warnings []string, errors []error) {
-	value := v.(string)
-	if strings.HasPrefix(value, "goog") {
-		errors = append(errors, fmt.Errorf(
-			"%q (%q) can not start with \"goog\"", k, value))
-	}
-	if !regexp.MustCompile(CloudIoTIdRegex).MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q (%q) doesn't match regexp %q", k, value, CloudIoTIdRegex))
 	}
 	return
 }
@@ -241,6 +254,14 @@ func validateNonNegativeDuration() schema.SchemaValidateFunc {
 	}
 }
 
+func validateIpAddress(i interface{}, val string) ([]string, []error) {
+	ip := net.ParseIP(i.(string))
+	if ip == nil {
+		return nil, []error{fmt.Errorf("could not parse %q to IP address", val)}
+	}
+	return nil, nil
+}
+
 // StringNotInSlice returns a SchemaValidateFunc which tests if the provided value
 // is of type string and that it matches none of the element in the invalid slice.
 // if ignorecase is true, case is ignored.
@@ -261,4 +282,24 @@ func StringNotInSlice(invalid []string, ignoreCase bool) schema.SchemaValidateFu
 
 		return
 	}
+}
+
+// Ensure that hourly timestamp strings "HH:MM" have the minutes zeroed out for hourly only inputs
+func validateHourlyOnly(val interface{}, key string) (warns []string, errs []error) {
+	v := val.(string)
+	parts := strings.Split(v, ":")
+	if len(parts) != 2 {
+		errs = append(errs, fmt.Errorf("%q must be in the format HH:00, got: %s", key, v))
+		return
+	}
+	if parts[1] != "00" {
+		errs = append(errs, fmt.Errorf("%q does not allow minutes, it must be in the format HH:00, got: %s", key, v))
+	}
+	i, err := strconv.Atoi(parts[0])
+	if err != nil {
+		errs = append(errs, fmt.Errorf("%q cannot be parsed, it must be in the format HH:00, got: %s", key, v))
+	} else if i < 0 || i > 23 {
+		errs = append(errs, fmt.Errorf("%q does not specify a valid hour, it must be in the format HH:00 where HH : [00-23], got: %s", key, v))
+	}
+	return
 }

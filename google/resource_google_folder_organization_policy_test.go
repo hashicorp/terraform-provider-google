@@ -6,9 +6,9 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -308,8 +308,8 @@ resource "google_folder" "orgpolicy" {
 }
 
 resource "google_folder_organization_policy" "bool" {
-    # Test numeric folder ID.
-  folder     = "${replace(google_folder.orgpolicy.name, "folders/", "")}"
+  # Test numeric folder ID.
+  folder     = replace(google_folder.orgpolicy.name, "folders/", "")
   constraint = "constraints/compute.disableSerialPortAccess"
 
   boolean_policy {
@@ -327,7 +327,7 @@ resource "google_folder" "orgpolicy" {
 }
 
 resource "google_folder_organization_policy" "list" {
-  folder     = "${google_folder.orgpolicy.name}"
+  folder     = google_folder.orgpolicy.name
   constraint = "constraints/serviceuser.services"
 
   list_policy {
@@ -347,7 +347,7 @@ resource "google_folder" "orgpolicy" {
 }
 
 resource "google_folder_organization_policy" "list" {
-  folder     = "${google_folder.orgpolicy.name}"
+  folder     = google_folder.orgpolicy.name
   constraint = "constraints/compute.trustedImageProjects"
 
   list_policy {
@@ -367,7 +367,7 @@ resource "google_folder" "orgpolicy" {
 }
 
 resource "google_folder_organization_policy" "list" {
-  folder     = "${google_folder.orgpolicy.name}"
+  folder     = google_folder.orgpolicy.name
   constraint = "serviceuser.services"
 
   list_policy {
@@ -390,12 +390,12 @@ resource "google_folder" "orgpolicy" {
 }
 
 resource "google_folder_organization_policy" "restore" {
-    folder     = "${google_folder.orgpolicy.name}"
-    constraint = "serviceuser.services"
+  folder     = google_folder.orgpolicy.name
+  constraint = "serviceuser.services"
 
-    restore_policy {
-        default = true
-    }
+  restore_policy {
+    default = true
+  }
 }
 `, folder, "organizations/"+org)
 }

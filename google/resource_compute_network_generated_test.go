@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
@@ -51,7 +51,7 @@ func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 func testAccComputeNetwork_networkBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network" "vpc_network" {
-  name = "vpc-network%{random_suffix}"
+  name = "tf-test-vpc-network%{random_suffix}"
 }
 `, context)
 }
@@ -72,7 +72,7 @@ func testAccCheckComputeNetworkDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("ComputeNetwork still exists at %s", url)
 		}

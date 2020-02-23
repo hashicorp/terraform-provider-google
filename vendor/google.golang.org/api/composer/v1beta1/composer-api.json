@@ -400,7 +400,7 @@
       }
     }
   },
-  "revision": "20190514",
+  "revision": "20190827",
   "rootUrl": "https://composer.googleapis.com/",
   "schemas": {
     "Empty": {
@@ -418,7 +418,7 @@
           "description": "Configuration parameters for this environment."
         },
         "createTime": {
-          "description": "Output only.\nThe time at which this environment was created.",
+          "description": "Output only. The time at which this environment was created.",
           "format": "google-datetime",
           "type": "string"
         },
@@ -454,12 +454,12 @@
           "type": "string"
         },
         "updateTime": {
-          "description": "Output only.\nThe time at which this environment was last modified.",
+          "description": "Output only. The time at which this environment was last modified.",
           "format": "google-datetime",
           "type": "string"
         },
         "uuid": {
-          "description": "Output only.\nThe UUID (Universally Unique IDentifier) associated with this environment.\nThis value is generated when the environment is created.",
+          "description": "Output only. The UUID (Universally Unique IDentifier) associated with this environment.\nThis value is generated when the environment is created.",
           "type": "string"
         }
       },
@@ -470,15 +470,15 @@
       "id": "EnvironmentConfig",
       "properties": {
         "airflowUri": {
-          "description": "Output only.\nThe URI of the Apache Airflow Web UI hosted within this environment (see\n[Airflow web\ninterface](/composer/docs/how-to/accessing/airflow-web-interface)).",
+          "description": "Output only. The URI of the Apache Airflow Web UI hosted within this environment (see\n[Airflow web\ninterface](/composer/docs/how-to/accessing/airflow-web-interface)).",
           "type": "string"
         },
         "dagGcsPrefix": {
-          "description": "Output only.\nThe Cloud Storage prefix of the DAGs for this environment. Although Cloud\nStorage objects reside in a flat namespace, a hierarchical file tree\ncan be simulated using \"/\"-delimited object name prefixes. DAG objects for\nthis environment reside in a simulated directory with the given prefix.",
+          "description": "Output only. The Cloud Storage prefix of the DAGs for this environment. Although Cloud\nStorage objects reside in a flat namespace, a hierarchical file tree\ncan be simulated using \"/\"-delimited object name prefixes. DAG objects for\nthis environment reside in a simulated directory with the given prefix.",
           "type": "string"
         },
         "gkeCluster": {
-          "description": "Output only.\nThe Kubernetes Engine cluster used to run this environment.",
+          "description": "Output only. The Kubernetes Engine cluster used to run this environment.",
           "type": "string"
         },
         "nodeConfig": {
@@ -622,7 +622,7 @@
           "type": "string"
         },
         "machineType": {
-          "description": "Optional. The Compute Engine\n[machine type](/compute/docs/machine-types) used for cluster instances,\nspecified as a\n[relative resource\nname](/apis/design/resource_names#relative_resource_name). For example:\n\"projects/{projectId}/zones/{zoneId}/machineTypes/{machineTypeId}\".\n\nThe `machineType` must belong to the enclosing environment's project and\nlocation. If both this field and `nodeConfig.location` are specified,\nthis `machineType` must belong to the `nodeConfig.location`; if both are\nunspecified, the service will pick a zone in the Compute Engine region\ncorresponding to the Cloud Composer location, and propagate that choice to\nboth fields. If exactly one of this field and `nodeConfig.location` is\nspecified, the location information from the specified field will be\npropagated to the unspecified field.\n\nIf this field is unspecified, the `machineTypeId` defaults\nto \"n1-standard-1\".",
+          "description": "Optional. The Compute Engine\n[machine type](/compute/docs/machine-types) used for cluster instances,\nspecified as a\n[relative resource\nname](/apis/design/resource_names#relative_resource_name). For example:\n\"projects/{projectId}/zones/{zoneId}/machineTypes/{machineTypeId}\".\n\nThe `machineType` must belong to the enclosing environment's project and\nlocation. If both this field and `nodeConfig.location` are specified,\nthis `machineType` must belong to the `nodeConfig.location`; if both are\nunspecified, the service will pick a zone in the Compute Engine region\ncorresponding to the Cloud Composer location, and propagate that choice to\nboth fields. If exactly one of this field and `nodeConfig.location` is\nspecified, the location information from the specified field will be\npropagated to the unspecified field.\n\nThe `machineTypeId` must not be a [shared-core machine\ntype](/compute/docs/machine-types#sharedcore).\n\nIf this field is unspecified, the `machineTypeId` defaults\nto \"n1-standard-1\".",
           "type": "string"
         },
         "network": {
@@ -694,17 +694,17 @@
       "id": "OperationMetadata",
       "properties": {
         "createTime": {
-          "description": "Output only.\nThe time the operation was submitted to the server.",
+          "description": "Output only. The time the operation was submitted to the server.",
           "format": "google-datetime",
           "type": "string"
         },
         "endTime": {
-          "description": "Output only.\nThe time when the operation terminated, regardless of its success.\nThis field is unset if the operation is still ongoing.",
+          "description": "Output only. The time when the operation terminated, regardless of its success.\nThis field is unset if the operation is still ongoing.",
           "format": "google-datetime",
           "type": "string"
         },
         "operationType": {
-          "description": "Output only.\nThe type of operation being performed.",
+          "description": "Output only. The type of operation being performed.",
           "enum": [
             "TYPE_UNSPECIFIED",
             "CREATE",
@@ -720,15 +720,15 @@
           "type": "string"
         },
         "resource": {
-          "description": "Output only.\nThe resource being operated on, as a [relative resource name](\n/apis/design/resource_names#relative_resource_name).",
+          "description": "Output only. The resource being operated on, as a [relative resource name](\n/apis/design/resource_names#relative_resource_name).",
           "type": "string"
         },
         "resourceUuid": {
-          "description": "Output only.\nThe UUID of the resource being operated on.",
+          "description": "Output only. The UUID of the resource being operated on.",
           "type": "string"
         },
         "state": {
-          "description": "Output only.\nThe current operation state.",
+          "description": "Output only. The current operation state.",
           "enum": [
             "STATE_UNSPECIFIED",
             "PENDING",
@@ -815,7 +815,7 @@
       "type": "object"
     },
     "Status": {
-      "description": "The `Status` type defines a logical error model that is suitable for\ndifferent programming environments, including REST APIs and RPC APIs. It is\nused by [gRPC](https://github.com/grpc). The error model is designed to be:\n\n- Simple to use and understand for most users\n- Flexible enough to meet unexpected needs\n\n# Overview\n\nThe `Status` message contains three pieces of data: error code, error\nmessage, and error details. The error code should be an enum value of\ngoogle.rpc.Code, but it may accept additional error codes if needed.  The\nerror message should be a developer-facing English message that helps\ndevelopers *understand* and *resolve* the error. If a localized user-facing\nerror message is needed, put the localized message in the error details or\nlocalize it in the client. The optional error details may contain arbitrary\ninformation about the error. There is a predefined set of error detail types\nin the package `google.rpc` that can be used for common error conditions.\n\n# Language mapping\n\nThe `Status` message is the logical representation of the error model, but it\nis not necessarily the actual wire format. When the `Status` message is\nexposed in different client libraries and different wire protocols, it can be\nmapped differently. For example, it will likely be mapped to some exceptions\nin Java, but more likely mapped to some error codes in C.\n\n# Other uses\n\nThe error model and the `Status` message can be used in a variety of\nenvironments, either with or without APIs, to provide a\nconsistent developer experience across different environments.\n\nExample uses of this error model include:\n\n- Partial errors. If a service needs to return partial errors to the client,\n    it may embed the `Status` in the normal response to indicate the partial\n    errors.\n\n- Workflow errors. A typical workflow has multiple steps. Each step may\n    have a `Status` message for error reporting.\n\n- Batch operations. If a client uses batch request and batch response, the\n    `Status` message should be used directly inside batch response, one for\n    each error sub-response.\n\n- Asynchronous operations. If an API call embeds asynchronous operation\n    results in its response, the status of those operations should be\n    represented directly using the `Status` message.\n\n- Logging. If some API errors are stored in logs, the message `Status` could\n    be used directly after any stripping needed for security/privacy reasons.",
+      "description": "The `Status` type defines a logical error model that is suitable for\ndifferent programming environments, including REST APIs and RPC APIs. It is\nused by [gRPC](https://github.com/grpc). Each `Status` message contains\nthree pieces of data: error code, error message, and error details.\n\nYou can find out more about this error model and how to work with it in the\n[API Design Guide](https://cloud.google.com/apis/design/errors).",
       "id": "Status",
       "properties": {
         "code": {

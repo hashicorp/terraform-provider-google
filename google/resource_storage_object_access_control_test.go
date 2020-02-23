@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccStorageObjectAccessControl_update(t *testing.T) {
@@ -50,20 +50,20 @@ func TestAccStorageObjectAccessControl_update(t *testing.T) {
 func testGoogleStorageObjectAccessControlBasic(bucketName, objectName, role, entity string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "object" {
-	name = "%s"
-	bucket = "${google_storage_bucket.bucket.name}"
-	source = "%s"
+  name   = "%s"
+  bucket = google_storage_bucket.bucket.name
+  source = "%s"
 }
 
 resource "google_storage_object_access_control" "default" {
-	object = "${google_storage_bucket_object.object.name}"
-	bucket = "${google_storage_bucket.bucket.name}"
-	role   = "%s"
-	entity = "%s"
+  object = google_storage_bucket_object.object.name
+  bucket = google_storage_bucket.bucket.name
+  role   = "%s"
+  entity = "%s"
 }
 `, bucketName, objectName, tfObjectAcl.Name(), role, entity)
 }

@@ -1,4 +1,5 @@
 ---
+subcategory: "Bigtable"
 layout: "google"
 page_title: "Google: google_bigtable_instance"
 sidebar_current: "docs-google-bigtable-instance"
@@ -17,7 +18,7 @@ Creates a Google Bigtable instance. For more information see
 
 ```hcl
 resource "google_bigtable_instance" "production-instance" {
-  name         = "tf-instance"
+  name = "tf-instance"
 
   cluster {
     cluster_id   = "tf-instance-cluster"
@@ -67,12 +68,32 @@ The `cluster` block supports the following arguments:
 
 * `cluster_id` - (Required) The ID of the Cloud Bigtable cluster.
 
-* `zone` - (Required) The zone to create the Cloud Bigtable cluster in. Each cluster must have a different zone in the same region. Zones that support Bigtable instances are noted on the [Cloud Bigtable locations page](https://cloud.google.com/bigtable/docs/locations).
+* `zone` - (Required) The zone to create the Cloud Bigtable cluster in. Each
+cluster must have a different zone in the same region. Zones that support
+Bigtable instances are noted on the [Cloud Bigtable locations page](https://cloud.google.com/bigtable/docs/locations).
 
-* `num_nodes` - (Optional) The number of nodes in your Cloud Bigtable cluster. Required, with a minimum of `3` for a `PRODUCTION` instance. Must be left unset for a `DEVELOPMENT` instance.
+* `num_nodes` - (Optional) The number of nodes in your Cloud Bigtable cluster.
+Required, with a minimum of `3` for a `PRODUCTION` instance. Must be left unset
+for a `DEVELOPMENT` instance.
 
-* `storage_type` - (Optional) The storage type to use. One of `"SSD"` or `"HDD"`. Defaults to `"SSD"`.
+* `storage_type` - (Optional) The storage type to use. One of `"SSD"` or
+`"HDD"`. Defaults to `"SSD"`.
+
+!> **Warning:** Modifying the `storage_type` or `zone` of an existing cluster (by
+`cluster_id`) will cause Terraform to delete/recreate the entire
+`google_bigtable_instance` resource. If these values are changing, use a new
+`cluster_id`.
 
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.
+
+## Import
+
+Bigtable Instances can be imported using any of these accepted formats:
+
+```
+$ terraform import google_bigtable_instance.default projects/{{project}}/instances/{{name}}
+$ terraform import google_bigtable_instance.default {{project}}/{{name}}
+$ terraform import google_bigtable_instance.default {{name}}
+```

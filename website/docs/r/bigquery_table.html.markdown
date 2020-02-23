@@ -1,4 +1,5 @@
 ---
+subcategory: "BigQuery"
 layout: "google"
 page_title: "Google: google_bigquery_table"
 sidebar_current: "docs-google-bigquery-table"
@@ -29,7 +30,7 @@ resource "google_bigquery_dataset" "default" {
 }
 
 resource "google_bigquery_table" "default" {
-  dataset_id = "${google_bigquery_dataset.default.dataset_id}"
+  dataset_id = google_bigquery_dataset.default.dataset_id
   table_id   = "bar"
 
   time_partitioning {
@@ -56,11 +57,12 @@ resource "google_bigquery_table" "default" {
   }
 ]
 EOF
+
 }
 
 resource "google_bigquery_table" "sheet" {
-  dataset_id = "${google_bigquery_dataset.default.dataset_id}"
-  table_id   = "scheet"
+  dataset_id = google_bigquery_dataset.default.dataset_id
+  table_id   = "sheet"
 
   external_data_configuration {
     autodetect    = true
@@ -104,6 +106,10 @@ The following arguments are supported:
 
 * `friendly_name` - (Optional) A descriptive name for the table.
 
+* `encryption_configuration` - (Optional) Specifies how the table should be encrypted.
+    If left blank, the table will be encrypted with a Google-managed key; that process
+    is transparent to the user.  Structure is documented below.
+
 * `labels` - (Optional) A mapping of labels to assign to the resource.
 
 * `schema` - (Optional) A JSON schema for the table. Schema is required
@@ -111,9 +117,22 @@ The following arguments are supported:
     Bigtable, Cloud Datastore backups, and Avro formats when using
     external tables. For more information see the
     [BigQuery API documentation](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#resource).
+    ~>**NOTE**: Because this field expects a JSON string, any changes to the
+    string will create a diff, even if the JSON itself hasn't changed.
+    If the API returns a different value for the same schema, e.g. it
+    switched the order of values or replaced `STRUCT` field type with `RECORD`
+    field type, we currently cannot suppress the recurring diff this causes.
+    As a workaround, we recommend using the schema as returned by the API.
 
 * `time_partitioning` - (Optional) If specified, configures time-based
     partitioning for this table. Structure is documented below.
+
+* `range_partitioning` - (Optional, Beta) If specified, configures range-based
+    partitioning for this table. Structure is documented below.
+
+* `clustering` - (Optional) Specifies column names to use for data clustering.
+    Up to four top-level columns are allowed, and should be specified in
+    descending priority order.
 
 * `view` - (Optional) If specified, configures this table as a view.
     Structure is documented below.
@@ -126,7 +145,7 @@ The `external_data_configuration` block supports:
 * `compression` (Optional) - The compression type of the data source.
     Valid values are "NONE" or "GZIP".
 
-* `cvs_options` (Optional) - Additional properties to set if
+* `csv_options` (Optional) - Additional properties to set if
     `source_format` is set to "CSV". Structure is documented below.
 
 * `google_sheets_options` (Optional) - Additional options if
@@ -144,7 +163,7 @@ The `external_data_configuration` block supports:
     BigQuery can ignore when reading data.
 
 * `source_format` (Required) - The data format. Supported values are:
-    "CVS", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO",
+    "CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "PARQUET",
     and "DATSTORE_BACKUP". To use "GOOGLE_SHEETS"
     the `scopes` must include
     "https://www.googleapis.com/auth/drive.readonly".
@@ -152,7 +171,7 @@ The `external_data_configuration` block supports:
 * `source_uris` - (Required) A list of the fully-qualified URIs that point to
     your data in Google Cloud.
 
-The `cvs_options` block supports:
+The `csv_options` block supports:
 
 * `quote` (Required) - The value that is used to quote data sections in a
     CSV file. If your data does not contain quoted sections, set the
@@ -160,7 +179,7 @@ The `cvs_options` block supports:
     characters, you must also set the `allow_quoted_newlines` property to true.
     The API-side default is `"`, specified in Terraform escaped as `\"`. Due to
     limitations with Terraform default values, this value is required to be
-    explicitly set. 
+    explicitly set.
 
 * `allow_jagged_rows` (Optional) - Indicates if BigQuery should accept rows
     that are missing trailing optional columns.
@@ -179,13 +198,14 @@ The `cvs_options` block supports:
 
 The `google_sheets_options` block supports:
 
-* `range` (Optional, Beta) - Range of a sheet to query from. Only used when
-    non-empty.
-    Typical formatcal format: "sheet_name!top_left_cell_id:bottom_right_cell_id"
+* `range` (Optional) - Range of a sheet to query from. Only used when
+    non-empty. At least one of `range` or `skip_leading_rows` must be set.
+    Typical format: "sheet_name!top_left_cell_id:bottom_right_cell_id"
     For example: "sheet1!A1:B20"
 
-* `skip_leading_rows` (Optional) - The number of rows at the top of the scheet
-    that BigQuery will skip when reading the data.
+* `skip_leading_rows` (Optional) - The number of rows at the top of the sheet
+    that BigQuery will skip when reading the data. At least one of `range` or
+    `skip_leading_rows` must be set.
 
 The `time_partitioning` block supports:
 
@@ -203,12 +223,36 @@ The `time_partitioning` block supports:
     require a partition filter that can be used for partition elimination to be
     specified.
 
+The `range_partitioning` block supports:
+
+* `field` - (Required) The field used to determine how to create a range-based
+    partition.
+
+* `range` - (Required) Information required to partition based on ranges.
+    Structure is documented below.
+
+The `range` block supports:
+
+* `start` - (Required) Start of the range partitioning, inclusive.
+
+* `end` - (Required) End of the range partitioning, exclusive.
+
+* `interval` - (Required) The width of each range within the partition.
+
 The `view` block supports:
 
 * `query` - (Required) A query that BigQuery executes when the view is referenced.
 
 * `use_legacy_sql` - (Optional) Specifies whether to use BigQuery's legacy SQL for this view.
     The default value is true. If set to false, the view will use BigQuery's standard SQL.
+
+The `encryption_configuration` block supports the following arguments:
+
+* `kms_key_name` - (Required) The self link or full name of a key which should be used to
+    encrypt this table.  Note that the default bigquery service account will need to have
+    encrypt/decrypt permissions on this key - you may want to see the
+    `google_bigquery_default_service_account` datasource and the
+    `google_kms_crypto_key_iam_binding` resource.
 
 ## Attributes Reference
 
@@ -238,5 +282,5 @@ exported:
 BigQuery tables can be imported using the `project`, `dataset_id`, and `table_id`, e.g.
 
 ```
-$ terraform import google_bigquery_table.default gcp-project:foo.bar
+$ terraform import google_bigquery_table.default gcp-project/foo/bar
 ```

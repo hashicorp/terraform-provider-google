@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccCloudRunService_cloudRunServiceUpdate(t *testing.T) {
@@ -23,7 +23,6 @@ func TestAccCloudRunService_cloudRunServiceUpdate(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_cloud_run_service.default",
-				ImportStateId:           "us-central1/" + name,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "status.0.conditions"},
@@ -33,7 +32,6 @@ func TestAccCloudRunService_cloudRunServiceUpdate(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_cloud_run_service.default",
-				ImportStateId:           "us-central1/" + name,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "status.0.conditions"},
@@ -45,19 +43,26 @@ func TestAccCloudRunService_cloudRunServiceUpdate(t *testing.T) {
 func testAccCloudRunService_cloudRunServiceUpdate(name, project, concurrency string) string {
 	return fmt.Sprintf(`
 resource "google_cloud_run_service" "default" {
-  name          = "%s"
+  name     = "%s"
   location = "us-central1"
 
   metadata {
     namespace = "%s"
   }
 
-  spec {
-    containers {
-	  image = "gcr.io/cloudrun/hello"
-	  args = ["arrgs"]
-	}
-	container_concurrency = %s
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+        args  = ["arrgs"]
+      }
+	  container_concurrency = %s
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
   }
 }
 `, name, project, concurrency)

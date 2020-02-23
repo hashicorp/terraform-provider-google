@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccDataSourceGoogleCloudFunctionsFunction_basic(t *testing.T) {
@@ -15,10 +15,7 @@ func TestAccDataSourceGoogleCloudFunctionsFunction_basic(t *testing.T) {
 	funcDataNameHttp := "data.google_cloudfunctions_function.function_http"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
-	zipFilePath, err := createZIPArchiveForIndexJs(testHTTPTriggerPath)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
 	defer os.Remove(zipFilePath) // clean up
 
 	resource.Test(t, resource.TestCase{
@@ -46,23 +43,24 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_storage_bucket_object" "archive" {
   name   = "index.zip"
-  bucket = "${google_storage_bucket.bucket.name}"
+  bucket = google_storage_bucket.bucket.name
   source = "%s"
 }
 
 resource "google_cloudfunctions_function" "function_http" {
   name                  = "%s-http"
+  runtime               = "nodejs8"
   description           = "test function"
   available_memory_mb   = 128
-  source_archive_bucket = "${google_storage_bucket.bucket.name}"
-  source_archive_object = "${google_storage_bucket_object.archive.name}"
+  source_archive_bucket = google_storage_bucket.bucket.name
+  source_archive_object = google_storage_bucket_object.archive.name
   trigger_http          = true
   timeout               = 61
   entry_point           = "helloGET"
 }
 
 data "google_cloudfunctions_function" "function_http" {
-  name = "${google_cloudfunctions_function.function_http.name}"
+  name = google_cloudfunctions_function.function_http.name
 }
 `, bucketName, zipFilePath, functionName)
 }

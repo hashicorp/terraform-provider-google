@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Firestore"
 layout: "google"
 page_title: "Google: google_firestore_index"
 sidebar_current: "docs-google-firestore-index"
@@ -42,7 +43,7 @@ To get more information about Index, see:
 
 ```hcl
 resource "google_firestore_index" "my-index" {
-  project    = "my-project-name"
+  project = "my-project-name"
 
   collection = "chatrooms"
 
@@ -107,7 +108,8 @@ The `fields` block supports:
 
 * `query_scope` -
   (Optional)
-  The scope at which a query is run. Defaults to `"COLLECTION"`.
+  The scope at which a query is run. One of `"COLLECTION"` or
+  `"COLLECTION_GROUP"`. Defaults to `"COLLECTION"`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -117,6 +119,7 @@ The `fields` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   A server defined name for this index. Format:
@@ -141,3 +144,7 @@ $ terraform import google_firestore_index.default {{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

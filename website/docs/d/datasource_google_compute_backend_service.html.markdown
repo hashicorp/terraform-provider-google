@@ -1,4 +1,5 @@
 ---
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_backend_service"
 sidebar_current: "docs-google-datasource-compute-backend-service"
@@ -21,7 +22,7 @@ data "google_compute_backend_service" "baz" {
 
 resource "google_compute_backend_service" "default" {
   name          = "backend-service"
-  health_checks = ["${tolist(data.google_compute_backend_service.baz.health_checks)[0]}"]
+  health_checks = [tolist(data.google_compute_backend_service.baz.health_checks)[0]]
 }
 ```
 
@@ -53,7 +54,7 @@ In addition to the arguments listed above, the following attributes are exported
 
 * `self_link` - The URI of the Backend Service.
 
-* `session_affinity` - The Backend Service session stickyness configuration.
+* `session_affinity` - The Backend Service session stickiness configuration.
 
 * `timeout_sec` - The number of seconds to wait for a backend to respond to a request before considering the request failed.
 

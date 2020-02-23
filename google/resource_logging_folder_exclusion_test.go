@@ -4,21 +4,39 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
-	"google.golang.org/api/logging/v2"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccLoggingFolderExclusion_basic(t *testing.T) {
+// Logging exclusions don't always work when making parallel requests, so run tests serially
+func TestAccLoggingFolderExclusion(t *testing.T) {
 	t.Parallel()
 
+	testCases := map[string]func(t *testing.T){
+		"basic":                       testAccLoggingFolderExclusion_basic,
+		"folderAcceptsFullFolderPath": testAccLoggingFolderExclusion_folderAcceptsFullFolderPath,
+		"update":                      testAccLoggingFolderExclusion_update,
+		"multiple":                    testAccLoggingFolderExclusion_multiple,
+	}
+
+	for name, tc := range testCases {
+		// shadow the tc variable into scope so that when
+		// the loop continues, if t.Run hasn't executed tc(t)
+		// yet, we don't have a race condition
+		// see https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			tc(t)
+		})
+	}
+}
+
+func testAccLoggingFolderExclusion_basic(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	exclusionName := "tf-test-exclusion-" + acctest.RandString(10)
 	folderName := "tf-test-folder-" + acctest.RandString(10)
 	description := "Description " + acctest.RandString(10)
-
-	var exclusion logging.LogExclusion
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -26,11 +44,7 @@ func TestAccLoggingFolderExclusion_basic(t *testing.T) {
 		CheckDestroy: testAccCheckLoggingFolderExclusionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingFolderExclusion_basic(exclusionName, description, folderName, "organizations/"+org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingFolderExclusionExists("google_logging_folder_exclusion.basic", &exclusion),
-					testAccCheckLoggingFolderExclusion(&exclusion, "google_logging_folder_exclusion.basic"),
-				),
+				Config: testAccLoggingFolderExclusion_basicCfg(exclusionName, description, folderName, "organizations/"+org),
 			},
 			{
 				ResourceName:      "google_logging_folder_exclusion.basic",
@@ -41,15 +55,11 @@ func TestAccLoggingFolderExclusion_basic(t *testing.T) {
 	})
 }
 
-func TestAccLoggingFolderExclusion_folderAcceptsFullFolderPath(t *testing.T) {
-	t.Parallel()
-
+func testAccLoggingFolderExclusion_folderAcceptsFullFolderPath(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	exclusionName := "tf-test-exclusion-" + acctest.RandString(10)
 	folderName := "tf-test-folder-" + acctest.RandString(10)
 	description := "Description " + acctest.RandString(10)
-
-	var exclusion logging.LogExclusion
 
 	checkFn := func(s []*terraform.InstanceState) error {
 		loggingExclusionId, err := parseLoggingExclusionId(s[0].ID)
@@ -72,10 +82,6 @@ func TestAccLoggingFolderExclusion_folderAcceptsFullFolderPath(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderExclusion_withFullFolderPath(exclusionName, description, folderName, "organizations/"+org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingFolderExclusionExists("google_logging_folder_exclusion.full-folder", &exclusion),
-					testAccCheckLoggingFolderExclusion(&exclusion, "google_logging_folder_exclusion.full-folder"),
-				),
 			},
 			{
 				ResourceName:      "google_logging_folder_exclusion.full-folder",
@@ -92,9 +98,7 @@ func TestAccLoggingFolderExclusion_folderAcceptsFullFolderPath(t *testing.T) {
 	})
 }
 
-func TestAccLoggingFolderExclusion_update(t *testing.T) {
-	t.Parallel()
-
+func testAccLoggingFolderExclusion_update(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	exclusionName := "tf-test-exclusion-" + acctest.RandString(10)
 	folderName := "tf-test-folder-" + acctest.RandString(10)
@@ -102,26 +106,21 @@ func TestAccLoggingFolderExclusion_update(t *testing.T) {
 	descriptionBefore := "Basic Folder Logging Exclusion" + acctest.RandString(10)
 	descriptionAfter := "Updated Basic Folder Logging Exclusion" + acctest.RandString(10)
 
-	var exclusionBefore, exclusionAfter logging.LogExclusion
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLoggingFolderExclusionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingFolderExclusion_basic(exclusionName, descriptionBefore, folderName, parent),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingFolderExclusionExists("google_logging_folder_exclusion.basic", &exclusionBefore),
-					testAccCheckLoggingFolderExclusion(&exclusionBefore, "google_logging_folder_exclusion.basic"),
-				),
+				Config: testAccLoggingFolderExclusion_basicCfg(exclusionName, descriptionBefore, folderName, parent),
 			},
 			{
-				Config: testAccLoggingFolderExclusion_basic(exclusionName, descriptionAfter, folderName, parent),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingFolderExclusionExists("google_logging_folder_exclusion.basic", &exclusionAfter),
-					testAccCheckLoggingFolderExclusion(&exclusionAfter, "google_logging_folder_exclusion.basic"),
-				),
+				ResourceName:      "google_logging_folder_exclusion.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingFolderExclusion_basicCfg(exclusionName, descriptionAfter, folderName, parent),
 			},
 			{
 				ResourceName:      "google_logging_folder_exclusion.basic",
@@ -130,19 +129,38 @@ func TestAccLoggingFolderExclusion_update(t *testing.T) {
 			},
 		},
 	})
+}
 
-	// Description should have changed, but Filter and Disabled should be the same
-	if exclusionBefore.Description == exclusionAfter.Description {
-		t.Errorf("Expected Description to change, but it didn't: Description = %#v", exclusionBefore.Description)
-	}
-	if exclusionBefore.Filter != exclusionAfter.Filter {
-		t.Errorf("Expected Filter to be the same, but it differs: before = %#v, after = %#v",
-			exclusionBefore.Filter, exclusionAfter.Filter)
-	}
-	if exclusionBefore.Disabled != exclusionAfter.Disabled {
-		t.Errorf("Expected Disabled to be the same, but it differs: before = %#v, after = %#v",
-			exclusionBefore.Disabled, exclusionAfter.Disabled)
-	}
+func testAccLoggingFolderExclusion_multiple(t *testing.T) {
+	org := getTestOrgFromEnv(t)
+	folderName := "tf-test-folder-" + acctest.RandString(10)
+	parent := "organizations/" + org
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingFolderExclusionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingFolderExclusion_multipleCfg(folderName, parent),
+			},
+			{
+				ResourceName:      "google_logging_folder_exclusion.basic0",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_logging_folder_exclusion.basic1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_logging_folder_exclusion.basic2",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
 func testAccCheckLoggingFolderExclusionDestroy(s *terraform.State) error {
@@ -164,77 +182,55 @@ func testAccCheckLoggingFolderExclusionDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckLoggingFolderExclusionExists(n string, exclusion *logging.LogExclusion) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		attributes, err := getResourceAttributes(n, s)
-		if err != nil {
-			return err
-		}
-		config := testAccProvider.Meta().(*Config)
-
-		si, err := config.clientLogging.Folders.Exclusions.Get(attributes["id"]).Do()
-		if err != nil {
-			return err
-		}
-		*exclusion = *si
-
-		return nil
-	}
-}
-
-func testAccCheckLoggingFolderExclusion(exclusion *logging.LogExclusion, n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		attributes, err := getResourceAttributes(n, s)
-		if err != nil {
-			return err
-		}
-
-		if exclusion.Description != attributes["description"] {
-			return fmt.Errorf("mismatch on description: api has %s but client has %s", exclusion.Description, attributes["description"])
-		}
-
-		if exclusion.Filter != attributes["filter"] {
-			return fmt.Errorf("mismatch on filter: api has %s but client has %s", exclusion.Filter, attributes["filter"])
-		}
-
-		disabledAttribute, err := toBool(attributes["disabled"])
-		if err != nil {
-			return err
-		}
-		if exclusion.Disabled != disabledAttribute {
-			return fmt.Errorf("mismatch on disabled: api has %t but client has %t", exclusion.Disabled, disabledAttribute)
-		}
-
-		return nil
-	}
-}
-
-func testAccLoggingFolderExclusion_basic(exclusionName, description, folderName, folderParent string) string {
+func testAccLoggingFolderExclusion_basicCfg(exclusionName, description, folderName, folderParent string) string {
 	return fmt.Sprintf(`
 resource "google_logging_folder_exclusion" "basic" {
-	name             = "%s"
-	folder           = "${element(split("/", google_folder.my-folder.name), 1)}"
-	description      = "%s"
-	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  name        = "%s"
+  folder      = element(split("/", google_folder.my-folder.name), 1)
+  description = "%s"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
 
 resource "google_folder" "my-folder" {
-	display_name = "%s"
-	parent       = "%s"
-}`, exclusionName, description, getTestProjectFromEnv(), folderName, folderParent)
+  display_name = "%s"
+  parent       = "%s"
+}
+`, exclusionName, description, getTestProjectFromEnv(), folderName, folderParent)
 }
 
 func testAccLoggingFolderExclusion_withFullFolderPath(exclusionName, description, folderName, folderParent string) string {
 	return fmt.Sprintf(`
 resource "google_logging_folder_exclusion" "full-folder" {
-	name             = "%s"
-	folder           = "${google_folder.my-folder.name}"
-	description      = "%s"
-	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  name        = "%s"
+  folder      = google_folder.my-folder.name
+  description = "%s"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
 
 resource "google_folder" "my-folder" {
+  display_name = "%s"
+  parent       = "%s"
+}
+`, exclusionName, description, getTestProjectFromEnv(), folderName, folderParent)
+}
+
+func testAccLoggingFolderExclusion_multipleCfg(folderName, folderParent string) string {
+	s := fmt.Sprintf(`
+resource "google_folder" "my-folder" {
 	display_name = "%s"
 	parent       = "%s"
-}`, exclusionName, description, getTestProjectFromEnv(), folderName, folderParent)
+}
+`, folderName, folderParent)
+
+	for i := 0; i < 3; i++ {
+		s += fmt.Sprintf(`
+resource "google_logging_folder_exclusion" "basic%d" {
+  name        = "%s"
+  folder      = element(split("/", google_folder.my-folder.name), 1)
+  description = "Basic Folder Logging Exclusion"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+}
+`, i, "tf-test-exclusion-"+acctest.RandString(10), getTestProjectFromEnv())
+	}
+	return s
 }

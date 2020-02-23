@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud TPU"
 layout: "google"
 page_title: "Google: google_tpu_node"
 sidebar_current: "docs-google-tpu-node"
@@ -35,19 +36,21 @@ To get more information about Node, see:
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Tpu Node Basic
+## Example Usage - TPU Node Basic
 
 
 ```hcl
-data "google_tpu_tensorflow_versions" "available" { }
+
+data "google_tpu_tensorflow_versions" "available" {
+}
 
 resource "google_tpu_node" "tpu" {
-	name           = "test-tpu"
-	zone           = "us-central1-b"
+  name = "test-tpu"
+  zone = "us-central1-b"
 
-	accelerator_type   = "v3-8"
-	tensorflow_version = "${data.google_tpu_tensorflow_versions.available.versions[0]}"
-	cidr_block         = "10.2.0.0/29"
+  accelerator_type   = "v3-8"
+  tensorflow_version = data.google_tpu_tensorflow_versions.available.versions[0]
+  cidr_block         = "10.2.0.0/29"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -55,31 +58,33 @@ resource "google_tpu_node" "tpu" {
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Tpu Node Full
+## Example Usage - TPU Node Full
 
 
 ```hcl
-data "google_tpu_tensorflow_versions" "available" { }
+data "google_tpu_tensorflow_versions" "available" {
+}
+
 
 resource "google_tpu_node" "tpu" {
-	name               = "test-tpu"
-	zone               = "us-central1-b"
+  name = "test-tpu"
+  zone = "us-central1-b"
 
-	accelerator_type   = "v3-8"
+  accelerator_type = "v3-8"
 
-	cidr_block         = "10.3.0.0/29"
-	tensorflow_version = "${data.google_tpu_tensorflow_versions.available.versions[0]}"
+  cidr_block         = "10.3.0.0/29"
+  tensorflow_version = data.google_tpu_tensorflow_versions.available.versions[0]
 
-	description = "Terraform Google Provider test TPU"
-	network = "default"
+  description = "Terraform Google Provider test TPU"
+  network = "default"
 
-	labels = {
-		foo = "bar"
-	}
+  labels = {
+    foo = "bar"
+  }
 
-	scheduling_config {
-		preemptible = true
-	}
+  scheduling_config {
+    preemptible = true
+  }
 }
 ```
 
@@ -145,13 +150,14 @@ The following arguments are supported:
 The `scheduling_config` block supports:
 
 * `preemptible` -
-  (Optional)
+  (Required)
   Defines whether the TPU instance is preemptible.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{zone}}/nodes/{{name}}`
 
 * `service_account` -
   The service account used to run the tensor flow services within the
@@ -195,3 +201,7 @@ $ terraform import google_tpu_node.default {{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

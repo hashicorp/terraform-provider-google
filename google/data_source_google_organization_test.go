@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccDataSourceGoogleOrganization_byFullName(t *testing.T) {
@@ -20,7 +20,7 @@ func TestAccDataSourceGoogleOrganization_byFullName(t *testing.T) {
 			{
 				Config: testAccCheckGoogleOrganization_byName(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_organization.org", "id", orgId),
+					resource.TestCheckResourceAttr("data.google_organization.org", "id", name),
 					resource.TestCheckResourceAttr("data.google_organization.org", "name", name),
 				),
 			},
@@ -39,7 +39,7 @@ func TestAccDataSourceGoogleOrganization_byShortName(t *testing.T) {
 			{
 				Config: testAccCheckGoogleOrganization_byName(orgId),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_organization.org", "id", orgId),
+					resource.TestCheckResourceAttr("data.google_organization.org", "id", name),
 					resource.TestCheckResourceAttr("data.google_organization.org", "name", name),
 				),
 			},
@@ -66,12 +66,14 @@ func testAccCheckGoogleOrganization_byName(name string) string {
 	return fmt.Sprintf(`
 data "google_organization" "org" {
   organization = "%s"
-}`, name)
+}
+`, name)
 }
 
 func testAccCheckGoogleOrganization_byDomain(name string) string {
 	return fmt.Sprintf(`
 data "google_organization" "org" {
   domain = "%s"
-}`, name)
+}
+`, name)
 }

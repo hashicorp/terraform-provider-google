@@ -3,9 +3,10 @@ package google
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/googleapi"
 )
@@ -17,6 +18,9 @@ type Waiter interface {
 	// Error returns an error embedded in the operation we're waiting on, or nil
 	// if the operation has no current error.
 	Error() error
+
+	// IsRetryable returns whether a given error should be retried.
+	IsRetryable(error) bool
 
 	// SetOp sets the operation we're waiting on in a Waiter struct so that it
 	// can be used in other methods.
@@ -59,6 +63,10 @@ func (w *CommonOperationWaiter) Error() error {
 	return nil
 }
 
+func (w *CommonOperationWaiter) IsRetryable(error) bool {
+	return false
+}
+
 func (w *CommonOperationWaiter) SetOp(op interface{}) error {
 	if err := Convert(op, &w.Op); err != nil {
 		return err
@@ -95,11 +103,12 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		op, err := w.QueryOp()
 		if err != nil {
-			// Importantly, this error is in the GET to the operation, and isn't an error
-			// with the resource CRUD request itself.
-			if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-				log.Printf("[DEBUG] Dismissed an operation GET as retryable based on error code being 404: %s", err)
-				return op, "done: false", nil
+			for _, e := range getAllTypes(err, &googleapi.Error{}, &url.Error{}) {
+				// Retry 404 when getting operation (not resource state)
+				if isRetryableError(e, isNotFoundRetryableError("GET operation")) {
+					log.Printf("[DEBUG] Dismissed error on GET of operation '%v' retryable: %s", w.OpName(), err)
+					return nil, "done: false", nil
+				}
 			}
 
 			return nil, "", fmt.Errorf("error while retrieving operation: %s", err)
@@ -110,6 +119,10 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 		}
 
 		if err = w.Error(); err != nil {
+			if w.IsRetryable(err) {
+				log.Printf("[DEBUG] Retrying operation GET based on retryable err: %s", err)
+				return nil, w.State(), nil
+			}
 			return nil, "", err
 		}
 

@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/servicenetworking/v1"
 )
@@ -32,7 +32,7 @@ func resourceServiceNetworkingConnection() *schema.Resource {
 			},
 			// NOTE(craigatgoogle): This field is weird, it's required to make the Insert/List calls as a parameter
 			// named "parent", however it's also defined in the response as an output field called "peering", which
-			// uses "-" as a delimeter instead of ".". To alleviate user confusion I've opted to model the gcloud
+			// uses "-" as a delimiter instead of ".". To alleviate user confusion I've opted to model the gcloud
 			// CLI's approach, calling the field "service" and accepting the same format as the CLI with the "."
 			// delimiter.
 			// See: https://cloud.google.com/vpc/docs/configure-private-services-access#creating-connection
@@ -69,7 +69,21 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 	}
 
 	parentService := formatParentService(d.Get("service").(string))
-	op, err := config.clientServiceNetworking.Services.Connections.Create(parentService, connection).Do()
+	// We use Patch instead of Create, because we're getting
+	//  "Error waiting for Create Service Networking Connection:
+	//   Error code 9, message: Cannot modify allocated ranges in
+	//   CreateConnection. Please use UpdateConnection."
+	// if we're creating peerings to more than one VPC (like two
+	// CloudSQL instances within one project, peered with two
+	// clusters.)
+	//
+	// This is a workaround for:
+	// https://issuetracker.google.com/issues/131908322
+	//
+	// The API docs don't specify that you can do connections/-,
+	// but that's what gcloud does, and it's easier than grabbing
+	// the connection name.
+	op, err := config.clientServiceNetworking.Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true).Do()
 	if err != nil {
 		return err
 	}
@@ -177,15 +191,17 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 	obj["name"] = peering
 	url := fmt.Sprintf("%s%s/removePeering", config.ComputeBasePath, serviceNetworkingNetworkName)
 
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutUpdate))
+	networkFieldValue, err := ParseNetworkFieldValue(network, d, config)
+	if err != nil {
+		return errwrap.Wrapf("Failed to retrieve network field value, err: {{err}}", err)
+	}
+
+	project := networkFieldValue.Project
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ServiceNetworkingConnection %q", d.Id()))
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	op := &compute.Operation{}
 	err = Convert(res, op)
 	if err != nil {
@@ -193,7 +209,7 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 	}
 
 	err = computeOperationWaitTime(
-		config.clientCompute, op, project, "Updating Network",
+		config, op, project, "Updating Network",
 		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
 	if err != nil {
 		return err

@@ -33,7 +33,7 @@ func parseImportId(idRegexes []string, d TerraformResourceData, config *Config) 
 				log.Printf("[DEBUG] importing %s = %s", fieldName, fieldValue)
 				// Because we do not know at this point whether 'fieldName'
 				// corresponds to a TypeString or a TypeInteger in the resource
-				// schema, we need to determine the type in an unintutitive way.
+				// schema, we need to determine the type in an unintuitive way.
 				// We call d.Get, because examining the empty value is the easiest
 				// way to get that out.  Normally, we would be able to just
 				// use a try/catch pattern - try as a string, and if that doesn't
@@ -101,6 +101,7 @@ func setDefaultValues(idRegex string, d TerraformResourceData, config *Config) e
 // Parse an import id extracting field values using the given list of regexes.
 // They are applied in order. The first in the list is tried first.
 // This does not mutate any of the parameters, returning a map of matches
+// Similar to parseImportId in import.go, but less import specific
 //
 // e.g:
 // - projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<name>[^/]+) (applied first)
@@ -116,8 +117,7 @@ func getImportIdQualifiers(idRegexes []string, d TerraformResourceData, config *
 		}
 
 		if fieldValues := re.FindStringSubmatch(id); fieldValues != nil {
-			var result map[string]string
-			result = make(map[string]string)
+			result := make(map[string]string)
 			log.Printf("[DEBUG] matching ID %s to regex %s.", id, idFormat)
 			// Starting at index 1, the first match is the full string.
 			for i := 1; i < len(fieldValues); i++ {
@@ -126,46 +126,42 @@ func getImportIdQualifiers(idRegexes []string, d TerraformResourceData, config *
 				result[fieldName] = fieldValue
 			}
 
-			// The first id format is applied first and contains all the fields.
 			defaults, err := getDefaultValues(idRegexes[0], d, config)
 			if err != nil {
 				return nil, err
 			}
 
 			for k, v := range defaults {
-				result[k] = v
+				if _, ok := result[k]; !ok {
+					if v == "" {
+						// No default was found and no value was specified in the import ID
+						return nil, fmt.Errorf("No value was found for %s during import", k)
+					}
+					// Set any fields that are defaultable and not specified in import ID
+					result[k] = v
+				}
 			}
 
 			return result, nil
 		}
 	}
-	return nil, fmt.Errorf("Resource id %q doesn't match any of the accepted formats: %v", id, idRegexes)
+	return nil, fmt.Errorf("Import id %q doesn't match any of the accepted formats: %v", d.Id(), idRegexes)
 }
 
 // Returns a set of default values that are contained in a regular expression
 // This does not mutate any parameters, instead returning a map of defaults
 func getDefaultValues(idRegex string, d TerraformResourceData, config *Config) (map[string]string, error) {
-	var result map[string]string
-	result = make(map[string]string)
+	result := make(map[string]string)
 	if _, ok := d.GetOk("project"); !ok && strings.Contains(idRegex, "?P<project>") {
-		project, err := getProject(d, config)
-		if err != nil {
-			return nil, err
-		}
+		project, _ := getProject(d, config)
 		result["project"] = project
 	}
 	if _, ok := d.GetOk("region"); !ok && strings.Contains(idRegex, "?P<region>") {
-		region, err := getRegion(d, config)
-		if err != nil {
-			return nil, err
-		}
+		region, _ := getRegion(d, config)
 		result["region"] = region
 	}
 	if _, ok := d.GetOk("zone"); !ok && strings.Contains(idRegex, "?P<zone>") {
-		zone, err := getZone(d, config)
-		if err != nil {
-			return nil, err
-		}
+		zone, _ := getZone(d, config)
 		result["zone"] = zone
 	}
 	return result, nil

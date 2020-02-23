@@ -18,12 +18,12 @@
     }
   },
   "basePath": "/dns/v1beta2/projects/",
-  "baseUrl": "https://www.googleapis.com/dns/v1beta2/projects/",
+  "baseUrl": "https://dns.googleapis.com/dns/v1beta2/projects/",
   "batchPath": "batch/dns/v1beta2",
   "description": "Configures and serves authoritative DNS records.",
   "discoveryVersion": "v1",
   "documentationLink": "https://developers.google.com/cloud-dns",
-  "etag": "\"VPK3KBfpaEgZ16pozGOoMYfKc0U/5ETkYc51ldAG_lBus_hxlXlq9uQ\"",
+  "etag": "\"F5McR9eEaw0XRpaO3M9gbIugkbs/keAz3lpqQqjiyJjBvJRqliew5V8\"",
   "icons": {
     "x16": "https://www.gstatic.com/images/branding/product/1x/googleg_16dp.png",
     "x32": "https://www.gstatic.com/images/branding/product/1x/googleg_32dp.png"
@@ -982,8 +982,8 @@
       }
     }
   },
-  "revision": "20190418",
-  "rootUrl": "https://www.googleapis.com/",
+  "revision": "20191029",
+  "rootUrl": "https://dns.googleapis.com/",
   "schemas": {
     "Change": {
       "description": "A Change represents a set of ResourceRecordSet additions and deletions applied atomically to a ManagedZone. ResourceRecordSets within a ManagedZone are modified by creating a new Change element in the Changes collection. In turn the Changes collection also records the past modifications to the ResourceRecordSets in a ManagedZone. The current state of the ManagedZone is the sum effect of applying all Change elements in the Changes collection in sequence.",
@@ -1301,6 +1301,10 @@
           "$ref": "ManagedZonePrivateVisibilityConfig",
           "description": "For privately visible zones, the set of Virtual Private Cloud resources that the zone is visible from."
         },
+        "reverseLookupConfig": {
+          "$ref": "ManagedZoneReverseLookupConfig",
+          "description": "The presence of this field indicates that this is a managed reverse lookup zone and Cloud DNS will resolve reverse lookup queries using automatically configured records for VPC resources. This only applies to networks listed under private_visibility_config."
+        },
         "visibility": {
           "description": "The zone's visibility: public zones are exposed to the Internet, while private zones are visible only to Virtual Private Cloud resources.",
           "enum": [
@@ -1320,7 +1324,7 @@
       "id": "ManagedZoneDnsSecConfig",
       "properties": {
         "defaultKeySpecs": {
-          "description": "Specifies parameters that will be used for generating initial DnsKeys for this ManagedZone. Output only while state is not OFF.",
+          "description": "Specifies parameters for generating initial DnsKeys for this ManagedZone. Can only be changed while the state is OFF.",
           "items": {
             "$ref": "DnsKeySpec"
           },
@@ -1332,7 +1336,7 @@
           "type": "string"
         },
         "nonExistence": {
-          "description": "Specifies the mechanism used to provide authenticated denial-of-existence responses. Output only while state is not OFF.",
+          "description": "Specifies the mechanism for authenticated denial-of-existence responses. Can only be changed while the state is OFF.",
           "enum": [
             "nsec",
             "nsec3"
@@ -1381,6 +1385,18 @@
     "ManagedZoneForwardingConfigNameServerTarget": {
       "id": "ManagedZoneForwardingConfigNameServerTarget",
       "properties": {
+        "forwardingPath": {
+          "description": "Forwarding path for this NameServerTarget, if unset or set to DEFAULT, Cloud DNS will make forwarding decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go to the Internet. When set to PRIVATE, Cloud DNS will always send queries through VPC for this target",
+          "enum": [
+            "default",
+            "private"
+          ],
+          "enumDescriptions": [
+            "",
+            ""
+          ],
+          "type": "string"
+        },
         "ipv4Address": {
           "description": "IPv4 address of a target name server.",
           "type": "string"
@@ -1437,7 +1453,7 @@
       "id": "ManagedZonePeeringConfigTargetNetwork",
       "properties": {
         "deactivateTime": {
-          "description": "If this zone has been deactivated due to a problem with the network it targeted, the time at which it was deactivated. The zone can be deactivated if, for instance, the network it targeted was deleted. If the targeted network is still present, this will be the empty string. This is in RFC3339 text format. Output only.",
+          "description": "The time at which the zone was deactivated, in RFC 3339 date-time format. An empty string indicates that the peering connection is active. The producer network can deactivate a zone. The zone is automatically deactivated if the producer network that the zone targeted is deleted. Output only.",
           "type": "string"
         },
         "kind": {
@@ -1480,6 +1496,17 @@
         },
         "networkUrl": {
           "description": "The fully qualified URL of the VPC network to bind to. This should be formatted like https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ManagedZoneReverseLookupConfig": {
+      "id": "ManagedZoneReverseLookupConfig",
+      "properties": {
+        "kind": {
+          "default": "dns#managedZoneReverseLookupConfig",
+          "description": "Identifies what kind of resource this is. Value: the fixed string \"dns#managedZoneReverseLookupConfig\".",
           "type": "string"
         }
       },
@@ -1700,6 +1727,18 @@
     "PolicyAlternativeNameServerConfigTargetNameServer": {
       "id": "PolicyAlternativeNameServerConfigTargetNameServer",
       "properties": {
+        "forwardingPath": {
+          "description": "Forwarding path for this TargetNameServer, if unset or set to DEFAULT, Cloud DNS will make forwarding decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go to the Internet. When set to PRIVATE, Cloud DNS will always send queries through VPC for this target",
+          "enum": [
+            "default",
+            "private"
+          ],
+          "enumDescriptions": [
+            "",
+            ""
+          ],
+          "type": "string"
+        },
         "ipv4Address": {
           "description": "IPv4 address to forward to.",
           "type": "string"

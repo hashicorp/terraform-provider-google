@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccPubsubSubscription_pubsubSubscriptionPullExample(t *testing.T) {
@@ -51,12 +51,12 @@ func TestAccPubsubSubscription_pubsubSubscriptionPullExample(t *testing.T) {
 func testAccPubsubSubscription_pubsubSubscriptionPullExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_pubsub_topic" "example" {
-  name = "example-topic%{random_suffix}"
+  name = "tf-test-example-topic%{random_suffix}"
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "example-subscription%{random_suffix}"
-  topic = "${google_pubsub_topic.example.name}"
+  name  = "tf-test-example-subscription%{random_suffix}"
+  topic = google_pubsub_topic.example.name
 
   labels = {
     foo = "bar"
@@ -64,7 +64,7 @@ resource "google_pubsub_subscription" "example" {
 
   # 20 minutes
   message_retention_duration = "1200s"
-  retain_acked_messages = true
+  retain_acked_messages      = true
 
   ack_deadline_seconds = 20
 
@@ -91,7 +91,7 @@ func testAccCheckPubsubSubscriptionDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("PubsubSubscription still exists at %s", url)
 		}

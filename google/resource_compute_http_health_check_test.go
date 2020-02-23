@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -55,19 +55,19 @@ func testAccCheckComputeHttpHealthCheckExists(n string, healthCheck *compute.Htt
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+		if rs.Primary.Attributes["name"] == "" {
+			return fmt.Errorf("No name is set")
 		}
 
 		config := testAccProvider.Meta().(*Config)
 
 		found, err := config.clientCompute.HttpHealthChecks.Get(
-			config.Project, rs.Primary.ID).Do()
+			config.Project, rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != rs.Primary.Attributes["name"] {
 			return fmt.Errorf("HttpHealthCheck not found")
 		}
 
@@ -104,9 +104,9 @@ func testAccCheckComputeHttpHealthCheckThresholds(healthy, unhealthy int64, heal
 func testAccComputeHttpHealthCheck_update1(hhckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_http_health_check" "foobar" {
-	name = "%s"
-	description = "Resource created for Terraform acceptance testing"
-	request_path = "/not_default"
+  name         = "%s"
+  description  = "Resource created for Terraform acceptance testing"
+  request_path = "/not_default"
 }
 `, hhckName)
 }
@@ -114,10 +114,10 @@ resource "google_compute_http_health_check" "foobar" {
 func testAccComputeHttpHealthCheck_update2(hhckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_http_health_check" "foobar" {
-	name = "%s"
-	description = "Resource updated for Terraform acceptance testing"
-	healthy_threshold = 10
-	unhealthy_threshold = 10
+  name                = "%s"
+  description         = "Resource updated for Terraform acceptance testing"
+  healthy_threshold   = 10
+  unhealthy_threshold = 10
 }
 `, hhckName)
 }

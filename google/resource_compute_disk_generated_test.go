@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeDisk_diskBasicExample(t *testing.T) {
@@ -51,7 +51,7 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 func testAccComputeDisk_diskBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_disk" "default" {
-  name  = "test-disk%{random_suffix}"
+  name  = "tf-test-test-disk%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
   image = "debian-8-jessie-v20170523"
@@ -79,7 +79,7 @@ func testAccCheckComputeDiskDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("ComputeDisk still exists at %s", url)
 		}

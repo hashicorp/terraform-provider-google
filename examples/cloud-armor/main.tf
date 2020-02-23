@@ -7,10 +7,10 @@ resource "random_id" "instance_id" {
 
 # Configure the Google Cloud provider
 provider "google" {
-  credentials = "${file(var.credentials_file_path)}"
-  project     = "${var.project_name}"
-  region      = "${var.region}"
-  zone        = "${var.region_zone}"
+  credentials = file(var.credentials_file_path)
+  project     = var.project_name
+  region      = var.region
+  zone        = var.region_zone
 }
 
 # Set up a backend to be proxied to:
@@ -26,8 +26,8 @@ resource "google_compute_instance" "cluster1" {
   }
 
   network_interface {
-    network       = "default"
-    access_config = {
+    network = "default"
+    access_config {
       # Ephemeral IP
     }
   }
@@ -50,7 +50,7 @@ resource "google_compute_instance_group" "webservers" {
   description = "An instance group for the single GCE instance"
 
   instances = [
-    "${google_compute_instance.cluster1.self_link}",
+    google_compute_instance.cluster1.self_link,
   ]
 
   named_port {
@@ -63,11 +63,11 @@ resource "google_compute_target_pool" "example" {
   name = "armor-pool"
 
   instances = [
-    "${google_compute_instance.cluster1.self_link}",
+    google_compute_instance.cluster1.self_link,
   ]
 
   health_checks = [
-    "${google_compute_http_health_check.health.name}",
+    google_compute_http_health_check.health.name,
   ]
 }
 
@@ -87,12 +87,12 @@ resource "google_compute_backend_service" "website" {
   enable_cdn  = false
 
   backend {
-    group = "${google_compute_instance_group.webservers.self_link}"
+    group = google_compute_instance_group.webservers.self_link
   }
 
-  security_policy = "${google_compute_security_policy.security-policy-1.self_link}"
+  security_policy = google_compute_security_policy.security-policy-1.self_link
 
-  health_checks = ["${google_compute_http_health_check.health.self_link}"]
+  health_checks = [google_compute_http_health_check.health.self_link]
 }
 
 # Cloud Armor Security policies
@@ -125,7 +125,7 @@ resource "google_compute_security_policy" "security-policy-1" {
       versioned_expr = "SRC_IPS_V1"
 
       config {
-        src_ip_ranges = "${var.ip_white_list}"
+        src_ip_ranges = var.ip_white_list
       }
     }
 
@@ -136,18 +136,18 @@ resource "google_compute_security_policy" "security-policy-1" {
 # Front end of the load balancer
 resource "google_compute_global_forwarding_rule" "default" {
   name       = "armor-rule"
-  target     = "${google_compute_target_http_proxy.default.self_link}"
+  target     = google_compute_target_http_proxy.default.self_link
   port_range = "80"
 }
 
 resource "google_compute_target_http_proxy" "default" {
-  name        = "armor-proxy"
-  url_map     = "${google_compute_url_map.default.self_link}"
+  name    = "armor-proxy"
+  url_map = google_compute_url_map.default.self_link
 }
 
 resource "google_compute_url_map" "default" {
   name            = "armor-url-map"
-  default_service = "${google_compute_backend_service.website.self_link}"
+  default_service = google_compute_backend_service.website.self_link
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -156,15 +156,15 @@ resource "google_compute_url_map" "default" {
 
   path_matcher {
     name            = "allpaths"
-    default_service = "${google_compute_backend_service.website.self_link}"
+    default_service = google_compute_backend_service.website.self_link
 
     path_rule {
       paths   = ["/*"]
-      service = "${google_compute_backend_service.website.self_link}"
+      service = google_compute_backend_service.website.self_link
     }
   }
 }
 
 output "ip" {
-  value = "${google_compute_global_forwarding_rule.default.ip_address}"
+  value = google_compute_global_forwarding_rule.default.ip_address
 }

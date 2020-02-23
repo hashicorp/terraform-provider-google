@@ -5,9 +5,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccDataSourceGoogleFolder_byFullName(t *testing.T) {
@@ -119,43 +119,47 @@ func testAccDataSourceGoogleFolderCheck(data_source_name string, resource_name s
 func testAccCheckGoogleFolder_byFullNameConfig(parent string, displayName string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "foobar" {
-  parent = "%s"
+  parent       = "%s"
   display_name = "%s"
 }
 
 data "google_folder" "folder" {
-  folder = "${google_folder.foobar.name}"
-}`, parent, displayName)
+  folder = google_folder.foobar.name
+}
+`, parent, displayName)
 }
 
 func testAccCheckGoogleFolder_byShortNameConfig(parent string, displayName string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "foobar" {
-  parent = "%s"
+  parent       = "%s"
   display_name = "%s"
 }
 
 data "google_folder" "folder" {
-  folder = "${replace(google_folder.foobar.name, "folders/", "")}"
-}`, parent, displayName)
+  folder = replace(google_folder.foobar.name, "folders/", "")
+}
+`, parent, displayName)
 }
 
 func testAccCheckGoogleFolder_lookupOrganizationConfig(parent string, displayName string) string {
 	return fmt.Sprintf(`
 resource "google_folder" "foobar" {
-  parent = "%s"
+  parent       = "%s"
   display_name = "%s"
 }
 
 data "google_folder" "folder" {
-  folder = "${google_folder.foobar.name}"
+  folder              = google_folder.foobar.name
   lookup_organization = true
-}`, parent, displayName)
+}
+`, parent, displayName)
 }
 
 func testAccCheckGoogleFolder_byFullNameNotFoundConfig(name string) string {
 	return fmt.Sprintf(`
 data "google_folder" "folder" {
   folder = "%s"
-}`, name)
+}
+`, name)
 }

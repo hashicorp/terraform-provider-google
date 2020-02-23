@@ -6,9 +6,9 @@ import (
 
 	"google.golang.org/api/compute/v1"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeInstanceGroup_basic(t *testing.T) {
@@ -302,7 +302,7 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(nInstanceGroup string, nNetwo
 			return fmt.Errorf("No ID is set")
 		}
 		network, err := config.clientCompute.Networks.Get(
-			config.Project, rsNetwork.Primary.ID).Do()
+			config.Project, rsNetwork.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
 		}
@@ -317,302 +317,307 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(nInstanceGroup string, nNetwo
 
 func testAccComputeInstanceGroup_basic(zone, instance string) string {
 	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
 
-	resource "google_compute_instance" "ig_instance" {
-		name = "%s"
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		zone = "us-central1-c"
+resource "google_compute_instance" "ig_instance" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  zone           = "us-central1-c"
 
-		boot_disk {
-			initialize_params {
-				image = "${data.google_compute_image.my_image.self_link}"
-			}
-		}
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
 
-		network_interface {
-			network = "default"
-		}
-	}
+  network_interface {
+    network = "default"
+  }
+}
 
-	resource "google_compute_instance_group" "basic" {
-		description = "Terraform test instance group"
-		name = "%s"
-		zone = "%s"
-		instances = [ "${google_compute_instance.ig_instance.self_link}" ]
-		named_port {
-			name = "http"
-			port = "8080"
-		}
-		named_port {
-			name = "https"
-			port = "8443"
-		}
-	}
+resource "google_compute_instance_group" "basic" {
+  description = "Terraform test instance group"
+  name        = "%s"
+  zone        = "%s"
+  instances   = [google_compute_instance.ig_instance.self_link]
+  named_port {
+    name = "http"
+    port = "8080"
+  }
+  named_port {
+    name = "https"
+    port = "8443"
+  }
+}
 
-	resource "google_compute_instance_group" "empty" {
-		description = "Terraform test instance group empty"
-		name = "%s-empty"
-		zone = "%s"
-		named_port {
-			name = "http"
-			port = "8080"
-		}
-		named_port {
-			name = "https"
-			port = "8443"
-		}
-	}`, instance, instance, zone, instance, zone)
+resource "google_compute_instance_group" "empty" {
+  description = "Terraform test instance group empty"
+  name        = "%s-empty"
+  zone        = "%s"
+  named_port {
+    name = "http"
+    port = "8080"
+  }
+  named_port {
+    name = "https"
+    port = "8443"
+  }
+}
+`, instance, instance, zone, instance, zone)
 }
 
 func testAccComputeInstanceGroup_rename(instance, instanceGroup, backend, health string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance" "ig_instance" {
-	name = "%s"
-	machine_type = "n1-standard-1"
-	can_ip_forward = false
-	zone = "us-central1-c"
-	boot_disk {
-		initialize_params {
-			image = "${data.google_compute_image.my_image.self_link}"
-		}
-	}
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  zone           = "us-central1-c"
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
 
-	network_interface {
-		network = "default"
-	}
+  network_interface {
+    network = "default"
+  }
 }
 
 resource "google_compute_instance_group" "basic" {
-	name = "%s"
-	zone = "us-central1-c"
-	instances = [ "${google_compute_instance.ig_instance.self_link}" ]
-	named_port {
-		name = "http"
-		port = "8080"
-	}
+  name      = "%s"
+  zone      = "us-central1-c"
+  instances = [google_compute_instance.ig_instance.self_link]
+  named_port {
+    name = "http"
+    port = "8080"
+  }
 
-	named_port {
-		name = "https"
-		port = "8443"
-	}
+  named_port {
+    name = "https"
+    port = "8443"
+  }
 
-	lifecycle {
-		create_before_destroy = true
-	}
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "google_compute_backend_service" "default_backend" {
-	name      = "%s"
-	port_name = "https"
-	protocol  = "HTTPS"
+  name      = "%s"
+  port_name = "https"
+  protocol  = "HTTPS"
 
-	backend {
-		group = "${google_compute_instance_group.basic.self_link}"
-	}
+  backend {
+    group = google_compute_instance_group.basic.self_link
+  }
 
-	health_checks = [
-		"${google_compute_https_health_check.healthcheck.self_link}",
-	]
+  health_checks = [
+    google_compute_https_health_check.healthcheck.self_link,
+  ]
 }
 
 resource "google_compute_https_health_check" "healthcheck" {
-	name         = "%s"
-	request_path = "/health_check"
+  name         = "%s"
+  request_path = "/health_check"
 }
 `, instance, instanceGroup, backend, health)
 }
 
 func testAccComputeInstanceGroup_update(instance string) string {
 	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family    = "debian-9"
-		project = "debian-cloud"
-	}
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
 
-	resource "google_compute_instance" "ig_instance" {
-		name = "%s-${count.index}"
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		zone = "us-central1-c"
-		count = 2
+resource "google_compute_instance" "ig_instance" {
+  name           = "%s-${count.index}"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  zone           = "us-central1-c"
+  count          = 2
 
-		boot_disk {
-			initialize_params {
-				image = "${data.google_compute_image.my_image.self_link}"
-			}
-		}
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
 
-		network_interface {
-			network = "default"
-		}
-	}
+  network_interface {
+    network = "default"
+  }
+}
 
-	resource "google_compute_instance_group" "update" {
-		description = "Terraform test instance group"
-		name = "%s"
-		zone = "us-central1-c"
-		instances = google_compute_instance.ig_instance.*.self_link
-		named_port {
-			name = "http"
-			port = "8080"
-		}
-		named_port {
-			name = "https"
-			port = "8443"
-		}
-	}`, instance, instance)
+resource "google_compute_instance_group" "update" {
+  description = "Terraform test instance group"
+  name        = "%s"
+  zone        = "us-central1-c"
+  instances   = google_compute_instance.ig_instance.*.self_link
+  named_port {
+    name = "http"
+    port = "8080"
+  }
+  named_port {
+    name = "https"
+    port = "8443"
+  }
+}
+`, instance, instance)
 }
 
 // Change IGM's instance template and target size
 func testAccComputeInstanceGroup_update2(instance string) string {
 	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
 
-	resource "google_compute_instance" "ig_instance" {
-		name = "%s-${count.index}"
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		zone = "us-central1-c"
-		count = 1
+resource "google_compute_instance" "ig_instance" {
+  name           = "%s-${count.index}"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  zone           = "us-central1-c"
+  count          = 1
 
-		boot_disk {
-			initialize_params {
-				image = "${data.google_compute_image.my_image.self_link}"
-			}
-		}
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
 
-		network_interface {
-			network = "default"
-		}
-	}
+  network_interface {
+    network = "default"
+  }
+}
 
-	resource "google_compute_instance_group" "update" {
-		description = "Terraform test instance group"
-		name = "%s"
-		zone = "us-central1-c"
-		instances = google_compute_instance.ig_instance.*.self_link
+resource "google_compute_instance_group" "update" {
+  description = "Terraform test instance group"
+  name        = "%s"
+  zone        = "us-central1-c"
+  instances   = google_compute_instance.ig_instance.*.self_link
 
-		named_port {
-			name = "http"
-			port = "8081"
-		}
-		named_port {
-			name = "test"
-			port = "8444"
-		}
-	}`, instance, instance)
+  named_port {
+    name = "http"
+    port = "8081"
+  }
+  named_port {
+    name = "test"
+    port = "8444"
+  }
+}
+`, instance, instance)
 }
 
 func testAccComputeInstanceGroup_outOfOrderInstances(instance string) string {
 	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
 
-	resource "google_compute_instance" "ig_instance" {
-		name = "%s-1"
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		zone = "us-central1-c"
+resource "google_compute_instance" "ig_instance" {
+  name           = "%s-1"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  zone           = "us-central1-c"
 
-		boot_disk {
-			initialize_params {
-				image = "${data.google_compute_image.my_image.self_link}"
-			}
-		}
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
 
-		network_interface {
-			network = "default"
-		}
-	}
+  network_interface {
+    network = "default"
+  }
+}
 
-	resource "google_compute_instance" "ig_instance_2" {
-		name = "%s-2"
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		zone = "us-central1-c"
+resource "google_compute_instance" "ig_instance_2" {
+  name           = "%s-2"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  zone           = "us-central1-c"
 
-		boot_disk {
-			initialize_params {
-				image = "${data.google_compute_image.my_image.self_link}"
-			}
-		}
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
 
-		network_interface {
-			network = "default"
-		}
-	}
+  network_interface {
+    network = "default"
+  }
+}
 
-	resource "google_compute_instance_group" "group" {
-		description = "Terraform test instance group"
-		name = "%s"
-		zone = "us-central1-c"
-		instances = [ "${google_compute_instance.ig_instance_2.self_link}", "${google_compute_instance.ig_instance.self_link}" ]
-		named_port {
-			name = "http"
-			port = "8080"
-		}
-		named_port {
-			name = "https"
-			port = "8443"
-		}
-	}`, instance, instance, instance)
+resource "google_compute_instance_group" "group" {
+  description = "Terraform test instance group"
+  name        = "%s"
+  zone        = "us-central1-c"
+  instances   = [google_compute_instance.ig_instance_2.self_link, google_compute_instance.ig_instance.self_link]
+  named_port {
+    name = "http"
+    port = "8080"
+  }
+  named_port {
+    name = "https"
+    port = "8443"
+  }
+}
+`, instance, instance, instance)
 }
 
 func testAccComputeInstanceGroup_network(instance string) string {
 	return fmt.Sprintf(`
-	data "google_compute_image" "my_image" {
-		family  = "debian-9"
-		project = "debian-cloud"
-	}
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
 
-	resource "google_compute_network" "ig_network" {
-		name = "%[1]s"
-		auto_create_subnetworks = true
-	}
+resource "google_compute_network" "ig_network" {
+  name                    = "%[1]s"
+  auto_create_subnetworks = true
+}
 
-	resource "google_compute_instance" "ig_instance" {
-		name = "%[1]s"
-		machine_type = "n1-standard-1"
-		can_ip_forward = false
-		zone = "us-central1-c"
+resource "google_compute_instance" "ig_instance" {
+  name           = "%[1]s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  zone           = "us-central1-c"
 
-		boot_disk {
-			initialize_params {
-				image = "${data.google_compute_image.my_image.self_link}"
-			}
-		}
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
 
-		network_interface {
-			network = "${google_compute_network.ig_network.name}"
-		}
-	}
+  network_interface {
+    network = google_compute_network.ig_network.name
+  }
+}
 
-	resource "google_compute_instance_group" "with_instance" {
-		description = "Terraform test instance group"
-		name = "%[1]s-with-instance"
-		zone = "us-central1-c"
-		instances = [ "${google_compute_instance.ig_instance.self_link}" ]
-	}
+resource "google_compute_instance_group" "with_instance" {
+  description = "Terraform test instance group"
+  name        = "%[1]s-with-instance"
+  zone        = "us-central1-c"
+  instances   = [google_compute_instance.ig_instance.self_link]
+}
 
-	resource "google_compute_instance_group" "without_instance" {
-		description = "Terraform test instance group"
-		name = "%[1]s-without-instance"
-		zone = "us-central1-c"
-		network = "${google_compute_network.ig_network.self_link}"
-	}`, instance)
+resource "google_compute_instance_group" "without_instance" {
+  description = "Terraform test instance group"
+  name        = "%[1]s-without-instance"
+  zone        = "us-central1-c"
+  network     = google_compute_network.ig_network.self_link
+}
+`, instance)
 }

@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Pub/Sub"
 layout: "google"
 page_title: "Google: google_pubsub_subscription"
 sidebar_current: "docs-google-pubsub-subscription"
@@ -42,7 +43,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "example-subscription"
-  topic = "${google_pubsub_topic.example.name}"
+  topic = google_pubsub_topic.example.name
 
   ack_deadline_seconds = 20
 
@@ -53,7 +54,7 @@ resource "google_pubsub_subscription" "example" {
   push_config {
     push_endpoint = "https://example.com/push"
 
-    attributes {
+    attributes = {
       x-goog-version = "v1"
     }
   }
@@ -74,7 +75,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "example-subscription"
-  topic = "${google_pubsub_topic.example.name}"
+  topic = google_pubsub_topic.example.name
 
   labels = {
     foo = "bar"
@@ -82,7 +83,7 @@ resource "google_pubsub_subscription" "example" {
 
   # 20 minutes
   message_retention_duration = "1200s"
-  retain_acked_messages = true
+  retain_acked_messages      = true
 
   ack_deadline_seconds = 20
 
@@ -103,7 +104,7 @@ resource "google_pubsub_topic" "example" {
 resource "google_pubsub_subscription" "example" {
   project = "subscription-project"
   name    = "example-subscription"
-  topic   = "${google_pubsub_topic.example.id}"
+  topic   = google_pubsub_topic.example.name
 }
 ```
 
@@ -176,14 +177,20 @@ The following arguments are supported:
   A subscription is considered active as long as any connected subscriber
   is successfully consuming messages from the subscription or is issuing
   operations on the subscription. If expirationPolicy is not set, a default
-  policy with ttl of 31 days will be used. The minimum allowed value for
-  expirationPolicy.ttl is 1 day.  Structure is documented below.
+  policy with ttl of 31 days will be used.  If it is set but ttl is "", the
+  resource never expires.  The minimum allowed value for expirationPolicy.ttl
+  is 1 day.  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
 The `push_config` block supports:
+
+* `oidc_token` -
+  (Optional)
+  If specified, Pub/Sub will generate and attach an OIDC JWT token as
+  an Authorization header in the HTTP request for every pushed message.  Structure is documented below.
 
 * `push_endpoint` -
   (Required)
@@ -212,15 +219,32 @@ The `push_config` block supports:
   - v1beta1: uses the push format defined in the v1beta1 Pub/Sub API.
   - v1 or v1beta2: uses the push format defined in the v1 Pub/Sub API.
 
+
+The `oidc_token` block supports:
+
+* `service_account_email` -
+  (Required)
+  Service account email to be used for generating the OIDC token.
+  The caller (for subscriptions.create, subscriptions.patch, and
+  subscriptions.modifyPushConfig RPCs) must have the
+  iam.serviceAccounts.actAs permission for the service account.
+
+* `audience` -
+  (Optional)
+  Audience to be used when generating OIDC token. The audience claim
+  identifies the recipients that the JWT is intended for. The audience
+  value is a single case-sensitive string. Having multiple values (array)
+  for the audience field is not supported. More info about the OIDC JWT
+  token audience here: https://tools.ietf.org/html/rfc7519#section-4.1.3
+  Note: if not specified, the Push endpoint URL will be used.
+
 The `expiration_policy` block supports:
 
 * `ttl` -
-  (Optional)
+  (Required)
   Specifies the "time-to-live" duration for an associated resource. The
-  resource expires if it is not active for a period of ttl. The definition
-  of "activity" depends on the type of the associated resource. The minimum
-  and maximum allowed values for ttl depend on the type of the associated
-  resource, as well. If ttl is not set, the associated resource never expires.
+  resource expires if it is not active for a period of ttl.
+  If ttl is not set, the associated resource never expires.
   A duration in seconds with up to nine fractional digits, terminated by 's'.
   Example - "3.5s".
 
@@ -228,6 +252,7 @@ The `expiration_policy` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/subscriptions/{{name}}`
 
 
 * `path`: Path of the subscription in the format `projects/{project}/subscriptions/{name}`
@@ -253,3 +278,7 @@ $ terraform import google_pubsub_subscription.default {{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

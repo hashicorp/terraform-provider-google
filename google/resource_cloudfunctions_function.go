@@ -1,14 +1,13 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/api/cloudfunctions/v1"
 
 	"fmt"
 	"log"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -43,21 +42,19 @@ func (s *cloudFunctionId) locationId() string {
 	return fmt.Sprintf("projects/%s/locations/%s", s.Project, s.Region)
 }
 
-func (s *cloudFunctionId) terraformId() string {
-	return fmt.Sprintf("%s/%s/%s", s.Project, s.Region, s.Name)
-}
-
-func parseCloudFunctionId(id string, config *Config) (*cloudFunctionId, error) {
-	if parts := strings.Split(id, "/"); len(parts) == 3 {
-		return &cloudFunctionId{
-			Project: parts[0],
-			Region:  parts[1],
-			Name:    parts[2],
-		}, nil
+func parseCloudFunctionId(d *schema.ResourceData, config *Config) (*cloudFunctionId, error) {
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
+		"(?P<name>[^/]+)",
+	}, d, config); err != nil {
+		return nil, err
 	}
-
-	return nil, fmt.Errorf("Invalid CloudFunction id format, expecting " +
-		"`{projectId}/{regionId}/{cloudFunctionName}`")
+	return &cloudFunctionId{
+		Project: d.Get("project").(string),
+		Region:  d.Get("region").(string),
+		Name:    d.Get("name").(string),
+	}, nil
 }
 
 func joinMapKeys(mapToJoin *map[int]bool) string {
@@ -68,26 +65,17 @@ func joinMapKeys(mapToJoin *map[int]bool) string {
 	return strings.Join(keys, ",")
 }
 
+// Differs from validateGcpName because Cloud Functions allow capital letters
+// at start/end
 func validateResourceCloudFunctionsFunctionName(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
+	re := `^(?:[a-zA-Z](?:[-_a-zA-Z0-9]{0,61}[a-zA-Z0-9])?)$`
+	return validateRegexp(re)(v, k)
+}
 
-	if len(value) > 48 {
-		errors = append(errors, fmt.Errorf(
-			"%q cannot be longer than 48 characters", k))
-	}
-	if !regexp.MustCompile("^[a-zA-Z0-9-_]+$").MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q can only contain letters, numbers, underscores and hyphens", k))
-	}
-	if !regexp.MustCompile("^[a-zA-Z]").MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q must start with a letter", k))
-	}
-	if !regexp.MustCompile("[a-zA-Z0-9]$").MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q must end with a number or a letter", k))
-	}
-	return
+// based on compareSelfLinkOrResourceName, but less reusable and allows multi-/
+// strings in the new state (config) part
+func compareSelfLinkOrResourceNameWithMultipleParts(_, old, new string, _ *schema.ResourceData) bool {
+	return strings.HasSuffix(old, new)
 }
 
 func resourceCloudFunctionsFunction() *schema.Resource {
@@ -104,6 +92,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
 			Read:   schema.DefaultTimeout(5 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
@@ -156,7 +145,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					availableMemoryMB := v.(int)
 
-					if functionAllowedMemory[availableMemoryMB] != true {
+					if !functionAllowedMemory[availableMemoryMB] {
 						errors = append(errors, fmt.Errorf("Allowed values for memory (in MB) are: %s . Got %d",
 							joinMapKeys(&functionAllowedMemory), availableMemoryMB))
 					}
@@ -184,8 +173,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 
 			"runtime": {
 				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "nodejs6",
+				Required: true,
 			},
 
 			"service_account_email": {
@@ -195,32 +183,21 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"vpc_connector": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+			},
+
 			"environment_variables": {
 				Type:     schema.TypeMap,
 				Optional: true,
 			},
 
-			"trigger_bucket": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				Removed:       "This field is removed. Use `event_trigger` instead.",
-				ConflictsWith: []string{"trigger_http", "trigger_topic"},
-			},
-
 			"trigger_http": {
-				Type:          schema.TypeBool,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"trigger_bucket", "trigger_topic"},
-			},
-
-			"trigger_topic": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				Removed:       "This field is removed. Use `event_trigger` instead.",
-				ConflictsWith: []string{"trigger_http", "trigger_bucket"},
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
 			},
 
 			"event_trigger": {
@@ -237,8 +214,9 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 							Required: true,
 						},
 						"resource": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: compareSelfLinkOrResourceNameWithMultipleParts,
 						},
 						"failure_policy": {
 							Type:     schema.TypeList,
@@ -360,6 +338,10 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.EnvironmentVariables = expandEnvironmentVariables(d)
 	}
 
+	if v, ok := d.GetOk("vpc_connector"); ok {
+		function.VpcConnector = v.(string)
+	}
+
 	if v, ok := d.GetOk("max_instances"); ok {
 		function.MaxInstances = int64(v.(int))
 	}
@@ -372,7 +354,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Name of function should be unique
-	d.SetId(cloudFuncId.terraformId())
+	d.SetId(cloudFuncId.cloudFunctionId())
 
 	err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Creating CloudFunctions Function",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
@@ -386,7 +368,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	cloudFuncId, err := parseCloudFunctionId(d.Id(), config)
+	cloudFuncId, err := parseCloudFunctionId(d, config)
 	if err != nil {
 		return err
 	}
@@ -410,6 +392,7 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("runtime", function.Runtime)
 	d.Set("service_account_email", function.ServiceAccountEmail)
 	d.Set("environment_variables", function.EnvironmentVariables)
+	d.Set("vpc_connector", function.VpcConnector)
 	if function.SourceArchiveUrl != "" {
 		// sourceArchiveUrl should always be a Google Cloud Storage URL (e.g. gs://bucket/object)
 		// https://cloud.google.com/functions/docs/reference/rest/v1/projects.locations.functions
@@ -446,7 +429,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	cloudFuncId, err := parseCloudFunctionId(d.Id(), config)
+	cloudFuncId, err := parseCloudFunctionId(d, config)
 	if err != nil {
 		return err
 	}
@@ -535,7 +518,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	cloudFuncId, err := parseCloudFunctionId(d.Id(), config)
+	cloudFuncId, err := parseCloudFunctionId(d, config)
 	if err != nil {
 		return err
 	}
@@ -562,26 +545,38 @@ func expandEventTrigger(configured []interface{}, project string) *cloudfunction
 
 	data := configured[0].(map[string]interface{})
 	eventType := data["event_type"].(string)
-	shape := ""
-	switch {
-	case strings.HasPrefix(eventType, "google.storage.object."):
-		shape = "projects/%s/buckets/%s"
-	case strings.HasPrefix(eventType, "google.pubsub.topic."):
-		shape = "projects/%s/topics/%s"
-	// Legacy style triggers
-	case strings.HasPrefix(eventType, "providers/cloud.storage/eventTypes/"):
-		shape = "projects/%s/buckets/%s"
-	case strings.HasPrefix(eventType, "providers/cloud.pubsub/eventTypes/"):
-		shape = "projects/%s/topics/%s"
-	case strings.HasPrefix(eventType, "providers/cloud.firestore/eventTypes/"):
-		// Firestore doesn't not yet support multiple databases, so "(default)" is assumed.
-		// https://cloud.google.com/functions/docs/calling/cloud-firestore#deploying_your_function
-		shape = "projects/%s/databases/(default)/documents/%s"
+	resource := data["resource"].(string)
+
+	// if resource starts with "projects/", we can reasonably assume it's a
+	// partial URI. Otherwise, it's a shortname. Construct a partial URI based
+	// on the event type if so.
+	if !strings.HasPrefix(resource, "projects/") {
+		shape := ""
+		switch {
+		case strings.HasPrefix(eventType, "google.storage.object."):
+			shape = "projects/%s/buckets/%s"
+		case strings.HasPrefix(eventType, "google.pubsub.topic."):
+			shape = "projects/%s/topics/%s"
+		// Legacy style triggers
+		case strings.HasPrefix(eventType, "providers/cloud.storage/eventTypes/"):
+			// Note that this is an uncommon way to refer to buckets; normally,
+			// you'd use to the global URL of the bucket and not the project
+			// scoped one.
+			shape = "projects/%s/buckets/%s"
+		case strings.HasPrefix(eventType, "providers/cloud.pubsub/eventTypes/"):
+			shape = "projects/%s/topics/%s"
+		case strings.HasPrefix(eventType, "providers/cloud.firestore/eventTypes/"):
+			// Firestore doesn't not yet support multiple databases, so "(default)" is assumed.
+			// https://cloud.google.com/functions/docs/calling/cloud-firestore#deploying_your_function
+			shape = "projects/%s/databases/(default)/documents/%s"
+		}
+
+		resource = fmt.Sprintf(shape, project, resource)
 	}
 
 	return &cloudfunctions.EventTrigger{
 		EventType:     eventType,
-		Resource:      fmt.Sprintf(shape, project, data["resource"].(string)),
+		Resource:      resource,
 		FailurePolicy: expandFailurePolicy(data["failure_policy"].([]interface{})),
 	}
 }
@@ -592,28 +587,9 @@ func flattenEventTrigger(eventTrigger *cloudfunctions.EventTrigger) []map[string
 		return result
 	}
 
-	resource := ""
-	switch {
-	case strings.HasPrefix(eventTrigger.EventType, "google.storage.object."):
-		resource = GetResourceNameFromSelfLink(eventTrigger.Resource)
-	case strings.HasPrefix(eventTrigger.EventType, "google.pubsub.topic."):
-		resource = GetResourceNameFromSelfLink(eventTrigger.Resource)
-		// Legacy style triggers
-	case strings.HasPrefix(eventTrigger.EventType, "providers/cloud.storage/eventTypes/"):
-		resource = GetResourceNameFromSelfLink(eventTrigger.Resource)
-	case strings.HasPrefix(eventTrigger.EventType, "providers/cloud.pubsub/eventTypes/"):
-		resource = GetResourceNameFromSelfLink(eventTrigger.Resource)
-	case strings.HasPrefix(eventTrigger.EventType, "providers/cloud.firestore/eventTypes/"):
-		// Simply taking the substring after the last "/" is not sufficient for firestore as resources may have slashes.
-		// For the eventTrigger.Resource "projects/my-project/databases/(default)/documents/messages/{messageId}" we extract
-		// the resource "messages/{messageId}" by taking the everything after the 5th "/"
-		parts := strings.SplitN(eventTrigger.Resource, "/", 6)
-		resource = parts[len(parts)-1]
-	}
-
 	result = append(result, map[string]interface{}{
 		"event_type":     eventTrigger.EventType,
-		"resource":       resource,
+		"resource":       eventTrigger.Resource,
 		"failure_policy": flattenFailurePolicy(eventTrigger.FailurePolicy),
 	})
 

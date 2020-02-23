@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Runtime Configuration"
 layout: "google"
 page_title: "Google: google_runtimeconfig_variable"
 sidebar_current: "docs-google-runtimeconfig-variable"
@@ -19,14 +20,14 @@ Example creating a RuntimeConfig variable.
 
 ```hcl
 resource "google_runtimeconfig_config" "my-runtime-config" {
- 	name = "my-service-runtime-config"
- 	description = "Runtime configuration values for my service"
+  name        = "my-service-runtime-config"
+  description = "Runtime configuration values for my service"
 }
 
 resource "google_runtimeconfig_variable" "environment" {
-	parent = "${google_runtimeconfig_config.my-runtime-config.name}"
-	name = "prod-variables/hostname"
-	text = "example.com"
+  parent = google_runtimeconfig_config.my-runtime-config.name
+  name   = "prod-variables/hostname"
+  text   = "example.com"
 }
 ```
 
@@ -37,14 +38,14 @@ Example of using the `value` argument.
 
 ```hcl
 resource "google_runtimeconfig_config" "my-runtime-config" {
- 	name = "my-service-runtime-config"
- 	description = "Runtime configuration values for my service"
+  name        = "my-service-runtime-config"
+  description = "Runtime configuration values for my service"
 }
 
 resource "google_runtimeconfig_variable" "my-secret" {
-	parent = "${google_runtimeconfig_config.my-runtime-config.name}"
-	name = "secret"
-	value = "${base64encode(file("my-encrypted-secret.dat"))}"
+  parent = google_runtimeconfig_config.my-runtime-config.name
+  name   = "secret"
+  value  = base64encode(file("my-encrypted-secret.dat"))
 }
 ```
 

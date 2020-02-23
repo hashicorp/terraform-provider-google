@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 )
 
@@ -48,7 +48,7 @@ func dataSourceGoogleServiceAccountAccessToken() *schema.Resource {
 			"lifetime": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateDuration(), // duration <=3600s; TODO: support validteDuration(min,max)
+				ValidateFunc: validateDuration(), // duration <=3600s; TODO: support validateDuration(min,max)
 				Default:      "3600s",
 			},
 		},

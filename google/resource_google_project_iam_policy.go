@@ -4,12 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"reflect"
-	"sort"
-	"strings"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -25,9 +22,10 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"project": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareProjectName,
 			},
 			"policy_data": {
 				Type:             schema.TypeString,
@@ -38,28 +36,18 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"authoritative": {
-				Removed:  "The authoritative field was removed. To ignore changes not managed by Terraform, use google_project_iam_binding and google_project_iam_member instead. See https://www.terraform.io/docs/providers/google/r/google_project_iam.html for more information.",
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"restore_policy": {
-				Removed:  "This field was removed alongside the authoritative field. To ignore changes not managed by Terraform, use google_project_iam_binding and google_project_iam_member instead. See https://www.terraform.io/docs/providers/google/r/google_project_iam.html for more information.",
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"disable_project": {
-				Removed:  "This field was removed alongside the authoritative field. Use lifecycle.prevent_destroy instead.",
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
 		},
 	}
 }
 
+func compareProjectName(_, old, new string, _ *schema.ResourceData) bool {
+	// We can either get "projects/project-id" or "project-id", so strip any prefixes
+	return GetResourceNameFromSelfLink(old) == GetResourceNameFromSelfLink(new)
+}
+
 func resourceGoogleProjectIamPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	project := d.Get("project").(string)
+	project := GetResourceNameFromSelfLink(d.Get("project").(string))
 
 	mutexKey := getProjectIamPolicyMutexKey(project)
 	mutexKV.Lock(mutexKey)
@@ -83,7 +71,7 @@ func resourceGoogleProjectIamPolicyCreate(d *schema.ResourceData, meta interface
 
 func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	project := d.Get("project").(string)
+	project := GetResourceNameFromSelfLink(d.Get("project").(string))
 
 	policy, err := getProjectIamPolicy(project, config)
 	if err != nil {
@@ -103,7 +91,7 @@ func resourceGoogleProjectIamPolicyRead(d *schema.ResourceData, meta interface{}
 
 func resourceGoogleProjectIamPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	project := d.Get("project").(string)
+	project := GetResourceNameFromSelfLink(d.Get("project").(string))
 
 	mutexKey := getProjectIamPolicyMutexKey(project)
 	mutexKV.Lock(mutexKey)
@@ -127,7 +115,7 @@ func resourceGoogleProjectIamPolicyUpdate(d *schema.ResourceData, meta interface
 func resourceGoogleProjectIamPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG]: Deleting google_project_iam_policy")
 	config := meta.(*Config)
-	project := d.Get("project").(string)
+	project := GetResourceNameFromSelfLink(d.Get("project").(string))
 
 	mutexKey := getProjectIamPolicyMutexKey(project)
 	mutexKV.Lock(mutexKey)
@@ -154,6 +142,8 @@ func resourceGoogleProjectIamPolicyImport(d *schema.ResourceData, meta interface
 }
 
 func setProjectIamPolicy(policy *cloudresourcemanager.Policy, config *Config, pid string) error {
+	policy.Version = iamPolicyVersion
+
 	// Apply the policy
 	pbytes, _ := json.Marshal(policy)
 	log.Printf("[DEBUG] Setting policy %#v for project: %s", string(pbytes), pid)
@@ -180,127 +170,16 @@ func getResourceIamPolicy(d *schema.ResourceData) (*cloudresourcemanager.Policy,
 // Retrieve the existing IAM Policy for a Project
 func getProjectIamPolicy(project string, config *Config) (*cloudresourcemanager.Policy, error) {
 	p, err := config.clientResourceManager.Projects.GetIamPolicy(project,
-		&cloudresourcemanager.GetIamPolicyRequest{}).Do()
+		&cloudresourcemanager.GetIamPolicyRequest{
+			Options: &cloudresourcemanager.GetPolicyOptions{
+				RequestedPolicyVersion: iamPolicyVersion,
+			},
+		}).Do()
 
 	if err != nil {
 		return nil, fmt.Errorf("Error retrieving IAM policy for project %q: %s", project, err)
 	}
 	return p, nil
-}
-
-func jsonPolicyDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	var oldPolicy, newPolicy cloudresourcemanager.Policy
-	if err := json.Unmarshal([]byte(old), &oldPolicy); err != nil {
-		log.Printf("[ERROR] Could not unmarshal old policy %s: %v", old, err)
-		return false
-	}
-	if err := json.Unmarshal([]byte(new), &newPolicy); err != nil {
-		log.Printf("[ERROR] Could not unmarshal new policy %s: %v", new, err)
-		return false
-	}
-	if newPolicy.Etag != oldPolicy.Etag {
-		return false
-	}
-	if newPolicy.Version != oldPolicy.Version {
-		return false
-	}
-	if !compareBindings(oldPolicy.Bindings, newPolicy.Bindings) {
-		return false
-	}
-	if !compareAuditConfigs(oldPolicy.AuditConfigs, newPolicy.AuditConfigs) {
-		return false
-	}
-	return true
-}
-
-func derefBindings(b []*cloudresourcemanager.Binding) []cloudresourcemanager.Binding {
-	db := make([]cloudresourcemanager.Binding, len(b))
-
-	for i, v := range b {
-		db[i] = *v
-		for j, m := range db[i].Members {
-			db[i].Members[j] = strings.ToLower(m)
-		}
-		sort.Strings(db[i].Members)
-	}
-	return db
-}
-
-func compareBindings(a, b []*cloudresourcemanager.Binding) bool {
-	a = mergeBindings(a)
-	b = mergeBindings(b)
-	sort.Sort(sortableBindings(a))
-	sort.Sort(sortableBindings(b))
-	return reflect.DeepEqual(derefBindings(a), derefBindings(b))
-}
-
-func compareAuditConfigs(a, b []*cloudresourcemanager.AuditConfig) bool {
-	a = mergeAuditConfigs(a)
-	b = mergeAuditConfigs(b)
-	sort.Sort(sortableAuditConfigs(a))
-	sort.Sort(sortableAuditConfigs(b))
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if len(v.AuditLogConfigs) != len(b[i].AuditLogConfigs) {
-			return false
-		}
-		sort.Sort(sortableAuditLogConfigs(v.AuditLogConfigs))
-		sort.Sort(sortableAuditLogConfigs(b[i].AuditLogConfigs))
-		for x, logConfig := range v.AuditLogConfigs {
-			if b[i].AuditLogConfigs[x].LogType != logConfig.LogType {
-				return false
-			}
-			sort.Strings(logConfig.ExemptedMembers)
-			sort.Strings(b[i].AuditLogConfigs[x].ExemptedMembers)
-			if len(logConfig.ExemptedMembers) != len(b[i].AuditLogConfigs[x].ExemptedMembers) {
-				return false
-			}
-			for pos, exemptedMember := range logConfig.ExemptedMembers {
-				if b[i].AuditLogConfigs[x].ExemptedMembers[pos] != exemptedMember {
-					return false
-				}
-			}
-		}
-	}
-	return true
-}
-
-type sortableBindings []*cloudresourcemanager.Binding
-
-func (b sortableBindings) Len() int {
-	return len(b)
-}
-func (b sortableBindings) Swap(i, j int) {
-	b[i], b[j] = b[j], b[i]
-}
-func (b sortableBindings) Less(i, j int) bool {
-	return b[i].Role < b[j].Role
-}
-
-type sortableAuditConfigs []*cloudresourcemanager.AuditConfig
-
-func (b sortableAuditConfigs) Len() int {
-	return len(b)
-}
-func (b sortableAuditConfigs) Swap(i, j int) {
-	b[i], b[j] = b[j], b[i]
-}
-func (b sortableAuditConfigs) Less(i, j int) bool {
-	return b[i].Service < b[j].Service
-}
-
-type sortableAuditLogConfigs []*cloudresourcemanager.AuditLogConfig
-
-func (b sortableAuditLogConfigs) Len() int {
-	return len(b)
-}
-func (b sortableAuditLogConfigs) Swap(i, j int) {
-	b[i], b[j] = b[j], b[i]
-}
-func (b sortableAuditLogConfigs) Less(i, j int) bool {
-	return b[i].LogType < b[j].LogType
 }
 
 func getProjectIamPolicyMutexKey(pid string) string {

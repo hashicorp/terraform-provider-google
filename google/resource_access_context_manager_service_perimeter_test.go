@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 // Since each test here is acting on the same organization and only one AccessPolicy
@@ -71,7 +71,7 @@ func testAccCheckAccessContextManagerServicePerimeterDestroy(s *terraform.State)
 			return err
 		}
 
-		_, err = sendRequest(config, "GET", url, nil)
+		_, err = sendRequest(config, "GET", "", url, nil)
 		if err == nil {
 			return fmt.Errorf("ServicePerimeter still exists at %s", url)
 		}
@@ -139,7 +139,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
   perimeter_type = "PERIMETER_TYPE_REGULAR"
   status {
     restricted_services = ["bigquery.googleapis.com"]
-    access_levels = ["${google_access_context_manager_access_level.test-access.name}"]
+    access_levels       = [google_access_context_manager_access_level.test-access.name]
   }
 }
 `, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName)

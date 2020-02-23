@@ -12,15 +12,16 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Pub/Sub"
 layout: "google"
 page_title: "Google: google_pubsub_topic_iam"
 sidebar_current: "docs-google-pubsub-topic-iam"
 description: |-
-  Collection of resources to manage IAM policy for PubsubTopic
+  Collection of resources to manage IAM policy for Cloud Pub/Sub Topic
 ---
 
-# IAM policy for PubsubTopic
-Three different resources help you manage your IAM policy for Pubsub Topic. Each of these resources serves a different use case:
+# IAM policy for Cloud Pub/Sub Topic
+Three different resources help you manage your IAM policy for Cloud Pub/Sub Topic. Each of these resources serves a different use case:
 
 * `google_pubsub_topic_iam_policy`: Authoritative. Sets the IAM policy for the topic and replaces any existing policy already attached.
 * `google_pubsub_topic_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the topic are preserved.
@@ -37,7 +38,7 @@ Three different resources help you manage your IAM policy for Pubsub Topic. Each
 ```hcl
 data "google_iam_policy" "admin" {
   binding {
-    role    = "roles/editor"
+    role = "roles/viewer"
     members = [
       "user:jane@example.com",
     ]
@@ -45,8 +46,9 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_pubsub_topic_iam_policy" "editor" {
-  topic       = "projects/{{project}}/topics/{{topic}}"
-  policy_data = "${data.google_iam_policy.admin.policy_data}"
+  project = google_pubsub_topic.example.project
+  topic = google_pubsub_topic.example.name
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -54,8 +56,9 @@ resource "google_pubsub_topic_iam_policy" "editor" {
 
 ```hcl
 resource "google_pubsub_topic_iam_binding" "editor" {
-  topic   = "projects/{{project}}/topics/{{topic}}"
-  role    = "roles/editor"
+  project = google_pubsub_topic.example.project
+  topic = google_pubsub_topic.example.name
+  role = "roles/viewer"
   members = [
     "user:jane@example.com",
   ]
@@ -66,8 +69,9 @@ resource "google_pubsub_topic_iam_binding" "editor" {
 
 ```hcl
 resource "google_pubsub_topic_iam_member" "editor" {
-  topic  = "projects/{{project}}/topics/{{topic}}"
-  role   = "roles/editor"
+  project = google_pubsub_topic.example.project
+  topic = google_pubsub_topic.example.name
+  role = "roles/viewer"
   member = "user:jane@example.com"
 }
 ```
@@ -76,10 +80,10 @@ resource "google_pubsub_topic_iam_member" "editor" {
 
 The following arguments are supported:
 
-* `topic` - (Required) The topic name or id to bind to attach IAM policy to.
+* `topic` - (Required) Used to find the parent resource to bind the IAM policy to
 
-* `project` - (Optional) The project in which the resource belongs. If it
-    is not provided, the provider project is used.
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.
 
 * `member/members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
@@ -102,18 +106,41 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `etag` - (Computed) The etag of the topic's IAM policy.
+* `etag` - (Computed) The etag of the IAM policy.
 
 ## Import
 
-Pubsub topic IAM resources can be imported using the project, topic name, role and member.
+For all import syntaxes, the "resource in question" can take any of the following forms:
 
+* projects/{{project}}/topics/{{name}}
+* {{project}}/{{name}}
+* {{name}}
+
+Any variables not passed in the import command will be taken from the provider configuration.
+
+Cloud Pub/Sub topic IAM resources can be imported using the resource identifiers, role, and member.
+
+IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
+```
+$ terraform import google_pubsub_topic_iam_member.editor "projects/{{project}}/topics/{{topic}} roles/viewer jane@example.com"
+```
+
+IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
+```
+$ terraform import google_pubsub_topic_iam_binding.editor "projects/{{project}}/topics/{{topic}} roles/viewer"
+```
+
+IAM policy imports use the identifier of the resource in question, e.g.
 ```
 $ terraform import google_pubsub_topic_iam_policy.editor projects/{{project}}/topics/{{topic}}
-$ terraform import google_pubsub_topic_iam_binding.editor "projects/{{project}}/topics/{{topic}} roles/editor"
-
-$ terraform import google_pubsub_topic_iam_member.editor "projects/{{project}}/topics/{{topic}} roles/editor jane@example.com"
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+-> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
+ full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

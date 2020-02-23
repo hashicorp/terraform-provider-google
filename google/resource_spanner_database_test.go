@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccSpannerDatabase_basic(t *testing.T) {
@@ -58,15 +58,15 @@ func TestAccSpannerDatabase_basic(t *testing.T) {
 func testAccSpannerDatabase_basic(instanceName, databaseName string) string {
 	return fmt.Sprintf(`
 resource "google_spanner_instance" "basic" {
-  name          = "%s"
-  config        = "regional-us-central1"
-  display_name  = "display-%s"
-  num_nodes     = 1
+  name         = "%s"
+  config       = "regional-us-central1"
+  display_name = "display-%s"
+  num_nodes    = 1
 }
 
 resource "google_spanner_database" "basic" {
-  instance      = "${google_spanner_instance.basic.name}"
-  name          = "%s"
+  instance = google_spanner_instance.basic.name
+  name     = "%s"
 }
 `, instanceName, instanceName, databaseName)
 }

@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_disk"
 sidebar_current: "docs-google-compute-disk"
@@ -101,11 +102,11 @@ The following arguments are supported:
 * `size` -
   (Optional)
   Size of the persistent disk, specified in GB. You can specify this
-  field when creating a persistent disk using the sourceImage or
-  sourceSnapshot parameter, or specify it alone to create an empty
+  field when creating a persistent disk using the `image` or
+  `snapshot` parameter, or specify it alone to create an empty
   persistent disk.
-  If you specify this field along with sourceImage or sourceSnapshot,
-  the value of sizeGb must not be less than the size of the sourceImage
+  If you specify this field along with `image` or `snapshot`,
+  the value must not be less than the size of the image
   or the size of the snapshot.
 
 * `physical_block_size_bytes` -
@@ -189,9 +190,10 @@ The `source_image_encryption_key` block supports:
 * `kms_key_self_link` -
   (Optional)
   The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
-  in the cloud console. In order to use this additional
-  IAM permissions need to be set on the Compute Engine Service Agent. See
-  https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+  in the cloud console. Your project's Compute Engine System service account
+  (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
+  `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+  See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
 
 The `disk_encryption_key` block supports:
 
@@ -207,9 +209,10 @@ The `disk_encryption_key` block supports:
 * `kms_key_self_link` -
   (Optional)
   The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
-  in the cloud console. In order to use this additional
-  IAM permissions need to be set on the Compute Engine Service Agent. See
-  https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+  in the cloud console. Your project's Compute Engine System service account
+  (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
+  `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+  See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
 
 The `source_snapshot_encryption_key` block supports:
 
@@ -221,9 +224,10 @@ The `source_snapshot_encryption_key` block supports:
 * `kms_key_self_link` -
   (Optional)
   The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
-  in the cloud console. In order to use this additional
-  IAM permissions need to be set on the Compute Engine Service Agent. See
-  https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+  in the cloud console. Your project's Compute Engine System service account
+  (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
+  `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+  See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
 
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
@@ -233,6 +237,7 @@ The `source_snapshot_encryption_key` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/disks/{{name}}`
 
 * `label_fingerprint` -
   The fingerprint used for optimistic locking of this resource.  Used
@@ -245,7 +250,7 @@ In addition to the arguments listed above, the following computed attributes are
   Last attach timestamp in RFC3339 text format.
 
 * `last_detach_timestamp` -
-  Last dettach timestamp in RFC3339 text format.
+  Last detach timestamp in RFC3339 text format.
 
 * `users` -
   Links to the users of the disk (attached instances) in form:
@@ -290,3 +295,7 @@ $ terraform import google_compute_disk.default {{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

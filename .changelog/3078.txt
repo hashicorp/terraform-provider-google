@@ -1,0 +1,3 @@
+```release-note:bug
+iam: Fixed an erroneous error during import of IAM resources when a provider default project/zone/region is not defined.
+```

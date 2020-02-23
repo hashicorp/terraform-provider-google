@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func comparePubsubSubscriptionExpirationPolicy(_, old, new string, _ *schema.ResourceData) bool {
@@ -57,61 +57,160 @@ func resourcePubsubSubscription() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: comparePubsubSubscriptionBasename,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Name of the subscription.`,
 			},
 			"topic": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `A reference to a Topic resource.`,
 			},
 			"ack_deadline_seconds": {
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
+				Description: `This value is the maximum time after a subscriber receives a message
+before the subscriber should acknowledge the message. After message
+delivery but before the ack deadline expires and before the message is
+acknowledged, it is an outstanding message and will not be delivered
+again during that time (on a best-effort basis).
+
+For pull subscriptions, this value is used as the initial value for
+the ack deadline. To override this value for a given message, call
+subscriptions.modifyAckDeadline with the corresponding ackId if using
+pull. The minimum custom deadline you can specify is 10 seconds. The
+maximum custom deadline you can specify is 600 seconds (10 minutes).
+If this parameter is 0, a default value of 10 seconds is used.
+
+For push delivery, this value is also used to set the request timeout
+for the call to the push endpoint.
+
+If the subscriber never acknowledges the message, the Pub/Sub system
+will eventually redeliver the message.`,
 			},
 			"expiration_policy": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Optional: true,
+				Description: `A policy that specifies the conditions for this subscription's expiration.
+A subscription is considered active as long as any connected subscriber
+is successfully consuming messages from the subscription or is issuing
+operations on the subscription. If expirationPolicy is not set, a default
+policy with ttl of 31 days will be used.  If it is set but ttl is "", the
+resource never expires.  The minimum allowed value for expirationPolicy.ttl
+is 1 day.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ttl": {
 							Type:             schema.TypeString,
-							Optional:         true,
+							Required:         true,
 							DiffSuppressFunc: comparePubsubSubscriptionExpirationPolicy,
+							Description: `Specifies the "time-to-live" duration for an associated resource. The
+resource expires if it is not active for a period of ttl.
+If ttl is not set, the associated resource never expires.
+A duration in seconds with up to nine fractional digits, terminated by 's'.
+Example - "3.5s".`,
 						},
 					},
 				},
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `A set of key/value label pairs to assign to this Subscription.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"message_retention_duration": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "604800s",
+				Description: `How long to retain unacknowledged messages in the subscription's
+backlog, from the moment a message is published. If
+retainAckedMessages is true, then this also configures the retention
+of acknowledged messages, and thus configures how far back in time a
+subscriptions.seek can be done. Defaults to 7 days. Cannot be more
+than 7 days ('"604800s"') or less than 10 minutes ('"600s"').
+
+A duration in seconds with up to nine fractional digits, terminated
+by 's'. Example: '"600.5s"'.`,
+				Default: "604800s",
 			},
 			"push_config": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Description: `If push delivery is used with this subscription, this field is used to
+configure it. An empty pushConfig signifies that the subscriber will
+pull and ack messages using API methods.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"push_endpoint": {
 							Type:     schema.TypeString,
 							Required: true,
+							Description: `A URL locating the endpoint to which messages should be pushed.
+For example, a Webhook endpoint might use
+"https://example.com/push".`,
 						},
 						"attributes": {
 							Type:     schema.TypeMap,
 							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Description: `Endpoint configuration attributes.
+
+Every endpoint has a set of API supported attributes that can
+be used to control different aspects of the message delivery.
+
+The currently supported attribute is x-goog-version, which you
+can use to change the format of the pushed message. This
+attribute indicates the version of the data expected by
+the endpoint. This controls the shape of the pushed message
+(i.e., its fields and metadata). The endpoint version is
+based on the version of the Pub/Sub API.
+
+If not present during the subscriptions.create call,
+it will default to the version of the API used to make
+such call. If not present during a subscriptions.modifyPushConfig
+call, its value will not be changed. subscriptions.get
+calls will always return a valid version, even if the
+subscription was created without this attribute.
+
+The possible values for this attribute are:
+
+- v1beta1: uses the push format defined in the v1beta1 Pub/Sub API.
+- v1 or v1beta2: uses the push format defined in the v1 Pub/Sub API.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
+						"oidc_token": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `If specified, Pub/Sub will generate and attach an OIDC JWT token as
+an Authorization header in the HTTP request for every pushed message.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"service_account_email": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `Service account email to be used for generating the OIDC token.
+The caller (for subscriptions.create, subscriptions.patch, and
+subscriptions.modifyPushConfig RPCs) must have the
+iam.serviceAccounts.actAs permission for the service account.`,
+									},
+									"audience": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Audience to be used when generating OIDC token. The audience claim
+identifies the recipients that the JWT is intended for. The audience
+value is a single case-sensitive string. Having multiple values (array)
+for the audience field is not supported. More info about the OIDC JWT
+token audience here: https://tools.ietf.org/html/rfc7519#section-4.1.3
+Note: if not specified, the Push endpoint URL will be used.`,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -119,6 +218,10 @@ func resourcePubsubSubscription() *schema.Resource {
 			"retain_acked_messages": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Description: `Indicates whether to retain acknowledged messages. If 'true', then
+messages are not expunged from the subscription's backlog, even if
+they are acknowledged, until they fall out of the
+messageRetentionDuration window.`,
 			},
 			"path": {
 				Type:     schema.TypeString,
@@ -198,7 +301,11 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	log.Printf("[DEBUG] Creating new Subscription: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "PUT", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Subscription: %s", err)
 	}
@@ -223,7 +330,11 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("PubsubSubscription %q", d.Id()))
 	}
@@ -240,36 +351,32 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 		return nil
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
 
-	if err := d.Set("name", flattenPubsubSubscriptionName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenPubsubSubscriptionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("topic", flattenPubsubSubscriptionTopic(res["topic"], d)); err != nil {
+	if err := d.Set("topic", flattenPubsubSubscriptionTopic(res["topic"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("labels", flattenPubsubSubscriptionLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenPubsubSubscriptionLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("push_config", flattenPubsubSubscriptionPushConfig(res["pushConfig"], d)); err != nil {
+	if err := d.Set("push_config", flattenPubsubSubscriptionPushConfig(res["pushConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("ack_deadline_seconds", flattenPubsubSubscriptionAckDeadlineSeconds(res["ackDeadlineSeconds"], d)); err != nil {
+	if err := d.Set("ack_deadline_seconds", flattenPubsubSubscriptionAckDeadlineSeconds(res["ackDeadlineSeconds"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("message_retention_duration", flattenPubsubSubscriptionMessageRetentionDuration(res["messageRetentionDuration"], d)); err != nil {
+	if err := d.Set("message_retention_duration", flattenPubsubSubscriptionMessageRetentionDuration(res["messageRetentionDuration"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("retain_acked_messages", flattenPubsubSubscriptionRetainAckedMessages(res["retainAckedMessages"], d)); err != nil {
+	if err := d.Set("retain_acked_messages", flattenPubsubSubscriptionRetainAckedMessages(res["retainAckedMessages"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
-	if err := d.Set("expiration_policy", flattenPubsubSubscriptionExpirationPolicy(res["expirationPolicy"], d)); err != nil {
+	if err := d.Set("expiration_policy", flattenPubsubSubscriptionExpirationPolicy(res["expirationPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
 
@@ -278,6 +385,11 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 
 func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandPubsubSubscriptionLabels(d.Get("labels"), d, config)
@@ -359,7 +471,7 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
+	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Subscription %q: %s", d.Id(), err)
@@ -371,6 +483,11 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
@@ -378,7 +495,8 @@ func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) 
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Subscription %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Subscription")
 	}
@@ -407,25 +525,25 @@ func resourcePubsubSubscriptionImport(d *schema.ResourceData, meta interface{}) 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenPubsubSubscriptionName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenPubsubSubscriptionTopic(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenPubsubSubscriptionLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubSubscriptionPushConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionPushConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -434,21 +552,46 @@ func flattenPubsubSubscriptionPushConfig(v interface{}, d *schema.ResourceData) 
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["oidc_token"] =
+		flattenPubsubSubscriptionPushConfigOidcToken(original["oidcToken"], d, config)
 	transformed["push_endpoint"] =
-		flattenPubsubSubscriptionPushConfigPushEndpoint(original["pushEndpoint"], d)
+		flattenPubsubSubscriptionPushConfigPushEndpoint(original["pushEndpoint"], d, config)
 	transformed["attributes"] =
-		flattenPubsubSubscriptionPushConfigAttributes(original["attributes"], d)
+		flattenPubsubSubscriptionPushConfigAttributes(original["attributes"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionPushConfigOidcToken(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service_account_email"] =
+		flattenPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(original["serviceAccountEmail"], d, config)
+	transformed["audience"] =
+		flattenPubsubSubscriptionPushConfigOidcTokenAudience(original["audience"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubSubscriptionPushConfigAttributes(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionPushConfigOidcTokenAudience(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionPushConfigAttributes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -458,49 +601,30 @@ func flattenPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.Resour
 	return v
 }
 
-func flattenPubsubSubscriptionMessageRetentionDuration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionMessageRetentionDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubSubscriptionRetainAckedMessages(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionRetainAckedMessages(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPubsubSubscriptionExpirationPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionExpirationPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
 	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
 	transformed["ttl"] =
-		flattenPubsubSubscriptionExpirationPolicyTtl(original["ttl"], d)
+		flattenPubsubSubscriptionExpirationPolicyTtl(original["ttl"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPubsubSubscriptionExpirationPolicyTtl(v interface{}, d *schema.ResourceData) interface{} {
+func flattenPubsubSubscriptionExpirationPolicyTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
 func expandPubsubSubscriptionName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	project, err := getProject(d, config)
-	if err != nil {
-		return "", err
-	}
-
-	subscription := d.Get("name").(string)
-
-	re := regexp.MustCompile("projects\\/(.*)\\/subscriptions\\/(.*)")
-	match := re.FindStringSubmatch(subscription)
-	if len(match) == 3 {
-		// We need to preserve the behavior where the user passes the subscription name already in the long form,
-		// however we need it to be stored as the short form since it's used for the replaceVars in the URL.
-		// The unintuitive behavior is that if the user provides the long form, we use the project from there, not the one
-		// specified on the resource or provider.
-		// TODO(drebes): consider depracating the long form behavior for 3.0
-		d.Set("project", match[1])
-		d.Set("name", match[2])
-		return subscription, nil
-	}
-	return fmt.Sprintf("projects/%s/subscriptions/%s", project, subscription), nil
+	return replaceVars(d, config, "projects/{{project}}/subscriptions/{{name}}")
 }
 
 func expandPubsubSubscriptionTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -511,7 +635,7 @@ func expandPubsubSubscriptionTopic(v interface{}, d TerraformResourceData, confi
 
 	topic := d.Get("topic").(string)
 
-	re := regexp.MustCompile("projects\\/(.*)\\/topics\\/(.*)")
+	re := regexp.MustCompile(`projects\/(.*)\/topics\/(.*)`)
 	match := re.FindStringSubmatch(topic)
 	if len(match) == 3 {
 		return topic, nil
@@ -543,6 +667,13 @@ func expandPubsubSubscriptionPushConfig(v interface{}, d TerraformResourceData, 
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedOidcToken, err := expandPubsubSubscriptionPushConfigOidcToken(original["oidc_token"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOidcToken); val.IsValid() && !isEmptyValue(val) {
+		transformed["oidcToken"] = transformedOidcToken
+	}
+
 	transformedPushEndpoint, err := expandPubsubSubscriptionPushConfigPushEndpoint(original["push_endpoint"], d, config)
 	if err != nil {
 		return nil, err
@@ -558,6 +689,40 @@ func expandPubsubSubscriptionPushConfig(v interface{}, d TerraformResourceData, 
 	}
 
 	return transformed, nil
+}
+
+func expandPubsubSubscriptionPushConfigOidcToken(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedServiceAccountEmail, err := expandPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(original["service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !isEmptyValue(val) {
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
+	}
+
+	transformedAudience, err := expandPubsubSubscriptionPushConfigOidcTokenAudience(original["audience"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAudience); val.IsValid() && !isEmptyValue(val) {
+		transformed["audience"] = transformedAudience
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionPushConfigOidcTokenAudience(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

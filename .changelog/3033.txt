@@ -1,0 +1,9 @@
+```release-note:breakingchange
+compute: Added conditional requirement of `google_compute_**region**_backend_service` `backend.capacity_scaler` to no longer accept the API default if not INTERNAL. Non-INTERNAL backend services must now specify `capacity_scaler` explicitly and have a total capacity greater than 0. In addition, API default of 1.0 must now be explicitly set and will be treated as nil or zero if not set in config.
+```
+```release-note:bug
+compute: Fixed `google_compute_**region**_backend_service` so it no longer has a permadiff if `backend.capacity_scaler` is unset in config by requiring capacity scaler. 
+```
+```release-note:bug
+compute: Fixed `backend.capacity_scaler` to actually set zero (0.0) value.
+```

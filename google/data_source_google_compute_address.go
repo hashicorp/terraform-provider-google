@@ -3,10 +3,9 @@ package google
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 var (
@@ -78,7 +77,7 @@ func dataSourceGoogleComputeAddressRead(d *schema.ResourceData, meta interface{}
 	d.Set("project", project)
 	d.Set("region", region)
 
-	d.SetId(strconv.FormatUint(address.Id, 10))
+	d.SetId(fmt.Sprintf("projects/%s/regions/%s/addresses/%s", project, region, name))
 	return nil
 }
 

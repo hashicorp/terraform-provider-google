@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccBinaryAuthorizationPolicy_basic(t *testing.T) {
@@ -45,7 +45,7 @@ func testAccCheckBinaryAuthorizationPolicyDefault(pid string) resource.TestCheck
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 		url := fmt.Sprintf("https://binaryauthorization.googleapis.com/v1beta1/projects/%s/policy", pid)
-		pol, err := sendRequest(config, "GET", url, nil)
+		pol, err := sendRequest(config, "GET", "", url, nil)
 		if err != nil {
 			return err
 		}
@@ -68,6 +68,11 @@ resource "google_project" "project" {
   org_id          = "%s"
   billing_account = "%s"
 }
+
+resource "google_project_service" "binauthz" {
+  project = google_project.project.project_id
+  service = "binaryauthorization.googleapis.com"
+}
 `, pid, pname, org, billing)
 }
 
@@ -81,17 +86,24 @@ resource "google_project" "project" {
   billing_account = "%s"
 }
 
+resource "google_project_service" "binauthz" {
+  project = google_project.project.project_id
+  service = "binaryauthorization.googleapis.com"
+}
+
 resource "google_binary_authorization_policy" "policy" {
-  project = "${google_project.project.project_id}"
+  project = google_project.project.project_id
 
   admission_whitelist_patterns {
-    name_pattern= "gcr.io/google_containers/*"
+    name_pattern = "gcr.io/google_containers/*"
   }
 
   default_admission_rule {
-    evaluation_mode = "ALWAYS_DENY"
+    evaluation_mode  = "ALWAYS_DENY"
     enforcement_mode = "ENFORCED_BLOCK_AND_AUDIT_LOG"
   }
+
+  depends_on = [google_project_service.binauthz]
 }
 `, pid, pname, org, billing)
 }

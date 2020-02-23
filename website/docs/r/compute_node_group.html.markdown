@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_node_group"
 sidebar_current: "docs-google-compute-node-group"
@@ -49,18 +50,18 @@ data "google_compute_node_types" "central1a" {
 }
 
 resource "google_compute_node_template" "soletenant-tmpl" {
-  name = "soletenant-tmpl"
-  region = "us-central1"
-  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+  name      = "soletenant-tmpl"
+  region    = "us-central1"
+  node_type = data.google_compute_node_types.central1a.names[0]
 }
 
 resource "google_compute_node_group" "nodes" {
-  name = "soletenant-group"
-  zone = "us-central1-a"
+  name        = "soletenant-group"
+  zone        = "us-central1-a"
   description = "example google_compute_node_group for Terraform Google Provider"
 
-  size = 1
-  node_template = "${google_compute_node_template.soletenant-tmpl.self_link}"
+  size          = 1
+  node_template = google_compute_node_template.soletenant-tmpl.self_link
 }
 ```
 
@@ -101,6 +102,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -129,3 +131,7 @@ $ terraform import google_compute_node_group.default {{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

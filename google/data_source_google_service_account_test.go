@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccDatasourceGoogleServiceAccount_basic(t *testing.T) {
@@ -41,7 +41,7 @@ resource "google_service_account" "acceptance" {
 }
 
 data "google_service_account" "acceptance" {
-	account_id = "${google_service_account.acceptance.account_id}"
+  account_id = google_service_account.acceptance.account_id
 }
 `, account)
 }

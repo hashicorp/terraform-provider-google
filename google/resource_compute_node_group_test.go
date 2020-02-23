@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeNodeGroup_updateNodeTemplate(t *testing.T) {
@@ -92,24 +92,24 @@ data "google_compute_node_types" "central1a" {
 }
 
 resource "google_compute_node_template" "tmpl1" {
-  name = "%s-first"
-  region = "us-central1"
-  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+  name      = "%s-first"
+  region    = "us-central1"
+  node_type = data.google_compute_node_types.central1a.names[0]
 }
 
 resource "google_compute_node_template" "tmpl2" {
-  name = "%s-second"
-  region = "us-central1"
-  node_type = "${data.google_compute_node_types.central1a.names[0]}"
+  name      = "%s-second"
+  region    = "us-central1"
+  node_type = data.google_compute_node_types.central1a.names[0]
 }
 
 resource "google_compute_node_group" "nodes" {
-  name = "%s"
-  zone = "us-central1-a"
+  name        = "%s"
+  zone        = "us-central1-a"
   description = "example google_compute_node_group for Terraform Google Provider"
 
-  size = 0
-  node_template = "${google_compute_node_template.%s.self_link}"
+  size          = 0
+  node_template = google_compute_node_template.%s.self_link
 }
 `, tmplPrefix, tmplPrefix, groupName, tmplToUse)
 }

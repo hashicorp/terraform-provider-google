@@ -8,8 +8,8 @@ import (
 
 	"google.golang.org/api/compute/v1"
 
-	"github.com/hashicorp/terraform/helper/hashcode"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func resourceComputeInstanceMigrateState(
@@ -119,7 +119,7 @@ func migrateStateV0toV1(is *terraform.InstanceState) (*terraform.InstanceState, 
 func migrateStateV1toV2(is *terraform.InstanceState) (*terraform.InstanceState, error) {
 	log.Printf("[DEBUG] Attributes before migration: %#v", is.Attributes)
 
-	// Maps service account index to list of scopes for that sccount
+	// Maps service account index to list of scopes for that account
 	newScopesMap := make(map[string][]string)
 
 	for k, v := range is.Attributes {
@@ -405,7 +405,7 @@ func getDiskFromAttributes(config *Config, instance *compute.Instance, allDisks 
 
 func getDiskFromSource(instance *compute.Instance, source string) (*compute.AttachedDisk, error) {
 	for _, disk := range instance.Disks {
-		if disk.Boot == true || disk.Type == "SCRATCH" {
+		if disk.Boot || disk.Type == "SCRATCH" {
 			// Ignore boot/scratch disks since this is just for finding attached disks
 			continue
 		}
@@ -420,7 +420,7 @@ func getDiskFromSource(instance *compute.Instance, source string) (*compute.Atta
 
 func getDiskFromDeviceName(instance *compute.Instance, deviceName string) (*compute.AttachedDisk, error) {
 	for _, disk := range instance.Disks {
-		if disk.Boot == true || disk.Type == "SCRATCH" {
+		if disk.Boot || disk.Type == "SCRATCH" {
 			// Ignore boot/scratch disks since this is just for finding attached disks
 			continue
 		}
@@ -437,7 +437,7 @@ func getDiskFromEncryptionKey(instance *compute.Instance, encryptionKey string) 
 		return nil, err
 	}
 	for _, disk := range instance.Disks {
-		if disk.Boot == true || disk.Type == "SCRATCH" {
+		if disk.Boot || disk.Type == "SCRATCH" {
 			// Ignore boot/scratch disks since this is just for finding attached disks
 			continue
 		}
@@ -457,7 +457,7 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 	canonicalImage := imgParts[len(imgParts)-1]
 
 	for i, disk := range instance.Disks {
-		if disk.Boot == true || disk.Type == "SCRATCH" {
+		if disk.Boot || disk.Type == "SCRATCH" {
 			// Ignore boot/scratch disks since this is just for finding attached disks
 			continue
 		}
@@ -482,7 +482,7 @@ func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, a
 	// the image family.
 	canonicalImage = strings.Replace(canonicalImage, "/family/", "/", -1)
 	for i, disk := range instance.Disks {
-		if disk.Boot == true || disk.Type == "SCRATCH" {
+		if disk.Boot || disk.Type == "SCRATCH" {
 			// Ignore boot/scratch disks since this is just for finding attached disks
 			continue
 		}

@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_image"
 sidebar_current: "docs-google-compute-image"
@@ -62,6 +63,31 @@ resource "google_compute_image" "example" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=image_guest_os&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Image Guest Os
+
+
+```hcl
+resource "google_compute_image" "example" {
+  name = "example-image"
+
+  raw_disk {
+    source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+  }
+
+  guest_os_features {
+    type = "SECURE_BOOT"
+  }
+
+  guest_os_features {
+    type = "MULTI_IP_SUBNET"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -99,6 +125,11 @@ The following arguments are supported:
   not deprecated. The name of the image family must comply with
   RFC1035.
 
+* `guest_os_features` -
+  (Optional)
+  A list of features to enable on the guest operating system.
+  Applicable only for bootable images.  Structure is documented below.
+
 * `labels` -
   (Optional)
   Labels to apply to this Image.
@@ -120,6 +151,12 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `guest_os_features` block supports:
+
+* `type` -
+  (Required)
+  The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.
 
 The `raw_disk` block supports:
 
@@ -145,6 +182,7 @@ The `raw_disk` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/images/{{name}}`
 
 * `archive_size_bytes` -
   Size of the image tar.gz archive stored in Google Cloud Storage (in
@@ -164,9 +202,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 6 minutes.
+- `update` - Default is 6 minutes.
+- `delete` - Default is 6 minutes.
 
 ## Import
 
@@ -180,3 +218,7 @@ $ terraform import google_compute_image.default {{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

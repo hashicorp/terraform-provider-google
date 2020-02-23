@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Cloud Spanner"
 layout: "google"
 page_title: "Google: google_spanner_database"
 sidebar_current: "docs-google-spanner-database"
@@ -45,11 +46,11 @@ resource "google_spanner_instance" "main" {
 }
 
 resource "google_spanner_database" "database" {
-  instance  = "${google_spanner_instance.main.name}"
-  name      = "my-database"
-  ddl       =  [
+  instance = google_spanner_instance.main.name
+  name     = "my-database"
+  ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
-    "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)"
+    "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)",
   ]
 }
 ```
@@ -87,6 +88,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/instances/{{instance}}/databases/{{name}}`
 
 * `state` -
   An explanation of the status of the database.
@@ -113,3 +115,7 @@ $ terraform import google_spanner_database.default {{instance}}/{{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

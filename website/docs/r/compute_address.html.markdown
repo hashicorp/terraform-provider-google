@@ -12,6 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_address"
 sidebar_current: "docs-google-compute-address"
@@ -73,15 +74,30 @@ resource "google_compute_subnetwork" "default" {
   name          = "my-subnet"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.default.self_link}"
+  network       = google_compute_network.default.self_link
 }
 
 resource "google_compute_address" "internal_with_subnet_and_address" {
   name         = "my-internal-address"
-  subnetwork   = "${google_compute_subnetwork.default.self_link}"
+  subnetwork   = google_compute_subnetwork.default.self_link
   address_type = "INTERNAL"
   address      = "10.0.42.42"
   region       = "us-central1"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=address_with_gce_endpoint&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Address With Gce Endpoint
+
+
+```hcl
+resource "google_compute_address" "internal_with_gce_endpoint" {
+  name         = "my-internal-address-"
+  address_type = "INTERNAL"
+  purpose      = "GCE_ENDPOINT"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -98,27 +114,27 @@ resource "google_compute_address" "static" {
 }
 
 data "google_compute_image" "debian_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_instance" "instance_with_ip" {
-	name         = "vm-instance"
-	machine_type = "f1-micro"
-	zone         = "us-central1-a"
+  name         = "vm-instance"
+  machine_type = "f1-micro"
+  zone         = "us-central1-a"
 
-	boot_disk {
-		initialize_params{
-			image = "${data.google_compute_image.debian_image.self_link}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.debian_image.self_link
+    }
+  }
 
-	network_interface {
-		network = "default"
-		access_config {
-			nat_ip = "${google_compute_address.static.address}"
-		}
-	}
+  network_interface {
+    network = "default"
+    access_config {
+      nat_ip = google_compute_address.static.address
+    }
+  }
 }
 ```
 
@@ -156,6 +172,12 @@ The following arguments are supported:
   (Optional)
   An optional description of this resource.
 
+* `purpose` -
+  (Optional)
+  The purpose of this resource, which can be one of the following values:
+  - GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
+  This should only be set when using an Internal address.
+
 * `network_tier` -
   (Optional)
   The networking tier used for configuring this address. This field can
@@ -182,6 +204,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/addresses/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -214,3 +237,7 @@ $ terraform import google_compute_address.default {{name}}
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

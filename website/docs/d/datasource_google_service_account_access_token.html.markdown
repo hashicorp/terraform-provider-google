@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_service_account_access_token"
 sidebar_current: "docs-google-service-account-access-token"
@@ -34,30 +35,31 @@ Once the IAM permissions are set, you can apply the new token to a provider boot
 In the example below, `google_project` will run as `service_B`.
 
 ```hcl
-provider "google" {}
+provider "google" {
+}
 
 data "google_client_config" "default" {
-  provider = "google"
+  provider = google
 }
 
 data "google_service_account_access_token" "default" {
- provider = "google"
- target_service_account = "service_B@projectB.iam.gserviceaccount.com"
- scopes = ["userinfo-email", "cloud-platform"]
- lifetime = "300s"
+  provider               = google
+  target_service_account = "service_B@projectB.iam.gserviceaccount.com"
+  scopes                 = ["userinfo-email", "cloud-platform"]
+  lifetime               = "300s"
 }
 
 provider "google" {
-   alias  = "impersonated"
-   access_token = "${data.google_service_account_access_token.default.access_token}"
+  alias        = "impersonated"
+  access_token = data.google_service_account_access_token.default.access_token
 }
 
 data "google_client_openid_userinfo" "me" {
-  provider = "google.impersonated"
+  provider = google.impersonated
 }
 
 output "target-email" {
-  value = "${data.google_client_openid_userinfo.me.email}"
+  value = data.google_client_openid_userinfo.me.email
 }
 ```
 
@@ -69,7 +71,7 @@ The following arguments are supported:
 
 * `target_service_account` (Required) - The service account _to_ impersonate (e.g. `service_B@your-project-id.iam.gserviceaccount.com`)
 * `scopes` (Required) - The scopes the new credential should have (e.g. `["storage-ro", "cloud-platform"]`)
-* `delegates` (Optional) - Deegate chain of approvals needed to perform full impersonation. Specify the fully qualified service account name.  (e.g. `["projects/-/serviceAccounts/delegate-svc-account@project-id.iam.gserviceaccount.com"]`)
+* `delegates` (Optional) - Delegate chain of approvals needed to perform full impersonation. Specify the fully qualified service account name.  (e.g. `["projects/-/serviceAccounts/delegate-svc-account@project-id.iam.gserviceaccount.com"]`)
 * `lifetime` (Optional) Lifetime of the impersonated token (defaults to its max: `3600s`).
 
 ## Attributes Reference

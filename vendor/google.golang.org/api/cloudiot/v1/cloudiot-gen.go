@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -53,8 +53,8 @@ import (
 	"strconv"
 	"strings"
 
-	gensupport "google.golang.org/api/gensupport"
 	googleapi "google.golang.org/api/googleapi"
+	gensupport "google.golang.org/api/internal/gensupport"
 	option "google.golang.org/api/option"
 	htransport "google.golang.org/api/transport/http"
 )
@@ -233,15 +233,15 @@ type ProjectsLocationsRegistriesGroupsDevicesService struct {
 
 // BindDeviceToGatewayRequest: Request for `BindDeviceToGateway`.
 type BindDeviceToGatewayRequest struct {
-	// DeviceId: The device to associate with the specified gateway. The
-	// value of
+	// DeviceId: Required. The device to associate with the specified
+	// gateway. The value of
 	// `device_id` can be either the device numeric ID or the user-defined
 	// device
 	// identifier.
 	DeviceId string `json:"deviceId,omitempty"`
 
-	// GatewayId: The value of `gateway_id` can be either the device numeric
-	// ID or the
+	// GatewayId: Required. The value of `gateway_id` can be either the
+	// device numeric ID or the
 	// user-defined device identifier.
 	GatewayId string `json:"gatewayId,omitempty"`
 
@@ -299,7 +299,7 @@ type Binding struct {
 	//
 	// * `user:{emailid}`: An email address that represents a specific
 	// Google
-	//    account. For example, `alice@gmail.com` .
+	//    account. For example, `alice@example.com` .
 	//
 	//
 	// * `serviceAccount:{emailid}`: An email address that represents a
@@ -310,6 +310,38 @@ type Binding struct {
 	// * `group:{emailid}`: An email address that represents a Google
 	// group.
 	//    For example, `admins@example.com`.
+	//
+	// * `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique
+	//    identifier) representing a user that has been recently deleted.
+	// For
+	//    example, `alice@example.com?uid=123456789012345678901`. If the
+	// user is
+	//    recovered, this value reverts to `user:{emailid}` and the
+	// recovered user
+	//    retains the role in the binding.
+	//
+	// * `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address
+	// (plus
+	//    unique identifier) representing a service account that has been
+	// recently
+	//    deleted. For example,
+	//
+	// `my-other-app@appspot.gserviceaccount.com?uid=123456789012345678901`.
+	//
+	//    If the service account is undeleted, this value reverts to
+	//    `serviceAccount:{emailid}` and the undeleted service account
+	// retains the
+	//    role in the binding.
+	//
+	// * `deleted:group:{emailid}?uid={uniqueid}`: An email address (plus
+	// unique
+	//    identifier) representing a Google group that has been recently
+	//    deleted. For example,
+	// `admins@example.com?uid=123456789012345678901`. If
+	//    the group is recovered, this value reverts to `group:{emailid}`
+	// and the
+	//    recovered group retains the role in the binding.
 	//
 	//
 	// * `domain:{domain}`: The G Suite domain (primary) that represents all
@@ -857,31 +889,62 @@ func (s *EventNotificationConfig) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Expr: Represents an expression text. Example:
+// Expr: Represents a textual expression in the Common Expression
+// Language (CEL)
+// syntax. CEL is a C-like expression language. The syntax and semantics
+// of CEL
+// are documented at https://github.com/google/cel-spec.
 //
-//     title: "User account presence"
-//     description: "Determines whether the request has a user account"
-//     expression: "size(request.user) > 0"
+// Example (Comparison):
+//
+//     title: "Summary size limit"
+//     description: "Determines if a summary is less than 100 chars"
+//     expression: "document.summary.size() < 100"
+//
+// Example (Equality):
+//
+//     title: "Requestor is owner"
+//     description: "Determines if requestor is the document owner"
+//     expression: "document.owner ==
+// request.auth.claims.email"
+//
+// Example (Logic):
+//
+//     title: "Public documents"
+//     description: "Determine whether the document should be publicly
+// visible"
+//     expression: "document.type != 'private' && document.type !=
+// 'internal'"
+//
+// Example (Data Manipulation):
+//
+//     title: "Notification string"
+//     description: "Create a notification string with a timestamp."
+//     expression: "'New message received at ' +
+// string(document.create_time)"
+//
+// The exact variables and functions that may be referenced within an
+// expression
+// are determined by the service that evaluates it. See the
+// service
+// documentation for additional information.
 type Expr struct {
-	// Description: An optional description of the expression. This is a
+	// Description: Optional. Description of the expression. This is a
 	// longer text which
 	// describes the expression, e.g. when hovered over it in a UI.
 	Description string `json:"description,omitempty"`
 
-	// Expression: Textual representation of an expression in
-	// Common Expression Language syntax.
-	//
-	// The application context of the containing message determines
-	// which
-	// well-known feature set of CEL is supported.
+	// Expression: Textual representation of an expression in Common
+	// Expression Language
+	// syntax.
 	Expression string `json:"expression,omitempty"`
 
-	// Location: An optional string indicating the location of the
-	// expression for error
+	// Location: Optional. String indicating the location of the expression
+	// for error
 	// reporting, e.g. a file name and a position in the file.
 	Location string `json:"location,omitempty"`
 
-	// Title: An optional title for the expression, i.e. a short string
+	// Title: Optional. Title for the expression, i.e. a short string
 	// describing
 	// its purpose. This can be used e.g. in UIs which allow to enter
 	// the
@@ -978,6 +1041,73 @@ func (s *GatewayConfig) MarshalJSON() ([]byte, error) {
 
 // GetIamPolicyRequest: Request message for `GetIamPolicy` method.
 type GetIamPolicyRequest struct {
+	// Options: OPTIONAL: A `GetPolicyOptions` object for specifying options
+	// to
+	// `GetIamPolicy`. This field is only used by Cloud IAM.
+	Options *GetPolicyOptions `json:"options,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Options") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Options") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GetIamPolicyRequest) MarshalJSON() ([]byte, error) {
+	type NoMethod GetIamPolicyRequest
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// GetPolicyOptions: Encapsulates settings provided to GetIamPolicy.
+type GetPolicyOptions struct {
+	// RequestedPolicyVersion: Optional. The policy format version to be
+	// returned.
+	//
+	// Valid values are 0, 1, and 3. Requests specifying an invalid value
+	// will be
+	// rejected.
+	//
+	// Requests for policies with any conditional bindings must specify
+	// version 3.
+	// Policies without any conditional bindings may specify any valid value
+	// or
+	// leave the field unset.
+	RequestedPolicyVersion int64 `json:"requestedPolicyVersion,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "RequestedPolicyVersion") to unconditionally include in API requests.
+	// By default, fields with empty values are omitted from API requests.
+	// However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "RequestedPolicyVersion")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *GetPolicyOptions) MarshalJSON() ([]byte, error) {
+	type NoMethod GetPolicyOptions
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // HttpConfig: The configuration of the HTTP bridge for a device
@@ -1170,7 +1300,7 @@ func (s *ListDevicesResponse) MarshalJSON() ([]byte, error) {
 // ModifyCloudToDeviceConfigRequest: Request for
 // `ModifyCloudToDeviceConfig`.
 type ModifyCloudToDeviceConfigRequest struct {
-	// BinaryData: The configuration data for the device.
+	// BinaryData: Required. The configuration data for the device.
 	BinaryData string `json:"binaryData,omitempty"`
 
 	// VersionToUpdate: The version number to update. If this value is zero,
@@ -1244,59 +1374,86 @@ func (s *MqttConfig) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// Policy: Defines an Identity and Access Management (IAM) policy. It is
-// used to
-// specify access control policies for Cloud Platform resources.
+// Policy: An Identity and Access Management (IAM) policy, which
+// specifies access
+// controls for Google Cloud resources.
 //
 //
-// A `Policy` consists of a list of `bindings`. A `binding` binds a list
-// of
-// `members` to a `role`, where the members can be user accounts, Google
-// groups,
-// Google domains, and service accounts. A `role` is a named list of
-// permissions
-// defined by IAM.
+// A `Policy` is a collection of `bindings`. A `binding` binds one or
+// more
+// `members` to a single `role`. Members can be user accounts, service
+// accounts,
+// Google groups, and domains (such as G Suite). A `role` is a named
+// list of
+// permissions; each `role` can be an IAM predefined role or a
+// user-created
+// custom role.
 //
-// **JSON Example**
+// Optionally, a `binding` can specify a `condition`, which is a
+// logical
+// expression that allows access to a resource only if the expression
+// evaluates
+// to `true`. A condition can add constraints based on attributes of
+// the
+// request, the resource, or both.
+//
+// **JSON example:**
 //
 //     {
 //       "bindings": [
 //         {
-//           "role": "roles/owner",
+//           "role": "roles/resourcemanager.organizationAdmin",
 //           "members": [
 //             "user:mike@example.com",
 //             "group:admins@example.com",
 //             "domain:google.com",
 //
-// "serviceAccount:my-other-app@appspot.gserviceaccount.com"
+// "serviceAccount:my-project-id@appspot.gserviceaccount.com"
 //           ]
 //         },
 //         {
-//           "role": "roles/viewer",
-//           "members": ["user:sean@example.com"]
+//           "role": "roles/resourcemanager.organizationViewer",
+//           "members": ["user:eve@example.com"],
+//           "condition": {
+//             "title": "expirable access",
+//             "description": "Does not grant access after Sep 2020",
+//             "expression": "request.time <
+// timestamp('2020-10-01T00:00:00.000Z')",
+//           }
 //         }
-//       ]
+//       ],
+//       "etag": "BwWWja0YfJA=",
+//       "version": 3
 //     }
 //
-// **YAML Example**
+// **YAML example:**
 //
 //     bindings:
 //     - members:
 //       - user:mike@example.com
 //       - group:admins@example.com
 //       - domain:google.com
-//       - serviceAccount:my-other-app@appspot.gserviceaccount.com
-//       role: roles/owner
+//       - serviceAccount:my-project-id@appspot.gserviceaccount.com
+//       role: roles/resourcemanager.organizationAdmin
 //     - members:
-//       - user:sean@example.com
-//       role: roles/viewer
-//
+//       - user:eve@example.com
+//       role: roles/resourcemanager.organizationViewer
+//       condition:
+//         title: expirable access
+//         description: Does not grant access after Sep 2020
+//         expression: request.time <
+// timestamp('2020-10-01T00:00:00.000Z')
+//     - etag: BwWWja0YfJA=
+//     - version: 3
 //
 // For a description of IAM and its features, see the
-// [IAM developer's guide](https://cloud.google.com/iam/docs).
+// [IAM documentation](https://cloud.google.com/iam/docs/).
 type Policy struct {
-	// Bindings: Associates a list of `members` to a `role`.
-	// `bindings` with no members will result in an error.
+	// Bindings: Associates a list of `members` to a `role`. Optionally, may
+	// specify a
+	// `condition` that determines how and when the `bindings` are applied.
+	// Each
+	// of the `bindings` must contain at least one member.
 	Bindings []*Binding `json:"bindings,omitempty"`
 
 	// Etag: `etag` is used for optimistic concurrency control as a way to
@@ -1314,12 +1471,43 @@ type Policy struct {
 	// ensure that their change will be applied to the same version of the
 	// policy.
 	//
-	// If no `etag` is provided in the call to `setIamPolicy`, then the
-	// existing
-	// policy is overwritten blindly.
+	// **Important:** If you use IAM Conditions, you must include the `etag`
+	// field
+	// whenever you call `setIamPolicy`. If you omit this field, then IAM
+	// allows
+	// you to overwrite a version `3` policy with a version `1` policy, and
+	// all of
+	// the conditions in the version `3` policy are lost.
 	Etag string `json:"etag,omitempty"`
 
-	// Version: Deprecated.
+	// Version: Specifies the format of the policy.
+	//
+	// Valid values are `0`, `1`, and `3`. Requests that specify an invalid
+	// value
+	// are rejected.
+	//
+	// Any operation that affects conditional role bindings must specify
+	// version
+	// `3`. This requirement applies to the following operations:
+	//
+	// * Getting a policy that includes a conditional role binding
+	// * Adding a conditional role binding to a policy
+	// * Changing a conditional role binding in a policy
+	// * Removing any role binding, with or without a condition, from a
+	// policy
+	//   that includes conditions
+	//
+	// **Important:** If you use IAM Conditions, you must include the `etag`
+	// field
+	// whenever you call `setIamPolicy`. If you omit this field, then IAM
+	// allows
+	// you to overwrite a version `3` policy with a version `1` policy, and
+	// all of
+	// the conditions in the version `3` policy are lost.
+	//
+	// If a policy does not include any conditions, operations on that
+	// policy may
+	// specify any valid version or leave the field unset.
 	Version int64 `json:"version,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -1491,7 +1679,7 @@ func (s *RegistryCredential) MarshalJSON() ([]byte, error) {
 
 // SendCommandToDeviceRequest: Request for `SendCommandToDevice`.
 type SendCommandToDeviceRequest struct {
-	// BinaryData: The command data to send to the device.
+	// BinaryData: Required. The command data to send to the device.
 	BinaryData string `json:"binaryData,omitempty"`
 
 	// Subfolder: Optional subfolder for the command. If empty, the command
@@ -1605,81 +1793,14 @@ func (s *StateNotificationConfig) MarshalJSON() ([]byte, error) {
 // suitable for
 // different programming environments, including REST APIs and RPC APIs.
 // It is
-// used by [gRPC](https://github.com/grpc). The error model is designed
-// to be:
+// used by [gRPC](https://github.com/grpc). Each `Status` message
+// contains
+// three pieces of data: error code, error message, and error
+// details.
 //
-// - Simple to use and understand for most users
-// - Flexible enough to meet unexpected needs
-//
-// # Overview
-//
-// The `Status` message contains three pieces of data: error code,
-// error
-// message, and error details. The error code should be an enum value
-// of
-// google.rpc.Code, but it may accept additional error codes if needed.
-// The
-// error message should be a developer-facing English message that
-// helps
-// developers *understand* and *resolve* the error. If a localized
-// user-facing
-// error message is needed, put the localized message in the error
-// details or
-// localize it in the client. The optional error details may contain
-// arbitrary
-// information about the error. There is a predefined set of error
-// detail types
-// in the package `google.rpc` that can be used for common error
-// conditions.
-//
-// # Language mapping
-//
-// The `Status` message is the logical representation of the error
-// model, but it
-// is not necessarily the actual wire format. When the `Status` message
-// is
-// exposed in different client libraries and different wire protocols,
-// it can be
-// mapped differently. For example, it will likely be mapped to some
-// exceptions
-// in Java, but more likely mapped to some error codes in C.
-//
-// # Other uses
-//
-// The error model and the `Status` message can be used in a variety
-// of
-// environments, either with or without APIs, to provide a
-// consistent developer experience across different
-// environments.
-//
-// Example uses of this error model include:
-//
-// - Partial errors. If a service needs to return partial errors to the
-// client,
-//     it may embed the `Status` in the normal response to indicate the
-// partial
-//     errors.
-//
-// - Workflow errors. A typical workflow has multiple steps. Each step
-// may
-//     have a `Status` message for error reporting.
-//
-// - Batch operations. If a client uses batch request and batch
-// response, the
-//     `Status` message should be used directly inside batch response,
-// one for
-//     each error sub-response.
-//
-// - Asynchronous operations. If an API call embeds asynchronous
-// operation
-//     results in its response, the status of those operations should
-// be
-//     represented directly using the `Status` message.
-//
-// - Logging. If some API errors are stored in logs, the message
-// `Status` could
-//     be used directly after any stripping needed for security/privacy
-// reasons.
+// You can find out more about this error model and how to work with it
+// in the
+// [API Design Guide](https://cloud.google.com/apis/design/errors).
 type Status struct {
 	// Code: The status code, which should be an enum value of
 	// google.rpc.Code.
@@ -1793,15 +1914,15 @@ func (s *TestIamPermissionsResponse) MarshalJSON() ([]byte, error) {
 // UnbindDeviceFromGatewayRequest: Request for
 // `UnbindDeviceFromGateway`.
 type UnbindDeviceFromGatewayRequest struct {
-	// DeviceId: The device to disassociate from the specified gateway. The
-	// value of
+	// DeviceId: Required. The device to disassociate from the specified
+	// gateway. The value of
 	// `device_id` can be either the device numeric ID or the user-defined
 	// device
 	// identifier.
 	DeviceId string `json:"deviceId,omitempty"`
 
-	// GatewayId: The value of `gateway_id` can be either the device numeric
-	// ID or the
+	// GatewayId: Required. The value of `gateway_id` can be either the
+	// device numeric ID or the
 	// user-defined device identifier.
 	GatewayId string `json:"gatewayId,omitempty"`
 
@@ -1926,6 +2047,7 @@ func (c *ProjectsLocationsRegistriesBindDeviceToGatewayCall) Header() http.Heade
 
 func (c *ProjectsLocationsRegistriesBindDeviceToGatewayCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -1998,7 +2120,7 @@ func (c *ProjectsLocationsRegistriesBindDeviceToGatewayCall) Do(opts ...googleap
 	//   ],
 	//   "parameters": {
 	//     "parent": {
-	//       "description": "The name of the registry. For example,\n`projects/example-project/locations/us-central1/registries/my-registry`.",
+	//       "description": "Required. The name of the registry. For example,\n`projects/example-project/locations/us-central1/registries/my-registry`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+$",
 	//       "required": true,
@@ -2066,6 +2188,7 @@ func (c *ProjectsLocationsRegistriesCreateCall) Header() http.Header {
 
 func (c *ProjectsLocationsRegistriesCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2138,7 +2261,7 @@ func (c *ProjectsLocationsRegistriesCreateCall) Do(opts ...googleapi.CallOption)
 	//   ],
 	//   "parameters": {
 	//     "parent": {
-	//       "description": "The project and cloud region where this device registry must be created.\nFor example, `projects/example-project/locations/us-central1`.",
+	//       "description": "Required. The project and cloud region where this device registry must be created.\nFor example, `projects/example-project/locations/us-central1`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
 	//       "required": true,
@@ -2204,6 +2327,7 @@ func (c *ProjectsLocationsRegistriesDeleteCall) Header() http.Header {
 
 func (c *ProjectsLocationsRegistriesDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2271,7 +2395,7 @@ func (c *ProjectsLocationsRegistriesDeleteCall) Do(opts ...googleapi.CallOption)
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The name of the device registry. For example,\n`projects/example-project/locations/us-central1/registries/my-registry`.",
+	//       "description": "Required. The name of the device registry. For example,\n`projects/example-project/locations/us-central1/registries/my-registry`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+$",
 	//       "required": true,
@@ -2345,6 +2469,7 @@ func (c *ProjectsLocationsRegistriesGetCall) Header() http.Header {
 
 func (c *ProjectsLocationsRegistriesGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2415,7 +2540,7 @@ func (c *ProjectsLocationsRegistriesGetCall) Do(opts ...googleapi.CallOption) (*
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The name of the device registry. For example,\n`projects/example-project/locations/us-central1/registries/my-registry`.",
+	//       "description": "Required. The name of the device registry. For example,\n`projects/example-project/locations/us-central1/registries/my-registry`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+$",
 	//       "required": true,
@@ -2483,6 +2608,7 @@ func (c *ProjectsLocationsRegistriesGetIamPolicyCall) Header() http.Header {
 
 func (c *ProjectsLocationsRegistriesGetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2654,6 +2780,7 @@ func (c *ProjectsLocationsRegistriesListCall) Header() http.Header {
 
 func (c *ProjectsLocationsRegistriesListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2735,7 +2862,7 @@ func (c *ProjectsLocationsRegistriesListCall) Do(opts ...googleapi.CallOption) (
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "The project and cloud region path. For example,\n`projects/example-project/locations/us-central1`.",
+	//       "description": "Required. The project and cloud region path. For example,\n`projects/example-project/locations/us-central1`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+$",
 	//       "required": true,
@@ -2794,8 +2921,8 @@ func (r *ProjectsLocationsRegistriesService) Patch(name string, deviceregistry *
 	return c
 }
 
-// UpdateMask sets the optional parameter "updateMask": Only updates the
-// `device_registry` fields indicated by this mask.
+// UpdateMask sets the optional parameter "updateMask": Required. Only
+// updates the `device_registry` fields indicated by this mask.
 // The field mask must not be empty, and it must not contain fields
 // that
 // are immutable or only set by the server.
@@ -2834,6 +2961,7 @@ func (c *ProjectsLocationsRegistriesPatchCall) Header() http.Header {
 
 func (c *ProjectsLocationsRegistriesPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2913,7 +3041,7 @@ func (c *ProjectsLocationsRegistriesPatchCall) Do(opts ...googleapi.CallOption) 
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "Only updates the `device_registry` fields indicated by this mask.\nThe field mask must not be empty, and it must not contain fields that\nare immutable or only set by the server.\nMutable top-level fields: `event_notification_config`, `http_config`,\n`mqtt_config`, and `state_notification_config`.",
+	//       "description": "Required. Only updates the `device_registry` fields indicated by this mask.\nThe field mask must not be empty, and it must not contain fields that\nare immutable or only set by the server.\nMutable top-level fields: `event_notification_config`, `http_config`,\n`mqtt_config`, and `state_notification_config`.",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -2982,6 +3110,7 @@ func (c *ProjectsLocationsRegistriesSetIamPolicyCall) Header() http.Header {
 
 func (c *ProjectsLocationsRegistriesSetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3126,6 +3255,7 @@ func (c *ProjectsLocationsRegistriesTestIamPermissionsCall) Header() http.Header
 
 func (c *ProjectsLocationsRegistriesTestIamPermissionsCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3267,6 +3397,7 @@ func (c *ProjectsLocationsRegistriesUnbindDeviceFromGatewayCall) Header() http.H
 
 func (c *ProjectsLocationsRegistriesUnbindDeviceFromGatewayCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3339,7 +3470,7 @@ func (c *ProjectsLocationsRegistriesUnbindDeviceFromGatewayCall) Do(opts ...goog
 	//   ],
 	//   "parameters": {
 	//     "parent": {
-	//       "description": "The name of the registry. For example,\n`projects/example-project/locations/us-central1/registries/my-registry`.",
+	//       "description": "Required. The name of the registry. For example,\n`projects/example-project/locations/us-central1/registries/my-registry`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+$",
 	//       "required": true,
@@ -3407,6 +3538,7 @@ func (c *ProjectsLocationsRegistriesDevicesCreateCall) Header() http.Header {
 
 func (c *ProjectsLocationsRegistriesDevicesCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3479,7 +3611,7 @@ func (c *ProjectsLocationsRegistriesDevicesCreateCall) Do(opts ...googleapi.Call
 	//   ],
 	//   "parameters": {
 	//     "parent": {
-	//       "description": "The name of the device registry where this device should be created.\nFor example,\n`projects/example-project/locations/us-central1/registries/my-registry`.",
+	//       "description": "Required. The name of the device registry where this device should be created.\nFor example,\n`projects/example-project/locations/us-central1/registries/my-registry`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+$",
 	//       "required": true,
@@ -3545,6 +3677,7 @@ func (c *ProjectsLocationsRegistriesDevicesDeleteCall) Header() http.Header {
 
 func (c *ProjectsLocationsRegistriesDevicesDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3612,7 +3745,7 @@ func (c *ProjectsLocationsRegistriesDevicesDeleteCall) Do(opts ...googleapi.Call
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
+	//       "description": "Required. The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+/devices/[^/]+$",
 	//       "required": true,
@@ -3694,6 +3827,7 @@ func (c *ProjectsLocationsRegistriesDevicesGetCall) Header() http.Header {
 
 func (c *ProjectsLocationsRegistriesDevicesGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3770,7 +3904,7 @@ func (c *ProjectsLocationsRegistriesDevicesGetCall) Do(opts ...googleapi.CallOpt
 	//       "type": "string"
 	//     },
 	//     "name": {
-	//       "description": "The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
+	//       "description": "Required. The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+/devices/[^/]+$",
 	//       "required": true,
@@ -3936,6 +4070,7 @@ func (c *ProjectsLocationsRegistriesDevicesListCall) Header() http.Header {
 
 func (c *ProjectsLocationsRegistriesDevicesListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4056,7 +4191,7 @@ func (c *ProjectsLocationsRegistriesDevicesListCall) Do(opts ...googleapi.CallOp
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "The device registry path. Required. For example,\n`projects/my-project/locations/us-central1/registries/my-registry`.",
+	//       "description": "Required. The device registry path. Required. For example,\n`projects/my-project/locations/us-central1/registries/my-registry`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+$",
 	//       "required": true,
@@ -4146,6 +4281,7 @@ func (c *ProjectsLocationsRegistriesDevicesModifyCloudToDeviceConfigCall) Header
 
 func (c *ProjectsLocationsRegistriesDevicesModifyCloudToDeviceConfigCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4218,7 +4354,7 @@ func (c *ProjectsLocationsRegistriesDevicesModifyCloudToDeviceConfigCall) Do(opt
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
+	//       "description": "Required. The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+/devices/[^/]+$",
 	//       "required": true,
@@ -4259,8 +4395,8 @@ func (r *ProjectsLocationsRegistriesDevicesService) Patch(name string, device *D
 	return c
 }
 
-// UpdateMask sets the optional parameter "updateMask": Only updates the
-// `device` fields indicated by this mask.
+// UpdateMask sets the optional parameter "updateMask": Required. Only
+// updates the `device` fields indicated by this mask.
 // The field mask must not be empty, and it must not contain fields
 // that
 // are immutable or only set by the server.
@@ -4297,6 +4433,7 @@ func (c *ProjectsLocationsRegistriesDevicesPatchCall) Header() http.Header {
 
 func (c *ProjectsLocationsRegistriesDevicesPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4376,7 +4513,7 @@ func (c *ProjectsLocationsRegistriesDevicesPatchCall) Do(opts ...googleapi.CallO
 	//       "type": "string"
 	//     },
 	//     "updateMask": {
-	//       "description": "Only updates the `device` fields indicated by this mask.\nThe field mask must not be empty, and it must not contain fields that\nare immutable or only set by the server.\nMutable top-level fields: `credentials`, `blocked`, and `metadata`",
+	//       "description": "Required. Only updates the `device` fields indicated by this mask.\nThe field mask must not be empty, and it must not contain fields that\nare immutable or only set by the server.\nMutable top-level fields: `credentials`, `blocked`, and `metadata`",
 	//       "format": "google-fieldmask",
 	//       "location": "query",
 	//       "type": "string"
@@ -4463,6 +4600,7 @@ func (c *ProjectsLocationsRegistriesDevicesSendCommandToDeviceCall) Header() htt
 
 func (c *ProjectsLocationsRegistriesDevicesSendCommandToDeviceCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4535,7 +4673,7 @@ func (c *ProjectsLocationsRegistriesDevicesSendCommandToDeviceCall) Do(opts ...g
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
+	//       "description": "Required. The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+/devices/[^/]+$",
 	//       "required": true,
@@ -4624,6 +4762,7 @@ func (c *ProjectsLocationsRegistriesDevicesConfigVersionsListCall) Header() http
 
 func (c *ProjectsLocationsRegistriesDevicesConfigVersionsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4694,7 +4833,7 @@ func (c *ProjectsLocationsRegistriesDevicesConfigVersionsListCall) Do(opts ...go
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
+	//       "description": "Required. The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+/devices/[^/]+$",
 	//       "required": true,
@@ -4786,6 +4925,7 @@ func (c *ProjectsLocationsRegistriesDevicesStatesListCall) Header() http.Header 
 
 func (c *ProjectsLocationsRegistriesDevicesStatesListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4856,7 +4996,7 @@ func (c *ProjectsLocationsRegistriesDevicesStatesListCall) Do(opts ...googleapi.
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
+	//       "description": "Required. The name of the device. For example,\n`projects/p0/locations/us-central1/registries/registry0/devices/device0` or\n`projects/p0/locations/us-central1/registries/registry0/devices/{num_id}`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+/devices/[^/]+$",
 	//       "required": true,
@@ -4930,6 +5070,7 @@ func (c *ProjectsLocationsRegistriesGroupsGetIamPolicyCall) Header() http.Header
 
 func (c *ProjectsLocationsRegistriesGroupsGetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5072,6 +5213,7 @@ func (c *ProjectsLocationsRegistriesGroupsSetIamPolicyCall) Header() http.Header
 
 func (c *ProjectsLocationsRegistriesGroupsSetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5216,6 +5358,7 @@ func (c *ProjectsLocationsRegistriesGroupsTestIamPermissionsCall) Header() http.
 
 func (c *ProjectsLocationsRegistriesGroupsTestIamPermissionsCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5457,6 +5600,7 @@ func (c *ProjectsLocationsRegistriesGroupsDevicesListCall) Header() http.Header 
 
 func (c *ProjectsLocationsRegistriesGroupsDevicesListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.13.7 gdcl/20200203")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5577,7 +5721,7 @@ func (c *ProjectsLocationsRegistriesGroupsDevicesListCall) Do(opts ...googleapi.
 	//       "type": "string"
 	//     },
 	//     "parent": {
-	//       "description": "The device registry path. Required. For example,\n`projects/my-project/locations/us-central1/registries/my-registry`.",
+	//       "description": "Required. The device registry path. Required. For example,\n`projects/my-project/locations/us-central1/registries/my-registry`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/locations/[^/]+/registries/[^/]+/groups/[^/]+$",
 	//       "required": true,

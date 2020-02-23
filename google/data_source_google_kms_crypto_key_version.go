@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
@@ -37,7 +37,7 @@ func dataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
 			},
 			"public_key": {
 				Type:     schema.TypeList,
-				Optional: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -59,13 +59,18 @@ func dataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
 func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{KmsBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}")
+	url, err := replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Getting attributes for CryptoKeyVersion: %#v", url)
-	res, err := sendRequest(config, "GET", url, nil)
+
+	cryptoKeyId, err := parseKmsCryptoKeyId(d.Get("crypto_key").(string), config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequest(config, "GET", cryptoKeyId.KeyRingId.Project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("KmsCryptoKeyVersion %q", d.Id()))
 	}
@@ -83,24 +88,24 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
 	}
 
-	url, err = replaceVars(d, config, "{{KmsBasePath}}{{crypto_key}}")
+	url, err = replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Getting purpose of CryptoKey: %#v", url)
-	res, err = sendRequest(config, "GET", url, nil)
+	res, err = sendRequest(config, "GET", cryptoKeyId.KeyRingId.Project, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("KmsCryptoKey %q", d.Id()))
 	}
 
 	if res["purpose"] == "ASYMMETRIC_SIGN" || res["purpose"] == "ASYMMETRIC_DECRYPT" {
-		url, err = replaceVars(d, config, "{{KmsBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}/publicKey")
+		url, err = replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}/publicKey")
 		if err != nil {
 			return err
 		}
 		log.Printf("[DEBUG] Getting public key of CryptoKeyVersion: %#v", url)
-		res, _ = sendRequest(config, "GET", url, nil)
+		res, _ = sendRequest(config, "GET", cryptoKeyId.KeyRingId.Project, url, nil)
 
 		if err := d.Set("public_key", flattenKmsCryptoKeyVersionPublicKey(res, d)); err != nil {
 			return fmt.Errorf("Error reading CryptoKeyVersion public key: %s", err)

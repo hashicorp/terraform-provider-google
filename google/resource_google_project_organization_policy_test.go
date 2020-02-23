@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -363,7 +363,6 @@ resource "google_project_organization_policy" "list" {
 
 func testAccProjectOrganizationPolicyConfig_list_allowSome(pid string) string {
 	return fmt.Sprintf(`
-
 resource "google_project_organization_policy" "list" {
   project    = "%s"
   constraint = "constraints/compute.trustedImageProjects"
@@ -379,7 +378,6 @@ resource "google_project_organization_policy" "list" {
 
 func testAccProjectOrganizationPolicyConfig_list_denySome(pid string) string {
 	return fmt.Sprintf(`
-
 resource "google_project_organization_policy" "list" {
   project    = "%s"
   constraint = "constraints/serviceuser.services"
@@ -402,9 +400,9 @@ resource "google_project_organization_policy" "restore" {
   project    = "%s"
   constraint = "constraints/serviceuser.services"
 
-    restore_policy {
-        default = true
-    }
+  restore_policy {
+    default = true
+  }
 }
 `, pid)
 }

@@ -3,8 +3,8 @@ package google
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"regexp"
 )
 
@@ -35,12 +35,6 @@ func dataSourceGoogleServiceAccountKey() *schema.Resource {
 			"public_key": {
 				Type:     schema.TypeString,
 				Computed: true,
-			},
-			"service_account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Removed:  "Please use name to specify full service account key path projects/{project}/serviceAccounts/{serviceAccount}/keys/{keyId}",
 			},
 		},
 	}

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeTargetHttpProxy_update(t *testing.T) {
@@ -54,14 +54,15 @@ func testAccCheckComputeTargetHttpProxyExists(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		name := rs.Primary.Attributes["name"]
 
 		found, err := config.clientCompute.TargetHttpProxies.Get(
-			config.Project, rs.Primary.ID).Do()
+			config.Project, name).Do()
 		if err != nil {
 			return err
 		}
 
-		if found.Name != rs.Primary.ID {
+		if found.Name != name {
 			return fmt.Errorf("TargetHttpProxy not found")
 		}
 
@@ -71,132 +72,132 @@ func testAccCheckComputeTargetHttpProxyExists(n string) resource.TestCheckFunc {
 
 func testAccComputeTargetHttpProxy_basic1(target, backend, hc, urlmap1, urlmap2 string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_target_http_proxy" "foobar" {
-		description = "Resource created for Terraform acceptance testing"
-		name = "%s"
-		url_map = "${google_compute_url_map.foobar1.self_link}"
-	}
+resource "google_compute_target_http_proxy" "foobar" {
+  description = "Resource created for Terraform acceptance testing"
+  name        = "%s"
+  url_map     = google_compute_url_map.foobar1.self_link
+}
 
-	resource "google_compute_backend_service" "foobar" {
-		name = "%s"
-		health_checks = ["${google_compute_http_health_check.zero.self_link}"]
-	}
+resource "google_compute_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
+}
 
-	resource "google_compute_http_health_check" "zero" {
-		name = "%s"
-		request_path = "/"
-		check_interval_sec = 1
-		timeout_sec = 1
-	}
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
 
-	resource "google_compute_url_map" "foobar1" {
-		name = "%s"
-		default_service = "${google_compute_backend_service.foobar.self_link}"
-		host_rule {
-			hosts = ["mysite.com", "myothersite.com"]
-			path_matcher = "boop"
-		}
-		path_matcher {
-			default_service = "${google_compute_backend_service.foobar.self_link}"
-			name = "boop"
-			path_rule {
-				paths = ["/*"]
-				service = "${google_compute_backend_service.foobar.self_link}"
-			}
-		}
-		test {
-			host = "mysite.com"
-			path = "/*"
-			service = "${google_compute_backend_service.foobar.self_link}"
-		}
-	}
+resource "google_compute_url_map" "foobar1" {
+  name            = "%s"
+  default_service = google_compute_backend_service.foobar.self_link
+  host_rule {
+    hosts        = ["mysite.com", "myothersite.com"]
+    path_matcher = "boop"
+  }
+  path_matcher {
+    default_service = google_compute_backend_service.foobar.self_link
+    name            = "boop"
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.foobar.self_link
+    }
+  }
+  test {
+    host    = "mysite.com"
+    path    = "/*"
+    service = google_compute_backend_service.foobar.self_link
+  }
+}
 
-	resource "google_compute_url_map" "foobar2" {
-		name = "%s"
-		default_service = "${google_compute_backend_service.foobar.self_link}"
-		host_rule {
-			hosts = ["mysite.com", "myothersite.com"]
-			path_matcher = "boop"
-		}
-		path_matcher {
-			default_service = "${google_compute_backend_service.foobar.self_link}"
-			name = "boop"
-			path_rule {
-				paths = ["/*"]
-				service = "${google_compute_backend_service.foobar.self_link}"
-			}
-		}
-		test {
-			host = "mysite.com"
-			path = "/*"
-			service = "${google_compute_backend_service.foobar.self_link}"
-		}
-	}
-	`, target, backend, hc, urlmap1, urlmap2)
+resource "google_compute_url_map" "foobar2" {
+  name            = "%s"
+  default_service = google_compute_backend_service.foobar.self_link
+  host_rule {
+    hosts        = ["mysite.com", "myothersite.com"]
+    path_matcher = "boop"
+  }
+  path_matcher {
+    default_service = google_compute_backend_service.foobar.self_link
+    name            = "boop"
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.foobar.self_link
+    }
+  }
+  test {
+    host    = "mysite.com"
+    path    = "/*"
+    service = google_compute_backend_service.foobar.self_link
+  }
+}
+`, target, backend, hc, urlmap1, urlmap2)
 }
 
 func testAccComputeTargetHttpProxy_basic2(target, backend, hc, urlmap1, urlmap2 string) string {
 	return fmt.Sprintf(`
-	resource "google_compute_target_http_proxy" "foobar" {
-		description = "Resource created for Terraform acceptance testing"
-		name = "%s"
-		url_map = "${google_compute_url_map.foobar2.self_link}"
-	}
+resource "google_compute_target_http_proxy" "foobar" {
+  description = "Resource created for Terraform acceptance testing"
+  name        = "%s"
+  url_map     = google_compute_url_map.foobar2.self_link
+}
 
-	resource "google_compute_backend_service" "foobar" {
-		name = "%s"
-		health_checks = ["${google_compute_http_health_check.zero.self_link}"]
-	}
+resource "google_compute_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
+}
 
-	resource "google_compute_http_health_check" "zero" {
-		name = "%s"
-		request_path = "/"
-		check_interval_sec = 1
-		timeout_sec = 1
-	}
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
 
-	resource "google_compute_url_map" "foobar1" {
-		name = "%s"
-		default_service = "${google_compute_backend_service.foobar.self_link}"
-		host_rule {
-			hosts = ["mysite.com", "myothersite.com"]
-			path_matcher = "boop"
-		}
-		path_matcher {
-			default_service = "${google_compute_backend_service.foobar.self_link}"
-			name = "boop"
-			path_rule {
-				paths = ["/*"]
-				service = "${google_compute_backend_service.foobar.self_link}"
-			}
-		}
-		test {
-			host = "mysite.com"
-			path = "/*"
-			service = "${google_compute_backend_service.foobar.self_link}"
-		}
-	}
+resource "google_compute_url_map" "foobar1" {
+  name            = "%s"
+  default_service = google_compute_backend_service.foobar.self_link
+  host_rule {
+    hosts        = ["mysite.com", "myothersite.com"]
+    path_matcher = "boop"
+  }
+  path_matcher {
+    default_service = google_compute_backend_service.foobar.self_link
+    name            = "boop"
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.foobar.self_link
+    }
+  }
+  test {
+    host    = "mysite.com"
+    path    = "/*"
+    service = google_compute_backend_service.foobar.self_link
+  }
+}
 
-	resource "google_compute_url_map" "foobar2" {
-		name = "%s"
-		default_service = "${google_compute_backend_service.foobar.self_link}"
-		host_rule {
-			hosts = ["mysite.com", "myothersite.com"]
-			path_matcher = "boop"
-		}
-		path_matcher {
-			default_service = "${google_compute_backend_service.foobar.self_link}"
-			name = "boop"
-			path_rule {
-				paths = ["/*"]
-				service = "${google_compute_backend_service.foobar.self_link}"
-			}
-		}
-		test {
-			host = "mysite.com"
-			path = "/*"
-			service = "${google_compute_backend_service.foobar.self_link}"
-		}
-	}
-	`, target, backend, hc, urlmap1, urlmap2)
+resource "google_compute_url_map" "foobar2" {
+  name            = "%s"
+  default_service = google_compute_backend_service.foobar.self_link
+  host_rule {
+    hosts        = ["mysite.com", "myothersite.com"]
+    path_matcher = "boop"
+  }
+  path_matcher {
+    default_service = google_compute_backend_service.foobar.self_link
+    name            = "boop"
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.foobar.self_link
+    }
+  }
+  test {
+    host    = "mysite.com"
+    path    = "/*"
+    service = google_compute_backend_service.foobar.self_link
+  }
+}
+`, target, backend, hc, urlmap1, urlmap2)
 }

@@ -2,8 +2,9 @@ package google
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceGoogleContainerRepo() *schema.Resource {
@@ -35,10 +36,11 @@ func containerRegistryRepoRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("project", project)
 	region, ok := d.GetOk("region")
+	escapedProject := strings.Replace(project, ":", "/", -1)
 	if ok && region != nil && region != "" {
-		d.Set("repository_url", fmt.Sprintf("%s.gcr.io/%s", region, project))
+		d.Set("repository_url", fmt.Sprintf("%s.gcr.io/%s", region, escapedProject))
 	} else {
-		d.Set("repository_url", fmt.Sprintf("gcr.io/%s", project))
+		d.Set("repository_url", fmt.Sprintf("gcr.io/%s", escapedProject))
 	}
 	d.SetId(d.Get("repository_url").(string))
 	return nil

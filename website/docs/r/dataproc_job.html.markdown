@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Dataproc"
 layout: "google"
 page_title: "Google: google_dataproc_job"
 sidebar_current: "docs-google-dataproc-job"
@@ -17,58 +18,58 @@ Manages a job resource within a Dataproc cluster within GCE. For more informatio
 
 ```hcl
 resource "google_dataproc_cluster" "mycluster" {
-    name   = "dproc-cluster-unique-name"
-    region = "us-central1"
+  name   = "dproc-cluster-unique-name"
+  region = "us-central1"
 }
 
 # Submit an example spark job to a dataproc cluster
 resource "google_dataproc_job" "spark" {
-    region       = "${google_dataproc_cluster.mycluster.region}"
-    force_delete = true
-    placement {
-        cluster_name = "${google_dataproc_cluster.mycluster.name}"
+  region       = google_dataproc_cluster.mycluster.region
+  force_delete = true
+  placement {
+    cluster_name = google_dataproc_cluster.mycluster.name
+  }
+
+  spark_config {
+    main_class    = "org.apache.spark.examples.SparkPi"
+    jar_file_uris = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
+    args          = ["1000"]
+
+    properties = {
+      "spark.logConf" = "true"
     }
 
-    spark_config {
-        main_class    = "org.apache.spark.examples.SparkPi"
-        jar_file_uris = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
-        args          = ["1000"]
-        
-        properties    = {
-            "spark.logConf" = "true"
-        }
-        
-        logging_config {
-            driver_log_levels = {
-                "root" = "INFO"
-            }
-        }
+    logging_config {
+      driver_log_levels = {
+        "root" = "INFO"
+      }
     }
+  }
 }
 
 # Submit an example pyspark job to a dataproc cluster
 resource "google_dataproc_job" "pyspark" {
-    region       = "${google_dataproc_cluster.mycluster.region}"
-    force_delete = true
-    placement {
-        cluster_name = "${google_dataproc_cluster.mycluster.name}"
-    }
+  region       = google_dataproc_cluster.mycluster.region
+  force_delete = true
+  placement {
+    cluster_name = google_dataproc_cluster.mycluster.name
+  }
 
-    pyspark_config {
-        main_python_file_uri = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
-        properties = {
-            "spark.logConf" = "true"
-        }
+  pyspark_config {
+    main_python_file_uri = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
+    properties = {
+      "spark.logConf" = "true"
     }
+  }
 }
 
 # Check out current state of the jobs
 output "spark_status" {
-    value = "${google_dataproc_job.spark.status.0.state}"
+  value = google_dataproc_job.spark.status[0].state
 }
 
 output "pyspark_status" {
-    value = "${google_dataproc_job.pyspark.status.0.state}"
+  value = google_dataproc_job.pyspark.status[0].state
 }
 ```
 
@@ -104,24 +105,22 @@ output "pyspark_status" {
 
 * `labels` - (Optional) The list of labels (key/value pairs) to add to the job.
 
-* `scheduling.max_failures_per_hour` - (Optional) Maximum number of times per hour a driver may be restarted as a result of driver terminating with non-zero code before job is reported failed.
+* `scheduling.max_failures_per_hour` - (Required) Maximum number of times per hour a driver may be restarted as a result of driver terminating with non-zero code before job is reported failed.
 
 The `pyspark_config` block supports:
 
 Submitting a pyspark job to the cluster. Below is an example configuration:
 
 ```hcl
-
 # Submit a pyspark job to the cluster
 resource "google_dataproc_job" "pyspark" {
-    ...
-
-    pyspark_config {
-        main_python_file_uri = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
-        properties = {
-            "spark.logConf" = "true"
-        }
+  ...
+  pyspark_config {
+    main_python_file_uri = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
+    properties = {
+      "spark.logConf" = "true"
     }
+  }
 }
 ```
 
@@ -146,31 +145,29 @@ are generally applicable:
 
 * `properties` - (Optional) A mapping of property names to values, used to configure PySpark. Properties that conflict with values set by the Cloud Dataproc API may be overwritten. Can include properties set in `/etc/spark/conf/spark-defaults.conf` and classes in user code.
 
-* `logging_config.driver_log_levels`- (Optional) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
+* `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 The `spark_config` block supports:
 
 ```hcl
-
 # Submit a spark job to the cluster
 resource "google_dataproc_job" "spark" {
-    ...
+  ...
+  spark_config {
+    main_class    = "org.apache.spark.examples.SparkPi"
+    jar_file_uris = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
+    args          = ["1000"]
 
-    spark_config {
-        main_class    = "org.apache.spark.examples.SparkPi"
-        jar_file_uris = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
-        args          = ["1000"]
-        
-        properties    = {
-            "spark.logConf" = "true"
-        }
-        
-        logging_config {
-            driver_log_levels = {
-                "root" = "INFO"
-            }
-        }
+    properties = {
+      "spark.logConf" = "true"
     }
+
+    logging_config {
+      driver_log_levels = {
+        "root" = "INFO"
+      }
+    }
+  }
 }
 ```
 
@@ -190,25 +187,23 @@ resource "google_dataproc_job" "spark" {
 
 * `properties` - (Optional) A mapping of property names to values, used to configure Spark. Properties that conflict with values set by the Cloud Dataproc API may be overwritten. Can include properties set in `/etc/spark/conf/spark-defaults.conf` and classes in user code.
 
-* `logging_config.driver_log_levels`- (Optional) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
+* `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 
 The `hadoop_config` block supports:
 
 ```hcl
-
 # Submit a hadoop job to the cluster
 resource "google_dataproc_job" "hadoop" {
-    ...
-
-    hadoop_config {
-        main_jar_file_uri =  "file:///usr/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar"
-        args              = [
-            "wordcount",
-            "file:///usr/lib/spark/NOTICE",
-            "gs://${google_dataproc_cluster.basic.cluster_config.0.bucket}/hadoopjob_output"
-        ]
-    }
+  ...
+  hadoop_config {
+    main_jar_file_uri = "file:///usr/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar"
+    args = [
+      "wordcount",
+      "file:///usr/lib/spark/NOTICE",
+      "gs://${google_dataproc_cluster.basic.cluster_config[0].bucket}/hadoopjob_output",
+    ]
+  }
 }
 ```
 
@@ -226,23 +221,21 @@ resource "google_dataproc_job" "hadoop" {
 
 * `properties` - (Optional) A mapping of property names to values, used to configure Hadoop. Properties that conflict with values set by the Cloud Dataproc API may be overwritten. Can include properties set in `/etc/hadoop/conf/*-site` and classes in user code..
 
-* `logging_config.driver_log_levels`- (Optional) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
+* `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 The `hive_config` block supports:
 
 ```hcl
-
 # Submit a hive job to the cluster
 resource "google_dataproc_job" "hive" {
-    ...
-
-    hive_config {
-        query_list = [
-            "DROP TABLE IF EXISTS dprocjob_test",
-            "CREATE EXTERNAL TABLE dprocjob_test(bar int) LOCATION 'gs://${google_dataproc_cluster.basic.cluster_config.0.bucket}/hive_dprocjob_test/'",
-            "SELECT * FROM dprocjob_test WHERE bar > 2",
-        ]
-    }
+  ...
+  hive_config {
+    query_list = [
+      "DROP TABLE IF EXISTS dprocjob_test",
+      "CREATE EXTERNAL TABLE dprocjob_test(bar int) LOCATION 'gs://${google_dataproc_cluster.basic.cluster_config[0].bucket}/hive_dprocjob_test/'",
+      "SELECT * FROM dprocjob_test WHERE bar > 2",
+    ]
+  }
 }
 ```
 
@@ -263,20 +256,18 @@ resource "google_dataproc_job" "hive" {
 The `pig_config` block supports:
 
 ```hcl
-
 # Submit a pig job to the cluster
 resource "google_dataproc_job" "pig" {
-    ...
-
-    pig_config {
-        query_list = [
-            "LNS = LOAD 'file:///usr/lib/pig/LICENSE.txt ' AS (line)",
-            "WORDS = FOREACH LNS GENERATE FLATTEN(TOKENIZE(line)) AS word",
-            "GROUPS = GROUP WORDS BY word",
-            "WORD_COUNTS = FOREACH GROUPS GENERATE group, COUNT(WORDS)",
-            "DUMP WORD_COUNTS"
-        ]
-    }
+  ...
+  pig_config {
+    query_list = [
+      "LNS = LOAD 'file:///usr/lib/pig/LICENSE.txt ' AS (line)",
+      "WORDS = FOREACH LNS GENERATE FLATTEN(TOKENIZE(line)) AS word",
+      "GROUPS = GROUP WORDS BY word",
+      "WORD_COUNTS = FOREACH GROUPS GENERATE group, COUNT(WORDS)",
+      "DUMP WORD_COUNTS",
+    ]
+  }
 }
 ```
 
@@ -294,24 +285,22 @@ resource "google_dataproc_job" "pig" {
 
 * `jar_file_uris` - (Optional) HCFS URIs of jar files to add to the CLASSPATH of the Pig Client and Hadoop MapReduce (MR) tasks. Can contain Pig UDFs.
 
-* `logging_config.driver_log_levels`- (Optional) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
+* `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 
 The `sparksql_config` block supports:
 
 ```hcl
-
 # Submit a spark SQL job to the cluster
 resource "google_dataproc_job" "sparksql" {
-    ...
-
-    sparksql_config {
-        query_list = [
-            "DROP TABLE IF EXISTS dprocjob_test",
-            "CREATE TABLE dprocjob_test(bar int)",
-            "SELECT * FROM dprocjob_test WHERE bar > 2",
-        ]
-    }
+  ...
+  sparksql_config {
+    query_list = [
+      "DROP TABLE IF EXISTS dprocjob_test",
+      "CREATE TABLE dprocjob_test(bar int)",
+      "SELECT * FROM dprocjob_test WHERE bar > 2",
+    ]
+  }
 }
 ```
 
@@ -327,7 +316,7 @@ resource "google_dataproc_job" "sparksql" {
 
 * `jar_file_uris` - (Optional) HCFS URIs of jar files to be added to the Spark CLASSPATH.
 
-* `logging_config.driver_log_levels`- (Optional) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
+* `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 
 ## Attributes Reference

@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceAccessContextManagerServicePerimeter() *schema.Resource {
@@ -47,64 +47,114 @@ func resourceAccessContextManagerServicePerimeter() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `Resource name for the ServicePerimeter. The short_name component must
+begin with a letter and only include alphanumeric and '_'.
+Format: accessPolicies/{policy_id}/servicePerimeters/{short_name}`,
 			},
 			"parent": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The AccessPolicy this ServicePerimeter lives in.
+Format: accessPolicies/{policy_id}`,
 			},
 			"title": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Human readable title. Must be unique within the Policy.`,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Description: `Description of the ServicePerimeter and its use. Does not affect
+behavior.`,
 			},
 			"perimeter_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"PERIMETER_TYPE_REGULAR", "PERIMETER_TYPE_BRIDGE", ""}, false),
-				Default:      "PERIMETER_TYPE_REGULAR",
+				Description: `Specifies the type of the Perimeter. There are two types: regular and
+bridge. Regular Service Perimeter contains resources, access levels,
+and restricted services. Every resource can be in at most
+ONE regular Service Perimeter.
+
+In addition to being in a regular service perimeter, a resource can also
+be in zero or more perimeter bridges. A perimeter bridge only contains
+resources. Cross project operations are permitted if all effected
+resources share some perimeter (whether bridge or regular). Perimeter
+Bridge does not contain access levels or services: those are governed
+entirely by the regular perimeter that resource is in.
+
+Perimeter Bridges are typically useful when building more complex
+topologies with many independent perimeters that need to share some data
+with a common perimeter, but should not be able to share data among
+themselves.`,
+				Default: "PERIMETER_TYPE_REGULAR",
 			},
 			"status": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Description: `ServicePerimeter configuration. Specifies sets of resources,
+restricted services and access levels that determine
+perimeter content and boundaries.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"access_levels": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Description: `A list of AccessLevel resource names that allow resources within
+the ServicePerimeter to be accessed from the internet.
+AccessLevels listed must be in the same policy as this
+ServicePerimeter. Referencing a nonexistent AccessLevel is a
+syntax error. If no AccessLevel names are listed, resources within
+the perimeter can only be accessed via GCP calls with request
+origins within the perimeter. For Service Perimeter Bridge, must
+be empty.
+
+Format: accessPolicies/{policy_id}/accessLevels/{access_level_name}`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							AtLeastOneOf: []string{"status.0.resources", "status.0.access_levels", "status.0.restricted_services"},
 						},
 						"resources": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Description: `A list of GCP resources that are inside of the service perimeter.
+Currently only projects are allowed.
+Format: projects/{project_number}`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							AtLeastOneOf: []string{"status.0.resources", "status.0.access_levels", "status.0.restricted_services"},
 						},
 						"restricted_services": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Description: `GCP services that are subject to the Service Perimeter
+restrictions. Must contain a list of services. For example, if
+'storage.googleapis.com' is specified, access to the storage
+buckets inside the perimeter must meet the perimeter's access
+restrictions.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							AtLeastOneOf: []string{"status.0.resources", "status.0.access_levels", "status.0.restricted_services"},
 						},
 					},
 				},
 			},
 			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Time the AccessPolicy was created in UTC.`,
 			},
 			"update_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Time the AccessPolicy was updated in UTC.`,
 			},
 		},
 	}
@@ -156,13 +206,20 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 		return err
 	}
 
+	lockName, err := replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Creating new ServicePerimeter: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ServicePerimeter: %s", err)
 	}
@@ -174,15 +231,28 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 	}
 	d.SetId(id)
 
-	waitErr := accessContextManagerOperationWaitTime(
-		config, res, "Creating ServicePerimeter",
+	// Use the resource in the operation response to populate
+	// identity fields and d.Id() before read
+	var opRes map[string]interface{}
+	err = accessContextManagerOperationWaitTimeWithResponse(
+		config, res, &opRes, "Creating ServicePerimeter",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-
-	if waitErr != nil {
+	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create ServicePerimeter: %s", waitErr)
+		return fmt.Errorf("Error waiting to create ServicePerimeter: %s", err)
 	}
+
+	if err := d.Set("name", flattenAccessContextManagerServicePerimeterName(opRes["name"], d, config)); err != nil {
+		return err
+	}
+
+	// This may have caused the ID to update - update it if so.
+	id, err = replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating ServicePerimeter %q: %#v", d.Id(), res)
 
@@ -197,30 +267,30 @@ func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, me
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", url, nil)
+	res, err := sendRequest(config, "GET", "", url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeter %q", d.Id()))
 	}
 
-	if err := d.Set("title", flattenAccessContextManagerServicePerimeterTitle(res["title"], d)); err != nil {
+	if err := d.Set("title", flattenAccessContextManagerServicePerimeterTitle(res["title"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
-	if err := d.Set("description", flattenAccessContextManagerServicePerimeterDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenAccessContextManagerServicePerimeterDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
-	if err := d.Set("create_time", flattenAccessContextManagerServicePerimeterCreateTime(res["createTime"], d)); err != nil {
+	if err := d.Set("create_time", flattenAccessContextManagerServicePerimeterCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
-	if err := d.Set("update_time", flattenAccessContextManagerServicePerimeterUpdateTime(res["updateTime"], d)); err != nil {
+	if err := d.Set("update_time", flattenAccessContextManagerServicePerimeterUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
-	if err := d.Set("perimeter_type", flattenAccessContextManagerServicePerimeterPerimeterType(res["perimeterType"], d)); err != nil {
+	if err := d.Set("perimeter_type", flattenAccessContextManagerServicePerimeterPerimeterType(res["perimeterType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
-	if err := d.Set("status", flattenAccessContextManagerServicePerimeterStatus(res["status"], d)); err != nil {
+	if err := d.Set("status", flattenAccessContextManagerServicePerimeterStatus(res["status"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
-	if err := d.Set("name", flattenAccessContextManagerServicePerimeterName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenAccessContextManagerServicePerimeterName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
 
@@ -255,6 +325,13 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 		return err
 	}
 
+	lockName, err := replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
@@ -280,7 +357,7 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating ServicePerimeter %q: %s", d.Id(), err)
@@ -300,6 +377,13 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 func resourceAccessContextManagerServicePerimeterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	lockName, err := replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
@@ -307,7 +391,8 @@ func resourceAccessContextManagerServicePerimeterDelete(d *schema.ResourceData, 
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ServicePerimeter %q", d.Id())
-	res, err := sendRequestWithTimeout(config, "DELETE", url, obj, d.Timeout(schema.TimeoutDelete))
+
+	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "ServicePerimeter")
 	}
@@ -339,30 +424,31 @@ func resourceAccessContextManagerServicePerimeterImport(d *schema.ResourceData, 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAccessContextManagerServicePerimeterTitle(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterTitle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterCreateTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterUpdateTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterPerimeterType(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil || v.(string) == "" {
+func flattenAccessContextManagerServicePerimeterPerimeterType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "PERIMETER_TYPE_REGULAR"
 	}
+
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatus(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -372,26 +458,26 @@ func flattenAccessContextManagerServicePerimeterStatus(v interface{}, d *schema.
 	}
 	transformed := make(map[string]interface{})
 	transformed["resources"] =
-		flattenAccessContextManagerServicePerimeterStatusResources(original["resources"], d)
+		flattenAccessContextManagerServicePerimeterStatusResources(original["resources"], d, config)
 	transformed["access_levels"] =
-		flattenAccessContextManagerServicePerimeterStatusAccessLevels(original["accessLevels"], d)
+		flattenAccessContextManagerServicePerimeterStatusAccessLevels(original["accessLevels"], d, config)
 	transformed["restricted_services"] =
-		flattenAccessContextManagerServicePerimeterStatusRestrictedServices(original["restrictedServices"], d)
+		flattenAccessContextManagerServicePerimeterStatusRestrictedServices(original["restrictedServices"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterStatusResources(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusAccessLevels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusAccessLevels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusRestrictedServices(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusRestrictedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerServicePerimeterName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

@@ -20,17 +20,17 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func resourceKmsKeyRing() *schema.Resource {
+func resourceKMSKeyRing() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKmsKeyRingCreate,
-		Read:   resourceKmsKeyRingRead,
-		Delete: resourceKmsKeyRingDelete,
+		Create: resourceKMSKeyRingCreate,
+		Read:   resourceKMSKeyRingRead,
+		Delete: resourceKMSKeyRingDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceKmsKeyRingImport,
+			State: resourceKMSKeyRingImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -43,11 +43,14 @@ func resourceKmsKeyRing() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				Description: `The location for the KeyRing.
+A full list of valid locations can be found by running 'gcloud kms locations list'.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The resource name for the KeyRing.`,
 			},
 			"self_link": {
 				Type:     schema.TypeString,
@@ -63,35 +66,39 @@ func resourceKmsKeyRing() *schema.Resource {
 	}
 }
 
-func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceKMSKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandKmsKeyRingName(d.Get("name"), d, config)
+	nameProp, err := expandKMSKeyRingName(d.Get("name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	locationProp, err := expandKmsKeyRingLocation(d.Get("location"), d, config)
+	locationProp, err := expandKMSKeyRingLocation(d.Get("location"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("location"); !isEmptyValue(reflect.ValueOf(locationProp)) && (ok || !reflect.DeepEqual(v, locationProp)) {
 		obj["location"] = locationProp
 	}
 
-	obj, err = resourceKmsKeyRingEncoder(d, meta, obj)
+	obj, err = resourceKMSKeyRingEncoder(d, meta, obj)
 	if err != nil {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{KmsBasePath}}projects/{{project}}/locations/{{location}}/keyRings?keyRingId={{name}}")
+	url, err := replaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/locations/{{location}}/keyRings?keyRingId={{name}}")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Creating new KeyRing: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", url, obj, d.Timeout(schema.TimeoutCreate))
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating KeyRing: %s", err)
 	}
@@ -105,65 +112,59 @@ func resourceKmsKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished creating KeyRing %q: %#v", d.Id(), res)
 
-	return resourceKmsKeyRingRead(d, meta)
+	return resourceKMSKeyRingRead(d, meta)
 }
 
-func resourceKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
+func resourceKMSKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{KmsBasePath}}projects/{{project}}/locations/{{location}}/keyRings/{{name}}")
+	url, err := replaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/locations/{{location}}/keyRings/{{name}}")
 	if err != nil {
 		return err
-	}
-
-	res, err := sendRequest(config, "GET", url, nil)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("KmsKeyRing %q", d.Id()))
-	}
-
-	res, err = resourceKmsKeyRingDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
-
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing KmsKeyRing because it no longer exists.")
-		d.SetId("")
-		return nil
 	}
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	res, err := sendRequest(config, "GET", project, url, nil)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("KMSKeyRing %q", d.Id()))
+	}
+
+	res, err = resourceKMSKeyRingDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing KMSKeyRing because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading KeyRing: %s", err)
 	}
 
-	if err := d.Set("name", flattenKmsKeyRingName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenKMSKeyRingName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading KeyRing: %s", err)
 	}
 
 	return nil
 }
 
-func resourceKmsKeyRingDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-
-	keyRingId, err := parseKmsKeyRingId(d.Id(), config)
-	if err != nil {
-		return err
-	}
-
-	log.Printf("[WARNING] KMS KeyRing resources cannot be deleted from GCP. This KeyRing %s will be removed from Terraform state, but will still be present on the server.", keyRingId.keyRingId())
-
+func resourceKMSKeyRingDelete(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[WARNING] KMS KeyRing resources"+
+		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
+		" state, but will still be present on the server.", d.Id())
 	d.SetId("")
 
 	return nil
 }
 
-func resourceKmsKeyRingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceKMSKeyRingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/keyRings/(?P<name>[^/]+)",
@@ -183,23 +184,23 @@ func resourceKmsKeyRingImport(d *schema.ResourceData, meta interface{}) ([]*sche
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenKmsKeyRingName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSKeyRingName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func expandKmsKeyRingName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandKMSKeyRingName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandKmsKeyRingLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandKMSKeyRingLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func resourceKmsKeyRingEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+func resourceKMSKeyRingEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	return nil, nil
 }
 
-func resourceKmsKeyRingDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+func resourceKMSKeyRingDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	// Take the returned long form of the name and use it as `self_link`.
 	// Then modify the name to be the user specified form.
 	// We can't just ignore_read on `name` as the linter will

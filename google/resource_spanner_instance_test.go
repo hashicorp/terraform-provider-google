@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 // Unit Tests
@@ -129,10 +129,10 @@ func TestAccSpannerInstance_update(t *testing.T) {
 func testAccSpannerInstance_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_spanner_instance" "basic" {
-  name          = "%s"
-  config        = "regional-us-central1"
-  display_name  = "%s-dname"
-  num_nodes     = 1
+  name         = "%s"
+  config       = "regional-us-central1"
+  display_name = "%s-dname"
+  num_nodes    = 1
 }
 `, name, name)
 }
@@ -140,9 +140,9 @@ resource "google_spanner_instance" "basic" {
 func testAccSpannerInstance_basicWithAutogenName(name string) string {
 	return fmt.Sprintf(`
 resource "google_spanner_instance" "basic" {
-  config        = "regional-us-central1"
-  display_name  = "%s"
-  num_nodes     = 1
+  config       = "regional-us-central1"
+  display_name = "%s"
+  num_nodes    = 1
 }
 `, name)
 }
@@ -154,13 +154,13 @@ func testAccSpannerInstance_update(name string, nodes int, addLabel bool) string
 	}
 	return fmt.Sprintf(`
 resource "google_spanner_instance" "updater" {
-  config        = "regional-us-central1"
-  display_name  = "%s"
-  num_nodes     = %d
+  config       = "regional-us-central1"
+  display_name = "%s"
+  num_nodes    = %d
 
   labels = {
-     "key1" = "value1"
-     %s
+    "key1" = "value1"
+    %s
   }
 }
 `, name, nodes, extraLabel)

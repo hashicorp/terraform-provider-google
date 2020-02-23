@@ -11,9 +11,9 @@ import (
 	"net/url"
 
 	"github.com/hashicorp/go-cleanhttp"
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"golang.org/x/oauth2/google"
 )
 
@@ -28,7 +28,8 @@ const fakeCredentials = `{
   "token_uri": "https://accounts.google.com/o/oauth2/token",
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/user%40gcp-project.iam.gserviceaccount.com"
-}`
+}
+`
 
 // The following values are derived from the output of the `gsutil signurl` command.
 // i.e.
@@ -226,42 +227,42 @@ data "google_storage_object_signed_url" "blerg" {
 func testAccTestGoogleStorageObjectSignedURL(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_storage_bucket_object" "story" {
   name   = "path/to/file"
-  bucket = "${google_storage_bucket.bucket.name}"
+  bucket = google_storage_bucket.bucket.name
 
   content = "once upon a time..."
 }
 
 data "google_storage_object_signed_url" "story_url" {
-  bucket = "${google_storage_bucket.bucket.name}"
-  path   = "${google_storage_bucket_object.story.name}"
-
+  bucket = google_storage_bucket.bucket.name
+  path   = google_storage_bucket_object.story.name
 }
 
 data "google_storage_object_signed_url" "story_url_w_headers" {
-  bucket = "${google_storage_bucket.bucket.name}"
-  path   = "${google_storage_bucket_object.story.name}"
+  bucket = google_storage_bucket.bucket.name
+  path   = google_storage_bucket_object.story.name
   extension_headers = {
-  	x-goog-test = "foo"
-  	x-goog-if-generation-match = 1
+    x-goog-test                = "foo"
+    x-goog-if-generation-match = 1
   }
 }
 
 data "google_storage_object_signed_url" "story_url_w_content_type" {
-  bucket = "${google_storage_bucket.bucket.name}"
-  path   = "${google_storage_bucket_object.story.name}"
+  bucket = google_storage_bucket.bucket.name
+  path   = google_storage_bucket_object.story.name
 
   content_type = "text/plain"
 }
 
 data "google_storage_object_signed_url" "story_url_w_md5" {
-  bucket = "${google_storage_bucket.bucket.name}"
-  path   = "${google_storage_bucket_object.story.name}"
+  bucket = google_storage_bucket.bucket.name
+  path   = google_storage_bucket_object.story.name
 
-  content_md5 = "${google_storage_bucket_object.story.md5hash}"
-}`, bucketName)
+  content_md5 = google_storage_bucket_object.story.md5hash
+}
+`, bucketName)
 }

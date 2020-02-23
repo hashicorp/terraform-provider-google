@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/hashcode"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 // Compare only the relative path of two self links.
@@ -143,5 +143,25 @@ func GetLocationalResourcePropertiesFromSelfLinkString(selfLink string) (string,
 	}
 
 	s := strings.Split(parsed.Path, "/")
+
+	// This is a pretty bad way to tell if this is a self link, but stops us
+	// from accessing an index out of bounds and causing a panic. generally, we
+	// expect bad values to be partial URIs and names, so this will catch them
+	if len(s) < 9 {
+		return "", "", "", fmt.Errorf("value %s was not a self link", selfLink)
+	}
+
 	return s[4], s[6], s[8], nil
+}
+
+// return the region a selfLink is referring to
+func GetRegionFromRegionSelfLink(selfLink string) string {
+	re := regexp.MustCompile("/compute/[a-zA-Z0-9]*/projects/[a-zA-Z0-9-]*/regions/([a-zA-Z0-9-]*)")
+	switch {
+	case re.MatchString(selfLink):
+		if res := re.FindStringSubmatch(selfLink); len(res) == 2 && res[1] != "" {
+			return res[1]
+		}
+	}
+	return selfLink
 }

@@ -6,8 +6,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -51,8 +51,16 @@ func dataSourceGoogleComputeZonesRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	regionUrl := fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/regions/%s",
-		project, region)
+	// we want to share exactly the same base path as the compute client or the
+	// region string may mismatch, giving us no results
+	// note that the client's BasePath includes a `projects/` suffix, so that'll
+	// need to be added to the URL below if the source changes
+	computeClientBasePath := config.clientCompute.BasePath
+
+	regionUrl, err := replaceVars(d, config, fmt.Sprintf("%s%s/regions/%s", computeClientBasePath, project, region))
+	if err != nil {
+		return err
+	}
 	filter := fmt.Sprintf("(region eq %s)", regionUrl)
 
 	if s, ok := d.GetOk("status"); ok {
@@ -78,7 +86,7 @@ func dataSourceGoogleComputeZonesRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func flattenZones(zones []*compute.Zone) []string {
-	result := make([]string, len(zones), len(zones))
+	result := make([]string, len(zones))
 	for i, zone := range zones {
 		result[i] = zone.Name
 	}

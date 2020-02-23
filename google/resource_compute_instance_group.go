@@ -8,7 +8,7 @@ import (
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceComputeInstanceGroup() *schema.Resource {
@@ -49,7 +49,7 @@ func resourceComputeInstanceGroup() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Set:      selfLinkRelativePathHash,
 			},
 
 			"named_port": {
@@ -71,10 +71,11 @@ func resourceComputeInstanceGroup() *schema.Resource {
 			},
 
 			"network": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				ForceNew:         true,
 			},
 
 			"project": {
@@ -108,7 +109,7 @@ func getInstanceReferences(instanceUrls []string) (refs []*compute.InstanceRefer
 
 func validInstanceURLs(instanceUrls []string) bool {
 	for _, v := range instanceUrls {
-		if !strings.HasPrefix(v, "https://www.googleapis.com/compute/v1/") {
+		if !strings.HasPrefix(v, "https://") {
 			return false
 		}
 	}
@@ -155,10 +156,10 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// It probably maybe worked, so store the ID now
-	d.SetId(fmt.Sprintf("%s/%s", zone, name))
+	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instanceGroups/%s", project, zone, name))
 
 	// Wait for the operation to complete
-	err = computeOperationWait(config.clientCompute, op, project, "Creating InstanceGroup")
+	err = computeOperationWait(config, op, project, "Creating InstanceGroup")
 	if err != nil {
 		d.SetId("")
 		return err
@@ -182,7 +183,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 		}
 
 		// Wait for the operation to complete
-		err = computeOperationWait(config.clientCompute, op, project, "Adding instances to InstanceGroup")
+		err = computeOperationWait(config, op, project, "Adding instances to InstanceGroup")
 		if err != nil {
 			return err
 		}
@@ -294,7 +295,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 				}
 			} else {
 				// Wait for the operation to complete
-				err = computeOperationWait(config.clientCompute, removeOp, project, "Updating InstanceGroup")
+				err = computeOperationWait(config, removeOp, project, "Updating InstanceGroup")
 				if err != nil {
 					return err
 				}
@@ -315,7 +316,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			}
 
 			// Wait for the operation to complete
-			err = computeOperationWait(config.clientCompute, addOp, project, "Updating InstanceGroup")
+			err = computeOperationWait(config, addOp, project, "Updating InstanceGroup")
 			if err != nil {
 				return err
 			}
@@ -338,7 +339,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			return fmt.Errorf("Error updating named ports for InstanceGroup: %s", err)
 		}
 
-		err = computeOperationWait(config.clientCompute, op, project, "Updating InstanceGroup")
+		err = computeOperationWait(config, op, project, "Updating InstanceGroup")
 		if err != nil {
 			return err
 		}
@@ -368,7 +369,7 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error deleting InstanceGroup: %s", err)
 	}
 
-	err = computeOperationWait(config.clientCompute, op, project, "Deleting InstanceGroup")
+	err = computeOperationWait(config, op, project, "Deleting InstanceGroup")
 	if err != nil {
 		return err
 	}
@@ -378,18 +379,19 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeInstanceGroupImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), "/")
-	if len(parts) == 2 {
-		d.Set("zone", parts[0])
-		d.Set("name", parts[1])
-	} else if len(parts) == 3 {
-		d.Set("project", parts[0])
-		d.Set("zone", parts[1])
-		d.Set("name", parts[2])
-		d.SetId(parts[1] + "/" + parts[2])
-	} else {
-		return nil, fmt.Errorf("Invalid compute instance group specifier. Expecting {zone}/{name} or {project}/{zone}/{name}")
+	config := meta.(*Config)
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instanceGroups/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
+		"(?P<zone>[^/]+)/(?P<name>[^/]+)",
+	}, d, config); err != nil {
+		return nil, err
 	}
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroups/{{name}}")
+	if err != nil {
+		return nil, err
+	}
+	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
 }

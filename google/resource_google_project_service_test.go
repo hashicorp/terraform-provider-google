@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 // Test that services can be enabled and disabled on a project
@@ -16,7 +16,7 @@ func TestAccProjectService_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	services := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -70,7 +70,7 @@ func TestAccProjectService_disableDependentServices(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	services := []string{"cloudbuild.googleapis.com", "containerregistry.googleapis.com"}
 
 	resource.Test(t, resource.TestCase{
@@ -111,7 +111,7 @@ func TestAccProjectService_handleNotFound(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	service := "iam.googleapis.com"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -127,6 +127,28 @@ func TestAccProjectService_handleNotFound(t *testing.T) {
 			{
 				Config:             testAccProjectService_handleNotFoundNoProject(service, pid),
 				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
+func TestAccProjectService_renamedService(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := acctest.RandomWithPrefix("tf-test")
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProjectService_single("bigquery.googleapis.com", pid, pname, org),
+			},
+			{
+				ResourceName:            "google_project_service.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disable_on_destroy", "disable_dependent_services"},
 			},
 		},
 	})
@@ -169,15 +191,14 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_service" "test" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
 }
 
 resource "google_project_service" "test2" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
 }
-
 `, pid, name, org, services[0], services[1])
 }
 
@@ -191,12 +212,12 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_service" "test" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
 }
 
 resource "google_project_service" "test2" {
-  project                    = "${google_project.acceptance.project_id}"
+  project                    = google_project.acceptance.project_id
   service                    = "%s"
   disable_dependent_services = %s
 }
@@ -213,7 +234,7 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_service" "test" {
-  project = "${google_project.acceptance.project_id}"
+  project = google_project.acceptance.project_id
   service = "%s"
 }
 `, pid, name, org, billing, services[0])
@@ -228,14 +249,14 @@ resource "google_project" "acceptance" {
 }
 
 resource "google_project_service" "test" {
-  project = "${google_project.acceptance.project_id}"
-  service = "%s"
+  project            = google_project.acceptance.project_id
+  service            = "%s"
   disable_on_destroy = false
 }
 
 resource "google_project_service" "test2" {
-  project = "${google_project.acceptance.project_id}"
-  service = "%s"
+  project            = google_project.acceptance.project_id
+  service            = "%s"
   disable_on_destroy = false
 }
 `, pid, name, org, services[0], services[1])
@@ -252,11 +273,11 @@ resource "google_project" "acceptance" {
 // by passing through locals, we break the dependency chain
 // see terraform-provider-google#1292
 locals {
-  project_id = "${google_project.acceptance.project_id}"
+  project_id = google_project.acceptance.project_id
 }
 
 resource "google_project_service" "test" {
-  project = "${local.project_id}"
+  project = local.project_id
   service = "%s"
 }
 `, pid, name, org, service)
@@ -269,4 +290,21 @@ resource "google_project_service" "test" {
   service = "%s"
 }
 `, pid, service)
+}
+
+func testAccProjectService_single(service string, pid, name, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
+}
+
+resource "google_project_service" "test" {
+  project = google_project.acceptance.project_id
+  service = "%s"
+
+  disable_dependent_services = true
+}
+`, pid, name, org, service)
 }

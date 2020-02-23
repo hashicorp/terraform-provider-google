@@ -1,12 +1,16 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"google.golang.org/api/cloudkms/v1"
+	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/iam/v1"
 )
 
@@ -49,7 +53,7 @@ func BootstrapKMSKeyWithPurpose(t *testing.T, purpose string) bootstrappedKMS {
 **/
 func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID string) bootstrappedKMS {
 	if v := os.Getenv("TF_ACC"); v == "" {
-		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
 
 		// If not running acceptance tests, return an empty object
 		return bootstrappedKMS{
@@ -73,7 +77,7 @@ func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID stri
 
 	ConfigureBasePaths(config)
 
-	if err := config.LoadAndValidate(); err != nil {
+	if err := config.LoadAndValidate(context.Background()); err != nil {
 		t.Errorf("Unable to bootstrap KMS key: %s", err)
 	}
 
@@ -200,7 +204,7 @@ func impersonationServiceAccountPermissions(config *Config, sa *iam.ServiceAccou
 
 func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
 	if v := os.Getenv("TF_ACC"); v == "" {
-		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
 		return ""
 	}
 
@@ -213,7 +217,7 @@ func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
 
 	ConfigureBasePaths(config)
 
-	if err := config.LoadAndValidate(); err != nil {
+	if err := config.LoadAndValidate(context.Background()); err != nil {
 		t.Fatalf("Bootstrapping failed. Unable to load test config: %s", err)
 	}
 
@@ -228,4 +232,133 @@ func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
 	}
 
 	return sa.Email
+}
+
+const SharedTestNetworkPrefix = "tf-bootstrap-net-"
+
+// BootstrapSharedTestNetwork will return a shared compute network
+// for a test or set of tests. Often resources create complementing
+// tenant network resources, which we don't control and which don't get cleaned
+// up after our owned resource is deleted in test. These tenant resources
+// have quotas, so creating a shared test network prevents hitting these limits.
+//
+// testId specifies the test/suite for which a shared network is used/initialized.
+// Returns the name of an network, creating it if hasn't been created in the test projcet.
+func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
+	if v := os.Getenv("TF_ACC"); v == "" {
+		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+		// If not running acceptance tests, return an empty string
+		return ""
+	}
+
+	project := getTestProjectFromEnv()
+	networkName := SharedTestNetworkPrefix + testId
+	config := &Config{
+		Credentials: getTestCredsFromEnv(),
+		Project:     project,
+		Region:      getTestRegionFromEnv(),
+		Zone:        getTestZoneFromEnv(),
+	}
+	ConfigureBasePaths(config)
+	if err := config.LoadAndValidate(context.Background()); err != nil {
+		t.Errorf("Unable to bootstrap network: %s", err)
+	}
+
+	log.Printf("[DEBUG] Getting shared test network %q", networkName)
+	_, err := config.clientCompute.Networks.Get(project, networkName).Do()
+	if err != nil && isGoogleApiErrorWithCode(err, 404) {
+		log.Printf("[DEBUG] Network %q not found, bootstrapping", networkName)
+		url := fmt.Sprintf("%sprojects/%s/global/networks", config.ComputeBasePath, project)
+		netObj := map[string]interface{}{
+			"name":                  networkName,
+			"autoCreateSubnetworks": false,
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", project, url, netObj, 4*time.Minute)
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared test network %q: %s", networkName, err)
+		}
+
+		log.Printf("[DEBUG] Waiting for network creation to finish")
+		err = computeOperationWaitTime(config, res, project, "Error bootstrapping shared test network", 4)
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared test network %q: %s", networkName, err)
+		}
+	}
+
+	network, err := config.clientCompute.Networks.Get(project, networkName).Do()
+	if err != nil {
+		t.Errorf("Error getting shared test network %q: %s", networkName, err)
+	}
+	if network == nil {
+		t.Fatalf("Error getting shared test network %q: is nil", networkName)
+	}
+	return network.Name
+}
+
+var SharedServicePerimeterProjectPrefix = "tf-bootstrap-sp-"
+
+func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*cloudresourcemanager.Project {
+	if v := os.Getenv("TF_ACC"); v == "" {
+		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+		return nil
+	}
+
+	org := getTestOrgFromEnv(t)
+	config := &Config{
+		Credentials: getTestCredsFromEnv(),
+		Project:     getTestProjectFromEnv(),
+		Region:      getTestRegionFromEnv(),
+		Zone:        getTestZoneFromEnv(),
+	}
+
+	ConfigureBasePaths(config)
+
+	if err := config.LoadAndValidate(context.Background()); err != nil {
+		t.Fatalf("Bootstrapping failed. Unable to load test config: %s", err)
+	}
+
+	// The filter endpoint works differently if you provide both the parent id and parent type, and
+	// doesn't seem to allow for prefix matching. Don't change this to include the parent type unless
+	// that API behavior changes.
+	prefixFilter := fmt.Sprintf("id:%s* parent.id:%s", SharedServicePerimeterProjectPrefix, org)
+	res, err := config.clientResourceManager.Projects.List().Filter(prefixFilter).Do()
+	if err != nil {
+		t.Errorf("Error getting shared test projects: %s", err)
+	}
+
+	projects := res.Projects
+	for len(projects) < desiredProjects {
+		pid := SharedServicePerimeterProjectPrefix + acctest.RandString(10)
+		project := &cloudresourcemanager.Project{
+			ProjectId: pid,
+			Name:      "TF Service Perimeter Test",
+			Parent: &cloudresourcemanager.ResourceId{
+				Type: "organization",
+				Id:   org,
+			},
+		}
+		op, err := config.clientResourceManager.Projects.Create(project).Do()
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared test project: %s", err)
+		}
+
+		opAsMap, err := ConvertToMap(op)
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared test project: %s", err)
+		}
+
+		err = resourceManagerOperationWaitTime(config, opAsMap, "creating project", 4)
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared test project: %s", err)
+		}
+
+		p, err := config.clientResourceManager.Projects.Get(pid).Do()
+		if err != nil {
+			t.Fatalf("Error getting shared test project: %s", err)
+		}
+		projects = append(projects, p)
+	}
+
+	return projects
 }

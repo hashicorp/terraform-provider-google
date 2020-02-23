@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Dataproc"
 layout: "google"
 page_title: "Google: google_dataproc_cluster_iam"
 sidebar_current: "docs-google-dataproc-cluster-iam"
@@ -14,7 +15,7 @@ Three different resources help you manage IAM policies on dataproc clusters. Eac
 * `google_dataproc_cluster_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the cluster are preserved.
 * `google_dataproc_cluster_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the cluster are preserved.
 
-~> **Note:** `google_dataproc_cluster_iam_policy` **cannot** be used in conjunction with `google_dataproc_cluster_iam_binding` and `google_dataproc_cluster_iam_member` or they will fight over what your policy should be. In addition, be careful not to accidentaly unset ownership of the cluster as `google_dataproc_cluster_iam_policy` replaces the entire policy.
+~> **Note:** `google_dataproc_cluster_iam_policy` **cannot** be used in conjunction with `google_dataproc_cluster_iam_binding` and `google_dataproc_cluster_iam_member` or they will fight over what your policy should be. In addition, be careful not to accidentally unset ownership of the cluster as `google_dataproc_cluster_iam_policy` replaces the entire policy.
 
 ~> **Note:** `google_dataproc_cluster_iam_binding` resources **can be** used in conjunction with `google_dataproc_cluster_iam_member` resources **only if** they do not grant privilege to the same role.
 
@@ -23,7 +24,7 @@ Three different resources help you manage IAM policies on dataproc clusters. Eac
 ```hcl
 data "google_iam_policy" "admin" {
   binding {
-    role    = "roles/editor"
+    role = "roles/editor"
     members = [
       "user:jane@example.com",
     ]
@@ -31,10 +32,10 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_dataproc_cluster_iam_policy" "editor" {
-  project      = "your-project"
-  region       = "your-region"
-  cluster      = "your-dataproc-cluster"
-  policy_data  = "${data.google_iam_policy.admin.policy_data}"
+  project     = "your-project"
+  region      = "your-region"
+  cluster     = "your-dataproc-cluster"
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
@@ -42,9 +43,9 @@ resource "google_dataproc_cluster_iam_policy" "editor" {
 
 ```hcl
 resource "google_dataproc_cluster_iam_binding" "editor" {
-  cluster      = "your-dataproc-cluster"
-  role         = "roles/editor"
-  members      = [
+  cluster = "your-dataproc-cluster"
+  role    = "roles/editor"
+  members = [
     "user:jane@example.com",
   ]
 }
@@ -54,9 +55,9 @@ resource "google_dataproc_cluster_iam_binding" "editor" {
 
 ```hcl
 resource "google_dataproc_cluster_iam_member" "editor" {
-  cluster      = "your-dataproc-cluster"
-  role         = "roles/editor"
-  member       = "user:jane@example.com"
+  cluster = "your-dataproc-cluster"
+  role    = "roles/editor"
+  member  = "user:jane@example.com"
 }
 ```
 
@@ -110,3 +111,6 @@ $ terraform import google_dataproc_cluster_iam_binding.editor "projects/{project
 
 $ terraform import google_dataproc_cluster_iam_member.editor "projects/{project}/regions/{region}/clusters/{cluster} roles/editor user:jane@example.com"
 ```
+
+-> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
+ full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.

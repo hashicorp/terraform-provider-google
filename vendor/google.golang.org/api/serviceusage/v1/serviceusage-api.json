@@ -236,7 +236,7 @@
     "services": {
       "methods": {
         "batchEnable": {
-          "description": "Enable multiple services on a project. The operation is atomic: if enabling\nany service fails, then the entire batch fails, and no state changes occur.",
+          "description": "Enable multiple services on a project. The operation is atomic: if enabling\nany service fails, then the entire batch fails, and no state changes occur.\nTo enable a single service, use the `EnableService` method instead.",
           "flatPath": "v1/{v1Id}/{v1Id1}/services:batchEnable",
           "httpMethod": "POST",
           "id": "serviceusage.services.batchEnable",
@@ -393,7 +393,7 @@
       }
     }
   },
-  "revision": "20190530",
+  "revision": "20200130",
   "rootUrl": "https://serviceusage.googleapis.com/",
   "schemas": {
     "Api": {
@@ -560,12 +560,16 @@
           "type": "string"
         },
         "deadline": {
-          "description": "The number of seconds to wait for a response from a request.  The default\ndeadline for gRPC is infinite (no deadline) and HTTP requests is 5 seconds.",
+          "description": "The number of seconds to wait for a response from a request. The default\nvaries based on the request protocol and deployment environment.",
           "format": "double",
           "type": "number"
         },
+        "disableAuth": {
+          "description": "When disable_auth is false,  a JWT ID token will be generated with the\nvalue from BackendRule.address as jwt_audience, overrode to the HTTP\n\"Authorization\" request header and sent to the backend.\n\nWhen disable_auth is true, a JWT ID token won't be generated and the\noriginal \"Authorization\" HTTP header will be preserved. If the header is\nused to carry the original token and is expected by the backend, this\nfield must be set to true to preserve the header.",
+          "type": "boolean"
+        },
         "jwtAudience": {
-          "description": "The JWT audience is used when generating a JWT id token for the backend.",
+          "description": "The JWT audience is used when generating a JWT ID token for the backend.\nThis ID token will be added in the HTTP \"authorization\" header, and sent\nto the backend.",
           "type": "string"
         },
         "minDeadline": {
@@ -631,7 +635,7 @@
       "id": "BatchEnableServicesRequest",
       "properties": {
         "serviceIds": {
-          "description": "The identifiers of the services to enable on the project.\n\nA valid identifier would be:\nserviceusage.googleapis.com\n\nEnabling services requires that each service is public or is shared with\nthe user enabling the service.\n\nTwo or more services must be specified. To enable a single service,\nuse the `EnableService` method instead.\n\nA single request can enable a maximum of 20 services at a time. If more\nthan 20 services are specified, the request will fail, and no state changes\nwill occur.",
+          "description": "The identifiers of the services to enable on the project.\n\nA valid identifier would be:\nserviceusage.googleapis.com\n\nEnabling services requires that each service is public or is shared with\nthe user enabling the service.\n\nA single request can enable a maximum of 20 services at a time. If more\nthan 20 services are specified, the request will fail, and no state changes\nwill occur.",
           "items": {
             "type": "string"
           },
@@ -861,6 +865,10 @@
             "$ref": "DocumentationRule"
           },
           "type": "array"
+        },
+        "serviceRootUrl": {
+          "description": "Specifies the service root url if the default one (the service name\nfrom the yaml file) is not suitable. This can be seen in any fully\nspecified service urls as well as sections that show a base that other\nurls are relative to.",
+          "type": "string"
         },
         "summary": {
           "description": "A short summary of what the service does. Can only be provided by\nplain text.",
@@ -1129,6 +1137,29 @@
       },
       "type": "object"
     },
+    "GetServiceIdentityResponse": {
+      "description": "Response message for getting service identity.",
+      "id": "GetServiceIdentityResponse",
+      "properties": {
+        "identity": {
+          "$ref": "ServiceIdentity",
+          "description": "Service identity that service producer can use to access consumer\nresources. If exists is true, it contains email and unique_id. If exists is\nfalse, it contains pre-constructed email and empty unique_id."
+        },
+        "state": {
+          "description": "Service identity state.",
+          "enum": [
+            "IDENTITY_STATE_UNSPECIFIED",
+            "ACTIVE"
+          ],
+          "enumDescriptions": [
+            "Default service identity state. This value is used if the state is\nomitted.",
+            "Service identity has been created and can be used."
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "GoogleApiService": {
       "description": "`Service` is the root object of Google service configuration schema. It\ndescribes basic information about a service, such as the name and the\ntitle, and delegates other aspects to sub-sections. Each sub-section is\neither a proto message or a repeated proto message that configures a\nspecific aspect, such as auth. See each proto message definition for details.\n\nExample:\n\n    type: google.api.Service\n    config_version: 3\n    name: calendar.googleapis.com\n    title: Google Calendar API\n    apis:\n    - name: google.calendar.v3.Calendar\n    authentication:\n      providers:\n      - id: google_calendar_auth\n        jwks_uri: https://www.googleapis.com/oauth2/v1/certs\n        issuer: https://securetoken.google.com\n      rules:\n      - selector: \"*\"\n        requirements:\n          provider_id: google_calendar_auth",
       "id": "GoogleApiService",
@@ -1192,7 +1223,7 @@
           "description": "HTTP configuration."
         },
         "id": {
-          "description": "A unique ID for a specific instance of this message, typically assigned\nby the client for tracking purpose. If empty, the server may choose to\ngenerate one instead. Must be no longer than 60 characters.",
+          "description": "A unique ID for a specific instance of this message, typically assigned\nby the client for tracking purpose. Must be no longer than 63 characters\nand only lower case letters, digits, '.', '_' and '-' are allowed. If\nempty, the server may choose to generate one instead.",
           "type": "string"
         },
         "logging": {
@@ -1265,6 +1296,25 @@
         "usage": {
           "$ref": "Usage",
           "description": "Configuration controlling usage of this service."
+        }
+      },
+      "type": "object"
+    },
+    "GoogleApiServiceIdentity": {
+      "description": "The per-product per-project service identity for a service.\n\n\nUse this field to configure per-product per-project service identity.\nExample of a service identity configuration.\n\n    usage:\n      service_identity:\n      - service_account_parent: \"projects/123456789\"\n        display_name: \"Cloud XXX Service Agent\"\n        description: \"Used as the identity of Cloud XXX to access resources\"",
+      "id": "GoogleApiServiceIdentity",
+      "properties": {
+        "description": {
+          "description": "Optional. A user-specified opaque description of the service account.\nMust be less than or equal to 256 UTF-8 bytes.",
+          "type": "string"
+        },
+        "displayName": {
+          "description": "Optional. A user-specified name for the service account.\nMust be less than or equal to 100 UTF-8 bytes.",
+          "type": "string"
+        },
+        "serviceAccountParent": {
+          "description": "A service account project that hosts the service accounts.\n\nAn example name would be:\n`projects/123456789`",
+          "type": "string"
         }
       },
       "type": "object"
@@ -1361,6 +1411,44 @@
       },
       "type": "object"
     },
+    "GoogleApiServiceusageV1beta1GetServiceIdentityResponse": {
+      "description": "Response message for getting service identity.",
+      "id": "GoogleApiServiceusageV1beta1GetServiceIdentityResponse",
+      "properties": {
+        "identity": {
+          "$ref": "GoogleApiServiceusageV1beta1ServiceIdentity",
+          "description": "Service identity that service producer can use to access consumer\nresources. If exists is true, it contains email and unique_id. If exists is\nfalse, it contains pre-constructed email and empty unique_id."
+        },
+        "state": {
+          "description": "Service identity state.",
+          "enum": [
+            "IDENTITY_STATE_UNSPECIFIED",
+            "ACTIVE"
+          ],
+          "enumDescriptions": [
+            "Default service identity state. This value is used if the state is\nomitted.",
+            "Service identity has been created and can be used."
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "GoogleApiServiceusageV1beta1ServiceIdentity": {
+      "description": "Service identity for a service. This is the identity that service producer\nshould use to access consumer resources.",
+      "id": "GoogleApiServiceusageV1beta1ServiceIdentity",
+      "properties": {
+        "email": {
+          "description": "The email address of the service account that a service producer would use\nto access consumer resources.",
+          "type": "string"
+        },
+        "uniqueId": {
+          "description": "The unique and stable id of the service account.\nhttps://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts#ServiceAccount",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "Http": {
       "description": "Defines the HTTP configuration for an API service. It contains a list of\nHttpRule, each specifying the mapping of an RPC method\nto one or more HTTP REST API methods.",
       "id": "Http",
@@ -1389,6 +1477,10 @@
             "$ref": "HttpRule"
           },
           "type": "array"
+        },
+        "allowHalfDuplex": {
+          "description": "When this flag is set to true, HTTP requests will be allowed to invoke a\nhalf-duplex streaming method.",
+          "type": "boolean"
         },
         "body": {
           "description": "The name of the request field whose value is mapped to the HTTP request\nbody, or `*` for mapping all request fields not captured by the path\npattern to the HTTP body, or omitted for not having any HTTP request body.\n\nNOTE: the referred field must be present at the top-level of the request\nmessage type.",
@@ -1664,6 +1756,13 @@
           ],
           "type": "string"
         },
+        "monitoredResourceTypes": {
+          "description": "Read-only. If present, then a time\nseries, which is identified partially by\na metric type and a MonitoredResourceDescriptor, that is associated\nwith this metric type can only be associated with one of the monitored\nresource types listed here.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "name": {
           "description": "The resource name of the metric descriptor.",
           "type": "string"
@@ -1673,7 +1772,7 @@
           "type": "string"
         },
         "unit": {
-          "description": "The unit in which the metric value is reported. It is only applicable\nif the `value_type` is `INT64`, `DOUBLE`, or `DISTRIBUTION`. The\nsupported units are a subset of [The Unified Code for Units of\nMeasure](http://unitsofmeasure.org/ucum.html) standard:\n\n**Basic units (UNIT)**\n\n* `bit`   bit\n* `By`    byte\n* `s`     second\n* `min`   minute\n* `h`     hour\n* `d`     day\n\n**Prefixes (PREFIX)**\n\n* `k`     kilo    (10**3)\n* `M`     mega    (10**6)\n* `G`     giga    (10**9)\n* `T`     tera    (10**12)\n* `P`     peta    (10**15)\n* `E`     exa     (10**18)\n* `Z`     zetta   (10**21)\n* `Y`     yotta   (10**24)\n* `m`     milli   (10**-3)\n* `u`     micro   (10**-6)\n* `n`     nano    (10**-9)\n* `p`     pico    (10**-12)\n* `f`     femto   (10**-15)\n* `a`     atto    (10**-18)\n* `z`     zepto   (10**-21)\n* `y`     yocto   (10**-24)\n* `Ki`    kibi    (2**10)\n* `Mi`    mebi    (2**20)\n* `Gi`    gibi    (2**30)\n* `Ti`    tebi    (2**40)\n\n**Grammar**\n\nThe grammar also includes these connectors:\n\n* `/`    division (as an infix operator, e.g. `1/s`).\n* `.`    multiplication (as an infix operator, e.g. `GBy.d`)\n\nThe grammar for a unit is as follows:\n\n    Expression = Component { \".\" Component } { \"/\" Component } ;\n\n    Component = ( [ PREFIX ] UNIT | \"%\" ) [ Annotation ]\n              | Annotation\n              | \"1\"\n              ;\n\n    Annotation = \"{\" NAME \"}\" ;\n\nNotes:\n\n* `Annotation` is just a comment if it follows a `UNIT` and is\n   equivalent to `1` if it is used alone. For examples,\n   `{requests}/s == 1/s`, `By{transmitted}/s == By/s`.\n* `NAME` is a sequence of non-blank printable ASCII characters not\n   containing '{' or '}'.\n* `1` represents dimensionless value 1, such as in `1/s`.\n* `%` represents dimensionless value 1/100, and annotates values giving\n   a percentage.",
+          "description": "The units in which the metric value is reported. It is only applicable\nif the `value_type` is `INT64`, `DOUBLE`, or `DISTRIBUTION`. The `unit`\ndefines the representation of the stored metric values.\n\nDifferent systems may scale the values to be more easily displayed (so a\nvalue of `0.02KBy` _might_ be displayed as `20By`, and a value of\n`3523KBy` _might_ be displayed as `3.5MBy`). However, if the `unit` is\n`KBy`, then the value of the metric is always in thousands of bytes, no\nmatter how it may be displayed..\n\nIf you want a custom metric to record the exact number of CPU-seconds used\nby a job, you can create an `INT64 CUMULATIVE` metric whose `unit` is\n`s{CPU}` (or equivalently `1s{CPU}` or just `s`). If the job uses 12,005\nCPU-seconds, then the value is written as `12005`.\n\nAlternatively, if you want a custom metric to record data in a more\ngranular way, you can create a `DOUBLE CUMULATIVE` metric whose `unit` is\n`ks{CPU}`, and then write the value `12.005` (which is `12005/1000`),\nor use `Kis{CPU}` and write `11.723` (which is `12005/1024`).\n\nThe supported units are a subset of [The Unified Code for Units of\nMeasure](http://unitsofmeasure.org/ucum.html) standard:\n\n**Basic units (UNIT)**\n\n* `bit`   bit\n* `By`    byte\n* `s`     second\n* `min`   minute\n* `h`     hour\n* `d`     day\n\n**Prefixes (PREFIX)**\n\n* `k`     kilo    (10^3)\n* `M`     mega    (10^6)\n* `G`     giga    (10^9)\n* `T`     tera    (10^12)\n* `P`     peta    (10^15)\n* `E`     exa     (10^18)\n* `Z`     zetta   (10^21)\n* `Y`     yotta   (10^24)\n\n* `m`     milli   (10^-3)\n* `u`     micro   (10^-6)\n* `n`     nano    (10^-9)\n* `p`     pico    (10^-12)\n* `f`     femto   (10^-15)\n* `a`     atto    (10^-18)\n* `z`     zepto   (10^-21)\n* `y`     yocto   (10^-24)\n\n* `Ki`    kibi    (2^10)\n* `Mi`    mebi    (2^20)\n* `Gi`    gibi    (2^30)\n* `Ti`    tebi    (2^40)\n* `Pi`    pebi    (2^50)\n\n**Grammar**\n\nThe grammar also includes these connectors:\n\n* `/`    division or ratio (as an infix operator). For examples,\n         `kBy/{email}` or `MiBy/10ms` (although you should almost never\n         have `/s` in a metric `unit`; rates should always be computed at\n         query time from the underlying cumulative or delta value).\n* `.`    multiplication or composition (as an infix operator). For\n         examples, `GBy.d` or `k{watt}.h`.\n\nThe grammar for a unit is as follows:\n\n    Expression = Component { \".\" Component } { \"/\" Component } ;\n\n    Component = ( [ PREFIX ] UNIT | \"%\" ) [ Annotation ]\n              | Annotation\n              | \"1\"\n              ;\n\n    Annotation = \"{\" NAME \"}\" ;\n\nNotes:\n\n* `Annotation` is just a comment if it follows a `UNIT`. If the annotation\n   is used alone, then the unit is equivalent to `1`. For examples,\n   `{request}/s == 1/s`, `By{transmitted}/s == By/s`.\n* `NAME` is a sequence of non-blank printable ASCII characters not\n   containing `{` or `}`.\n* `1` represents a unitary [dimensionless\n   unit](https://en.wikipedia.org/wiki/Dimensionless_quantity) of 1, such\n   as in `1/s`. It is typically used when none of the basic units are\n   appropriate. For example, \"new users per day\" can be represented as\n   `1/d` or `{new-users}/d` (and a metric value `5` would mean \"5 new\n   users). Alternatively, \"thousands of page views per day\" would be\n   represented as `1000/d` or `k1/d` or `k{page_views}/d` (and a metric\n   value of `5.3` would mean \"5300 page views per day\").\n* `%` represents dimensionless value of 1/100, and annotates values giving\n   a percentage (so the metric values are typically in the range of 0..100,\n   and a metric value `3` means \"3 percent\").\n* `10^2.%` indicates a metric contains a ratio, typically in the range\n   0..1, that will be multiplied by 100 and displayed as a percentage\n   (so a metric value `0.03` means \"3 percent\").",
           "type": "string"
         },
         "valueType": {
@@ -1711,7 +1810,7 @@
           "type": "string"
         },
         "launchStage": {
-          "description": "Deprecated. Please use the MetricDescriptor.launch_stage instead.\nThe launch stage of the metric definition.",
+          "description": "Deprecated. Must use the MetricDescriptor.launch_stage instead.",
           "enum": [
             "LAUNCH_STAGE_UNSPECIFIED",
             "EARLY_ACCESS",
@@ -2001,7 +2100,7 @@
           "type": "string"
         },
         "duration": {
-          "description": "Duration of this limit in textual notation. Example: \"100s\", \"24h\", \"1d\".\nFor duration longer than a day, only multiple of days is supported. We\nsupport only \"100s\" and \"1d\" for now. Additional support will be added in\nthe future. \"0\" indicates indefinite duration.\n\nUsed by group-based quotas only.",
+          "description": "Duration of this limit in textual notation. Must be \"100s\" or \"1d\".\n\nUsed by group-based quotas only.",
           "type": "string"
         },
         "freeTier": {
@@ -2055,6 +2154,21 @@
         "overrideValue": {
           "description": "The overriding quota limit value.\nCan be any nonnegative integer, or -1 (unlimited quota).",
           "format": "int64",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ServiceIdentity": {
+      "description": "Service identity for a service. This is the identity that service producer\nshould use to access consumer resources.",
+      "id": "ServiceIdentity",
+      "properties": {
+        "email": {
+          "description": "The email address of the service account that a service producer would use\nto access consumer resources.",
+          "type": "string"
+        },
+        "uniqueId": {
+          "description": "The unique and stable id of the service account.\nhttps://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts#ServiceAccount",
           "type": "string"
         }
       },
@@ -2236,6 +2350,10 @@
             "$ref": "UsageRule"
           },
           "type": "array"
+        },
+        "serviceIdentity": {
+          "$ref": "GoogleApiServiceIdentity",
+          "description": "The configuration of a per-product per-project service identity."
         }
       },
       "type": "object"

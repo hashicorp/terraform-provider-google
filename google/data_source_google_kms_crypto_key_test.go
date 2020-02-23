@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccDataSourceGoogleKmsCryptoKey_basic(t *testing.T) {
@@ -31,8 +31,8 @@ func TestAccDataSourceGoogleKmsCryptoKey_basic(t *testing.T) {
 func testAccDataSourceGoogleKmsCryptoKey_basic(keyRingName, cryptoKeyName string) string {
 	return fmt.Sprintf(`
 data "google_kms_crypto_key" "kms_crypto_key" {
-	key_ring = "%s"
-	name     = "%s"
+  key_ring = "%s"
+  name     = "%s"
 }
-	`, keyRingName, cryptoKeyName)
+`, keyRingName, cryptoKeyName)
 }

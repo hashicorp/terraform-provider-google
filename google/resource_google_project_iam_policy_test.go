@@ -3,13 +3,11 @@ package google
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
-	"sort"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -18,7 +16,7 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -43,12 +41,29 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 	})
 }
 
+// Test that an IAM policy with empty members does not cause a permadiff.
+func TestAccProjectIamPolicy_emptyMembers(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := acctest.RandomWithPrefix("tf-test")
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProjectIamPolicyEmptyMembers(pid, pname, org),
+			},
+		},
+	})
+}
+
 // Test that a non-collapsed IAM policy doesn't perpetually diff
 func TestAccProjectIamPolicy_expanded(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -68,7 +83,7 @@ func TestAccProjectIamPolicy_basicAuditConfig(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "tf-acctest-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -98,7 +113,7 @@ func TestAccProjectIamPolicy_expandedAuditConfig(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "tf-acctest-" + acctest.RandString(10)
+	pid := acctest.RandomWithPrefix("tf-test")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -158,149 +173,14 @@ func testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid string)
 
 		// The bindings in both policies should be identical
 		if !compareBindings(projectPolicy.Bindings, policyPolicy.Bindings) {
-			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", derefBindings(projectPolicy.Bindings), derefBindings(policyPolicy.Bindings))
+			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", debugPrintBindings(projectPolicy.Bindings), debugPrintBindings(policyPolicy.Bindings))
 		}
 
 		// The audit configs in both policies should be identical
 		if !compareAuditConfigs(projectPolicy.AuditConfigs, policyPolicy.AuditConfigs) {
-			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", projectPolicy.AuditConfigs, policyPolicy.AuditConfigs)
+			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", debugPrintAuditConfigs(projectPolicy.AuditConfigs), debugPrintAuditConfigs(policyPolicy.AuditConfigs))
 		}
 		return nil
-	}
-}
-
-func TestIamOverwriteBinding(t *testing.T) {
-	table := []struct {
-		input    []*cloudresourcemanager.Binding
-		override cloudresourcemanager.Binding
-		expect   []cloudresourcemanager.Binding
-	}{
-		{
-			input: []*cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-1", "member-2"},
-				},
-			},
-			override: cloudresourcemanager.Binding{
-				Role:    "role-1",
-				Members: []string{"new-member"},
-			},
-			expect: []cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"new-member"},
-				},
-			},
-		},
-		{
-			input: []*cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-1", "member-2"},
-				},
-			},
-			override: cloudresourcemanager.Binding{
-				Role:    "role-2",
-				Members: []string{"member-3"},
-			},
-			expect: []cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-1", "member-2"},
-				},
-				{
-					Role:    "role-2",
-					Members: []string{"member-3"},
-				},
-			},
-		},
-	}
-
-	for _, test := range table {
-		got := overwriteBinding(test.input, &test.override)
-		if !reflect.DeepEqual(derefBindings(got), test.expect) {
-			t.Errorf("OverwriteIamBinding failed.\nGot %+v\nWant %+v", derefBindings(got), test.expect)
-		}
-	}
-}
-
-func TestIamMergeBindings(t *testing.T) {
-	table := []struct {
-		input  []*cloudresourcemanager.Binding
-		expect []cloudresourcemanager.Binding
-	}{
-		{
-			input: []*cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-1", "member-2"},
-				},
-				{
-					Role:    "role-1",
-					Members: []string{"member-3"},
-				},
-			},
-			expect: []cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-1", "member-2", "member-3"},
-				},
-			},
-		},
-		{
-			input: []*cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-3", "member-4"},
-				},
-				{
-					Role:    "role-1",
-					Members: []string{"member-2", "member-1"},
-				},
-				{
-					Role:    "role-2",
-					Members: []string{"member-1"},
-				},
-				{
-					Role:    "role-1",
-					Members: []string{"member-5"},
-				},
-				{
-					Role:    "role-3",
-					Members: []string{"member-1"},
-				},
-				{
-					Role:    "role-2",
-					Members: []string{"member-2"},
-				},
-				{Role: "empty-role", Members: []string{}},
-			},
-			expect: []cloudresourcemanager.Binding{
-				{
-					Role:    "role-1",
-					Members: []string{"member-1", "member-2", "member-3", "member-4", "member-5"},
-				},
-				{
-					Role:    "role-2",
-					Members: []string{"member-1", "member-2"},
-				},
-				{
-					Role:    "role-3",
-					Members: []string{"member-1"},
-				},
-			},
-		},
-	}
-	for _, test := range table {
-		got := mergeBindings(test.input)
-		sort.Sort(sortableBindings(got))
-		for i := range got {
-			sort.Strings(got[i].Members)
-		}
-		if !reflect.DeepEqual(derefBindings(got), test.expect) {
-			t.Errorf("\ngot %+v\nexpected %+v", derefBindings(got), test.expect)
-		}
 	}
 }
 
@@ -323,14 +203,14 @@ func testAccProjectExistingPolicy(pid string) resource.TestCheckFunc {
 func testAccProjectAssociatePolicyBasic(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 }
 
 resource "google_project_iam_policy" "acceptance" {
-    project = "${google_project.acceptance.id}"
-    policy_data = "${data.google_iam_policy.admin.policy_data}"
+  project     = google_project.acceptance.id
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 
 data "google_iam_policy" "admin" {
@@ -354,14 +234,14 @@ data "google_iam_policy" "admin" {
 func testAccProjectAssociatePolicyAuditConfigBasic(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 }
 
 resource "google_project_iam_policy" "acceptance" {
-    project = "${google_project.acceptance.id}"
-    policy_data = "${data.google_iam_policy.admin.policy_data}"
+  project     = google_project.acceptance.id
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 
 data "google_iam_policy" "admin" {
@@ -381,7 +261,7 @@ data "google_iam_policy" "admin" {
   audit_config {
     service = "cloudkms.googleapis.com"
     audit_log_configs {
-      log_type = "DATA_READ"
+      log_type         = "DATA_READ"
       exempted_members = ["user:paddy@hashicorp.com"]
     }
 
@@ -392,7 +272,7 @@ data "google_iam_policy" "admin" {
   audit_config {
     service = "cloudsql.googleapis.com"
     audit_log_configs {
-      log_type = "DATA_READ"
+      log_type         = "DATA_READ"
       exempted_members = ["user:paddy@hashicorp.com"]
     }
 
@@ -407,51 +287,77 @@ data "google_iam_policy" "admin" {
 func testAccProject_create(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
-}`, pid, name, org)
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
+}
+`, pid, name, org)
+}
+
+func testAccProjectIamPolicyEmptyMembers(pid, name, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
+}
+
+resource "google_project_iam_policy" "acceptance" {
+  project     = google_project.acceptance.id
+  policy_data = data.google_iam_policy.expanded.policy_data
+}
+
+data "google_iam_policy" "expanded" {
+  binding {
+    role    = "roles/viewer"
+    members = []
+  }
+}
+`, pid, name, org)
 }
 
 func testAccProjectAssociatePolicyExpanded(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 }
+
 resource "google_project_iam_policy" "acceptance" {
-    project = "${google_project.acceptance.id}"
-    policy_data = "${data.google_iam_policy.expanded.policy_data}"
+  project     = google_project.acceptance.id
+  policy_data = data.google_iam_policy.expanded.policy_data
 }
 
 data "google_iam_policy" "expanded" {
-    binding {
-        role = "roles/viewer"
-        members = [
-            "user:paddy@carvers.co",
-        ]
-    }
+  binding {
+    role = "roles/viewer"
+    members = [
+      "user:paddy@carvers.co",
+    ]
+  }
 
-    binding {
-        role = "roles/viewer"
-        members = [
-            "user:paddy@hashicorp.com",
-        ]
-    }
-}`, pid, name, org)
+  binding {
+    role = "roles/viewer"
+    members = [
+      "user:paddy@hashicorp.com",
+    ]
+  }
+}
+`, pid, name, org)
 }
 
 func testAccProjectAssociatePolicyAuditConfigExpanded(pid, name, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
-    project_id = "%s"
-    name = "%s"
-    org_id = "%s"
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
 }
+
 resource "google_project_iam_policy" "acceptance" {
-    project = "${google_project.acceptance.id}"
-    policy_data = "${data.google_iam_policy.expanded.policy_data}"
+  project     = google_project.acceptance.id
+  policy_data = data.google_iam_policy.expanded.policy_data
 }
 
 data "google_iam_policy" "expanded" {
@@ -471,7 +377,7 @@ data "google_iam_policy" "expanded" {
   audit_config {
     service = "cloudkms.googleapis.com"
     audit_log_configs {
-      log_type = "DATA_READ"
+      log_type         = "DATA_READ"
       exempted_members = ["user:paddy@hashicorp.com"]
     }
 
@@ -482,7 +388,7 @@ data "google_iam_policy" "expanded" {
   audit_config {
     service = "cloudkms.googleapis.com"
     audit_log_configs {
-      log_type = "DATA_READ"
+      log_type         = "DATA_READ"
       exempted_members = ["user:paddy@hashicorp.com"]
     }
 
@@ -490,5 +396,6 @@ data "google_iam_policy" "expanded" {
       log_type = "DATA_WRITE"
     }
   }
-}`, pid, name, org)
+}
+`, pid, name, org)
 }

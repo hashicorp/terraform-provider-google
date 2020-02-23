@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccDataSourceGoogleVpnGateway(t *testing.T) {
@@ -43,7 +43,6 @@ func testAccDataSourceGoogleVpnGatewayCheck(data_source_name string, resource_na
 		rs_attr := rs.Primary.Attributes
 		vpn_gateway_attrs_to_test := []string{
 			"id",
-			"self_link",
 			"name",
 			"description",
 			"network",
@@ -59,6 +58,11 @@ func testAccDataSourceGoogleVpnGatewayCheck(data_source_name string, resource_na
 				)
 			}
 		}
+
+		if !compareSelfLinkOrResourceName("", ds_attr["self_link"], rs_attr["self_link"], nil) && ds_attr["self_link"] != rs_attr["self_link"] {
+			return fmt.Errorf("self link does not match: %s vs %s", ds_attr["self_link"], rs_attr["self_link"])
+		}
+
 		return nil
 	}
 }
@@ -66,12 +70,13 @@ func testAccDataSourceGoogleVpnGatewayCheck(data_source_name string, resource_na
 func testAccDataSourceGoogleVpnGatewayConfig(name string) string {
 	return fmt.Sprintf(`
 resource "google_compute_vpn_gateway" "foobar" {
-	name = "%s"
-	description = "my-description"
-	network = "default"
+  name        = "%s"
+  description = "my-description"
+  network     = "default"
 }
 
 data "google_compute_vpn_gateway" "my_vpn_gateway" {
-	name = "${google_compute_vpn_gateway.foobar.name}"
-}`, name)
+  name = google_compute_vpn_gateway.foobar.name
+}
+`, name)
 }

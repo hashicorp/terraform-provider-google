@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/acctest"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -127,9 +127,9 @@ resource "google_folder" "acceptance" {
 }
 
 resource "google_folder_iam_member" "acceptance" {
-  folder = "${google_folder.acceptance.name}"
-  member  = "user:admin@hashicorptest.com"
-  role    = "roles/compute.instanceAdmin"
+  folder = google_folder.acceptance.name
+  member = "user:admin@hashicorptest.com"
+  role   = "roles/compute.instanceAdmin"
 }
 `, org, fname)
 }
@@ -142,15 +142,15 @@ resource "google_folder" "acceptance" {
 }
 
 resource "google_folder_iam_member" "acceptance" {
-  folder = "${google_folder.acceptance.name}"
-  member  = "user:admin@hashicorptest.com"
-  role    = "roles/compute.instanceAdmin"
+  folder = google_folder.acceptance.name
+  member = "user:admin@hashicorptest.com"
+  role   = "roles/compute.instanceAdmin"
 }
 
 resource "google_folder_iam_member" "multiple" {
-  folder = "${google_folder.acceptance.name}"
-  member  = "user:paddy@hashicorp.com"
-  role    = "roles/compute.instanceAdmin"
+  folder = google_folder.acceptance.name
+  member = "user:paddy@hashicorp.com"
+  role   = "roles/compute.instanceAdmin"
 }
 `, org, fname)
 }
