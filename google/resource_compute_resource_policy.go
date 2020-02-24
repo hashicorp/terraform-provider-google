@@ -208,11 +208,12 @@ Valid options are KEEP_AUTO_SNAPSHOTS and APPLY_RETENTION_POLICY`,
 										AtLeastOneOf: []string{"snapshot_schedule_policy.0.snapshot_properties.0.labels", "snapshot_schedule_policy.0.snapshot_properties.0.storage_locations", "snapshot_schedule_policy.0.snapshot_properties.0.guest_flush"},
 									},
 									"storage_locations": {
-										Type:        schema.TypeSet,
-										Optional:    true,
-										ForceNew:    true,
-										Description: `GCS bucket location in which to store the snapshot (regional or multi-regional).`,
-										MaxItems:    1,
+										Type:     schema.TypeSet,
+										Optional: true,
+										ForceNew: true,
+										Description: `Cloud Storage bucket location to store the auto snapshot
+(regional or multi-regional)`,
+										MaxItems: 1,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},

@@ -206,7 +206,8 @@ The `snapshot_properties` block supports:
 
 * `storage_locations` -
   (Optional)
-  GCS bucket location in which to store the snapshot (regional or multi-regional).
+  Cloud Storage bucket location to store the auto snapshot
+  (regional or multi-regional)
 
 * `guest_flush` -
   (Optional)
