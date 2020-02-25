@@ -405,6 +405,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_TPU_CUSTOM_ENDPOINT",
 				}, TPUDefaultBasePath),
 			},
+			"vpc_access_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_VPC_ACCESS_CUSTOM_ENDPOINT",
+				}, VPCAccessDefaultBasePath),
+			},
 
 			// Handwritten Products / Versioned / Atypical Entries
 			CloudBillingCustomEndpointEntryKey:           CloudBillingCustomEndpointEntry,
@@ -503,9 +511,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 102
+// Generated resources: 103
 // Generated IAM resources: 51
-// Total generated resources: 153
+// Total generated resources: 154
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -667,6 +675,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_storage_default_object_access_control":                 resourceStorageDefaultObjectAccessControl(),
 			"google_storage_hmac_key":                                      resourceStorageHmacKey(),
 			"google_tpu_node":                                              resourceTPUNode(),
+			"google_vpc_access_connector":                                  resourceVPCAccessConnector(),
 		},
 		map[string]*schema.Resource{
 			"google_app_engine_application":                resourceAppEngineApplication(),
@@ -853,6 +862,7 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 	config.SQLBasePath = d.Get("sql_custom_endpoint").(string)
 	config.StorageBasePath = d.Get("storage_custom_endpoint").(string)
 	config.TPUBasePath = d.Get("tpu_custom_endpoint").(string)
+	config.VPCAccessBasePath = d.Get("vpc_access_custom_endpoint").(string)
 
 	// Handwritten Products / Versioned / Atypical Entries
 
