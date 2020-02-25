@@ -1,4 +1,27 @@
-## 3.9.1 (Unreleased)
+## 3.10.1 (Unreleased)
+## 3.10.0 (February 25, 2020)
+
+BREAKING CHANGES:
+* container: Fully removed `use_ip_aliases` and `create_subnetwork` fields to fix misleading diff for removed fields ([#5666](https://github.com/terraform-providers/terraform-provider-google/pull/5666))
+
+FEATURES:
+* **New Data Source:** `google_dns_keys` ([#5703](https://github.com/terraform-providers/terraform-provider-google/pull/5703))
+* **New Resource:** `google_storage_hmac_key` ([#5679](https://github.com/terraform-providers/terraform-provider-google/pull/5679))
+* **New Resource:** `google_datastore_index` ([#5655](https://github.com/terraform-providers/terraform-provider-google/pull/5655))
+* **New Resource:** `google_endpoints_service_iam_binding` ([#5668](https://github.com/terraform-providers/terraform-provider-google/pull/5668))
+* **New Resource:** `google_endpoints_service_iam_member` ([#5668](https://github.com/terraform-providers/terraform-provider-google/pull/5668))
+* **New Resource:** `google_endpoints_service_iam_policy` ([#5668](https://github.com/terraform-providers/terraform-provider-google/pull/5668))
+
+IMPROVEMENTS:
+* container: Allowed import/update/deletion of `google_container_cluster` in error states. ([#5663](https://github.com/terraform-providers/terraform-provider-google/pull/5663))
+* container: Changed `google_container_node_pool` so node pools created in an error state will be marked as tainted on creation. ([#5662](https://github.com/terraform-providers/terraform-provider-google/pull/5662))
+* container: Allowed import/update/deletion of `google_container_node_pool` in error states and updated resource to wait for a stable state after any changes. ([#5662](https://github.com/terraform-providers/terraform-provider-google/pull/5662))
+* container: added label_fingerprint to `google_container_cluster` ([#5647](https://github.com/terraform-providers/terraform-provider-google/pull/5647))
+* container: Enabled configuring autoscaling profile in `google_container_cluster` (https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-autoscaler#autoscaling_profiles) ([#5659](https://github.com/terraform-providers/terraform-provider-google/pull/5659))
+* dataflow: added `job_id` attribute ([#5644](https://github.com/terraform-providers/terraform-provider-google/pull/5644))
+* dataflow: added computed `type` field to `google_dataflow_job`. ([#5709](https://github.com/terraform-providers/terraform-provider-google/pull/5709))
+* provider: Added retries for common network errors we've encountered. ([#5675](https://github.com/terraform-providers/terraform-provider-google/pull/5675))
+
 ## 3.9.0 (February 18, 2020)
 
 FEATURES:
