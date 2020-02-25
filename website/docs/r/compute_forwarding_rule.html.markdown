@@ -50,7 +50,6 @@ resource "google_compute_forwarding_rule" "default" {
   load_balancing_scheme = "INTERNAL"
   backend_service       = "${google_compute_region_backend_service.backend.self_link}"
   all_ports             = true
-  allow_global_access   = true
   network               = "${google_compute_network.default.name}"
   subnetwork            = "${google_compute_subnetwork.default.name}"
 }
