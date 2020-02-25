@@ -2,12 +2,10 @@ package google
 
 import (
 	"log"
-	"net/url"
 	"time"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"google.golang.org/api/googleapi"
 )
 
 func retry(retryFunc func() error) error {
@@ -31,17 +29,6 @@ func retryTimeDuration(retryFunc func() error, duration time.Duration, errorRetr
 	})
 }
 
-func getAllTypes(err error, args ...interface{}) []error {
-	var result []error
-	for _, v := range args {
-		subResult := errwrap.GetAllType(err, v)
-		if subResult != nil {
-			result = append(result, subResult...)
-		}
-	}
-	return result
-}
-
 func isRetryableError(topErr error, customPredicates ...RetryErrorPredicateFunc) bool {
 	retryPredicates := append(
 		// Global error retry predicates are registered in this default list.
@@ -49,13 +36,15 @@ func isRetryableError(topErr error, customPredicates ...RetryErrorPredicateFunc)
 		customPredicates...)
 
 	// Check all wrapped errors for a retryable error status.
-	for _, err := range getAllTypes(topErr, &googleapi.Error{}, &url.Error{}) {
+	isRetryable := false
+	errwrap.Walk(topErr, func(werr error) {
 		for _, pred := range retryPredicates {
-			if retry, reason := pred(err); retry {
-				log.Printf("[DEBUG] Dismissed an error as retryable. %s - %s", reason, err)
-				return true
+			if predRetry, predReason := pred(werr); predRetry {
+				log.Printf("[DEBUG] Dismissed an error as retryable. %s - %s", predReason, werr)
+				isRetryable = true
+				return
 			}
 		}
-	}
-	return false
+	})
+	return isRetryable
 }
