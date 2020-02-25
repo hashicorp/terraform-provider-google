@@ -3,12 +3,10 @@ package google
 import (
 	"fmt"
 	"log"
-	"net/url"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
-	"google.golang.org/api/googleapi"
 )
 
 type Waiter interface {
@@ -103,14 +101,11 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		op, err := w.QueryOp()
 		if err != nil {
-			for _, e := range getAllTypes(err, &googleapi.Error{}, &url.Error{}) {
-				// Retry 404 when getting operation (not resource state)
-				if isRetryableError(e, isNotFoundRetryableError("GET operation")) {
-					log.Printf("[DEBUG] Dismissed error on GET of operation '%v' retryable: %s", w.OpName(), err)
-					return nil, "done: false", nil
-				}
+			// Retry 404 when getting operation (not resource state)
+			if isRetryableError(err, isNotFoundRetryableError("GET operation")) {
+				log.Printf("[DEBUG] Dismissed retryable error on GET operation %q: %s", w.OpName(), err)
+				return nil, "done: false", nil
 			}
-
 			return nil, "", fmt.Errorf("error while retrieving operation: %s", err)
 		}
 
