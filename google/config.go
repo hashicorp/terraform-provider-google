@@ -109,6 +109,7 @@ type Config struct {
 	SQLBasePath                  string
 	StorageBasePath              string
 	TPUBasePath                  string
+	VPCAccessBasePath            string
 
 	CloudBillingBasePath string
 	clientBilling        *cloudbilling.APIService
@@ -242,6 +243,7 @@ var SpannerDefaultBasePath = "https://spanner.googleapis.com/v1/"
 var SQLDefaultBasePath = "https://sqladmin.googleapis.com/sql/v1beta4/"
 var StorageDefaultBasePath = "https://www.googleapis.com/storage/v1/"
 var TPUDefaultBasePath = "https://tpu.googleapis.com/v1/"
+var VPCAccessDefaultBasePath = "https://vpcaccess.googleapis.com/v1/"
 
 var defaultClientScopes = []string{
 	"https://www.googleapis.com/auth/compute",
@@ -720,6 +722,7 @@ func ConfigureBasePaths(c *Config) {
 	c.SQLBasePath = SQLDefaultBasePath
 	c.StorageBasePath = StorageDefaultBasePath
 	c.TPUBasePath = TPUDefaultBasePath
+	c.VPCAccessBasePath = VPCAccessDefaultBasePath
 
 	// Handwritten Products / Versioned / Atypical Entries
 	c.CloudBillingBasePath = CloudBillingDefaultBasePath
