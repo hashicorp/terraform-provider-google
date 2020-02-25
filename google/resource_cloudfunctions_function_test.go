@@ -320,6 +320,29 @@ func TestAccCloudFunctionsFunction_serviceAccountEmail(t *testing.T) {
 	})
 }
 
+func TestAccCloudFunctionsFunction_vpcConnector(t *testing.T) {
+	t.Parallel()
+
+	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	networkName := fmt.Sprintf("tf-test-net-%d", acctest.RandInt())
+	vpcConnectorName := fmt.Sprintf("tf-test-connector-%s", acctest.RandString(5))
+	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
+	projectNumber := os.Getenv("GOOGLE_PROJECT_NUMBER")
+	defer os.Remove(zipFilePath) // clean up
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, vpcConnectorName),
+			},
+		},
+	})
+}
+
 func testAccCheckCloudFunctionsFunctionDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -734,4 +757,59 @@ resource "google_cloudfunctions_function" "function" {
   entry_point  = "helloGET"
 }
 `, bucketName, zipFilePath, functionName)
+}
+
+func testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, vpcConnectorName string) string {
+	return fmt.Sprintf(`
+
+resource "google_project_iam_member" "gcfadmin" {
+  role     = "roles/editor"
+  member   = "serviceAccount:service-%s@gcf-admin-robot.iam.gserviceaccount.com"
+}
+
+resource "google_compute_network" "vpc" {
+	name = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_vpc_access_connector" "connector" {
+  name          = "%s"
+  region        = "us-central1"
+  ip_cidr_range = "10.10.0.0/28"
+  network       = google_compute_network.vpc.name
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name     = "index.zip"
+  bucket   = google_storage_bucket.bucket.name
+  source   = "%s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+  name     = "%s"
+  runtime  = "nodejs8"
+
+  description           = "test function"
+  available_memory_mb   = 128
+  source_archive_bucket = google_storage_bucket.bucket.name
+  source_archive_object = google_storage_bucket_object.archive.name
+  trigger_http          = true
+  timeout               = 61
+  entry_point           = "helloGET"
+  labels = {
+	my-label = "my-label-value"
+  }
+  environment_variables = {
+	TEST_ENV_VARIABLE = "test-env-variable-value"
+  }
+  max_instances = 10
+  vpc_connector = google_vpc_access_connector.connector.self_link
+
+  depends_on = [google_project_iam_member.gcfadmin]
+}
+`, projectNumber, networkName, vpcConnectorName, bucketName, zipFilePath, functionName)
 }
