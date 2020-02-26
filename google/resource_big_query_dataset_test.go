@@ -278,7 +278,7 @@ resource "google_bigquery_dataset" "access_test" {
   }
   access {
     role   = "READER"
-    domain = "example.com"
+    domain = "hashicorp.com"
   }
 
   labels = {
