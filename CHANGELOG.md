@@ -1,4 +1,21 @@
-## 3.10.1 (Unreleased)
+## 3.11.0 (Unreleased)
+
+FEATURES:
+* **New Data Source:** `google_compute_backend_bucket` ([#5720](https://github.com/terraform-providers/terraform-provider-google/pull/5720))
+* **New Resource:** `google_app_engine_service_split_traffic` ([#5729](https://github.com/terraform-providers/terraform-provider-google/pull/5729))
+* **New Resource:** `google_compute_packet_mirroring` ([#5755](https://github.com/terraform-providers/terraform-provider-google/pull/5755))
+* **New Resource:** `google_vpc_access_connector` (GA provider) ([#5752](https://github.com/terraform-providers/terraform-provider-google/pull/5752))
+
+IMPROVEMENTS:
+* bigquery: Landed support for range-based partitioning in `google_bigquery_table` ([#5723](https://github.com/terraform-providers/terraform-provider-google/pull/5723))
+* compute: added check on `google_compute_router` for non-empty advertised_groups or advertised_ip_ranges values when advertise_mode is DEFAULT in the bgp block. ([#5718](https://github.com/terraform-providers/terraform-provider-google/pull/5718))
+* compute: added the ability to manage the status of `google_compute_instance` resources with the `desired_status` field ([#4797](https://github.com/terraform-providers/terraform-provider-google/pull/4797))
+* iam: `google_project_iam_member` and `google_project_iam_binding`'s `project` field can be specified with an optional `projects/` prefix ([#5722](https://github.com/terraform-providers/terraform-provider-google/pull/5722))
+* storage: added `metadata` to `google_storage_bucket_object`. ([#5721](https://github.com/terraform-providers/terraform-provider-google/pull/5721))
+
+BUG FIXES:
+* compute: Updated `google_project` to check for valid permissions on the parent billing account before creating and tainting the resource. ([#5719](https://github.com/terraform-providers/terraform-provider-google/pull/5719))
+
 ## 3.10.0 (February 25, 2020)
 
 BREAKING CHANGES:
@@ -1189,7 +1206,7 @@ BUG FIXES:
 
 BACKWARDS INCOMPATIBILITIES:
 * compute: instance templates used to not set any disks in the template in state unless they were in the config, as well. It also only stored the image name in state. Both of these were bugs, and have been fixed. They should not cause any disruption. If you were interpolating an image name from a disk in an instance template, you'll need to update your config to strip out everything before the last `/`. If you imported an instance template, and did not add all the disks in the template to your config, you'll see a diff; add those disks to your config, and it will go away. Those are the only two instances where this change should effect you. We apologise for the inconvenience. ([#1916](https://github.com/terraform-providers/terraform-provider-google/issues/1916))
-* iam: `google_*_custom_roles` now treats `delete` as deprecated - to actually delete roles, remove from config.  
+* iam: `google_*_custom_roles` now treats `delete` as deprecated - to actually delete roles, remove from config.
 * provider: This is the first release tested against and built with Go 1.11, which required go fmt changes to the code. If you are building a custom version of this provider or running tests using the repository Make targets (e.g. make build) when using a previous version of Go, you will receive errors. You can use the underlying go commands (e.g. go build) to workaround the go fmt check in the Make targets until you are able to upgrade Go.
 
 FEATURES:
