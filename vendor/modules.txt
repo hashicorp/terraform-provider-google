@@ -72,6 +72,9 @@ github.com/client9/misspell
 github.com/client9/misspell/cmd/misspell
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
+# github.com/dnaeon/go-vcr v1.0.1
+github.com/dnaeon/go-vcr/cassette
+github.com/dnaeon/go-vcr/recorder
 # github.com/dustinkirkland/golang-petname v0.0.0-20170921220637-d3c2ba80e75e
 github.com/dustinkirkland/golang-petname
 # github.com/fatih/color v1.7.0
