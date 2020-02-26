@@ -43,7 +43,7 @@ To get more information about ServicePerimeterResource, see:
 
 ```hcl
 resource "google_access_context_manager_service_perimeter_resource" "service-perimeter-resource" {
-  perimiter_name = google_access_context_manager_service_perimeter.service-perimeter-resource.name
+  perimeter_name = google_access_context_manager_service_perimeter.service-perimeter-resource.name
   resource = "projects/987654321"
 }
 
