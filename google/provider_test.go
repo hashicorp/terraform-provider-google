@@ -1,14 +1,20 @@
 package google
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/dnaeon/go-vcr/cassette"
+	"github.com/dnaeon/go-vcr/recorder"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -65,12 +71,106 @@ var billingAccountEnvVars = []string{
 	"GOOGLE_BILLING_ACCOUNT",
 }
 
+var configs map[string]*Config
+
 func init() {
+	configs = make(map[string]*Config)
 	testAccProvider = Provider().(*schema.Provider)
 	testAccRandomProvider = random.Provider().(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
 		"google": testAccProvider,
 		"random": testAccRandomProvider,
+	}
+}
+
+// Returns a cached config if VCR testing is enabled. This enables us to use a single HTTP transport
+// for a given test, allowing for recording of HTTP interactions.
+// Why this exists: schema.Provider.ConfigureFunc is called multiple times for a given test
+// ConfigureFunc on our provider creates a new HTTP client and sets base paths (config.go LoadAndValidate)
+// VCR requires a single HTTP client to handle all interactions so it can record and replay responses so
+// this caches HTTP clients per test by replacing ConfigureFunc
+func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.ResourceData) (interface{}, error), testName string) (*Config, error) {
+	if v, ok := configs[testName]; ok {
+		return v, nil
+	}
+	c, err := configureFunc(d)
+	if err != nil {
+		return nil, err
+	}
+	config := c.(*Config)
+	var vcrMode recorder.Mode
+	switch vcrEnv := os.Getenv("VCR_MODE"); vcrEnv {
+	case "RECORDING":
+		vcrMode = recorder.ModeRecording
+	case "REPLAYING":
+		vcrMode = recorder.ModeReplaying
+	default:
+		log.Printf("[DEBUG] No valid environment var set for VCR_MODE, expected RECORDING or REPLAYING, skipping VCR. VCR_MODE: %s", vcrEnv)
+		return config, nil
+	}
+
+	envPath := os.Getenv("VCR_PATH")
+	if envPath == "" {
+		log.Print("[DEBUG] No environment var set for VCR_PATH, skipping VCR")
+		return config, nil
+	}
+	path := filepath.Join(envPath, testName)
+
+	rec, err := recorder.NewAsMode(path, vcrMode, config.client.Transport)
+	if err != nil {
+		return nil, err
+	}
+	// Defines how VCR will match requests to responses.
+	rec.SetMatcher(func(r *http.Request, i cassette.Request) bool {
+		// Default matcher compares method and URL only
+		defaultMatch := cassette.DefaultMatcher(r, i)
+		if r.Body == nil {
+			return defaultMatch
+		}
+		var b bytes.Buffer
+		if _, err := b.ReadFrom(r.Body); err != nil {
+			log.Printf("[DEBUG] Failed to read request body from cassette: %v", err)
+			return false
+		}
+		r.Body = ioutil.NopCloser(&b)
+		// body must match recorded body
+		return defaultMatch && b.String() == i.Body
+	})
+	config.client.Transport = rec
+	configs[testName] = config
+	return config, err
+}
+
+// We need to explicitly close the VCR recorder to save the cassette
+func closeRecorder(t *testing.T) {
+	if config, ok := configs[t.Name()]; ok {
+		// We did not cache the config if it does not use VCR
+		err := config.client.Transport.(*recorder.Recorder).Stop()
+		if err != nil {
+			t.Error(err)
+		}
+		// Clean up test config
+		delete(configs, t.Name())
+	}
+}
+
+func getTestAccProviders(testName string) map[string]terraform.ResourceProvider {
+	prov := Provider().(*schema.Provider)
+	provRand := random.Provider().(*schema.Provider)
+	envPath := os.Getenv("VCR_PATH")
+	recordingMode := os.Getenv("VCR_MODE")
+	if envPath != "" && recordingMode != "" {
+		old := prov.ConfigureFunc
+		prov.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
+			return getCachedConfig(d, old, testName)
+		}
+	} else {
+		log.Print("[DEBUG] VCR_PATH or VCR_MODE not set, skipping VCR")
+	}
+	// TODO(slevenick): Add OICS provider
+	return map[string]terraform.ResourceProvider{
+		"google": prov,
+		"random": provRand,
 	}
 }
 
