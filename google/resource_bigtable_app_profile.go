@@ -61,10 +61,11 @@ func resourceBigtableAppProfile() *schema.Resource {
 				Default:     false,
 			},
 			"instance": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The name of the instance to create the app profile within.`,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareResourceNames,
+				Description:      `The name of the instance to create the app profile within.`,
 			},
 			"multi_cluster_routing_use_any": {
 				Type:     schema.TypeBool,
@@ -134,6 +135,11 @@ func resourceBigtableAppProfileCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("single_cluster_routing"); !isEmptyValue(reflect.ValueOf(singleClusterRoutingProp)) && (ok || !reflect.DeepEqual(v, singleClusterRoutingProp)) {
 		obj["singleClusterRouting"] = singleClusterRoutingProp
+	}
+
+	obj, err = resourceBigtableAppProfileEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := replaceVars(d, config, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/appProfiles?appProfileId={{app_profile_id}}")
@@ -214,6 +220,11 @@ func resourceBigtableAppProfileUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+
+	obj, err = resourceBigtableAppProfileEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := replaceVars(d, config, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}?ignoreWarnings={{ignore_warnings}}")
@@ -366,4 +377,10 @@ func expandBigtableAppProfileSingleClusterRoutingClusterId(v interface{}, d Terr
 
 func expandBigtableAppProfileSingleClusterRoutingAllowTransactionalWrites(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceBigtableAppProfileEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// Instance is a URL parameter only, so replace self-link/path with resource name only.
+	d.Set("instance", GetResourceNameFromSelfLink(d.Get("instance").(string)))
+	return obj, nil
 }
