@@ -1,0 +1,3 @@
+```release-note:bug
+container: Fixed panic when upgrading `google_container_cluster` with autoscaling block 
+```
