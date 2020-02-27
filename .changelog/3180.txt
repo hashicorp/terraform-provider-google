@@ -1,0 +1,3 @@
+```release-note:bug
+storage: Added locking for operations involving `google_storage_*_access_control` resources to prevent errors from ACLs being added at the same time.
+```

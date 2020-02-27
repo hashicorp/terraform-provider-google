@@ -147,6 +147,13 @@ func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta inter
 		obj["role"] = roleProp
 	}
 
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl")
 	if err != nil {
 		return err
@@ -243,6 +250,13 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 		obj["role"] = roleProp
 	}
 
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
 	if err != nil {
 		return err
@@ -260,6 +274,13 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 
 func resourceStorageObjectAccessControlDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
 
 	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
 	if err != nil {

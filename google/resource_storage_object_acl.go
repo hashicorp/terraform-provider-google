@@ -114,6 +114,13 @@ func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) er
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
 
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	// If we're using a predefined acl we just use the canned api.
 	if predefinedAcl, ok := d.GetOk("predefined_acl"); ok {
 		res, err := config.clientStorage.Objects.Get(bucket, object).Do()
@@ -161,6 +168,13 @@ func resourceStorageObjectAclRead(d *schema.ResourceData, meta interface{}) erro
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
 
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	roleEntities, err := getRoleEntitiesAsStringsFromApi(config, bucket, object)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Storage Object ACL for Bucket %q", d.Get("bucket").(string)))
@@ -180,6 +194,13 @@ func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) er
 
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
+
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
 
 	if _, ok := d.GetOk("predefined_acl"); d.HasChange("predefined_acl") && ok {
 		res, err := config.clientStorage.Objects.Get(bucket, object).Do()
@@ -224,6 +245,13 @@ func resourceStorageObjectAclDelete(d *schema.ResourceData, meta interface{}) er
 
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
+
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
 
 	res, err := config.clientStorage.Objects.Get(bucket, object).Do()
 	if err != nil {
