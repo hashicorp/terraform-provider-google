@@ -46,6 +46,13 @@ func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta in
 		})
 	}
 
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	res, err := config.clientStorage.Buckets.Get(bucket).Do()
 	if err != nil {
 		return fmt.Errorf("Error reading bucket %s: %v", bucket, err)
@@ -71,6 +78,13 @@ func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta in
 func resourceStorageDefaultObjectAclRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	bucket := d.Get("bucket").(string)
 	res, err := config.clientStorage.Buckets.Get(bucket).Projection("full").Do()
 	if err != nil {
@@ -95,6 +109,13 @@ func resourceStorageDefaultObjectAclRead(d *schema.ResourceData, meta interface{
 
 func resourceStorageDefaultObjectAclDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
 
 	bucket := d.Get("bucket").(string)
 	res, err := config.clientStorage.Buckets.Get(bucket).Do()
