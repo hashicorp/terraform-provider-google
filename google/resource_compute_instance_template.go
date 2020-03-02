@@ -246,12 +246,6 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 						},
 
-						"network_ip": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-						},
-
 						"subnetwork": {
 							Type:             schema.TypeString,
 							Optional:         true,
@@ -264,6 +258,17 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
+							Computed: true,
+						},
+
+						"network_ip": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+
+						"name": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 
@@ -284,6 +289,11 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 										Optional:     true,
 										Computed:     true,
 										ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
+									},
+									// Possibly configurable- this was added so we don't break if it's inadvertently set
+									"public_ptr_domain_name": {
+										Type:     schema.TypeString,
+										Computed: true,
 									},
 								},
 							},
