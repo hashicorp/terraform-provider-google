@@ -41,7 +41,7 @@ func TestAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(t *
 				Config: testAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(context),
 			},
 			{
-				ResourceName:            "google_app_engine_service_split_traffic.myapp",
+				ResourceName:            "google_app_engine_service_split_traffic.liveapp",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"split", "migrate_traffic"},
@@ -58,70 +58,59 @@ resource "google_storage_bucket" "bucket" {
 
 resource "google_storage_bucket_object" "object" {
 	name   = "hello-world.zip"
-	bucket = "${google_storage_bucket.bucket.name}"
+	bucket = google_storage_bucket.bucket.name
 	source = "./test-fixtures/appengine/hello-world.zip"
 }
 
-resource "google_app_engine_standard_app_version" "myapp_v1" {
+resource "google_app_engine_standard_app_version" "liveapp_v1" {
   version_id = "v1"
-  service = "myapp"
+  service = "liveapp"
+  delete_service_on_destroy = true
+
   runtime = "nodejs10"
-  noop_on_destroy = true
   entrypoint {
     shell = "node ./app.js"
   }
   deployment {
     zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.name}"
     }  
   }
   env_variables = {
     port = "8080"
-  } 
-  depends_on = ["google_storage_bucket_object.object"]
-
+  }
 }
-resource "google_app_engine_standard_app_version" "myapp_v2" {
+
+resource "google_app_engine_standard_app_version" "liveapp_v2" {
   version_id = "v2"
-  service = "myapp"
+  service = "liveapp"
+  noop_on_destroy = true
+
   runtime = "nodejs10"
   entrypoint {
     shell = "node ./app.js"
   }
   deployment {
     zip {
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.object.name}"
     }  
   }
   env_variables = {
     port = "8080"
-  } 
-  depends_on = ["google_app_engine_standard_app_version.myapp_v1"]
+  }
 }
 
-resource "google_app_engine_service_split_traffic" "myapp" {
-  service = "${google_app_engine_standard_app_version.myapp_v2.service}"
+resource "google_app_engine_service_split_traffic" "liveapp" {
+  service = google_app_engine_standard_app_version.liveapp_v2.service
+
   migrate_traffic = false
   split {
     shard_by = "IP"
     allocations = {
-      v1 = 0.75
-      v2 = 0.25
+      (google_app_engine_standard_app_version.liveapp_v1.version_id) = 0.75
+      (google_app_engine_standard_app_version.liveapp_v2.version_id) = 0.25
     }
   }
-  depends_on = ["google_app_engine_standard_app_version.myapp_v2"]
-}
-
-
-resource "google_app_engine_service_split_traffic" "myapp2" {
-  service = "${google_app_engine_standard_app_version.myapp_v2.service}"
-  migrate_traffic = false
-  split {
-    allocations = {
-      v1 = 1
-    }
-  }
-  depends_on = ["google_app_engine_service_split_traffic.myapp"]
 }
 `, context)
 }
