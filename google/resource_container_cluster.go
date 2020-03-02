@@ -2196,9 +2196,12 @@ func flattenMasterAuth(ma *containerBeta.MasterAuth) []map[string]interface{} {
 
 func flattenClusterAutoscaling(a *containerBeta.ClusterAutoscaling) []map[string]interface{} {
 	r := make(map[string]interface{})
-	if a == nil || !a.EnableNodeAutoprovisioning {
+	if a == nil {
 		r["enabled"] = false
-	} else {
+		return []map[string]interface{}{r}
+	}
+
+	if a.EnableNodeAutoprovisioning {
 		resourceLimits := make([]interface{}, 0, len(a.ResourceLimits))
 		for _, rl := range a.ResourceLimits {
 			resourceLimits = append(resourceLimits, map[string]interface{}{
@@ -2210,6 +2213,8 @@ func flattenClusterAutoscaling(a *containerBeta.ClusterAutoscaling) []map[string
 		r["resource_limits"] = resourceLimits
 		r["enabled"] = true
 		r["auto_provisioning_defaults"] = flattenAutoProvisioningDefaults(a.AutoprovisioningNodePoolDefaults)
+	} else {
+		r["enabled"] = false
 	}
 
 	return []map[string]interface{}{r}
