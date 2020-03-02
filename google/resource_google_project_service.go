@@ -120,14 +120,28 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	srv := d.Get("service").(string)
-	err = BatchRequestEnableService(srv, project, d, config)
-	if err != nil {
-		return err
-	}
-
 	id, err := replaceVars(d, config, "{{project}}/{{service}}")
 	if err != nil {
 		return fmt.Errorf("unable to construct ID: %s", err)
+	}
+
+	// Check if the service has already been enabled
+	servicesRaw, err := BatchRequestReadServices(project, d, config)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Project Service %s", d.Id()))
+	}
+	servicesList := servicesRaw.(map[string]struct{})
+	if _, ok := servicesList[srv]; ok {
+		log.Printf("[DEBUG] service %s was already found to be enabled in project %s", srv, project)
+		d.SetId(id)
+		d.Set("project", project)
+		d.Set("service", srv)
+		return nil
+	}
+
+	err = BatchRequestEnableService(srv, project, d, config)
+	if err != nil {
+		return err
 	}
 	d.SetId(id)
 	return resourceGoogleProjectServiceRead(d, meta)
