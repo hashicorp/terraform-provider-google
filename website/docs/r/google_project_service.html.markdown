@@ -46,4 +46,4 @@ Project services can be imported using the `project_id` and `service`, e.g.
 $ terraform import google_project_service.my_project your-project-id/iam.googleapis.com
 ```
 
-Note that unlike other resources that fail if they already exist, `terraform apply` can be successfully used to re-enable already enabled services. This means that when importing existing resources into Terraform, you can either import the `google_project_service` resources or treat them as new infrastructure and run `terraform apply` to re-enable them and add them to state.
+Note that unlike other resources that fail if they already exist, `terraform apply` can be successfully used to verify already enabled services. This means that when importing existing resources into Terraform, you can either import the `google_project_service` resources or treat them as new infrastructure and run `terraform apply` to add them to state.
