@@ -36,8 +36,8 @@ func resourcePubsubTopic() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(6 * time.Minute),
+			Update: schema.DefaultTimeout(6 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
@@ -57,7 +57,6 @@ func resourcePubsubTopic() *schema.Resource {
 to messages published on this topic. Your project's PubSub service account
 ('service-{{PROJECT_NUMBER}}@gcp-sa-pubsub.iam.gserviceaccount.com') must have
 'roles/cloudkms.cryptoKeyEncrypterDecrypter' to use this feature.
-
 The expected format is 'projects/*/locations/*/keyRings/*/cryptoKeys/*'`,
 			},
 			"labels": {
@@ -158,9 +157,35 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
+	err = PollingWaitTime(resourcePubsubTopicPollRead(d, meta), PollCheckForExistence, "Creating Topic", d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		log.Printf("[ERROR] Unable to confirm eventually consistent Topic %q finished updating: %q", d.Id(), err)
+	}
+
 	log.Printf("[DEBUG] Finished creating Topic %q: %#v", d.Id(), res)
 
 	return resourcePubsubTopicRead(d, meta)
+}
+
+func resourcePubsubTopicPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*Config)
+
+		url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
+		if err != nil {
+			return nil, err
+		}
+
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+		res, err := sendRequest(config, "GET", project, url, nil, pubsubTopicProjectNotReady)
+		if err != nil {
+			return res, err
+		}
+		return res, nil
+	}
 }
 
 func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {

@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"google.golang.org/api/googleapi"
 )
 
 func resourceCloudRunDomainMapping() *schema.Resource {
@@ -292,15 +293,7 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	waitURL, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
-	if err != nil {
-		return err
-	}
-
-	err = cloudRunPollingWaitTime(
-		config, res, project, waitURL, "Creating DomainMapping",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-
+	err = PollingWaitTime(resourceCloudRunDomainMappingPollRead(d, meta), PollCheckKnativeStatus, "Creating DomainMapping", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error waiting to create DomainMapping: %s", err)
 	}
@@ -308,6 +301,39 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Finished creating DomainMapping %q: %#v", d.Id(), res)
 
 	return resourceCloudRunDomainMappingRead(d, meta)
+}
+
+func resourceCloudRunDomainMappingPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*Config)
+
+		url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
+		if err != nil {
+			return nil, err
+		}
+
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+		res, err := sendRequest(config, "GET", project, url, nil)
+		if err != nil {
+			return res, err
+		}
+		res, err = resourceCloudRunDomainMappingDecoder(d, meta, res)
+		if err != nil {
+			return nil, err
+		}
+		if res == nil {
+			// Decoded object not found, spoof a 404 error for poll
+			return nil, &googleapi.Error{
+				Code:    404,
+				Message: "could not find object CloudRunDomainMapping",
+			}
+		}
+
+		return res, nil
+	}
 }
 
 func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{}) error {

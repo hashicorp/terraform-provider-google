@@ -1,15 +1,14 @@
 package google
 
 import (
-	"errors"
 	"fmt"
+	"log"
 
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/errwrap"
 )
 
-const readyStatus string = "Ready"
+const readyStatusType string = "Ready"
+const pendingCertificateReason string = "CertificatePending"
 
 type Condition struct {
 	Type    string
@@ -31,91 +30,33 @@ type KnativeStatus struct {
 	}
 }
 
-// ConditionByType is a helper method for extracting a given condition
-func (s KnativeStatus) ConditionByType(typ string) *Condition {
+func PollCheckKnativeStatus(resp map[string]interface{}, respErr error) PollResult {
+	if respErr != nil {
+		return ErrorPollResult(respErr)
+	}
+	s := KnativeStatus{}
+	if err := Convert(resp, &s); err != nil {
+		return ErrorPollResult(errwrap.Wrapf("unable to get KnativeStatus: {{err}}", err))
+	}
+
 	for _, condition := range s.Status.Conditions {
-		if condition.Type == typ {
-			c := condition
-			return &c
-		}
-	}
-	return nil
-}
-
-// LatestMessage will return a human consumable status of the resource. This can
-// be used to determine the human actionable error the GET doesn't return an explicit
-// error but the resource is in an error state.
-func (s KnativeStatus) LatestMessage() string {
-	c := s.ConditionByType(readyStatus)
-	if c != nil {
-		return fmt.Sprintf("%s - %s", c.Reason, c.Message)
-	}
-
-	return ""
-}
-
-// State will return a string representing the status of the Ready condition.
-// No other conditions are currently returned as part of the state.
-func (s KnativeStatus) State(res interface{}) string {
-	for _, condition := range s.Status.Conditions {
-		if condition.Type == "Ready" {
-			// DomainMapping can enter a 'terminal' state of waiting for external verification
-			// of DNS records.
-			if condition.Reason == "CertificatePending" {
-				return "Ready:CertificatePending"
-			}
-			return fmt.Sprintf("%s:%s", condition.Type, condition.Status)
-		}
-	}
-	return "Empty"
-}
-
-// CloudRunPolling allows for polling against a cloud run resource that implements the
-// Kubernetes style status schema.
-type CloudRunPolling struct {
-	Config  *Config
-	WaitURL string
-}
-
-func (p *CloudRunPolling) PendingStates() []string {
-	return []string{"Ready:Unknown", "Empty"}
-}
-func (p *CloudRunPolling) TargetStates() []string {
-	return []string{"Ready:True", "Ready:CertificatePending"}
-}
-func (p *CloudRunPolling) ErrorStates() []string {
-	return []string{"Ready:False"}
-}
-
-func cloudRunPollingWaitTime(config *Config, res map[string]interface{}, project, url, activity string, timeoutMinutes int) error {
-	w := &CloudRunPolling{}
-
-	scc := &resource.StateChangeConf{
-		Pending: w.PendingStates(),
-		Target:  w.TargetStates(),
-		Refresh: func() (interface{}, string, error) {
-			res, err := sendRequest(config, "GET", project, url, nil)
-			if err != nil {
-				return res, "", err
-			}
-
-			status := KnativeStatus{}
-			err = Convert(res, &status)
-			if err != nil {
-				return res, "", err
-			}
-
-			for _, errState := range w.ErrorStates() {
-				if status.State(res) == errState {
-					err = errors.New(status.LatestMessage())
+		if condition.Type == readyStatusType {
+			log.Printf("[DEBUG] checking KnativeStatus Ready condition %s: %s", condition.Status, condition.Message)
+			switch condition.Status {
+			case "True":
+				// Resource is ready
+				return SuccessPollResult()
+			case "Unknown":
+				// DomainMapping can enter a 'terminal' state where "Ready" status is "Unknown"
+				// but the resource is waiting for external verification of DNS records.
+				if condition.Reason == pendingCertificateReason {
+					return SuccessPollResult()
 				}
+				return PendingStatusPollResult(fmt.Sprintf("%s:%s", condition.Status, condition.Message))
+			case "False":
+				return ErrorPollResult(fmt.Errorf(`resource is in failed state "Ready:False", message: %s`, condition.Message))
 			}
-
-			return res, status.State(res), err
-		},
-		Timeout: time.Duration(timeoutMinutes) * time.Minute,
+		}
 	}
-
-	_, err := scc.WaitForState()
-	return err
+	return PendingStatusPollResult("no status yet")
 }
