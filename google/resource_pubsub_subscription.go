@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"google.golang.org/api/googleapi"
 )
 
 func comparePubsubSubscriptionExpirationPolicy(_, old, new string, _ *schema.ResourceData) bool {
@@ -50,8 +51,8 @@ func resourcePubsubSubscription() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(6 * time.Minute),
+			Update: schema.DefaultTimeout(6 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
@@ -317,9 +318,47 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
+	err = PollingWaitTime(resourcePubsubSubscriptionPollRead(d, meta), PollCheckForExistence, "Creating Subscription", d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		log.Printf("[ERROR] Unable to confirm eventually consistent Subscription %q finished updating: %q", d.Id(), err)
+	}
+
 	log.Printf("[DEBUG] Finished creating Subscription %q: %#v", d.Id(), res)
 
 	return resourcePubsubSubscriptionRead(d, meta)
+}
+
+func resourcePubsubSubscriptionPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*Config)
+
+		url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
+		if err != nil {
+			return nil, err
+		}
+
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+		res, err := sendRequest(config, "GET", project, url, nil)
+		if err != nil {
+			return res, err
+		}
+		res, err = resourcePubsubSubscriptionDecoder(d, meta, res)
+		if err != nil {
+			return nil, err
+		}
+		if res == nil {
+			// Decoded object not found, spoof a 404 error for poll
+			return nil, &googleapi.Error{
+				Code:    404,
+				Message: "could not find object PubsubSubscription",
+			}
+		}
+
+		return res, nil
+	}
 }
 
 func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) error {

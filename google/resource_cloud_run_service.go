@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"google.golang.org/api/googleapi"
 )
 
 func resourceCloudRunService() *schema.Resource {
@@ -620,15 +621,7 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	waitURL, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
-	if err != nil {
-		return err
-	}
-
-	err = cloudRunPollingWaitTime(
-		config, res, project, waitURL, "Creating Service",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-
+	err = PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatus, "Creating Service", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error waiting to create Service: %s", err)
 	}
@@ -636,6 +629,39 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Finished creating Service %q: %#v", d.Id(), res)
 
 	return resourceCloudRunServiceRead(d, meta)
+}
+
+func resourceCloudRunServicePollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*Config)
+
+		url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
+		if err != nil {
+			return nil, err
+		}
+
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+		res, err := sendRequest(config, "GET", project, url, nil)
+		if err != nil {
+			return res, err
+		}
+		res, err = resourceCloudRunServiceDecoder(d, meta, res)
+		if err != nil {
+			return nil, err
+		}
+		if res == nil {
+			// Decoded object not found, spoof a 404 error for poll
+			return nil, &googleapi.Error{
+				Code:    404,
+				Message: "could not find object CloudRunService",
+			}
+		}
+
+		return res, nil
+	}
 }
 
 func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error {
@@ -724,21 +750,13 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Updating Service %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	_, err = sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Service %q: %s", d.Id(), err)
 	}
 
-	waitURL, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
-	if err != nil {
-		return err
-	}
-
-	err = cloudRunPollingWaitTime(
-		config, res, project, waitURL, "Updating Service",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
+	err = PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatus, "Updating Service", d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}

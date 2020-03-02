@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccPubsubSubscription_emptyTTL(t *testing.T) {
@@ -97,6 +98,35 @@ func TestAccPubsubSubscription_push(t *testing.T) {
 	t.Parallel()
 
 	topicFoo := fmt.Sprintf("tf-test-topic-foo-%s", acctest.RandString(10))
+	subscription := fmt.Sprintf("tf-test-sub-foo-%s", acctest.RandString(10))
+	saAccount := fmt.Sprintf("tf-test-pubsub-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPubsubSubscriptionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_push(topicFoo, saAccount, subscription),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscription,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+// Context: terraform-providers/terraform-provider-google#4993
+// This test makes a call to GET an subscription before it is actually created.
+// The PubSub API negative-caches responses so this tests we are
+// correctly polling for existence post-creation.
+func TestAccPubsubSubscription_pollOnCreate(t *testing.T) {
+	t.Parallel()
+
+	topic := fmt.Sprintf("tf-test-topic-foo-%s", acctest.RandString(10))
 	subscription := fmt.Sprintf("tf-test-topic-foo-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
@@ -105,7 +135,17 @@ func TestAccPubsubSubscription_push(t *testing.T) {
 		CheckDestroy: testAccCheckPubsubSubscriptionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPubsubSubscription_push(topicFoo, subscription),
+				// Create only the topic
+				Config: testAccPubsubSubscription_topicOnly(topic),
+				// Read from non-existent subscription created in next step
+				// so API negative-caches result
+				Check: testAccCheckPubsubSubscriptionCache404(subscription),
+			},
+			{
+				// Create the subscription - if the polling fails,
+				// the test step will fail because the read post-create
+				// will have removed the resource from state.
+				Config: testAccPubsubSubscription_pollOnCreate(topic, subscription),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription.foo",
@@ -137,13 +177,12 @@ resource "google_pubsub_subscription" "foo" {
 `, topic, subscription)
 }
 
-func testAccPubsubSubscription_push(topicFoo string, subscription string) string {
+func testAccPubsubSubscription_push(topicFoo, saAccount, subscription string) string {
 	return fmt.Sprintf(`
-data "google_project" "project" {
-}
+data "google_project" "project" { }
 
 resource "google_service_account" "pub_sub_service_account" {
-  account_id = "my-super-service"
+  account_id = "%s"
 }
 
 data "google_iam_policy" "admin" {
@@ -171,7 +210,7 @@ resource "google_pubsub_subscription" "foo" {
     }
   }
 }
-`, topicFoo, subscription)
+`, saAccount, topicFoo, subscription)
 }
 
 func testAccPubsubSubscription_basic(topic, subscription, label string, deadline int) string {
@@ -189,6 +228,27 @@ resource "google_pubsub_subscription" "foo" {
   ack_deadline_seconds = %d
 }
 `, topic, subscription, label, deadline)
+}
+
+func testAccPubsubSubscription_topicOnly(topic string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "foo" {
+  name = "%s"
+}
+`, topic)
+}
+
+func testAccPubsubSubscription_pollOnCreate(topic, subscription string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "foo" {
+  name = "%s"
+}
+
+resource "google_pubsub_subscription" "foo" {
+  name  = "%s"
+  topic = google_pubsub_topic.foo.id
+}
+`, topic, subscription)
 }
 
 func TestGetComputedTopicName(t *testing.T) {
@@ -216,5 +276,20 @@ func TestGetComputedTopicName(t *testing.T) {
 		if computedTopicName != testCase.expected {
 			t.Fatalf("bad computed topic name: %s' => expected %s", computedTopicName, testCase.expected)
 		}
+	}
+}
+
+func testAccCheckPubsubSubscriptionCache404(subName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+		url := fmt.Sprintf("%sprojects/%s/subscriptions/%s", config.PubsubBasePath, getTestProjectFromEnv(), subName)
+		resp, err := sendRequest(config, "GET", "", url, nil)
+		if err == nil {
+			return fmt.Errorf("Expected Pubsub Subscription %q not to exist, was found", resp["name"])
+		}
+		if !isGoogleApiErrorWithCode(err, 404) {
+			return fmt.Errorf("Got non-404 error while trying to read Pubsub Subscription %q: %v", subName, err)
+		}
+		return nil
 	}
 }
