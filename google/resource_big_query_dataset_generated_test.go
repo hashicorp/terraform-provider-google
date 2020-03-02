@@ -62,12 +62,12 @@ resource "google_bigquery_dataset" "dataset" {
   }
 
   access {
-    role          = "OWNER"
-    user_by_email = "Joe@example.com"
+    role          = "WRITER"
+    user_by_email = "myuser@hashicorp.com"
   }
   access {
     role   = "READER"
-    domain = "example.com"
+    domain = "hashicorp.com"
   }
 }
 `, context)
