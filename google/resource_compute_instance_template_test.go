@@ -819,6 +819,40 @@ func TestAccComputeInstanceTemplate_invalidDiskType(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_imageResourceTest(t *testing.T) {
+	t.Parallel()
+	diskName := "tf-test-disk-" + acctest.RandString(10)
+	computeImage := "tf-test-image-" + acctest.RandString(10)
+	imageDesc1 := "Some description"
+	imageDesc2 := "Some other description"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_imageResourceTest(diskName, computeImage, imageDesc1),
+			},
+			{
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name_prefix"},
+			},
+			{
+				Config: testAccComputeInstanceTemplate_imageResourceTest(diskName, computeImage, imageDesc2),
+			},
+			{
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name_prefix"},
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceTemplateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -2038,4 +2072,36 @@ resource "google_compute_instance_template" "foobar" {
   }
 }
 `, acctest.RandString(10))
+}
+
+func testAccComputeInstanceTemplate_imageResourceTest(diskName string, imageName string, imageDescription string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+	
+resource "google_compute_disk" "my_disk" {
+	name  = "%s"
+	zone  = "us-central1-a"
+	image = data.google_compute_image.my_image.self_link
+}
+resource "google_compute_image" "diskimage" {
+	name = "%s"
+	description = "%s"
+	source_disk = google_compute_disk.my_disk.self_link
+}
+resource "google_compute_instance_template" "foobar" {
+	name_prefix = "tf-test-instance-"
+	machine_type         = "n1-standard-1"
+	disk {
+		source_image = google_compute_image.diskimage.self_link
+	}
+	network_interface {
+		network = "default"
+		access_config {}
+	}
+}
+	  
+`, diskName, imageName, imageDescription)
 }

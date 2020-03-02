@@ -134,6 +134,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
+							ForceNew: true,
 						},
 
 						"interface": {
@@ -504,11 +505,6 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.Resour
 			var err error
 			old, new := diff.GetChange(key)
 			if old == "" || new == "" {
-				// no sense in resolving empty strings
-				err = diff.ForceNew(key)
-				if err != nil {
-					return err
-				}
 				continue
 			}
 			// project must be retrieved once we know there is a diff to resolve, otherwise it will
@@ -535,10 +531,6 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.Resour
 				return err
 			}
 			if oldResolved != newResolved {
-				err = diff.ForceNew(key)
-				if err != nil {
-					return err
-				}
 				continue
 			}
 			err = diff.Clear(key)
