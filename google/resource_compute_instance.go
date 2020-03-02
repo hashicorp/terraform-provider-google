@@ -230,15 +230,15 @@ func resourceComputeInstance() *schema.Resource {
 							ForceNew: true,
 						},
 
-						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-
 						"network_ip": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
+							Computed: true,
+						},
+
+						"name": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 
