@@ -205,13 +205,6 @@ func resourceStorageBucketAclRead(d *schema.ResourceData, meta interface{}) erro
 
 	bucket := d.Get("bucket").(string)
 
-	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
-
 	// The API offers no way to retrieve predefined ACLs,
 	// and we can't tell which access controls were created
 	// by the predefined roles, so...
