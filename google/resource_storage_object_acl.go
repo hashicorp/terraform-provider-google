@@ -168,13 +168,6 @@ func resourceStorageObjectAclRead(d *schema.ResourceData, meta interface{}) erro
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
 
-	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
-
 	roleEntities, err := getRoleEntitiesAsStringsFromApi(config, bucket, object)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Storage Object ACL for Bucket %q", d.Get("bucket").(string)))
