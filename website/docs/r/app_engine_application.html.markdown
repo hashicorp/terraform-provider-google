@@ -56,6 +56,8 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `{{project}}`
+
 * `name` - Unique name of the app, usually `apps/{PROJECT_ID}`
 
 * `app_id` - Identifier of the app, usually `{PROJECT_ID}`
