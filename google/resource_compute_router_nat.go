@@ -161,6 +161,17 @@ contains ALL_SUBNETWORKS_ALL_IP_RANGES or
 ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES, then there should not be any
 other RouterNat section in any Router for this network in this region.`,
 			},
+			"drain_nat_ips": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Description: `A list of URLs of the IP resources to be drained. These IPs must be
+valid static external IPs that have been assigned to the NAT.`,
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					DiffSuppressFunc: compareSelfLinkOrResourceName,
+				},
+				// Default schema.HashSchema is used.
+			},
 			"icmp_idle_timeout_sec": {
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -311,6 +322,12 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("nat_ips"); ok || !reflect.DeepEqual(v, natIpsProp) {
 		obj["natIps"] = natIpsProp
 	}
+	drainNatIpsProp, err := expandComputeRouterNatDrainNatIps(d.Get("drain_nat_ips"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("drain_nat_ips"); ok || !reflect.DeepEqual(v, drainNatIpsProp) {
+		obj["drainNatIps"] = drainNatIpsProp
+	}
 	sourceSubnetworkIpRangesToNatProp, err := expandComputeRouterNatSourceSubnetworkIpRangesToNat(d.Get("source_subnetwork_ip_ranges_to_nat"), d, config)
 	if err != nil {
 		return err
@@ -451,6 +468,9 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("nat_ips", flattenComputeRouterNatNatIps(res["natIps"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
+	if err := d.Set("drain_nat_ips", flattenComputeRouterNatDrainNatIps(res["drainNatIps"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNat: %s", err)
+	}
 	if err := d.Set("source_subnetwork_ip_ranges_to_nat", flattenComputeRouterNatSourceSubnetworkIpRangesToNat(res["sourceSubnetworkIpRangesToNat"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
@@ -499,6 +519,12 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("nat_ips"); ok || !reflect.DeepEqual(v, natIpsProp) {
 		obj["natIps"] = natIpsProp
+	}
+	drainNatIpsProp, err := expandComputeRouterNatDrainNatIps(d.Get("drain_nat_ips"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("drain_nat_ips"); ok || !reflect.DeepEqual(v, drainNatIpsProp) {
+		obj["drainNatIps"] = drainNatIpsProp
 	}
 	sourceSubnetworkIpRangesToNatProp, err := expandComputeRouterNatSourceSubnetworkIpRangesToNat(d.Get("source_subnetwork_ip_ranges_to_nat"), d, config)
 	if err != nil {
@@ -665,6 +691,13 @@ func flattenComputeRouterNatNatIps(v interface{}, d *schema.ResourceData, config
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
+func flattenComputeRouterNatDrainNatIps(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+}
+
 func flattenComputeRouterNatSourceSubnetworkIpRangesToNat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -818,6 +851,23 @@ func expandComputeRouterNatNatIps(v interface{}, d TerraformResourceData, config
 		f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
 		if err != nil {
 			return nil, fmt.Errorf("Invalid value for nat_ips: %s", err)
+		}
+		req = append(req, f.RelativeLink())
+	}
+	return req, nil
+}
+
+func expandComputeRouterNatDrainNatIps(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			return nil, fmt.Errorf("Invalid value for drain_nat_ips: nil")
+		}
+		f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value for drain_nat_ips: %s", err)
 		}
 		req = append(req, f.RelativeLink())
 	}
