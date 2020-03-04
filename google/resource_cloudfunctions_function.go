@@ -484,6 +484,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMaskArr = append(updateMaskArr, "environmentVariables")
 	}
 
+	if d.HasChange("vpc_connector") {
+		function.VpcConnector = d.Get("vpc_connector").(string)
+		updateMaskArr = append(updateMaskArr, "vpcConnector")
+	}
+
 	if d.HasChange("event_trigger") {
 		function.EventTrigger = expandEventTrigger(d.Get("event_trigger").([]interface{}), project)
 		updateMaskArr = append(updateMaskArr, "eventTrigger", "eventTrigger.failurePolicy.retry")
