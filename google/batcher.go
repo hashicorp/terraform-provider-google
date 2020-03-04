@@ -176,11 +176,9 @@ func (b *RequestBatcher) SendRequestWithTimeout(batchKey string, request *BatchR
 	select {
 	case resp := <-respCh:
 		if resp.err != nil {
-			// use wrapf so we can potentially extract the original error type
-			errMsg := fmt.Sprintf(
-				"Batch %q for request %q returned error: {{err}}. To debug individual requests, try disabling batching: https://www.terraform.io/docs/providers/google/guides/provider_reference.html#enable_batching",
-				batchKey, request.DebugId)
-			return nil, errwrap.Wrapf(errMsg, resp.err)
+			return nil, errwrap.Wrapf(
+				fmt.Sprintf("Request %q returned error: {{err}}", request.DebugId),
+				resp.err)
 		}
 		return resp.body, nil
 	case <-ctx.Done():
@@ -256,7 +254,7 @@ func (b *RequestBatcher) sendBatchWithSingleRetry(batchKey string, batch *starte
 
 			if singleResp.IsError() {
 				singleResp.err = errwrap.Wrapf(
-					"batch request and retry as single request failed - final error: {{err}}",
+					fmt.Sprintf("Batch request and retried single request %q both failed. Final error: {{err}}", sub.singleRequest.DebugId),
 					singleResp.err)
 			}
 			sub.respCh <- singleResp

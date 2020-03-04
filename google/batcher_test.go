@@ -184,10 +184,6 @@ func TestRequestBatcher_errInSend(t *testing.T) {
 					t.Errorf("expected error for request %d, got none", idx)
 				}
 				// Check error message
-				expectedErrPrefix := "batch request and retry as single request failed - final error: "
-				if !strings.Contains(err.Error(), expectedErrPrefix) {
-					t.Errorf("expected error %q to contain %q", err, expectedErrPrefix)
-				}
 				if !strings.Contains(err.Error(), expectedErrMsg) {
 					t.Errorf("expected error %q to contain %q", err, expectedErrMsg)
 				}
