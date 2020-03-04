@@ -116,15 +116,28 @@ The following arguments are supported:
     within the instance. Ssh keys attached in the Cloud Console will be removed.
     Add them to your config in order to keep them attached to your instance.
 
--> On import, `metadata_startup_script` will be set while 
-`metadata.startup-script` will not be. You'll need to match 
-`metadata_startup_script` to your `startup-script` value.
+-> Depending on the OS you choose for your instance, some metadata keys have
+   special functionality.  Most linux-based images will run the content of
+   `metadata.startup-script` in a shell on every boot.  At a minimum,
+   Debian, CentOS, RHEL, SLES, Container-Optimized OS, and Ubuntu images
+   support this key.  Windows instances require other keys depending on the format
+   of the script and the time you would like it to run - see [this table](https://cloud.google.com/compute/docs/startupscript#providing_a_startup_script_for_windows_instances).
+   For Container-Optimized OS, `metadata.user-data` accepts an Ignition Config,
+   see [this page](https://coreos.com/os/docs/latest/booting-on-google-compute-engine.html)
+   for more information.  For the convenience of the users of `metadata.startup-script`,
+   we provide a special attribute, `metadata_startup_script`, which is documented below.
 
 * `metadata_startup_script` - (Optional) An alternative to using the
     startup-script metadata key, except this one forces the instance to be
     recreated (thus re-running the script) if it is changed. This replaces the
     startup-script metadata key on the created instance and thus the two
-    mechanisms are not allowed to be used simultaneously.
+    mechanisms are not allowed to be used simultaneously.  Users are free to use
+    either mechanism - the only distinction is that this separate attribute
+    willl cause a recreate on modification.  On import, `metadata_startup_script`
+    will be set, but `metadata.startup-script` will not - if you choose to use the
+    other mechanism, you will see a diff immediately after import, which will cause a
+    destroy/recreate operation.  You may want to modify your state file manually
+    using `terraform state` commands, depending on your use case.
 
 * `min_cpu_platform` - (Optional) Specifies a minimum CPU platform for the VM instance. Applicable values are the friendly names of CPU platforms, such as
 `Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
