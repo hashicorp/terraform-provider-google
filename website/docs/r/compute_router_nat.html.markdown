@@ -154,6 +154,11 @@ The following arguments are supported:
   Self-links of NAT IPs. Only valid if natIpAllocateOption
   is set to MANUAL_ONLY.
 
+* `drain_nat_ips` -
+  (Optional)
+  A list of URLs of the IP resources to be drained. These IPs must be
+  valid static external IPs that have been assigned to the NAT.
+
 * `subnetwork` -
   (Optional)
   One or more subnetwork NAT configurations. Only used if
