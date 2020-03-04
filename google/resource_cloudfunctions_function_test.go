@@ -323,10 +323,11 @@ func TestAccCloudFunctionsFunction_serviceAccountEmail(t *testing.T) {
 func TestAccCloudFunctionsFunction_vpcConnector(t *testing.T) {
 	t.Parallel()
 
+	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	networkName := fmt.Sprintf("tf-test-net-%d", acctest.RandInt())
-	vpcConnectorName := fmt.Sprintf("tf-test-connector-%s", acctest.RandString(5))
+	vpcConnectorName := fmt.Sprintf("tf-test-conn-%s", acctest.RandString(5))
 	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
 	projectNumber := os.Getenv("GOOGLE_PROJECT_NUMBER")
 	defer os.Remove(zipFilePath) // clean up
@@ -337,7 +338,20 @@ func TestAccCloudFunctionsFunction_vpcConnector(t *testing.T) {
 		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, vpcConnectorName),
+				Config: testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, "10.10.0.0/28", vpcConnectorName),
+			},
+			{
+				ResourceName:      funcResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, "10.20.0.0/28", vpcConnectorName+"-update"),
+			},
+			{
+				ResourceName:      funcResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -759,7 +773,7 @@ resource "google_cloudfunctions_function" "function" {
 `, bucketName, zipFilePath, functionName)
 }
 
-func testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, vpcConnectorName string) string {
+func testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, vpcIp, vpcConnectorName string) string {
 	return fmt.Sprintf(`
 
 resource "google_project_iam_member" "gcfadmin" {
@@ -772,10 +786,10 @@ resource "google_compute_network" "vpc" {
 	auto_create_subnetworks = false
 }
 
-resource "google_vpc_access_connector" "connector" {
+resource "google_vpc_access_connector" "%s" {
   name          = "%s"
   region        = "us-central1"
-  ip_cidr_range = "10.10.0.0/28"
+  ip_cidr_range = "%s"
   network       = google_compute_network.vpc.name
 }
 
@@ -807,9 +821,9 @@ resource "google_cloudfunctions_function" "function" {
 	TEST_ENV_VARIABLE = "test-env-variable-value"
   }
   max_instances = 10
-  vpc_connector = google_vpc_access_connector.connector.self_link
+  vpc_connector = google_vpc_access_connector.%s.self_link
 
   depends_on = [google_project_iam_member.gcfadmin]
 }
-`, projectNumber, networkName, vpcConnectorName, bucketName, zipFilePath, functionName)
+`, projectNumber, networkName, vpcConnectorName, vpcConnectorName, vpcIp, bucketName, zipFilePath, functionName, vpcConnectorName)
 }
