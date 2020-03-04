@@ -17,6 +17,7 @@ require (
 	github.com/hashicorp/go-version v1.2.0
 	github.com/hashicorp/terraform-plugin-sdk v1.4.0
 	github.com/mitchellh/hashstructure v1.0.0
+	github.com/paultyng/changelog-gen v1.1.1-0.20200205195555-0eb61d32d028 // indirect
 	github.com/sirupsen/logrus v1.2.0 // indirect
 	github.com/stoewer/go-strcase v1.0.2
 	github.com/terraform-providers/terraform-provider-random v0.0.0-20190925200408-30dac3233094
