@@ -214,8 +214,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `self_link` - The URI of the created resource.
 
 
-* `address` - The IP of the created resource.
-
 ## Timeouts
 
 This resource provides the following
