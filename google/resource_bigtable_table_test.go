@@ -143,7 +143,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_table" "table" {
   name          = "%s"
-  instance_name = google_bigtable_instance.instance.name
+  instance_name = google_bigtable_instance.instance.id
 }
 `, instanceName, instanceName, tableName)
 }
@@ -161,7 +161,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_table" "table" {
   name          = "%s"
-  instance_name = google_bigtable_instance.instance.name
+  instance_name = google_bigtable_instance.instance.id
   split_keys    = ["a", "b", "c"]
 }
 `, instanceName, instanceName, tableName)

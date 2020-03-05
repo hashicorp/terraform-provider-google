@@ -40,9 +40,10 @@ func resourceBigtableTable() *schema.Resource {
 			},
 
 			"instance_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareResourceNames,
 			},
 
 			"split_keys": {
@@ -71,11 +72,12 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	instanceName := d.Get("instance_name").(string)
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
 	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
 	if err != nil {
 		return fmt.Errorf("Error starting admin client. %s", err)
 	}
+	d.Set("instance_name", instanceName)
 
 	defer c.Close()
 
@@ -129,7 +131,7 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	instanceName := d.Get("instance_name").(string)
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
 	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
 	if err != nil {
 		return fmt.Errorf("Error starting admin client. %s", err)
@@ -160,7 +162,7 @@ func resourceBigtableTableDestroy(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	instanceName := d.Get("instance_name").(string)
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
 	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
 	if err != nil {
 		return fmt.Errorf("Error starting admin client. %s", err)
