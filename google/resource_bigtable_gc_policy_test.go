@@ -139,7 +139,7 @@ resource "google_bigtable_instance" "instance" {
 
 resource "google_bigtable_table" "table" {
   name          = "%s"
-  instance_name = google_bigtable_instance.instance.name
+  instance_name = google_bigtable_instance.instance.id
 
   column_family {
     family = "%s"
@@ -147,7 +147,7 @@ resource "google_bigtable_table" "table" {
 }
 
 resource "google_bigtable_gc_policy" "policy" {
-  instance_name = google_bigtable_instance.instance.name
+  instance_name = google_bigtable_instance.instance.id
   table         = google_bigtable_table.table.name
   column_family = "%s"
 

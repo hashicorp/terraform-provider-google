@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigtable: Added support for full-name/id `instance_name` value in `google_bigtable_table` and `google_bigtable_gc_policy`
+```
