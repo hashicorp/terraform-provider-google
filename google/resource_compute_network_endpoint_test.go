@@ -81,7 +81,7 @@ func testAccComputeNetworkEndpoint_networkEndpointsBasic(context map[string]inte
 	return Nprintf(`
 resource "google_compute_network_endpoint" "default" {
   zone                   = "us-central1-a"
-  network_endpoint_group = google_compute_network_endpoint_group.neg.name
+  network_endpoint_group = google_compute_network_endpoint_group.neg.id
 
   instance   = google_compute_instance.default.name
   ip_address = google_compute_instance.default.network_interface[0].network_ip
@@ -107,7 +107,7 @@ func testAccComputeNetworkEndpoint_networkEndpointsAdditional(context map[string
 	return Nprintf(`
 resource "google_compute_network_endpoint" "default" {
   zone                   = "us-central1-a"
-  network_endpoint_group = google_compute_network_endpoint_group.neg.name
+  network_endpoint_group = google_compute_network_endpoint_group.neg.id
 
   instance   = google_compute_instance.default.name
   ip_address = google_compute_instance.default.network_interface[0].network_ip
@@ -116,7 +116,7 @@ resource "google_compute_network_endpoint" "default" {
 
 resource "google_compute_network_endpoint" "add1" {
   zone                   = "us-central1-a"
-  network_endpoint_group = google_compute_network_endpoint_group.neg.name
+  network_endpoint_group = google_compute_network_endpoint_group.neg.id
 
   instance   = google_compute_instance.default.name
   ip_address = google_compute_instance.default.network_interface[0].network_ip

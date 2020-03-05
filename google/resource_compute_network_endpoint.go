@@ -60,7 +60,7 @@ range).`,
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				DiffSuppressFunc: compareResourceNames,
 				Description:      `The network endpoint group this endpoint is part of.`,
 			},
 			"port": {
@@ -332,6 +332,9 @@ func expandComputeNetworkEndpointIpAddress(v interface{}, d TerraformResourceDat
 }
 
 func resourceComputeNetworkEndpointEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// Network Endpoint Group is a URL parameter only, so replace self-link/path with resource name only.
+	d.Set("network_endpoint_group", GetResourceNameFromSelfLink(d.Get("network_endpoint_group").(string)))
+
 	wrappedReq := map[string]interface{}{
 		"networkEndpoints": []interface{}{obj},
 	}
