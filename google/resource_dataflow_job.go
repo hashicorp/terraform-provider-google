@@ -275,17 +275,17 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 
 		_, updateErr := resourceDataflowJobUpdateJob(config, project, region, id, job)
 		if updateErr != nil {
-			gerr, isGoogleErr := err.(*googleapi.Error)
+			gerr, isGoogleErr := updateErr.(*googleapi.Error)
 			if !isGoogleErr {
 				// If we have an error and it's not a google-specific error, we should go ahead and return.
-				return resource.NonRetryableError(err)
+				return resource.NonRetryableError(updateErr)
 			}
 
 			if strings.Contains(gerr.Message, "not yet ready for canceling") {
 				// Retry cancelling job if it's not ready.
 				// Sleep to avoid hitting update quota with repeated attempts.
 				time.Sleep(5 * time.Second)
-				return resource.RetryableError(err)
+				return resource.RetryableError(updateErr)
 			}
 
 			if strings.Contains(gerr.Message, "Job has terminated") {
