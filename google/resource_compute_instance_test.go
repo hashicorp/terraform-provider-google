@@ -4241,6 +4241,12 @@ resource "google_compute_instance" "foobar" {
     }
 
     node_affinities {
+      key      = "tfacc"
+      operator = "NOT_IN"
+      values   = ["not_here"]
+    }
+
+    node_affinities {
       key      = "compute.googleapis.com/node-group-name"
       operator = "IN"
       values   = [google_compute_node_group.nodes.name]
@@ -4300,6 +4306,12 @@ resource "google_compute_instance" "foobar" {
       key      = "tfacc"
       operator = "IN"
       values   = ["test", "updatedlabel"]
+    }
+
+    node_affinities {
+      key      = "tfacc"
+      operator = "NOT_IN"
+      values   = ["not_here"]
     }
 
     node_affinities {

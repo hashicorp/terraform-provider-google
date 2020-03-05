@@ -22,7 +22,7 @@ func instanceSchedulingNodeAffinitiesElemSchema() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"IN", "NOT"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"IN", "NOT_IN"}, false),
 			},
 			"values": {
 				Type:     schema.TypeSet,
