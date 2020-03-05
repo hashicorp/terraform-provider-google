@@ -511,9 +511,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 103
+// Generated resources: 104
 // Generated IAM resources: 51
-// Total generated resources: 154
+// Total generated resources: 155
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -667,6 +667,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_spanner_instance":                                      resourceSpannerInstance(),
 			"google_spanner_database":                                      resourceSpannerDatabase(),
 			"google_sql_database":                                          resourceSQLDatabase(),
+			"google_sql_source_representation_instance":                    resourceSQLSourceRepresentationInstance(),
 			"google_storage_bucket_iam_binding":                            ResourceIamBinding(StorageBucketIamSchema, StorageBucketIamUpdaterProducer, StorageBucketIdParseFunc),
 			"google_storage_bucket_iam_member":                             ResourceIamMember(StorageBucketIamSchema, StorageBucketIamUpdaterProducer, StorageBucketIdParseFunc),
 			"google_storage_bucket_iam_policy":                             ResourceIamPolicy(StorageBucketIamSchema, StorageBucketIamUpdaterProducer, StorageBucketIdParseFunc),
