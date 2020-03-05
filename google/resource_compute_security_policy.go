@@ -21,6 +21,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceSecurityPolicyStateImporter,
 		},
+		CustomizeDiff: rulesCustomizeDiff,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(4 * time.Minute),
@@ -148,6 +149,22 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 			},
 		},
 	}
+}
+
+func rulesCustomizeDiff(diff *schema.ResourceDiff, _ interface{}) error {
+	_, n := diff.GetChange("rule")
+	nSet := n.(*schema.Set)
+
+	nPriorities := map[int64]bool{}
+	for _, rule := range nSet.List() {
+		priority := int64(rule.(map[string]interface{})["priority"].(int))
+		if nPriorities[priority] {
+			return fmt.Errorf("Two rules have the same priority, please update one of the priorities to be different.")
+		}
+		nPriorities[priority] = true
+	}
+
+	return nil
 }
 
 func resourceComputeSecurityPolicyCreate(d *schema.ResourceData, meta interface{}) error {

@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -73,6 +74,11 @@ func TestAccComputeSecurityPolicy_update(t *testing.T) {
 			},
 
 			{
+				Config:      testAccComputeSecurityPolicy_updateSamePriority(spName),
+				ExpectError: regexp.MustCompile("Two rules have the same priority, please update one of the priorities to be different."),
+			},
+
+			{
 				Config: testAccComputeSecurityPolicy_update(spName),
 			},
 			{
@@ -136,6 +142,52 @@ resource "google_compute_security_policy" "policy" {
       }
     }
     description = "default rule"
+  }
+
+  rule {
+    action   = "allow"
+    priority = "2000"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["10.0.0.0/24"]
+      }
+    }
+    preview = true
+  }
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_updateSamePriority(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "updated description"
+
+  // keep this
+  rule {
+    action   = "allow"
+    priority = "2147483647"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+    description = "default rule"
+  }
+
+  // add this
+  rule {
+    action   = "deny(403)"
+    priority = "2000"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["10.0.1.0/24"]
+      }
+    }
   }
 
   rule {
