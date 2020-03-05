@@ -20,7 +20,6 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
@@ -122,16 +121,14 @@ using @sys.any or very large developer entities.`,
 			},
 			"tier": {
 				Type:         schema.TypeString,
-				Computed:     true,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"TIER_STANDARD", "TIER_ENTERPRISE", "TIER_ENTERPRISE_PLUS", ""}, false),
 				Description: `The agent tier. If not specified, TIER_STANDARD is assumed.
 * TIER_STANDARD: Standard tier.
 * TIER_ENTERPRISE: Enterprise tier (Essentials).
 * TIER_ENTERPRISE_PLUS: Enterprise tier (Plus).
-NOTE: This field seems to have eventual consistency in the API. Updating this field to a new value, or even 
-creating a new agent with a tier that is different from a previous agent in the same project will take some
-time to propagate. The provider will wait for the API to show consistency, which can lead to longer apply times.`,
+NOTE: Due to consistency issues, the provider will not read this field from the API. Drift is possible between 
+the Terraform state and Dialogflow if the agent tier is changed outside of Terraform.`,
 			},
 			"avatar_uri_backend": {
 				Type:     schema.TypeString,
@@ -244,34 +241,6 @@ func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[DEBUG] Finished creating Agent %q: %#v", d.Id(), res)
 
-	// The tier field is eventually consistent, we need to test for consistency before moving on.
-	// Otherwise, the user will see diffs on the field.
-	if d.HasChange("tier") {
-		old, new := d.GetChange("tier")
-		readUrl, err := replaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
-		if err != nil {
-			return fmt.Errorf("Error preparing read URL: %s", err)
-		}
-		stateConf := &resource.StateChangeConf{
-			Pending: []string{old.(string)},
-			Target:  []string{new.(string)},
-			Refresh: func() (interface{}, string, error) {
-				res, err := sendRequest(config, "GET", project, readUrl, nil)
-				if err != nil {
-					return 0, "", err
-				}
-				return res, res["tier"].(string), nil
-			},
-			Timeout:                   40 * time.Minute,
-			MinTimeout:                30 * time.Second,
-			ContinuousTargetOccurence: 12,
-		}
-		_, err = stateConf.WaitForState()
-		if err != nil {
-			return fmt.Errorf("Timed out waiting for agent tier to return correct value.  Waiting for %s, got %s.", new, old)
-		}
-	}
-
 	return resourceDialogflowAgentRead(d, meta)
 }
 
@@ -324,9 +293,6 @@ func resourceDialogflowAgentRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
 	if err := d.Set("api_version", flattenDialogflowAgentApiVersion(res["apiVersion"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Agent: %s", err)
-	}
-	if err := d.Set("tier", flattenDialogflowAgentTier(res["tier"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Agent: %s", err)
 	}
 
@@ -421,33 +387,6 @@ func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error updating Agent %q: %s", d.Id(), err)
 	}
 
-	// The tier field is eventually consistent, we need to test for consistency before moving on.
-	// Otherwise, the user will see diffs on the field.
-	if d.HasChange("tier") {
-		old, new := d.GetChange("tier")
-		readUrl, err := replaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
-		if err != nil {
-			return fmt.Errorf("Error preparing read URL: %s", err)
-		}
-		stateConf := &resource.StateChangeConf{
-			Pending: []string{old.(string)},
-			Target:  []string{new.(string)},
-			Refresh: func() (interface{}, string, error) {
-				res, err := sendRequest(config, "GET", project, readUrl, nil)
-				if err != nil {
-					return 0, "", err
-				}
-				return res, res["tier"].(string), nil
-			},
-			Timeout:                   40 * time.Minute,
-			MinTimeout:                30 * time.Second,
-			ContinuousTargetOccurence: 12,
-		}
-		_, err = stateConf.WaitForState()
-		if err != nil {
-			return fmt.Errorf("Timed out waiting for agent tier to return correct value.  Waiting for %s, got %s.", new, old)
-		}
-	}
 	return resourceDialogflowAgentRead(d, meta)
 }
 
@@ -531,10 +470,6 @@ func flattenDialogflowAgentClassificationThreshold(v interface{}, d *schema.Reso
 }
 
 func flattenDialogflowAgentApiVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenDialogflowAgentTier(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
