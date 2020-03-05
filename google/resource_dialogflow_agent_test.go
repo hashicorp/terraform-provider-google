@@ -105,7 +105,7 @@ func testAccDialogflowAgent_full2(projectID string, orgID string, agentName stri
 		display_name = "%s"
 		default_language_code = "en"
 		supported_language_codes = ["no"]
-		time_zone = "Europe/London"
+		time_zone = "America/New_York"
 		description = "Description 2!"
 		avatar_uri = "https://storage.googleapis.com/gweb-cloudblog-publish/images/f4xvje.max-200x200.PNG"
 		enable_logging = false
