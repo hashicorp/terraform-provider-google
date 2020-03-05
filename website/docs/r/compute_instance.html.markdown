@@ -333,7 +333,7 @@ The `node_affinities` block supports:
 * `key` (Required) - The key for the node affinity label.
 
 * `operator` (Required) - The operator. Can be `IN` for node-affinities
-    or `NOT` for anti-affinities.
+    or `NOT_IN` for anti-affinities.
 
 * `value` (Required) - The values for the node affinity label.
 
