@@ -190,5 +190,5 @@ This resource provides the following
 Functions can be imported using the `name`, e.g.
 
 ```
-$ terraform import google_cloudfunctions_function.default function-test
+$ terraform import google_cloudfunctions_function.default {projectId}/{regionId}/{cloudFunctionName}
 ```
