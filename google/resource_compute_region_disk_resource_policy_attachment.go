@@ -266,7 +266,7 @@ func resourceComputeRegionDiskResourcePolicyAttachmentEncoder(d *schema.Resource
 		return nil, err
 	}
 	if region == "" {
-		return nil, fmt.Errorf("zone must be non-empty - set in resource or at provider-level")
+		return nil, fmt.Errorf("region must be non-empty - set in resource or at provider-level")
 	}
 
 	obj["resourcePolicies"] = []interface{}{fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", project, region, obj["name"])}
