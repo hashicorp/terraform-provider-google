@@ -1,4 +1,13 @@
 ## 2.20.3 (Unreleased)
+
+NOTES:
+* `2.20.3` is a backport release, and some changes will not appear in `3.X` series releases until `3.11.0`.
+To upgrade to `3.X` you will need to perform a large jump in versions, and it is _strongly_ advised that you attempt to upgrade to `3.X` instead of using this release.
+* `2.20.3` is primarily a preventative fix, in anticipation of a change in API response messages adding a default value.
+
+BUG FIXES:
+* compute: fixed error when reading `google_compute_instance_template` resources with `network_interface[*].name` set. ([#5812](https://github.com/terraform-providers/terraform-provider-google/pull/5812))
+
 ## 2.20.2 (February 04, 2020)
 
 BUG FIXES:
