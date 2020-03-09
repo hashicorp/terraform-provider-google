@@ -273,7 +273,7 @@ This resource provides the following
 UptimeCheckConfig can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_monitoring_uptime_check_config.default {{name}}
+$ terraform import google_monitoring_uptime_check_config.default projects/{{project-id}}/uptimeCheckConfigs/{{name}}
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
