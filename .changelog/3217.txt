@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: `google_compute_resource_policy` supports group placement policies
+```
+```release-note:enhancement
+compute: `google_compute_instance` supports the `resource_policies` field
+```
