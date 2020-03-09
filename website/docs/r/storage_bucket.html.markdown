@@ -131,7 +131,7 @@ The `versioning` block supports:
 
 * `enabled` - (Required) While set to `true`, versioning is fully enabled for this bucket.
 
-The `website` block supports:
+The `website` block supports the following elements, and requires at least one to be defined:
 
 * `main_page_suffix` - (Optional) Behaves as the bucket's directory index where
     missing objects are treated as potential directories.
