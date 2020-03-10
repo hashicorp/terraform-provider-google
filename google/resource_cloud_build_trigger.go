@@ -261,7 +261,7 @@ If any of the images fail to be pushed, the build status is marked FAILURE.`,
 						"timeout": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `Amount of time that this build should be allowed to run, to second granularity. 
+							Description: `Amount of time that this build should be allowed to run, to second granularity.
 If this amount of time elapses, work on the build will cease and the build status will be TIMEOUT.
 This timeout must be equal to or greater than the sum of the timeouts for build steps within the build.
 The expected format is the number of seconds followed by s.
@@ -307,7 +307,7 @@ of the ignoredFiles globs, then we do not trigger a build.`,
 			"included_files": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `ignoredFiles and includedFiles are file glob matches using http://godoc/pkg/path/filepath#Match
+				Description: `ignoredFiles and includedFiles are file glob matches using https://golang.org/pkg/path/filepath/#Match
 extended with support for '**'.
 
 If any of the files altered in the commit pass the ignoredFiles filter

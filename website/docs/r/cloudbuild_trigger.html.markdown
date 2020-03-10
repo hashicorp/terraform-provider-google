@@ -169,7 +169,7 @@ The `build` block supports:
 
 * `timeout` -
   (Optional)
-  Amount of time that this build should be allowed to run, to second granularity. 
+  Amount of time that this build should be allowed to run, to second granularity.
   If this amount of time elapses, work on the build will cease and the build status will be TIMEOUT.
   This timeout must be equal to or greater than the sum of the timeouts for build steps within the build.
   The expected format is the number of seconds followed by s.
