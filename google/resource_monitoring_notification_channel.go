@@ -23,6 +23,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
+var sensitiveLabels = []string{"auth_token", "service_key", "password"}
+
+func sensitiveLabelCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
+	for _, sl := range sensitiveLabels {
+		mapLabel := diff.Get("labels." + sl).(string)
+		authLabel := diff.Get("sensitive_labels.0." + sl).(string)
+		if mapLabel != "" && authLabel != "" {
+			return fmt.Errorf("Sensitive label [%s] cannot be set in both `labels` and the `sensitive_labels` block.", sl)
+		}
+	}
+	return nil
+}
+
 func resourceMonitoringNotificationChannel() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringNotificationChannelCreate,
@@ -39,6 +52,8 @@ func resourceMonitoringNotificationChannel() *schema.Resource {
 			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
+
+		CustomizeDiff: sensitiveLabelCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
 			"display_name": {
@@ -69,16 +84,47 @@ func resourceMonitoringNotificationChannel() *schema.Resource {
 permissible and required labels are specified in the
 NotificationChannelDescriptor corresponding to the type field.
 
-**Note**: Some NotificationChannelDescriptor labels are
-sensitive and the API will return an partially-obfuscated value.
-For example, for '"type": "slack"' channels, an 'auth_token'
-label with value "SECRET" will be obfuscated as "**CRET". In order
-to avoid a diff, Terraform will use the state value if it appears
-that the obfuscated value matches the state value in
-length/unobfuscated characters. However, Terraform will not detect a
-diff if the obfuscated portion of the value was changed outside of
-Terraform.`,
+Labels with sensitive data are obfuscated by the API and therefore Terraform cannot
+determine if there are upstream changes to these fields. They can also be configured via
+the sensitive_labels block, but cannot be configured in both places.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"sensitive_labels": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Different notification type behaviors are configured primarily using the the 'labels' field on this
+resource. This block contains the labels which contain secrets or passwords so that they can be marked
+sensitive and hidden from plan output. The name of the field, eg: password, will be the key
+in the 'labels' map in the api request.
+
+Credentials may not be specified in both locations and will cause an error. Changing from one location
+to a different credential configuration in the config will require an apply to update state.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"auth_token": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `An authorization token for a notification channel. Channel types that support this field include: slack`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key"},
+						},
+						"password": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `An password for a notification channel. Channel types that support this field include: webhook_basicauth`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key"},
+						},
+						"service_key": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `An servicekey token for a notification channel. Channel types that support this field include: pagerduty`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key"},
+						},
+					},
+				},
 			},
 			"user_labels": {
 				Type:        schema.TypeMap,
@@ -149,6 +195,11 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 		obj["enabled"] = enabledProp
 	}
 
+	obj, err = resourceMonitoringNotificationChannelEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	lockName, err := replaceVars(d, config, "stackdriver/notifications/{{project}}")
 	if err != nil {
 		return err
@@ -206,6 +257,18 @@ func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta inte
 	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringNotificationChannel %q", d.Id()))
+	}
+
+	res, err = resourceMonitoringNotificationChannelDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing MonitoringNotificationChannel because it no longer exists.")
+		d.SetId("")
+		return nil
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -286,6 +349,11 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 		obj["enabled"] = enabledProp
 	}
 
+	obj, err = resourceMonitoringNotificationChannelEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	lockName, err := replaceVars(d, config, "stackdriver/notifications/{{project}}")
 	if err != nil {
 		return err
@@ -352,53 +420,8 @@ func resourceMonitoringNotificationChannelImport(d *schema.ResourceData, meta in
 	return []*schema.ResourceData{d}, nil
 }
 
-// Some labels are obfuscated for monitoring channels
-// e.g. if the value is "SECRET", the server will return "**CRET"
-// This method checks to see if the value read from the server looks like
-// the obfuscated version of the state value. If so, it will just use the state
-// value to avoid permadiff.
 func flattenMonitoringNotificationChannelLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	if v == nil {
-		return v
-	}
-	readLabels := v.(map[string]interface{})
-
-	stateLabelsRaw, ok := d.GetOk("labels")
-	if !ok {
-		return v
-	}
-	stateLabels := stateLabelsRaw.(map[string]interface{})
-
-	for k, serverV := range readLabels {
-		stateV, ok := stateLabels[k]
-		if !ok {
-			continue
-		}
-		useStateV := isMonitoringNotificationChannelLabelsObfuscated(serverV.(string), stateV.(string))
-		if useStateV {
-			readLabels[k] = stateV.(string)
-		}
-	}
-	return readLabels
-}
-
-func isMonitoringNotificationChannelLabelsObfuscated(serverLabel, stateLabel string) bool {
-	if stateLabel == serverLabel {
-		return false
-	}
-
-	if len(stateLabel) != len(serverLabel) {
-		return false
-	}
-
-	// Check if value read from GCP has either the same character or replaced
-	// it with '*'.
-	for i := 0; i < len(stateLabel); i++ {
-		if serverLabel[i] != '*' && stateLabel[i] != serverLabel[i] {
-			return false
-		}
-	}
-	return true
+	return v
 }
 
 func flattenMonitoringNotificationChannelName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -465,4 +488,41 @@ func expandMonitoringNotificationChannelDisplayName(v interface{}, d TerraformRe
 
 func expandMonitoringNotificationChannelEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceMonitoringNotificationChannelEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	labelmap, ok := obj["labels"]
+	if !ok {
+		labelmap = make(map[string]string)
+	}
+
+	var labels map[string]string
+	labels = labelmap.(map[string]string)
+
+	for _, sl := range sensitiveLabels {
+		if auth, _ := d.GetOkExists("sensitive_labels.0." + sl); auth != "" {
+			labels[sl] = auth.(string)
+		}
+	}
+
+	obj["labels"] = labels
+
+	return obj, nil
+}
+
+func resourceMonitoringNotificationChannelDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	if labelmap, ok := res["labels"]; ok {
+		labels := labelmap.(map[string]interface{})
+		for _, sl := range sensitiveLabels {
+			if _, apiOk := labels[sl]; apiOk {
+				if _, exists := d.GetOkExists("sensitive_labels.0." + sl); exists {
+					delete(labels, sl)
+				} else {
+					labels[sl] = d.Get("labels." + sl)
+				}
+			}
+		}
+	}
+
+	return res, nil
 }

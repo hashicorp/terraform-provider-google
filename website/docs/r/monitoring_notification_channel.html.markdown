@@ -65,6 +65,21 @@ resource "google_monitoring_notification_channel" "basic" {
   }
 }
 ```
+## Example Usage - Notification Channel Sensitive
+
+
+```hcl
+resource "google_monitoring_notification_channel" "default" {
+  display_name = "Test Slack Channel"
+  type         = "slack"
+  labels = {
+    "channel_name" = "#foobar"
+  }
+  sensitive_labels {
+    auth_token = "one"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -88,15 +103,18 @@ The following arguments are supported:
   Configuration fields that define the channel and its behavior. The
   permissible and required labels are specified in the
   NotificationChannelDescriptor corresponding to the type field.
-  **Note**: Some NotificationChannelDescriptor labels are
-  sensitive and the API will return an partially-obfuscated value.
-  For example, for `"type": "slack"` channels, an `auth_token`
-  label with value "SECRET" will be obfuscated as "**CRET". In order
-  to avoid a diff, Terraform will use the state value if it appears
-  that the obfuscated value matches the state value in
-  length/unobfuscated characters. However, Terraform will not detect a
-  diff if the obfuscated portion of the value was changed outside of
-  Terraform.
+  Labels with sensitive data are obfuscated by the API and therefore Terraform cannot
+  determine if there are upstream changes to these fields. They can also be configured via
+  the sensitive_labels block, but cannot be configured in both places.
+
+* `sensitive_labels` -
+  (Optional)
+  Different notification type behaviors are configured primarily using the the `labels` field on this
+  resource. This block contains the labels which contain secrets or passwords so that they can be marked
+  sensitive and hidden from plan output. The name of the field, eg: password, will be the key
+  in the `labels` map in the api request.
+  Credentials may not be specified in both locations and will cause an error. Changing from one location
+  to a different credential configuration in the config will require an apply to update state.  Structure is documented below.
 
 * `user_labels` -
   (Optional)
@@ -113,6 +131,20 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `sensitive_labels` block supports:
+
+* `auth_token` -
+  (Optional)
+  An authorization token for a notification channel. Channel types that support this field include: slack
+
+* `password` -
+  (Optional)
+  An password for a notification channel. Channel types that support this field include: webhook_basicauth
+
+* `service_key` -
+  (Optional)
+  An servicekey token for a notification channel. Channel types that support this field include: pagerduty
 
 ## Attributes Reference
 
