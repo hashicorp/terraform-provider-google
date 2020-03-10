@@ -1,4 +1,18 @@
-## 3.11.1 (Unreleased)
+## 3.13.0 (Unreleased)
+
+## 3.12.0 (March 09, 2020)
+IMPROVEMENTS:
+* serviceusage: `google_project_service` no longer attempts to enable a service that is already enabled. ([#5810](https://github.com/terraform-providers/terraform-provider-google/pull/5810))
+* bigtable: Added support for full-name/id `instance` value in `google_bigtable_app_profile` ([#5780](https://github.com/terraform-providers/terraform-provider-google/pull/5780))
+* compute: Added `google_compute_router_nat` `drain_nat_ips` field (formerly beta). ([#5821](https://github.com/terraform-providers/terraform-provider-google/pull/5821))
+* pubsub: Added polling to ensure correct resource state for negative-cached PubSub resources ([#5813](https://github.com/terraform-providers/terraform-provider-google/pull/5813))
+
+BUG FIXES:
+* compute: Fixed a scenario where `google_compute_instance_template` would cause a crash. ([#5808](https://github.com/terraform-providers/terraform-provider-google/pull/5808))
+* container: Fixed panic when upgrading `google_container_cluster` with autoscaling block ([#5782](https://github.com/terraform-providers/terraform-provider-google/pull/5782))
+* storage: Added check for bucket retention policy list being empty. ([#5793](https://github.com/terraform-providers/terraform-provider-google/pull/5793))
+* storage: Added locking for operations involving `google_storage_*_access_control` resources to prevent errors from ACLs being added at the same time. ([#5791](https://github.com/terraform-providers/terraform-provider-google/pull/5791))
+
 ## 3.11.0 (March 02, 2020)
 
 FEATURES:
@@ -422,6 +436,16 @@ BREAKING CHANGES:
 * storage: Made at least one of `min_time_elapsed_since_last_modification`, `max_time_elapsed_since_last_modification`, `include_prefixes`, or `exclude_prefixes` required on `google_storage_transfer_job.transfer_spec.object_conditions`. [MM#2608](https://github.com/GoogleCloudPlatform/magic-modules/pull/2608)
 * storage: Made at least one of `overwrite_objects_already_existing_in_sink`, `delete_objects_unique_in_sink`, and `delete_objects_from_source_after_transfer` required on `google_storage_transfer_job.transfer_spec.transfer_options`. [MM#2608](https://github.com/GoogleCloudPlatform/magic-modules/pull/2608)
 * storage: Made at least one of `gcs_data_source`, `aws_s3_data_source`, or `http_data_source` required on `google_storage_transfer_job.transfer_options`. [MM#2608](https://github.com/GoogleCloudPlatform/magic-modules/pull/2608)
+
+## 2.20.3 (March 10, 2020)
+
+NOTES:
+* `2.20.3` is a backport release, and some changes will not appear in `3.X` series releases until `3.12.0`.
+To upgrade to `3.X` you will need to perform a large jump in versions, and it is _strongly_ advised that you attempt to upgrade to `3.X` instead of using this release.
+* `2.20.3` is primarily a preventative fix, in anticipation of a change in API response messages adding a default value.
+
+BUG FIXES:
+* compute: fixed error when reading `google_compute_instance_template` resources with `network_interface[*].name` set. ([#5812](https://github.com/terraform-providers/terraform-provider-google/pull/5812))
 
 ## 2.20.2 (February 03, 2020)
 
