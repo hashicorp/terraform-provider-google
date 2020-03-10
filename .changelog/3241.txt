@@ -1,0 +1,3 @@
+```release-note:bug
+container: `google_container_node_pool` resources created in the 2.X series were failing to update after 3.11.
+```
