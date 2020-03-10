@@ -1,4 +1,4 @@
-## 2.20.3 (Unreleased)
+## 2.20.3 (March 10, 2020)
 
 NOTES:
 * `2.20.3` is a backport release, and some changes will not appear in `3.X` series releases until `3.12.0`.
