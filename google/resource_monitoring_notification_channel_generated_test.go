@@ -40,9 +40,10 @@ func TestAccMonitoringNotificationChannel_notificationChannelBasicExample(t *tes
 				Config: testAccMonitoringNotificationChannel_notificationChannelBasicExample(context),
 			},
 			{
-				ResourceName:      "google_monitoring_notification_channel.basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_monitoring_notification_channel.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"sensitive_labels"},
 			},
 		},
 	})
