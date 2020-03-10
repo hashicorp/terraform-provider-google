@@ -339,8 +339,9 @@ func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+	name := getNodePoolName(d.Id())
 
-	_, err = containerNodePoolAwaitRestingState(config, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
@@ -351,7 +352,7 @@ func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.Partial(false)
 
-	_, err = containerNodePoolAwaitRestingState(config, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
@@ -369,7 +370,7 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 
 	name := getNodePoolName(d.Id())
 
-	_, err = containerNodePoolAwaitRestingState(config, d.Id(), d.Timeout(schema.TimeoutDelete))
+	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}
