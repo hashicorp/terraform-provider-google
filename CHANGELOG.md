@@ -1,7 +1,7 @@
 ## 2.20.3 (Unreleased)
 
 NOTES:
-* `2.20.3` is a backport release, and some changes will not appear in `3.X` series releases until `3.11.0`.
+* `2.20.3` is a backport release, and some changes will not appear in `3.X` series releases until `3.12.0`.
 To upgrade to `3.X` you will need to perform a large jump in versions, and it is _strongly_ advised that you attempt to upgrade to `3.X` instead of using this release.
 * `2.20.3` is primarily a preventative fix, in anticipation of a change in API response messages adding a default value.
 
