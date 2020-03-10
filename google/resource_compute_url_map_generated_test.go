@@ -58,11 +58,16 @@ resource "google_compute_url_map" "urlmap" {
 
   host_rule {
     hosts        = ["mysite.com"]
-    path_matcher = "allpaths"
+    path_matcher = "mysite"
+  }
+
+  host_rule {
+    hosts        = ["myothersite.com"]
+    path_matcher = "otherpaths"
   }
 
   path_matcher {
-    name            = "allpaths"
+    name            = "mysite"
     default_service = google_compute_backend_service.home.self_link
 
     path_rule {
@@ -79,6 +84,11 @@ resource "google_compute_url_map" "urlmap" {
       paths   = ["/static"]
       service = google_compute_backend_bucket.static.self_link
     }
+  }
+
+  path_matcher {
+    name            = "otherpaths"
+    default_service = google_compute_backend_service.home.self_link
   }
 
   test {
