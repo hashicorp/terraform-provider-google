@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_iap_brand`
+```
+```release-note:new-resource
+`google_iap_client`
+```

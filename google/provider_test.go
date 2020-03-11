@@ -59,6 +59,10 @@ var orgEnvVars = []string{
 	"GOOGLE_ORG",
 }
 
+var orgEnvDomainVars = []string{
+	"GOOGLE_ORG_DOMAIN",
+}
+
 var serviceAccountEnvVars = []string{
 	"GOOGLE_SERVICE_ACCOUNT",
 }
@@ -645,6 +649,11 @@ func getTestFirestoreProjectFromEnv(t *testing.T) string {
 func getTestOrgFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, orgEnvVars...)
 	return multiEnvSearch(orgEnvVars)
+}
+
+func getTestOrgDomainFromEnv(t *testing.T) string {
+	skipIfEnvNotSet(t, orgEnvDomainVars...)
+	return multiEnvSearch(orgEnvDomainVars)
 }
 
 func getTestOrgTargetFromEnv(t *testing.T) string {
