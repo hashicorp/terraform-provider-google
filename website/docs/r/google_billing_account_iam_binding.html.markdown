@@ -7,7 +7,7 @@ description: |-
  Allows management of a single binding with an IAM policy for a Google Cloud Platform Billing Account.
 ---
 
-# google\_billing_account_\_iam\_binding
+# google\_billing\_account\_iam\_binding
 
 Allows creation and management of a single binding within IAM policy for
 an existing Google Cloud Platform Billing Account.
