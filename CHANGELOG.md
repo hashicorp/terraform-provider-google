@@ -14,7 +14,7 @@ IMPROVEMENTS:
 * compute: Added support for `google_compute_instance` `resource_policies` field ([#5857](https://github.com/terraform-providers/terraform-provider-google/pull/5857))
 * compute: Added support for `google_compute_resource_policy` group placement policies ([#5857](https://github.com/terraform-providers/terraform-provider-google/pull/5857))
 * compute: Added support for full-name/id `network_endpoint_group` value in `google_network_endpoint` ([#5838](https://github.com/terraform-providers/terraform-provider-google/pull/5838))
-* compute: moved `google_compute_router_nat`'s `drain_nat_ips` from beta to ga. ([#5821](https://github.com/terraform-providers/terraform-provider-google/pull/5821))
+* compute: Added support for `google_compute_router_nat` `drain_nat_ips` (previously beta-only). ([#5821](https://github.com/terraform-providers/terraform-provider-google/pull/5821))
 * dialogflow: Changed `google_dialogflow_agent` to not read `tier` status ([#5835](https://github.com/terraform-providers/terraform-provider-google/pull/5835))
 * monitoring: Added `sensitive_labels` to `google_monitoring_notification_channel` so that labels like `password` and `auth_token` can be managed separately from the other labels and marked as sensitive. ([#5873](https://github.com/terraform-providers/terraform-provider-google/pull/5873))
 
