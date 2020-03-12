@@ -4,7 +4,6 @@ BREAKING CHANGES:
 * dialogflow: Changed `google_dialogflow_agent.time_zone` to ForceNew. Updating this field will require recreation. This is due to a change in API behavior. ([#5831](https://github.com/terraform-providers/terraform-provider-google/pull/5831))
 
 FEATURES:
-* **New Resource:** `google_bigquery_reservation` ([#5840](https://github.com/terraform-providers/terraform-provider-google/pull/5840))
 * **New Resource:** `google_compute_region_disk_resource_policy_attachment` ([#5849](https://github.com/terraform-providers/terraform-provider-google/pull/5849))
 * **New Resource:** `google_sql_source_representation_instance` ([#5839](https://github.com/terraform-providers/terraform-provider-google/pull/5839))
 
