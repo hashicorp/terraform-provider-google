@@ -324,6 +324,13 @@ The `addons_config` block supports:
 * `cloudrun_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
     The status of the CloudRun addon. It requires `istio_config` enabled. It is disabled by default.
     Set `disabled = false` to enable. This addon can only be enabled at cluster creation time.
+    
+* `dns_cache_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
+    The status of the NodeLocal DNSCache addon. It is disabled by default.
+    Set `enabled = true` to enable. 
+    
+    **Enabling/Disabling NodeLocal DNSCache in an existing cluster is a disruptive operation.
+    All cluster nodes running GKE 1.15 and higher are recreated.**
 
 This example `addons_config` disables two addons:
 
