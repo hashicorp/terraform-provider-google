@@ -86,6 +86,51 @@ data "google_compute_network" "redis-network" {
   name = "redis-test-network"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=redis_instance_private_service&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Instance Private Service
+
+
+```hcl
+resource "google_compute_network" "network" {
+  name = "tf-test%{random_suffix}"
+}
+
+resource "google_compute_global_address" "service_range" {
+  name          = "tf-test%{random_suffix}"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.network.self_link
+}
+
+resource "google_service_networking_connection" "private_service_connection" {
+  network                 = google_compute_network.network.self_link
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.service_range.name]
+}
+
+resource "google_redis_instance" "cache" {
+  name           = "tf-test%{random_suffix}"
+  tier           = "STANDARD_HA"
+  memory_size_gb = 1
+
+  location_id             = "us-central1-a"
+  alternative_location_id = "us-central1-f"
+
+  authorized_network = google_compute_network.network.self_link
+  connect_mode       = "PRIVATE_SERVICE_ACCESS"
+
+  redis_version     = "REDIS_3_2"
+  display_name      = "Terraform Test Instance"
+
+  depends_on = [ google_service_networking_connection.private_service_connection ]
+
+}
+```
 
 ## Argument Reference
 
@@ -116,6 +161,12 @@ The following arguments are supported:
   The full name of the Google Compute Engine network to which the
   instance is connected. If left unspecified, the default network
   will be used.
+
+* `connect_mode` -
+  (Optional)
+  The connection mode of the Redis instance. Can be either
+  `DIRECT_PEERING` or `PRIVATE_SERVICE_ACCESS`. The default
+  connect mode if not provided is `DIRECT_PEERING`.
 
 * `display_name` -
   (Optional)
