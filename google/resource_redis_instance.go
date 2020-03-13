@@ -75,6 +75,16 @@ If provided, it must be a different zone from the one provided in
 instance is connected. If left unspecified, the default network
 will be used.`,
 			},
+			"connect_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"DIRECT_PEERING", "PRIVATE_SERVICE_ACCESS", ""}, false),
+				Description: `The connection mode of the Redis instance. Can be either
+'DIRECT_PEERING' or 'PRIVATE_SERVICE_ACCESS'. The default
+connect mode if not provided is 'DIRECT_PEERING'.`,
+				Default: "DIRECT_PEERING",
+			},
 			"display_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -196,6 +206,12 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("authorized_network"); !isEmptyValue(reflect.ValueOf(authorizedNetworkProp)) && (ok || !reflect.DeepEqual(v, authorizedNetworkProp)) {
 		obj["authorizedNetwork"] = authorizedNetworkProp
+	}
+	connectModeProp, err := expandRedisInstanceConnectMode(d.Get("connect_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("connect_mode"); !isEmptyValue(reflect.ValueOf(connectModeProp)) && (ok || !reflect.DeepEqual(v, connectModeProp)) {
+		obj["connectMode"] = connectModeProp
 	}
 	displayNameProp, err := expandRedisInstanceDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
@@ -340,6 +356,9 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("authorized_network", flattenRedisInstanceAuthorizedNetwork(res["authorizedNetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("connect_mode", flattenRedisInstanceConnectMode(res["connectMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("create_time", flattenRedisInstanceCreateTime(res["createTime"], d, config)); err != nil {
@@ -532,6 +551,10 @@ func flattenRedisInstanceAuthorizedNetwork(v interface{}, d *schema.ResourceData
 	return v
 }
 
+func flattenRedisInstanceConnectMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenRedisInstanceCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -609,6 +632,10 @@ func expandRedisInstanceAuthorizedNetwork(v interface{}, d TerraformResourceData
 		return nil, err
 	}
 	return fv.RelativeLink(), nil
+}
+
+func expandRedisInstanceConnectMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandRedisInstanceDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
