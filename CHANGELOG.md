@@ -10,7 +10,6 @@ FEATURES:
 IMPROVEMENTS:
 * bigtable: Added support for full-name/id `instance_name` value in `google_bigtable_table` and `google_bigtable_gc_policy` ([#5837](https://github.com/terraform-providers/terraform-provider-google/pull/5837))
 * compute: Added `autoscaling_policy` to `google_compute_node_group` ([#5864](https://github.com/terraform-providers/terraform-provider-google/pull/5864))
-* compute: Added support for `google_compute_resource_policy` group placement policies ([#5857](https://github.com/terraform-providers/terraform-provider-google/pull/5857))
 * compute: Added support for full-name/id `network_endpoint_group` value in `google_network_endpoint` ([#5838](https://github.com/terraform-providers/terraform-provider-google/pull/5838))
 * compute: Added support for `google_compute_router_nat` `drain_nat_ips` (previously beta-only). ([#5821](https://github.com/terraform-providers/terraform-provider-google/pull/5821))
 * dialogflow: Changed `google_dialogflow_agent` to not read `tier` status ([#5835](https://github.com/terraform-providers/terraform-provider-google/pull/5835))
