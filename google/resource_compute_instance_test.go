@@ -1784,24 +1784,6 @@ func TestAccComputeInstance_updateTerminated_desiredStatusRunning_notAllowStoppi
 	})
 }
 
-func TestAccComputeInstance_resourcePolicyCollocate(t *testing.T) {
-	t.Parallel()
-
-	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeInstance_resourcePolicyCollocate(instanceName),
-			},
-			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
-		},
-	})
-}
-
 func testAccCheckComputeInstanceUpdateMachineType(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -4535,50 +4517,4 @@ resource "google_compute_instance" "foobar" {
 	}
 }
 `, instance)
-}
-
-func testAccComputeInstance_resourcePolicyCollocate(instance string) string {
-	return fmt.Sprintf(`
-data "google_compute_image" "my_image" {
-  family  = "debian-9"
-  project = "debian-cloud"
-}
-
-resource "google_compute_instance" "foobar" {
-  name           = "%s"
-  machine_type   = "c2-standard-4"
-  zone           = "us-central1-f"
-  can_ip_forward = false
-  tags           = ["foo", "bar"]
-
-  //deletion_protection = false is implicit in this config due to default value
-
-  boot_disk {
-    initialize_params {
-      image = data.google_compute_image.my_image.self_link
-    }
-  }
-
-  network_interface {
-    network = "default"
-  }
-
-  scheduling {
-    # Instances with resource policies do not support live migration.
-    on_host_maintenance = "TERMINATE"
-  }
-
-  resource_policies = [google_compute_resource_policy.foo.self_link]
-}
-
-resource "google_compute_resource_policy" "foo" {
-  name   = "tf-test-policy-%s"
-  region = "us-central1"
-  group_placement_policy {
-    vm_count = 2
-    collocation = "COLLOCATED"
-  }
-}
-
-`, instance, acctest.RandString(10))
 }
