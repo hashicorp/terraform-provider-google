@@ -353,7 +353,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 	d.SetId(id)
 
 	waitErr := composerOperationWaitTime(
-		config.clientComposer, op, envName.Project, "Creating Environment",
+		config, op, envName.Project, "Creating Environment",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 
 	if waitErr != nil {
@@ -564,7 +564,7 @@ func resourceComposerEnvironmentPatchField(updateMask string, env *composer.Envi
 	}
 
 	waitErr := composerOperationWaitTime(
-		config.clientComposer, op, envName.Project, "Updating newly created Environment",
+		config, op, envName.Project, "Updating newly created Environment",
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if waitErr != nil {
 		// The resource didn't actually update.
@@ -590,7 +590,7 @@ func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	err = composerOperationWaitTime(
-		config.clientComposer, op, envName.Project, "Deleting Environment",
+		config, op, envName.Project, "Deleting Environment",
 		int(d.Timeout(schema.TimeoutDelete).Minutes()))
 	if err != nil {
 		return err
@@ -1047,7 +1047,7 @@ func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvi
 	}
 
 	waitErr := composerOperationWaitTime(
-		config.clientComposer, op, envName.Project,
+		config, op, envName.Project,
 		fmt.Sprintf("Deleting invalid created Environment with state %q", env.State),
 		int(d.Timeout(schema.TimeoutCreate).Minutes()))
 	if waitErr != nil {

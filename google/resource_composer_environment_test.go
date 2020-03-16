@@ -608,7 +608,7 @@ func testSweepComposerEnvironments(config *Config) error {
 				allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete environment %q: %s", e.Name, deleteErr))
 				continue
 			}
-			waitErr := composerOperationWaitTime(config.clientComposer, op, config.Project, "Sweeping old test environments", 10)
+			waitErr := composerOperationWaitTime(config, op, config.Project, "Sweeping old test environments", 10)
 			if waitErr != nil {
 				allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete environment %q: %s", e.Name, waitErr))
 			}

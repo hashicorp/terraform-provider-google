@@ -14,14 +14,12 @@ import (
 func TestAccPubsubTopic_update(t *testing.T) {
 	t.Parallel()
 
-	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(10))
-	providers := getTestAccProviders(t.Name())
-	defer closeRecorder(t)
+	topic := fmt.Sprintf("tf-test-topic-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    providers,
-		CheckDestroy: testAccCheckPubsubTopicDestroyProducer(providers["google"].(*schema.Provider)),
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPubsubTopicDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubTopic_update(topic, "foo", "bar"),
@@ -42,7 +40,7 @@ func TestAccPubsubTopic_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 		},
-	})
+	}, testAccCheckPubsubTopicDestroyProducer)
 }
 
 func TestAccPubsubTopic_cmek(t *testing.T) {
@@ -53,8 +51,9 @@ func TestAccPubsubTopic_cmek(t *testing.T) {
 	topicName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPubsubTopicDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubTopic_cmek(pid, topicName, kms.CryptoKey.Name),

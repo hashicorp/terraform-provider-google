@@ -98,7 +98,7 @@ func computeOperationWaitTime(config *Config, res interface{}, project, activity
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeoutMinutes)
+	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
 }
 
 // ComputeOperationError wraps compute.OperationError and implements the

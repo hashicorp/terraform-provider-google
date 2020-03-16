@@ -55,7 +55,7 @@ func mLEngineOperationWaitTimeWithResponse(config *Config, op map[string]interfa
 		// If w is nil, the op was synchronous.
 		return err
 	}
-	if err := OperationWait(w, activity, timeoutMinutes); err != nil {
+	if err := OperationWait(w, activity, timeoutMinutes, config.PollInterval); err != nil {
 		return err
 	}
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
@@ -67,5 +67,5 @@ func mLEngineOperationWaitTime(config *Config, op map[string]interface{}, projec
 		// If w is nil, the op was synchronous.
 		return err
 	}
-	return OperationWait(w, activity, timeoutMinutes)
+	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
 }

@@ -2,13 +2,16 @@ package google
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -76,9 +79,11 @@ var billingAccountEnvVars = []string{
 }
 
 var configs map[string]*Config
+var sources map[string]rand.Source
 
 func init() {
 	configs = make(map[string]*Config)
+	sources = make(map[string]rand.Source)
 	testAccProvider = Provider().(*schema.Provider)
 	testAccRandomProvider = random.Provider().(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
@@ -108,6 +113,8 @@ func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.Resour
 		vcrMode = recorder.ModeRecording
 	case "REPLAYING":
 		vcrMode = recorder.ModeReplaying
+		// When replaying, set the poll interval low to speed up tests
+		config.PollInterval = 10 * time.Millisecond
 	default:
 		log.Printf("[DEBUG] No valid environment var set for VCR_MODE, expected RECORDING or REPLAYING, skipping VCR. VCR_MODE: %s", vcrEnv)
 		return config, nil
@@ -155,6 +162,7 @@ func closeRecorder(t *testing.T) {
 		}
 		// Clean up test config
 		delete(configs, t.Name())
+		delete(sources, t.Name())
 	}
 }
 
@@ -176,6 +184,98 @@ func getTestAccProviders(testName string) map[string]terraform.ResourceProvider 
 		"google": prov,
 		"random": provRand,
 	}
+}
+
+// Wrapper for resource.Test to swap out providers for VCR providers and handle VCR specific things
+// Can be called when VCR is not enabled, and it will behave as normal
+func vcrTest(t *testing.T, c resource.TestCase, destroyFuncProducer func(provider *schema.Provider) func(s *terraform.State) error) {
+	providers := getTestAccProviders(t.Name())
+	c.Providers = providers
+	defer closeRecorder(t)
+	c.CheckDestroy = destroyFuncProducer(providers["google"].(*schema.Provider))
+	resource.Test(t, c)
+}
+
+// Produces a rand.Source for VCR testing based on the given mode.
+// In RECORDING mode, generates a new seed and saves it to a file, using the seed for the source
+// In REPLAYING mode, reads a seed from a file and creates a source from it
+func vcrSource(t *testing.T, path, mode string) (rand.Source, error) {
+	if s, ok := sources[t.Name()]; ok {
+		return s, nil
+	}
+	fileName := filepath.Join(path, fmt.Sprintf("%s.seed", t.Name()))
+	switch mode {
+	case "RECORDING":
+		seed := rand.Int63()
+		s := rand.NewSource(seed)
+		err := writeSeedToFile(seed, fileName)
+		if err != nil {
+			return nil, err
+		}
+		sources[t.Name()] = s
+		return s, nil
+	case "REPLAYING":
+		seed, err := readSeedFromFile(fileName)
+		if err != nil {
+			return nil, err
+		}
+		s := rand.NewSource(seed)
+		sources[t.Name()] = s
+		return s, nil
+	default:
+		log.Printf("[DEBUG] No valid environment var set for VCR_MODE, expected RECORDING or REPLAYING, skipping VCR. VCR_MODE: %s", mode)
+		return nil, errors.New("No valid VCR_MODE set")
+	}
+}
+
+func readSeedFromFile(fileName string) (int64, error) {
+	// Max number of digits for int64 is 19
+	data := make([]byte, 19)
+	f, err := os.Open(fileName)
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+	_, err = f.Read(data)
+	if err != nil {
+		return 0, err
+	}
+	seed := string(data)
+	return strconv.ParseInt(seed, 10, 64)
+}
+
+func writeSeedToFile(seed int64, fileName string) error {
+	f, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = f.WriteString(strconv.FormatInt(seed, 10))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func randString(t *testing.T, length int) string {
+	envPath := os.Getenv("VCR_PATH")
+	vcrMode := os.Getenv("VCR_MODE")
+	if envPath == "" || vcrMode == "" {
+		return acctest.RandString(10)
+	}
+	s, err := vcrSource(t, envPath, vcrMode)
+	if err != nil {
+		// At this point we haven't created any resources, so fail fast
+		t.Fatal(err)
+	}
+
+	r := rand.New(s)
+	result := make([]byte, length)
+	set := "abcdefghijklmnopqrstuvwxyz012346789"
+	for i := 0; i < length; i++ {
+		result[i] = set[r.Intn(len(set))]
+	}
+	return string(result)
 }
 
 func TestProvider(t *testing.T) {
