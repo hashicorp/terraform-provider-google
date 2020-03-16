@@ -8,10 +8,12 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
 	"github.com/hashicorp/terraform-plugin-sdk/httpclient"
 	"github.com/terraform-providers/terraform-provider-google/version"
+	"google.golang.org/api/option"
 
 	"golang.org/x/oauth2"
 	googleoauth "golang.org/x/oauth2/google"
@@ -39,7 +41,6 @@ import (
 	"google.golang.org/api/iam/v1"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 	cloudlogging "google.golang.org/api/logging/v2"
-	"google.golang.org/api/option"
 	"google.golang.org/api/pubsub/v1"
 	runtimeconfig "google.golang.org/api/runtimeconfig/v1beta1"
 	"google.golang.org/api/servicemanagement/v1"
@@ -267,8 +268,23 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	}
 	c.tokenSource = tokenSource
 
-	client := oauth2.NewClient(context.Background(), tokenSource)
-	client.Transport = logging.NewTransport("Google", client.Transport)
+	cleanCtx := context.WithValue(ctx, oauth2.HTTPClient, cleanhttp.DefaultClient())
+
+	// 1. OAUTH2 TRANSPORT/CLIENT - sets up proper auth headers
+	client := oauth2.NewClient(cleanCtx, tokenSource)
+
+	// 2. Logging Transport - ensure we log HTTP requests to GCP APIs.
+	loggingTransport := logging.NewTransport("Google", client.Transport)
+
+	// 3. Retry Transport - retries common temporary errors
+	// Keep order for wrapping logging so we log each retried request as well.
+	// This value should be used if needed to create shallow copies with additional retry predicates.
+	// See ClientWithAdditionalRetries
+	retryTransport := NewTransportWithDefaultRetries(loggingTransport)
+
+	// Set final transport value.
+	client.Transport = retryTransport
+
 	// This timeout is a timeout per HTTP request, not per logical operation.
 	client.Timeout = c.synchronousTimeout()
 
@@ -377,7 +393,8 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 
 	pubsubClientBasePath := removeBasePathVersion(c.PubsubBasePath)
 	log.Printf("[INFO] Instantiating Google Pubsub client for path %s", pubsubClientBasePath)
-	c.clientPubsub, err = pubsub.NewService(ctx, option.WithHTTPClient(client))
+	wrappedPubsubClient := ClientWithAdditionalRetries(client, retryTransport, pubsubTopicProjectNotReady)
+	c.clientPubsub, err = pubsub.NewService(ctx, option.WithHTTPClient(wrappedPubsubClient))
 	if err != nil {
 		return err
 	}
@@ -476,7 +493,8 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 
 	bigQueryClientBasePath := c.BigQueryBasePath
 	log.Printf("[INFO] Instantiating Google Cloud BigQuery client for path %s", bigQueryClientBasePath)
-	c.clientBigQuery, err = bigquery.NewService(ctx, option.WithHTTPClient(client))
+	wrappedBigQueryClient := ClientWithAdditionalRetries(client, retryTransport, iamMemberMissing)
+	c.clientBigQuery, err = bigquery.NewService(ctx, option.WithHTTPClient(wrappedBigQueryClient))
 	if err != nil {
 		return err
 	}
