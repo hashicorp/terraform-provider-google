@@ -72,7 +72,7 @@ func dataprocJobOperationWait(config *Config, region, projectId, jobId string, a
 		ProjectId: projectId,
 		JobId:     jobId,
 	}
-	return OperationWait(w, activity, timeoutMinutes)
+	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
 }
 
 type DataprocDeleteJobOperationWaiter struct {
@@ -112,5 +112,5 @@ func dataprocDeleteOperationWait(config *Config, region, projectId, jobId string
 			JobId:     jobId,
 		},
 	}
-	return OperationWait(w, activity, timeoutMinutes)
+	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
 }

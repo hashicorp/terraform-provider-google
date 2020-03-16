@@ -126,7 +126,7 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 	}
 }
 
-func OperationWait(w Waiter, activity string, timeoutMinutes int) error {
+func OperationWait(w Waiter, activity string, timeoutMinutes int, pollInterval time.Duration) error {
 	if OperationDone(w) {
 		if w.Error() != nil {
 			return w.Error()
@@ -135,11 +135,12 @@ func OperationWait(w Waiter, activity string, timeoutMinutes int) error {
 	}
 
 	c := &resource.StateChangeConf{
-		Pending:    w.PendingStates(),
-		Target:     w.TargetStates(),
-		Refresh:    CommonRefreshFunc(w),
-		Timeout:    time.Duration(timeoutMinutes) * time.Minute,
-		MinTimeout: 2 * time.Second,
+		Pending:      w.PendingStates(),
+		Target:       w.TargetStates(),
+		Refresh:      CommonRefreshFunc(w),
+		Timeout:      time.Duration(timeoutMinutes) * time.Minute,
+		MinTimeout:   2 * time.Second,
+		PollInterval: pollInterval,
 	}
 	opRaw, err := c.WaitForState()
 	if err != nil {

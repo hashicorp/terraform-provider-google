@@ -32,7 +32,7 @@ func serviceManagementOperationWaitTime(config *Config, op *servicemanagement.Op
 		return nil, err
 	}
 
-	if err := OperationWait(w, activity, timeoutMinutes); err != nil {
+	if err := OperationWait(w, activity, timeoutMinutes, config.PollInterval); err != nil {
 		return nil, err
 	}
 	return w.Op.Response, nil

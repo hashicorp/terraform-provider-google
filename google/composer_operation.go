@@ -18,12 +18,12 @@ func (w *ComposerOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 
-func composerOperationWaitTime(service *composer.Service, op *composer.Operation, project, activity string, timeoutMinutes int) error {
+func composerOperationWaitTime(config *Config, op *composer.Operation, project, activity string, timeoutMinutes int) error {
 	w := &ComposerOperationWaiter{
-		Service: service.Projects.Locations,
+		Service: config.clientComposer.Projects.Locations,
 	}
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeoutMinutes)
+	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
 }

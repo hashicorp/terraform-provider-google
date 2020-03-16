@@ -36,7 +36,7 @@ func serviceUsageOperationWaitTime(config *Config, op *serviceusage.Operation, a
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeoutMinutes)
+	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
 }
 
 func handleServiceUsageRetryableError(err error) error {

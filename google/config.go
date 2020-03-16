@@ -64,6 +64,9 @@ type Config struct {
 	BatchingConfig      *batchingConfig
 	UserProjectOverride bool
 	RequestTimeout      time.Duration
+	// PollInterval is passed to resource.StateChangeConf in common_operation.go
+	// It controls the interval at which we poll for successful operations
+	PollInterval time.Duration
 
 	client           *http.Client
 	context          context.Context
@@ -599,6 +602,8 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 
 	c.requestBatcherServiceUsage = NewRequestBatcher("Service Usage", ctx, c.BatchingConfig)
 	c.requestBatcherIam = NewRequestBatcher("IAM", ctx, c.BatchingConfig)
+
+	c.PollInterval = 10 * time.Second
 
 	return nil
 }

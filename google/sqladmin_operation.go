@@ -118,7 +118,7 @@ func sqlAdminOperationWaitTime(config *Config, res interface{}, project, activit
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeoutMinutes)
+	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
 }
 
 // SqlAdminOperationError wraps sqladmin.OperationError and implements the

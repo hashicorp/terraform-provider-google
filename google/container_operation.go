@@ -109,5 +109,5 @@ func containerOperationWait(config *Config, op *container.Operation, project, lo
 		return err
 	}
 
-	return OperationWait(w, activity, timeoutMinutes)
+	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
 }

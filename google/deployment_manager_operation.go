@@ -50,7 +50,7 @@ func deploymentManagerOperationWaitTime(config *Config, resp interface{}, projec
 		return err
 	}
 
-	return OperationWait(w, activity, timeoutMinutes)
+	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
 }
 
 func (w *DeploymentManagerOperationWaiter) Error() error {

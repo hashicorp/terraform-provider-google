@@ -12,6 +12,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
@@ -165,9 +166,9 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 func TestAccContainerCluster_withMasterAuthConfig(t *testing.T) {
 	t.Parallel()
 
-	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerClusterDestroy,
@@ -217,7 +218,7 @@ func TestAccContainerCluster_withMasterAuthConfig(t *testing.T) {
 				ImportStateVerify: true,
 			},
 		},
-	})
+	}, testAccCheckContainerClusterDestroyProducer)
 }
 
 func TestAccContainerCluster_withMasterAuthConfig_NoCert(t *testing.T) {
@@ -1248,6 +1249,27 @@ func testAccCheckContainerClusterDestroy(s *terraform.State) error {
 	}
 
 	return nil
+}
+
+func testAccCheckContainerClusterDestroyProducer(provider *schema.Provider) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := provider.Meta().(*Config)
+
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_container_cluster" {
+				continue
+			}
+
+			attributes := rs.Primary.Attributes
+			_, err := config.clientContainer.Projects.Zones.Clusters.Get(
+				config.Project, attributes["location"], attributes["name"]).Do()
+			if err == nil {
+				return fmt.Errorf("Cluster still exists")
+			}
+		}
+
+		return nil
+	}
 }
 
 func getResourceAttributes(n string, s *terraform.State) (map[string]string, error) {
