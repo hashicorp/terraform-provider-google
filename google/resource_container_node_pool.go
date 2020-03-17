@@ -103,6 +103,28 @@ var schemaNodePool = map[string]*schema.Schema{
 		Computed: true,
 	},
 
+	"upgrade_settings": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"max_surge": {
+					Type:         schema.TypeInt,
+					Required:     true,
+					ValidateFunc: validation.IntAtLeast(0),
+				},
+
+				"max_unavailable": {
+					Type:         schema.TypeInt,
+					Required:     true,
+					ValidateFunc: validation.IntAtLeast(0),
+				},
+			},
+		},
+	},
+
 	"initial_node_count": {
 		Type:     schema.TypeInt,
 		Optional: true,
@@ -515,6 +537,19 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodeP
 		}
 	}
 
+	if v, ok := d.GetOk(prefix + "upgrade_settings"); ok {
+		upgradeSettingsConfig := v.([]interface{})[0].(map[string]interface{})
+		np.UpgradeSettings = &containerBeta.UpgradeSettings{}
+
+		if v, ok := upgradeSettingsConfig["max_surge"]; ok {
+			np.UpgradeSettings.MaxSurge = int64(v.(int))
+		}
+
+		if v, ok := upgradeSettingsConfig["max_unavailable"]; ok {
+			np.UpgradeSettings.MaxUnavailable = int64(v.(int))
+		}
+	}
+
 	return np, nil
 }
 
@@ -567,6 +602,17 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 			"auto_repair":  np.Management.AutoRepair,
 			"auto_upgrade": np.Management.AutoUpgrade,
 		},
+	}
+
+	if np.UpgradeSettings != nil {
+		nodePool["upgrade_settings"] = []map[string]interface{}{
+			{
+				"max_surge":       np.UpgradeSettings.MaxSurge,
+				"max_unavailable": np.UpgradeSettings.MaxUnavailable,
+			},
+		}
+	} else {
+		delete(nodePool, "upgrade_settings")
 	}
 
 	return nodePool, nil
@@ -758,6 +804,39 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 
 		if prefix == "" {
 			d.SetPartial("version")
+		}
+	}
+
+	if d.HasChange(prefix + "upgrade_settings") {
+		upgradeSettings := &containerBeta.UpgradeSettings{}
+		if v, ok := d.GetOk(prefix + "upgrade_settings"); ok {
+			upgradeSettingsConfig := v.([]interface{})[0].(map[string]interface{})
+			upgradeSettings.MaxSurge = int64(upgradeSettingsConfig["max_surge"].(int))
+			upgradeSettings.MaxUnavailable = int64(upgradeSettingsConfig["max_unavailable"].(int))
+		}
+		req := &containerBeta.UpdateNodePoolRequest{
+			UpgradeSettings: upgradeSettings,
+		}
+		updateF := func() error {
+			op, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req).Do()
+
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "updating GKE node pool upgrade settings", timeoutInMinutes)
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] Updated upgrade settings in Node Pool %s", name)
+
+		if prefix == "" {
+			d.SetPartial("upgrade_settings")
 		}
 	}
 
