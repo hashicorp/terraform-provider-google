@@ -44,7 +44,6 @@ To get more information about ForwardingRule, see:
 ```hcl
 // Forwarding rule for Internal Load Balancing
 resource "google_compute_forwarding_rule" "default" {
-  provider = "google-beta"
   name                  = "website-forwarding-rule"
   region                = "us-central1"
   load_balancing_scheme = "INTERNAL"
@@ -55,13 +54,11 @@ resource "google_compute_forwarding_rule" "default" {
   subnetwork            = "${google_compute_subnetwork.default.name}"
 }
 resource "google_compute_region_backend_service" "backend" {
-  provider = "google-beta"
   name                  = "website-backend"
   region                = "us-central1"
   health_checks         = ["${google_compute_health_check.hc.self_link}"]
 }
 resource "google_compute_health_check" "hc" {
-  provider = "google-beta"
   name               = "check-website-backend"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -70,12 +67,10 @@ resource "google_compute_health_check" "hc" {
   }
 }
 resource "google_compute_network" "default" {
-  provider = "google-beta"
   name = "website-net"
   auto_create_subnetworks = false
 }
 resource "google_compute_subnetwork" "default" {
-  provider = "google-beta"
   name          = "website-net"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
@@ -469,6 +464,11 @@ The following arguments are supported:
   The target must live in the same region as the forwarding rule.
   The forwarded traffic must be of a type appropriate to the target
   object.
+
+* `allow_global_access` -
+  (Optional)
+  If true, clients can access ILB from all regions.
+  Otherwise only allows from the local region the ILB is located at.
 
 * `all_ports` -
   (Optional)

@@ -24,6 +24,69 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
+func TestAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(context),
+			},
+			{
+				ResourceName:      "google_compute_forwarding_rule.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(context map[string]interface{}) string {
+	return Nprintf(`
+// Forwarding rule for Internal Load Balancing
+resource "google_compute_forwarding_rule" "default" {
+  name                  = "tf-test-website-forwarding-rule%{random_suffix}"
+  region                = "us-central1"
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = "${google_compute_region_backend_service.backend.self_link}"
+  all_ports             = true
+  allow_global_access   = true
+  network               = "${google_compute_network.default.name}"
+  subnetwork            = "${google_compute_subnetwork.default.name}"
+}
+resource "google_compute_region_backend_service" "backend" {
+  name                  = "tf-test-website-backend%{random_suffix}"
+  region                = "us-central1"
+  health_checks         = ["${google_compute_health_check.hc.self_link}"]
+}
+resource "google_compute_health_check" "hc" {
+  name               = "check-tf-test-website-backend%{random_suffix}"
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+resource "google_compute_network" "default" {
+  name = "tf-test-website-net%{random_suffix}"
+  auto_create_subnetworks = false
+}
+resource "google_compute_subnetwork" "default" {
+  name          = "tf-test-website-net%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = "${google_compute_network.default.self_link}"
+}
+`, context)
+}
+
 func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
