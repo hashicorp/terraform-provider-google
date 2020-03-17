@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -133,6 +134,56 @@ func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 				// autoscaling.# = 0 is equivalent to no autoscaling at all,
 				// but will still cause an import diff
 				ImportStateVerifyIgnore: []string{"autoscaling.#"},
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_withUpgradeSettings(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, 2, 3),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_upgrade_settings",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_withUpgradeSettings(cluster, np, 1, 1),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_upgrade_settings",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_withInvalidUpgradeSettings(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccContainerNodePool_withUpgradeSettings(cluster, np, 0, 0),
+				ExpectError: regexp.MustCompile(`.?Max_surge and max_unavailable must not be negative and at least one of them must be greater than zero.*`),
 			},
 		},
 	})
@@ -920,6 +971,32 @@ resource "google_container_node_pool" "np_with_node_config" {
   }
 }
 `, cluster, nodePool)
+}
+
+func testAccContainerNodePool_withUpgradeSettings(clusterName string, nodePoolName string, maxSurge int, maxUnavailable int) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1" {
+  location = "us-central1"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1"
+  initial_node_count = 1
+  min_master_version = "${data.google_container_engine_versions.central1.latest_master_version}"
+}
+
+resource "google_container_node_pool" "with_upgrade_settings" {
+  name = "%s"
+  location = "us-central1"
+  cluster = "${google_container_cluster.cluster.name}"
+  initial_node_count = 1
+  upgrade_settings {
+    max_surge = %d
+    max_unavailable = %d
+  }
+}
+`, clusterName, nodePoolName, maxSurge, maxUnavailable)
 }
 
 func testAccContainerNodePool_withGPU(cluster, np string) string {
