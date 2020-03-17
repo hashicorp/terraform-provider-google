@@ -319,7 +319,7 @@ The optional `settings.maintenance_window` subblock for instances declares a one
 [maintenance window](https://cloud.google.com/sql/docs/instance-settings?hl=en#maintenance-window-2ndgen)
 when an Instance can automatically restart to apply updates. The maintenance window is specified in UTC time. It supports:
 
-* `day` - (Optional) Day of week (`1-7`), starting on Monday
+* `day` - (Optional) Day of week (`1-7`), starting on Tuesday
 
 * `hour` - (Optional) Hour of day (`0-23`), ignored if `day` not set
 
