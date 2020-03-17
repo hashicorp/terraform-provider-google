@@ -134,7 +134,7 @@ with a subnetwork in each region. Next, change the network of the
 network_interface {
 -  # A default network is created for all GCP projects
 -  network = "default"
-+  network = "${google_compute_network.vpc_network.self_link}"
++  network = google_compute_network.vpc_network.self_link
   access_config {
 ```
 
@@ -189,7 +189,7 @@ resource "google_compute_instance" "vm_instance" {
 
   network_interface {
     # A default network is created for all GCP projects
-    network       = "${google_compute_network.vpc_network.self_link}"
+    network       = google_compute_network.vpc_network.self_link
     access_config {
     }
   }
