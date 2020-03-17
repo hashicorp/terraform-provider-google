@@ -450,6 +450,7 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_global_address":                   dataSourceGoogleComputeGlobalAddress(),
 			"google_compute_image":                            dataSourceGoogleComputeImage(),
 			"google_compute_instance":                         dataSourceGoogleComputeInstance(),
+			"google_compute_instance_serial_port":             dataSourceGoogleComputeInstanceSerialPort(),
 			"google_compute_instance_group":                   dataSourceGoogleComputeInstanceGroup(),
 			"google_compute_lb_ip_ranges":                     dataSourceGoogleComputeLbIpRanges(),
 			"google_compute_network":                          dataSourceGoogleComputeNetwork(),
