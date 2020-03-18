@@ -222,6 +222,7 @@ func TestAccDataprocCluster_withAccelerators(t *testing.T) {
 
 	project := getTestProjectFromEnv()
 	acceleratorType := "nvidia-tesla-k80"
+	zone := "us-central1-c"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -229,7 +230,7 @@ func TestAccDataprocCluster_withAccelerators(t *testing.T) {
 		CheckDestroy: testAccCheckDataprocClusterDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withAccelerators(rnd, acceleratorType),
+				Config: testAccDataprocCluster_withAccelerators(rnd, acceleratorType, zone),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists("google_dataproc_cluster.accelerated_cluster", &cluster),
 					testAccCheckDataprocClusterAccelerator(&cluster, project, 1, 1),
@@ -859,13 +860,17 @@ resource "google_dataproc_cluster" "basic" {
 `, rnd)
 }
 
-func testAccDataprocCluster_withAccelerators(rnd, acceleratorType string) string {
+func testAccDataprocCluster_withAccelerators(rnd, acceleratorType, zone string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "accelerated_cluster" {
   name   = "dproc-cluster-test-%s"
   region = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      zone = "%s"
+    }
+
     master_config {
       accelerators {
         accelerator_type  = "%s"
@@ -881,7 +886,7 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
     }
   }
 }
-`, rnd, acceleratorType, acceleratorType)
+`, rnd, zone, acceleratorType, acceleratorType)
 }
 
 func testAccDataprocCluster_withInternalIpOnlyTrue(rnd string) string {
