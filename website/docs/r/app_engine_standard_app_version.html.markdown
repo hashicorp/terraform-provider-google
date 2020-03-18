@@ -31,7 +31,7 @@ To get more information about StandardAppVersion, see:
 
 * [API documentation](https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1/apps.services.versions)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/appengine/docs/standard)
+    * [Official Documentation](https://cloud.google.com/appengine/docs/admin-api/deploying-overview)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=app_engine_standard_app_version&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -181,7 +181,7 @@ The `handlers` block supports:
 
 * `redirect_http_response_code` -
   (Optional)
-  30x code to use when performing redirects for the secure field.
+  Redirect codes.
 
 * `script` -
   (Optional)

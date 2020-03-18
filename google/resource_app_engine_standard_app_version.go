@@ -134,20 +134,20 @@ The first matching URL handles the request and other request handlers are not at
 						"auth_fail_action": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED", ""}, false),
+							ValidateFunc: validation.StringInSlice([]string{"AUTH_FAIL_ACTION_UNSPECIFIED", "AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED", ""}, false),
 							Description:  `Actions to take when the user is not logged in.`,
 						},
 						"login": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED", ""}, false),
+							ValidateFunc: validation.StringInSlice([]string{"LOGIN_UNSPECIFIED", "LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED", ""}, false),
 							Description:  `Methods to restrict access to a URL based on login status.`,
 						},
 						"redirect_http_response_code": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307", ""}, false),
-							Description:  `30x code to use when performing redirects for the secure field.`,
+							ValidateFunc: validation.StringInSlice([]string{"REDIRECT_HTTP_RESPONSE_CODE_UNSPECIFIED", "REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307", ""}, false),
+							Description:  `Redirect codes.`,
 						},
 						"script": {
 							Type:     schema.TypeList,
@@ -168,7 +168,7 @@ Only the auto value is supported for Node.js in the App Engine standard environm
 						"security_level": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS", ""}, false),
+							ValidateFunc: validation.StringInSlice([]string{"SECURE_UNSPECIFIED", "SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS", ""}, false),
 							Description:  `Security (HTTPS) enforcement for this URL.`,
 						},
 						"static_files": {
@@ -565,7 +565,7 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta interface{}) error {
 
 	if d.Get("noop_on_destroy") == true {
-		log.Printf("[DEBUG] Keeping the AppVersion %q", d.Id())
+		log.Printf("[DEBUG] Keeping the StandardAppVersion %q", d.Id())
 		return nil
 	}
 	config := meta.(*Config)
@@ -608,19 +608,19 @@ func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta inte
 			return err
 		}
 		var obj map[string]interface{}
-		log.Printf("[DEBUG] Deleting AppVersion %q", d.Id())
+		log.Printf("[DEBUG] Deleting StandardAppVersion %q", d.Id())
 		res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isAppEngineRetryableError)
 		if err != nil {
-			return handleNotFoundError(err, d, "AppVersion")
+			return handleNotFoundError(err, d, "StandardAppVersion")
 		}
 		err = appEngineOperationWaitTime(
-			config, res, project, "Deleting AppVersion",
+			config, res, project, "Deleting StandardAppVersion",
 			int(d.Timeout(schema.TimeoutDelete).Minutes()))
 
 		if err != nil {
 			return err
 		}
-		log.Printf("[DEBUG] Finished deleting AppVersion %q: %#v", d.Id(), res)
+		log.Printf("[DEBUG] Finished deleting StandardAppVersion %q: %#v", d.Id(), res)
 		return nil
 
 	}
