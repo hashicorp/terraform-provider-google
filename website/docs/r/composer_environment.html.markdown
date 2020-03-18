@@ -50,7 +50,7 @@ on the IAM policy binding (see `google_project_iam_member` below).
 
 ```hcl
 resource "google_composer_environment" "test" {
-  name   = "%s"
+  name   = "mycomposer"
   region = "us-central1"
   config {
     node_count = 4
@@ -59,8 +59,8 @@ resource "google_composer_environment" "test" {
       zone         = "us-central1-a"
       machine_type = "n1-standard-1"
 
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
+      network    = google_compute_network.test.id
+      subnetwork = google_compute_subnetwork.test.id
 
       service_account = google_service_account.test.name
     }
@@ -78,7 +78,7 @@ resource "google_compute_subnetwork" "test" {
   name          = "composer-test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.test.self_link
+  network       = google_compute_network.test.id
 }
 
 resource "google_service_account" "test" {
@@ -95,7 +95,7 @@ resource "google_project_iam_member" "composer-worker" {
 ### With Software (Airflow) Config
 ```hcl
 resource "google_composer_environment" "test" {
-  name   = "%s"
+  name   = "mycomposer"
   region = "us-central1"
 
   config {
@@ -344,6 +344,8 @@ The `ip_allocation_policy` block supports:
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{region}}/environments/{{name}}`
 
 * `config.0.gke_cluster` -
   The Kubernetes Engine cluster used to run this environment.

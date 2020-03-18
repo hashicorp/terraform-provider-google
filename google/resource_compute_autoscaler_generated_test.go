@@ -53,7 +53,7 @@ func testAccComputeAutoscaler_autoscalerBasicExample(context map[string]interfac
 resource "google_compute_autoscaler" "foobar" {
   name   = "tf-test-my-autoscaler%{random_suffix}"
   zone   = "us-central1-f"
-  target = google_compute_instance_group_manager.foobar.self_link
+  target = google_compute_instance_group_manager.foobar.id
 
   autoscaling_policy {
     max_replicas    = 5
@@ -74,7 +74,7 @@ resource "google_compute_instance_template" "foobar" {
   tags = ["foo", "bar"]
 
   disk {
-    source_image = data.google_compute_image.debian_9.self_link
+    source_image = data.google_compute_image.debian_9.id
   }
 
   network_interface {
@@ -99,11 +99,11 @@ resource "google_compute_instance_group_manager" "foobar" {
   zone = "us-central1-f"
 
   version {
-    instance_template  = google_compute_instance_template.foobar.self_link
+    instance_template  = google_compute_instance_template.foobar.id
     name               = "primary"
   }
 
-  target_pools       = [google_compute_target_pool.foobar.self_link]
+  target_pools       = [google_compute_target_pool.foobar.id]
   base_instance_name = "foobar"
 }
 

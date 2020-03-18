@@ -48,6 +48,8 @@ In addition to the arguments listed above, the following attributes are exported
 
 * `fingerprint` - The fingerprint of the Backend Service.
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/backendServices/{{name}}`
+
 * `port_name` - The name of a service that has been added to an instance group in this backend.
 
 * `protocol` - The protocol for incoming requests.

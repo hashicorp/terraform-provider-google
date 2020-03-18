@@ -90,12 +90,12 @@ resource "google_compute_subnetwork" "default" {
   name          = "tf-test-my-subnet%{random_suffix}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.default.self_link
+  network       = google_compute_network.default.id
 }
 
 resource "google_compute_address" "internal_with_subnet_and_address" {
   name         = "tf-test-my-internal-address%{random_suffix}"
-  subnetwork   = google_compute_subnetwork.default.self_link
+  subnetwork   = google_compute_subnetwork.default.id
   address_type = "INTERNAL"
   address      = "10.0.42.42"
   region       = "us-central1"
@@ -179,7 +179,7 @@ resource "google_compute_instance" "instance_with_ip" {
 
   boot_disk {
     initialize_params {
-      image = data.google_compute_image.debian_image.self_link
+      image = data.google_compute_image.debian_image.id
     }
   }
 
