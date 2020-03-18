@@ -53,6 +53,7 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 		instanceAttrsToTest := []string{
 			"name",
 			"machine_type",
+			"current_status",
 			"can_ip_forward",
 			"description",
 			"deletion_protection",
