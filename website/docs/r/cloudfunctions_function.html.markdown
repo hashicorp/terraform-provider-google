@@ -168,6 +168,8 @@ The `source_repository` block supports:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
+
 * `https_trigger_url` - URL which triggers function execution. Returned only if `trigger_http` is used.
 
 * `source_repository.0.deployed_url` - The URL pointing to the hosted repository where the function was defined at the time of deployment.
