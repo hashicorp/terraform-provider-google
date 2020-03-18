@@ -1,4 +1,17 @@
-## 3.14.0 (Unreleased)
+## 3.15.0 (Unreleased)
+## 3.14.0 (March 21, 2020)
+
+FEATURES:
+* **New Data Source:** `google_compute_instance_serial_port` ([#5911](https://github.com/terraform-providers/terraform-provider-google/pull/5911))
+* **New Resource:** `google_compute_region_ssl_certificate` ([#5913](https://github.com/terraform-providers/terraform-provider-google/pull/5913))
+
+IMPROVEMENTS:
+* compute: Add new attribute reference `current_status` ([#5903](https://github.com/terraform-providers/terraform-provider-google/pull/5903))
+* compute: Added `allow_global_access` for to `google_compute_forwarding_rule` resource. ([#5912](https://github.com/terraform-providers/terraform-provider-google/pull/5912))
+* container: added `node_pool.upgrade_settings` (TPG only) ([#5910](https://github.com/terraform-providers/terraform-provider-google/pull/5910))
+* container: updated `node_pool.upgrade_settings` to read defaults from API (TPGB only) ([#5910](https://github.com/terraform-providers/terraform-provider-google/pull/5910))
+* provider: Added provider-wide request retries for common temporary GCP error codes and network errors ([#5902](https://github.com/terraform-providers/terraform-provider-google/pull/5902))
+
 ## 3.13.0 (March 16, 2020)
 
 BREAKING CHANGES:
