@@ -179,7 +179,7 @@ resource "google_compute_instance" "instance_with_ip" {
 
   boot_disk {
     initialize_params {
-      image = data.google_compute_image.debian_image.id
+      image = data.google_compute_image.debian_image.self_link
     }
   }
 
