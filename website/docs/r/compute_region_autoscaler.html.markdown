@@ -68,7 +68,7 @@ resource "google_compute_instance_template" "foobar" {
   tags = ["foo", "bar"]
 
   disk {
-    source_image = data.google_compute_image.debian_9.id
+    source_image = data.google_compute_image.debian_9.self_link
   }
 
   network_interface {
