@@ -428,9 +428,16 @@ func flattenComputeHttpsHealthCheckCheckIntervalSec(v interface{}, d *schema.Res
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeHttpsHealthCheckCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -446,9 +453,16 @@ func flattenComputeHttpsHealthCheckHealthyThreshold(v interface{}, d *schema.Res
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeHttpsHealthCheckHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -464,9 +478,16 @@ func flattenComputeHttpsHealthCheckPort(v interface{}, d *schema.ResourceData, c
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeHttpsHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -478,9 +499,16 @@ func flattenComputeHttpsHealthCheckTimeoutSec(v interface{}, d *schema.ResourceD
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeHttpsHealthCheckUnhealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -488,9 +516,16 @@ func flattenComputeHttpsHealthCheckUnhealthyThreshold(v interface{}, d *schema.R
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func expandComputeHttpsHealthCheckCheckIntervalSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

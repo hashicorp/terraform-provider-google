@@ -1375,9 +1375,16 @@ func flattenAppEngineFlexibleAppVersionResourcesCpu(v interface{}, d *schema.Res
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionResourcesDiskGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1385,9 +1392,16 @@ func flattenAppEngineFlexibleAppVersionResourcesDiskGb(v interface{}, d *schema.
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionResourcesMemoryGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1427,9 +1441,16 @@ func flattenAppEngineFlexibleAppVersionResourcesVolumesSizeGb(v interface{}, d *
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionRuntime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1726,9 +1747,16 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingMaxConcurrentRequests(v i
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionAutomaticScalingMaxIdleInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1736,9 +1764,16 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingMaxIdleInstances(v interf
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionAutomaticScalingMaxTotalInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1746,9 +1781,16 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingMaxTotalInstances(v inter
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionAutomaticScalingMaxPendingLatency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1760,9 +1802,16 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingMinIdleInstances(v interf
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionAutomaticScalingMinTotalInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1770,9 +1819,16 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingMinTotalInstances(v inter
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionAutomaticScalingMinPendingLatency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1826,9 +1882,16 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetWrit
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetWriteOpsPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1836,9 +1899,16 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetWrit
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetReadBytesPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1846,9 +1916,16 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetRead
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetReadOpsPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1856,9 +1933,16 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingDiskUtilizationTargetRead
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1885,9 +1969,16 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetS
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetSentPacketsPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1895,9 +1986,16 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetS
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetReceivedBytesPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1905,9 +2003,16 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetR
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetReceivedPacketsPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1915,9 +2020,16 @@ func flattenAppEngineFlexibleAppVersionAutomaticScalingNetworkUtilizationTargetR
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenAppEngineFlexibleAppVersionManualScaling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1938,9 +2050,16 @@ func flattenAppEngineFlexibleAppVersionManualScalingInstances(v interface{}, d *
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func expandAppEngineFlexibleAppVersionVersionId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
