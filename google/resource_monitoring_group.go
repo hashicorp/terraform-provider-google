@@ -134,6 +134,9 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmt.Errorf("Error creating Group: %s", err)
 	}
+	if err := d.Set("name", flattenMonitoringGroupName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
