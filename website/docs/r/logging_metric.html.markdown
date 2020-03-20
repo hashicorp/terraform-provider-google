@@ -298,6 +298,7 @@ This resource provides the following
 Metric can be imported using any of these accepted formats:
 
 ```
+$ terraform import google_logging_metric.default {{project}} {{name}}
 $ terraform import google_logging_metric.default {{name}}
 ```
 
