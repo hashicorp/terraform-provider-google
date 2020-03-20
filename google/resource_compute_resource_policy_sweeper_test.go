@@ -69,7 +69,7 @@ func testSweepComputeResourcePolicy(region string) error {
 		return nil
 	}
 
-	resourceList, ok := res["resourcePolicies"]
+	resourceList, ok := res["items"]
 	if !ok {
 		log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
 		return nil
