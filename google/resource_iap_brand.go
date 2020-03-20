@@ -110,6 +110,9 @@ func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error creating Brand: %s", err)
 	}
+	if err := d.Set("name", flattenIapBrandName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
@@ -117,6 +120,11 @@ func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	err = PollingWaitTime(resourceIapBrandPollRead(d, meta), PollCheckForExistence, "Creating Brand", d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return fmt.Errorf("Error waiting to create Brand: %s", err)
+	}
 
 	log.Printf("[DEBUG] Finished creating Brand %q: %#v", d.Id(), res)
 
@@ -129,6 +137,27 @@ func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(name.(string))
 
 	return resourceIapBrandRead(d, meta)
+}
+
+func resourceIapBrandPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*Config)
+
+		url, err := replaceVars(d, config, "{{IapBasePath}}{{name}}")
+		if err != nil {
+			return nil, err
+		}
+
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+		res, err := sendRequest(config, "GET", project, url, nil)
+		if err != nil {
+			return res, err
+		}
+		return res, nil
+	}
 }
 
 func resourceIapBrandRead(d *schema.ResourceData, meta interface{}) error {

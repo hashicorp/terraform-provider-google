@@ -179,6 +179,9 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return fmt.Errorf("Error creating Config: %s", err)
 	}
+	if err := d.Set("name", flattenBigqueryDataTransferConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
+	}
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "{{name}}")
