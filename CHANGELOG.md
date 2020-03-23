@@ -8,7 +8,7 @@ IMPROVEMENTS:
 * compute: Added new attribute reference `current_status` to the `google_compute_instance` resource ([#5903](https://github.com/terraform-providers/terraform-provider-google/pull/5903))
 * compute: Added `allow_global_access` to `google_compute_forwarding_rule` resource. ([#5912](https://github.com/terraform-providers/terraform-provider-google/pull/5912))
 * container: Added `dns_cache_config` field to `google_container_cluster` resource ([#5887](https://github.com/terraform-providers/terraform-provider-google/pull/5887))
-* container: Added `node_pool.upgrade_settings` to `google_container_node_pool` resource ([#5910](https://github.com/terraform-providers/terraform-provider-google/pull/5910))
+* container: Added `upgrade_settings` to `google_container_node_pool` resource ([#5910](https://github.com/terraform-providers/terraform-provider-google/pull/5910))
 * provider: Added provider-wide request retries for common temporary GCP error codes and network errors ([#5902](https://github.com/terraform-providers/terraform-provider-google/pull/5902))
 * redis: Added `connect_mode` field to `google_redis_instance` resource ([#5888](https://github.com/terraform-providers/terraform-provider-google/pull/5888))
 
