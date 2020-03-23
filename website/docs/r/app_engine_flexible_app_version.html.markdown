@@ -43,8 +43,16 @@ To get more information about FlexibleAppVersion, see:
 
 
 ```hcl
+resource "google_project" "my_project" {
+  name            = "tf-test-project"
+  project_id      = "project"
+  org_id          = "123456789"
+  billing_account = "000000-0000000-0000000-000000"
+}
+
 resource "google_app_engine_flexible_app_version" "myapp_v1" {
   version_id = "v1"
+  project    = google_project.my_project.name
   service    = "service-"
   runtime    = "nodejs"
 
@@ -81,7 +89,8 @@ resource "google_app_engine_flexible_app_version" "myapp_v1" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "appengine-static-content"
+  project = google_project.my_project.project_id
+  name    = "appengine-static-content"
 }
 
 resource "google_storage_bucket_object" "object" {
