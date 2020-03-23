@@ -195,6 +195,16 @@ func isAppEngineRetryableError(err error) (bool, string) {
 	return false, ""
 }
 
+// Retry if KMS CryptoKeyVersions returns a 400 for PENDING_GENERATION
+func isCryptoKeyVersionsPendingGeneration(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 400 {
+		if strings.Contains(gerr.Body, "PENDING_GENERATION") {
+			return true, "Waiting for pending key generation"
+		}
+	}
+	return false, ""
+}
+
 // Retry if getting a resource/operation returns a 404 for specific operations.
 // opType should describe the operation for which 404 can be retryable.
 func isNotFoundRetryableError(opType string) RetryErrorPredicateFunc {
