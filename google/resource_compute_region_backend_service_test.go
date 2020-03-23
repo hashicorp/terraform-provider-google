@@ -112,6 +112,33 @@ func TestAccComputeRegionBackendService_withBackendInternalManaged(t *testing.T)
 	})
 }
 
+func TestAccComputeRegionBackendService_withBackendMultiNic(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	net1Name := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	net2Name := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	igName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	itName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_withBackendMultiNic(
+					serviceName, net1Name, net2Name, igName, itName, checkName, 10),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionBackendService_withConnectionDrainingAndUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -251,6 +278,98 @@ resource "google_compute_health_check" "default" {
   }
 }
 `, serviceName, timeout, igName, itName, checkName)
+}
+
+func testAccComputeRegionBackendService_withBackendMultiNic(
+	serviceName, net1Name, net2Name, igName, itName, checkName string, timeout int64) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_backend_service" "lipsum" {
+  name        = "%s"
+  description = "Hello World 1234"
+  protocol    = "TCP"
+  region      = "us-central1"
+  timeout_sec = %v
+
+  backend {
+    group = google_compute_instance_group_manager.foobar.instance_group
+  }
+
+  network = google_compute_network.network2.self_link
+
+  health_checks = [google_compute_health_check.default.self_link]
+}
+
+resource "google_compute_network" "network1" {
+  name                            = "%s"
+  auto_create_subnetworks         = false
+}
+
+resource "google_compute_subnetwork" "subnet1" {
+  name                     = "%s"
+  ip_cidr_range            = "10.0.1.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+  network                  = google_compute_network.network1.self_link
+}
+
+resource "google_compute_network" "network2" {
+  name                            = "%s"
+  auto_create_subnetworks         = false
+}
+
+resource "google_compute_subnetwork" "subnet2" {
+  name                     = "%s"
+  ip_cidr_range            = "10.0.2.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+  network                  = google_compute_network.network2.self_link
+}
+
+resource "google_compute_instance_group_manager" "foobar" {
+  name               = "%s"
+  version {
+    instance_template  = google_compute_instance_template.foobar.self_link
+    name               = "primary"
+  }
+  base_instance_name = "foobar"
+  zone               = "us-central1-f"
+  target_size        = 1
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-1"
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.subnet1.self_link
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.subnet2.self_link
+  }
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+}
+
+resource "google_compute_health_check" "default" {
+  name               = "%s"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = 443
+  }
+}
+`, serviceName, timeout, net1Name, net1Name, net2Name, net2Name, igName, itName, checkName)
 }
 
 func testAccComputeRegionBackendService_withInvalidInternalBackend(
