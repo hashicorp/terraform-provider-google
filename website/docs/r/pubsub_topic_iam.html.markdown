@@ -45,7 +45,7 @@ data "google_iam_policy" "admin" {
   }
 }
 
-resource "google_pubsub_topic_iam_policy" "editor" {
+resource "google_pubsub_topic_iam_policy" "policy" {
   project = google_pubsub_topic.example.project
   topic = google_pubsub_topic.example.name
   policy_data = data.google_iam_policy.admin.policy_data
@@ -55,7 +55,7 @@ resource "google_pubsub_topic_iam_policy" "editor" {
 ## google\_pubsub\_topic\_iam\_binding
 
 ```hcl
-resource "google_pubsub_topic_iam_binding" "editor" {
+resource "google_pubsub_topic_iam_binding" "binding" {
   project = google_pubsub_topic.example.project
   topic = google_pubsub_topic.example.name
   role = "roles/viewer"
@@ -68,7 +68,7 @@ resource "google_pubsub_topic_iam_binding" "editor" {
 ## google\_pubsub\_topic\_iam\_member
 
 ```hcl
-resource "google_pubsub_topic_iam_member" "editor" {
+resource "google_pubsub_topic_iam_member" "member" {
   project = google_pubsub_topic.example.project
   topic = google_pubsub_topic.example.name
   role = "roles/viewer"

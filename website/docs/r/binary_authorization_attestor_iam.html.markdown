@@ -45,7 +45,7 @@ data "google_iam_policy" "admin" {
   }
 }
 
-resource "google_binary_authorization_attestor_iam_policy" "editor" {
+resource "google_binary_authorization_attestor_iam_policy" "policy" {
   project = google_binary_authorization_attestor.attestor.project
   attestor = google_binary_authorization_attestor.attestor.name
   policy_data = data.google_iam_policy.admin.policy_data
@@ -55,7 +55,7 @@ resource "google_binary_authorization_attestor_iam_policy" "editor" {
 ## google\_binary\_authorization\_attestor\_iam\_binding
 
 ```hcl
-resource "google_binary_authorization_attestor_iam_binding" "editor" {
+resource "google_binary_authorization_attestor_iam_binding" "binding" {
   project = google_binary_authorization_attestor.attestor.project
   attestor = google_binary_authorization_attestor.attestor.name
   role = "roles/viewer"
@@ -68,7 +68,7 @@ resource "google_binary_authorization_attestor_iam_binding" "editor" {
 ## google\_binary\_authorization\_attestor\_iam\_member
 
 ```hcl
-resource "google_binary_authorization_attestor_iam_member" "editor" {
+resource "google_binary_authorization_attestor_iam_member" "member" {
   project = google_binary_authorization_attestor.attestor.project
   attestor = google_binary_authorization_attestor.attestor.name
   role = "roles/viewer"

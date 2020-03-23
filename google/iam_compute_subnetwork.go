@@ -137,6 +137,10 @@ func (u *ComputeSubnetworkIamUpdater) GetResourceIamPolicy() (*cloudresourcemana
 		return nil, err
 	}
 	var obj map[string]interface{}
+	url, err = addQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d", iamPolicyVersion)})
+	if err != nil {
+		return nil, err
+	}
 
 	policy, err := sendRequest(u.Config, "GET", project, url, obj)
 	if err != nil {

@@ -45,7 +45,7 @@ data "google_iam_policy" "admin" {
   }
 }
 
-resource "google_iap_web_backend_service_iam_policy" "editor" {
+resource "google_iap_web_backend_service_iam_policy" "policy" {
   project = google_compute_backend_service.default.project
   web_backend_service = google_compute_backend_service.default.name
   policy_data = data.google_iam_policy.admin.policy_data
@@ -55,7 +55,7 @@ resource "google_iap_web_backend_service_iam_policy" "editor" {
 ## google\_iap\_web\_backend\_service\_iam\_binding
 
 ```hcl
-resource "google_iap_web_backend_service_iam_binding" "editor" {
+resource "google_iap_web_backend_service_iam_binding" "binding" {
   project = google_compute_backend_service.default.project
   web_backend_service = google_compute_backend_service.default.name
   role = "roles/iap.httpsResourceAccessor"
@@ -68,7 +68,7 @@ resource "google_iap_web_backend_service_iam_binding" "editor" {
 ## google\_iap\_web\_backend\_service\_iam\_member
 
 ```hcl
-resource "google_iap_web_backend_service_iam_member" "editor" {
+resource "google_iap_web_backend_service_iam_member" "member" {
   project = google_compute_backend_service.default.project
   web_backend_service = google_compute_backend_service.default.name
   role = "roles/iap.httpsResourceAccessor"

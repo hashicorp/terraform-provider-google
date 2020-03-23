@@ -45,7 +45,7 @@ data "google_iam_policy" "admin" {
   }
 }
 
-resource "google_storage_bucket_iam_policy" "editor" {
+resource "google_storage_bucket_iam_policy" "policy" {
   bucket = google_storage_bucket.default.name
   policy_data = data.google_iam_policy.admin.policy_data
 }
@@ -54,7 +54,7 @@ resource "google_storage_bucket_iam_policy" "editor" {
 ## google\_storage\_bucket\_iam\_binding
 
 ```hcl
-resource "google_storage_bucket_iam_binding" "editor" {
+resource "google_storage_bucket_iam_binding" "binding" {
   bucket = google_storage_bucket.default.name
   role = "roles/storage.admin"
   members = [
@@ -66,7 +66,7 @@ resource "google_storage_bucket_iam_binding" "editor" {
 ## google\_storage\_bucket\_iam\_member
 
 ```hcl
-resource "google_storage_bucket_iam_member" "editor" {
+resource "google_storage_bucket_iam_member" "member" {
   bucket = google_storage_bucket.default.name
   role = "roles/storage.admin"
   member = "user:jane@example.com"
