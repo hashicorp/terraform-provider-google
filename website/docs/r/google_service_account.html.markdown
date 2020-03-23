@@ -31,6 +31,9 @@ resource "google_service_account" "service_account" {
 
 The following arguments are supported:
 
+* `project` - (Required) The ID of the project that the service account will be created in.
+    Defaults to the provider project configuration.
+
 * `account_id` - (Required) The account id that is used to generate the service
     account email address and a stable unique id. It is unique within a project,
     must be 6-30 characters long, and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])`
@@ -41,9 +44,6 @@ The following arguments are supported:
 
 * `description` - (Optional) A text description of the service account.
     Must be less than or equal to 256 UTF-8 bytes.
-
-* `project` - (Optional) The ID of the project that the service account will be created in.
-    Defaults to the provider project configuration.
 
 ## Attributes Reference
 
