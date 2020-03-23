@@ -21,6 +21,9 @@ account's email address, use the `google_storage_project_service_account` dataso
 for an example of enabling notifications by granting the correct IAM permission. See
 [the notifications documentation](https://cloud.google.com/storage/docs/gsutil/commands/notification) for more details.
 
+>**NOTE**: This resource can affect your storage IAM policy. If you are using this in the same config as your storage IAM policy resources, consider
+making this resource dependent on those IAM resources via `depends_on`. This will safeguard against errors due to IAM race conditions.
+
 ## Example Usage
 
 ```hcl
