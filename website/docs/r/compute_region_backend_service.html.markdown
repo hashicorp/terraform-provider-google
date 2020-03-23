@@ -292,6 +292,11 @@ The following arguments are supported:
   How many seconds to wait for the backend before considering it a
   failed request. Default is 30 seconds. Valid range is [1, 86400].
 
+* `network` -
+  (Optional)
+  The URL of the network to which this backend service belongs.
+  This field can only be specified when the load balancing scheme is set to INTERNAL.
+
 * `region` -
   (Optional)
   The Region in which the created backend service should reside.
