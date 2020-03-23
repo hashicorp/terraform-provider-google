@@ -45,7 +45,7 @@ data "google_iam_policy" "admin" {
   }
 }
 
-resource "google_endpoints_service_iam_policy" "editor" {
+resource "google_endpoints_service_iam_policy" "policy" {
   service_name = google_endpoints_service.endpoints_service.service_name
   policy_data = data.google_iam_policy.admin.policy_data
 }
@@ -54,7 +54,7 @@ resource "google_endpoints_service_iam_policy" "editor" {
 ## google\_endpoints\_service\_iam\_binding
 
 ```hcl
-resource "google_endpoints_service_iam_binding" "editor" {
+resource "google_endpoints_service_iam_binding" "binding" {
   service_name = google_endpoints_service.endpoints_service.service_name
   role = "roles/viewer"
   members = [
@@ -66,7 +66,7 @@ resource "google_endpoints_service_iam_binding" "editor" {
 ## google\_endpoints\_service\_iam\_member
 
 ```hcl
-resource "google_endpoints_service_iam_member" "editor" {
+resource "google_endpoints_service_iam_member" "member" {
   service_name = google_endpoints_service.endpoints_service.service_name
   role = "roles/viewer"
   member = "user:jane@example.com"

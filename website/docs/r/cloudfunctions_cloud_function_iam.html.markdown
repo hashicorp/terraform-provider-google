@@ -45,7 +45,7 @@ data "google_iam_policy" "admin" {
   }
 }
 
-resource "google_cloudfunctions_function_iam_policy" "editor" {
+resource "google_cloudfunctions_function_iam_policy" "policy" {
   project = google_cloudfunctions_function.function.project
   region = google_cloudfunctions_function.function.region
   cloud_function = google_cloudfunctions_function.function.name
@@ -56,7 +56,7 @@ resource "google_cloudfunctions_function_iam_policy" "editor" {
 ## google\_cloudfunctions\_function\_iam\_binding
 
 ```hcl
-resource "google_cloudfunctions_function_iam_binding" "editor" {
+resource "google_cloudfunctions_function_iam_binding" "binding" {
   project = google_cloudfunctions_function.function.project
   region = google_cloudfunctions_function.function.region
   cloud_function = google_cloudfunctions_function.function.name
@@ -70,7 +70,7 @@ resource "google_cloudfunctions_function_iam_binding" "editor" {
 ## google\_cloudfunctions\_function\_iam\_member
 
 ```hcl
-resource "google_cloudfunctions_function_iam_member" "editor" {
+resource "google_cloudfunctions_function_iam_member" "member" {
   project = google_cloudfunctions_function.function.project
   region = google_cloudfunctions_function.function.region
   cloud_function = google_cloudfunctions_function.function.name

@@ -45,7 +45,7 @@ data "google_iam_policy" "admin" {
   }
 }
 
-resource "google_sourcerepo_repository_iam_policy" "editor" {
+resource "google_sourcerepo_repository_iam_policy" "policy" {
   project = google_sourcerepo_repository.my-repo.project
   repository = google_sourcerepo_repository.my-repo.name
   policy_data = data.google_iam_policy.admin.policy_data
@@ -55,7 +55,7 @@ resource "google_sourcerepo_repository_iam_policy" "editor" {
 ## google\_sourcerepo\_repository\_iam\_binding
 
 ```hcl
-resource "google_sourcerepo_repository_iam_binding" "editor" {
+resource "google_sourcerepo_repository_iam_binding" "binding" {
   project = google_sourcerepo_repository.my-repo.project
   repository = google_sourcerepo_repository.my-repo.name
   role = "roles/viewer"
@@ -68,7 +68,7 @@ resource "google_sourcerepo_repository_iam_binding" "editor" {
 ## google\_sourcerepo\_repository\_iam\_member
 
 ```hcl
-resource "google_sourcerepo_repository_iam_member" "editor" {
+resource "google_sourcerepo_repository_iam_member" "member" {
   project = google_sourcerepo_repository.my-repo.project
   repository = google_sourcerepo_repository.my-repo.name
   role = "roles/viewer"

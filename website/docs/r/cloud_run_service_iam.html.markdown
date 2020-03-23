@@ -45,7 +45,7 @@ data "google_iam_policy" "admin" {
   }
 }
 
-resource "google_cloud_run_service_iam_policy" "editor" {
+resource "google_cloud_run_service_iam_policy" "policy" {
   location = google_cloud_run_service.default.location
   project = google_cloud_run_service.default.project
   service = google_cloud_run_service.default.name
@@ -56,7 +56,7 @@ resource "google_cloud_run_service_iam_policy" "editor" {
 ## google\_cloud\_run\_service\_iam\_binding
 
 ```hcl
-resource "google_cloud_run_service_iam_binding" "editor" {
+resource "google_cloud_run_service_iam_binding" "binding" {
   location = google_cloud_run_service.default.location
   project = google_cloud_run_service.default.project
   service = google_cloud_run_service.default.name
@@ -70,7 +70,7 @@ resource "google_cloud_run_service_iam_binding" "editor" {
 ## google\_cloud\_run\_service\_iam\_member
 
 ```hcl
-resource "google_cloud_run_service_iam_member" "editor" {
+resource "google_cloud_run_service_iam_member" "member" {
   location = google_cloud_run_service.default.location
   project = google_cloud_run_service.default.project
   service = google_cloud_run_service.default.name
