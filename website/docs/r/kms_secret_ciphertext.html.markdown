@@ -103,6 +103,10 @@ The following arguments are supported:
 - - -
 
 
+* `additional_authenticated_data` -
+  (Optional)
+  The additional authenticated data used for integrity checks during encryption and decryption.
+
 
 ## Attributes Reference
 

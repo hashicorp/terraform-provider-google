@@ -23,6 +23,7 @@ func TestAccKmsSecret_basic(t *testing.T) {
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
 	plaintext := fmt.Sprintf("secret-%s", acctest.RandString(10))
+	aad := "plainaad"
 
 	// The first test creates resources needed to encrypt plaintext and produce ciphertext
 	resource.Test(t, resource.TestCase{
@@ -32,7 +33,7 @@ func TestAccKmsSecret_basic(t *testing.T) {
 			{
 				Config: testGoogleKmsCryptoKey_basic(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
 				Check: func(s *terraform.State) error {
-					ciphertext, cryptoKeyId, err := testAccEncryptSecretDataWithCryptoKey(s, "google_kms_crypto_key.crypto_key", plaintext)
+					ciphertext, cryptoKeyId, err := testAccEncryptSecretDataWithCryptoKey(s, "google_kms_crypto_key.crypto_key", plaintext, "")
 
 					if err != nil {
 						return err
@@ -53,11 +54,36 @@ func TestAccKmsSecret_basic(t *testing.T) {
 					return nil
 				},
 			},
+			// With AAD
+			{
+				Config: testGoogleKmsCryptoKey_basic(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
+				Check: func(s *terraform.State) error {
+					ciphertext, cryptoKeyId, err := testAccEncryptSecretDataWithCryptoKey(s, "google_kms_crypto_key.crypto_key", plaintext, aad)
+
+					if err != nil {
+						return err
+					}
+
+					// The second test asserts that the data source has the correct plaintext, given the created ciphertext
+					resource.Test(t, resource.TestCase{
+						PreCheck:  func() { testAccPreCheck(t) },
+						Providers: testAccProviders,
+						Steps: []resource.TestStep{
+							{
+								Config: testGoogleKmsSecret_aadDatasource(cryptoKeyId.terraformId(), ciphertext, base64.StdEncoding.EncodeToString([]byte(aad))),
+								Check:  resource.TestCheckResourceAttr("data.google_kms_secret.acceptance", "plaintext", plaintext),
+							},
+						},
+					})
+
+					return nil
+				},
+			},
 		},
 	})
 }
 
-func testAccEncryptSecretDataWithCryptoKey(s *terraform.State, cryptoKeyResourceName, plaintext string) (string, *kmsCryptoKeyId, error) {
+func testAccEncryptSecretDataWithCryptoKey(s *terraform.State, cryptoKeyResourceName, plaintext, aad string) (string, *kmsCryptoKeyId, error) {
 	config := testAccProvider.Meta().(*Config)
 
 	rs, ok := s.RootModule().Resources[cryptoKeyResourceName]
@@ -73,6 +99,10 @@ func testAccEncryptSecretDataWithCryptoKey(s *terraform.State, cryptoKeyResource
 
 	kmsEncryptRequest := &cloudkms.EncryptRequest{
 		Plaintext: base64.StdEncoding.EncodeToString([]byte(plaintext)),
+	}
+
+	if aad != "" {
+		kmsEncryptRequest.AdditionalAuthenticatedData = base64.StdEncoding.EncodeToString([]byte(aad))
 	}
 
 	encryptResponse, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Encrypt(cryptoKeyId.cryptoKeyId(), kmsEncryptRequest).Do()
@@ -93,4 +123,14 @@ data "google_kms_secret" "acceptance" {
   ciphertext = "%s"
 }
 `, cryptoKeyTerraformId, ciphertext)
+}
+
+func testGoogleKmsSecret_aadDatasource(cryptoKeyTerraformId, ciphertext, aad string) string {
+	return fmt.Sprintf(`
+data "google_kms_secret" "acceptance" {
+  crypto_key                    = "%s"
+  ciphertext                    = "%s"
+  additional_authenticated_data = "%s"
+}
+`, cryptoKeyTerraformId, ciphertext, aad)
 }

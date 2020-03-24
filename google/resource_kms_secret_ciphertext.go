@@ -51,6 +51,13 @@ Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}/crypt
 				Description: `The plaintext to be encrypted.`,
 				Sensitive:   true,
 			},
+			"additional_authenticated_data": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The additional authenticated data used for integrity checks during encryption and decryption.`,
+				Sensitive:   true,
+			},
 			"ciphertext": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -69,6 +76,12 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("plaintext"); !isEmptyValue(reflect.ValueOf(plaintextProp)) && (ok || !reflect.DeepEqual(v, plaintextProp)) {
 		obj["plaintext"] = plaintextProp
+	}
+	additionalAuthenticatedDataProp, err := expandKMSSecretCiphertextAdditionalAuthenticatedData(d.Get("additional_authenticated_data"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("additional_authenticated_data"); !isEmptyValue(reflect.ValueOf(additionalAuthenticatedDataProp)) && (ok || !reflect.DeepEqual(v, additionalAuthenticatedDataProp)) {
+		obj["additionalAuthenticatedData"] = additionalAuthenticatedDataProp
 	}
 
 	url, err := replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}:encrypt")
@@ -153,6 +166,14 @@ func resourceKMSSecretCiphertextDelete(d *schema.ResourceData, meta interface{})
 }
 
 func expandKMSSecretCiphertextPlaintext(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	return base64.StdEncoding.EncodeToString([]byte(v.(string))), nil
+}
+
+func expandKMSSecretCiphertextAdditionalAuthenticatedData(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}

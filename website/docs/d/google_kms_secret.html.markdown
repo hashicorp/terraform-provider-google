@@ -90,6 +90,7 @@ The following arguments are supported:
 * `crypto_key` (Required) - The id of the CryptoKey that will be used to
   decrypt the provided ciphertext. This is represented by the format
   `{projectId}/{location}/{keyRingName}/{cryptoKeyName}`.
+* `additional_authenticated_data` (Optional) - The [additional authenticated data](https://cloud.google.com/kms/docs/additional-authenticated-data) used for integrity checks during encryption and decryption.
 
 ## Attributes Reference
 

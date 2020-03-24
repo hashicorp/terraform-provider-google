@@ -23,7 +23,7 @@ func TestAccDataKmsSecretCiphertext_basic(t *testing.T) {
 			{
 				Config: testGoogleKmsSecretCiphertext_datasource(kms.CryptoKey.Name, plaintext),
 				Check: func(s *terraform.State) error {
-					plaintext, err := testAccDecryptSecretDataWithCryptoKey(s, kms.CryptoKey.Name, "data.google_kms_secret_ciphertext.acceptance")
+					plaintext, err := testAccDecryptSecretDataWithCryptoKey(s, kms.CryptoKey.Name, "data.google_kms_secret_ciphertext.acceptance", "")
 
 					if err != nil {
 						return err
