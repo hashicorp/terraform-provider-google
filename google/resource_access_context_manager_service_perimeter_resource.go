@@ -116,13 +116,15 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 		return fmt.Errorf("Error waiting to create ServicePerimeterResource: %s", err)
 	}
 
-	opRes, err = flattenNestedAccessContextManagerServicePerimeterResource(d, meta, opRes)
-	if err != nil {
-		return fmt.Errorf("Error getting nested object from operation response: %s", err)
-	}
-	if opRes == nil {
-		// Object isn't there any more - remove it from the state.
-		return fmt.Errorf("Error decoding response from operation, could not find nested object")
+	if _, ok := opRes["status"]; ok {
+		opRes, err = flattenNestedAccessContextManagerServicePerimeterResource(d, meta, opRes)
+		if err != nil {
+			return fmt.Errorf("Error getting nested object from operation response: %s", err)
+		}
+		if opRes == nil {
+			// Object isn't there any more - remove it from the state.
+			return fmt.Errorf("Error decoding response from operation, could not find nested object")
+		}
 	}
 	if err := d.Set("resource", flattenAccessContextManagerServicePerimeterResourceResource(opRes["resource"], d, config)); err != nil {
 		return err
@@ -250,7 +252,9 @@ func flattenNestedAccessContextManagerServicePerimeterResource(d *schema.Resourc
 
 	v, ok = res["resources"]
 	if !ok || v == nil {
-		return nil, nil
+		// It's possible that there is only one of these resources and
+		// that res represents that resource.
+		v = res
 	}
 
 	switch v.(type) {
