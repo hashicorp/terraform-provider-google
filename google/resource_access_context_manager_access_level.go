@@ -185,6 +185,16 @@ Formats: 'user:{emailid}', 'serviceAccount:{emailid}'`,
 a NAND over its non-empty fields, each field must be false for
 the Condition overall to be satisfied. Defaults to false.`,
 									},
+									"regions": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `The request must originate from one of the provided
+countries/regions.
+Format: A valid ISO 3166-1 alpha-2 code.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
 									"required_access_levels": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -500,6 +510,7 @@ func flattenAccessContextManagerAccessLevelBasicConditions(v interface{}, d *sch
 			"members":                flattenAccessContextManagerAccessLevelBasicConditionsMembers(original["members"], d, config),
 			"negate":                 flattenAccessContextManagerAccessLevelBasicConditionsNegate(original["negate"], d, config),
 			"device_policy":          flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicy(original["devicePolicy"], d, config),
+			"regions":                flattenAccessContextManagerAccessLevelBasicConditionsRegions(original["regions"], d, config),
 		})
 	}
 	return transformed
@@ -590,6 +601,10 @@ func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireCor
 	return v
 }
 
+func flattenAccessContextManagerAccessLevelBasicConditionsRegions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenAccessContextManagerAccessLevelName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -675,6 +690,13 @@ func expandAccessContextManagerAccessLevelBasicConditions(v interface{}, d Terra
 			return nil, err
 		} else if val := reflect.ValueOf(transformedDevicePolicy); val.IsValid() && !isEmptyValue(val) {
 			transformed["devicePolicy"] = transformedDevicePolicy
+		}
+
+		transformedRegions, err := expandAccessContextManagerAccessLevelBasicConditionsRegions(original["regions"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRegions); val.IsValid() && !isEmptyValue(val) {
+			transformed["regions"] = transformedRegions
 		}
 
 		req = append(req, transformed)
@@ -806,6 +828,10 @@ func expandAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireAdmi
 }
 
 func expandAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireCorpOwned(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerAccessLevelBasicConditionsRegions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
