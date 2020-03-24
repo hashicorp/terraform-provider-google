@@ -966,6 +966,51 @@ func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withRecurringMaintenanceWindow(t *testing.T) {
+	t.Parallel()
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(10))
+	resourceName := "google_container_cluster.with_recurring_maintenance_window"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withRecurringMaintenanceWindow(cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.daily_maintenance_window.0.start_time"),
+				),
+			},
+			{
+				ResourceName:        resourceName,
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+			},
+			{
+				Config: testAccContainerCluster_withRecurringMaintenanceWindow(cluster, "", ""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.daily_maintenance_window.0.start_time"),
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.recurring_window.0.start_time"),
+				),
+			},
+			{
+				ResourceName:        resourceName,
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
+				// maintenance_policy.# = 0 is equivalent to no maintenance policy at all,
+				// but will still cause an import diff
+				ImportStateVerifyIgnore: []string{"maintenance_policy.#"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withIPAllocationPolicy_existingSecondaryRanges(t *testing.T) {
 	t.Parallel()
 
@@ -2333,6 +2378,30 @@ resource "google_container_cluster" "with_maintenance_window" {
   %s
 }
 `, clusterName, maintenancePolicy)
+}
+
+func testAccContainerCluster_withRecurringMaintenanceWindow(clusterName string, startTime, endTime string) string {
+	maintenancePolicy := ""
+	if len(startTime) > 0 {
+		maintenancePolicy = fmt.Sprintf(`
+	maintenance_policy {
+		recurring_window {
+			start_time = "%s"
+			end_time = "%s"
+			recurrence = "FREQ=DAILY"
+		}
+	}`, startTime, endTime)
+	}
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_recurring_maintenance_window" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  %s
+}
+`, clusterName, maintenancePolicy)
+
 }
 
 func testAccContainerCluster_withIPAllocationPolicy_existingSecondaryRanges(containerNetName string, clusterName string) string {

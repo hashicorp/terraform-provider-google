@@ -303,3 +303,11 @@ func validateHourlyOnly(val interface{}, key string) (warns []string, errs []err
 	}
 	return
 }
+
+func validateRFC3339Date(v interface{}, k string) (warnings []string, errors []error) {
+	_, err := time.Parse(time.RFC3339, v.(string))
+	if err != nil {
+		errors = append(errors, err)
+	}
+	return
+}
