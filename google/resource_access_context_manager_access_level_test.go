@@ -151,6 +151,10 @@ resource "google_access_context_manager_access_level" "test-access" {
           os_type = "DESKTOP_CHROME_OS"
         }
       }
+      regions = [
+        "IT",
+        "US",
+      ]
     }
   }
 }

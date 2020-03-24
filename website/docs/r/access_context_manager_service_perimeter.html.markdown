@@ -66,7 +66,12 @@ resource "google_access_context_manager_access_level" "access-level" {
           os_type = "DESKTOP_CHROME_OS"
         }
       }
-    }
+      regions = [
+	"CH",
+	"IT",
+	"US",
+      ]
+  }
   }
 }
 

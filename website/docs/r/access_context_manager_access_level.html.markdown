@@ -49,6 +49,11 @@ resource "google_access_context_manager_access_level" "access-level" {
           os_type = "DESKTOP_CHROME_OS"
         }
       }
+      regions = [
+	"CH",
+	"IT",
+	"US",
+      ]
     }
   }
 }
@@ -151,6 +156,12 @@ The `conditions` block supports:
   Device specific restrictions, all restrictions must hold for
   the Condition to be true. If not specified, all devices are
   allowed.  Structure is documented below.
+
+* `regions` -
+  (Optional)
+  The request must originate from one of the provided
+  countries/regions.
+  Format: A valid ISO 3166-1 alpha-2 code.
 
 
 The `device_policy` block supports:
