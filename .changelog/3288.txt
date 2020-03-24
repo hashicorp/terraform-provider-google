@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: Added field `maintenance_policy.recurring_window` to  `google_container_cluster` (GA only)
+```

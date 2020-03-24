@@ -56,6 +56,19 @@ var (
 	}
 )
 
+func rfc5545RecurrenceDiffSuppress(k, o, n string, d *schema.ResourceData) bool {
+	// This diff gets applied in the cloud console if you specify
+	// "FREQ=DAILY" in your config and add a maintenance exclusion.
+	if o == "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU" && n == "FREQ=DAILY" {
+		return true
+	}
+	// Writing a full diff suppress for identical recurrences would be
+	// complex and error-prone - it's not a big problem if a user
+	// changes the recurrence and it's textually difference but semantically
+	// identical.
+	return false
+}
+
 func resourceContainerCluster() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceContainerClusterCreate,
@@ -360,8 +373,11 @@ func resourceContainerCluster() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"daily_maintenance_window": {
 							Type:     schema.TypeList,
-							Required: true,
-
+							Optional: true,
+							ExactlyOneOf: []string{
+								"maintenance_policy.0.daily_maintenance_window",
+								"maintenance_policy.0.recurring_window",
+							},
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -374,6 +390,34 @@ func resourceContainerCluster() *schema.Resource {
 									"duration": {
 										Type:     schema.TypeString,
 										Computed: true,
+									},
+								},
+							},
+						},
+						"recurring_window": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							ExactlyOneOf: []string{
+								"maintenance_policy.0.daily_maintenance_window",
+								"maintenance_policy.0.recurring_window",
+							},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"start_time": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validateRFC3339Date,
+									},
+									"end_time": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validateRFC3339Date,
+									},
+									"recurrence": {
+										Type:             schema.TypeString,
+										Required:         true,
+										DiffSuppressFunc: rfc5545RecurrenceDiffSuppress,
 									},
 								},
 							},
@@ -1851,7 +1895,22 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 			ResourceVersion: resourceVersion,
 		}
 	}
-
+	if recurringWindow, ok := maintenancePolicy["recurring_window"]; ok && len(recurringWindow.([]interface{})) > 0 {
+		rw := recurringWindow.([]interface{})[0].(map[string]interface{})
+		return &containerBeta.MaintenancePolicy{
+			Window: &containerBeta.MaintenanceWindow{
+				MaintenanceExclusions: exclusions,
+				RecurringWindow: &containerBeta.RecurringTimeWindow{
+					Window: &containerBeta.TimeWindow{
+						StartTime: rw["start_time"].(string),
+						EndTime:   rw["end_time"].(string),
+					},
+					Recurrence: rw["recurrence"].(string),
+				},
+			},
+			ResourceVersion: resourceVersion,
+		}
+	}
 	return nil
 }
 
@@ -2162,7 +2221,19 @@ func flattenMaintenancePolicy(mp *containerBeta.MaintenancePolicy) []map[string]
 			},
 		}
 	}
-
+	if mp.Window.RecurringWindow != nil {
+		return []map[string]interface{}{
+			{
+				"recurring_window": []map[string]interface{}{
+					{
+						"start_time": mp.Window.RecurringWindow.Window.StartTime,
+						"end_time":   mp.Window.RecurringWindow.Window.EndTime,
+						"recurrence": mp.Window.RecurringWindow.Recurrence,
+					},
+				},
+			},
+		}
+	}
 	return nil
 }
 
