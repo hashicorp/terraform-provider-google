@@ -561,7 +561,7 @@ func doEnableServicesRequest(services []string, project string, config *Config, 
 		return errwrap.Wrapf("failed to send enable services request: {{err}}", err)
 	}
 	// Poll for the API to return
-	waitErr := serviceUsageOperationWait(config, op, fmt.Sprintf("Enable Project %q Services: %+v", project, services))
+	waitErr := serviceUsageOperationWait(config, op, project, fmt.Sprintf("Enable Project %q Services: %+v", project, services))
 	if waitErr != nil {
 		return waitErr
 	}

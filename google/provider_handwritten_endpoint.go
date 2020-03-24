@@ -160,7 +160,6 @@ var ServiceNetworkingCustomEndpointEntry = &schema.Schema{
 	}, ServiceNetworkingDefaultBasePath),
 }
 
-var ServiceUsageDefaultBasePath = "https://serviceusage.googleapis.com/v1/"
 var ServiceUsageCustomEndpointEntryKey = "service_usage_custom_endpoint"
 var ServiceUsageCustomEndpointEntry = &schema.Schema{
 	Type:         schema.TypeString,

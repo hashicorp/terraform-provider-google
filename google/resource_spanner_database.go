@@ -150,6 +150,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	if opRes == nil {
 		return fmt.Errorf("Error decoding response from operation, could not find object")
 	}
+
 	if err := d.Set("name", flattenSpannerDatabaseName(opRes["name"], d, config)); err != nil {
 		return err
 	}

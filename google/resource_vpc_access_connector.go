@@ -182,6 +182,7 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 	if opRes == nil {
 		return fmt.Errorf("Error decoding response from operation, could not find object")
 	}
+
 	if err := d.Set("name", flattenVPCAccessConnectorName(opRes["name"], d, config)); err != nil {
 		return err
 	}

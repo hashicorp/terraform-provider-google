@@ -365,6 +365,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_SERVICE_MANAGEMENT_CUSTOM_ENDPOINT",
 				}, ServiceManagementDefaultBasePath),
 			},
+			"service_usage_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_SERVICE_USAGE_CUSTOM_ENDPOINT",
+				}, ServiceUsageDefaultBasePath),
+			},
 			"source_repo_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -865,6 +873,7 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 	config.RuntimeConfigBasePath = d.Get("runtime_config_custom_endpoint").(string)
 	config.SecurityCenterBasePath = d.Get("security_center_custom_endpoint").(string)
 	config.ServiceManagementBasePath = d.Get("service_management_custom_endpoint").(string)
+	config.ServiceUsageBasePath = d.Get("service_usage_custom_endpoint").(string)
 	config.SourceRepoBasePath = d.Get("source_repo_custom_endpoint").(string)
 	config.SpannerBasePath = d.Get("spanner_custom_endpoint").(string)
 	config.SQLBasePath = d.Get("sql_custom_endpoint").(string)
