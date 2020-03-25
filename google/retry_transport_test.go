@@ -123,6 +123,51 @@ func TestRetryTransport_SuccessWithBody(t *testing.T) {
 	testRetryTransport_checkBody(t, resp, body)
 }
 
+// Check for no and no retries if the request has no getBody (it should only run once)
+func TestRetryTransport_DoesNotRetryEmptyGetBody(t *testing.T) {
+	msg := "non empty body"
+	attempted := false
+
+	ts, client := setUpRetryTransportServerClient(http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			// Check for request body
+			dump, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				w.WriteHeader(testRetryTransportCodeFailure)
+				if _, werr := w.Write([]byte(fmt.Sprintf("got error: %v", err))); werr != nil {
+					t.Errorf("[ERROR] unable to write to response writer: %v", err)
+				}
+			}
+			dumpS := string(dump)
+			if dumpS != msg {
+				w.WriteHeader(testRetryTransportCodeFailure)
+				if _, werr := w.Write([]byte(fmt.Sprintf("got unexpected body: %s", dumpS))); werr != nil {
+					t.Errorf("[ERROR] unable to write to response writer: %v", err)
+				}
+			}
+			if attempted {
+				w.WriteHeader(testRetryTransportCodeFailure)
+				if _, werr := w.Write([]byte("expected only one try")); werr != nil {
+					t.Errorf("[ERROR] unable to write to response writer: %v", err)
+				}
+			}
+			attempted = true
+			w.WriteHeader(testRetryTransportCodeRetry)
+		}))
+	defer ts.Close()
+
+	// Create request
+	req, err := http.NewRequest("GET", ts.URL, strings.NewReader(msg))
+	if err != nil {
+		t.Errorf("[ERROR] unable to make test request: %v", err)
+	}
+	// remove GetBody
+	req.GetBody = nil
+
+	resp, err := client.Do(req)
+	testRetryTransport_checkFailedWhileRetrying(t, resp, err)
+}
+
 // handlers
 func testRetryTransportHandler_noRetries(t *testing.T, code int) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

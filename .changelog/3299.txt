@@ -1,0 +1,3 @@
+```release-note:bug
+provider: Fixed an error with resources failing to upload large files (e.g. with `google_storage_bucket_object`) during retried requests
+```
