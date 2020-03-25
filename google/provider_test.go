@@ -240,6 +240,8 @@ func readSeedFromFile(fileName string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	// Remove NULL characters from seed
+	data = bytes.Trim(data, "\x00")
 	seed := string(data)
 	return strconv.ParseInt(seed, 10, 64)
 }
