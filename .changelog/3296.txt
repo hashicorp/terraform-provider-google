@@ -1,0 +1,6 @@
+```release-note:breaking-change
+accesscontextmanager: `status.restricted_services` in `google_access_context_manager_service_perimeter` interpolation order may have changed
+```
+```release-note:enhancement
+accesscontextmanager: `status.restricted_services` of `google_access_context_manager_service_perimeter` does not cause a noop update if just the order of services changes.
+```

@@ -324,7 +324,7 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 	prefixFilter := fmt.Sprintf("id:%s* parent.id:%s", SharedServicePerimeterProjectPrefix, org)
 	res, err := config.clientResourceManager.Projects.List().Filter(prefixFilter).Do()
 	if err != nil {
-		t.Errorf("Error getting shared test projects: %s", err)
+		t.Fatalf("Error getting shared test projects: %s", err)
 	}
 
 	projects := res.Projects

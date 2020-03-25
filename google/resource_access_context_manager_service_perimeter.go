@@ -131,7 +131,7 @@ Format: projects/{project_number}`,
 							AtLeastOneOf: []string{"status.0.resources", "status.0.access_levels", "status.0.restricted_services"},
 						},
 						"restricted_services": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Description: `GCP services that are subject to the Service Perimeter
 restrictions. Must contain a list of services. For example, if
@@ -141,6 +141,7 @@ restrictions.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Set:          schema.HashString,
 							AtLeastOneOf: []string{"status.0.resources", "status.0.access_levels", "status.0.restricted_services"},
 						},
 					},
@@ -474,7 +475,10 @@ func flattenAccessContextManagerServicePerimeterStatusAccessLevels(v interface{}
 }
 
 func flattenAccessContextManagerServicePerimeterStatusRestrictedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenAccessContextManagerServicePerimeterName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -535,6 +539,7 @@ func expandAccessContextManagerServicePerimeterStatusAccessLevels(v interface{},
 }
 
 func expandAccessContextManagerServicePerimeterStatusRestrictedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	return v, nil
 }
 
