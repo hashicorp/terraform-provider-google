@@ -18,6 +18,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * kms: Fixed an issue in `google_kms_crypto_key_version` where `public_key` would return empty after apply ([#5956](https://github.com/terraform-providers/terraform-provider-google/pull/5956))
 * logging: Fixed import issue with `google_logging_metric` in a non-default project. ([#5944](https://github.com/terraform-providers/terraform-provider-google/pull/5944))
+* provider: Fixed an error with resources failing to upload large files (e.g. with `google_storage_bucket_object`) during retried requests ([#5977](https://github.com/terraform-providers/terraform-provider-google/pull/5977))
 
 ## 3.14.0 (March 23, 2020)
 
