@@ -115,7 +115,7 @@ The `action` block supports:
 
 * `storage_class` - (Required if action type is `SetStorageClass`) The target [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects affected by this Lifecycle Rule. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`.
 
-The `condition` block supports the following elements, and requires at least one to be defined:
+The `condition` block supports the following elements, and requires at least one to be defined. If you specify multiple conditions in a rule, an object has to match all of the conditions for the action to be taken:
 
 * `age` - (Optional) Minimum age of an object in days to satisfy this condition.
 
