@@ -1,4 +1,21 @@
 ## 3.15.0 (Unreleased)
+
+FEATURES:
+* **New Resource:** `google_compute_instance_group_named_port` ([#5932](https://github.com/terraform-providers/terraform-provider-google/pull/5932))
+* **New Resource:** `google_service_usage_consumer_quota_override` ([#5966](https://github.com/terraform-providers/terraform-provider-google/pull/5966))
+
+IMPROVEMENTS:
+* accesscontextmanager: Added `regions` field to `google_access_context_manager_access_level` ([#5961](https://github.com/terraform-providers/terraform-provider-google/pull/5961))
+* compute: added field `network` to `google_compute_region_backend_service`, which allows internal load balancers to target the non-primary interface of an instance. ([#5957](https://github.com/terraform-providers/terraform-provider-google/pull/5957))
+* compute: added support for IAM conditions in `google_compute_subnet_iam_*` IAM resources ([#5954](https://github.com/terraform-providers/terraform-provider-google/pull/5954))
+* container: Added field `maintenance_policy.recurring_window` to  `google_container_cluster` ([#5962](https://github.com/terraform-providers/terraform-provider-google/pull/5962))
+* kms: Added new field "Additional Authenticated Data" for Cloud KMS data source `google_kms_secret` ([#5968](https://github.com/terraform-providers/terraform-provider-google/pull/5968))
+* kms: Added new field "Additional Authenticated Data" for Cloud KMS resource `google_kms_secret_ciphertext` ([#5968](https://github.com/terraform-providers/terraform-provider-google/pull/5968))
+
+BUG FIXES:
+* kms: Fixed an issue in `google_kms_crypto_key_version` where `public_key` would return empty after apply ([#5956](https://github.com/terraform-providers/terraform-provider-google/pull/5956))
+* logging: Fixed import issue with `google_logging_metric` in a non-default project. ([#5944](https://github.com/terraform-providers/terraform-provider-google/pull/5944))
+
 ## 3.14.0 (March 23, 2020)
 
 FEATURES:
