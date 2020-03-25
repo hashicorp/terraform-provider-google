@@ -34,7 +34,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"google.golang.org/api/googleapi"
 	"io/ioutil"
@@ -99,19 +98,29 @@ func (t *retryTransport) RoundTrip(req *http.Request) (resp *http.Response, resp
 	backoff := time.Millisecond * 500
 	nextBackoff := time.Millisecond * 500
 
+	// VCR depends on the original request body being consumed, so
+	// consume here. Since this won't affect the request itself,
+	// we do this before the actual Retry loop so we can consume the request Body as needed
+	// e.g. if the request couldn't be retried, we use the original request
+	if _, err := httputil.DumpRequestOut(req, true); err != nil {
+		log.Printf("[WARN] Retry Transport: Consuming original request body failed: %v", err)
+	}
+
 	log.Printf("[DEBUG] Retry Transport: starting RoundTrip retry loop")
 Retry:
 	for {
-		log.Printf("[DEBUG] Retry Transport: request attempt %d", attempts)
-
-		// Copy the request - we dont want to use the original request as
-		// RoundTrip contract says request body can/will be consumed
+		// RoundTrip contract says request body can/will be consumed, so we need to
+		// copy the request body for each attempt.
+		// If we can't copy the request, we run as a single request.
 		newRequest, copyErr := copyHttpRequest(req)
 		if copyErr != nil {
-			respErr = errwrap.Wrapf("unable to copy invalid http.Request for retry: {{err}}", copyErr)
+			log.Printf("[WARN] Retry Transport: Unable to copy request body: %v.", copyErr)
+			log.Printf("[WARN] Retry Transport: Running request as non-retryable")
+			resp, respErr = t.internal.RoundTrip(req)
 			break Retry
 		}
 
+		log.Printf("[DEBUG] Retry Transport: request attempt %d", attempts)
 		// Do the wrapped Roundtrip. This is one request in the retry loop.
 		resp, respErr = t.internal.RoundTrip(newRequest)
 		attempts++
@@ -141,13 +150,6 @@ Retry:
 			continue
 		}
 	}
-
-	// VCR depends on the original request body being consumed, so consume it here
-	_, err := httputil.DumpRequestOut(req, true)
-	if err != nil {
-		log.Printf("[DEBUG] Retry Transport: Reading request failed: %v", err)
-	}
-
 	log.Printf("[DEBUG] Retry Transport: Returning after %d attempts", attempts)
 	return resp, respErr
 }
@@ -157,15 +159,13 @@ Retry:
 // so it can be consumed.
 func copyHttpRequest(req *http.Request) (*http.Request, error) {
 	newRequest := *req
-
 	if req.Body == nil || req.Body == http.NoBody {
 		return &newRequest, nil
 	}
-
 	// Helpers like http.NewRequest add a GetBody for copying.
 	// If not given, we should reject the request.
 	if req.GetBody == nil {
-		return nil, errors.New("invalid HTTP request for transport, expected request.GetBody for non-empty Body")
+		return nil, errors.New("request.GetBody is not defined for non-empty Body")
 	}
 
 	bd, err := req.GetBody()
