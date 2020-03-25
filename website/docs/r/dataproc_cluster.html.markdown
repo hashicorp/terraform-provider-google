@@ -431,6 +431,17 @@ cluster_config {
    a cluster. For a list of valid properties please see
   [Cluster properties](https://cloud.google.com/dataproc/docs/concepts/cluster-properties)
 
+* `optional_components` - (Optional) The set of optional components to activate on the cluster. 
+    Accepted values are:
+    * ANACONDA
+    * DRUID
+    * HIVE_WEBHCAT
+    * JUPYTER
+    * KERBEROS
+    * PRESTO
+    * ZEPPELIN
+    * ZOOKEEPER
+
 - - -
 
 The `cluster_config.security_config` block supports:
