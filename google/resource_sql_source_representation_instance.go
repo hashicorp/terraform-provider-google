@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"google.golang.org/api/googleapi"
 )
 
 func resourceSQLSourceRepresentationInstance() *schema.Resource {
@@ -206,6 +207,9 @@ func resourceSQLSourceRepresentationInstanceRead(d *schema.ResourceData, meta in
 	// Terraform must set the top level schema field, but since this object contains collapsed properties
 	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
 	if flattenedProp := flattenSQLSourceRepresentationInstanceOnPremisesConfiguration(res["onPremisesConfiguration"], d, config); flattenedProp != nil {
+		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
+			return fmt.Errorf("Error reading SourceRepresentationInstance: %s", gerr)
+		}
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
