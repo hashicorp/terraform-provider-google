@@ -25,6 +25,14 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func revisionNameCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
+	autogen := diff.Get("autogenerate_revision_name").(bool)
+	if autogen && diff.HasChange("template.0.metadata.0.name") {
+		return fmt.Errorf("google_cloud_run_service: `template.metadata.name` cannot be set while `autogenerate_revision_name` is true. Please remove the field or set `autogenerate_revision_name` to false.")
+	}
+	return nil
+}
+
 func resourceCloudRunService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudRunServiceCreate,
@@ -41,6 +49,9 @@ func resourceCloudRunService() *schema.Resource {
 			Update: schema.DefaultTimeout(15 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
+
+		SchemaVersion: 1,
+		CustomizeDiff: revisionNameCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
 			"location": {
@@ -567,6 +578,11 @@ https://{route-hash}-{project-hash}-{cluster-level-suffix}.a.run.app`,
 					},
 				},
 			},
+			"autogenerate_revision_name": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -693,6 +709,10 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 		return nil
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOk("autogenerate_revision_name"); !ok {
+		d.Set("autogenerate_revision_name", false)
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
@@ -808,6 +828,9 @@ func resourceCloudRunServiceImport(d *schema.ResourceData, meta interface{}) ([]
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	d.Set("autogenerate_revision_name", false)
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -1553,6 +1576,9 @@ func expandCloudRunServiceSpecTemplateMetadataAnnotations(v interface{}, d Terra
 }
 
 func expandCloudRunServiceSpecTemplateMetadataName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	if d.Get("autogenerate_revision_name") == true {
+		return nil, nil
+	}
 	return v, nil
 }
 

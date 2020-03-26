@@ -92,7 +92,7 @@ func TestAccCloudRunService_cloudRunServiceSqlExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location"},
+				ImportStateVerifyIgnore: []string{"name", "location", "autogenerate_revision_name"},
 			},
 		},
 	})
@@ -119,6 +119,7 @@ resource "google_cloud_run_service" "default" {
       }
     }
   }
+  autogenerate_revision_name = true
 }
 
 resource "google_sql_database_instance" "instance" {
@@ -211,7 +212,7 @@ func TestAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(t
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location"},
+				ImportStateVerifyIgnore: []string{"name", "location", "autogenerate_revision_name"},
 			},
 		},
 	})
@@ -243,6 +244,7 @@ resource "google_cloud_run_service" "default" {
     percent         = 100
     latest_revision = true
   }
+  autogenerate_revision_name = true
 }
 `, context)
 }
