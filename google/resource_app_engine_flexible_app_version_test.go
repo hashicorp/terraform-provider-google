@@ -37,11 +37,16 @@ func TestAccAppEngineFlexibleAppVersion_update(t *testing.T) {
 			},
 		},
 	})
-
 }
 
 func testAccAppEngineFlexibleAppVersion_python(resourceName string) string {
 	return fmt.Sprintf(`
+resource "google_project_service" "project" {
+  service = "appengineflex.googleapis.com"
+
+  disable_dependent_services = false
+}
+
 resource "google_app_engine_flexible_app_version" "foo" {
   version_id = "v1"
   service    = "%s"
@@ -127,6 +132,12 @@ resource "google_storage_bucket_object" "main" {
 
 func testAccAppEngineFlexibleAppVersion_pythonUpdate(resourceName string) string {
 	return fmt.Sprintf(`
+resource "google_project_service" "project" {
+  service = "appengineflex.googleapis.com"
+
+  disable_dependent_services = false
+}
+
 resource "google_app_engine_flexible_app_version" "foo" {
   version_id = "v1"
   service    = "%s"

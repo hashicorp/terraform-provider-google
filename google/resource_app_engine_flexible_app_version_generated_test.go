@@ -28,7 +28,6 @@ func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *te
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":        getTestOrgFromEnv(t),
 		"random_suffix": acctest.RandString(10),
 	}
 
@@ -52,6 +51,12 @@ func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *te
 
 func testAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_project_service" "service" {
+  service = "appengineflex.googleapis.com"
+
+  disable_dependent_services = false
+}
+
 resource "google_app_engine_flexible_app_version" "myapp_v1" {
   version_id = "v1"
   service    = "tf-test-service-%{random_suffix}"

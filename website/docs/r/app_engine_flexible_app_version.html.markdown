@@ -27,6 +27,9 @@ the App Engine flexible environment automatically scales your app up and down wh
 Learn about the differences between the standard environment and the flexible environment
 at https://cloud.google.com/appengine/docs/the-appengine-environments.
 
+~> **Note:** The App Engine flexible environment service account uses the member ID `service-[YOUR_PROJECT_NUMBER]@gae-api-prod.google.com.iam.gserviceaccount.com`
+It should have the App Engine Flexible Environment Service Agent role, which will be applied when the `appengineflex.googleapis.com` service is enabled.
+
 
 To get more information about FlexibleAppVersion, see:
 
@@ -43,6 +46,12 @@ To get more information about FlexibleAppVersion, see:
 
 
 ```hcl
+resource "google_project_service" "service" {
+  service = "appengineflex.googleapis.com"
+
+  disable_dependent_services = false
+}
+
 resource "google_app_engine_flexible_app_version" "myapp_v1" {
   version_id = "v1"
   service    = "service-"
