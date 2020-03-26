@@ -828,6 +828,7 @@ resource "google_cloudfunctions_function" "function" {
   }
   max_instances = 10
   vpc_connector = google_vpc_access_connector.%s.self_link
+  vpc_connector_egress_settings = "PRIVATE_RANGES_ONLY"
 
   depends_on = [google_project_iam_member.gcfadmin]
 }

@@ -133,6 +133,8 @@ Eg. `"nodejs8"`, `"nodejs10"`, `"python37"`, `"go111"`.
 
 * `vpc_connector` - (Optional) The VPC Network Connector that this cloud function can connect to. It can be either the fully-qualified URI, or the short name of the network connector resource. The format of this field is `projects/*/locations/*/connectors/*`.
 
+* `vpc_connector_egress_settings` - (Optional) The egress settings for the connector, controlling what traffic is diverted through it. Allowed values are `ALL_TRAFFIC` and `PRIVATE_RANGES_ONLY`. Defaults to `PRIVATE_RANGES_ONLY`. If unset, this field preserves the previously set value.
+
 * `source_archive_bucket` - (Optional) The GCS bucket containing the zip archive which contains the function.
 
 * `source_archive_object` - (Optional) The source archive object (file) in archive bucket.
