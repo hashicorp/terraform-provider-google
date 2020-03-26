@@ -101,6 +101,8 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 						"available_memory_mb", "128"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"max_instances", "10"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"ingress_settings", "ALLOW_INTERNAL_ONLY"),
 					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_HTTP, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
@@ -167,6 +169,8 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 						"timeout", "91"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"max_instances", "15"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"ingress_settings", "ALLOW_ALL"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-updated-label-value", &function),
 					testAccCloudFunctionsFunctionHasLabel("a-new-label", "a-new-label-value", &function),
 					testAccCloudFunctionsFunctionHasEnvironmentVariable("TEST_ENV_VARIABLE",
@@ -548,6 +552,7 @@ resource "google_cloudfunctions_function" "function" {
   trigger_http          = true
   timeout               = 61
   entry_point           = "helloGET"
+  ingress_settings      = "ALLOW_INTERNAL_ONLY"
   labels = {
     my-label = "my-label-value"
   }
@@ -581,6 +586,7 @@ resource "google_cloudfunctions_function" "function" {
   runtime               = "nodejs8"
   timeout               = 91
   entry_point           = "helloGET"
+  ingress_settings      = "ALLOW_ALL"
   labels = {
     my-label    = "my-updated-label-value"
     a-new-label = "a-new-label-value"
