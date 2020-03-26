@@ -28,6 +28,13 @@ var functionAllowedMemory = map[int]bool{
 
 const functionDefaultAllowedMemoryMb = 256
 
+var allowedIngressSettings = []string{
+	"ALLOW_ALL",
+	"ALLOW_INTERNAL_ONLY",
+}
+
+const functionDefaultIngressSettings = "ALLOW_ALL"
+
 type cloudFunctionId struct {
 	Project string
 	Region  string
@@ -164,6 +171,13 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+			},
+
+			"ingress_settings": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      functionDefaultIngressSettings,
+				ValidateFunc: validation.StringInSlice(allowedIngressSettings, true),
 			},
 
 			"labels": {
@@ -330,6 +344,10 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 			"You must specify a trigger when deploying a new function.")
 	}
 
+	if v, ok := d.GetOk("ingress_settings"); ok {
+		function.IngressSettings = v.(string)
+	}
+
 	if _, ok := d.GetOk("labels"); ok {
 		function.Labels = expandLabels(d)
 	}
@@ -388,6 +406,7 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 	d.Set("timeout", timeout)
+	d.Set("ingress_settings", function.IngressSettings)
 	d.Set("labels", function.Labels)
 	d.Set("runtime", function.Runtime)
 	d.Set("service_account_email", function.ServiceAccountEmail)
@@ -467,6 +486,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("timeout") {
 		function.Timeout = fmt.Sprintf("%vs", d.Get("timeout").(int))
 		updateMaskArr = append(updateMaskArr, "timeout")
+	}
+
+	if d.HasChange("ingress_settings") {
+		function.IngressSettings = d.Get("ingress_settings").(string)
+		updateMaskArr = append(updateMaskArr, "ingressSettings")
 	}
 
 	if d.HasChange("labels") {
