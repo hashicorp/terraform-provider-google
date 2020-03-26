@@ -664,6 +664,12 @@ The `resource_usage_export_config` block supports:
 * `enable_network_egress_metering` (Optional) - Whether to enable network egress metering for this cluster. If enabled, a daemonset will be created
     in the cluster to meter network egress traffic.
 
+* `enable_resource_consumption_metering` (Optional) - Whether to enable resource
+consumption metering on this cluster. When enabled, a table will be created in
+the resource export BigQuery dataset to store resource consumption data. The
+resulting table can be joined with the resource usage table or with BigQuery
+billing export. Defaults to `true`.
+
 * `bigquery_destination` (Required) - Parameters for using BigQuery as the destination of resource usage export.
 
 * `bigquery_destination.dataset_id` (Required) - The ID of a BigQuery Dataset. For Example:
@@ -671,6 +677,7 @@ The `resource_usage_export_config` block supports:
 ```hcl
 resource_usage_export_config {
   enable_network_egress_metering = false
+  enable_resource_consumption_metering = true
 
   bigquery_destination {
     dataset_id = "cluster_resource_usage"

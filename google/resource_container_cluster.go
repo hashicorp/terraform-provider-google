@@ -747,6 +747,39 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"resource_usage_export_config": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_network_egress_metering": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"enable_resource_consumption_metering": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
+						"bigquery_destination": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Required: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"dataset_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			"enable_intranode_visibility": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -935,6 +968,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("vertical_pod_autoscaling"); ok {
 		cluster.VerticalPodAutoscaling = expandVerticalPodAutoscaling(v)
+	}
+
+	if v, ok := d.GetOk("resource_usage_export_config"); ok {
+		cluster.ResourceUsageExportConfig = expandResourceUsageExportConfig(v)
 	}
 
 	req := &containerBeta.CreateClusterRequest{
@@ -1136,6 +1173,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("resource_labels", cluster.ResourceLabels)
 	d.Set("label_fingerprint", cluster.LabelFingerprint)
+
+	if err := d.Set("resource_usage_export_config", flattenResourceUsageExportConfig(cluster.ResourceUsageExportConfig)); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -1631,6 +1672,31 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+	if d.HasChange("resource_usage_export_config") {
+		c := d.Get("resource_usage_export_config")
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredResourceUsageExportConfig: expandResourceUsageExportConfig(c),
+			},
+		}
+
+		updateF := func() error {
+			name := containerClusterFullName(project, location, clusterName)
+			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(name, req).Do()
+			if err != nil {
+				return err
+			}
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, location, "updating GKE cluster resource usage export config", timeoutInMinutes)
+		}
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+		log.Printf("[INFO] GKE cluster %s resource usage export config has been updated", d.Id())
+
+		d.SetPartial("resource_usage_export_config")
+	}
+
 	d.Partial(false)
 
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, d.Timeout(schema.TimeoutUpdate)); err != nil {
@@ -2088,6 +2154,34 @@ func expandDefaultMaxPodsConstraint(v interface{}) *containerBeta.MaxPodsConstra
 		MaxPodsPerNode: int64(v.(int)),
 	}
 }
+func expandResourceUsageExportConfig(configured interface{}) *containerBeta.ResourceUsageExportConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return &containerBeta.ResourceUsageExportConfig{}
+	}
+
+	resourceUsageConfig := l[0].(map[string]interface{})
+
+	result := &containerBeta.ResourceUsageExportConfig{
+		EnableNetworkEgressMetering: resourceUsageConfig["enable_network_egress_metering"].(bool),
+		ConsumptionMeteringConfig: &containerBeta.ConsumptionMeteringConfig{
+			Enabled:         resourceUsageConfig["enable_resource_consumption_metering"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		},
+		ForceSendFields: []string{"EnableNetworkEgressMetering"},
+	}
+	if _, ok := resourceUsageConfig["bigquery_destination"]; ok {
+		if len(resourceUsageConfig["bigquery_destination"].([]interface{})) > 0 {
+			bigqueryDestination := resourceUsageConfig["bigquery_destination"].([]interface{})[0].(map[string]interface{})
+			if _, ok := bigqueryDestination["dataset_id"]; ok {
+				result.BigqueryDestination = &containerBeta.BigQueryDestination{
+					DatasetId: bigqueryDestination["dataset_id"].(string),
+				}
+			}
+		}
+	}
+	return result
+}
 
 func flattenNetworkPolicy(c *containerBeta.NetworkPolicy) []map[string]interface{} {
 	result := []map[string]interface{}{}
@@ -2315,6 +2409,27 @@ func flattenMasterAuthorizedNetworksConfig(c *containerBeta.MasterAuthorizedNetw
 		result["cidr_blocks"] = schema.NewSet(schema.HashResource(cidrBlockConfig), cidrBlocks)
 	}
 	return []map[string]interface{}{result}
+}
+
+func flattenResourceUsageExportConfig(c *containerBeta.ResourceUsageExportConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+
+	enableResourceConsumptionMetering := false
+	if c.ConsumptionMeteringConfig != nil && c.ConsumptionMeteringConfig.Enabled == true {
+		enableResourceConsumptionMetering = true
+	}
+
+	return []map[string]interface{}{
+		{
+			"enable_network_egress_metering":       c.EnableNetworkEgressMetering,
+			"enable_resource_consumption_metering": enableResourceConsumptionMetering,
+			"bigquery_destination": []map[string]interface{}{
+				{"dataset_id": c.BigqueryDestination.DatasetId},
+			},
+		},
+	}
 }
 
 func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

@@ -1202,6 +1202,46 @@ func TestAccContainerCluster_errorNoClusterCreated(t *testing.T) {
 	}, testAccCheckContainerClusterDestroyProducer)
 }
 
+func TestAccContainerCluster_withResourceUsageExportConfig(t *testing.T) {
+	t.Parallel()
+
+	suffix := randString(t, 10)
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", suffix)
+	datesetId := fmt.Sprintf("tf_test_cluster_resource_usage_%s", suffix)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withResourceUsageExportConfig(clusterName, datesetId, "true"),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_resource_usage_export_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withResourceUsageExportConfig(clusterName, datesetId, "false"),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_resource_usage_export_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withResourceUsageExportConfigNoConfig(clusterName, datesetId),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_resource_usage_export_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	}, testAccCheckContainerClusterDestroyProducer)
+}
+
 func TestAccContainerCluster_withMasterAuthorizedNetworksDisabled(t *testing.T) {
 	t.Parallel()
 
@@ -2501,6 +2541,45 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
   }
 }
 `, containerNetName, clusterName)
+}
+
+func testAccContainerCluster_withResourceUsageExportConfig(clusterName, datasetId, enableMetering string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "default" {
+  dataset_id                 = "%s"
+  description                = "gke resource usage dataset tests"
+  delete_contents_on_destroy = true
+}
+
+resource "google_container_cluster" "with_resource_usage_export_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  resource_usage_export_config {
+    enable_network_egress_metering = true
+    enable_resource_consumption_metering = %s
+    bigquery_destination {
+      dataset_id = google_bigquery_dataset.default.dataset_id
+    }
+  }
+}
+`, datasetId, clusterName, enableMetering)
+}
+
+func testAccContainerCluster_withResourceUsageExportConfigNoConfig(clusterName, datasetId string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "default" {
+  dataset_id                 = "%s"
+  description                = "gke resource usage dataset tests"
+  delete_contents_on_destroy = true
+}
+
+resource "google_container_cluster" "with_resource_usage_export_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+}
+`, datasetId, clusterName)
 }
 
 func testAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(containerNetName string, clusterName string) string {
