@@ -35,7 +35,8 @@ func testSweepContainerClusters(region string) error {
 	// List clusters for all zones by using "-" as the zone name
 	found, err := config.clientContainer.Projects.Zones.Clusters.List(config.Project, "-").Do()
 	if err != nil {
-		log.Fatalf("error listing container clusters: %s", err)
+		log.Printf("error listing container clusters: %s", err)
+		return nil
 	}
 
 	if len(found.Clusters) == 0 {
@@ -50,7 +51,8 @@ func testSweepContainerClusters(region string) error {
 			_, err := config.clientContainer.Projects.Locations.Clusters.Delete(clusterURL).Do()
 
 			if err != nil {
-				return fmt.Errorf("Error, failed to delete cluster %s: %s", cluster.Name, err)
+				log.Printf("Error, failed to delete cluster %s: %s", cluster.Name, err)
+				return nil
 			}
 		}
 	}
