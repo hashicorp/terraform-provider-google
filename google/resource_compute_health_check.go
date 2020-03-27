@@ -73,7 +73,7 @@ func healthCheckCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
 	return nil
 }
 
-func portDiffSuppress(k, old, new string, _ *schema.ResourceData) bool {
+func portDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	b := strings.Split(k, ".")
 	if len(b) > 2 {
 		attr := b[2]
@@ -99,7 +99,8 @@ func portDiffSuppress(k, old, new string, _ *schema.ResourceData) bool {
 			oldPort, _ := strconv.Atoi(old)
 			newPort, _ := strconv.Atoi(new)
 
-			if int64(oldPort) == defaultPort && newPort == 0 {
+			portSpec := d.Get(b[0] + ".0.port_specification")
+			if int64(oldPort) == defaultPort && newPort == 0 && portSpec == "USE_FIXED_PORT" {
 				return true
 			}
 		}
