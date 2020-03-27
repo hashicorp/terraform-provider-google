@@ -29,6 +29,7 @@ func resourceComputeReservation() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeReservationCreate,
 		Read:   resourceComputeReservationRead,
+		Update: resourceComputeReservationUpdate,
 		Delete: resourceComputeReservationDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -37,6 +38,7 @@ func resourceComputeReservation() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
@@ -56,16 +58,15 @@ character, which cannot be a dash.`,
 			"specific_reservation": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Reservation for instances with specific machine shapes.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"count": {
-							Type:        schema.TypeInt,
-							Required:    true,
-							ForceNew:    true,
-							Description: `The number of resources that are allocated.`,
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validation.IntAtLeast(1),
+							Description:  `The number of resources that are allocated.`,
 						},
 						"instance_properties": {
 							Type:        schema.TypeList,
@@ -329,6 +330,55 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	return nil
+}
+
+func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	d.Partial(true)
+
+	if d.HasChange("specific_reservation") {
+		obj := make(map[string]interface{})
+
+		specificReservationProp, err := expandComputeReservationSpecificReservation(d.Get("specific_reservation"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("specific_reservation"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, specificReservationProp)) {
+			obj["specificReservation"] = specificReservationProp
+		}
+
+		obj, err = resourceComputeReservationUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}/resize")
+		if err != nil {
+			return err
+		}
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating Reservation %q: %s", d.Id(), err)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating Reservation",
+			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("specific_reservation")
+	}
+
+	d.Partial(false)
+
+	return resourceComputeReservationRead(d, meta)
 }
 
 func resourceComputeReservationDelete(d *schema.ResourceData, meta interface{}) error {
@@ -755,4 +805,11 @@ func expandComputeReservationZone(v interface{}, d TerraformResourceData, config
 		return nil, fmt.Errorf("Invalid value for zone: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func resourceComputeReservationUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	newObj := make(map[string]interface{})
+	newObj["specificSkuCount"] = obj["specificReservation"].(map[string]interface{})["count"]
+
+	return newObj, nil
 }
