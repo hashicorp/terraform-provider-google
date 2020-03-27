@@ -1256,7 +1256,7 @@ func TestAccContainerCluster_withMasterAuthorizedNetworksDisabled(t *testing.T) 
 			{
 				Config: testAccContainerCluster_withMasterAuthorizedNetworksDisabled(containerNetName, clusterName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccContainerCluster_masterAuthorizedNetworksDisabled("google_container_cluster.with_private_cluster"),
+					testAccContainerCluster_masterAuthorizedNetworksDisabled(t, "google_container_cluster.with_private_cluster"),
 				),
 			},
 			{
@@ -1291,14 +1291,14 @@ func TestAccContainerCluster_withEnableKubernetesAlpha(t *testing.T) {
 	}, testAccCheckContainerClusterDestroyProducer)
 }
 
-func testAccContainerCluster_masterAuthorizedNetworksDisabled(resource_name string) resource.TestCheckFunc {
+func testAccContainerCluster_masterAuthorizedNetworksDisabled(t *testing.T, resource_name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource_name]
 		if !ok {
 			return fmt.Errorf("can't find %s in state", resource_name)
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := getTestAccProviders(t.Name())["google"].(*schema.Provider).Meta().(*Config)
 		attributes := rs.Primary.Attributes
 
 		cluster, err := config.clientContainer.Projects.Zones.Clusters.Get(

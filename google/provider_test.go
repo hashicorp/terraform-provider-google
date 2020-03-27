@@ -167,7 +167,7 @@ func closeRecorder(t *testing.T) {
 }
 
 func getTestAccProviders(testName string) map[string]terraform.ResourceProvider {
-	prov := Provider().(*schema.Provider)
+	prov := testAccProvider
 	provRand := random.Provider().(*schema.Provider)
 	envPath := os.Getenv("VCR_PATH")
 	recordingMode := os.Getenv("VCR_MODE")
