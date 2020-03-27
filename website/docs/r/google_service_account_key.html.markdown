@@ -43,7 +43,7 @@ resource "kubernetes_secret" "google-application-credentials" {
     name = "google-application-credentials"
   }
   data = {
-    credentials.json = base64decode(google_service_account_key.mykey.private_key)
+    "credentials.json" = base64decode(google_service_account_key.mykey.private_key)
   }
 }
 ```
