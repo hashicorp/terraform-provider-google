@@ -48,7 +48,8 @@ func testSweepDatabases(region string) error {
 
 	found, err := config.clientSqlAdmin.Instances.List(config.Project).Do()
 	if err != nil {
-		log.Fatalf("error listing databases: %s", err)
+		log.Printf("error listing databases: %s", err)
+		return nil
 	}
 
 	if len(found.Items) == 0 {
@@ -99,7 +100,8 @@ func testSweepDatabases(region string) error {
 			op, err := config.clientSqlAdmin.Instances.StopReplica(config.Project, replicaName).Do()
 
 			if err != nil {
-				return fmt.Errorf("error, failed to stop replica instance (%s) for instance (%s): %s", replicaName, d.Name, err)
+				log.Printf("error, failed to stop replica instance (%s) for instance (%s): %s", replicaName, d.Name, err)
+				return nil
 			}
 
 			err = sqlAdminOperationWait(config, op, config.Project, "Stop Replica")
@@ -107,7 +109,8 @@ func testSweepDatabases(region string) error {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("Replication operation not found")
 				} else {
-					return err
+					log.Printf("Error waiting for sqlAdmin operation: %s", err)
+					return nil
 				}
 			}
 
@@ -129,7 +132,8 @@ func testSweepDatabases(region string) error {
 					continue
 				}
 
-				return fmt.Errorf("Error, failed to delete instance %s: %s", db, err)
+				log.Printf("Error, failed to delete instance %s: %s", db, err)
+				return nil
 			}
 
 			err = sqlAdminOperationWait(config, op, config.Project, "Delete Instance")
@@ -138,7 +142,8 @@ func testSweepDatabases(region string) error {
 					log.Printf("SQL instance not found")
 					continue
 				}
-				return err
+				log.Printf("Error, failed to delete instance %s: %s", db, err)
+				return nil
 			}
 		}
 	}

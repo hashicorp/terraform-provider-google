@@ -513,7 +513,8 @@ func createZIPArchiveForCloudFunctionSource(t *testing.T, sourcePath string) str
 func sweepCloudFunctionSourceZipArchives(_ string) error {
 	files, err := ioutil.ReadDir(os.TempDir())
 	if err != nil {
-		return err
+		log.Printf("Error reading files: %s", err)
+		return nil
 	}
 	for _, f := range files {
 		if f.IsDir() {
@@ -522,7 +523,8 @@ func sweepCloudFunctionSourceZipArchives(_ string) error {
 		if strings.HasPrefix(f.Name(), testFunctionsSourceArchivePrefix) {
 			filepath := fmt.Sprintf("%s/%s", os.TempDir(), f.Name())
 			if err := os.Remove(filepath); err != nil {
-				return err
+				log.Printf("Error removing files: %s", err)
+				return nil
 			}
 			log.Printf("[INFO] cloud functions sweeper removed old file %s", filepath)
 		}
