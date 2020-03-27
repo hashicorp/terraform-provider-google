@@ -42,7 +42,8 @@ func testSweepAccessContextManagerPolicies(region string) error {
 
 	resp, err := sendRequest(config, "GET", "", listUrl, nil)
 	if err != nil && !isGoogleApiErrorWithCode(err, 404) {
-		return fmt.Errorf("unable to list AccessPolicies for organization %q: %v", testOrg, err)
+		log.Printf("unable to list AccessPolicies for organization %q: %v", testOrg, err)
+		return nil
 	}
 	var policies []interface{}
 	if resp != nil {
@@ -56,7 +57,8 @@ func testSweepAccessContextManagerPolicies(region string) error {
 		return nil
 	}
 	if len(policies) > 1 {
-		return fmt.Errorf("unexpected - more than one access policies found, change the tests")
+		log.Printf("unexpected - more than one access policies found, change the tests")
+		return nil
 	}
 
 	policy := policies[0].(map[string]interface{})
@@ -64,7 +66,8 @@ func testSweepAccessContextManagerPolicies(region string) error {
 
 	policyUrl := config.AccessContextManagerBasePath + policy["name"].(string)
 	if _, err := sendRequest(config, "DELETE", "", policyUrl, nil); err != nil && !isGoogleApiErrorWithCode(err, 404) {
-		return fmt.Errorf("unable to delete access policy %q", policy["name"].(string))
+		log.Printf("unable to delete access policy %q", policy["name"].(string))
+		return nil
 	}
 
 	return nil
