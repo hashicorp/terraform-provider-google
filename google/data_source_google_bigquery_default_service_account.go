@@ -31,7 +31,7 @@ func dataSourceGoogleBigqueryDefaultServiceAccountRead(d *schema.ResourceData, m
 
 	projectResource, err := config.clientBigQuery.Projects.GetServiceAccount(project).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, "GCE service account not found")
+		return handleNotFoundError(err, d, "BigQuery service account not found")
 	}
 
 	d.SetId(projectResource.Email)
