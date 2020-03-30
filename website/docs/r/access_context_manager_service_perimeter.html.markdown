@@ -162,6 +162,24 @@ The `status` block supports:
   buckets inside the perimeter must meet the perimeter's access
   restrictions.
 
+* `vpc_accessible_services` -
+  (Optional)
+  Specifies how APIs are allowed to communicate within the Service
+  Perimeter.  Structure is documented below.
+
+
+The `vpc_accessible_services` block supports:
+
+* `enable_restriction` -
+  (Optional)
+  Whether to restrict API calls within the Service Perimeter to the
+  list of APIs specified in 'allowedServices'.
+
+* `allowed_services` -
+  (Optional)
+  The list of APIs usable within the Service Perimeter.
+  Must be empty unless `enableRestriction` is True.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
