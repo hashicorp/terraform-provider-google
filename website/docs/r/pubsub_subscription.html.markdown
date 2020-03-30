@@ -107,6 +107,33 @@ resource "google_pubsub_subscription" "example" {
   topic   = google_pubsub_topic.example.name
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_subscription_dead_letter&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Subscription Dead Letter
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+}
+
+resource "google_pubsub_topic" "example_dead_letter" {
+  name = "example-topic-dead-letter"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "example-subscription"
+  topic = google_pubsub_topic.example.name
+
+  dead_letter_policy {
+    dead_letter_topic = google_pubsub_topic.example_dead_letter.id
+    max_delivery_attempts = 10
+  }
+}
+```
 
 ## Argument Reference
 
@@ -181,6 +208,16 @@ The following arguments are supported:
   resource never expires.  The minimum allowed value for expirationPolicy.ttl
   is 1 day.  Structure is documented below.
 
+* `dead_letter_policy` -
+  (Optional)
+  A policy that specifies the conditions for dead lettering messages in
+  this subscription. If dead_letter_policy is not set, dead lettering
+  is disabled.
+  The Cloud Pub/Sub service account associated with this subscriptions's
+  parent project (i.e.,
+  service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have
+  permission to Acknowledge() messages on this subscription.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -247,6 +284,31 @@ The `expiration_policy` block supports:
   If ttl is not set, the associated resource never expires.
   A duration in seconds with up to nine fractional digits, terminated by 's'.
   Example - "3.5s".
+
+The `dead_letter_policy` block supports:
+
+* `dead_letter_topic` -
+  (Optional)
+  The name of the topic to which dead letter messages should be published.
+  Format is `projects/{project}/topics/{topic}`.
+  The Cloud Pub/Sub service\naccount associated with the enclosing subscription's
+  parent project (i.e., 
+  service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have
+  permission to Publish() to this topic.
+  The operation will fail if the topic does not exist.
+  Users should ensure that there is a subscription attached to this topic
+  since messages published to a topic with no subscriptions are lost.
+
+* `max_delivery_attempts` -
+  (Optional)
+  The maximum number of delivery attempts for any message. The value must be
+  between 5 and 100.
+  The number of delivery attempts is defined as 1 + (the sum of number of 
+  NACKs and number of times the acknowledgement deadline has been exceeded for the message).
+  A NACK is any call to ModifyAckDeadline with a 0 deadline. Note that
+  client libraries may automatically extend ack_deadlines.
+  This field will be honored on a best effort basis.
+  If this parameter is 0, a default value of 5 is used.
 
 ## Attributes Reference
 

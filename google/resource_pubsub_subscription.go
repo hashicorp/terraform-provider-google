@@ -93,6 +93,54 @@ for the call to the push endpoint.
 If the subscriber never acknowledges the message, the Pub/Sub system
 will eventually redeliver the message.`,
 			},
+			"dead_letter_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `A policy that specifies the conditions for dead lettering messages in
+this subscription. If dead_letter_policy is not set, dead lettering
+is disabled.
+
+The Cloud Pub/Sub service account associated with this subscriptions's
+parent project (i.e.,
+service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have
+permission to Acknowledge() messages on this subscription.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dead_letter_topic": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The name of the topic to which dead letter messages should be published.
+Format is 'projects/{project}/topics/{topic}'.
+
+The Cloud Pub/Sub service\naccount associated with the enclosing subscription's
+parent project (i.e., 
+service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have
+permission to Publish() to this topic.
+
+The operation will fail if the topic does not exist.
+Users should ensure that there is a subscription attached to this topic
+since messages published to a topic with no subscriptions are lost.`,
+						},
+						"max_delivery_attempts": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The maximum number of delivery attempts for any message. The value must be
+between 5 and 100.
+
+The number of delivery attempts is defined as 1 + (the sum of number of 
+NACKs and number of times the acknowledgement deadline has been exceeded for the message).
+
+A NACK is any call to ModifyAckDeadline with a 0 deadline. Note that
+client libraries may automatically extend ack_deadlines.
+
+This field will be honored on a best effort basis.
+
+If this parameter is 0, a default value of 5 is used.`,
+						},
+					},
+				},
+			},
 			"expiration_policy": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -290,6 +338,12 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("expiration_policy"); ok || !reflect.DeepEqual(v, expirationPolicyProp) {
 		obj["expirationPolicy"] = expirationPolicyProp
 	}
+	deadLetterPolicyProp, err := expandPubsubSubscriptionDeadLetterPolicy(d.Get("dead_letter_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dead_letter_policy"); ok || !reflect.DeepEqual(v, deadLetterPolicyProp) {
+		obj["deadLetterPolicy"] = deadLetterPolicyProp
+	}
 
 	obj, err = resourcePubsubSubscriptionEncoder(d, meta, obj)
 	if err != nil {
@@ -418,6 +472,9 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("expiration_policy", flattenPubsubSubscriptionExpirationPolicy(res["expirationPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
+	if err := d.Set("dead_letter_policy", flattenPubsubSubscriptionDeadLetterPolicy(res["deadLetterPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subscription: %s", err)
+	}
 
 	return nil
 }
@@ -467,6 +524,12 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("expiration_policy"); ok || !reflect.DeepEqual(v, expirationPolicyProp) {
 		obj["expirationPolicy"] = expirationPolicyProp
 	}
+	deadLetterPolicyProp, err := expandPubsubSubscriptionDeadLetterPolicy(d.Get("dead_letter_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dead_letter_policy"); ok || !reflect.DeepEqual(v, deadLetterPolicyProp) {
+		obj["deadLetterPolicy"] = deadLetterPolicyProp
+	}
 
 	obj, err = resourcePubsubSubscriptionUpdateEncoder(d, meta, obj)
 	if err != nil {
@@ -503,6 +566,10 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("expiration_policy") {
 		updateMask = append(updateMask, "expirationPolicy")
+	}
+
+	if d.HasChange("dead_letter_policy") {
+		updateMask = append(updateMask, "deadLetterPolicy")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -669,6 +736,42 @@ func flattenPubsubSubscriptionExpirationPolicyTtl(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenPubsubSubscriptionDeadLetterPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["dead_letter_topic"] =
+		flattenPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(original["deadLetterTopic"], d, config)
+	transformed["max_delivery_attempts"] =
+		flattenPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(original["maxDeliveryAttempts"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func expandPubsubSubscriptionName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return replaceVars(d, config, "projects/{{project}}/subscriptions/{{name}}")
 }
@@ -823,6 +926,40 @@ func expandPubsubSubscriptionExpirationPolicy(v interface{}, d TerraformResource
 }
 
 func expandPubsubSubscriptionExpirationPolicyTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionDeadLetterPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDeadLetterTopic, err := expandPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(original["dead_letter_topic"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDeadLetterTopic); val.IsValid() && !isEmptyValue(val) {
+		transformed["deadLetterTopic"] = transformedDeadLetterTopic
+	}
+
+	transformedMaxDeliveryAttempts, err := expandPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(original["max_delivery_attempts"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxDeliveryAttempts); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxDeliveryAttempts"] = transformedMaxDeliveryAttempts
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
