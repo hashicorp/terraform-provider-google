@@ -488,6 +488,7 @@ func Provider() terraform.ResourceProvider {
 			"google_folder":                                   dataSourceGoogleFolder(),
 			"google_folder_organization_policy":               dataSourceGoogleFolderOrganizationPolicy(),
 			"google_monitoring_notification_channel":          dataSourceMonitoringNotificationChannel(),
+			"google_monitoring_uptime_check_ips":              dataSourceGoogleMonitoringUptimeCheckIps(),
 			"google_netblock_ip_ranges":                       dataSourceGoogleNetblockIpRanges(),
 			"google_organization":                             dataSourceGoogleOrganization(),
 			"google_project":                                  dataSourceGoogleProject(),
