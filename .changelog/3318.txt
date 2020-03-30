@@ -1,0 +1,3 @@
+```release-note:enhancement
+accesscontextmanager: added `status.vpc_accessible_services` to `google_access_context_manager_service_perimeter` to control which services are available from the perimeter's VPC networks to the restricted Google APIs IP address range.
+```

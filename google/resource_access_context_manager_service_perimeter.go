@@ -144,6 +144,33 @@ restrictions.`,
 							Set:          schema.HashString,
 							AtLeastOneOf: []string{"status.0.resources", "status.0.access_levels", "status.0.restricted_services"},
 						},
+						"vpc_accessible_services": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Specifies how APIs are allowed to communicate within the Service
+Perimeter.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allowed_services": {
+										Type:     schema.TypeSet,
+										Optional: true,
+										Description: `The list of APIs usable within the Service Perimeter.
+Must be empty unless 'enableRestriction' is True.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set: schema.HashString,
+									},
+									"enable_restriction": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Whether to restrict API calls within the Service Perimeter to the
+list of APIs specified in 'allowedServices'.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -464,6 +491,8 @@ func flattenAccessContextManagerServicePerimeterStatus(v interface{}, d *schema.
 		flattenAccessContextManagerServicePerimeterStatusAccessLevels(original["accessLevels"], d, config)
 	transformed["restricted_services"] =
 		flattenAccessContextManagerServicePerimeterStatusRestrictedServices(original["restrictedServices"], d, config)
+	transformed["vpc_accessible_services"] =
+		flattenAccessContextManagerServicePerimeterStatusVPCAccessibleServices(original["vpcAccessibleServices"], d, config)
 	return []interface{}{transformed}
 }
 func flattenAccessContextManagerServicePerimeterStatusResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -475,6 +504,32 @@ func flattenAccessContextManagerServicePerimeterStatusAccessLevels(v interface{}
 }
 
 func flattenAccessContextManagerServicePerimeterStatusRestrictedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenAccessContextManagerServicePerimeterStatusVPCAccessibleServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable_restriction"] =
+		flattenAccessContextManagerServicePerimeterStatusVPCAccessibleServicesEnableRestriction(original["enableRestriction"], d, config)
+	transformed["allowed_services"] =
+		flattenAccessContextManagerServicePerimeterStatusVPCAccessibleServicesAllowedServices(original["allowedServices"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerServicePerimeterStatusVPCAccessibleServicesEnableRestriction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterStatusVPCAccessibleServicesAllowedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -527,6 +582,13 @@ func expandAccessContextManagerServicePerimeterStatus(v interface{}, d Terraform
 		transformed["restrictedServices"] = transformedRestrictedServices
 	}
 
+	transformedVPCAccessibleServices, err := expandAccessContextManagerServicePerimeterStatusVPCAccessibleServices(original["vpc_accessible_services"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVPCAccessibleServices); val.IsValid() && !isEmptyValue(val) {
+		transformed["vpcAccessibleServices"] = transformedVPCAccessibleServices
+	}
+
 	return transformed, nil
 }
 
@@ -539,6 +601,41 @@ func expandAccessContextManagerServicePerimeterStatusAccessLevels(v interface{},
 }
 
 func expandAccessContextManagerServicePerimeterStatusRestrictedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusVPCAccessibleServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableRestriction, err := expandAccessContextManagerServicePerimeterStatusVPCAccessibleServicesEnableRestriction(original["enable_restriction"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableRestriction); val.IsValid() && !isEmptyValue(val) {
+		transformed["enableRestriction"] = transformedEnableRestriction
+	}
+
+	transformedAllowedServices, err := expandAccessContextManagerServicePerimeterStatusVPCAccessibleServicesAllowedServices(original["allowed_services"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowedServices); val.IsValid() && !isEmptyValue(val) {
+		transformed["allowedServices"] = transformedAllowedServices
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusVPCAccessibleServicesEnableRestriction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusVPCAccessibleServicesAllowedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }

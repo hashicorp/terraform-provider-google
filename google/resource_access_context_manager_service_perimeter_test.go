@@ -54,6 +54,14 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "level", "perimeter"),
+			},
+			{
+				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -140,6 +148,44 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
   status {
     restricted_services = ["bigquery.googleapis.com"]
     access_levels       = [google_access_context_manager_access_level.test-access.name]
+  }
+}
+`, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName)
+}
+
+func testAccAccessContextManagerServicePerimeter_updateAllowed(org, policyTitle, levelTitleName, perimeterTitleName string) string {
+	return fmt.Sprintf(`
+resource "google_access_context_manager_access_policy" "test-access" {
+  parent = "organizations/%s"
+  title  = "%s"
+}
+
+resource "google_access_context_manager_access_level" "test-access" {
+  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/%s"
+  title       = "%s"
+  description = "hello"
+  basic {
+    combining_function = "AND"
+    conditions {
+      ip_subnetworks = ["192.0.4.0/24"]
+    }
+  }
+}
+
+resource "google_access_context_manager_service_perimeter" "test-access" {
+  parent         = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name           = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/servicePerimeters/%s"
+  title          = "%s"
+  perimeter_type = "PERIMETER_TYPE_REGULAR"
+  status {
+    restricted_services = ["bigquery.googleapis.com"]
+	access_levels       = [google_access_context_manager_access_level.test-access.name]
+
+	vpc_accessible_services {
+	  enable_restriction = true
+	  allowed_services   = ["bigquery.googleapis.com"]
+	}
   }
 }
 `, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName)
