@@ -75,6 +75,52 @@ resource "google_pubsub_subscription" "example" {
 `, context)
 }
 
+func TestAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPubsubSubscriptionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(context),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.example",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_pubsub_topic" "example" {
+  name = "tf-test-example-topic%{random_suffix}"
+}
+
+resource "google_pubsub_topic" "example_dead_letter" {
+  name = "tf-test-example-topic%{random_suffix}-dead-letter"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "tf-test-example-subscription%{random_suffix}"
+  topic = google_pubsub_topic.example.name
+
+  dead_letter_policy {
+    dead_letter_topic = google_pubsub_topic.example_dead_letter.id
+    max_delivery_attempts = 10
+  }
+}
+`, context)
+}
+
 func testAccCheckPubsubSubscriptionDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_pubsub_subscription" {
