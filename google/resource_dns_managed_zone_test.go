@@ -68,7 +68,7 @@ func TestAccDNSManagedZone_privateUpdate(t *testing.T) {
 	})
 }
 
-func TestAccDNSManagedZone_dnssec_on(t *testing.T) {
+func TestAccDNSManagedZone_dnssec_update(t *testing.T) {
 	t.Parallel()
 
 	zoneSuffix := acctest.RandString(10)
@@ -86,11 +86,19 @@ func TestAccDNSManagedZone_dnssec_on(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccDnsManagedZone_dnssec_off(zoneSuffix),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
 
-func TestAccDNSManagedZone_dnssec_off(t *testing.T) {
+func TestAccDNSManagedZone_dnssec_empty(t *testing.T) {
 	t.Parallel()
 
 	zoneSuffix := acctest.RandString(10)
@@ -101,7 +109,7 @@ func TestAccDNSManagedZone_dnssec_off(t *testing.T) {
 		CheckDestroy: testAccCheckDNSManagedZoneDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsManagedZone_dnssec_off(zoneSuffix),
+				Config: testAccDnsManagedZone_dnssec_empty(zoneSuffix),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone.foobar",
@@ -145,12 +153,39 @@ resource "google_dns_managed_zone" "foobar" {
       key_length = "2048"
       key_type   = "keySigning"
     }
+
+    non_existence = "nsec"
   }
 }
 `, suffix, suffix)
 }
 
 func testAccDnsManagedZone_dnssec_off(suffix string) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "foobar" {
+  name     = "mzone-test-%s"
+  dns_name = "tf-acctest-%s.hashicorptest.com."
+
+  dnssec_config {
+    state = "off"
+    default_key_specs {
+      algorithm  = "rsasha256"
+      key_length = "2048"
+      key_type   = "zoneSigning"
+    }
+    default_key_specs {
+      algorithm  = "rsasha256"
+      key_length = "2048"
+      key_type   = "keySigning"
+    }
+
+    non_existence = "nsec3"
+  }
+}
+`, suffix, suffix)
+}
+
+func testAccDnsManagedZone_dnssec_empty(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
   name     = "mzone-test-%s"

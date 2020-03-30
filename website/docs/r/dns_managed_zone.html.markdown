@@ -244,6 +244,7 @@ The `dnssec_config` block supports:
 * `non_existence` -
   (Optional)
   Specifies the mechanism used to provide authenticated denial-of-existence responses.
+  non_existence can only be updated when the state is `off`.
 
 * `state` -
   (Optional)
@@ -253,7 +254,8 @@ The `dnssec_config` block supports:
   (Optional)
   Specifies parameters that will be used for generating initial DnsKeys
   for this ManagedZone. If you provide a spec for keySigning or zoneSigning,
-  you must also provide one for the other.  Structure is documented below.
+  you must also provide one for the other.
+  default_key_specs can only be updated when the state is `off`.  Structure is documented below.
 
 
 The `default_key_specs` block supports:
