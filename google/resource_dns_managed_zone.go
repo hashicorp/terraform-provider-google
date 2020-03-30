@@ -67,7 +67,6 @@ Must be unique within the project.`,
 			"dnssec_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `DNSSEC configuration`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -76,29 +75,26 @@ Must be unique within the project.`,
 							Type:     schema.TypeList,
 							Computed: true,
 							Optional: true,
-							ForceNew: true,
 							Description: `Specifies parameters that will be used for generating initial DnsKeys
 for this ManagedZone. If you provide a spec for keySigning or zoneSigning,
-you must also provide one for the other.`,
+you must also provide one for the other.
+default_key_specs can only be updated when the state is 'off'.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"algorithm": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512", ""}, false),
 										Description:  `String mnemonic specifying the DNSSEC algorithm of this key`,
 									},
 									"key_length": {
 										Type:        schema.TypeInt,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `Length of the keys in bits`,
 									},
 									"key_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"keySigning", "zoneSigning", ""}, false),
 										Description: `Specifies whether this is a key signing key (KSK) or a zone
 signing key (ZSK). Key signing keys have the Secure Entry
@@ -110,7 +106,6 @@ to sign all other types of resource record sets.`,
 									"kind": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `Identifies what kind of resource this is`,
 										Default:     "dns#dnsKeySpec",
 									},
@@ -121,7 +116,6 @@ to sign all other types of resource record sets.`,
 						"kind": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ForceNew:     true,
 							Description:  `Identifies what kind of resource this is`,
 							Default:      "dns#managedZoneDnsSecConfig",
 							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
@@ -130,15 +124,14 @@ to sign all other types of resource record sets.`,
 							Type:         schema.TypeString,
 							Computed:     true,
 							Optional:     true,
-							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"nsec", "nsec3", ""}, false),
-							Description:  `Specifies the mechanism used to provide authenticated denial-of-existence responses.`,
+							Description: `Specifies the mechanism used to provide authenticated denial-of-existence responses.
+non_existence can only be updated when the state is 'off'.`,
 							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
 						},
 						"state": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"off", "on", "transfer", ""}, false),
 							Description:  `Specifies whether DNSSEC is enabled, and what mode it is in`,
 							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
@@ -361,45 +354,43 @@ func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	d.Partial(true)
-
-	if d.HasChange("description") || d.HasChange("labels") || d.HasChange("private_visibility_config") {
-		obj := make(map[string]interface{})
-
-		descriptionProp, err := expandDNSManagedZoneDescription(d.Get("description"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
-			obj["description"] = descriptionProp
-		}
-		labelsProp, err := expandDNSManagedZoneLabels(d.Get("labels"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-			obj["labels"] = labelsProp
-		}
-		privateVisibilityConfigProp, err := expandDNSManagedZonePrivateVisibilityConfig(d.Get("private_visibility_config"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("private_visibility_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, privateVisibilityConfigProp)) {
-			obj["privateVisibilityConfig"] = privateVisibilityConfigProp
-		}
-
-		url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
-		if err != nil {
-			return err
-		}
-		_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating ManagedZone %q: %s", d.Id(), err)
-		}
-
-		d.SetPartial("description")
-		d.SetPartial("labels")
-		d.SetPartial("private_visibility_config")
+	obj := make(map[string]interface{})
+	descriptionProp, err := expandDNSManagedZoneDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+	dnssecConfigProp, err := expandDNSManagedZoneDnssecConfig(d.Get("dnssec_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dnssec_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dnssecConfigProp)) {
+		obj["dnssecConfig"] = dnssecConfigProp
+	}
+	labelsProp, err := expandDNSManagedZoneLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+	privateVisibilityConfigProp, err := expandDNSManagedZonePrivateVisibilityConfig(d.Get("private_visibility_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("private_visibility_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, privateVisibilityConfigProp)) {
+		obj["privateVisibilityConfig"] = privateVisibilityConfigProp
 	}
 
-	d.Partial(false)
+	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating ManagedZone %q: %#v", d.Id(), obj)
+	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return fmt.Errorf("Error updating ManagedZone %q: %s", d.Id(), err)
+	}
 
 	return resourceDNSManagedZoneRead(d, meta)
 }
