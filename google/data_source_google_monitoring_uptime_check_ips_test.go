@@ -18,7 +18,7 @@ func TestAccDataSourceGoogleMonitoringUptimeCheckIps_basic(t *testing.T) {
 					resource.TestMatchResourceAttr("data.google_monitoring_uptime_check_ips.foobar",
 						"uptime_check_ips.0.ip_address", regexp.MustCompile("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$")),
 					resource.TestMatchResourceAttr("data.google_monitoring_uptime_check_ips.foobar",
-						"uptime_check_ips.0.location", regexp.MustCompile("^[A-Z][a-z-]+$")),
+						"uptime_check_ips.0.location", regexp.MustCompile("^[A-Z].+$")),
 					resource.TestMatchResourceAttr("data.google_monitoring_uptime_check_ips.foobar",
 						"uptime_check_ips.0.region", regexp.MustCompile("^[A-Z_]+$")),
 				),
