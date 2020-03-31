@@ -26,8 +26,12 @@ var StorageBucketIamSchema = map[string]*schema.Schema{
 		Type:             schema.TypeString,
 		Required:         true,
 		ForceNew:         true,
-		DiffSuppressFunc: compareSelfLinkOrResourceName,
+		DiffSuppressFunc: StorageBucketDiffSuppress,
 	},
+}
+
+func StorageBucketDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	return compareResourceNames("", old, new, nil)
 }
 
 type StorageBucketIamUpdater struct {
