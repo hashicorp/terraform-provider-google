@@ -335,7 +335,7 @@ after which a request should be sent. Defaults to 10s. Should be a non-negative
 integer or float string with a unit suffix, such as "300ms", "1.5h" or "2h45m".
 Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
 
-* `disable_batching` - (Optional) Defaults to false. If true, disables global
+* `enable_batching` - (Optional) Defaults to true. If false, disables global
 batching and each request is sent normally.
 
 ---
