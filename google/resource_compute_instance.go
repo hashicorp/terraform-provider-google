@@ -1773,16 +1773,21 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), "/")
-
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid import id %q. Expecting {project}/{zone}/{instance_name}", d.Id())
+	config := meta.(*Config)
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
+		"(?P<name>[^/]+)",
+	}, d, config); err != nil {
+		return nil, err
 	}
 
-	d.Set("project", parts[0])
-	d.Set("zone", parts[1])
-	d.Set("name", parts[2])
-	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", parts[0], parts[1], parts[2]))
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instances/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
 }
