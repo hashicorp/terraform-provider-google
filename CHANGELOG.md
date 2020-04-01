@@ -5,7 +5,6 @@ FEATURES:
 IMPROVEMENTS:
 * cloudfunctions: Added `ingress_settings` field to `google_cloudfunctions_function` ([#5981](https://github.com/terraform-providers/terraform-provider-google/pull/5981))
 * cloudfunctions: added support for `vpc_connector_egress_settings` to `google_cloudfunctions_function` ([#5984](https://github.com/terraform-providers/terraform-provider-google/pull/5984))
-* cloudfunctions: added support for `vpc_connector_egress_settings` to `google_cloudfunctions_function` ([#5993](https://github.com/terraform-providers/terraform-provider-google/pull/5993))
 * accesscontextmanager: added `status.vpc_accessible_services` to `google_access_context_manager_service_perimeter` to control which services are available from the perimeter's VPC networks to the restricted Google APIs IP address range. ([#6006](https://github.com/terraform-providers/terraform-provider-google/pull/6006))
 * cloudrun: added ability to autogenerate revision name ([#5987](https://github.com/terraform-providers/terraform-provider-google/pull/5987))
 * compute: added ability to resize `google_compute_reservation` ([#5999](https://github.com/terraform-providers/terraform-provider-google/pull/5999))
