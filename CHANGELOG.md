@@ -8,7 +8,7 @@ IMPROVEMENTS:
 * accesscontextmanager: added `status.vpc_accessible_services` to `google_access_context_manager_service_perimeter` to control which services are available from the perimeter's VPC networks to the restricted Google APIs IP address range. ([#6006](https://github.com/terraform-providers/terraform-provider-google/pull/6006))
 * cloudrun: added ability to autogenerate revision name ([#5987](https://github.com/terraform-providers/terraform-provider-google/pull/5987))
 * compute: added ability to resize `google_compute_reservation` ([#5999](https://github.com/terraform-providers/terraform-provider-google/pull/5999))
-* container: added `resource_usage_export_config` to `google_container_cluster`, previously only available in `google-beta` (ga only) ([#5990](https://github.com/terraform-providers/terraform-provider-google/pull/5990))
+* container: added `resource_usage_export_config` to `google_container_cluster`, previously only available in `google-beta` ([#5990](https://github.com/terraform-providers/terraform-provider-google/pull/5990))
 * dns: added ability to update `google_dns_managed_zone.dnssec_config` ([#6011](https://github.com/terraform-providers/terraform-provider-google/pull/6011))
 * pubsub: Added `dead_letter_policy` support to `google_pubsub_subscription` ([#6010](https://github.com/terraform-providers/terraform-provider-google/pull/6010))
 
