@@ -77,7 +77,7 @@ func TestAccComputeNetworkPeering_customRoutesAndUpdate(t *testing.T) {
 					testAccCheckComputeNetworkPeeringExportCustomRoutes(false, &peering_beta),
 				),
 			},
-			// Test updating the export/import custom_routes fields (only updatable fields).
+			// Test updating the export/import custom_routes fields (only fields available for update).
 			{
 				Config: testAccComputeNetworkPeering_basic(primaryNetworkName, peeringName),
 				Check: resource.ComposeTestCheckFunc(
