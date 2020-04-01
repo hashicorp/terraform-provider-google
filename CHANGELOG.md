@@ -1,6 +1,6 @@
 ## 3.16.0 (Unreleased)
 FEATURES:
-* **New Data Source:** monitoring: `google_monitoring_uptime_check_ips` ([#6009](https://github.com/terraform-providers/terraform-provider-google/pull/6009))
+* **New Data Source:** `google_monitoring_uptime_check_ips` ([#6009](https://github.com/terraform-providers/terraform-provider-google/pull/6009))
 
 IMPROVEMENTS:
 * cloudfunctions: Added `ingress_settings` field to `google_cloudfunctions_function` ([#5981](https://github.com/terraform-providers/terraform-provider-google/pull/5981))
