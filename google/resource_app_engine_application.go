@@ -166,6 +166,14 @@ func resourceAppEngineApplicationCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+
+	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	log.Printf("[DEBUG] Creating App Engine App")
 	op, err := config.clientAppEngine.Apps.Create(app).Do()
 	if err != nil {
@@ -237,6 +245,14 @@ func resourceAppEngineApplicationUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+
+	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	log.Printf("[DEBUG] Updating App Engine App")
 	op, err := config.clientAppEngine.Apps.Patch(pid, app).UpdateMask("authDomain,servingStatus,featureSettings.splitHealthChecks").Do()
 	if err != nil {

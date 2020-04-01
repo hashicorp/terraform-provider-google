@@ -167,6 +167,13 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 		obj["id"] = idProp
 	}
 
+	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings")
 	if err != nil {
 		return err
@@ -270,6 +277,13 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 		obj["sslSettings"] = sslSettingsProp
 	}
 
+	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return err
@@ -311,6 +325,13 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+
+	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
 
 	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
