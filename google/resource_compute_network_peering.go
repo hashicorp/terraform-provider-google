@@ -17,6 +17,7 @@ func resourceComputeNetworkPeering() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeNetworkPeeringCreate,
 		Read:   resourceComputeNetworkPeeringRead,
+		Update: resourceComputeNetworkPeeringUpdate,
 		Delete: resourceComputeNetworkPeeringDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceComputeNetworkPeeringImport,
@@ -48,14 +49,12 @@ func resourceComputeNetworkPeering() *schema.Resource {
 
 			"export_custom_routes": {
 				Type:     schema.TypeBool,
-				ForceNew: true,
 				Optional: true,
 				Default:  false,
 			},
 
 			"import_custom_routes": {
 				Type:     schema.TypeBool,
-				ForceNew: true,
 				Optional: true,
 				Default:  false,
 			},
@@ -146,6 +145,34 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 	d.Set("state_details", peering.StateDetails)
 
 	return nil
+}
+
+func resourceComputeNetworkPeeringUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only NetworkPeering.export_custom_routes and NetworkPeering.import_custom_routes
+	// can be modified per compute/v1 docs
+
+	config := meta.(*Config)
+
+	networkFieldValue, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	if err != nil {
+		return err
+	}
+
+	request := &compute.NetworksUpdatePeeringRequest{}
+	request.NetworkPeering = expandNetworkPeering(d)
+
+	updateOp, err := config.clientCompute.Networks.UpdatePeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
+	if err != nil {
+		return fmt.Errorf("Error updating network peering: %s", err)
+	}
+
+	err = computeOperationWait(config, updateOp, networkFieldValue.Project, "Updating Network Peering")
+	if err != nil {
+		return err
+	}
+
+	return resourceComputeNetworkRead(d, meta)
+
 }
 
 func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{}) error {

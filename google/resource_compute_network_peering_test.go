@@ -51,6 +51,46 @@ func TestAccComputeNetworkPeering_basic(t *testing.T) {
 
 }
 
+func TestAccComputeNetworkPeering_customRoutesAndUpdate(t *testing.T) {
+	t.Parallel()
+	var peering_beta compute.NetworkPeering
+
+	primaryNetworkName := acctest.RandomWithPrefix("network-test-1")
+	peeringName := acctest.RandomWithPrefix("peering-test-1")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeNetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetworkPeeringDefaultCustomRoutes(primaryNetworkName, peeringName),
+				Check: resource.ComposeTestCheckFunc(
+					// network foo
+					testAccCheckComputeNetworkPeeringExist("google_compute_network_peering.foo", &peering_beta),
+					testAccCheckComputeNetworkPeeringImportCustomRoutes(false, &peering_beta),
+					testAccCheckComputeNetworkPeeringExportCustomRoutes(false, &peering_beta),
+
+					// network bar
+					testAccCheckComputeNetworkPeeringExist("google_compute_network_peering.bar", &peering_beta),
+					testAccCheckComputeNetworkPeeringImportCustomRoutes(false, &peering_beta),
+					testAccCheckComputeNetworkPeeringExportCustomRoutes(false, &peering_beta),
+				),
+			},
+			// Test updating the export/import custom_routes fields (only updatable fields).
+			{
+				Config: testAccComputeNetworkPeering_basic(primaryNetworkName, peeringName),
+				Check: resource.ComposeTestCheckFunc(
+					// network bar
+					testAccCheckComputeNetworkPeeringExist("google_compute_network_peering.bar", &peering_beta),
+					testAccCheckComputeNetworkPeeringImportCustomRoutes(true, &peering_beta),
+					testAccCheckComputeNetworkPeeringExportCustomRoutes(true, &peering_beta),
+				),
+			},
+		},
+	})
+}
+
 func testAccComputeNetworkPeeringDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -108,7 +148,7 @@ func testAccCheckComputeNetworkPeeringAutoCreateRoutes(v bool, peering *compute.
 	return func(s *terraform.State) error {
 
 		if peering.ExchangeSubnetRoutes != v {
-			return fmt.Errorf("should ExchangeSubnetRouts set to %t if AutoCreateRoutes is set to %t", v, v)
+			return fmt.Errorf("should ExchangeSubnetRoutes set to %t if AutoCreateRoutes is set to %t", v, v)
 		}
 		return nil
 	}
@@ -163,5 +203,31 @@ resource "google_compute_network_peering" "bar" {
 		export_custom_routes = true
 		`
 	s = s + `}`
+	return fmt.Sprintf(s, primaryNetworkName, peeringName, acctest.RandString(10), acctest.RandString(10))
+}
+
+func testAccComputeNetworkPeeringDefaultCustomRoutes(primaryNetworkName, peeringName string) string {
+	s := `
+resource "google_compute_network" "network1" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network_peering" "foo" {
+  name         = "%s"
+  network      = google_compute_network.network1.self_link
+  peer_network = google_compute_network.network2.self_link
+}
+
+resource "google_compute_network" "network2" {
+  name                    = "network-test-2-%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network_peering" "bar" {
+  network      = google_compute_network.network2.self_link
+  peer_network = google_compute_network.network1.self_link
+  name         = "peering-test-2-%s"
+}`
 	return fmt.Sprintf(s, primaryNetworkName, peeringName, acctest.RandString(10), acctest.RandString(10))
 }
