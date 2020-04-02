@@ -466,7 +466,7 @@ The following arguments are supported:
   object.
 
 * `allow_global_access` -
-  (Optional)
+  (Optional, Beta)
   If true, clients can access ILB from all regions.
   Otherwise only allows from the local region the ILB is located at.
 
