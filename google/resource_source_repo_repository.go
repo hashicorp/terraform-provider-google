@@ -59,8 +59,9 @@ Keyed by the topic names.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"topic": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
 						},
 						"message_format": {
 							Type:         schema.TypeString,
@@ -348,6 +349,16 @@ func expandSourceRepoRepositoryPubsubConfigs(v interface{}, d TerraformResourceD
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
+		topicName := original["topic"].(string)
+		computedTopicName := getComputedTopicName("", topicName)
+		if computedTopicName != topicName {
+			project, err := getProject(d, config)
+			if err != nil {
+				return nil, err
+			}
+			computedTopicName = getComputedTopicName(project, topicName)
+		}
+
 		transformedMessageFormat, err := expandSourceRepoRepositoryPubsubConfigsMessageFormat(original["message_format"], d, config)
 		if err != nil {
 			return nil, err
@@ -359,7 +370,7 @@ func expandSourceRepoRepositoryPubsubConfigs(v interface{}, d TerraformResourceD
 		}
 		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
 
-		m[original["topic"].(string)] = transformed
+		m[computedTopicName] = transformed
 	}
 	return m, nil
 }
