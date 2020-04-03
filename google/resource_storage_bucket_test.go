@@ -590,6 +590,33 @@ func TestAccStorageBucket_forceDestroyWithVersioning(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_forceDestroyObjectDeleteError(t *testing.T) {
+	t.Parallel()
+
+	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", acctest.RandInt())
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucket_forceDestroyWithRetentionPolicy(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketPutItem(bucketName),
+				),
+			},
+			{
+				Config:      testAccStorageBucket_forceDestroyWithRetentionPolicy(bucketName),
+				Destroy:     true,
+				ExpectError: regexp.MustCompile("could not delete non-empty bucket due to error when deleting contents"),
+			},
+			{
+				Config: testAccStorageBucket_forceDestroy(bucketName),
+			},
+		},
+	})
+}
 func TestAccStorageBucket_versioning(t *testing.T) {
 	t.Parallel()
 
@@ -1488,6 +1515,30 @@ resource "google_storage_bucket" "website" {
 
   website {
     main_page_suffix = "index.html"
+  }
+}
+`, bucketName)
+}
+
+func testAccStorageBucket_forceDestroy(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+
+  force_destroy = true
+}
+`, bucketName)
+}
+
+func testAccStorageBucket_forceDestroyWithRetentionPolicy(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+
+  force_destroy = true
+
+  retention_policy {
+    retention_period = 3600
   }
 }
 `, bucketName)
