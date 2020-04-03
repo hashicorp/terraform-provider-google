@@ -228,10 +228,9 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 										AtLeastOneOf: ipConfigurationKeys,
 									},
 									"ipv4_enabled": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										// Defaults differ between first and second gen instances
-										Computed:     true,
+										Type:         schema.TypeBool,
+										Optional:     true,
+										Default:      true,
 										AtLeastOneOf: ipConfigurationKeys,
 									},
 									"require_ssl": {
