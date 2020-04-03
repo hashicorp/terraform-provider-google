@@ -616,8 +616,8 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	// Get the bucket
 	bucket := d.Get("name").(string)
 
-	var listError error
-	for {
+	var listError, deleteObjectError error
+	for deleteObjectError == nil {
 		res, err := config.clientStorage.Objects.List(bucket).Versions(true).Do()
 		if err != nil {
 			log.Printf("Error listing contents of bucket %s: %v", bucket, err)
@@ -672,10 +672,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 			wp.Submit(func() {
 				log.Printf("[TRACE] Attempting to delete %s", object.Name)
 				if err := config.clientStorage.Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
-					// We should really return an error here, but it doesn't really
-					// matter since the following step (bucket deletion) will fail
-					// with an error indicating objects are still present, and this
-					// log line will point to that object.
+					deleteObjectError = err
 					log.Printf("[ERR] Failed to delete storage object %s: %s", object.Name, err)
 				} else {
 					log.Printf("[TRACE] Successfully deleted %s", object.Name)
@@ -700,6 +697,9 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	})
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && listError != nil {
 		return fmt.Errorf("could not delete non-empty bucket due to error when listing contents: %v", listError)
+	}
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && deleteObjectError != nil {
+		return fmt.Errorf("could not delete non-empty bucket due to error when deleting contents: %v", deleteObjectError)
 	}
 	if err != nil {
 		log.Printf("Error deleting bucket %s: %v", bucket, err)
