@@ -76,19 +76,19 @@ func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, met
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandComputeNetworkPeeringRoutesConfigPeering(d.Get("peering"), d, config)
+	nameProp, err := expandNestedComputeNetworkPeeringRoutesConfigPeering(d.Get("peering"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("peering"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	exportCustomRoutesProp, err := expandComputeNetworkPeeringRoutesConfigExportCustomRoutes(d.Get("export_custom_routes"), d, config)
+	exportCustomRoutesProp, err := expandNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(d.Get("export_custom_routes"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("export_custom_routes"); !isEmptyValue(reflect.ValueOf(exportCustomRoutesProp)) && (ok || !reflect.DeepEqual(v, exportCustomRoutesProp)) {
 		obj["exportCustomRoutes"] = exportCustomRoutesProp
 	}
-	importCustomRoutesProp, err := expandComputeNetworkPeeringRoutesConfigImportCustomRoutes(d.Get("import_custom_routes"), d, config)
+	importCustomRoutesProp, err := expandNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(d.Get("import_custom_routes"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("import_custom_routes"); !isEmptyValue(reflect.ValueOf(importCustomRoutesProp)) && (ok || !reflect.DeepEqual(v, importCustomRoutesProp)) {
@@ -177,13 +177,13 @@ func resourceComputeNetworkPeeringRoutesConfigRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading NetworkPeeringRoutesConfig: %s", err)
 	}
 
-	if err := d.Set("peering", flattenComputeNetworkPeeringRoutesConfigPeering(res["name"], d, config)); err != nil {
+	if err := d.Set("peering", flattenNestedComputeNetworkPeeringRoutesConfigPeering(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkPeeringRoutesConfig: %s", err)
 	}
-	if err := d.Set("export_custom_routes", flattenComputeNetworkPeeringRoutesConfigExportCustomRoutes(res["exportCustomRoutes"], d, config)); err != nil {
+	if err := d.Set("export_custom_routes", flattenNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(res["exportCustomRoutes"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkPeeringRoutesConfig: %s", err)
 	}
-	if err := d.Set("import_custom_routes", flattenComputeNetworkPeeringRoutesConfigImportCustomRoutes(res["importCustomRoutes"], d, config)); err != nil {
+	if err := d.Set("import_custom_routes", flattenNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(res["importCustomRoutes"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NetworkPeeringRoutesConfig: %s", err)
 	}
 
@@ -199,19 +199,19 @@ func resourceComputeNetworkPeeringRoutesConfigUpdate(d *schema.ResourceData, met
 	}
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandComputeNetworkPeeringRoutesConfigPeering(d.Get("peering"), d, config)
+	nameProp, err := expandNestedComputeNetworkPeeringRoutesConfigPeering(d.Get("peering"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("peering"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	exportCustomRoutesProp, err := expandComputeNetworkPeeringRoutesConfigExportCustomRoutes(d.Get("export_custom_routes"), d, config)
+	exportCustomRoutesProp, err := expandNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(d.Get("export_custom_routes"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("export_custom_routes"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, exportCustomRoutesProp)) {
 		obj["exportCustomRoutes"] = exportCustomRoutesProp
 	}
-	importCustomRoutesProp, err := expandComputeNetworkPeeringRoutesConfigImportCustomRoutes(d.Get("import_custom_routes"), d, config)
+	importCustomRoutesProp, err := expandNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(d.Get("import_custom_routes"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("import_custom_routes"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, importCustomRoutesProp)) {
@@ -282,27 +282,27 @@ func resourceComputeNetworkPeeringRoutesConfigImport(d *schema.ResourceData, met
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNetworkPeeringRoutesConfigPeering(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeNetworkPeeringRoutesConfigPeering(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkPeeringRoutesConfigExportCustomRoutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkPeeringRoutesConfigImportCustomRoutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func expandComputeNetworkPeeringRoutesConfigPeering(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeNetworkPeeringRoutesConfigPeering(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNetworkPeeringRoutesConfigExportCustomRoutes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNetworkPeeringRoutesConfigImportCustomRoutes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -343,10 +343,11 @@ func flattenNestedComputeNetworkPeeringRoutesConfig(d *schema.ResourceData, meta
 }
 
 func resourceComputeNetworkPeeringRoutesConfigFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedPeering, err := expandComputeNetworkPeeringRoutesConfigPeering(d.Get("peering"), d, meta.(*Config))
+	expectedPeering, err := expandNestedComputeNetworkPeeringRoutesConfigPeering(d.Get("peering"), d, meta.(*Config))
 	if err != nil {
 		return -1, nil, err
 	}
+	expectedFlattenedPeering := flattenNestedComputeNetworkPeeringRoutesConfigPeering(expectedPeering, d, meta.(*Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -355,9 +356,10 @@ func resourceComputeNetworkPeeringRoutesConfigFindNestedObjectInList(d *schema.R
 		}
 		item := itemRaw.(map[string]interface{})
 
-		itemPeering := flattenComputeNetworkPeeringRoutesConfigPeering(item["name"], d, meta.(*Config))
-		if !reflect.DeepEqual(itemPeering, expectedPeering) {
-			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemPeering, expectedPeering)
+		itemPeering := flattenNestedComputeNetworkPeeringRoutesConfigPeering(item["name"], d, meta.(*Config))
+		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(isEmptyValue(reflect.ValueOf(itemPeering)) && isEmptyValue(reflect.ValueOf(expectedFlattenedPeering))) && !reflect.DeepEqual(itemPeering, expectedFlattenedPeering) {
+			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemPeering, expectedFlattenedPeering)
 			continue
 		}
 		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)

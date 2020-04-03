@@ -186,49 +186,49 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandComputeRouterBgpPeerName(d.Get("name"), d, config)
+	nameProp, err := expandNestedComputeRouterBgpPeerName(d.Get("name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	interfaceNameProp, err := expandComputeRouterBgpPeerInterface(d.Get("interface"), d, config)
+	interfaceNameProp, err := expandNestedComputeRouterBgpPeerInterface(d.Get("interface"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("interface"); !isEmptyValue(reflect.ValueOf(interfaceNameProp)) && (ok || !reflect.DeepEqual(v, interfaceNameProp)) {
 		obj["interfaceName"] = interfaceNameProp
 	}
-	peerIpAddressProp, err := expandComputeRouterBgpPeerPeerIpAddress(d.Get("peer_ip_address"), d, config)
+	peerIpAddressProp, err := expandNestedComputeRouterBgpPeerPeerIpAddress(d.Get("peer_ip_address"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("peer_ip_address"); !isEmptyValue(reflect.ValueOf(peerIpAddressProp)) && (ok || !reflect.DeepEqual(v, peerIpAddressProp)) {
 		obj["peerIpAddress"] = peerIpAddressProp
 	}
-	peerAsnProp, err := expandComputeRouterBgpPeerPeerAsn(d.Get("peer_asn"), d, config)
+	peerAsnProp, err := expandNestedComputeRouterBgpPeerPeerAsn(d.Get("peer_asn"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("peer_asn"); !isEmptyValue(reflect.ValueOf(peerAsnProp)) && (ok || !reflect.DeepEqual(v, peerAsnProp)) {
 		obj["peerAsn"] = peerAsnProp
 	}
-	advertisedRoutePriorityProp, err := expandComputeRouterBgpPeerAdvertisedRoutePriority(d.Get("advertised_route_priority"), d, config)
+	advertisedRoutePriorityProp, err := expandNestedComputeRouterBgpPeerAdvertisedRoutePriority(d.Get("advertised_route_priority"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("advertised_route_priority"); !isEmptyValue(reflect.ValueOf(advertisedRoutePriorityProp)) && (ok || !reflect.DeepEqual(v, advertisedRoutePriorityProp)) {
 		obj["advertisedRoutePriority"] = advertisedRoutePriorityProp
 	}
-	advertiseModeProp, err := expandComputeRouterBgpPeerAdvertiseMode(d.Get("advertise_mode"), d, config)
+	advertiseModeProp, err := expandNestedComputeRouterBgpPeerAdvertiseMode(d.Get("advertise_mode"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("advertise_mode"); !isEmptyValue(reflect.ValueOf(advertiseModeProp)) && (ok || !reflect.DeepEqual(v, advertiseModeProp)) {
 		obj["advertiseMode"] = advertiseModeProp
 	}
-	advertisedGroupsProp, err := expandComputeRouterBgpPeerAdvertisedGroups(d.Get("advertised_groups"), d, config)
+	advertisedGroupsProp, err := expandNestedComputeRouterBgpPeerAdvertisedGroups(d.Get("advertised_groups"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("advertised_groups"); ok || !reflect.DeepEqual(v, advertisedGroupsProp) {
 		obj["advertisedGroups"] = advertisedGroupsProp
 	}
-	advertisedIpRangesProp, err := expandComputeRouterBgpPeerAdvertisedIpRanges(d.Get("advertised_ip_ranges"), d, config)
+	advertisedIpRangesProp, err := expandNestedComputeRouterBgpPeerAdvertisedIpRanges(d.Get("advertised_ip_ranges"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("advertised_ip_ranges"); ok || !reflect.DeepEqual(v, advertisedIpRangesProp) {
@@ -317,34 +317,34 @@ func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeRouterBgpPeerName(res["name"], d, config)); err != nil {
+	if err := d.Set("name", flattenNestedComputeRouterBgpPeerName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("interface", flattenComputeRouterBgpPeerInterface(res["interfaceName"], d, config)); err != nil {
+	if err := d.Set("interface", flattenNestedComputeRouterBgpPeerInterface(res["interfaceName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("ip_address", flattenComputeRouterBgpPeerIpAddress(res["ipAddress"], d, config)); err != nil {
+	if err := d.Set("ip_address", flattenNestedComputeRouterBgpPeerIpAddress(res["ipAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("peer_ip_address", flattenComputeRouterBgpPeerPeerIpAddress(res["peerIpAddress"], d, config)); err != nil {
+	if err := d.Set("peer_ip_address", flattenNestedComputeRouterBgpPeerPeerIpAddress(res["peerIpAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("peer_asn", flattenComputeRouterBgpPeerPeerAsn(res["peerAsn"], d, config)); err != nil {
+	if err := d.Set("peer_asn", flattenNestedComputeRouterBgpPeerPeerAsn(res["peerAsn"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("advertised_route_priority", flattenComputeRouterBgpPeerAdvertisedRoutePriority(res["advertisedRoutePriority"], d, config)); err != nil {
+	if err := d.Set("advertised_route_priority", flattenNestedComputeRouterBgpPeerAdvertisedRoutePriority(res["advertisedRoutePriority"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("advertise_mode", flattenComputeRouterBgpPeerAdvertiseMode(res["advertiseMode"], d, config)); err != nil {
+	if err := d.Set("advertise_mode", flattenNestedComputeRouterBgpPeerAdvertiseMode(res["advertiseMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("advertised_groups", flattenComputeRouterBgpPeerAdvertisedGroups(res["advertisedGroups"], d, config)); err != nil {
+	if err := d.Set("advertised_groups", flattenNestedComputeRouterBgpPeerAdvertisedGroups(res["advertisedGroups"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("advertised_ip_ranges", flattenComputeRouterBgpPeerAdvertisedIpRanges(res["advertisedIpRanges"], d, config)); err != nil {
+	if err := d.Set("advertised_ip_ranges", flattenNestedComputeRouterBgpPeerAdvertisedIpRanges(res["advertisedIpRanges"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
-	if err := d.Set("management_type", flattenComputeRouterBgpPeerManagementType(res["managementType"], d, config)); err != nil {
+	if err := d.Set("management_type", flattenNestedComputeRouterBgpPeerManagementType(res["managementType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
 
@@ -360,13 +360,13 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	obj := make(map[string]interface{})
-	advertisedRoutePriorityProp, err := expandComputeRouterBgpPeerAdvertisedRoutePriority(d.Get("advertised_route_priority"), d, config)
+	advertisedRoutePriorityProp, err := expandNestedComputeRouterBgpPeerAdvertisedRoutePriority(d.Get("advertised_route_priority"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("advertised_route_priority"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, advertisedRoutePriorityProp)) {
 		obj["advertisedRoutePriority"] = advertisedRoutePriorityProp
 	}
-	advertisedIpRangesProp, err := expandComputeRouterBgpPeerAdvertisedIpRanges(d.Get("advertised_ip_ranges"), d, config)
+	advertisedIpRangesProp, err := expandNestedComputeRouterBgpPeerAdvertisedIpRanges(d.Get("advertised_ip_ranges"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("advertised_ip_ranges"); ok || !reflect.DeepEqual(v, advertisedIpRangesProp) {
@@ -474,23 +474,23 @@ func resourceComputeRouterBgpPeerImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeRouterBgpPeerName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerInterface(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerInterface(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerPeerIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerPeerIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerPeerAsn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerPeerAsn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -507,7 +507,7 @@ func flattenComputeRouterBgpPeerPeerAsn(v interface{}, d *schema.ResourceData, c
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -524,15 +524,15 @@ func flattenComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d *schema
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRouterBgpPeerAdvertiseMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerAdvertiseMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerAdvertisedGroups(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerAdvertisedGroups(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -545,53 +545,53 @@ func flattenComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d *schema.Reso
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"range":       flattenComputeRouterBgpPeerAdvertisedIpRangesRange(original["range"], d, config),
-			"description": flattenComputeRouterBgpPeerAdvertisedIpRangesDescription(original["description"], d, config),
+			"range":       flattenNestedComputeRouterBgpPeerAdvertisedIpRangesRange(original["range"], d, config),
+			"description": flattenNestedComputeRouterBgpPeerAdvertisedIpRangesDescription(original["description"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeRouterBgpPeerAdvertisedIpRangesRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerAdvertisedIpRangesRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpPeerManagementType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerManagementType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func expandComputeRouterBgpPeerName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterBgpPeerInterface(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerInterface(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterBgpPeerPeerIpAddress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerPeerIpAddress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterBgpPeerPeerAsn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerPeerAsn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterBgpPeerAdvertiseMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerAdvertiseMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterBgpPeerAdvertisedGroups(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerAdvertisedGroups(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -601,14 +601,14 @@ func expandComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d TerraformReso
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedRange, err := expandComputeRouterBgpPeerAdvertisedIpRangesRange(original["range"], d, config)
+		transformedRange, err := expandNestedComputeRouterBgpPeerAdvertisedIpRangesRange(original["range"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedRange); val.IsValid() && !isEmptyValue(val) {
 			transformed["range"] = transformedRange
 		}
 
-		transformedDescription, err := expandComputeRouterBgpPeerAdvertisedIpRangesDescription(original["description"], d, config)
+		transformedDescription, err := expandNestedComputeRouterBgpPeerAdvertisedIpRangesDescription(original["description"], d, config)
 		if err != nil {
 			return nil, err
 		} else {
@@ -620,11 +620,11 @@ func expandComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d TerraformReso
 	return req, nil
 }
 
-func expandComputeRouterBgpPeerAdvertisedIpRangesRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerAdvertisedIpRangesRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRouterBgpPeerAdvertisedIpRangesDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerAdvertisedIpRangesDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -657,10 +657,11 @@ func flattenNestedComputeRouterBgpPeer(d *schema.ResourceData, meta interface{},
 }
 
 func resourceComputeRouterBgpPeerFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedName, err := expandComputeRouterBgpPeerName(d.Get("name"), d, meta.(*Config))
+	expectedName, err := expandNestedComputeRouterBgpPeerName(d.Get("name"), d, meta.(*Config))
 	if err != nil {
 		return -1, nil, err
 	}
+	expectedFlattenedName := flattenNestedComputeRouterBgpPeerName(expectedName, d, meta.(*Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -669,9 +670,10 @@ func resourceComputeRouterBgpPeerFindNestedObjectInList(d *schema.ResourceData, 
 		}
 		item := itemRaw.(map[string]interface{})
 
-		itemName := flattenComputeRouterBgpPeerName(item["name"], d, meta.(*Config))
-		if !reflect.DeepEqual(itemName, expectedName) {
-			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedName)
+		itemName := flattenNestedComputeRouterBgpPeerName(item["name"], d, meta.(*Config))
+		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
+			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
 			continue
 		}
 		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)

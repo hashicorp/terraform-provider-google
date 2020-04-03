@@ -63,7 +63,7 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	resourceProp, err := expandAccessContextManagerServicePerimeterResourceResource(d.Get("resource"), d, config)
+	resourceProp, err := expandNestedAccessContextManagerServicePerimeterResourceResource(d.Get("resource"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("resource"); !isEmptyValue(reflect.ValueOf(resourceProp)) && (ok || !reflect.DeepEqual(v, resourceProp)) {
@@ -126,7 +126,7 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 			return fmt.Errorf("Error decoding response from operation, could not find nested object")
 		}
 	}
-	if err := d.Set("resource", flattenAccessContextManagerServicePerimeterResourceResource(opRes["resource"], d, config)); err != nil {
+	if err := d.Set("resource", flattenNestedAccessContextManagerServicePerimeterResourceResource(opRes["resource"], d, config)); err != nil {
 		return err
 	}
 
@@ -167,7 +167,7 @@ func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.Resource
 		return nil
 	}
 
-	if err := d.Set("resource", flattenAccessContextManagerServicePerimeterResourceResource(res["resource"], d, config)); err != nil {
+	if err := d.Set("resource", flattenNestedAccessContextManagerServicePerimeterResourceResource(res["resource"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeterResource: %s", err)
 	}
 
@@ -232,11 +232,11 @@ func resourceAccessContextManagerServicePerimeterResourceImport(d *schema.Resour
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAccessContextManagerServicePerimeterResourceResource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterResourceResource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func expandAccessContextManagerServicePerimeterResourceResource(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterResourceResource(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -275,10 +275,11 @@ func flattenNestedAccessContextManagerServicePerimeterResource(d *schema.Resourc
 }
 
 func resourceAccessContextManagerServicePerimeterResourceFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedResource, err := expandAccessContextManagerServicePerimeterResourceResource(d.Get("resource"), d, meta.(*Config))
+	expectedResource, err := expandNestedAccessContextManagerServicePerimeterResourceResource(d.Get("resource"), d, meta.(*Config))
 	if err != nil {
 		return -1, nil, err
 	}
+	expectedFlattenedResource := flattenNestedAccessContextManagerServicePerimeterResourceResource(expectedResource, d, meta.(*Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -290,9 +291,10 @@ func resourceAccessContextManagerServicePerimeterResourceFindNestedObjectInList(
 			"resource": itemRaw,
 		}
 
-		itemResource := flattenAccessContextManagerServicePerimeterResourceResource(item["resource"], d, meta.(*Config))
-		if !reflect.DeepEqual(itemResource, expectedResource) {
-			log.Printf("[DEBUG] Skipping item with resource= %#v, looking for %#v)", itemResource, expectedResource)
+		itemResource := flattenNestedAccessContextManagerServicePerimeterResourceResource(item["resource"], d, meta.(*Config))
+		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(isEmptyValue(reflect.ValueOf(itemResource)) && isEmptyValue(reflect.ValueOf(expectedFlattenedResource))) && !reflect.DeepEqual(itemResource, expectedFlattenedResource) {
+			log.Printf("[DEBUG] Skipping item with resource= %#v, looking for %#v)", itemResource, expectedFlattenedResource)
 			continue
 		}
 		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
