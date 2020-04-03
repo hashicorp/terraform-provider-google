@@ -75,7 +75,7 @@ func resourceComputeDiskResourcePolicyAttachmentCreate(d *schema.ResourceData, m
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandComputeDiskResourcePolicyAttachmentName(d.Get("name"), d, config)
+	nameProp, err := expandNestedComputeDiskResourcePolicyAttachmentName(d.Get("name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
@@ -169,7 +169,7 @@ func resourceComputeDiskResourcePolicyAttachmentRead(d *schema.ResourceData, met
 		return fmt.Errorf("Error reading DiskResourcePolicyAttachment: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeDiskResourcePolicyAttachmentName(res["name"], d, config)); err != nil {
+	if err := d.Set("name", flattenNestedComputeDiskResourcePolicyAttachmentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DiskResourcePolicyAttachment: %s", err)
 	}
 
@@ -208,7 +208,7 @@ func resourceComputeDiskResourcePolicyAttachmentDelete(d *schema.ResourceData, m
 		return fmt.Errorf("invalid zone %q, unable to infer region from zone", zone)
 	}
 
-	name, err := expandComputeDiskResourcePolicyAttachmentName(d.Get("name"), d, config)
+	name, err := expandNestedComputeDiskResourcePolicyAttachmentName(d.Get("name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(name)) && (ok || !reflect.DeepEqual(v, name)) {
@@ -254,11 +254,11 @@ func resourceComputeDiskResourcePolicyAttachmentImport(d *schema.ResourceData, m
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeDiskResourcePolicyAttachmentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeDiskResourcePolicyAttachmentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func expandComputeDiskResourcePolicyAttachmentName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeDiskResourcePolicyAttachmentName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -319,10 +319,11 @@ func flattenNestedComputeDiskResourcePolicyAttachment(d *schema.ResourceData, me
 }
 
 func resourceComputeDiskResourcePolicyAttachmentFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedName, err := expandComputeDiskResourcePolicyAttachmentName(d.Get("name"), d, meta.(*Config))
+	expectedName, err := expandNestedComputeDiskResourcePolicyAttachmentName(d.Get("name"), d, meta.(*Config))
 	if err != nil {
 		return -1, nil, err
 	}
+	expectedFlattenedName := flattenNestedComputeDiskResourcePolicyAttachmentName(expectedName, d, meta.(*Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -340,9 +341,10 @@ func resourceComputeDiskResourcePolicyAttachmentFindNestedObjectInList(d *schema
 			return -1, nil, err
 		}
 
-		itemName := flattenComputeDiskResourcePolicyAttachmentName(item["name"], d, meta.(*Config))
-		if !reflect.DeepEqual(itemName, expectedName) {
-			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedName)
+		itemName := flattenNestedComputeDiskResourcePolicyAttachmentName(item["name"], d, meta.(*Config))
+		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
+			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
 			continue
 		}
 		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
