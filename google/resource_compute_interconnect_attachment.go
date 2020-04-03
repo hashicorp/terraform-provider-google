@@ -49,6 +49,7 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInterconnectAttachmentCreate,
 		Read:   resourceComputeInterconnectAttachmentRead,
+		Update: resourceComputeInterconnectAttachmentUpdate,
 		Delete: resourceComputeInterconnectAttachmentDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -57,6 +58,7 @@ func resourceComputeInterconnectAttachment() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
@@ -86,9 +88,9 @@ Cloud Router is configured.`,
 			"admin_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: true,
 				Description: `Whether the VLAN attachment is enabled or disabled.  When using
 PARTNER type this will Pre-Activate the interconnect attachment`,
+				Default: true,
 			},
 			"bandwidth": {
 				Type:         schema.TypeString,
@@ -120,7 +122,6 @@ Google will randomly select an unused /29 from all of link-local space.`,
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `An optional description of this resource.`,
 			},
 			"edge_availability_domain": {
@@ -147,7 +148,6 @@ be set if type is PARTNER.`,
 				Type:             schema.TypeString,
 				Computed:         true,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description:      `Region where the regional interconnect attachment resides.`,
 			},
@@ -248,7 +248,7 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	adminEnabledProp, err := expandComputeInterconnectAttachmentAdminEnabled(d.Get("admin_enabled"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("admin_enabled"); !isEmptyValue(reflect.ValueOf(adminEnabledProp)) && (ok || !reflect.DeepEqual(v, adminEnabledProp)) {
+	} else if v, ok := d.GetOkExists("admin_enabled"); ok || !reflect.DeepEqual(v, adminEnabledProp) {
 		obj["adminEnabled"] = adminEnabledProp
 	}
 	interconnectProp, err := expandComputeInterconnectAttachmentInterconnect(d.Get("interconnect"), d, config)
@@ -422,9 +422,6 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 	if err := d.Set("name", flattenComputeInterconnectAttachmentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
-	if err := d.Set("candidate_subnets", flattenComputeInterconnectAttachmentCandidateSubnets(res["candidateSubnets"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
-	}
 	if err := d.Set("vlan_tag8021q", flattenComputeInterconnectAttachmentVlanTag8021q(res["vlanTag8021q"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
@@ -436,6 +433,57 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 	}
 
 	return nil
+}
+
+func resourceComputeInterconnectAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	obj := make(map[string]interface{})
+	adminEnabledProp, err := expandComputeInterconnectAttachmentAdminEnabled(d.Get("admin_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("admin_enabled"); ok || !reflect.DeepEqual(v, adminEnabledProp) {
+		obj["adminEnabled"] = adminEnabledProp
+	}
+	descriptionProp, err := expandComputeInterconnectAttachmentDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+	regionProp, err := expandComputeInterconnectAttachmentRegion(d.Get("region"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+		obj["region"] = regionProp
+	}
+
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/interconnectAttachments/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating InterconnectAttachment %q: %#v", d.Id(), obj)
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return fmt.Errorf("Error updating InterconnectAttachment %q: %s", d.Id(), err)
+	}
+
+	err = computeOperationWaitTime(
+		config, res, project, "Updating InterconnectAttachment",
+		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+
+	if err != nil {
+		return err
+	}
+
+	return resourceComputeInterconnectAttachmentRead(d, meta)
 }
 
 func resourceComputeInterconnectAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
@@ -585,10 +633,6 @@ func flattenComputeInterconnectAttachmentCreationTimestamp(v interface{}, d *sch
 }
 
 func flattenComputeInterconnectAttachmentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenComputeInterconnectAttachmentCandidateSubnets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
