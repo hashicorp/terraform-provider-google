@@ -55,12 +55,12 @@ func CloudFunctionsCloudFunctionIamUpdaterProducer(d *schema.ResourceData, confi
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
+		d.Set("project", project)
 	}
 	values["project"] = project
 	region, _ := getRegion(d, config)
 	if region != "" {
-		values["region"] = region
+		d.Set("region", region)
 	}
 	values["region"] = region
 	if v, ok := d.GetOk("cloud_function"); ok {

@@ -55,12 +55,12 @@ func IapTunnelInstanceIamUpdaterProducer(d *schema.ResourceData, config *Config)
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
+		d.Set("project", project)
 	}
 	values["project"] = project
 	zone, _ := getZone(d, config)
 	if zone != "" {
-		values["zone"] = zone
+		d.Set("zone", zone)
 	}
 	values["zone"] = zone
 	if v, ok := d.GetOk("instance"); ok {

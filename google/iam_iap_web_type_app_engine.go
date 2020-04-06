@@ -62,7 +62,7 @@ func IapWebTypeAppEngineIamUpdaterProducer(d *schema.ResourceData, config *Confi
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
+		d.Set("project", project)
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("app_id"); ok {

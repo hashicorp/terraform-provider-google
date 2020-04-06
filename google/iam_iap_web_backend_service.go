@@ -48,7 +48,7 @@ func IapWebBackendServiceIamUpdaterProducer(d *schema.ResourceData, config *Conf
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
+		d.Set("project", project)
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("web_backend_service"); ok {

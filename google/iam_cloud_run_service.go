@@ -55,12 +55,12 @@ func CloudRunServiceIamUpdaterProducer(d *schema.ResourceData, config *Config) (
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
+		d.Set("project", project)
 	}
 	values["project"] = project
 	location, _ := getLocation(d, config)
 	if location != "" {
-		values["location"] = location
+		d.Set("location", location)
 	}
 	values["location"] = location
 	if v, ok := d.GetOk("service"); ok {
