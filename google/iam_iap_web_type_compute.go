@@ -42,7 +42,7 @@ func IapWebTypeComputeIamUpdaterProducer(d *schema.ResourceData, config *Config)
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
+		d.Set("project", project)
 	}
 	values["project"] = project
 

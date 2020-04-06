@@ -48,7 +48,7 @@ func BinaryAuthorizationAttestorIamUpdaterProducer(d *schema.ResourceData, confi
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		values["project"] = project
+		d.Set("project", project)
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("attestor"); ok {
