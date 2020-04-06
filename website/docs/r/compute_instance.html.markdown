@@ -394,10 +394,12 @@ This resource provides the following
 -> **Note:** The `desired_status` field will not be set on import. If you have it set, Terraform will update the field on the next `terraform apply`, bringing your instance to the desired status.
 
 
-Instances can be imported using the `project`, `zone` and `name`, e.g.
+Instances can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_compute_instance.default gcp-project/us-central1-a/test
+$ terraform import google_compute_instance.default projects/{{project}}/zones/{{zone}}/instances/{{name}}
+$ terraform import google_compute_instance.default {{project}}/{{zone}}/{{name}}
+$ terraform import google_compute_instance.default {{name}}
 ```
 
 [custom-vm-types]: https://cloud.google.com/dataproc/docs/concepts/compute/custom-machine-types
