@@ -47,8 +47,8 @@ To get more information about ServicePerimeter, see:
 ```hcl
 resource "google_access_context_manager_service_perimeter" "service-perimeter" {
   parent = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}"
-  name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/servicePerimeters/restrict_all"
-  title  = "restrict_all"
+  name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/servicePerimeters/restrict_storage"
+  title  = "restrict_storage"
   status {
     restricted_services = ["storage.googleapis.com"]
   }
@@ -67,12 +67,40 @@ resource "google_access_context_manager_access_level" "access-level" {
         }
       }
       regions = [
-	"CH",
-	"IT",
-	"US",
+        "CH",
+        "IT",
+        "US",
       ]
+    }
   }
+}
+
+resource "google_access_context_manager_access_policy" "access-policy" {
+  parent = "organizations/123456789"
+  title  = "my policy"
+}
+```
+## Example Usage - Access Context Manager Service Perimeter Dry Run
+
+
+```hcl
+resource "google_access_context_manager_service_perimeter" "service-perimeter" {
+  parent = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}"
+  name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/servicePerimeters/restrict_bigquery_dryrun_storage"
+  title  = "restrict_bigquery_dryrun_storage"
+
+  # Service 'bigquery.googleapis.com' will be restricted.
+  status {
+    restricted_services = ["bigquery.googleapis.com"]
   }
+
+  # Service 'storage.googleapis.com' will be in dry-run mode.
+  spec {
+    restricted_services = ["storage.googleapis.com"]
+  }
+
+  use_explicit_dry_run_spec = true
+
 }
 
 resource "google_access_context_manager_access_policy" "access-policy" {
@@ -133,8 +161,73 @@ The following arguments are supported:
   restricted services and access levels that determine
   perimeter content and boundaries.  Structure is documented below.
 
+* `spec` -
+  (Optional)
+  Proposed (or dry run) ServicePerimeter configuration.
+  This configuration allows to specify and test ServicePerimeter configuration
+  without enforcing actual access restrictions. Only allowed to be set when
+  the `useExplicitDryRunSpec` flag is set.  Structure is documented below.
+
+* `use_explicit_dry_run_spec` -
+  (Optional)
+  Use explicit dry run spec flag. Ordinarily, a dry-run spec implicitly exists
+  for all Service Perimeters, and that spec is identical to the status for those
+  Service Perimeters. When this flag is set, it inhibits the generation of the
+  implicit spec, thereby allowing the user to explicitly provide a
+  configuration ("spec") to use in a dry-run version of the Service Perimeter.
+  This allows the user to test changes to the enforced config ("status") without
+  actually enforcing them. This testing is done through analyzing the differences
+  between currently enforced and suggested restrictions. useExplicitDryRunSpec must
+  bet set to True if any of the fields in the spec are set to non-default values.
+
 
 The `status` block supports:
+
+* `resources` -
+  (Optional)
+  A list of GCP resources that are inside of the service perimeter.
+  Currently only projects are allowed.
+  Format: projects/{project_number}
+
+* `access_levels` -
+  (Optional)
+  A list of AccessLevel resource names that allow resources within
+  the ServicePerimeter to be accessed from the internet.
+  AccessLevels listed must be in the same policy as this
+  ServicePerimeter. Referencing a nonexistent AccessLevel is a
+  syntax error. If no AccessLevel names are listed, resources within
+  the perimeter can only be accessed via GCP calls with request
+  origins within the perimeter. For Service Perimeter Bridge, must
+  be empty.
+  Format: accessPolicies/{policy_id}/accessLevels/{access_level_name}
+
+* `restricted_services` -
+  (Optional)
+  GCP services that are subject to the Service Perimeter
+  restrictions. Must contain a list of services. For example, if
+  `storage.googleapis.com` is specified, access to the storage
+  buckets inside the perimeter must meet the perimeter's access
+  restrictions.
+
+* `vpc_accessible_services` -
+  (Optional)
+  Specifies how APIs are allowed to communicate within the Service
+  Perimeter.  Structure is documented below.
+
+
+The `vpc_accessible_services` block supports:
+
+* `enable_restriction` -
+  (Optional)
+  Whether to restrict API calls within the Service Perimeter to the
+  list of APIs specified in 'allowedServices'.
+
+* `allowed_services` -
+  (Optional)
+  The list of APIs usable within the Service Perimeter.
+  Must be empty unless `enableRestriction` is True.
+
+The `spec` block supports:
 
 * `resources` -
   (Optional)
