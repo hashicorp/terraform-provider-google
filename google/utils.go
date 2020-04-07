@@ -418,3 +418,7 @@ func stringInSlice(arr []string, str string) bool {
 func migrateStateNoop(v int, is *terraform.InstanceState, meta interface{}) (*terraform.InstanceState, error) {
 	return is, nil
 }
+
+func expandString(v interface{}, d TerraformResourceData, config *Config) (string, error) {
+	return v.(string), nil
+}

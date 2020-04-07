@@ -1,0 +1,3 @@
+```release-note:enhancement
+sourcerepo: allowed `google_sourcerepo_repo` `pubsub_configs.topic` to accept short topic names in addition to full references.
+```
