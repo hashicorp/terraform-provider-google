@@ -573,22 +573,9 @@ func doEnableServicesRequest(services []string, project string, config *Config, 
 // forms of the service. LIST responses are expected to return only the old or
 // new form, but we'll always return both.
 func listCurrentlyEnabledServices(project string, config *Config, timeout time.Duration) (map[string]struct{}, error) {
-	// Verify project for services still exists
-	p, err := config.clientResourceManager.Projects.Get(project).Do()
-	if err != nil {
-		return nil, err
-	}
-	if p.LifecycleState == "DELETE_REQUESTED" {
-		// Construct a 404 error for handleNotFoundError
-		return nil, &googleapi.Error{
-			Code:    404,
-			Message: "Project deletion was requested",
-		}
-	}
-
 	log.Printf("[DEBUG] Listing enabled services for project %s", project)
 	apiServices := make(map[string]struct{})
-	err = retryTimeDuration(func() error {
+	err := retryTimeDuration(func() error {
 		ctx := context.Background()
 		return config.clientServiceUsage.Services.
 			List(fmt.Sprintf("projects/%s", project)).
