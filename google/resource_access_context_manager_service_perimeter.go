@@ -92,6 +92,87 @@ with a common perimeter, but should not be able to share data among
 themselves.`,
 				Default: "PERIMETER_TYPE_REGULAR",
 			},
+			"spec": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Proposed (or dry run) ServicePerimeter configuration.
+This configuration allows to specify and test ServicePerimeter configuration
+without enforcing actual access restrictions. Only allowed to be set when
+the 'useExplicitDryRunSpec' flag is set.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"access_levels": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `A list of AccessLevel resource names that allow resources within
+the ServicePerimeter to be accessed from the internet.
+AccessLevels listed must be in the same policy as this
+ServicePerimeter. Referencing a nonexistent AccessLevel is a
+syntax error. If no AccessLevel names are listed, resources within
+the perimeter can only be accessed via GCP calls with request
+origins within the perimeter. For Service Perimeter Bridge, must
+be empty.
+
+Format: accessPolicies/{policy_id}/accessLevels/{access_level_name}`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							AtLeastOneOf: []string{"status.0.resources", "status.0.access_levels", "status.0.restricted_services"},
+						},
+						"resources": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `A list of GCP resources that are inside of the service perimeter.
+Currently only projects are allowed.
+Format: projects/{project_number}`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							AtLeastOneOf: []string{"status.0.resources", "status.0.access_levels", "status.0.restricted_services"},
+						},
+						"restricted_services": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `GCP services that are subject to the Service Perimeter
+restrictions. Must contain a list of services. For example, if
+'storage.googleapis.com' is specified, access to the storage
+buckets inside the perimeter must meet the perimeter's access
+restrictions.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							AtLeastOneOf: []string{"status.0.resources", "status.0.access_levels", "status.0.restricted_services"},
+						},
+						"vpc_accessible_services": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Specifies how APIs are allowed to communicate within the Service
+Perimeter.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allowed_services": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `The list of APIs usable within the Service Perimeter.
+Must be empty unless 'enableRestriction' is True.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"enable_restriction": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Whether to restrict API calls within the Service Perimeter to the
+list of APIs specified in 'allowedServices'.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"status": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -174,6 +255,19 @@ list of APIs specified in 'allowedServices'.`,
 					},
 				},
 			},
+			"use_explicit_dry_run_spec": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Use explicit dry run spec flag. Ordinarily, a dry-run spec implicitly exists
+for all Service Perimeters, and that spec is identical to the status for those
+Service Perimeters. When this flag is set, it inhibits the generation of the
+implicit spec, thereby allowing the user to explicitly provide a
+configuration ("spec") to use in a dry-run version of the Service Perimeter.
+This allows the user to test changes to the enforced config ("status") without
+actually enforcing them. This testing is done through analyzing the differences
+between currently enforced and suggested restrictions. useExplicitDryRunSpec must
+bet set to True if any of the fields in the spec are set to non-default values.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -215,6 +309,18 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 		return err
 	} else if v, ok := d.GetOkExists("status"); !isEmptyValue(reflect.ValueOf(statusProp)) && (ok || !reflect.DeepEqual(v, statusProp)) {
 		obj["status"] = statusProp
+	}
+	specProp, err := expandAccessContextManagerServicePerimeterSpec(d.Get("spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("spec"); !isEmptyValue(reflect.ValueOf(specProp)) && (ok || !reflect.DeepEqual(v, specProp)) {
+		obj["spec"] = specProp
+	}
+	useExplicitDryRunSpecProp, err := expandAccessContextManagerServicePerimeterUseExplicitDryRunSpec(d.Get("use_explicit_dry_run_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("use_explicit_dry_run_spec"); !isEmptyValue(reflect.ValueOf(useExplicitDryRunSpecProp)) && (ok || !reflect.DeepEqual(v, useExplicitDryRunSpecProp)) {
+		obj["useExplicitDryRunSpec"] = useExplicitDryRunSpecProp
 	}
 	parentProp, err := expandAccessContextManagerServicePerimeterParent(d.Get("parent"), d, config)
 	if err != nil {
@@ -318,6 +424,12 @@ func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, me
 	if err := d.Set("status", flattenAccessContextManagerServicePerimeterStatus(res["status"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
+	if err := d.Set("spec", flattenAccessContextManagerServicePerimeterSpec(res["spec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
+	}
+	if err := d.Set("use_explicit_dry_run_spec", flattenAccessContextManagerServicePerimeterUseExplicitDryRunSpec(res["useExplicitDryRunSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
+	}
 	if err := d.Set("name", flattenAccessContextManagerServicePerimeterName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
@@ -346,6 +458,18 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 		return err
 	} else if v, ok := d.GetOkExists("status"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, statusProp)) {
 		obj["status"] = statusProp
+	}
+	specProp, err := expandAccessContextManagerServicePerimeterSpec(d.Get("spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("spec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, specProp)) {
+		obj["spec"] = specProp
+	}
+	useExplicitDryRunSpecProp, err := expandAccessContextManagerServicePerimeterUseExplicitDryRunSpec(d.Get("use_explicit_dry_run_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("use_explicit_dry_run_spec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, useExplicitDryRunSpecProp)) {
+		obj["useExplicitDryRunSpec"] = useExplicitDryRunSpecProp
 	}
 
 	obj, err = resourceAccessContextManagerServicePerimeterEncoder(d, meta, obj)
@@ -378,6 +502,14 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 
 	if d.HasChange("status") {
 		updateMask = append(updateMask, "status")
+	}
+
+	if d.HasChange("spec") {
+		updateMask = append(updateMask, "spec")
+	}
+
+	if d.HasChange("use_explicit_dry_run_spec") {
+		updateMask = append(updateMask, "useExplicitDryRunSpec")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -536,6 +668,64 @@ func flattenAccessContextManagerServicePerimeterStatusVPCAccessibleServicesAllow
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
+func flattenAccessContextManagerServicePerimeterSpec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["resources"] =
+		flattenAccessContextManagerServicePerimeterSpecResources(original["resources"], d, config)
+	transformed["access_levels"] =
+		flattenAccessContextManagerServicePerimeterSpecAccessLevels(original["accessLevels"], d, config)
+	transformed["restricted_services"] =
+		flattenAccessContextManagerServicePerimeterSpecRestrictedServices(original["restrictedServices"], d, config)
+	transformed["vpc_accessible_services"] =
+		flattenAccessContextManagerServicePerimeterSpecVPCAccessibleServices(original["vpcAccessibleServices"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerServicePerimeterSpecResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterSpecAccessLevels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterSpecRestrictedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterSpecVPCAccessibleServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable_restriction"] =
+		flattenAccessContextManagerServicePerimeterSpecVPCAccessibleServicesEnableRestriction(original["enableRestriction"], d, config)
+	transformed["allowed_services"] =
+		flattenAccessContextManagerServicePerimeterSpecVPCAccessibleServicesAllowedServices(original["allowedServices"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerServicePerimeterSpecVPCAccessibleServicesEnableRestriction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterSpecVPCAccessibleServicesAllowedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterUseExplicitDryRunSpec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenAccessContextManagerServicePerimeterName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -637,6 +827,96 @@ func expandAccessContextManagerServicePerimeterStatusVPCAccessibleServicesEnable
 
 func expandAccessContextManagerServicePerimeterStatusVPCAccessibleServicesAllowedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedResources, err := expandAccessContextManagerServicePerimeterSpecResources(original["resources"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResources); val.IsValid() && !isEmptyValue(val) {
+		transformed["resources"] = transformedResources
+	}
+
+	transformedAccessLevels, err := expandAccessContextManagerServicePerimeterSpecAccessLevels(original["access_levels"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAccessLevels); val.IsValid() && !isEmptyValue(val) {
+		transformed["accessLevels"] = transformedAccessLevels
+	}
+
+	transformedRestrictedServices, err := expandAccessContextManagerServicePerimeterSpecRestrictedServices(original["restricted_services"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRestrictedServices); val.IsValid() && !isEmptyValue(val) {
+		transformed["restrictedServices"] = transformedRestrictedServices
+	}
+
+	transformedVPCAccessibleServices, err := expandAccessContextManagerServicePerimeterSpecVPCAccessibleServices(original["vpc_accessible_services"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVPCAccessibleServices); val.IsValid() && !isEmptyValue(val) {
+		transformed["vpcAccessibleServices"] = transformedVPCAccessibleServices
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecAccessLevels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecRestrictedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecVPCAccessibleServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableRestriction, err := expandAccessContextManagerServicePerimeterSpecVPCAccessibleServicesEnableRestriction(original["enable_restriction"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableRestriction); val.IsValid() && !isEmptyValue(val) {
+		transformed["enableRestriction"] = transformedEnableRestriction
+	}
+
+	transformedAllowedServices, err := expandAccessContextManagerServicePerimeterSpecVPCAccessibleServicesAllowedServices(original["allowed_services"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowedServices); val.IsValid() && !isEmptyValue(val) {
+		transformed["allowedServices"] = transformedAllowedServices
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecVPCAccessibleServicesEnableRestriction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecVPCAccessibleServicesAllowedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterUseExplicitDryRunSpec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
