@@ -126,6 +126,30 @@ func TestAccComputeInstanceFromTemplate_overrideScratchDisk(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceFromTemplate_overrideScheduling(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	templateDisk := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	resourceName := "google_compute_instance_from_template.inst"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplate_overrideScheduling(templateDisk, templateName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 	t.Parallel()
 
@@ -474,6 +498,56 @@ resource "google_compute_instance_from_template" "inst" {
   }
 }
 `, templateDisk, overrideDisk, template, instance)
+}
+
+func testAccComputeInstanceFromTemplate_overrideScheduling(templateDisk, template, instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-1"
+
+  disk {
+    source      = google_compute_disk.foobar.name
+    auto_delete = false
+    boot        = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  scheduling {
+    automatic_restart = false
+    preemptible = true
+  }
+
+  can_ip_forward = true
+}
+
+resource "google_compute_instance_from_template" "inst" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  source_instance_template = google_compute_instance_template.foobar.self_link
+}
+`, templateDisk, template, instance)
 }
 
 func testAccComputeInstanceFromTemplate_012_removableFieldsTpl(template string) string {
