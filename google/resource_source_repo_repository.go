@@ -359,7 +359,11 @@ func expandSourceRepoRepositoryPubsubConfigs(v interface{}, d TerraformResourceD
 		}
 		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
 
-		m[original["topic"].(string)] = transformed
+		transformedTopic, err := expandSourceRepoRepositoryPubsubConfigsTopic(original["topic"], d, config)
+		if err != nil {
+			return nil, err
+		}
+		m[transformedTopic] = transformed
 	}
 	return m, nil
 }

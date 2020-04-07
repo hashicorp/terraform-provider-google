@@ -1154,7 +1154,11 @@ func expandAppEngineStandardAppVersionDeploymentFiles(v interface{}, d Terraform
 		}
 		transformed["sourceUrl"] = transformedSourceUrl
 
-		m[original["name"].(string)] = transformed
+		transformedName, err := expandString(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		}
+		m[transformedName] = transformed
 	}
 	return m, nil
 }

@@ -574,7 +574,11 @@ func expandBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d Terra
 		}
 		transformed["enforcementMode"] = transformedEnforcementMode
 
-		m[original["cluster"].(string)] = transformed
+		transformedCluster, err := expandString(original["cluster"], d, config)
+		if err != nil {
+			return nil, err
+		}
+		m[transformedCluster] = transformed
 	}
 	return m, nil
 }
