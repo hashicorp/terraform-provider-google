@@ -261,7 +261,7 @@ The `disk` block supports:
 * `disk_name` - (Optional) Name of the disk. When not provided, this defaults
     to the name of the instance.
 
-* `source_image` - (Required if source not set) The image from which to
+* `source_image` - (Optional) The image from which to
     initialize this disk. This can be one of: the image's `self_link`,
     `projects/{project}/global/images/{image}`,
     `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
@@ -275,7 +275,7 @@ The `disk` block supports:
     or READ_ONLY. If you are attaching or creating a boot disk, this must
     read-write mode.
 
-* `source` - (Required if source_image not set) The name (**not self_link**)
+* `source` - (Optional) The name (**not self_link**)
     of the disk (such as those managed by `google_compute_disk`) to attach.
 
 * `disk_type` - (Optional) The GCE disk type. Can be either `"pd-ssd"`,
