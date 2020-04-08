@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_monitoring_custom_service`
+```
+```release-note:new-datasource
+`google_monitoring_app_engine_service`
+```
