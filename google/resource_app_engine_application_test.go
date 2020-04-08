@@ -82,6 +82,7 @@ resource "google_app_engine_application" "acceptance" {
   serving_status = "SERVING"
 
   iap {
+    enabled              = false
     oauth2_client_id     = "test"
     oauth2_client_secret = "test"
   }

@@ -96,6 +96,11 @@ func resourceAppEngineApplication() *schema.Resource {
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
 						"oauth2_client_id": {
 							Type:     schema.TypeString,
 							Required: true,
@@ -313,6 +318,7 @@ func expandAppEngineApplicationIap(d *schema.ResourceData) (*appengine.IdentityA
 		return nil, nil
 	}
 	return &appengine.IdentityAwareProxy{
+		Enabled:                  d.Get("iap.0.enabled").(bool),
 		Oauth2ClientId:           d.Get("iap.0.oauth2_client_id").(string),
 		Oauth2ClientSecret:       d.Get("iap.0.oauth2_client_secret").(string),
 		Oauth2ClientSecretSha256: d.Get("iap.0.oauth2_client_secret_sha256").(string),
@@ -334,6 +340,7 @@ func flattenAppEngineApplicationIap(d *schema.ResourceData, iap *appengine.Ident
 		return []map[string]interface{}{}, nil
 	}
 	result := map[string]interface{}{
+		"enabled":                     iap.Enabled,
 		"oauth2_client_id":            iap.Oauth2ClientId,
 		"oauth2_client_secret":        d.Get("iap.0.oauth2_client_secret"),
 		"oauth2_client_secret_sha256": iap.Oauth2ClientSecretSha256,
