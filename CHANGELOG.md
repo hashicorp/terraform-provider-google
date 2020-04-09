@@ -5,8 +5,8 @@ FEATURES:
 * **New Resource:** `google_os_login_ssh_public_key` ([#6026](https://github.com/terraform-providers/terraform-provider-google/pull/6026))
 
 IMPROVEMENTS:
-* compute: Added update support for `google_compute_interconnect_attachment` `admin_enabled` ([#6046](https://github.com/terraform-providers/terraform-provider-google/pull/6046))
 * accesscontextmanager: added `spec` and `use_explicit_dry_run_spec` to `google_access_context_manager_service_perimeter` to test perimeter configurations in dry-run mode. ([#6071](https://github.com/terraform-providers/terraform-provider-google/pull/6071))
+* compute: Added update support for `google_compute_interconnect_attachment` `admin_enabled` ([#6046](https://github.com/terraform-providers/terraform-provider-google/pull/6046))
 * compute: Added field `log_config` to `google_compute_health_check` and `google_compute_region_health_check` to enable health check logging. ([#6058](https://github.com/terraform-providers/terraform-provider-google/pull/6058))
 * compute: Added more import formats for `google_compute_instance` ([#6023](https://github.com/terraform-providers/terraform-provider-google/pull/6023))
 * sourcerepo: allowed `google_sourcerepo_repo` `pubsub_configs.topic` to accept short topic names in addition to full references. ([#6069](https://github.com/terraform-providers/terraform-provider-google/pull/6069))
