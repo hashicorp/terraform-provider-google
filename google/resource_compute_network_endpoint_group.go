@@ -81,9 +81,8 @@ you create the resource.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"GCE_VM_IP_PORT", ""}, false),
-				Description: `Type of network endpoints in this network endpoint group. Currently
-the only supported value is GCE_VM_IP_PORT.`,
-				Default: "GCE_VM_IP_PORT",
+				Description:  `Type of network endpoints in this network endpoint group. The only supported value is GCE_VM_IP_PORT`,
+				Default:      "GCE_VM_IP_PORT",
 			},
 			"subnetwork": {
 				Type:             schema.TypeString,

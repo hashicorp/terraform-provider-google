@@ -103,8 +103,7 @@ The following arguments are supported:
 
 * `network_endpoint_type` -
   (Optional)
-  Type of network endpoints in this network endpoint group. Currently
-  the only supported value is GCE_VM_IP_PORT.
+  Type of network endpoints in this network endpoint group. The only supported value is GCE_VM_IP_PORT
 
 * `subnetwork` -
   (Optional)
