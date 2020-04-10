@@ -56,11 +56,6 @@ func resourceMonitoringNotificationChannel() *schema.Resource {
 		CustomizeDiff: sensitiveLabelCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
-			"display_name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `An optional human-readable name for this notification channel. It is recommended that you specify a non-empty and unique name in order to make it easier to identify the channels in your project, though this is not enforced. The display name is limited to 512 Unicode characters.`,
-			},
 			"type": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -70,6 +65,11 @@ func resourceMonitoringNotificationChannel() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `An optional human-readable description of this notification channel. This description may provide additional details, beyond the display name, for the channel. This may not exceed 1024 Unicode characters.`,
+			},
+			"display_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `An optional human-readable name for this notification channel. It is recommended that you specify a non-empty and unique name in order to make it easier to identify the channels in your project, though this is not enforced. The display name is limited to 512 Unicode characters.`,
 			},
 			"enabled": {
 				Type:        schema.TypeBool,

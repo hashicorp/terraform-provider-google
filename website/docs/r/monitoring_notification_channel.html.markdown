@@ -90,10 +90,6 @@ The following arguments are supported:
   (Required)
   The type of the notification channel. This field matches the value of the NotificationChannelDescriptor.type field. See https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.notificationChannelDescriptors/list to get the list of valid values such as "email", "slack", etc...
 
-* `display_name` -
-  (Required)
-  An optional human-readable name for this notification channel. It is recommended that you specify a non-empty and unique name in order to make it easier to identify the channels in your project, though this is not enforced. The display name is limited to 512 Unicode characters.
-
 
 - - -
 
@@ -123,6 +119,10 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional human-readable description of this notification channel. This description may provide additional details, beyond the display name, for the channel. This may not exceed 1024 Unicode characters.
+
+* `display_name` -
+  (Optional)
+  An optional human-readable name for this notification channel. It is recommended that you specify a non-empty and unique name in order to make it easier to identify the channels in your project, though this is not enforced. The display name is limited to 512 Unicode characters.
 
 * `enabled` -
   (Optional)
