@@ -58,6 +58,10 @@ func resourceGoogleProjectIamCustomRole() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -126,6 +130,7 @@ func resourceGoogleProjectIamCustomRoleRead(d *schema.ResourceData, meta interfa
 
 	d.Set("role_id", GetResourceNameFromSelfLink(role.Name))
 	d.Set("title", role.Title)
+	d.Set("name", role.Name)
 	d.Set("description", role.Description)
 	d.Set("permissions", role.IncludedPermissions)
 	d.Set("stage", role.Stage)
