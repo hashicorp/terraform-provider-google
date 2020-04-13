@@ -28,7 +28,9 @@ func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *te
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"org_id":          getTestOrgFromEnv(t),
+		"billing_account": getTestBillingAccountFromEnv(t),
+		"random_suffix":   acctest.RandString(10),
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -43,7 +45,7 @@ func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *te
 				ResourceName:            "google_app_engine_flexible_app_version.myapp_v1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"beta_settings", "env_variables", "deployment", "entrypoint", "service", "delete_service_on_destroy"},
+				ImportStateVerifyIgnore: []string{"beta_settings", "env_variables", "deployment", "entrypoint", "service", "noop_on_destroy"},
 			},
 		},
 	})
@@ -51,15 +53,35 @@ func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *te
 
 func testAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_project" "my_project" {
+  name = "tf-test-appeng-flex%{random_suffix}"
+  project_id = "tf-test-appeng-flex%{random_suffix}"
+  org_id = "%{org_id}"
+  billing_account = "%{billing_account}"
+}
+
+resource "google_app_engine_application" "app" {
+  project     = google_project.my_project.project_id
+  location_id = "us-central"
+}
+
 resource "google_project_service" "service" {
+  project = google_project.my_project.project_id
   service = "appengineflex.googleapis.com"
 
   disable_dependent_services = false
 }
 
+resource "google_project_iam_member" "gae_api" {
+  project = google_project_service.service.project
+  role    = "roles/compute.networkUser"
+  member  = "serviceAccount:service-${google_project.my_project.number}@gae-api-prod.google.com.iam.gserviceaccount.com"
+}
+
 resource "google_app_engine_flexible_app_version" "myapp_v1" {
   version_id = "v1"
-  service    = "tf-test-service-%{random_suffix}"
+  project    = google_project_iam_member.gae_api.project
+  service    = "default"
   runtime    = "nodejs"
 
   entrypoint {
@@ -91,10 +113,11 @@ resource "google_app_engine_flexible_app_version" "myapp_v1" {
     }
   }
 
-  delete_service_on_destroy = true
+  noop_on_destroy = true
 }
 
 resource "google_storage_bucket" "bucket" {
+  project = google_project.my_project.project_id
   name = "tf-test-appengine-static-content%{random_suffix}"
 }
 
