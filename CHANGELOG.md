@@ -1,6 +1,7 @@
 ## 3.17.0 (Unreleased)
 
 FEATURES:
+* **New Resource:** `google_bigquery_dataset_access` ([#6035](https://github.com/terraform-providers/terraform-provider-google/pull/6035))
 * **New Resource:** `google_dialogflow_intent` ([#6061](https://github.com/terraform-providers/terraform-provider-google/pull/6061))
 * **New Resource:** `google_os_login_ssh_public_key` ([#6026](https://github.com/terraform-providers/terraform-provider-google/pull/6026))
 
