@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed importing/reading `google_container_node_pool` resources in non-RUNNING states
+```

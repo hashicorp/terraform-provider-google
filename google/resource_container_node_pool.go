@@ -313,27 +313,13 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	nodePoolInfo, err := extractNodePoolInformation(d, config)
-
-	name := getNodePoolName(d.Id())
-
 	if err != nil {
 		return err
 	}
 
-	var nodePool = &containerBeta.NodePool{}
-	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-		nodePool, err = config.clientContainerBeta.
-			Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name)).Do()
+	name := getNodePoolName(d.Id())
 
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		if nodePool.Status != "RUNNING" {
-			return resource.RetryableError(fmt.Errorf("Nodepool %q has status %q with message %q", d.Get("name"), nodePool.Status, nodePool.StatusMessage))
-		}
-		return nil
-	})
-
+	nodePool, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name)).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, nodePoolInfo.cluster))
 	}
