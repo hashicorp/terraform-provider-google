@@ -1269,6 +1269,22 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 }
 
 func flattenPreemptibleInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {
+	// if num_instances is 0, icg will always be returned nil. This means the
+	// server has discarded diskconfig etc. However, the only way to remove the
+	// preemptible group is to set the size to 0, because it's O+C. Many users
+	// won't remove the rest of the config (eg disk config). Therefore, we need to
+	// preserve the other set fields by using the old state to stop users from
+	// getting a diff.
+	if icg == nil {
+		icgSchema := d.Get("cluster_config.0.preemptible_worker_config")
+		log.Printf("[DEBUG] state of preemptible is %#v", icgSchema)
+		if v, ok := icgSchema.([]interface{}); ok && len(v) > 0 {
+			if m, ok := v[0].(map[string]interface{}); ok {
+				return []map[string]interface{}{m}
+			}
+		}
+	}
+
 	disk := map[string]interface{}{}
 	data := map[string]interface{}{}
 
