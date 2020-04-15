@@ -1,4 +1,22 @@
 ## 3.18.0 (Unreleased)
+
+FEATURES:
+* **New Data Source:** `google_monitoring_app_engine_service` ([#6078](https://github.com/terraform-providers/terraform-provider-google/pull/6078))
+* **New Resource:** `google_monitoring_custom_service` ([#6078](https://github.com/terraform-providers/terraform-provider-google/pull/6078))
+* **New Resource:** `google_compute_global_network_endpoint` ([#6095](https://github.com/terraform-providers/terraform-provider-google/pull/6095))
+* **New Resource:** `google_compute_global_network_endpoint_group` ([#6095](https://github.com/terraform-providers/terraform-provider-google/pull/6095))
+* **New Resource:** `google_monitoring_slo` ([#6118](https://github.com/terraform-providers/terraform-provider-google/pull/6118))
+
+IMPROVEMENTS:
+* appengine: Added `iap.enabled` field to `google_app_engine_application` resource ([#6076](https://github.com/terraform-providers/terraform-provider-google/pull/6076))
+* bigtable: Reduced the minimum number of nodes for the `bigtable_instace` resource from 3 to 1. ([#6083](https://github.com/terraform-providers/terraform-provider-google/pull/6083))
+* iam: Added `name` field to `google_organization_iam_custom_role` ([#6111](https://github.com/terraform-providers/terraform-provider-google/pull/6111))
+* iam: Added `name` field to `google_project_iam_custom_role` ([#6111](https://github.com/terraform-providers/terraform-provider-google/pull/6111))
+
+BUG FIXES:
+* container: Fixed importing/reading `google_container_node_pool` resources in non-RUNNING states ([#6115](https://github.com/terraform-providers/terraform-provider-google/pull/6115))
+* monitoring: Made `display_name` optional on `google_monitoring_notification_channel ` ([#6090](https://github.com/terraform-providers/terraform-provider-google/pull/6090))
+
 ## 3.17.0 (April 13, 2020)
 
 FEATURES:
@@ -1332,7 +1350,7 @@ BUG FIXES:
 
 BACKWARDS INCOMPATIBILITIES:
 * compute: instance templates used to not set any disks in the template in state unless they were in the config, as well. It also only stored the image name in state. Both of these were bugs, and have been fixed. They should not cause any disruption. If you were interpolating an image name from a disk in an instance template, you'll need to update your config to strip out everything before the last `/`. If you imported an instance template, and did not add all the disks in the template to your config, you'll see a diff; add those disks to your config, and it will go away. Those are the only two instances where this change should effect you. We apologise for the inconvenience. ([#1916](https://github.com/terraform-providers/terraform-provider-google/issues/1916))
-* iam: `google_*_custom_roles` now treats `delete` as deprecated - to actually delete roles, remove from config.  
+* iam: `google_*_custom_roles` now treats `delete` as deprecated - to actually delete roles, remove from config.
 * provider: This is the first release tested against and built with Go 1.11, which required go fmt changes to the code. If you are building a custom version of this provider or running tests using the repository Make targets (e.g. make build) when using a previous version of Go, you will receive errors. You can use the underlying go commands (e.g. go build) to workaround the go fmt check in the Make targets until you are able to upgrade Go.
 
 FEATURES:
