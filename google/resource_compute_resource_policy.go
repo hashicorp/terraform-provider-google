@@ -53,6 +53,43 @@ first character must be a lowercase letter, and all following characters
 must be a dash, lowercase letter, or digit, except the last character,
 which cannot be a dash.`,
 			},
+			"group_placement_policy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Policy for creating snapshots of persistent disks.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"availability_domain_count": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+							Description: `The number of availability domains instances will be spread across. If two instances are in different
+availability domain, they will not be put in the same low latency network`,
+							AtLeastOneOf: []string{"group_placement_policy.0.vm_count", "group_placement_policy.0.availability_domain_count"},
+						},
+						"collocation": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"COLLOCATED", ""}, false),
+							Description: `Collocation specifies whether to place VMs inside the same availability domain on the same low-latency network.
+Specify 'COLLOCATED' to enable collocation. Can only be specified with 'vm_count'. If compute instances are created
+with a COLLOCATED policy, then exactly 'vm_count' instances must be created at the same time with the resource policy
+attached.`,
+						},
+						"vm_count": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ForceNew:     true,
+							Description:  `Number of vms in this placement group.`,
+							AtLeastOneOf: []string{"group_placement_policy.0.vm_count", "group_placement_policy.0.availability_domain_count"},
+						},
+					},
+				},
+				ConflictsWith: []string{"snapshot_schedule_policy"},
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -225,6 +262,7 @@ Valid options are KEEP_AUTO_SNAPSHOTS and APPLY_RETENTION_POLICY`,
 						},
 					},
 				},
+				ConflictsWith: []string{"group_placement_policy"},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -276,6 +314,12 @@ func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("snapshot_schedule_policy"); !isEmptyValue(reflect.ValueOf(snapshotSchedulePolicyProp)) && (ok || !reflect.DeepEqual(v, snapshotSchedulePolicyProp)) {
 		obj["snapshotSchedulePolicy"] = snapshotSchedulePolicyProp
+	}
+	groupPlacementPolicyProp, err := expandComputeResourcePolicyGroupPlacementPolicy(d.Get("group_placement_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("group_placement_policy"); !isEmptyValue(reflect.ValueOf(groupPlacementPolicyProp)) && (ok || !reflect.DeepEqual(v, groupPlacementPolicyProp)) {
+		obj["groupPlacementPolicy"] = groupPlacementPolicyProp
 	}
 	regionProp, err := expandComputeResourcePolicyRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -346,6 +390,9 @@ func resourceComputeResourcePolicyRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
 	}
 	if err := d.Set("snapshot_schedule_policy", flattenComputeResourcePolicySnapshotSchedulePolicy(res["snapshotSchedulePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	}
+	if err := d.Set("group_placement_policy", flattenComputeResourcePolicyGroupPlacementPolicy(res["groupPlacementPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
 	}
 	if err := d.Set("region", flattenComputeResourcePolicyRegion(res["region"], d, config)); err != nil {
@@ -627,6 +674,61 @@ func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesStorage
 }
 
 func flattenComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesGuestFlush(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeResourcePolicyGroupPlacementPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["vm_count"] =
+		flattenComputeResourcePolicyGroupPlacementPolicyVmCount(original["vmCount"], d, config)
+	transformed["availability_domain_count"] =
+		flattenComputeResourcePolicyGroupPlacementPolicyAvailabilityDomainCount(original["availabilityDomainCount"], d, config)
+	transformed["collocation"] =
+		flattenComputeResourcePolicyGroupPlacementPolicyCollocation(original["collocation"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeResourcePolicyGroupPlacementPolicyVmCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeResourcePolicyGroupPlacementPolicyAvailabilityDomainCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeResourcePolicyGroupPlacementPolicyCollocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -916,6 +1018,51 @@ func expandComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesStorageL
 }
 
 func expandComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesGuestFlush(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeResourcePolicyGroupPlacementPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedVmCount, err := expandComputeResourcePolicyGroupPlacementPolicyVmCount(original["vm_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVmCount); val.IsValid() && !isEmptyValue(val) {
+		transformed["vmCount"] = transformedVmCount
+	}
+
+	transformedAvailabilityDomainCount, err := expandComputeResourcePolicyGroupPlacementPolicyAvailabilityDomainCount(original["availability_domain_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAvailabilityDomainCount); val.IsValid() && !isEmptyValue(val) {
+		transformed["availabilityDomainCount"] = transformedAvailabilityDomainCount
+	}
+
+	transformedCollocation, err := expandComputeResourcePolicyGroupPlacementPolicyCollocation(original["collocation"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCollocation); val.IsValid() && !isEmptyValue(val) {
+		transformed["collocation"] = transformedCollocation
+	}
+
+	return transformed, nil
+}
+
+func expandComputeResourcePolicyGroupPlacementPolicyVmCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeResourcePolicyGroupPlacementPolicyAvailabilityDomainCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeResourcePolicyGroupPlacementPolicyCollocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

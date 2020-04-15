@@ -81,6 +81,24 @@ resource "google_compute_resource_policy" "bar" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=resource_policy_placement_policy&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Resource Policy Placement Policy
+
+
+```hcl
+resource "google_compute_resource_policy" "baz" {
+  name   = "policy"
+  region = "us-central1"
+  group_placement_policy {
+    vm_count = 2
+    collocation = "COLLOCATED"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -102,6 +120,10 @@ The following arguments are supported:
 
 
 * `snapshot_schedule_policy` -
+  (Optional)
+  Policy for creating snapshots of persistent disks.  Structure is documented below.
+
+* `group_placement_policy` -
   (Optional)
   Policy for creating snapshots of persistent disks.  Structure is documented below.
 
@@ -212,6 +234,24 @@ The `snapshot_properties` block supports:
 * `guest_flush` -
   (Optional)
   Whether to perform a 'guest aware' snapshot.
+
+The `group_placement_policy` block supports:
+
+* `vm_count` -
+  (Optional)
+  Number of vms in this placement group.
+
+* `availability_domain_count` -
+  (Optional)
+  The number of availability domains instances will be spread across. If two instances are in different
+  availability domain, they will not be put in the same low latency network
+
+* `collocation` -
+  (Optional)
+  Collocation specifies whether to place VMs inside the same availability domain on the same low-latency network.
+  Specify `COLLOCATED` to enable collocation. Can only be specified with `vm_count`. If compute instances are created
+  with a COLLOCATED policy, then exactly `vm_count` instances must be created at the same time with the resource policy
+  attached.
 
 ## Attributes Reference
 
