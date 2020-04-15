@@ -1,0 +1,3 @@
+```release-note:bug
+dataproc: fixed diff when `google_dataproc_cluster` `preemptible_worker_config.0.num_instances` is sized to 0 and other `preemptible_worker_config` subfields are set
+```
