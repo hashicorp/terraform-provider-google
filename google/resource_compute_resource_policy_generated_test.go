@@ -117,6 +117,43 @@ resource "google_compute_resource_policy" "bar" {
 `, context)
 }
 
+func TestAccComputeResourcePolicy_resourcePolicyPlacementPolicyExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeResourcePolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeResourcePolicy_resourcePolicyPlacementPolicyExample(context),
+			},
+			{
+				ResourceName:      "google_compute_resource_policy.baz",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeResourcePolicy_resourcePolicyPlacementPolicyExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_resource_policy" "baz" {
+  name   = "policy%{random_suffix}"
+  region = "us-central1"
+  group_placement_policy {
+    vm_count = 2
+    collocation = "COLLOCATED"
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeResourcePolicyDestroy(s *terraform.State) error {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_compute_resource_policy" {
