@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -14,16 +13,16 @@ func TestAccDataKmsSecretCiphertext_basic(t *testing.T) {
 
 	kms := BootstrapKMSKey(t)
 
-	plaintext := fmt.Sprintf("secret-%s", acctest.RandString(10))
+	plaintext := fmt.Sprintf("secret-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleKmsSecretCiphertext_datasource(kms.CryptoKey.Name, plaintext),
 				Check: func(s *terraform.State) error {
-					plaintext, err := testAccDecryptSecretDataWithCryptoKey(s, kms.CryptoKey.Name, "data.google_kms_secret_ciphertext.acceptance", "")
+					plaintext, err := testAccDecryptSecretDataWithCryptoKey(t, s, kms.CryptoKey.Name, "data.google_kms_secret_ciphertext.acceptance", "")
 
 					if err != nil {
 						return err

@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccComputeRegionAutoscaler_update(t *testing.T) {
-	var it_name = fmt.Sprintf("region-autoscaler-test-%s", acctest.RandString(10))
-	var tp_name = fmt.Sprintf("region-autoscaler-test-%s", acctest.RandString(10))
-	var igm_name = fmt.Sprintf("region-autoscaler-test-%s", acctest.RandString(10))
-	var autoscaler_name = fmt.Sprintf("region-autoscaler-test-%s", acctest.RandString(10))
+	var it_name = fmt.Sprintf("region-autoscaler-test-%s", randString(t, 10))
+	var tp_name = fmt.Sprintf("region-autoscaler-test-%s", randString(t, 10))
+	var igm_name = fmt.Sprintf("region-autoscaler-test-%s", randString(t, 10))
+	var autoscaler_name = fmt.Sprintf("region-autoscaler-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroy,
+		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name),

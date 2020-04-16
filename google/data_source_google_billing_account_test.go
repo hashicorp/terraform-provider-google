@@ -5,8 +5,6 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -14,7 +12,7 @@ func TestAccDataSourceGoogleBillingAccount_byFullName(t *testing.T) {
 	billingId := getTestBillingAccountFromEnv(t)
 	name := "billingAccounts/" + billingId
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -34,7 +32,7 @@ func TestAccDataSourceGoogleBillingAccount_byShortName(t *testing.T) {
 	billingId := getTestBillingAccountFromEnv(t)
 	name := "billingAccounts/" + billingId
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -54,7 +52,7 @@ func TestAccDataSourceGoogleBillingAccount_byFullNameClosed(t *testing.T) {
 	billingId := getTestBillingAccountFromEnv(t)
 	name := "billingAccounts/" + billingId
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -67,9 +65,9 @@ func TestAccDataSourceGoogleBillingAccount_byFullNameClosed(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleBillingAccount_byDisplayName(t *testing.T) {
-	name := acctest.RandString(16)
+	name := randString(t, 16)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

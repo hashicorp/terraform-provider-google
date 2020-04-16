@@ -6,7 +6,6 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -15,16 +14,17 @@ func TestAccOrganizationIamCustomRole_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	roleId := "tfIamCustomRole" + acctest.RandString(10)
+	roleId := "tfIamCustomRole" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleOrganizationIamCustomRoleDestroy,
+		CheckDestroy: testAccCheckGoogleOrganizationIamCustomRoleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleOrganizationIamCustomRole_basic(org, roleId),
 				Check: testAccCheckGoogleOrganizationIamCustomRole(
+					t,
 					"google_organization_iam_custom_role.foo",
 					"My Custom Role",
 					"foo",
@@ -34,6 +34,7 @@ func TestAccOrganizationIamCustomRole_basic(t *testing.T) {
 			{
 				Config: testAccCheckGoogleOrganizationIamCustomRole_update(org, roleId),
 				Check: testAccCheckGoogleOrganizationIamCustomRole(
+					t,
 					"google_organization_iam_custom_role.foo",
 					"My Custom Role Updated",
 					"bar",
@@ -53,27 +54,27 @@ func TestAccOrganizationIamCustomRole_undelete(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	roleId := "tfIamCustomRole" + acctest.RandString(10)
+	roleId := "tfIamCustomRole" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleOrganizationIamCustomRoleDestroy,
+		CheckDestroy: testAccCheckGoogleOrganizationIamCustomRoleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleOrganizationIamCustomRole_basic(org, roleId),
-				Check:  testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus("google_organization_iam_custom_role.foo", false),
+				Check:  testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus(t, "google_organization_iam_custom_role.foo", false),
 			},
 			// Soft-delete
 			{
 				Config:  testAccCheckGoogleOrganizationIamCustomRole_basic(org, roleId),
-				Check:   testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus("google_organization_iam_custom_role.foo", true),
+				Check:   testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus(t, "google_organization_iam_custom_role.foo", true),
 				Destroy: true,
 			},
 			// Undelete
 			{
 				Config: testAccCheckGoogleOrganizationIamCustomRole_basic(org, roleId),
-				Check:  testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus("google_organization_iam_custom_role.foo", false),
+				Check:  testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus(t, "google_organization_iam_custom_role.foo", false),
 			},
 		},
 	})
@@ -83,16 +84,17 @@ func TestAccOrganizationIamCustomRole_createAfterDestroy(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	roleId := "tfIamCustomRole" + acctest.RandString(10)
+	roleId := "tfIamCustomRole" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleOrganizationIamCustomRoleDestroy,
+		CheckDestroy: testAccCheckGoogleOrganizationIamCustomRoleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleOrganizationIamCustomRole_basic(org, roleId),
 				Check: testAccCheckGoogleOrganizationIamCustomRole(
+					t,
 					"google_organization_iam_custom_role.foo",
 					"My Custom Role",
 					"foo",
@@ -108,6 +110,7 @@ func TestAccOrganizationIamCustomRole_createAfterDestroy(t *testing.T) {
 			{
 				Config: testAccCheckGoogleOrganizationIamCustomRole_basic(org, roleId),
 				Check: testAccCheckGoogleOrganizationIamCustomRole(
+					t,
 					"google_organization_iam_custom_role.foo",
 					"My Custom Role",
 					"foo",
@@ -118,30 +121,32 @@ func TestAccOrganizationIamCustomRole_createAfterDestroy(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleOrganizationIamCustomRoleDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckGoogleOrganizationIamCustomRoleDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_organization_iam_custom_role" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_organization_iam_custom_role" {
+				continue
+			}
+
+			role, err := config.clientIAM.Organizations.Roles.Get(rs.Primary.ID).Do()
+
+			if err != nil {
+				return err
+			}
+
+			if !role.Deleted {
+				return fmt.Errorf("Iam custom role still exists")
+			}
+
 		}
 
-		role, err := config.clientIAM.Organizations.Roles.Get(rs.Primary.ID).Do()
-
-		if err != nil {
-			return err
-		}
-
-		if !role.Deleted {
-			return fmt.Errorf("Iam custom role still exists")
-		}
-
+		return nil
 	}
-
-	return nil
 }
 
-func testAccCheckGoogleOrganizationIamCustomRole(n, title, description, stage string, permissions []string) resource.TestCheckFunc {
+func testAccCheckGoogleOrganizationIamCustomRole(t *testing.T, n, title, description, stage string, permissions []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -152,7 +157,7 @@ func testAccCheckGoogleOrganizationIamCustomRole(n, title, description, stage st
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		role, err := config.clientIAM.Organizations.Roles.Get(rs.Primary.ID).Do()
 
 		if err != nil {
@@ -181,7 +186,7 @@ func testAccCheckGoogleOrganizationIamCustomRole(n, title, description, stage st
 	}
 }
 
-func testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus(n string, deleted bool) resource.TestCheckFunc {
+func testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus(t *testing.T, n string, deleted bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -192,7 +197,7 @@ func testAccCheckGoogleOrganizationIamCustomRoleDeletionStatus(n string, deleted
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		role, err := config.clientIAM.Organizations.Roles.Get(rs.Primary.ID).Do()
 
 		if err != nil {

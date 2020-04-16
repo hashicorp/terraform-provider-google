@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/storage/v1"
@@ -54,13 +53,13 @@ func TestComposerImageVersionDiffSuppress(t *testing.T) {
 func TestAccComposerEnvironment_basic(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
 	subnetwork := network + "-1"
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroy,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_basic(envName, network, subnetwork),
@@ -89,7 +88,7 @@ func TestAccComposerEnvironment_basic(t *testing.T) {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_basic(envName, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
 	})
@@ -100,14 +99,14 @@ func TestAccComposerEnvironment_basic(t *testing.T) {
 func TestAccComposerEnvironment_update(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
 	subnetwork := network + "-1"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroy,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_basic(envName, network, subnetwork),
@@ -127,7 +126,7 @@ func TestAccComposerEnvironment_update(t *testing.T) {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_update(envName, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
 	})
@@ -137,14 +136,14 @@ func TestAccComposerEnvironment_update(t *testing.T) {
 func TestAccComposerEnvironment_private(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
 	subnetwork := network + "-1"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroy,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_private(envName, network, subnetwork),
@@ -167,7 +166,7 @@ func TestAccComposerEnvironment_private(t *testing.T) {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_private(envName, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
 	})
@@ -177,15 +176,15 @@ func TestAccComposerEnvironment_private(t *testing.T) {
 func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
 	subnetwork := network + "-1"
-	serviceAccount := acctest.RandomWithPrefix("tf-test")
+	serviceAccount := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroy,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_nodeCfg(envName, network, subnetwork, serviceAccount),
@@ -202,7 +201,7 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_nodeCfg(envName, network, subnetwork, serviceAccount),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
 	})
@@ -210,14 +209,14 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 
 func TestAccComposerEnvironment_withSoftwareConfig(t *testing.T) {
 	t.Parallel()
-	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
 	subnetwork := network + "-1"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroy,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_softwareCfg(envName, network, subnetwork),
@@ -234,7 +233,7 @@ func TestAccComposerEnvironment_withSoftwareConfig(t *testing.T) {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_softwareCfg(envName, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
 	})
@@ -245,14 +244,14 @@ func TestAccComposerEnvironment_withSoftwareConfig(t *testing.T) {
 func TestAccComposerEnvironment_withUpdateOnCreate(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
 	subnetwork := network + "-1"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroy,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_updateOnlyFields(envName, network, subnetwork),
@@ -269,37 +268,39 @@ func TestAccComposerEnvironment_withUpdateOnCreate(t *testing.T) {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_updateOnlyFields(envName, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
 	})
 }
 
-func testAccComposerEnvironmentDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccComposerEnvironmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_composer_environment" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_composer_environment" {
+				continue
+			}
+
+			idTokens := strings.Split(rs.Primary.ID, "/")
+			if len(idTokens) != 6 {
+				return fmt.Errorf("Invalid ID %q, expected format projects/{project}/regions/{region}/environments/{environment}", rs.Primary.ID)
+			}
+			envName := &composerEnvironmentName{
+				Project:     idTokens[1],
+				Region:      idTokens[3],
+				Environment: idTokens[5],
+			}
+
+			_, err := config.clientComposer.Projects.Locations.Environments.Get(envName.resourceName()).Do()
+			if err == nil {
+				return fmt.Errorf("environment %s still exists", envName.resourceName())
+			}
 		}
 
-		idTokens := strings.Split(rs.Primary.ID, "/")
-		if len(idTokens) != 6 {
-			return fmt.Errorf("Invalid ID %q, expected format projects/{project}/regions/{region}/environments/{environment}", rs.Primary.ID)
-		}
-		envName := &composerEnvironmentName{
-			Project:     idTokens[1],
-			Region:      idTokens[3],
-			Environment: idTokens[5],
-		}
-
-		_, err := config.clientComposer.Projects.Locations.Environments.Get(envName.resourceName()).Do()
-		if err == nil {
-			return fmt.Errorf("environment %s still exists", envName.resourceName())
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccComposerEnvironment_basic(name, network, subnetwork string) string {
@@ -682,9 +683,9 @@ func testSweepComposerEnvironmentCleanUpBucket(config *Config, bucket *storage.B
 // but will not remove them when the Environment is deleted.
 //
 // Destroy test step for config with a network will fail unless we clean up the firewalls before.
-func testAccCheckClearComposerEnvironmentFirewalls(networkName string) resource.TestCheckFunc {
+func testAccCheckClearComposerEnvironmentFirewalls(t *testing.T, networkName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		config.Project = getTestProjectFromEnv()
 		network, err := config.clientCompute.Networks.Get(getTestProjectFromEnv(), networkName).Do()
 		if err != nil {

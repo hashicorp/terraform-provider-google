@@ -4,44 +4,43 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccComputeTargetSslProxy_update(t *testing.T) {
-	target := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
-	sslPolicy := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
-	cert1 := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
-	cert2 := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
-	backend1 := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
-	backend2 := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
-	hc := fmt.Sprintf("tssl-test-%s", acctest.RandString(10))
+	target := fmt.Sprintf("tssl-test-%s", randString(t, 10))
+	sslPolicy := fmt.Sprintf("tssl-test-%s", randString(t, 10))
+	cert1 := fmt.Sprintf("tssl-test-%s", randString(t, 10))
+	cert2 := fmt.Sprintf("tssl-test-%s", randString(t, 10))
+	backend1 := fmt.Sprintf("tssl-test-%s", randString(t, 10))
+	backend2 := fmt.Sprintf("tssl-test-%s", randString(t, 10))
+	hc := fmt.Sprintf("tssl-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeTargetSslProxyDestroy,
+		CheckDestroy: testAccCheckComputeTargetSslProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeTargetSslProxy_basic1(target, sslPolicy, cert1, backend1, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetSslProxy(
-						"google_compute_target_ssl_proxy.foobar", "NONE", cert1),
+						t, "google_compute_target_ssl_proxy.foobar", "NONE", cert1),
 				),
 			},
 			{
 				Config: testAccComputeTargetSslProxy_basic2(target, sslPolicy, cert1, cert2, backend1, backend2, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetSslProxy(
-						"google_compute_target_ssl_proxy.foobar", "PROXY_V1", cert2),
+						t, "google_compute_target_ssl_proxy.foobar", "PROXY_V1", cert2),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckComputeTargetSslProxy(n, proxyHeader, sslCert string) resource.TestCheckFunc {
+func testAccCheckComputeTargetSslProxy(t *testing.T, n, proxyHeader, sslCert string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -52,7 +51,7 @@ func testAccCheckComputeTargetSslProxy(n, proxyHeader, sslCert string) resource.
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
 		found, err := config.clientCompute.TargetSslProxies.Get(

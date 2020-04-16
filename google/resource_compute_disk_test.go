@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/compute/v1"
@@ -207,8 +206,8 @@ func TestAccComputeDisk_imageDiffSuppressPublicVendorsFamilyNames(t *testing.T) 
 func TestAccComputeDisk_timeout(t *testing.T) {
 	t.Parallel()
 
-	diskName := acctest.RandomWithPrefix("tf-test-disk")
-	resource.Test(t, resource.TestCase{
+	diskName := fmt.Sprintf("tf-test-disk-%d", randInt(t))
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -223,9 +222,9 @@ func TestAccComputeDisk_timeout(t *testing.T) {
 func TestAccComputeDisk_update(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -252,15 +251,15 @@ func TestAccComputeDisk_update(t *testing.T) {
 func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	firstDiskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	firstDiskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	snapshotName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	projectName := getTestProjectFromEnv()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroy,
+		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "self_link"),
@@ -285,21 +284,21 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 func TestAccComputeDisk_encryption(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	var disk compute.Disk
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroy,
+		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_encryption(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foobar", getTestProjectFromEnv(), &disk),
+						t, "google_compute_disk.foobar", getTestProjectFromEnv(), &disk),
 					testAccCheckEncryptionKey(
-						"google_compute_disk.foobar", &disk),
+						t, "google_compute_disk.foobar", &disk),
 				),
 			},
 		},
@@ -311,22 +310,22 @@ func TestAccComputeDisk_encryptionKMS(t *testing.T) {
 
 	kms := BootstrapKMSKey(t)
 	pid := getTestProjectFromEnv()
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	importID := fmt.Sprintf("%s/%s/%s", pid, "us-central1-a", diskName)
 	var disk compute.Disk
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroy,
+		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_encryptionKMS(pid, diskName, kms.CryptoKey.Name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
-						"google_compute_disk.foobar", pid, &disk),
+						t, "google_compute_disk.foobar", pid, &disk),
 					testAccCheckEncryptionKey(
-						"google_compute_disk.foobar", &disk),
+						t, "google_compute_disk.foobar", &disk),
 				),
 			},
 			{
@@ -342,13 +341,13 @@ func TestAccComputeDisk_encryptionKMS(t *testing.T) {
 func TestAccComputeDisk_deleteDetach(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroy,
+		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
@@ -377,14 +376,14 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	diskName2 := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	mgrName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	diskName2 := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	mgrName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroy,
+		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName, mgrName),
@@ -428,7 +427,7 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeDiskExists(n, p string, disk *compute.Disk) resource.TestCheckFunc {
+func testAccCheckComputeDiskExists(t *testing.T, n, p string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -439,7 +438,7 @@ func testAccCheckComputeDiskExists(n, p string, disk *compute.Disk) resource.Tes
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		found, err := config.clientCompute.Disks.Get(
 			p, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
@@ -457,7 +456,7 @@ func testAccCheckComputeDiskExists(n, p string, disk *compute.Disk) resource.Tes
 	}
 }
 
-func testAccCheckEncryptionKey(n string, disk *compute.Disk) resource.TestCheckFunc {
+func testAccCheckEncryptionKey(t *testing.T, n string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {

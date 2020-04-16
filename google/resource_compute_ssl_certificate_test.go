@@ -11,16 +11,16 @@ import (
 func TestAccComputeSslCertificate_no_name(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSslCertificateDestroy,
+		CheckDestroy: testAccCheckComputeSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSslCertificate_no_name(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslCertificateExists(
-						"google_compute_ssl_certificate.foobar"),
+						t, "google_compute_ssl_certificate.foobar"),
 				),
 			},
 			{
@@ -33,7 +33,7 @@ func TestAccComputeSslCertificate_no_name(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeSslCertificateExists(n string) resource.TestCheckFunc {
+func testAccCheckComputeSslCertificateExists(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -44,7 +44,7 @@ func testAccCheckComputeSslCertificateExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		// We don't specify a name, but it is saved during create
 		name := rs.Primary.Attributes["name"]
 

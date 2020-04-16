@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,15 +11,15 @@ import (
 func TestAccInstanceGroupManager_basic(t *testing.T) {
 	t.Parallel()
 
-	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	target := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	igm1 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	igm2 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	template := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	target := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	igm1 := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	igm2 := fmt.Sprintf("igm-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_basic(template, target, igm1, igm2),
@@ -42,13 +41,13 @@ func TestAccInstanceGroupManager_basic(t *testing.T) {
 func TestAccInstanceGroupManager_targetSizeZero(t *testing.T) {
 	t.Parallel()
 
-	templateName := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	igmName := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	templateName := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	igmName := fmt.Sprintf("igm-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_targetSizeZero(templateName, igmName),
@@ -65,16 +64,16 @@ func TestAccInstanceGroupManager_targetSizeZero(t *testing.T) {
 func TestAccInstanceGroupManager_update(t *testing.T) {
 	t.Parallel()
 
-	template1 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	target1 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	target2 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	template2 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	template1 := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	target1 := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	target2 := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	template2 := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	igm := fmt.Sprintf("igm-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_update(template1, target1, igm),
@@ -101,12 +100,12 @@ func TestAccInstanceGroupManager_updateLifecycle(t *testing.T) {
 
 	tag1 := "tag1"
 	tag2 := "tag2"
-	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	igm := fmt.Sprintf("igm-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_updateLifecycle(tag1, igm),
@@ -131,12 +130,12 @@ func TestAccInstanceGroupManager_updateLifecycle(t *testing.T) {
 func TestAccInstanceGroupManager_updatePolicy(t *testing.T) {
 	t.Parallel()
 
-	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	igm := fmt.Sprintf("igm-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_rollingUpdatePolicy(igm),
@@ -178,13 +177,13 @@ func TestAccInstanceGroupManager_updatePolicy(t *testing.T) {
 func TestAccInstanceGroupManager_separateRegions(t *testing.T) {
 	t.Parallel()
 
-	igm1 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	igm2 := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	igm1 := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	igm2 := fmt.Sprintf("igm-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_separateRegions(igm1, igm2),
@@ -206,14 +205,14 @@ func TestAccInstanceGroupManager_separateRegions(t *testing.T) {
 func TestAccInstanceGroupManager_versions(t *testing.T) {
 	t.Parallel()
 
-	primaryTemplate := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	canaryTemplate := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	primaryTemplate := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	canaryTemplate := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	igm := fmt.Sprintf("igm-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_versions(primaryTemplate, canaryTemplate, igm),
@@ -230,15 +229,15 @@ func TestAccInstanceGroupManager_versions(t *testing.T) {
 func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 	t.Parallel()
 
-	template := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	target := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	igm := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
-	hck := fmt.Sprintf("igm-test-%s", acctest.RandString(10))
+	template := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	target := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	igm := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	hck := fmt.Sprintf("igm-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroy,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_autoHealingPolicies(template, target, igm, hck),
@@ -260,21 +259,23 @@ func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 	})
 }
 
-func testAccCheckInstanceGroupManagerDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckInstanceGroupManagerDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_instance_group_manager" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_instance_group_manager" {
+				continue
+			}
+			_, err := config.clientCompute.InstanceGroupManagers.Get(
+				config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
+			if err == nil {
+				return fmt.Errorf("InstanceGroupManager still exists")
+			}
 		}
-		_, err := config.clientCompute.InstanceGroupManagers.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
-		if err == nil {
-			return fmt.Errorf("InstanceGroupManager still exists")
-		}
+
+		return nil
 	}
-
-	return nil
 }
 
 func testAccInstanceGroupManager_basic(template, target, igm1, igm2 string) string {

@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -13,26 +12,26 @@ import (
 func TestAccBigQueryDatasetAccess_basic(t *testing.T) {
 	t.Parallel()
 
-	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	saID := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	saID := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	expected := map[string]interface{}{
 		"role":        "OWNER",
 		"userByEmail": fmt.Sprintf("%s@%s.iam.gserviceaccount.com", saID, getTestProjectFromEnv()),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryDatasetAccess_basic(datasetID, saID),
-				Check:  testAccCheckBigQueryDatasetAccessPresent("google_bigquery_dataset.dataset", expected),
+				Check:  testAccCheckBigQueryDatasetAccessPresent(t, "google_bigquery_dataset.dataset", expected),
 			},
 			{
 				// Destroy step instead of CheckDestroy so we can check the access is removed without deleting the dataset
 				Config: testAccBigQueryDatasetAccess_destroy(datasetID, "dataset"),
-				Check:  testAccCheckBigQueryDatasetAccessAbsent("google_bigquery_dataset.dataset", expected),
+				Check:  testAccCheckBigQueryDatasetAccessAbsent(t, "google_bigquery_dataset.dataset", expected),
 			},
 		},
 	})
@@ -41,9 +40,9 @@ func TestAccBigQueryDatasetAccess_basic(t *testing.T) {
 func TestAccBigQueryDatasetAccess_view(t *testing.T) {
 	t.Parallel()
 
-	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	datasetID2 := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	datasetID2 := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
 
 	expected := map[string]interface{}{
 		"view": map[string]interface{}{
@@ -53,17 +52,17 @@ func TestAccBigQueryDatasetAccess_view(t *testing.T) {
 		},
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryDatasetAccess_view(datasetID, datasetID2, tableID),
-				Check:  testAccCheckBigQueryDatasetAccessPresent("google_bigquery_dataset.private", expected),
+				Check:  testAccCheckBigQueryDatasetAccessPresent(t, "google_bigquery_dataset.private", expected),
 			},
 			{
 				Config: testAccBigQueryDatasetAccess_destroy(datasetID, "private"),
-				Check:  testAccCheckBigQueryDatasetAccessAbsent("google_bigquery_dataset.private", expected),
+				Check:  testAccCheckBigQueryDatasetAccessAbsent(t, "google_bigquery_dataset.private", expected),
 			},
 		},
 	})
@@ -72,7 +71,7 @@ func TestAccBigQueryDatasetAccess_view(t *testing.T) {
 func TestAccBigQueryDatasetAccess_multiple(t *testing.T) {
 	t.Parallel()
 
-	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
 
 	expected1 := map[string]interface{}{
 		"role":   "WRITER",
@@ -84,45 +83,45 @@ func TestAccBigQueryDatasetAccess_multiple(t *testing.T) {
 		"specialGroup": "projectWriters",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryDatasetAccess_multiple(datasetID),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBigQueryDatasetAccessPresent("google_bigquery_dataset.dataset", expected1),
-					testAccCheckBigQueryDatasetAccessPresent("google_bigquery_dataset.dataset", expected2),
+					testAccCheckBigQueryDatasetAccessPresent(t, "google_bigquery_dataset.dataset", expected1),
+					testAccCheckBigQueryDatasetAccessPresent(t, "google_bigquery_dataset.dataset", expected2),
 				),
 			},
 			{
 				// Destroy step instead of CheckDestroy so we can check the access is removed without deleting the dataset
 				Config: testAccBigQueryDatasetAccess_destroy(datasetID, "dataset"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBigQueryDatasetAccessAbsent("google_bigquery_dataset.dataset", expected1),
-					testAccCheckBigQueryDatasetAccessAbsent("google_bigquery_dataset.dataset", expected2),
+					testAccCheckBigQueryDatasetAccessAbsent(t, "google_bigquery_dataset.dataset", expected1),
+					testAccCheckBigQueryDatasetAccessAbsent(t, "google_bigquery_dataset.dataset", expected2),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckBigQueryDatasetAccessPresent(n string, expected map[string]interface{}) resource.TestCheckFunc {
-	return testAccCheckBigQueryDatasetAccess(n, expected, true)
+func testAccCheckBigQueryDatasetAccessPresent(t *testing.T, n string, expected map[string]interface{}) resource.TestCheckFunc {
+	return testAccCheckBigQueryDatasetAccess(t, n, expected, true)
 }
 
-func testAccCheckBigQueryDatasetAccessAbsent(n string, expected map[string]interface{}) resource.TestCheckFunc {
-	return testAccCheckBigQueryDatasetAccess(n, expected, false)
+func testAccCheckBigQueryDatasetAccessAbsent(t *testing.T, n string, expected map[string]interface{}) resource.TestCheckFunc {
+	return testAccCheckBigQueryDatasetAccess(t, n, expected, false)
 }
 
-func testAccCheckBigQueryDatasetAccess(n string, expected map[string]interface{}, expectPresent bool) resource.TestCheckFunc {
+func testAccCheckBigQueryDatasetAccess(t *testing.T, n string, expected map[string]interface{}, expectPresent bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		url, err := replaceVarsForTest(config, rs, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
 		if err != nil {
 			return err

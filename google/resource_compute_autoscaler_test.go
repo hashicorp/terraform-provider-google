@@ -4,22 +4,21 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccComputeAutoscaler_update(t *testing.T) {
 	t.Parallel()
 
-	var it_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))
-	var tp_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))
-	var igm_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))
-	var autoscaler_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))
+	var it_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
+	var tp_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
+	var igm_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
+	var autoscaler_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAutoscalerDestroy,
+		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name),
@@ -44,15 +43,15 @@ func TestAccComputeAutoscaler_update(t *testing.T) {
 func TestAccComputeAutoscaler_multicondition(t *testing.T) {
 	t.Parallel()
 
-	var it_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))
-	var tp_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))
-	var igm_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))
-	var autoscaler_name = fmt.Sprintf("autoscaler-test-%s", acctest.RandString(10))
+	var it_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
+	var tp_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
+	var igm_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
+	var autoscaler_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAutoscalerDestroy,
+		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAutoscaler_multicondition(it_name, tp_name, igm_name, autoscaler_name),

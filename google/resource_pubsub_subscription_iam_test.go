@@ -6,7 +6,6 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -14,25 +13,25 @@ import (
 func TestAccPubsubSubscriptionIamBinding(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + acctest.RandString(10)
-	subscription := "tf-test-sub-iam-" + acctest.RandString(10)
-	account := "tf-test-iam-" + acctest.RandString(10)
+	topic := "tf-test-topic-iam-" + randString(t, 10)
+	subscription := "tf-test-sub-iam-" + randString(t, 10)
+	account := "tf-test-iam-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
 				Config: testAccPubsubSubscriptionIamBinding_basic(subscription, topic, account),
-				Check: testAccCheckPubsubSubscriptionIam(subscription, "roles/pubsub.subscriber", []string{
+				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.subscriber", []string{
 					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
 			},
 			{
 				// Test IAM Binding update
 				Config: testAccPubsubSubscriptionIamBinding_update(subscription, topic, account),
-				Check: testAccCheckPubsubSubscriptionIam(subscription, "roles/pubsub.subscriber", []string{
+				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.subscriber", []string{
 					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
@@ -50,19 +49,19 @@ func TestAccPubsubSubscriptionIamBinding(t *testing.T) {
 func TestAccPubsubSubscriptionIamMember(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + acctest.RandString(10)
-	subscription := "tf-test-sub-iam-" + acctest.RandString(10)
-	account := "tf-test-iam-" + acctest.RandString(10)
+	topic := "tf-test-topic-iam-" + randString(t, 10)
+	subscription := "tf-test-sub-iam-" + randString(t, 10)
+	account := "tf-test-iam-" + randString(t, 10)
 	accountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv())
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccPubsubSubscriptionIamMember_basic(subscription, topic, account),
-				Check: testAccCheckPubsubSubscriptionIam(subscription, "roles/pubsub.subscriber", []string{
+				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.subscriber", []string{
 					fmt.Sprintf("serviceAccount:%s", accountEmail),
 				}),
 			},
@@ -79,23 +78,23 @@ func TestAccPubsubSubscriptionIamMember(t *testing.T) {
 func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + acctest.RandString(10)
-	subscription := "tf-test-sub-iam-" + acctest.RandString(10)
-	account := "tf-test-iam-" + acctest.RandString(10)
+	topic := "tf-test-topic-iam-" + randString(t, 10)
+	subscription := "tf-test-sub-iam-" + randString(t, 10)
+	account := "tf-test-iam-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscriptionIamPolicy_basic(subscription, topic, account, "roles/pubsub.subscriber"),
-				Check: testAccCheckPubsubSubscriptionIam(subscription, "roles/pubsub.subscriber", []string{
+				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.subscriber", []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
 			},
 			{
 				Config: testAccPubsubSubscriptionIamPolicy_basic(subscription, topic, account, "roles/pubsub.viewer"),
-				Check: testAccCheckPubsubSubscriptionIam(subscription, "roles/pubsub.viewer", []string{
+				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.viewer", []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
 			},
@@ -109,9 +108,9 @@ func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 	})
 }
 
-func testAccCheckPubsubSubscriptionIam(subscription, role string, members []string) resource.TestCheckFunc {
+func testAccCheckPubsubSubscriptionIam(t *testing.T, subscription, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		p, err := config.clientPubsub.Projects.Subscriptions.GetIamPolicy(getComputedSubscriptionName(getTestProjectFromEnv(), subscription)).Do()
 		if err != nil {
 			return err

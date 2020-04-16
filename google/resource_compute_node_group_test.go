@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -15,14 +14,14 @@ import (
 func TestAccComputeNodeGroup_updateNodeTemplate(t *testing.T) {
 	t.Parallel()
 
-	groupName := acctest.RandomWithPrefix("group-")
-	tmplPrefix := acctest.RandomWithPrefix("tmpl-")
+	groupName := fmt.Sprintf("group--%d", randInt(t))
+	tmplPrefix := fmt.Sprintf("tmpl--%d", randInt(t))
 
 	var timeCreated time.Time
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeNodeGroupDestroy,
+		CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNodeGroup_updateNodeTemplate(groupName, tmplPrefix, "tmpl1"),

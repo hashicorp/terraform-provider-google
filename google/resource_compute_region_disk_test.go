@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	computeBeta "google.golang.org/api/compute/v0.beta"
@@ -14,20 +13,20 @@ import (
 func TestAccComputeRegionDisk_basic(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	var disk computeBeta.Disk
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionDiskDestroy,
+		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionDisk_basic(diskName, "self_link"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
-						"google_compute_region_disk.regiondisk", &disk),
+						t, "google_compute_region_disk.regiondisk", &disk),
 				),
 			},
 			{
@@ -39,7 +38,7 @@ func TestAccComputeRegionDisk_basic(t *testing.T) {
 				Config: testAccComputeRegionDisk_basic(diskName, "name"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
-						"google_compute_region_disk.regiondisk", &disk),
+						t, "google_compute_region_disk.regiondisk", &disk),
 				),
 			},
 			{
@@ -54,20 +53,20 @@ func TestAccComputeRegionDisk_basic(t *testing.T) {
 func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	var disk computeBeta.Disk
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionDiskDestroy,
+		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionDisk_basic(diskName, "self_link"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
-						"google_compute_region_disk.regiondisk", &disk),
+						t, "google_compute_region_disk.regiondisk", &disk),
 				),
 			},
 			{
@@ -79,7 +78,7 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 				Config: testAccComputeRegionDisk_basicUpdated(diskName, "self_link"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
-						"google_compute_region_disk.regiondisk", &disk),
+						t, "google_compute_region_disk.regiondisk", &disk),
 					resource.TestCheckResourceAttr("google_compute_region_disk.regiondisk", "size", "100"),
 					testAccCheckComputeRegionDiskHasLabel(&disk, "my-label", "my-updated-label-value"),
 					testAccCheckComputeRegionDiskHasLabel(&disk, "a-new-label", "a-new-label-value"),
@@ -98,19 +97,19 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 func TestAccComputeRegionDisk_encryption(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	var disk computeBeta.Disk
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionDiskDestroy,
+		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionDisk_encryption(diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
-						"google_compute_region_disk.regiondisk", &disk),
+						t, "google_compute_region_disk.regiondisk", &disk),
 					testAccCheckRegionDiskEncryptionKey(
 						"google_compute_region_disk.regiondisk", &disk),
 				),
@@ -122,22 +121,22 @@ func TestAccComputeRegionDisk_encryption(t *testing.T) {
 func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	regionDiskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	regionDiskName2 := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	regionDiskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	regionDiskName2 := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	var disk computeBeta.Disk
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRegionDiskDestroy,
+		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionDisk_deleteDetach(instanceName, diskName, regionDiskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
-						"google_compute_region_disk.regiondisk", &disk),
+						t, "google_compute_region_disk.regiondisk", &disk),
 				),
 			},
 			// this needs to be an additional step so we refresh and see the instance
@@ -148,7 +147,7 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 				Config: testAccComputeRegionDisk_deleteDetach(instanceName, diskName, regionDiskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
-						"google_compute_region_disk.regiondisk", &disk),
+						t, "google_compute_region_disk.regiondisk", &disk),
 					testAccCheckComputeRegionDiskInstances(
 						"google_compute_region_disk.regiondisk", &disk),
 				),
@@ -158,7 +157,7 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 				Config: testAccComputeRegionDisk_deleteDetach(instanceName, diskName, regionDiskName2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
-						"google_compute_region_disk.regiondisk", &disk),
+						t, "google_compute_region_disk.regiondisk", &disk),
 				),
 			},
 			// Add the extra step like before
@@ -166,7 +165,7 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 				Config: testAccComputeRegionDisk_deleteDetach(instanceName, diskName, regionDiskName2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionDiskExists(
-						"google_compute_region_disk.regiondisk", &disk),
+						t, "google_compute_region_disk.regiondisk", &disk),
 					testAccCheckComputeRegionDiskInstances(
 						"google_compute_region_disk.regiondisk", &disk),
 				),
@@ -175,7 +174,7 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeRegionDiskExists(n string, disk *computeBeta.Disk) resource.TestCheckFunc {
+func testAccCheckComputeRegionDiskExists(t *testing.T, n string, disk *computeBeta.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		p := getTestProjectFromEnv()
 		rs, ok := s.RootModule().Resources[n]
@@ -187,7 +186,7 @@ func testAccCheckComputeRegionDiskExists(n string, disk *computeBeta.Disk) resou
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		found, err := config.clientComputeBeta.RegionDisks.Get(
 			p, rs.Primary.Attributes["region"], rs.Primary.Attributes["name"]).Do()

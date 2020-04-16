@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -14,12 +13,12 @@ import (
 func TestAccBigtableInstance_basic(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigtableInstanceDestroy,
+		CheckDestroy: testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccBigtableInstance_invalid(instanceName),
@@ -50,12 +49,12 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 func TestAccBigtableInstance_cluster(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigtableInstanceDestroy,
+		CheckDestroy: testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccBigtableInstance_clusterMax(instanceName),
@@ -104,12 +103,12 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 func TestAccBigtableInstance_development(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigtableInstanceDestroy,
+		CheckDestroy: testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableInstance_development(instanceName),
@@ -124,28 +123,30 @@ func TestAccBigtableInstance_development(t *testing.T) {
 	})
 }
 
-func testAccCheckBigtableInstanceDestroy(s *terraform.State) error {
-	var ctx = context.Background()
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_bigtable_instance" {
-			continue
+func testAccCheckBigtableInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		var ctx = context.Background()
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_bigtable_instance" {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+			c, err := config.bigtableClientFactory.NewInstanceAdminClient(config.Project)
+			if err != nil {
+				return fmt.Errorf("Error starting instance admin client. %s", err)
+			}
+
+			defer c.Close()
+
+			_, err = c.InstanceInfo(ctx, rs.Primary.Attributes["name"])
+			if err == nil {
+				return fmt.Errorf("Instance %s still exists.", rs.Primary.Attributes["name"])
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-		c, err := config.bigtableClientFactory.NewInstanceAdminClient(config.Project)
-		if err != nil {
-			return fmt.Errorf("Error starting instance admin client. %s", err)
-		}
-
-		defer c.Close()
-
-		_, err = c.InstanceInfo(ctx, rs.Primary.Attributes["name"])
-		if err == nil {
-			return fmt.Errorf("Instance %s still exists.", rs.Primary.Attributes["name"])
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccBigtableInstance(instanceName string, numNodes int) string {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -12,14 +11,14 @@ func TestAccSpannerDatabase_basic(t *testing.T) {
 	t.Parallel()
 
 	project := getTestProjectFromEnv()
-	rnd := acctest.RandString(10)
+	rnd := randString(t, 10)
 	instanceName := fmt.Sprintf("my-instance-%s", rnd)
 	databaseName := fmt.Sprintf("mydb_%s", rnd)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSpannerDatabaseDestroy,
+		CheckDestroy: testAccCheckSpannerDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerDatabase_basic(instanceName, databaseName),

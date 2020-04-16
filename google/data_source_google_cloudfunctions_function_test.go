@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -13,15 +12,15 @@ func TestAccDataSourceGoogleCloudFunctionsFunction_basic(t *testing.T) {
 	t.Parallel()
 
 	funcDataNameHttp := "data.google_cloudfunctions_function.function_http"
-	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	functionName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", randInt(t))
 	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
 	defer os.Remove(zipFilePath) // clean up
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroy,
+		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleCloudFunctionsFunctionConfig(functionName,

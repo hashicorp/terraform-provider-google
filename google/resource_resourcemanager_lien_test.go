@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	resourceManager "google.golang.org/api/cloudresourcemanager/v1"
@@ -14,20 +13,20 @@ import (
 func TestAccResourceManagerLien_basic(t *testing.T) {
 	t.Parallel()
 
-	projectName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	projectName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	org := getTestOrgFromEnv(t)
 	var lien resourceManager.Lien
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckResourceManagerLienDestroy,
+		CheckDestroy: testAccCheckResourceManagerLienDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceManagerLien_basic(projectName, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckResourceManagerLienExists(
-						"google_resource_manager_lien.lien", projectName, &lien),
+						t, "google_resource_manager_lien.lien", projectName, &lien),
 				),
 			},
 			{
@@ -46,7 +45,7 @@ func TestAccResourceManagerLien_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckResourceManagerLienExists(n, projectName string, lien *resourceManager.Lien) resource.TestCheckFunc {
+func testAccCheckResourceManagerLienExists(t *testing.T, n, projectName string, lien *resourceManager.Lien) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -57,7 +56,7 @@ func testAccCheckResourceManagerLienExists(n, projectName string, lien *resource
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		found, err := config.clientResourceManager.Liens.List().Parent(fmt.Sprintf("projects/%s", projectName)).Do()
 		if err != nil {
@@ -73,21 +72,23 @@ func testAccCheckResourceManagerLienExists(n, projectName string, lien *resource
 	}
 }
 
-func testAccCheckResourceManagerLienDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckResourceManagerLienDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_resource_manager_lien" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_resource_manager_lien" {
+				continue
+			}
+
+			_, err := config.clientResourceManager.Liens.List().Parent(fmt.Sprintf("projects/%s", rs.Primary.Attributes["parent"])).Do()
+			if err == nil {
+				return fmt.Errorf("Lien %s still exists", rs.Primary.ID)
+			}
 		}
 
-		_, err := config.clientResourceManager.Liens.List().Parent(fmt.Sprintf("projects/%s", rs.Primary.Attributes["parent"])).Do()
-		if err == nil {
-			return fmt.Errorf("Lien %s still exists", rs.Primary.ID)
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccResourceManagerLien_basic(projectName, org string) string {

@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -16,12 +15,12 @@ import (
 func TestAccDataSourceGoogleComputeInstanceGroup_basic(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckDataSourceGoogleComputeInstanceGroupConfig(),
+				Config: testAccCheckDataSourceGoogleComputeInstanceGroupConfig(randString(t, 10), randString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataSourceGoogleComputeInstanceGroup("data.google_compute_instance_group.test"),
 				),
@@ -33,12 +32,12 @@ func TestAccDataSourceGoogleComputeInstanceGroup_basic(t *testing.T) {
 func TestAccDataSourceGoogleComputeInstanceGroup_withNamedPort(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckDataSourceGoogleComputeInstanceGroupConfigWithNamedPort(),
+				Config: testAccCheckDataSourceGoogleComputeInstanceGroupConfigWithNamedPort(randString(t, 10), randString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataSourceGoogleComputeInstanceGroup("data.google_compute_instance_group.test"),
 				),
@@ -50,12 +49,12 @@ func TestAccDataSourceGoogleComputeInstanceGroup_withNamedPort(t *testing.T) {
 func TestAccDataSourceGoogleComputeInstanceGroup_fromIGM(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckDataSourceGoogleComputeInstanceGroup_fromIGM(),
+				Config: testAccCheckDataSourceGoogleComputeInstanceGroup_fromIGM(fmt.Sprintf("test-igm-%d", randInt(t)), fmt.Sprintf("test-igm-%d", randInt(t))),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_compute_instance_group.test", "instances.#", "10"),
 				),
@@ -196,7 +195,7 @@ func testAccCheckDataSourceGoogleComputeInstanceGroup(dataSourceName string) res
 	}
 }
 
-func testAccCheckDataSourceGoogleComputeInstanceGroupConfig() string {
+func testAccCheckDataSourceGoogleComputeInstanceGroupConfig(instanceName, igName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
@@ -236,10 +235,10 @@ data "google_compute_instance_group" "test" {
   name = google_compute_instance_group.test.name
   zone = google_compute_instance_group.test.zone
 }
-`, acctest.RandString(10), acctest.RandString(10))
+`, instanceName, igName)
 }
 
-func testAccCheckDataSourceGoogleComputeInstanceGroupConfigWithNamedPort() string {
+func testAccCheckDataSourceGoogleComputeInstanceGroupConfigWithNamedPort(instanceName, igName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
@@ -289,10 +288,10 @@ data "google_compute_instance_group" "test" {
   name = google_compute_instance_group.test.name
   zone = google_compute_instance_group.test.zone
 }
-`, acctest.RandString(10), acctest.RandString(10))
+`, instanceName, igName)
 }
 
-func testAccCheckDataSourceGoogleComputeInstanceGroup_fromIGM() string {
+func testAccCheckDataSourceGoogleComputeInstanceGroup_fromIGM(igmName, secondIgmName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
@@ -330,5 +329,5 @@ resource "google_compute_instance_group_manager" "igm" {
 data "google_compute_instance_group" "test" {
   self_link = google_compute_instance_group_manager.igm.instance_group
 }
-`, acctest.RandomWithPrefix("test-igm"), acctest.RandomWithPrefix("test-igm"))
+`, igmName, secondIgmName)
 }

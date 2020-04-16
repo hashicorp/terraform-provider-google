@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,22 +11,22 @@ import (
 func TestAccComputeTargetHttpProxy_update(t *testing.T) {
 	t.Parallel()
 
-	target := fmt.Sprintf("thttp-test-%s", acctest.RandString(10))
-	backend := fmt.Sprintf("thttp-test-%s", acctest.RandString(10))
-	hc := fmt.Sprintf("thttp-test-%s", acctest.RandString(10))
-	urlmap1 := fmt.Sprintf("thttp-test-%s", acctest.RandString(10))
-	urlmap2 := fmt.Sprintf("thttp-test-%s", acctest.RandString(10))
+	target := fmt.Sprintf("thttp-test-%s", randString(t, 10))
+	backend := fmt.Sprintf("thttp-test-%s", randString(t, 10))
+	hc := fmt.Sprintf("thttp-test-%s", randString(t, 10))
+	urlmap1 := fmt.Sprintf("thttp-test-%s", randString(t, 10))
+	urlmap2 := fmt.Sprintf("thttp-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeTargetHttpProxyDestroy,
+		CheckDestroy: testAccCheckComputeTargetHttpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeTargetHttpProxy_basic1(target, backend, hc, urlmap1, urlmap2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetHttpProxyExists(
-						"google_compute_target_http_proxy.foobar"),
+						t, "google_compute_target_http_proxy.foobar"),
 				),
 			},
 
@@ -35,14 +34,14 @@ func TestAccComputeTargetHttpProxy_update(t *testing.T) {
 				Config: testAccComputeTargetHttpProxy_basic2(target, backend, hc, urlmap1, urlmap2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetHttpProxyExists(
-						"google_compute_target_http_proxy.foobar"),
+						t, "google_compute_target_http_proxy.foobar"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckComputeTargetHttpProxyExists(n string) resource.TestCheckFunc {
+func testAccCheckComputeTargetHttpProxyExists(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -53,7 +52,7 @@ func testAccCheckComputeTargetHttpProxyExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
 		found, err := config.clientCompute.TargetHttpProxies.Get(

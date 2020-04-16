@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,16 +11,16 @@ import (
 func TestAccComputeRouterPeer_basic(t *testing.T) {
 	t.Parallel()
 
-	testId := acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
+	testId := randString(t, 10)
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouterPeerDestroy,
+		CheckDestroy: testAccCheckComputeRouterPeerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterPeerBasic(testId),
 				Check: testAccCheckComputeRouterPeerExists(
-					"google_compute_router_peer.foobar"),
+					t, "google_compute_router_peer.foobar"),
 			},
 			{
 				ResourceName:      "google_compute_router_peer.foobar",
@@ -31,7 +30,7 @@ func TestAccComputeRouterPeer_basic(t *testing.T) {
 			{
 				Config: testAccComputeRouterPeerKeepRouter(testId),
 				Check: testAccCheckComputeRouterPeerDelete(
-					"google_compute_router_peer.foobar"),
+					t, "google_compute_router_peer.foobar"),
 			},
 		},
 	})
@@ -40,16 +39,16 @@ func TestAccComputeRouterPeer_basic(t *testing.T) {
 func TestAccComputeRouterPeer_advertiseMode(t *testing.T) {
 	t.Parallel()
 
-	testId := acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
+	testId := randString(t, 10)
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouterPeerDestroy,
+		CheckDestroy: testAccCheckComputeRouterPeerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterPeerAdvertiseMode(testId),
 				Check: testAccCheckComputeRouterPeerExists(
-					"google_compute_router_peer.foobar"),
+					t, "google_compute_router_peer.foobar"),
 			},
 			{
 				ResourceName:      "google_compute_router_peer.foobar",
@@ -60,42 +59,44 @@ func TestAccComputeRouterPeer_advertiseMode(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeRouterPeerDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckComputeRouterPeerDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	routersService := config.clientCompute.Routers
+		routersService := config.clientCompute.Routers
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_router" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_router" {
+				continue
+			}
+
+			project, err := getTestProject(rs.Primary, config)
+			if err != nil {
+				return err
+			}
+
+			region, err := getTestRegion(rs.Primary, config)
+			if err != nil {
+				return err
+			}
+
+			routerName := rs.Primary.Attributes["router"]
+
+			_, err = routersService.Get(project, region, routerName).Do()
+
+			if err == nil {
+				return fmt.Errorf("Error, Router %s in region %s still exists",
+					routerName, region)
+			}
 		}
 
-		project, err := getTestProject(rs.Primary, config)
-		if err != nil {
-			return err
-		}
-
-		region, err := getTestRegion(rs.Primary, config)
-		if err != nil {
-			return err
-		}
-
-		routerName := rs.Primary.Attributes["router"]
-
-		_, err = routersService.Get(project, region, routerName).Do()
-
-		if err == nil {
-			return fmt.Errorf("Error, Router %s in region %s still exists",
-				routerName, region)
-		}
+		return nil
 	}
-
-	return nil
 }
 
-func testAccCheckComputeRouterPeerDelete(n string) resource.TestCheckFunc {
+func testAccCheckComputeRouterPeerDelete(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		routersService := config.clientCompute.Routers
 
@@ -136,7 +137,7 @@ func testAccCheckComputeRouterPeerDelete(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckComputeRouterPeerExists(n string) resource.TestCheckFunc {
+func testAccCheckComputeRouterPeerExists(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -147,7 +148,7 @@ func testAccCheckComputeRouterPeerExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		project, err := getTestProject(rs.Primary, config)
 		if err != nil {

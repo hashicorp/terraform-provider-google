@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,13 +27,13 @@ func TestAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupExample(
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeGlobalNetworkEndpointGroupDestroy,
+		CheckDestroy: testAccCheckComputeGlobalNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupExample(context),
@@ -62,13 +61,13 @@ func TestAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupIpAddres
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeGlobalNetworkEndpointGroupDestroy,
+		CheckDestroy: testAccCheckComputeGlobalNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupIpAddressExample(context),
@@ -92,27 +91,29 @@ resource "google_compute_global_network_endpoint_group" "neg" {
 `, context)
 }
 
-func testAccCheckComputeGlobalNetworkEndpointGroupDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_global_network_endpoint_group" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckComputeGlobalNetworkEndpointGroupDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_global_network_endpoint_group" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("ComputeGlobalNetworkEndpointGroup still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeGlobalNetworkEndpointGroup still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

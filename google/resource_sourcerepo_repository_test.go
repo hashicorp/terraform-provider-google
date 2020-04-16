@@ -4,18 +4,17 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccSourceRepoRepository_basic(t *testing.T) {
 	t.Parallel()
 
-	repositoryName := fmt.Sprintf("source-repo-repository-test-%s", acctest.RandString(10))
-	resource.Test(t, resource.TestCase{
+	repositoryName := fmt.Sprintf("source-repo-repository-test-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroy,
+		CheckDestroy: testAccCheckSourceRepoRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSourceRepoRepository_basic(repositoryName),
@@ -32,13 +31,13 @@ func TestAccSourceRepoRepository_basic(t *testing.T) {
 func TestAccSourceRepoRepository_update(t *testing.T) {
 	t.Parallel()
 
-	repositoryName := fmt.Sprintf("source-repo-repository-test-%s", acctest.RandString(10))
-	accountId := fmt.Sprintf("account-id-%s", acctest.RandString(10))
-	topicName := fmt.Sprintf("topic-name-%s", acctest.RandString(10))
-	resource.Test(t, resource.TestCase{
+	repositoryName := fmt.Sprintf("source-repo-repository-test-%s", randString(t, 10))
+	accountId := fmt.Sprintf("account-id-%s", randString(t, 10))
+	topicName := fmt.Sprintf("topic-name-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroy,
+		CheckDestroy: testAccCheckSourceRepoRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSourceRepoRepository_basic(repositoryName),

@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -29,13 +28,13 @@ func TestAccCloudRunService_cloudRunServiceBasicExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project":       getTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudRunServiceDestroy,
+		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunService_cloudRunServiceBasicExample(context),
@@ -77,13 +76,13 @@ func TestAccCloudRunService_cloudRunServiceSqlExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project":       getTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudRunServiceDestroy,
+		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunService_cloudRunServiceSqlExample(context),
@@ -137,13 +136,13 @@ func TestAccCloudRunService_cloudRunServiceNoauthExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project":       getTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudRunServiceDestroy,
+		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunService_cloudRunServiceNoauthExample(context),
@@ -197,13 +196,13 @@ func TestAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(t
 
 	context := map[string]interface{}{
 		"project":       getTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudRunServiceDestroy,
+		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(context),
@@ -249,27 +248,29 @@ resource "google_cloud_run_service" "default" {
 `, context)
 }
 
-func testAccCheckCloudRunServiceDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_cloud_run_service" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckCloudRunServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_cloud_run_service" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("CloudRunService still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("CloudRunService still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

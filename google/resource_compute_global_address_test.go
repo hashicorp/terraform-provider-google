@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
+		CheckDestroy: testAccCheckComputeGlobalAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeGlobalAddress_ipv6(),
+				Config: testAccComputeGlobalAddress_ipv6(randString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_global_address.foobar",
@@ -31,13 +30,13 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 func TestAccComputeGlobalAddress_internal(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeGlobalAddressDestroy,
+		CheckDestroy: testAccCheckComputeGlobalAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeGlobalAddress_internal(),
+				Config: testAccComputeGlobalAddress_internal(randString(t, 10), randString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_global_address.foobar",
@@ -48,17 +47,17 @@ func TestAccComputeGlobalAddress_internal(t *testing.T) {
 	})
 }
 
-func testAccComputeGlobalAddress_ipv6() string {
+func testAccComputeGlobalAddress_ipv6(addressName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_global_address" "foobar" {
   name        = "address-test-%s"
   description = "Created for Terraform acceptance testing"
   ip_version  = "IPV6"
 }
-`, acctest.RandString(10))
+`, addressName)
 }
 
-func testAccComputeGlobalAddress_internal() string {
+func testAccComputeGlobalAddress_internal(networkName, addressName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
   name = "address-test-%s"
@@ -72,5 +71,5 @@ resource "google_compute_global_address" "foobar" {
   address       = "172.20.181.0"
   network       = google_compute_network.foobar.self_link
 }
-`, acctest.RandString(10), acctest.RandString(10))
+`, networkName, addressName)
 }

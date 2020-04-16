@@ -10,7 +10,6 @@ import (
 
 	"google.golang.org/api/compute/v1"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -85,7 +84,7 @@ func TestAccComputeInstanceMigrateState(t *testing.T) {
 
 	config := getInitializedConfig(t)
 
-	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("instance-test-%s", randString(t, 10))
 	instance := &compute.Instance{
 		Name: instanceName,
 		Disks: []*compute.AttachedDisk{
@@ -157,7 +156,7 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 	zone := "us-central1-f"
 
 	// Seed test data
-	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("instance-test-%s", randString(t, 10))
 	instance := &compute.Instance{
 		Name: instanceName,
 		Disks: []*compute.AttachedDisk{
@@ -225,7 +224,7 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 	zone := "us-central1-f"
 
 	// Seed test data
-	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("instance-test-%s", randString(t, 10))
 	instance := &compute.Instance{
 		Name: instanceName,
 		Disks: []*compute.AttachedDisk{
@@ -292,7 +291,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 	zone := "us-central1-f"
 
 	// Seed test data
-	diskName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("instance-test-%s", randString(t, 10))
 	disk := &compute.Disk{
 		Name:        diskName,
 		SourceImage: "projects/debian-cloud/global/images/family/debian-9",
@@ -308,7 +307,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 	}
 	defer cleanUpDisk(config, diskName, zone)
 
-	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("instance-test-%s", randString(t, 10))
 	instance := &compute.Instance{
 		Name: instanceName,
 		Disks: []*compute.AttachedDisk{
@@ -373,7 +372,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 	zone := "us-central1-f"
 
 	// Seed test data
-	diskName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("instance-test-%s", randString(t, 10))
 	disk := &compute.Disk{
 		Name:        diskName,
 		SourceImage: "projects/debian-cloud/global/images/family/debian-9",
@@ -389,7 +388,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 	}
 	defer cleanUpDisk(config, diskName, zone)
 
-	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("instance-test-%s", randString(t, 10))
 	instance := &compute.Instance{
 		Name: instanceName,
 		Disks: []*compute.AttachedDisk{
@@ -452,7 +451,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
 
-	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("instance-test-%s", randString(t, 10))
 	instance := &compute.Instance{
 		Name: instanceName,
 		Disks: []*compute.AttachedDisk{
@@ -521,7 +520,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
 
-	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("instance-test-%s", randString(t, 10))
 	instance := &compute.Instance{
 		Name: instanceName,
 		Disks: []*compute.AttachedDisk{
@@ -589,7 +588,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
 
-	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("instance-test-%s", randString(t, 10))
 	instance := &compute.Instance{
 		Name: instanceName,
 		Disks: []*compute.AttachedDisk{
@@ -662,7 +661,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
 
-	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("instance-test-%s", randString(t, 10))
 	instance := &compute.Instance{
 		Name: instanceName,
 		Disks: []*compute.AttachedDisk{
@@ -735,7 +734,7 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 	zone := "us-central1-f"
 
 	// Seed test data
-	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("instance-test-%s", randString(t, 10))
 	instance := &compute.Instance{
 		Name: instanceName,
 		Disks: []*compute.AttachedDisk{
@@ -800,7 +799,7 @@ func TestAccComputeInstanceMigrateState_v4FixScratchDisk(t *testing.T) {
 	zone := "us-central1-f"
 
 	// Seed test data
-	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("instance-test-%s", randString(t, 10))
 	instance := &compute.Instance{
 		Name: instanceName,
 		Disks: []*compute.AttachedDisk{

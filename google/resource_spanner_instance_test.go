@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -51,11 +50,11 @@ func expectEquals(t *testing.T, expected, actual string) {
 func TestAccSpannerInstance_basic(t *testing.T) {
 	t.Parallel()
 
-	idName := fmt.Sprintf("spanner-test-%s", acctest.RandString(10))
-	resource.Test(t, resource.TestCase{
+	idName := fmt.Sprintf("spanner-test-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSpannerInstanceDestroy,
+		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerInstance_basic(idName),
@@ -75,11 +74,11 @@ func TestAccSpannerInstance_basic(t *testing.T) {
 func TestAccSpannerInstance_basicWithAutogenName(t *testing.T) {
 	t.Parallel()
 
-	displayName := fmt.Sprintf("spanner-test-%s-dname", acctest.RandString(10))
-	resource.Test(t, resource.TestCase{
+	displayName := fmt.Sprintf("spanner-test-%s-dname", randString(t, 10))
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSpannerInstanceDestroy,
+		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerInstance_basicWithAutogenName(displayName),
@@ -99,12 +98,12 @@ func TestAccSpannerInstance_basicWithAutogenName(t *testing.T) {
 func TestAccSpannerInstance_update(t *testing.T) {
 	t.Parallel()
 
-	dName1 := fmt.Sprintf("spanner-dname1-%s", acctest.RandString(10))
-	dName2 := fmt.Sprintf("spanner-dname2-%s", acctest.RandString(10))
-	resource.Test(t, resource.TestCase{
+	dName1 := fmt.Sprintf("spanner-dname1-%s", randString(t, 10))
+	dName2 := fmt.Sprintf("spanner-dname2-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSpannerInstanceDestroy,
+		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerInstance_update(dName1, 1, false),

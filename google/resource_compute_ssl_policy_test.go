@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	compute "google.golang.org/api/compute/v1"
@@ -14,18 +13,18 @@ func TestAccComputeSslPolicy_update(t *testing.T) {
 	t.Parallel()
 
 	var sslPolicy compute.SslPolicy
-	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", acctest.RandString(10))
+	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSslPolicyDestroy,
+		CheckDestroy: testAccCheckComputeSslPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSslUpdate1(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
-						"google_compute_ssl_policy.update", &sslPolicy),
+						t, "google_compute_ssl_policy.update", &sslPolicy),
 					resource.TestCheckResourceAttr(
 						"google_compute_ssl_policy.update", "profile", "MODERN"),
 					resource.TestCheckResourceAttr(
@@ -41,7 +40,7 @@ func TestAccComputeSslPolicy_update(t *testing.T) {
 				Config: testAccComputeSslUpdate2(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
-						"google_compute_ssl_policy.update", &sslPolicy),
+						t, "google_compute_ssl_policy.update", &sslPolicy),
 					resource.TestCheckResourceAttr(
 						"google_compute_ssl_policy.update", "profile", "RESTRICTED"),
 					resource.TestCheckResourceAttr(
@@ -61,18 +60,18 @@ func TestAccComputeSslPolicy_update_to_custom(t *testing.T) {
 	t.Parallel()
 
 	var sslPolicy compute.SslPolicy
-	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", acctest.RandString(10))
+	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSslPolicyDestroy,
+		CheckDestroy: testAccCheckComputeSslPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSslUpdate1(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
-						"google_compute_ssl_policy.update", &sslPolicy),
+						t, "google_compute_ssl_policy.update", &sslPolicy),
 					resource.TestCheckResourceAttr(
 						"google_compute_ssl_policy.update", "profile", "MODERN"),
 					resource.TestCheckResourceAttr(
@@ -88,7 +87,7 @@ func TestAccComputeSslPolicy_update_to_custom(t *testing.T) {
 				Config: testAccComputeSslUpdate3(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
-						"google_compute_ssl_policy.update", &sslPolicy),
+						t, "google_compute_ssl_policy.update", &sslPolicy),
 					resource.TestCheckResourceAttr(
 						"google_compute_ssl_policy.update", "profile", "CUSTOM"),
 					resource.TestCheckResourceAttr(
@@ -108,18 +107,18 @@ func TestAccComputeSslPolicy_update_from_custom(t *testing.T) {
 	t.Parallel()
 
 	var sslPolicy compute.SslPolicy
-	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", acctest.RandString(10))
+	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSslPolicyDestroy,
+		CheckDestroy: testAccCheckComputeSslPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSslUpdate3(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
-						"google_compute_ssl_policy.update", &sslPolicy),
+						t, "google_compute_ssl_policy.update", &sslPolicy),
 					resource.TestCheckResourceAttr(
 						"google_compute_ssl_policy.update", "profile", "CUSTOM"),
 					resource.TestCheckResourceAttr(
@@ -135,7 +134,7 @@ func TestAccComputeSslPolicy_update_from_custom(t *testing.T) {
 				Config: testAccComputeSslUpdate1(sslPolicyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSslPolicyExists(
-						"google_compute_ssl_policy.update", &sslPolicy),
+						t, "google_compute_ssl_policy.update", &sslPolicy),
 					resource.TestCheckResourceAttr(
 						"google_compute_ssl_policy.update", "profile", "MODERN"),
 					resource.TestCheckResourceAttr(
@@ -151,7 +150,7 @@ func TestAccComputeSslPolicy_update_from_custom(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeSslPolicyExists(n string, sslPolicy *compute.SslPolicy) resource.TestCheckFunc {
+func testAccCheckComputeSslPolicyExists(t *testing.T, n string, sslPolicy *compute.SslPolicy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -162,7 +161,7 @@ func testAccCheckComputeSslPolicyExists(n string, sslPolicy *compute.SslPolicy) 
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		project, err := getTestProject(rs.Primary, config)
 		if err != nil {

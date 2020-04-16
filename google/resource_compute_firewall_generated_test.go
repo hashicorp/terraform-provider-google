@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,13 +27,13 @@ func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroy,
+		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_firewallBasicExample(context),
@@ -72,27 +71,29 @@ resource "google_compute_network" "default" {
 `, context)
 }
 
-func testAccCheckComputeFirewallDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_firewall" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckComputeFirewallDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_firewall" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("ComputeFirewall still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeFirewall still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

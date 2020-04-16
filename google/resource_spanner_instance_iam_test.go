@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccSpannerInstanceIamBinding(t *testing.T) {
 	t.Parallel()
 
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	role := "roles/spanner.databaseAdmin"
 	project := getTestProjectFromEnv()
-	instance := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	instance := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -53,11 +52,11 @@ func TestAccSpannerInstanceIamMember(t *testing.T) {
 	t.Parallel()
 
 	project := getTestProjectFromEnv()
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	role := "roles/spanner.databaseAdmin"
-	instance := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	instance := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -82,11 +81,11 @@ func TestAccSpannerInstanceIamPolicy(t *testing.T) {
 	t.Parallel()
 
 	project := getTestProjectFromEnv()
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	role := "roles/spanner.databaseAdmin"
-	instance := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	instance := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

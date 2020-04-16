@@ -6,7 +6,6 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -15,26 +14,26 @@ func TestAccKmsCryptoKeyIamBinding(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
-	projectId := acctest.RandomWithPrefix("tf-test")
+	projectId := fmt.Sprintf("tf-test-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	roleId := "roles/cloudkms.cryptoKeyDecrypter"
-	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	keyRingName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	keyRingId := &kmsKeyRingId{
 		Project:  projectId,
 		Location: DEFAULT_KMS_TEST_LOCATION,
 		Name:     keyRingName,
 	}
-	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	cryptoKeyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
 				Config: testAccKmsCryptoKeyIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
-				Check: testAccCheckGoogleKmsCryptoKeyIamBindingExists("foo", roleId, []string{
+				Check: testAccCheckGoogleKmsCryptoKeyIamBindingExists(t, "foo", roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
@@ -47,7 +46,7 @@ func TestAccKmsCryptoKeyIamBinding(t *testing.T) {
 			{
 				// Test Iam Binding update
 				Config: testAccKmsCryptoKeyIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
-				Check: testAccCheckGoogleKmsCryptoKeyIamBindingExists("foo", roleId, []string{
+				Check: testAccCheckGoogleKmsCryptoKeyIamBindingExists(t, "foo", roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, projectId),
 				}),
@@ -66,26 +65,26 @@ func TestAccKmsCryptoKeyIamMember(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
-	projectId := acctest.RandomWithPrefix("tf-test")
+	projectId := fmt.Sprintf("tf-test-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
-	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	keyRingName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	keyRingId := &kmsKeyRingId{
 		Project:  projectId,
 		Location: DEFAULT_KMS_TEST_LOCATION,
 		Name:     keyRingName,
 	}
-	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	cryptoKeyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccKmsCryptoKeyIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
-				Check: testAccCheckGoogleKmsCryptoKeyIamMemberExists("foo", roleId,
+				Check: testAccCheckGoogleKmsCryptoKeyIamMemberExists(t, "foo", roleId,
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				),
 			},
@@ -103,26 +102,26 @@ func TestAccKmsCryptoKeyIamPolicy(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
-	projectId := acctest.RandomWithPrefix("tf-test")
+	projectId := fmt.Sprintf("tf-test-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
-	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	keyRingName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	keyRingId := &kmsKeyRingId{
 		Project:  projectId,
 		Location: DEFAULT_KMS_TEST_LOCATION,
 		Name:     keyRingName,
 	}
-	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	cryptoKeyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKmsCryptoKeyIamPolicy_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
-				Check: testAccCheckGoogleCryptoKmsKeyIam("foo", roleId, []string{
+				Check: testAccCheckGoogleCryptoKmsKeyIam(t, "foo", roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
@@ -136,14 +135,14 @@ func TestAccKmsCryptoKeyIamPolicy(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleKmsCryptoKeyIamBindingExists(bindingResourceName, roleId string, members []string) resource.TestCheckFunc {
+func testAccCheckGoogleKmsCryptoKeyIamBindingExists(t *testing.T, bindingResourceName, roleId string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		bindingRs, ok := s.RootModule().Resources[fmt.Sprintf("google_kms_crypto_key_iam_binding.%s", bindingResourceName)]
 		if !ok {
 			return fmt.Errorf("Not found: %s", bindingResourceName)
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		cryptoKeyId, err := parseKmsCryptoKeyId(bindingRs.Primary.Attributes["crypto_key_id"], config)
 
 		if err != nil {
@@ -172,14 +171,14 @@ func testAccCheckGoogleKmsCryptoKeyIamBindingExists(bindingResourceName, roleId 
 	}
 }
 
-func testAccCheckGoogleKmsCryptoKeyIamMemberExists(n, role, member string) resource.TestCheckFunc {
+func testAccCheckGoogleKmsCryptoKeyIamMemberExists(t *testing.T, n, role, member string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources["google_kms_crypto_key_iam_member."+n]
 		if !ok {
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		cryptoKeyId, err := parseKmsCryptoKeyId(rs.Primary.Attributes["crypto_key_id"], config)
 
 		if err != nil {
@@ -207,14 +206,14 @@ func testAccCheckGoogleKmsCryptoKeyIamMemberExists(n, role, member string) resou
 	}
 }
 
-func testAccCheckGoogleCryptoKmsKeyIam(n, role string, members []string) resource.TestCheckFunc {
+func testAccCheckGoogleCryptoKmsKeyIam(t *testing.T, n, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources["google_kms_crypto_key_iam_policy."+n]
 		if !ok {
 			return fmt.Errorf("IAM policy resource not found")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		cryptoKeyId, err := parseKmsCryptoKeyId(rs.Primary.Attributes["crypto_key_id"], config)
 
 		if err != nil {

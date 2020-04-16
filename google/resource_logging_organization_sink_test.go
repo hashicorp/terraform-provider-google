@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/logging/v2"
@@ -15,20 +14,20 @@ func TestAccLoggingOrganizationSink_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
 
 	var sink logging.LogSink
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingOrganizationSinkDestroy,
+		CheckDestroy: testAccCheckLoggingOrganizationSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingOrganizationSink_basic(sinkName, bucketName, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingOrganizationSinkExists("google_logging_organization_sink.basic", &sink),
+					testAccCheckLoggingOrganizationSinkExists(t, "google_logging_organization_sink.basic", &sink),
 					testAccCheckLoggingOrganizationSink(&sink, "google_logging_organization_sink.basic"),
 				),
 			}, {
@@ -44,27 +43,27 @@ func TestAccLoggingOrganizationSink_update(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
-	updatedBucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	updatedBucketName := "tf-test-sink-bucket-" + randString(t, 10)
 
 	var sinkBefore, sinkAfter logging.LogSink
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingOrganizationSinkDestroy,
+		CheckDestroy: testAccCheckLoggingOrganizationSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingOrganizationSink_update(sinkName, bucketName, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingOrganizationSinkExists("google_logging_organization_sink.update", &sinkBefore),
+					testAccCheckLoggingOrganizationSinkExists(t, "google_logging_organization_sink.update", &sinkBefore),
 					testAccCheckLoggingOrganizationSink(&sinkBefore, "google_logging_organization_sink.update"),
 				),
 			}, {
 				Config: testAccLoggingOrganizationSink_update(sinkName, updatedBucketName, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingOrganizationSinkExists("google_logging_organization_sink.update", &sinkAfter),
+					testAccCheckLoggingOrganizationSinkExists(t, "google_logging_organization_sink.update", &sinkAfter),
 					testAccCheckLoggingOrganizationSink(&sinkAfter, "google_logging_organization_sink.update"),
 				),
 			}, {
@@ -89,13 +88,13 @@ func TestAccLoggingOrganizationSink_updateBigquerySink(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bqDatasetID := "tf_test_sink_" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bqDatasetID := "tf_test_sink_" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingOrganizationSinkDestroy,
+		CheckDestroy: testAccCheckLoggingOrganizationSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingOrganizationSink_bigquery_before(sinkName, bqDatasetID, org),
@@ -121,20 +120,20 @@ func TestAccLoggingOrganizationSink_heredoc(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
 
 	var sink logging.LogSink
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingOrganizationSinkDestroy,
+		CheckDestroy: testAccCheckLoggingOrganizationSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingOrganizationSink_heredoc(sinkName, bucketName, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingOrganizationSinkExists("google_logging_organization_sink.heredoc", &sink),
+					testAccCheckLoggingOrganizationSinkExists(t, "google_logging_organization_sink.heredoc", &sink),
 					testAccCheckLoggingOrganizationSink(&sink, "google_logging_organization_sink.heredoc"),
 				),
 			}, {
@@ -146,32 +145,34 @@ func TestAccLoggingOrganizationSink_heredoc(t *testing.T) {
 	})
 }
 
-func testAccCheckLoggingOrganizationSinkDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckLoggingOrganizationSinkDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_logging_organization_sink" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_logging_organization_sink" {
+				continue
+			}
+
+			attributes := rs.Primary.Attributes
+
+			_, err := config.clientLogging.Organizations.Sinks.Get(attributes["id"]).Do()
+			if err == nil {
+				return fmt.Errorf("organization sink still exists")
+			}
 		}
 
-		attributes := rs.Primary.Attributes
-
-		_, err := config.clientLogging.Organizations.Sinks.Get(attributes["id"]).Do()
-		if err == nil {
-			return fmt.Errorf("organization sink still exists")
-		}
+		return nil
 	}
-
-	return nil
 }
 
-func testAccCheckLoggingOrganizationSinkExists(n string, sink *logging.LogSink) resource.TestCheckFunc {
+func testAccCheckLoggingOrganizationSinkExists(t *testing.T, n string, sink *logging.LogSink) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		attributes, err := getResourceAttributes(n, s)
 		if err != nil {
 			return err
 		}
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		si, err := config.clientLogging.Organizations.Sinks.Get(attributes["id"]).Do()
 		if err != nil {

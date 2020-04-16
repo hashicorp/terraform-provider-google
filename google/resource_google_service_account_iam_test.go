@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,15 +11,15 @@ import (
 func TestAccServiceAccountIamBinding(t *testing.T) {
 	t.Parallel()
 
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountIamBinding_basic(account),
-				Check:  testAccCheckGoogleServiceAccountIam(account, 1),
+				Check:  testAccCheckGoogleServiceAccountIam(t, account, 1),
 			},
 			{
 				ResourceName:      "google_service_account_iam_binding.foo",
@@ -35,16 +34,16 @@ func TestAccServiceAccountIamBinding(t *testing.T) {
 func TestAccServiceAccountIamMember(t *testing.T) {
 	t.Parallel()
 
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	identity := fmt.Sprintf("serviceAccount:%s", serviceAccountCanonicalEmail(account))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountIamMember_basic(account),
-				Check:  testAccCheckGoogleServiceAccountIam(account, 1),
+				Check:  testAccCheckGoogleServiceAccountIam(t, account, 1),
 			},
 			{
 				ResourceName:      "google_service_account_iam_member.foo",
@@ -59,9 +58,9 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 func TestAccServiceAccountIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -80,9 +79,9 @@ func TestAccServiceAccountIamPolicy(t *testing.T) {
 
 // Ensure that our tests only create the expected number of bindings.
 // The content of the binding is tested in the import tests.
-func testAccCheckGoogleServiceAccountIam(account string, numBindings int) resource.TestCheckFunc {
+func testAccCheckGoogleServiceAccountIam(t *testing.T, account string, numBindings int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		p, err := config.clientIAM.Projects.ServiceAccounts.GetIamPolicy(serviceAccountCanonicalId(account)).OptionsRequestedPolicyVersion(iamPolicyVersion).Do()
 		if err != nil {
 			return err

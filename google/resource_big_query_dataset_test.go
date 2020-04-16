@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/bigquery/v2"
@@ -13,12 +12,12 @@ import (
 func TestAccBigQueryDataset_basic(t *testing.T) {
 	t.Parallel()
 
-	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigQueryDatasetDestroy,
+		CheckDestroy: testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryDataset(datasetID),
@@ -43,17 +42,17 @@ func TestAccBigQueryDataset_basic(t *testing.T) {
 func TestAccBigQueryDataset_datasetWithContents(t *testing.T) {
 	t.Parallel()
 
-	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigQueryDatasetDestroy,
+		CheckDestroy: testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryDatasetDeleteContents(datasetID),
-				Check:  testAccAddTable(datasetID, tableID),
+				Check:  testAccAddTable(t, datasetID, tableID),
 			},
 			{
 				ResourceName:            "google_bigquery_dataset.contents_test",
@@ -68,14 +67,14 @@ func TestAccBigQueryDataset_datasetWithContents(t *testing.T) {
 func TestAccBigQueryDataset_access(t *testing.T) {
 	t.Parallel()
 
-	datasetID := fmt.Sprintf("tf_test_access_%s", acctest.RandString(10))
-	otherDatasetID := fmt.Sprintf("tf_test_other_%s", acctest.RandString(10))
-	otherTableID := fmt.Sprintf("tf_test_other_%s", acctest.RandString(10))
+	datasetID := fmt.Sprintf("tf_test_access_%s", randString(t, 10))
+	otherDatasetID := fmt.Sprintf("tf_test_other_%s", randString(t, 10))
+	otherTableID := fmt.Sprintf("tf_test_other_%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigQueryDatasetDestroy,
+		CheckDestroy: testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryDatasetWithOneAccess(datasetID),
@@ -116,12 +115,12 @@ func TestAccBigQueryDataset_access(t *testing.T) {
 func TestAccBigQueryDataset_regionalLocation(t *testing.T) {
 	t.Parallel()
 
-	datasetID1 := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	datasetID1 := fmt.Sprintf("tf_test_%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigQueryDatasetDestroy,
+		CheckDestroy: testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryRegionalDataset(datasetID1, "asia-south1"),
@@ -140,9 +139,9 @@ func TestAccBigQueryDataset_cmek(t *testing.T) {
 
 	kms := BootstrapKMSKeyInLocation(t, "us")
 	pid := getTestProjectFromEnv()
-	datasetID1 := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	datasetID1 := fmt.Sprintf("tf_test_%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -158,10 +157,10 @@ func TestAccBigQueryDataset_cmek(t *testing.T) {
 	})
 }
 
-func testAccAddTable(datasetID string, tableID string) resource.TestCheckFunc {
+func testAccAddTable(t *testing.T, datasetID string, tableID string) resource.TestCheckFunc {
 	// Not actually a check, but adds a table independently of terraform
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		table := &bigquery.Table{
 			TableReference: &bigquery.TableReference{
 				DatasetId: datasetID,

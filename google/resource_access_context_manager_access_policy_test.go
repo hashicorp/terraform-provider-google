@@ -100,10 +100,10 @@ func TestAccAccessContextManager(t *testing.T) {
 func testAccAccessContextManagerAccessPolicy_basicTest(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAccessContextManagerAccessPolicyDestroy,
+		CheckDestroy: testAccCheckAccessContextManagerAccessPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerAccessPolicy_basic(org, "my policy"),
@@ -125,26 +125,28 @@ func testAccAccessContextManagerAccessPolicy_basicTest(t *testing.T) {
 	})
 }
 
-func testAccCheckAccessContextManagerAccessPolicyDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_access_context_manager_access_policy" {
-			continue
+func testAccCheckAccessContextManagerAccessPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_access_context_manager_access_policy" {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("AccessPolicy still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("AccessPolicy still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccAccessContextManagerAccessPolicy_basic(org, title string) string {

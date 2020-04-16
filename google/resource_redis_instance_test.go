@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccRedisInstance_update(t *testing.T) {
 	t.Parallel()
 
-	name := acctest.RandomWithPrefix("tf-test")
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRedisInstanceDestroy,
+		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRedisInstance_update(name),
@@ -41,7 +40,7 @@ func TestAccRedisInstance_update(t *testing.T) {
 func TestAccRedisInstance_regionFromLocation(t *testing.T) {
 	t.Parallel()
 
-	name := acctest.RandomWithPrefix("tf-test")
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
 
 	// Pick a zone that isn't in the provider-specified region so we know we
 	// didn't fall back to that one.
@@ -52,10 +51,10 @@ func TestAccRedisInstance_regionFromLocation(t *testing.T) {
 		zone = "us-central1-a"
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRedisInstanceDestroy,
+		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRedisInstance_regionFromLocation(name, zone),

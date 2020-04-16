@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -26,12 +25,12 @@ func TestAccStorageBucketIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/storage.objectViewer",
 		"admin_role":    "roles/storage.admin",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -62,12 +61,12 @@ func TestAccStorageBucketIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/storage.objectViewer",
 		"admin_role":    "roles/storage.admin",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -89,13 +88,13 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/storage.objectViewer",
 		"admin_role":    "roles/storage.admin",
 	}
 	context["service_account"] = getTestServiceAccountFromEnv(t)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

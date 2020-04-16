@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/runtimeconfig/v1beta1"
@@ -14,19 +13,19 @@ func TestAccRuntimeconfigConfig_basic(t *testing.T) {
 	t.Parallel()
 
 	var runtimeConfig runtimeconfig.RuntimeConfig
-	configName := fmt.Sprintf("runtimeconfig-test-%s", acctest.RandString(10))
+	configName := fmt.Sprintf("runtimeconfig-test-%s", randString(t, 10))
 	description := "my test description"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRuntimeconfigConfigDestroy,
+		CheckDestroy: testAccCheckRuntimeconfigConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRuntimeconfigConfig_basicDescription(configName, description),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRuntimeConfigExists(
-						"google_runtimeconfig_config.foobar", &runtimeConfig),
+						t, "google_runtimeconfig_config.foobar", &runtimeConfig),
 					testAccCheckRuntimeConfigDescription(&runtimeConfig, description),
 				),
 			},
@@ -43,27 +42,27 @@ func TestAccRuntimeconfig_update(t *testing.T) {
 	t.Parallel()
 
 	var runtimeConfig runtimeconfig.RuntimeConfig
-	configName := fmt.Sprintf("runtimeconfig-test-%s", acctest.RandString(10))
+	configName := fmt.Sprintf("runtimeconfig-test-%s", randString(t, 10))
 	firstDescription := "my test description"
 	secondDescription := "my updated test description"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRuntimeconfigConfigDestroy,
+		CheckDestroy: testAccCheckRuntimeconfigConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRuntimeconfigConfig_basicDescription(configName, firstDescription),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRuntimeConfigExists(
-						"google_runtimeconfig_config.foobar", &runtimeConfig),
+						t, "google_runtimeconfig_config.foobar", &runtimeConfig),
 					testAccCheckRuntimeConfigDescription(&runtimeConfig, firstDescription),
 				),
 			}, {
 				Config: testAccRuntimeconfigConfig_basicDescription(configName, secondDescription),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRuntimeConfigExists(
-						"google_runtimeconfig_config.foobar", &runtimeConfig),
+						t, "google_runtimeconfig_config.foobar", &runtimeConfig),
 					testAccCheckRuntimeConfigDescription(&runtimeConfig, secondDescription),
 				),
 			},
@@ -75,26 +74,26 @@ func TestAccRuntimeconfig_updateEmptyDescription(t *testing.T) {
 	t.Parallel()
 
 	var runtimeConfig runtimeconfig.RuntimeConfig
-	configName := fmt.Sprintf("runtimeconfig-test-%s", acctest.RandString(10))
+	configName := fmt.Sprintf("runtimeconfig-test-%s", randString(t, 10))
 	description := "my test description"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRuntimeconfigConfigDestroy,
+		CheckDestroy: testAccCheckRuntimeconfigConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRuntimeconfigConfig_basicDescription(configName, description),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRuntimeConfigExists(
-						"google_runtimeconfig_config.foobar", &runtimeConfig),
+						t, "google_runtimeconfig_config.foobar", &runtimeConfig),
 					testAccCheckRuntimeConfigDescription(&runtimeConfig, description),
 				),
 			}, {
 				Config: testAccRuntimeconfigConfig_emptyDescription(configName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRuntimeConfigExists(
-						"google_runtimeconfig_config.foobar", &runtimeConfig),
+						t, "google_runtimeconfig_config.foobar", &runtimeConfig),
 					testAccCheckRuntimeConfigDescription(&runtimeConfig, ""),
 				),
 			},
@@ -112,7 +111,7 @@ func testAccCheckRuntimeConfigDescription(runtimeConfig *runtimeconfig.RuntimeCo
 	}
 }
 
-func testAccCheckRuntimeConfigExists(resourceName string, runtimeConfig *runtimeconfig.RuntimeConfig) resource.TestCheckFunc {
+func testAccCheckRuntimeConfigExists(t *testing.T, resourceName string, runtimeConfig *runtimeconfig.RuntimeConfig) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -123,7 +122,7 @@ func testAccCheckRuntimeConfigExists(resourceName string, runtimeConfig *runtime
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		found, err := config.clientRuntimeconfig.Projects.Configs.Get(rs.Primary.ID).Do()
 		if err != nil {
@@ -136,22 +135,24 @@ func testAccCheckRuntimeConfigExists(resourceName string, runtimeConfig *runtime
 	}
 }
 
-func testAccCheckRuntimeconfigConfigDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckRuntimeconfigConfigDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_runtimeconfig_config" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_runtimeconfig_config" {
+				continue
+			}
+
+			_, err := config.clientRuntimeconfig.Projects.Configs.Get(rs.Primary.ID).Do()
+
+			if err == nil {
+				return fmt.Errorf("Runtimeconfig still exists")
+			}
 		}
 
-		_, err := config.clientRuntimeconfig.Projects.Configs.Get(rs.Primary.ID).Do()
-
-		if err == nil {
-			return fmt.Errorf("Runtimeconfig still exists")
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccRuntimeconfigConfig_basicDescription(name, description string) string {

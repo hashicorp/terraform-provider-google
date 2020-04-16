@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -29,13 +28,13 @@ func TestAccCloudRunDomainMapping_cloudRunDomainMappingBasicExample(t *testing.T
 
 	context := map[string]interface{}{
 		"namespace":     getTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudRunDomainMappingDestroy,
+		CheckDestroy: testAccCheckCloudRunDomainMappingDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunDomainMapping_cloudRunDomainMappingBasicExample(context),
@@ -85,27 +84,29 @@ resource "google_cloud_run_domain_mapping" "default" {
 `, context)
 }
 
-func testAccCheckCloudRunDomainMappingDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_cloud_run_domain_mapping" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckCloudRunDomainMappingDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_cloud_run_domain_mapping" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("CloudRunDomainMapping still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("CloudRunDomainMapping still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

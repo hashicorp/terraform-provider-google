@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,12 +11,12 @@ import (
 func TestAccDataSourceGoogleSQLCaCerts_basic(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("data-ssl-ca-cert-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("data-ssl-ca-cert-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleSQLCaCertsConfig(instanceName),

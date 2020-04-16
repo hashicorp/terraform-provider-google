@@ -4,21 +4,20 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccComputeBackendBucket_basicModified(t *testing.T) {
 	t.Parallel()
 
-	backendName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	storageName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	secondStorageName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	backendName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	storageName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	secondStorageName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
+		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_basic(backendName, storageName),
@@ -44,13 +43,13 @@ func TestAccComputeBackendBucket_basicModified(t *testing.T) {
 func TestAccComputeBackendBucket_withCdnPolicy(t *testing.T) {
 	t.Parallel()
 
-	backendName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	storageName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	backendName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	storageName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
+		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_withCdnPolicy(backendName, storageName),

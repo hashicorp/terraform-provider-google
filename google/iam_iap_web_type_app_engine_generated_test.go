@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -26,13 +25,13 @@ func TestAccIapWebTypeAppEngineIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
-		"project_id":    fmt.Sprintf("tf-test%s", acctest.RandString(10)),
+		"project_id":    fmt.Sprintf("tf-test%s", randString(t, 10)),
 		"org_id":        getTestOrgFromEnv(t),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -63,13 +62,13 @@ func TestAccIapWebTypeAppEngineIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
-		"project_id":    fmt.Sprintf("tf-test%s", acctest.RandString(10)),
+		"project_id":    fmt.Sprintf("tf-test%s", randString(t, 10)),
 		"org_id":        getTestOrgFromEnv(t),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -91,13 +90,13 @@ func TestAccIapWebTypeAppEngineIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
-		"project_id":    fmt.Sprintf("tf-test%s", acctest.RandString(10)),
+		"project_id":    fmt.Sprintf("tf-test%s", randString(t, 10)),
 		"org_id":        getTestOrgFromEnv(t),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

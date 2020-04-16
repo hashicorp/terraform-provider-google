@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,17 +11,17 @@ import (
 func TestAccStorageTransferJob_basic(t *testing.T) {
 	t.Parallel()
 
-	testDataSourceBucketName := acctest.RandString(10)
-	testDataSinkName := acctest.RandString(10)
-	testTransferJobDescription := acctest.RandString(10)
-	testUpdatedDataSourceBucketName := acctest.RandString(10)
-	testUpdatedDataSinkBucketName := acctest.RandString(10)
-	testUpdatedTransferJobDescription := acctest.RandString(10)
+	testDataSourceBucketName := randString(t, 10)
+	testDataSinkName := randString(t, 10)
+	testTransferJobDescription := randString(t, 10)
+	testUpdatedDataSourceBucketName := randString(t, 10)
+	testUpdatedDataSinkBucketName := randString(t, 10)
+	testUpdatedTransferJobDescription := randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccStorageTransferJobDestroy,
+		CheckDestroy: testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageTransferJob_basic(getTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferJobDescription),
@@ -63,14 +62,14 @@ func TestAccStorageTransferJob_basic(t *testing.T) {
 func TestAccStorageTransferJob_omitScheduleEndDate(t *testing.T) {
 	t.Parallel()
 
-	testDataSourceBucketName := acctest.RandString(10)
-	testDataSinkName := acctest.RandString(10)
-	testTransferJobDescription := acctest.RandString(10)
+	testDataSourceBucketName := randString(t, 10)
+	testDataSinkName := randString(t, 10)
+	testTransferJobDescription := randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccStorageTransferJobDestroy,
+		CheckDestroy: testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageTransferJob_omitScheduleEndDate(getTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferJobDescription),
@@ -84,35 +83,37 @@ func TestAccStorageTransferJob_omitScheduleEndDate(t *testing.T) {
 	})
 }
 
-func testAccStorageTransferJobDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccStorageTransferJobDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_storage_transfer_job" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_storage_transfer_job" {
+				continue
+			}
+
+			rs_attr := rs.Primary.Attributes
+			name, ok := rs_attr["name"]
+			if !ok {
+				return fmt.Errorf("No name set")
+			}
+
+			project, err := getTestProject(rs.Primary, config)
+			if err != nil {
+				return err
+			}
+
+			res, err := config.clientStorageTransfer.TransferJobs.Get(name).ProjectId(project).Do()
+			if res.Status != "DELETED" {
+				return fmt.Errorf("Transfer Job not set to DELETED")
+			}
+			if err != nil {
+				return fmt.Errorf("Transfer Job does not exist, should exist and be DELETED")
+			}
 		}
 
-		rs_attr := rs.Primary.Attributes
-		name, ok := rs_attr["name"]
-		if !ok {
-			return fmt.Errorf("No name set")
-		}
-
-		project, err := getTestProject(rs.Primary, config)
-		if err != nil {
-			return err
-		}
-
-		res, err := config.clientStorageTransfer.TransferJobs.Get(name).ProjectId(project).Do()
-		if res.Status != "DELETED" {
-			return fmt.Errorf("Transfer Job not set to DELETED")
-		}
-		if err != nil {
-			return fmt.Errorf("Transfer Job does not exist, should exist and be DELETED")
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccStorageTransferJob_basic(project string, dataSourceBucketName string, dataSinkBucketName string, transferJobDescription string) string {

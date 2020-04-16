@@ -11,13 +11,13 @@ import (
 func TestAccStorageObjectAccessControl_update(t *testing.T) {
 	t.Parallel()
 
-	bucketName := testBucketName()
-	objectName := testAclObjectName()
+	bucketName := testBucketName(t)
+	objectName := testAclObjectName(t)
 	objectData := []byte("data data data")
 	if err := ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644); err != nil {
 		t.Errorf("error writing file: %v", err)
 	}
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck: func() {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
@@ -25,7 +25,7 @@ func TestAccStorageObjectAccessControl_update(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageObjectAccessControlDestroy,
+		CheckDestroy: testAccCheckStorageObjectAccessControlDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleStorageObjectAccessControlBasic(bucketName, objectName, "READER", "allUsers"),

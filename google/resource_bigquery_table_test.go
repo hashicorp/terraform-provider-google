@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,13 +11,13 @@ import (
 func TestAccBigQueryTable_Basic(t *testing.T) {
 	t.Parallel()
 
-	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigQueryTableDestroy,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTable(datasetID, tableID),
@@ -43,15 +42,15 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 func TestAccBigQueryTable_Kms(t *testing.T) {
 	t.Parallel()
 	resourceName := "google_bigquery_table.test"
-	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
 	kms := BootstrapKMSKey(t)
 	cryptoKeyName := kms.CryptoKey.Name
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigQueryTableDestroy,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableKms(cryptoKeyName, datasetID, tableID),
@@ -68,13 +67,13 @@ func TestAccBigQueryTable_Kms(t *testing.T) {
 func TestAccBigQueryTable_View(t *testing.T) {
 	t.Parallel()
 
-	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigQueryTableDestroy,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableWithView(datasetID, tableID),
@@ -91,13 +90,13 @@ func TestAccBigQueryTable_View(t *testing.T) {
 func TestAccBigQueryTable_updateView(t *testing.T) {
 	t.Parallel()
 
-	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigQueryTableDestroy,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableWithView(datasetID, tableID),
@@ -122,37 +121,37 @@ func TestAccBigQueryTable_updateView(t *testing.T) {
 func TestAccBigQueryExternalDataTable_CSV(t *testing.T) {
 	t.Parallel()
 
-	bucketName := testBucketName()
-	objectName := fmt.Sprintf("tf_test_%s.csv", acctest.RandString(10))
+	bucketName := testBucketName(t)
+	objectName := fmt.Sprintf("tf_test_%s.csv", randString(t, 10))
 
-	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
-	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(10))
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigQueryTableDestroy,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableFromGCS(datasetID, tableID, bucketName, objectName, TEST_CSV, "CSV", "\\\""),
-				Check:  testAccCheckBigQueryExtData("\""),
+				Check:  testAccCheckBigQueryExtData(t, "\""),
 			},
 			{
 				Config: testAccBigQueryTableFromGCS(datasetID, tableID, bucketName, objectName, TEST_CSV, "CSV", ""),
-				Check:  testAccCheckBigQueryExtData(""),
+				Check:  testAccCheckBigQueryExtData(t, ""),
 			},
 		},
 	})
 }
 
-func testAccCheckBigQueryExtData(expectedQuoteChar string) resource.TestCheckFunc {
+func testAccCheckBigQueryExtData(t *testing.T, expectedQuoteChar string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_bigquery_table" {
 				continue
 			}
 
-			config := testAccProvider.Meta().(*Config)
+			config := googleProviderConfig(t)
 			dataset := rs.Primary.Attributes["dataset_id"]
 			table := rs.Primary.Attributes["table_id"]
 			res, err := config.clientBigQuery.Tables.Get(config.Project, dataset, table).Do()
@@ -173,20 +172,22 @@ func testAccCheckBigQueryExtData(expectedQuoteChar string) resource.TestCheckFun
 	}
 }
 
-func testAccCheckBigQueryTableDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_bigquery_table" {
-			continue
+func testAccCheckBigQueryTableDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_bigquery_table" {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+			_, err := config.clientBigQuery.Tables.Get(config.Project, rs.Primary.Attributes["dataset_id"], rs.Primary.Attributes["table_id"]).Do()
+			if err == nil {
+				return fmt.Errorf("Table still present")
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-		_, err := config.clientBigQuery.Tables.Get(config.Project, rs.Primary.Attributes["dataset_id"], rs.Primary.Attributes["table_id"]).Do()
-		if err == nil {
-			return fmt.Errorf("Table still present")
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccBigQueryTable(datasetID, tableID string) string {

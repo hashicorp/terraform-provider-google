@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,13 +27,13 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExa
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeNetworkPeeringRoutesConfigDestroy,
+		CheckDestroy: testAccCheckComputeNetworkPeeringRoutesConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExample(context),
@@ -90,13 +89,13 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExamp
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeNetworkPeeringRoutesConfigDestroy,
+		CheckDestroy: testAccCheckComputeNetworkPeeringRoutesConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExample(context),
@@ -168,27 +167,29 @@ resource "google_container_cluster" "private_cluster" {
 `, context)
 }
 
-func testAccCheckComputeNetworkPeeringRoutesConfigDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_network_peering_routes_config" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckComputeNetworkPeeringRoutesConfigDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_network_peering_routes_config" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{network}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("ComputeNetworkPeeringRoutesConfig still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{network}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeNetworkPeeringRoutesConfig still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

@@ -5,18 +5,17 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccCloudBuildTrigger_basic(t *testing.T) {
 	t.Parallel()
-	name := acctest.RandomWithPrefix("tf-test")
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildTrigger_basic(name),
@@ -41,12 +40,12 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 func TestAccCloudBuildTrigger_customizeDiffTimeoutSum(t *testing.T) {
 	t.Parallel()
 
-	name := acctest.RandomWithPrefix("tf-test")
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCloudBuildTrigger_customizeDiffTimeoutSum(name),
@@ -59,12 +58,12 @@ func TestAccCloudBuildTrigger_customizeDiffTimeoutSum(t *testing.T) {
 func TestAccCloudBuildTrigger_customizeDiffTimeoutFormat(t *testing.T) {
 	t.Parallel()
 
-	name := acctest.RandomWithPrefix("tf-test")
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCloudBuildTrigger_customizeDiffTimeoutFormat(name),
@@ -76,12 +75,12 @@ func TestAccCloudBuildTrigger_customizeDiffTimeoutFormat(t *testing.T) {
 
 func TestAccCloudBuildTrigger_disable(t *testing.T) {
 	t.Parallel()
-	name := acctest.RandomWithPrefix("tf-test")
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildTrigger_basic(name),
@@ -106,10 +105,10 @@ func TestAccCloudBuildTrigger_disable(t *testing.T) {
 func TestAccCloudBuildTrigger_fullStep(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroy,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildTrigger_fullStep(),

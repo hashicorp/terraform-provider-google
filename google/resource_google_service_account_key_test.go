@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -14,16 +13,16 @@ func TestAccServiceAccountKey_basic(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "google_service_account_key.acceptance"
-	accountID := "a" + acctest.RandString(10)
+	accountID := "a" + randString(t, 10)
 	displayName := "Terraform Test"
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountKey(accountID, displayName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleServiceAccountKeyExists(resourceName),
+					testAccCheckGoogleServiceAccountKeyExists(t, resourceName),
 					resource.TestCheckResourceAttrSet(resourceName, "public_key"),
 					resource.TestCheckResourceAttrSet(resourceName, "valid_after"),
 					resource.TestCheckResourceAttrSet(resourceName, "valid_before"),
@@ -38,16 +37,16 @@ func TestAccServiceAccountKey_fromEmail(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "google_service_account_key.acceptance"
-	accountID := "a" + acctest.RandString(10)
+	accountID := "a" + randString(t, 10)
 	displayName := "Terraform Test"
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountKey_fromEmail(accountID, displayName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleServiceAccountKeyExists(resourceName),
+					testAccCheckGoogleServiceAccountKeyExists(t, resourceName),
 					resource.TestCheckResourceAttrSet(resourceName, "public_key"),
 					resource.TestCheckResourceAttrSet(resourceName, "valid_after"),
 					resource.TestCheckResourceAttrSet(resourceName, "valid_before"),
@@ -58,7 +57,7 @@ func TestAccServiceAccountKey_fromEmail(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleServiceAccountKeyExists(r string) resource.TestCheckFunc {
+func testAccCheckGoogleServiceAccountKeyExists(t *testing.T, r string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
 		rs, ok := s.RootModule().Resources[r]
@@ -69,7 +68,7 @@ func testAccCheckGoogleServiceAccountKeyExists(r string) resource.TestCheckFunc 
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		_, err := config.clientIAM.Projects.ServiceAccounts.Keys.Get(rs.Primary.ID).Do()
 		if err != nil {

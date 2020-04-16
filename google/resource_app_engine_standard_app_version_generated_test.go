@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -29,13 +28,13 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 
 	context := map[string]interface{}{
 		"org_id":        getTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAppEngineStandardAppVersionDestroy,
+		CheckDestroy: testAccCheckAppEngineStandardAppVersionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(context),
@@ -108,17 +107,19 @@ resource "google_storage_bucket_object" "object" {
 `, context)
 }
 
-func testAccCheckAppEngineStandardAppVersionDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_app_engine_standard_app_version" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckAppEngineStandardAppVersionDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_app_engine_standard_app_version" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			log.Printf("[DEBUG] Ignoring destroy during test")
 		}
 
-		log.Printf("[DEBUG] Ignoring destroy during test")
+		return nil
 	}
-
-	return nil
 }

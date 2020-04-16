@@ -6,7 +6,6 @@ import (
 
 	"google.golang.org/api/compute/v1"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -16,21 +15,21 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 
 	var instanceGroup compute.InstanceGroup
 	var resourceName = "google_compute_instance_group.basic"
-	var instanceName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
+	var instanceName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
 	var zone = "us-central1-c"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComputeInstanceGroup_destroy,
+		CheckDestroy: testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroup_basic(zone, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccComputeInstanceGroup_exists(
-						"google_compute_instance_group.basic", &instanceGroup),
+						t, "google_compute_instance_group.basic", &instanceGroup),
 					testAccComputeInstanceGroup_exists(
-						"google_compute_instance_group.empty", &instanceGroup),
+						t, "google_compute_instance_group.empty", &instanceGroup),
 				),
 			},
 			{
@@ -51,15 +50,15 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 func TestAccComputeInstanceGroup_rename(t *testing.T) {
 	t.Parallel()
 
-	var instanceName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
-	var instanceGroupName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
-	var backendName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
-	var healthName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
+	var instanceName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
+	var instanceGroupName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
+	var backendName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
+	var healthName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComputeInstanceGroup_destroy,
+		CheckDestroy: testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroup_rename(instanceName, instanceGroupName, backendName, healthName),
@@ -85,19 +84,20 @@ func TestAccComputeInstanceGroup_update(t *testing.T) {
 	t.Parallel()
 
 	var instanceGroup compute.InstanceGroup
-	var instanceName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
+	var instanceName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComputeInstanceGroup_destroy,
+		CheckDestroy: testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroup_update(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccComputeInstanceGroup_exists(
-						"google_compute_instance_group.update", &instanceGroup),
+						t, "google_compute_instance_group.update", &instanceGroup),
 					testAccComputeInstanceGroup_named_ports(
+						t,
 						"google_compute_instance_group.update",
 						map[string]int64{"http": 8080, "https": 8443},
 						&instanceGroup),
@@ -107,10 +107,11 @@ func TestAccComputeInstanceGroup_update(t *testing.T) {
 				Config: testAccComputeInstanceGroup_update2(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccComputeInstanceGroup_exists(
-						"google_compute_instance_group.update", &instanceGroup),
+						t, "google_compute_instance_group.update", &instanceGroup),
 					testAccComputeInstanceGroup_updated(
-						"google_compute_instance_group.update", 1, &instanceGroup),
+						t, "google_compute_instance_group.update", 1, &instanceGroup),
 					testAccComputeInstanceGroup_named_ports(
+						t,
 						"google_compute_instance_group.update",
 						map[string]int64{"http": 8081, "test": 8444},
 						&instanceGroup),
@@ -124,18 +125,18 @@ func TestAccComputeInstanceGroup_outOfOrderInstances(t *testing.T) {
 	t.Parallel()
 
 	var instanceGroup compute.InstanceGroup
-	var instanceName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
+	var instanceName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComputeInstanceGroup_destroy,
+		CheckDestroy: testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroup_outOfOrderInstances(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccComputeInstanceGroup_exists(
-						"google_compute_instance_group.group", &instanceGroup),
+						t, "google_compute_instance_group.group", &instanceGroup),
 				),
 			},
 		},
@@ -146,48 +147,50 @@ func TestAccComputeInstanceGroup_network(t *testing.T) {
 	t.Parallel()
 
 	var instanceGroup compute.InstanceGroup
-	var instanceName = fmt.Sprintf("instancegroup-test-%s", acctest.RandString(10))
+	var instanceName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComputeInstanceGroup_destroy,
+		CheckDestroy: testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceGroup_network(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccComputeInstanceGroup_exists(
-						"google_compute_instance_group.with_instance", &instanceGroup),
+						t, "google_compute_instance_group.with_instance", &instanceGroup),
 					testAccComputeInstanceGroup_hasCorrectNetwork(
-						"google_compute_instance_group.with_instance", "google_compute_network.ig_network", &instanceGroup),
+						t, "google_compute_instance_group.with_instance", "google_compute_network.ig_network", &instanceGroup),
 					testAccComputeInstanceGroup_exists(
-						"google_compute_instance_group.without_instance", &instanceGroup),
+						t, "google_compute_instance_group.without_instance", &instanceGroup),
 					testAccComputeInstanceGroup_hasCorrectNetwork(
-						"google_compute_instance_group.without_instance", "google_compute_network.ig_network", &instanceGroup),
+						t, "google_compute_instance_group.without_instance", "google_compute_network.ig_network", &instanceGroup),
 				),
 			},
 		},
 	})
 }
 
-func testAccComputeInstanceGroup_destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccComputeInstanceGroup_destroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_instance_group" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_instance_group" {
+				continue
+			}
+			_, err := config.clientCompute.InstanceGroups.Get(
+				config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
+			if err == nil {
+				return fmt.Errorf("InstanceGroup still exists")
+			}
 		}
-		_, err := config.clientCompute.InstanceGroups.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
-		if err == nil {
-			return fmt.Errorf("InstanceGroup still exists")
-		}
+
+		return nil
 	}
-
-	return nil
 }
 
-func testAccComputeInstanceGroup_exists(n string, instanceGroup *compute.InstanceGroup) resource.TestCheckFunc {
+func testAccComputeInstanceGroup_exists(t *testing.T, n string, instanceGroup *compute.InstanceGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -198,7 +201,7 @@ func testAccComputeInstanceGroup_exists(n string, instanceGroup *compute.Instanc
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		found, err := config.clientCompute.InstanceGroups.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
@@ -212,7 +215,7 @@ func testAccComputeInstanceGroup_exists(n string, instanceGroup *compute.Instanc
 	}
 }
 
-func testAccComputeInstanceGroup_updated(n string, size int64, instanceGroup *compute.InstanceGroup) resource.TestCheckFunc {
+func testAccComputeInstanceGroup_updated(t *testing.T, n string, size int64, instanceGroup *compute.InstanceGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -223,7 +226,7 @@ func testAccComputeInstanceGroup_updated(n string, size int64, instanceGroup *co
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		instanceGroup, err := config.clientCompute.InstanceGroups.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
@@ -241,7 +244,7 @@ func testAccComputeInstanceGroup_updated(n string, size int64, instanceGroup *co
 	}
 }
 
-func testAccComputeInstanceGroup_named_ports(n string, np map[string]int64, instanceGroup *compute.InstanceGroup) resource.TestCheckFunc {
+func testAccComputeInstanceGroup_named_ports(t *testing.T, n string, np map[string]int64, instanceGroup *compute.InstanceGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -252,7 +255,7 @@ func testAccComputeInstanceGroup_named_ports(n string, np map[string]int64, inst
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		instanceGroup, err := config.clientCompute.InstanceGroups.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
@@ -277,9 +280,9 @@ func testAccComputeInstanceGroup_named_ports(n string, np map[string]int64, inst
 	}
 }
 
-func testAccComputeInstanceGroup_hasCorrectNetwork(nInstanceGroup string, nNetwork string, instanceGroup *compute.InstanceGroup) resource.TestCheckFunc {
+func testAccComputeInstanceGroup_hasCorrectNetwork(t *testing.T, nInstanceGroup string, nNetwork string, instanceGroup *compute.InstanceGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		rsInstanceGroup, ok := s.RootModule().Resources[nInstanceGroup]
 		if !ok {

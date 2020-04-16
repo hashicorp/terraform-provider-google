@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -29,13 +28,13 @@ func TestAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(t *
 
 	context := map[string]interface{}{
 		"org_id":        getTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAppEngineServiceSplitTrafficDestroy,
+		CheckDestroy: testAccCheckAppEngineServiceSplitTrafficDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(context),
@@ -115,17 +114,19 @@ resource "google_app_engine_service_split_traffic" "liveapp" {
 `, context)
 }
 
-func testAccCheckAppEngineServiceSplitTrafficDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_app_engine_service_split_traffic" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckAppEngineServiceSplitTrafficDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_app_engine_service_split_traffic" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			log.Printf("[DEBUG] Ignoring destroy during test")
 		}
 
-		log.Printf("[DEBUG] Ignoring destroy during test")
+		return nil
 	}
-
-	return nil
 }

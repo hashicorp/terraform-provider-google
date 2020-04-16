@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -12,14 +11,14 @@ func TestAccComputeGlobalNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"default_port":  90,
 		"modified_port": 100,
 	}
 	negId := fmt.Sprintf("projects/%s/global/networkEndpointGroups/neg-%s",
 		getTestProjectFromEnv(), context["random_suffix"])
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -36,7 +35,7 @@ func TestAccComputeGlobalNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 				// Force-recreate old endpoint
 				Config: testAccComputeGlobalNetworkEndpoint_networkEndpointsModified(context),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeNetworkEndpointWithPortsDestroyed(negId, "90"),
+					testAccCheckComputeNetworkEndpointWithPortsDestroyed(t, negId, "90"),
 				),
 			},
 			{
@@ -48,7 +47,7 @@ func TestAccComputeGlobalNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 				// delete all endpoints
 				Config: testAccComputeGlobalNetworkEndpoint_noNetworkEndpoints(context),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeNetworkEndpointWithPortsDestroyed(negId, "100"),
+					testAccCheckComputeNetworkEndpointWithPortsDestroyed(t, negId, "100"),
 				),
 			},
 		},

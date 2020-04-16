@@ -27,7 +27,7 @@ func TestAccOrganizationIamAuditConfig_basic(t *testing.T) {
 	}
 	org := getTestOrgFromEnv(t)
 	service := "cloudkms.googleapis.com"
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -49,7 +49,7 @@ func TestAccOrganizationIamAuditConfig_multiple(t *testing.T) {
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -76,7 +76,7 @@ func TestAccOrganizationIamAuditConfig_multipleAtOnce(t *testing.T) {
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -98,7 +98,7 @@ func TestAccOrganizationIamAuditConfig_update(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 	service := "cloudkms.googleapis.com"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -132,7 +132,7 @@ func TestAccOrganizationIamAuditConfig_remove(t *testing.T) {
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -162,7 +162,7 @@ func TestAccOrganizationIamAuditConfig_addFirstExemptMember(t *testing.T) {
 	members := []string{}
 	members2 := []string{"user:paddy@hashicorp.com"}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -191,7 +191,7 @@ func TestAccOrganizationIamAuditConfig_removeLastExemptMember(t *testing.T) {
 	members := []string{"user:paddy@hashicorp.com"}
 	members2 := []string{}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -220,7 +220,7 @@ func TestAccOrganizationIamAuditConfig_updateNoExemptMembers(t *testing.T) {
 	logType2 := "DATA_WRITE"
 	service := "cloudkms.googleapis.com"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

@@ -4,18 +4,17 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccBinaryAuthorizationAttestor_basic(t *testing.T) {
 	t.Parallel()
 
-	name := acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
+	name := randString(t, 10)
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroy,
+		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationAttestorBasic(name),
@@ -32,11 +31,11 @@ func TestAccBinaryAuthorizationAttestor_basic(t *testing.T) {
 func TestAccBinaryAuthorizationAttestor_full(t *testing.T) {
 	t.Parallel()
 
-	name := acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
+	name := randString(t, 10)
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroy,
+		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationAttestorFull(name),
@@ -54,12 +53,12 @@ func TestAccBinaryAuthorizationAttestor_kms(t *testing.T) {
 	t.Parallel()
 
 	kms := BootstrapKMSKeyWithPurpose(t, "ASYMMETRIC_SIGN")
-	attestorName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	attestorName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroy,
+		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationAttestorKms(attestorName, kms.CryptoKey.Name),
@@ -76,11 +75,11 @@ func TestAccBinaryAuthorizationAttestor_kms(t *testing.T) {
 func TestAccBinaryAuthorizationAttestor_update(t *testing.T) {
 	t.Parallel()
 
-	name := acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
+	name := randString(t, 10)
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroy,
+		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationAttestorBasic(name),

@@ -4,18 +4,17 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccStorageHmacKey_update(t *testing.T) {
 	t.Parallel()
 
-	saName := fmt.Sprintf("%v%v", "service-account", acctest.RandString(10))
-	resource.Test(t, resource.TestCase{
+	saName := fmt.Sprintf("%v%v", "service-account", randString(t, 10))
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageHmacKeyDestroy,
+		CheckDestroy: testAccCheckStorageHmacKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGoogleStorageHmacKeyBasic(saName, "ACTIVE"),

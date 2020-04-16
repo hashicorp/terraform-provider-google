@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -32,12 +31,12 @@ func TestAccBigqueryDataTransferConfig(t *testing.T) {
 }
 
 func testAccBigqueryDataTransferConfig_scheduledQuery_basic(t *testing.T) {
-	random_suffix := acctest.RandString(10)
+	random_suffix := randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroy,
+		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "third", "y"),
@@ -53,12 +52,12 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_basic(t *testing.T) {
 }
 
 func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
-	random_suffix := acctest.RandString(10)
+	random_suffix := randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroy,
+		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "first", "y"),
@@ -77,12 +76,12 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
 }
 
 func testAccBigqueryDataTransferConfig_copy_booleanParam(t *testing.T) {
-	random_suffix := acctest.RandString(10)
+	random_suffix := randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroy,
+		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryDataTransferConfig_booleanParam(random_suffix),
@@ -97,29 +96,31 @@ func testAccBigqueryDataTransferConfig_copy_booleanParam(t *testing.T) {
 	})
 }
 
-func testAccCheckBigqueryDataTransferConfigDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_bigquery_data_transfer_config" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckBigqueryDataTransferConfigDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_bigquery_data_transfer_config" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{BigqueryDataTransferBasePath}}{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("BigqueryDataTransferConfig still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{BigqueryDataTransferBasePath}}{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("BigqueryDataTransferConfig still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, schedule, letter string) string {

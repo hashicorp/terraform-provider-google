@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccDataSourceComputeBackendBucket_basic(t *testing.T) {
 	t.Parallel()
 
-	backendBucketName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	bucketName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	backendBucketName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	bucketName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroy,
+		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeBackendBucket_basic(backendBucketName, bucketName),

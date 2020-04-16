@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,12 +11,12 @@ import (
 func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 	t.Parallel()
 
-	dnsZoneName := fmt.Sprintf("data-dnskey-test-%s", acctest.RandString(10))
+	dnsZoneName := fmt.Sprintf("data-dnskey-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroy,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceDNSKeysConfig(dnsZoneName, "on"),
@@ -36,12 +35,12 @@ func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 func TestAccDataSourceDNSKeys_noDnsSec(t *testing.T) {
 	t.Parallel()
 
-	dnsZoneName := fmt.Sprintf("data-dnskey-test-%s", acctest.RandString(10))
+	dnsZoneName := fmt.Sprintf("data-dnskey-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroy,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceDNSKeysConfig(dnsZoneName, "off"),

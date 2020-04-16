@@ -13,10 +13,10 @@ import (
 func testAccAccessContextManagerServicePerimeter_basicTest(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAccessContextManagerServicePerimeterDestroy,
+		CheckDestroy: testAccCheckAccessContextManagerServicePerimeterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerServicePerimeter_basic(org, "my policy", "level", "perimeter"),
@@ -33,10 +33,10 @@ func testAccAccessContextManagerServicePerimeter_basicTest(t *testing.T) {
 func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAccessContextManagerServicePerimeterDestroy,
+		CheckDestroy: testAccCheckAccessContextManagerServicePerimeterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerServicePerimeter_basic(org, "my policy", "level", "perimeter"),
@@ -82,26 +82,28 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 	})
 }
 
-func testAccCheckAccessContextManagerServicePerimeterDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_access_context_manager_service_perimeter" {
-			continue
+func testAccCheckAccessContextManagerServicePerimeterDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_access_context_manager_service_perimeter" {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("ServicePerimeter still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("ServicePerimeter still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccAccessContextManagerServicePerimeter_basic(org, policyTitle, levelTitleName, perimeterTitleName string) string {
