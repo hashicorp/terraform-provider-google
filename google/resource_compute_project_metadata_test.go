@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -15,12 +14,12 @@ func TestAccComputeProjectMetadata_basic(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	projectID := acctest.RandomWithPrefix("tf-test")
+	projectID := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeProjectMetadataDestroy,
+		CheckDestroy: testAccCheckComputeProjectMetadataDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_basic0_metadata(projectID, pname, org, billingId),
@@ -40,12 +39,12 @@ func TestAccComputeProjectMetadata_modify_1(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	projectID := acctest.RandomWithPrefix("tf-test")
+	projectID := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeProjectMetadataDestroy,
+		CheckDestroy: testAccCheckComputeProjectMetadataDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_modify0_metadata(projectID, pname, org, billingId),
@@ -74,12 +73,12 @@ func TestAccComputeProjectMetadata_modify_2(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	projectID := acctest.RandomWithPrefix("tf-test")
+	projectID := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeProjectMetadataDestroy,
+		CheckDestroy: testAccCheckComputeProjectMetadataDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_basic0_metadata(projectID, pname, org, billingId),
@@ -102,21 +101,23 @@ func TestAccComputeProjectMetadata_modify_2(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeProjectMetadataDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckComputeProjectMetadataDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_project_metadata" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_project_metadata" {
+				continue
+			}
+
+			project, err := config.clientCompute.Projects.Get(rs.Primary.ID).Do()
+			if err == nil && len(project.CommonInstanceMetadata.Items) > 0 {
+				return fmt.Errorf("Error, metadata items still exist in %s", rs.Primary.ID)
+			}
 		}
 
-		project, err := config.clientCompute.Projects.Get(rs.Primary.ID).Do()
-		if err == nil && len(project.CommonInstanceMetadata.Items) > 0 {
-			return fmt.Errorf("Error, metadata items still exist in %s", rs.Primary.ID)
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccComputeProject_basic0_metadata(projectID, name, org, billing string) string {

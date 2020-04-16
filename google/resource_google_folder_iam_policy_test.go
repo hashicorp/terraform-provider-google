@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
@@ -13,14 +12,14 @@ import (
 func TestAccFolderIamPolicy_basic(t *testing.T) {
 	t.Parallel()
 
-	folderDisplayName := "tf-test-" + acctest.RandString(10)
+	folderDisplayName := "tf-test-" + randString(t, 10)
 	org := getTestOrgFromEnv(t)
 	parent := "organizations/" + org
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroy,
+		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderIamPolicy_basic(folderDisplayName, parent, "roles/viewer", "user:admin@hashicorptest.com"),
@@ -45,14 +44,14 @@ func TestAccFolderIamPolicy_basic(t *testing.T) {
 func TestAccFolderIamPolicy_auditConfigs(t *testing.T) {
 	t.Parallel()
 
-	folderDisplayName := "tf-test-" + acctest.RandString(10)
+	folderDisplayName := "tf-test-" + randString(t, 10)
 	org := getTestOrgFromEnv(t)
 	parent := "organizations/" + org
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroy,
+		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderIamPolicy_auditConfigs(folderDisplayName, parent, "roles/viewer", "user:admin@hashicorptest.com"),
@@ -66,22 +65,24 @@ func TestAccFolderIamPolicy_auditConfigs(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleFolderIamPolicyDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckGoogleFolderIamPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_folder_iam_policy" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_folder_iam_policy" {
+				continue
+			}
+
+			folder := rs.Primary.Attributes["folder"]
+			policy, err := config.clientResourceManagerV2Beta1.Folders.GetIamPolicy(folder, &resourceManagerV2Beta1.GetIamPolicyRequest{}).Do()
+
+			if err != nil && len(policy.Bindings) > 0 {
+				return fmt.Errorf("Folder '%s' policy hasn't been deleted.", folder)
+			}
 		}
-
-		folder := rs.Primary.Attributes["folder"]
-		policy, err := config.clientResourceManagerV2Beta1.Folders.GetIamPolicy(folder, &resourceManagerV2Beta1.GetIamPolicyRequest{}).Do()
-
-		if err != nil && len(policy.Bindings) > 0 {
-			return fmt.Errorf("Folder '%s' policy hasn't been deleted.", folder)
-		}
+		return nil
 	}
-	return nil
 }
 
 // Confirm that a folder has an IAM policy with at least 1 binding

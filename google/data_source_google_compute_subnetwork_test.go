@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,12 +11,12 @@ import (
 func TestAccDataSourceGoogleSubnetwork(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceGoogleSubnetwork(),
+				Config: testAccDataSourceGoogleSubnetwork(fmt.Sprintf("network-test-%d", randInt(t))),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleSubnetworkCheck("data.google_compute_subnetwork.my_subnetwork", "google_compute_subnetwork.foobar"),
 					testAccDataSourceGoogleSubnetworkCheck("data.google_compute_subnetwork.my_subnetwork_self_link", "google_compute_subnetwork.foobar"),
@@ -74,7 +73,7 @@ func testAccDataSourceGoogleSubnetworkCheck(data_source_name string, resource_na
 	}
 }
 
-func testAccDataSourceGoogleSubnetwork() string {
+func testAccDataSourceGoogleSubnetwork(networkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
   name        = "%s"
@@ -100,5 +99,5 @@ data "google_compute_subnetwork" "my_subnetwork" {
 data "google_compute_subnetwork" "my_subnetwork_self_link" {
   self_link = google_compute_subnetwork.foobar.self_link
 }
-`, acctest.RandomWithPrefix("network-test"))
+`, networkName)
 }

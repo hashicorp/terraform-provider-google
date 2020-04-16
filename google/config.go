@@ -69,10 +69,11 @@ type Config struct {
 	// It controls the interval at which we poll for successful operations
 	PollInterval time.Duration
 
-	client           *http.Client
-	context          context.Context
-	terraformVersion string
-	userAgent        string
+	client              *http.Client
+	wrappedPubsubClient *http.Client
+	context             context.Context
+	terraformVersion    string
+	userAgent           string
 
 	tokenSource oauth2.TokenSource
 
@@ -397,6 +398,7 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	pubsubClientBasePath := removeBasePathVersion(c.PubsubBasePath)
 	log.Printf("[INFO] Instantiating Google Pubsub client for path %s", pubsubClientBasePath)
 	wrappedPubsubClient := ClientWithAdditionalRetries(client, retryTransport, pubsubTopicProjectNotReady)
+	c.wrappedPubsubClient = wrappedPubsubClient
 	c.clientPubsub, err = pubsub.NewService(ctx, option.WithHTTPClient(wrappedPubsubClient))
 	if err != nil {
 		return err

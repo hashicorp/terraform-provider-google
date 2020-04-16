@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccContainerClusterDatasource_zonal(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerClusterDatasource_zonal(),
+				Config: testAccContainerClusterDatasource_zonal(randString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					checkDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_container_cluster.kubes",
@@ -37,12 +36,12 @@ func TestAccContainerClusterDatasource_zonal(t *testing.T) {
 func TestAccContainerClusterDatasource_regional(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerClusterDatasource_regional(),
+				Config: testAccContainerClusterDatasource_regional(randString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					checkDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_container_cluster.kubes",
@@ -60,7 +59,7 @@ func TestAccContainerClusterDatasource_regional(t *testing.T) {
 	})
 }
 
-func testAccContainerClusterDatasource_zonal() string {
+func testAccContainerClusterDatasource_zonal(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "kubes" {
   name               = "tf-test-cluster-%s"
@@ -77,10 +76,10 @@ data "google_container_cluster" "kubes" {
   name     = google_container_cluster.kubes.name
   location = google_container_cluster.kubes.location
 }
-`, acctest.RandString(10))
+`, suffix)
 }
 
-func testAccContainerClusterDatasource_regional() string {
+func testAccContainerClusterDatasource_regional(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "kubes" {
   name               = "tf-test-cluster-%s"
@@ -92,5 +91,5 @@ data "google_container_cluster" "kubes" {
   name     = google_container_cluster.kubes.name
   location = google_container_cluster.kubes.location
 }
-`, acctest.RandString(10))
+`, suffix)
 }

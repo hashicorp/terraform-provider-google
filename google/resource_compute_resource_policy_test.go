@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -14,10 +13,10 @@ func TestAccComputeResourcePolicy_attached(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeResourcePolicyDestroy,
+		CheckDestroy: testAccCheckComputeResourcePolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeResourcePolicy_attached(),
+				Config: testAccComputeResourcePolicy_attached(randString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_resource_policy.foo",
@@ -28,7 +27,7 @@ func TestAccComputeResourcePolicy_attached(t *testing.T) {
 	})
 }
 
-func testAccComputeResourcePolicy_attached() string {
+func testAccComputeResourcePolicy_attached(suffix string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
@@ -76,5 +75,5 @@ resource "google_compute_resource_policy" "foo" {
   }
 }
 
-`, acctest.RandString(10), acctest.RandString(10))
+`, suffix, suffix)
 }

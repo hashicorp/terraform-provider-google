@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -13,20 +12,20 @@ import (
 func TestAccBigtableGCPolicy_basic(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	tableName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	familyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	familyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigtableGCPolicyDestroy,
+		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableGCPolicy(instanceName, tableName, familyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigtableGCPolicyExists(
-						"google_bigtable_gc_policy.policy"),
+						t, "google_bigtable_gc_policy.policy"),
 				),
 			},
 		},
@@ -36,61 +35,63 @@ func TestAccBigtableGCPolicy_basic(t *testing.T) {
 func TestAccBigtableGCPolicy_union(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	tableName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	familyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	familyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigtableGCPolicyDestroy,
+		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableGCPolicyUnion(instanceName, tableName, familyName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccBigtableGCPolicyExists(
-						"google_bigtable_gc_policy.policy"),
+						t, "google_bigtable_gc_policy.policy"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckBigtableGCPolicyDestroy(s *terraform.State) error {
-	var ctx = context.Background()
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_bigtable_gc_policy" {
-			continue
-		}
+func testAccCheckBigtableGCPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		var ctx = context.Background()
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_bigtable_gc_policy" {
+				continue
+			}
 
-		config := testAccProvider.Meta().(*Config)
-		c, err := config.bigtableClientFactory.NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
-		if err != nil {
-			// The instance is already gone
-			return nil
-		}
+			config := googleProviderConfig(t)
+			c, err := config.bigtableClientFactory.NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
+			if err != nil {
+				// The instance is already gone
+				return nil
+			}
 
-		table, err := c.TableInfo(ctx, rs.Primary.Attributes["name"])
-		if err != nil {
-			// The table is already gone
-			return nil
-		}
+			table, err := c.TableInfo(ctx, rs.Primary.Attributes["name"])
+			if err != nil {
+				// The table is already gone
+				return nil
+			}
 
-		for _, i := range table.FamilyInfos {
-			if i.Name == rs.Primary.Attributes["column_family"] {
-				if i.GCPolicy != "<never>" {
-					return fmt.Errorf("GC Policy still present. Found %s in %s.", i.GCPolicy, rs.Primary.Attributes["column_family"])
+			for _, i := range table.FamilyInfos {
+				if i.Name == rs.Primary.Attributes["column_family"] {
+					if i.GCPolicy != "<never>" {
+						return fmt.Errorf("GC Policy still present. Found %s in %s.", i.GCPolicy, rs.Primary.Attributes["column_family"])
+					}
 				}
 			}
+
+			c.Close()
 		}
 
-		c.Close()
+		return nil
 	}
-
-	return nil
 }
 
-func testAccBigtableGCPolicyExists(n string) resource.TestCheckFunc {
+func testAccBigtableGCPolicyExists(t *testing.T, n string) resource.TestCheckFunc {
 	var ctx = context.Background()
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -101,7 +102,7 @@ func testAccBigtableGCPolicyExists(n string) resource.TestCheckFunc {
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		c, err := config.bigtableClientFactory.NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
 		if err != nil {
 			return fmt.Errorf("Error starting admin client. %s", err)

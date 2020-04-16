@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,12 +11,12 @@ import (
 func TestAccDataSourceGoogleSslPolicy(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceGoogleSslPolicy(),
+				Config: testAccDataSourceGoogleSslPolicy(fmt.Sprintf("test-ssl-policy-%d", randInt(t))),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleSslPolicyCheck("data.google_compute_ssl_policy.ssl_policy", "google_compute_ssl_policy.foobar"),
 				),
@@ -66,7 +65,7 @@ func testAccDataSourceGoogleSslPolicyCheck(data_source_name string, resource_nam
 	}
 }
 
-func testAccDataSourceGoogleSslPolicy() string {
+func testAccDataSourceGoogleSslPolicy(policyName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_ssl_policy" "foobar" {
   name            = "%s"
@@ -78,5 +77,5 @@ resource "google_compute_ssl_policy" "foobar" {
 data "google_compute_ssl_policy" "ssl_policy" {
   name = google_compute_ssl_policy.foobar.name
 }
-`, acctest.RandomWithPrefix("test-ssl-policy"))
+`, policyName)
 }

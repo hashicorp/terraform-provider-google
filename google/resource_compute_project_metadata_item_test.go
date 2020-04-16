@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -14,12 +13,12 @@ func TestAccComputeProjectMetadataItem_basic(t *testing.T) {
 	t.Parallel()
 
 	// Key must be unique to avoid concurrent tests interfering with each other
-	key := "myKey" + acctest.RandString(10)
+	key := "myKey" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
+		CheckDestroy: testAccCheckProjectMetadataItemDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectMetadataItem_basic("foobar", key, "myValue"),
@@ -37,15 +36,15 @@ func TestAccComputeProjectMetadataItem_basicMultiple(t *testing.T) {
 	t.Parallel()
 
 	// Generate a config of two config keys
-	key1 := "myKey" + acctest.RandString(10)
-	key2 := "myKey" + acctest.RandString(10)
+	key1 := "myKey" + randString(t, 10)
+	key2 := "myKey" + randString(t, 10)
 	config := testAccProjectMetadataItem_basic("foobar", key1, "myValue") +
 		testAccProjectMetadataItem_basic("foobar2", key2, "myOtherValue")
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
+		CheckDestroy: testAccCheckProjectMetadataItemDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: config,
@@ -68,12 +67,12 @@ func TestAccComputeProjectMetadataItem_basicWithEmptyVal(t *testing.T) {
 	t.Parallel()
 
 	// Key must be unique to avoid concurrent tests interfering with each other
-	key := "myKey" + acctest.RandString(10)
+	key := "myKey" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
+		CheckDestroy: testAccCheckProjectMetadataItemDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectMetadataItem_basic("foobar", key, ""),
@@ -91,12 +90,12 @@ func TestAccComputeProjectMetadataItem_basicUpdate(t *testing.T) {
 	t.Parallel()
 
 	// Key must be unique to avoid concurrent tests interfering with each other
-	key := "myKey" + acctest.RandString(10)
+	key := "myKey" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
+		CheckDestroy: testAccCheckProjectMetadataItemDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectMetadataItem_basic("foobar", key, "myValue"),
@@ -122,13 +121,13 @@ func TestAccComputeProjectMetadataItem_exists(t *testing.T) {
 	t.Parallel()
 
 	// Key must be unique to avoid concurrent tests interfering with each other
-	key := "myKey" + acctest.RandString(10)
+	key := "myKey" + randString(t, 10)
 	originalConfig := testAccProjectMetadataItem_basic("foobar", key, "myValue")
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckProjectMetadataItemDestroy,
+		CheckDestroy: testAccCheckProjectMetadataItemDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: originalConfig,
@@ -147,28 +146,30 @@ func TestAccComputeProjectMetadataItem_exists(t *testing.T) {
 	})
 }
 
-func testAccCheckProjectMetadataItemDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckProjectMetadataItemDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	project, err := config.clientCompute.Projects.Get(config.Project).Do()
-	if err != nil {
-		return err
-	}
-
-	metadata := flattenMetadata(project.CommonInstanceMetadata)
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_project_metadata_item" {
-			continue
+		project, err := config.clientCompute.Projects.Get(config.Project).Do()
+		if err != nil {
+			return err
 		}
 
-		_, ok := metadata[rs.Primary.ID]
-		if ok {
-			return fmt.Errorf("Metadata key/value '%s': '%s' still exist", rs.Primary.Attributes["key"], rs.Primary.Attributes["value"])
-		}
-	}
+		metadata := flattenMetadata(project.CommonInstanceMetadata)
 
-	return nil
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_project_metadata_item" {
+				continue
+			}
+
+			_, ok := metadata[rs.Primary.ID]
+			if ok {
+				return fmt.Errorf("Metadata key/value '%s': '%s' still exist", rs.Primary.Attributes["key"], rs.Primary.Attributes["value"])
+			}
+		}
+
+		return nil
+	}
 }
 
 func testAccProjectMetadataItem_basic(resourceName, key, val string) string {

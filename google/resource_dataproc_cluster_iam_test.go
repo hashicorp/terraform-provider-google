@@ -4,21 +4,20 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccDataprocClusterIamBinding(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-" + acctest.RandString(10)
-	account := "tf-dataproc-iam-" + acctest.RandString(10)
+	cluster := "tf-dataproc-iam-" + randString(t, 10)
+	account := "tf-dataproc-iam-" + randString(t, 10)
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s",
 		getTestProjectFromEnv(), "us-central1", cluster, role)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -53,8 +52,8 @@ func TestAccDataprocClusterIamBinding(t *testing.T) {
 func TestAccDataprocClusterIamMember(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-" + acctest.RandString(10)
-	account := "tf-dataproc-iam-" + acctest.RandString(10)
+	cluster := "tf-dataproc-iam-" + randString(t, 10)
+	account := "tf-dataproc-iam-" + randString(t, 10)
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s serviceAccount:%s",
@@ -64,7 +63,7 @@ func TestAccDataprocClusterIamMember(t *testing.T) {
 		role,
 		serviceAccountCanonicalEmail(account))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -91,14 +90,14 @@ func TestAccDataprocClusterIamMember(t *testing.T) {
 func TestAccDataprocClusterIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-" + acctest.RandString(10)
-	account := "tf-dataproc-iam-" + acctest.RandString(10)
+	cluster := "tf-dataproc-iam-" + randString(t, 10)
+	account := "tf-dataproc-iam-" + randString(t, 10)
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s",
 		getTestProjectFromEnv(), "us-central1", cluster)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

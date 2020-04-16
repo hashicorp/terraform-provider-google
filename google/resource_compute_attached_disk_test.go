@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,11 +11,11 @@ import (
 func TestAccComputeAttachedDisk_basic(t *testing.T) {
 	t.Parallel()
 
-	diskName := acctest.RandomWithPrefix("tf-test-disk")
-	instanceName := acctest.RandomWithPrefix("tf-test-inst")
+	diskName := fmt.Sprintf("tf-test-disk-%d", randInt(t))
+	instanceName := fmt.Sprintf("tf-test-inst-%d", randInt(t))
 	importID := fmt.Sprintf("%s/us-central1-a/%s/%s", getTestProjectFromEnv(), instanceName, diskName)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		// Check destroy isn't a good test here, see comment on testCheckAttachedDiskIsNowDetached
@@ -34,7 +33,7 @@ func TestAccComputeAttachedDisk_basic(t *testing.T) {
 			{
 				Config: testAttachedDiskResource(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testCheckAttachedDiskIsNowDetached(instanceName, diskName),
+					testCheckAttachedDiskIsNowDetached(t, instanceName, diskName),
 				),
 			},
 		},
@@ -44,11 +43,11 @@ func TestAccComputeAttachedDisk_basic(t *testing.T) {
 func TestAccComputeAttachedDisk_full(t *testing.T) {
 	t.Parallel()
 
-	diskName := acctest.RandomWithPrefix("tf-test")
-	instanceName := acctest.RandomWithPrefix("tf-test")
+	diskName := fmt.Sprintf("tf-test-%d", randInt(t))
+	instanceName := fmt.Sprintf("tf-test-%d", randInt(t))
 	importID := fmt.Sprintf("%s/us-central1-a/%s/%s", getTestProjectFromEnv(), instanceName, diskName)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		// Check destroy isn't a good test here, see comment on testCheckAttachedDiskIsNowDetached
@@ -71,11 +70,11 @@ func TestAccComputeAttachedDisk_full(t *testing.T) {
 func TestAccComputeAttachedDisk_region(t *testing.T) {
 	t.Parallel()
 
-	diskName := acctest.RandomWithPrefix("tf-test")
-	instanceName := acctest.RandomWithPrefix("tf-test")
+	diskName := fmt.Sprintf("tf-test-%d", randInt(t))
+	instanceName := fmt.Sprintf("tf-test-%d", randInt(t))
 	importID := fmt.Sprintf("%s/us-central1-a/%s/%s", getTestProjectFromEnv(), instanceName, diskName)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		// Check destroy isn't a good test here, see comment on testCheckAttachedDiskIsNowDetached
@@ -98,11 +97,11 @@ func TestAccComputeAttachedDisk_region(t *testing.T) {
 func TestAccComputeAttachedDisk_count(t *testing.T) {
 	t.Parallel()
 
-	diskPrefix := acctest.RandomWithPrefix("tf-test")
-	instanceName := acctest.RandomWithPrefix("tf-test")
+	diskPrefix := fmt.Sprintf("tf-test-%d", randInt(t))
+	instanceName := fmt.Sprintf("tf-test-%d", randInt(t))
 	count := 2
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: nil,
@@ -110,7 +109,7 @@ func TestAccComputeAttachedDisk_count(t *testing.T) {
 			{
 				Config: testAttachedDiskResourceCount(diskPrefix, instanceName, count),
 				Check: resource.ComposeTestCheckFunc(
-					testCheckAttachedDiskContainsManyDisks(instanceName, count),
+					testCheckAttachedDiskContainsManyDisks(t, instanceName, count),
 				),
 			},
 		},
@@ -125,9 +124,9 @@ func TestAccComputeAttachedDisk_count(t *testing.T) {
 // instance and the disk, whereas destroying just the attached disk should only detach the disk but
 // leave the instance and disk around. So just using a normal check destroy could end up with a
 // situation where the detach fails but since the instance/disk get destroyed we wouldn't notice.
-func testCheckAttachedDiskIsNowDetached(instanceName, diskName string) resource.TestCheckFunc {
+func testCheckAttachedDiskIsNowDetached(t *testing.T, instanceName, diskName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		instance, err := config.clientCompute.Instances.Get(getTestProjectFromEnv(), "us-central1-a", instanceName).Do()
 		if err != nil {
@@ -143,9 +142,9 @@ func testCheckAttachedDiskIsNowDetached(instanceName, diskName string) resource.
 	}
 }
 
-func testCheckAttachedDiskContainsManyDisks(instanceName string, count int) resource.TestCheckFunc {
+func testCheckAttachedDiskContainsManyDisks(t *testing.T, instanceName string, count int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		instance, err := config.clientCompute.Instances.Get(getTestProjectFromEnv(), "us-central1-a", instanceName).Do()
 		if err != nil {

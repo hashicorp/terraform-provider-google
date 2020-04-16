@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -13,7 +12,7 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"default_port":  90,
 		"modified_port": 100,
 		"add1_port":     101,
@@ -22,7 +21,7 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 	negId := fmt.Sprintf("projects/%s/zones/%s/networkEndpointGroups/neg-%s",
 		getTestProjectFromEnv(), getTestZoneFromEnv(), context["random_suffix"])
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -39,7 +38,7 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 				// Force-recreate old endpoint
 				Config: testAccComputeNetworkEndpoint_networkEndpointsModified(context),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeNetworkEndpointWithPortsDestroyed(negId, "90"),
+					testAccCheckComputeNetworkEndpointWithPortsDestroyed(t, negId, "90"),
 				),
 			},
 			{
@@ -70,7 +69,7 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 				// delete all endpoints
 				Config: testAccComputeNetworkEndpoint_noNetworkEndpoints(context),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeNetworkEndpointWithPortsDestroyed(negId, "100"),
+					testAccCheckComputeNetworkEndpointWithPortsDestroyed(t, negId, "100"),
 				),
 			},
 		},
@@ -183,9 +182,9 @@ data "google_compute_image" "my_image" {
 // testAccCheckComputeNetworkEndpointDestroyed makes sure the endpoint with
 // given Terraform resource name and previous information (obtained from Exists)
 // was destroyed properly.
-func testAccCheckComputeNetworkEndpointWithPortsDestroyed(negId string, ports ...string) resource.TestCheckFunc {
+func testAccCheckComputeNetworkEndpointWithPortsDestroyed(t *testing.T, negId string, ports ...string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		foundPorts, err := testAccComputeNetworkEndpointsListEndpointPorts(negId)
+		foundPorts, err := testAccComputeNetworkEndpointsListEndpointPorts(t, negId)
 		if err != nil {
 			return fmt.Errorf("unable to confirm endpoints with ports %+v was destroyed: %v", ports, err)
 		}
@@ -199,8 +198,8 @@ func testAccCheckComputeNetworkEndpointWithPortsDestroyed(negId string, ports ..
 	}
 }
 
-func testAccComputeNetworkEndpointsListEndpointPorts(negId string) (map[string]struct{}, error) {
-	config := testAccProvider.Meta().(*Config)
+func testAccComputeNetworkEndpointsListEndpointPorts(t *testing.T, negId string) (map[string]struct{}, error) {
+	config := googleProviderConfig(t)
 
 	url := fmt.Sprintf("https://www.googleapis.com/compute/beta/%s/listNetworkEndpoints", negId)
 	res, err := sendRequest(config, "POST", "", url, nil)

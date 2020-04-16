@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,25 +11,25 @@ import (
 func TestAccSqlUser_mysql(t *testing.T) {
 	t.Parallel()
 
-	instance := acctest.RandomWithPrefix("i")
-	resource.Test(t, resource.TestCase{
+	instance := fmt.Sprintf("i-%d", randInt(t))
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccSqlUserDestroy,
+		CheckDestroy: testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlUser_mysql(instance, "password"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlUserExists("google_sql_user.user1"),
-					testAccCheckGoogleSqlUserExists("google_sql_user.user2"),
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user1"),
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user2"),
 				),
 			},
 			{
 				// Update password
 				Config: testGoogleSqlUser_mysql(instance, "new_password"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlUserExists("google_sql_user.user1"),
-					testAccCheckGoogleSqlUserExists("google_sql_user.user2"),
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user1"),
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user2"),
 				),
 			},
 			{
@@ -47,23 +46,23 @@ func TestAccSqlUser_mysql(t *testing.T) {
 func TestAccSqlUser_postgres(t *testing.T) {
 	t.Parallel()
 
-	instance := acctest.RandomWithPrefix("i")
-	resource.Test(t, resource.TestCase{
+	instance := fmt.Sprintf("i-%d", randInt(t))
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccSqlUserDestroy,
+		CheckDestroy: testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlUser_postgres(instance, "password"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlUserExists("google_sql_user.user"),
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user"),
 				),
 			},
 			{
 				// Update password
 				Config: testGoogleSqlUser_postgres(instance, "new_password"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlUserExists("google_sql_user.user"),
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user"),
 				),
 			},
 			{
@@ -77,9 +76,9 @@ func TestAccSqlUser_postgres(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleSqlUserExists(n string) resource.TestCheckFunc {
+func testAccCheckGoogleSqlUserExists(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Resource not found: %s", n)
@@ -105,29 +104,31 @@ func testAccCheckGoogleSqlUserExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccSqlUserDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		config := testAccProvider.Meta().(*Config)
-		if rs.Type != "google_sql_database" {
-			continue
-		}
-
-		name := rs.Primary.Attributes["name"]
-		instance := rs.Primary.Attributes["instance"]
-		host := rs.Primary.Attributes["host"]
-		users, err := config.clientSqlAdmin.Users.List(config.Project,
-			instance).Do()
-
-		for _, user := range users.Items {
-			if user.Name == name && user.Host == host {
-				return fmt.Errorf("User still %s exists %s", name, err)
+func testAccSqlUserDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for _, rs := range s.RootModule().Resources {
+			config := googleProviderConfig(t)
+			if rs.Type != "google_sql_database" {
+				continue
 			}
+
+			name := rs.Primary.Attributes["name"]
+			instance := rs.Primary.Attributes["instance"]
+			host := rs.Primary.Attributes["host"]
+			users, err := config.clientSqlAdmin.Users.List(config.Project,
+				instance).Do()
+
+			for _, user := range users.Items {
+				if user.Name == name && user.Host == host {
+					return fmt.Errorf("User still %s exists %s", name, err)
+				}
+			}
+
+			return nil
 		}
 
 		return nil
 	}
-
-	return nil
 }
 
 func testGoogleSqlUser_mysql(instance, password string) string {

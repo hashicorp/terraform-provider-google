@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -18,13 +17,13 @@ func TestAccComputeVpnTunnel_regionFromGateway(t *testing.T) {
 		region = "us-west1"
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeVpnTunnelDestroy,
+		CheckDestroy: testAccCheckComputeVpnTunnelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeVpnTunnel_regionFromGateway(region),
+				Config: testAccComputeVpnTunnel_regionFromGateway(randString(t, 10), region),
 			},
 			{
 				ResourceName:            "google_compute_vpn_tunnel.foobar",
@@ -40,14 +39,14 @@ func TestAccComputeVpnTunnel_regionFromGateway(t *testing.T) {
 func TestAccComputeVpnTunnel_router(t *testing.T) {
 	t.Parallel()
 
-	router := fmt.Sprintf("tf-test-tunnel-%s", acctest.RandString(10))
-	resource.Test(t, resource.TestCase{
+	router := fmt.Sprintf("tf-test-tunnel-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeVpnTunnelDestroy,
+		CheckDestroy: testAccCheckComputeVpnTunnelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeVpnTunnelRouter(router),
+				Config: testAccComputeVpnTunnelRouter(randString(t, 10), router),
 			},
 			{
 				ResourceName:            "google_compute_vpn_tunnel.foobar",
@@ -62,13 +61,13 @@ func TestAccComputeVpnTunnel_router(t *testing.T) {
 func TestAccComputeVpnTunnel_defaultTrafficSelectors(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeVpnTunnelDestroy,
+		CheckDestroy: testAccCheckComputeVpnTunnelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeVpnTunnelDefaultTrafficSelectors(),
+				Config: testAccComputeVpnTunnelDefaultTrafficSelectors(randString(t, 10)),
 			},
 			{
 				ResourceName:            "google_compute_vpn_tunnel.foobar",
@@ -80,7 +79,7 @@ func TestAccComputeVpnTunnel_defaultTrafficSelectors(t *testing.T) {
 	})
 }
 
-func testAccComputeVpnTunnel_regionFromGateway(region string) string {
+func testAccComputeVpnTunnel_regionFromGateway(suffix, region string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
   name                    = "tf-test-%[1]s"
@@ -141,10 +140,10 @@ resource "google_compute_vpn_tunnel" "foobar" {
 
   depends_on = [google_compute_forwarding_rule.foobar_udp4500]
 }
-`, acctest.RandString(10), region)
+`, suffix, region)
 }
 
-func testAccComputeVpnTunnelRouter(router string) string {
+func testAccComputeVpnTunnelRouter(suffix, router string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
   name                    = "tf-test-%[1]s"
@@ -212,10 +211,10 @@ resource "google_compute_vpn_tunnel" "foobar" {
   peer_ip            = "8.8.8.8"
   router             = google_compute_router.foobar.self_link
 }
-`, acctest.RandString(10), router)
+`, suffix, router)
 }
 
-func testAccComputeVpnTunnelDefaultTrafficSelectors() string {
+func testAccComputeVpnTunnelDefaultTrafficSelectors(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
   name                    = "tf-test-%[1]s"
@@ -266,5 +265,5 @@ resource "google_compute_vpn_tunnel" "foobar" {
   shared_secret      = "unguessable"
   peer_ip            = "8.8.8.8"
 }
-`, acctest.RandString(10))
+`, suffix)
 }

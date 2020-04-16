@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/compute/v1"
@@ -13,13 +12,13 @@ import (
 func TestAccComputeImage_withLicense(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeImageDestroy,
+		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeImage_license("image-test-" + acctest.RandString(10)),
+				Config: testAccComputeImage_license("image-test-" + randString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_image.foobar",
@@ -35,18 +34,18 @@ func TestAccComputeImage_update(t *testing.T) {
 
 	var image compute.Image
 
-	name := "image-test-" + acctest.RandString(10)
+	name := "image-test-" + randString(t, 10)
 	// Only labels supports an update
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeImageDestroy,
+		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeImage_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
-						"google_compute_image.foobar", &image),
+						t, "google_compute_image.foobar", &image),
 					testAccCheckComputeImageContainsLabel(&image, "my-label", "my-label-value"),
 					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
 					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
@@ -56,7 +55,7 @@ func TestAccComputeImage_update(t *testing.T) {
 				Config: testAccComputeImage_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
-						"google_compute_image.foobar", &image),
+						t, "google_compute_image.foobar", &image),
 					testAccCheckComputeImageDoesNotContainLabel(&image, "my-label"),
 					testAccCheckComputeImageContainsLabel(&image, "empty-label", "oh-look-theres-a-label-now"),
 					testAccCheckComputeImageContainsLabel(&image, "new-field", "only-shows-up-when-updated"),
@@ -78,16 +77,16 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 
 	var image compute.Image
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeImageDestroy,
+		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeImage_basedondisk(),
+				Config: testAccComputeImage_basedondisk(randString(t, 10), randString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
-						"google_compute_image.foobar", &image),
+						t, "google_compute_image.foobar", &image),
 					testAccCheckComputeImageHasSourceDisk(&image),
 				),
 			},
@@ -100,7 +99,7 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeImageExists(n string, image *compute.Image) resource.TestCheckFunc {
+func testAccCheckComputeImageExists(t *testing.T, n string, image *compute.Image) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -111,7 +110,7 @@ func testAccCheckComputeImageExists(n string, image *compute.Image) resource.Tes
 			return fmt.Errorf("No name is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		found, err := config.clientCompute.Images.Get(
 			config.Project, rs.Primary.Attributes["name"]).Do()
@@ -133,30 +132,30 @@ func TestAccComputeImage_resolveImage(t *testing.T) {
 	t.Parallel()
 
 	var image compute.Image
-	rand := acctest.RandString(10)
+	rand := randString(t, 10)
 	name := fmt.Sprintf("test-image-%s", rand)
 	fam := fmt.Sprintf("test-image-family-%s", rand)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeImageDestroy,
+		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeImage_resolving(name, fam),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
-						"google_compute_image.foobar", &image),
-					testAccCheckComputeImageResolution("google_compute_image.foobar"),
+						t, "google_compute_image.foobar", &image),
+					testAccCheckComputeImageResolution(t, "google_compute_image.foobar"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckComputeImageResolution(n string) resource.TestCheckFunc {
+func testAccCheckComputeImageResolution(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		project := config.Project
 
 		rs, ok := s.RootModule().Resources[n]
@@ -354,7 +353,7 @@ resource "google_compute_image" "foobar" {
 `, name)
 }
 
-func testAccComputeImage_basedondisk() string {
+func testAccComputeImage_basedondisk(diskName, imageName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
@@ -371,5 +370,5 @@ resource "google_compute_image" "foobar" {
   name        = "image-test-%s"
   source_disk = google_compute_disk.foobar.self_link
 }
-`, acctest.RandString(10), acctest.RandString(10))
+`, diskName, imageName)
 }

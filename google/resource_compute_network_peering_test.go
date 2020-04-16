@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/compute/v1"
@@ -15,26 +14,26 @@ func TestAccComputeNetworkPeering_basic(t *testing.T) {
 	t.Parallel()
 	var peering_beta compute.NetworkPeering
 
-	primaryNetworkName := acctest.RandomWithPrefix("network-test-1")
-	peeringName := acctest.RandomWithPrefix("peering-test-1")
+	primaryNetworkName := fmt.Sprintf("network-test-1-%d", randInt(t))
+	peeringName := fmt.Sprintf("peering-test-1-%d", randInt(t))
 	importId := fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), primaryNetworkName, peeringName)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComputeNetworkPeeringDestroy,
+		CheckDestroy: testAccComputeNetworkPeeringDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetworkPeering_basic(primaryNetworkName, peeringName),
+				Config: testAccComputeNetworkPeering_basic(primaryNetworkName, peeringName, randString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					// network foo
-					testAccCheckComputeNetworkPeeringExist("google_compute_network_peering.foo", &peering_beta),
+					testAccCheckComputeNetworkPeeringExist(t, "google_compute_network_peering.foo", &peering_beta),
 					testAccCheckComputeNetworkPeeringAutoCreateRoutes(true, &peering_beta),
 					testAccCheckComputeNetworkPeeringImportCustomRoutes(false, &peering_beta),
 					testAccCheckComputeNetworkPeeringExportCustomRoutes(false, &peering_beta),
 
 					// network bar
-					testAccCheckComputeNetworkPeeringExist("google_compute_network_peering.bar", &peering_beta),
+					testAccCheckComputeNetworkPeeringExist(t, "google_compute_network_peering.bar", &peering_beta),
 					testAccCheckComputeNetworkPeeringAutoCreateRoutes(true, &peering_beta),
 					testAccCheckComputeNetworkPeeringImportCustomRoutes(true, &peering_beta),
 					testAccCheckComputeNetworkPeeringExportCustomRoutes(true, &peering_beta),
@@ -51,25 +50,27 @@ func TestAccComputeNetworkPeering_basic(t *testing.T) {
 
 }
 
-func testAccComputeNetworkPeeringDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccComputeNetworkPeeringDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_network_peering" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_network_peering" {
+				continue
+			}
+
+			_, err := config.clientCompute.Networks.Get(
+				config.Project, rs.Primary.ID).Do()
+			if err == nil {
+				return fmt.Errorf("Network peering still exists")
+			}
 		}
 
-		_, err := config.clientCompute.Networks.Get(
-			config.Project, rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("Network peering still exists")
-		}
+		return nil
 	}
-
-	return nil
 }
 
-func testAccCheckComputeNetworkPeeringExist(n string, peering *compute.NetworkPeering) resource.TestCheckFunc {
+func testAccCheckComputeNetworkPeeringExist(t *testing.T, n string, peering *compute.NetworkPeering) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -80,7 +81,7 @@ func testAccCheckComputeNetworkPeeringExist(n string, peering *compute.NetworkPe
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		parts := strings.Split(rs.Primary.ID, "/")
 		if len(parts) != 2 {
@@ -134,7 +135,7 @@ func testAccCheckComputeNetworkPeeringExportCustomRoutes(v bool, peering *comput
 	}
 }
 
-func testAccComputeNetworkPeering_basic(primaryNetworkName, peeringName string) string {
+func testAccComputeNetworkPeering_basic(primaryNetworkName, peeringName, suffix string) string {
 	s := `
 resource "google_compute_network" "network1" {
   name                    = "%s"
@@ -163,5 +164,5 @@ resource "google_compute_network_peering" "bar" {
 		export_custom_routes = true
 		`
 	s = s + `}`
-	return fmt.Sprintf(s, primaryNetworkName, peeringName, acctest.RandString(10), acctest.RandString(10))
+	return fmt.Sprintf(s, primaryNetworkName, peeringName, suffix, suffix)
 }

@@ -148,6 +148,7 @@ func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.Resour
 		return defaultMatch && b.String() == i.Body
 	})
 	config.client.Transport = rec
+	config.wrappedPubsubClient.Transport = rec
 	configs[testName] = config
 	return config, err
 }
@@ -166,12 +167,18 @@ func closeRecorder(t *testing.T) {
 	}
 }
 
+func googleProviderConfig(t *testing.T) *Config {
+	config, ok := configs[t.Name()]
+	if ok {
+		return config
+	}
+	return testAccProvider.Meta().(*Config)
+}
+
 func getTestAccProviders(testName string) map[string]terraform.ResourceProvider {
-	prov := testAccProvider
+	prov := Provider().(*schema.Provider)
 	provRand := random.Provider().(*schema.Provider)
-	envPath := os.Getenv("VCR_PATH")
-	recordingMode := os.Getenv("VCR_MODE")
-	if envPath != "" && recordingMode != "" {
+	if isVcrEnabled() {
 		old := prov.ConfigureFunc
 		prov.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
 			return getCachedConfig(d, old, testName)
@@ -179,20 +186,27 @@ func getTestAccProviders(testName string) map[string]terraform.ResourceProvider 
 	} else {
 		log.Print("[DEBUG] VCR_PATH or VCR_MODE not set, skipping VCR")
 	}
-	// TODO(slevenick): Add OICS provider
 	return map[string]terraform.ResourceProvider{
-		"google": prov,
-		"random": provRand,
+		"google":      prov,
+		"google-beta": prov,
+		"random":      provRand,
 	}
+}
+
+func isVcrEnabled() bool {
+	envPath := os.Getenv("VCR_PATH")
+	vcrMode := os.Getenv("VCR_MODE")
+	return envPath != "" && vcrMode != ""
 }
 
 // Wrapper for resource.Test to swap out providers for VCR providers and handle VCR specific things
 // Can be called when VCR is not enabled, and it will behave as normal
-func vcrTest(t *testing.T, c resource.TestCase, destroyFuncProducer func(provider *schema.Provider) func(s *terraform.State) error) {
-	providers := getTestAccProviders(t.Name())
-	c.Providers = providers
-	defer closeRecorder(t)
-	c.CheckDestroy = destroyFuncProducer(providers["google"].(*schema.Provider))
+func vcrTest(t *testing.T, c resource.TestCase) {
+	if isVcrEnabled() {
+		providers := getTestAccProviders(t.Name())
+		c.Providers = providers
+		defer closeRecorder(t)
+	}
 	resource.Test(t, c)
 }
 
@@ -260,11 +274,11 @@ func writeSeedToFile(seed int64, fileName string) error {
 }
 
 func randString(t *testing.T, length int) string {
+	if !isVcrEnabled() {
+		return acctest.RandString(length)
+	}
 	envPath := os.Getenv("VCR_PATH")
 	vcrMode := os.Getenv("VCR_MODE")
-	if envPath == "" || vcrMode == "" {
-		return acctest.RandString(10)
-	}
 	s, err := vcrSource(t, envPath, vcrMode)
 	if err != nil {
 		// At this point we haven't created any resources, so fail fast
@@ -278,6 +292,21 @@ func randString(t *testing.T, length int) string {
 		result[i] = set[r.Intn(len(set))]
 	}
 	return string(result)
+}
+
+func randInt(t *testing.T) int {
+	if !isVcrEnabled() {
+		return acctest.RandInt()
+	}
+	envPath := os.Getenv("VCR_PATH")
+	vcrMode := os.Getenv("VCR_MODE")
+	s, err := vcrSource(t, envPath, vcrMode)
+	if err != nil {
+		// At this point we haven't created any resources, so fail fast
+		t.Fatal(err)
+	}
+
+	return rand.New(s).Int()
 }
 
 func TestProvider(t *testing.T) {
@@ -358,10 +387,10 @@ func TestProvider_loadCredentialsFromJSON(t *testing.T) {
 func TestAccProviderBasePath_setBasePath(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroy,
+		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProviderBasePath_setBasePath("https://www.googleapis.com/compute/beta/", acctest.RandString(10)),
@@ -378,10 +407,10 @@ func TestAccProviderBasePath_setBasePath(t *testing.T) {
 func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroy,
+		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", acctest.RandString(10)),
@@ -400,7 +429,7 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 	sa := acctest.RandomWithPrefix("tf-test")
 	topicName := "tf-test-topic-" + acctest.RandString(10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		// No TestDestroy since that's not really the point of this test
@@ -443,7 +472,7 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 	pid := acctest.RandomWithPrefix("tf-test")
 	sa := acctest.RandomWithPrefix("tf-test")
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		// No TestDestroy since that's not really the point of this test

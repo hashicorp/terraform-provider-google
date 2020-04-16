@@ -14,10 +14,10 @@ import (
 func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroy,
+		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerAccessLevel_basic(org, "my policy", "level"),
@@ -42,10 +42,10 @@ func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
 func testAccAccessContextManagerAccessLevel_fullTest(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroy,
+		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerAccessLevel_full(org, "my policy", "level"),
@@ -59,26 +59,28 @@ func testAccAccessContextManagerAccessLevel_fullTest(t *testing.T) {
 	})
 }
 
-func testAccCheckAccessContextManagerAccessLevelDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_access_context_manager_access_level" {
-			continue
+func testAccCheckAccessContextManagerAccessLevelDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_access_context_manager_access_level" {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("AccessLevel still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("AccessLevel still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccAccessContextManagerAccessLevel_basic(org, policyTitle, levelTitleName string) string {

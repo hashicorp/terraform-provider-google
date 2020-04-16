@@ -11,7 +11,6 @@ import (
 	"net/url"
 
 	"github.com/hashicorp/go-cleanhttp"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"golang.org/x/oauth2/google"
@@ -103,14 +102,14 @@ func TestUrlData_SignedUrl(t *testing.T) {
 func TestAccStorageSignedUrl_basic(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSignedUrlConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccSignedUrlExists("data.google_storage_object_signed_url.blerg"),
+					testAccSignedUrlExists(t, "data.google_storage_object_signed_url.blerg"),
 				),
 			},
 		},
@@ -120,14 +119,14 @@ func TestAccStorageSignedUrl_basic(t *testing.T) {
 func TestAccStorageSignedUrl_accTest(t *testing.T) {
 	t.Parallel()
 
-	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", randInt(t))
 
 	headers := map[string]string{
 		"x-goog-test":                "foo",
 		"x-goog-if-generation-match": "1",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -144,7 +143,7 @@ func TestAccStorageSignedUrl_accTest(t *testing.T) {
 	})
 }
 
-func testAccSignedUrlExists(n string) resource.TestCheckFunc {
+func testAccSignedUrlExists(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
 		r := s.RootModule().Resources[n]

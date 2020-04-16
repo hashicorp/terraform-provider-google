@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccComputeRoute_defaultInternetGateway(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouteDestroy,
+		CheckDestroy: testAccCheckComputeRouteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRoute_defaultInternetGateway(),
+				Config: testAccComputeRoute_defaultInternetGateway(randString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_route.foobar",
@@ -29,16 +28,16 @@ func TestAccComputeRoute_defaultInternetGateway(t *testing.T) {
 }
 
 func TestAccComputeRoute_hopInstance(t *testing.T) {
-	instanceName := "tf" + acctest.RandString(10)
+	instanceName := "tf" + randString(t, 10)
 	zone := "us-central1-b"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouteDestroy,
+		CheckDestroy: testAccCheckComputeRouteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRoute_hopInstance(instanceName, zone),
+				Config: testAccComputeRoute_hopInstance(instanceName, zone, randString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_route.foobar",
@@ -49,7 +48,7 @@ func TestAccComputeRoute_hopInstance(t *testing.T) {
 	})
 }
 
-func testAccComputeRoute_defaultInternetGateway() string {
+func testAccComputeRoute_defaultInternetGateway(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_route" "foobar" {
   name             = "route-test-%s"
@@ -58,10 +57,10 @@ resource "google_compute_route" "foobar" {
   next_hop_gateway = "default-internet-gateway"
   priority         = 100
 }
-`, acctest.RandString(10))
+`, suffix)
 }
 
-func testAccComputeRoute_hopInstance(instanceName, zone string) string {
+func testAccComputeRoute_hopInstance(instanceName, zone, suffix string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
@@ -92,5 +91,5 @@ resource "google_compute_route" "foobar" {
   next_hop_instance_zone = google_compute_instance.foo.zone
   priority               = 100
 }
-`, instanceName, zone, acctest.RandString(10))
+`, instanceName, zone, suffix)
 }

@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -23,9 +22,9 @@ func TestAccProjectIamAuditConfig_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	service := "cloudkms.googleapis.com"
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -50,11 +49,11 @@ func TestAccProjectIamAuditConfig_multiple(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -84,11 +83,11 @@ func TestAccProjectIamAuditConfig_multipleAtOnce(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -114,10 +113,10 @@ func TestAccProjectIamAuditConfig_update(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	service := "cloudkms.googleapis.com"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -154,11 +153,11 @@ func TestAccProjectIamAuditConfig_remove(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -192,12 +191,12 @@ func TestAccProjectIamAuditConfig_addFirstExemptMember(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	service := "cloudkms.googleapis.com"
 	members := []string{}
 	members2 := []string{"user:paddy@hashicorp.com"}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -228,12 +227,12 @@ func TestAccProjectIamAuditConfig_removeLastExemptMember(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	service := "cloudkms.googleapis.com"
 	members2 := []string{}
 	members := []string{"user:paddy@hashicorp.com"}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -264,12 +263,12 @@ func TestAccProjectIamAuditConfig_updateNoExemptMembers(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	logType := "DATA_READ"
 	logType2 := "DATA_WRITE"
 	service := "cloudkms.googleapis.com"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

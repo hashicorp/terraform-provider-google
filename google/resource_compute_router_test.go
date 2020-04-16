@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccComputeRouter_basic(t *testing.T) {
 	t.Parallel()
 
-	testId := acctest.RandString(10)
+	testId := randString(t, 10)
 	resourceRegion := "europe-west1"
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouterDestroy,
+		CheckDestroy: testAccCheckComputeRouterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterBasic(testId, resourceRegion),
@@ -33,12 +32,12 @@ func TestAccComputeRouter_basic(t *testing.T) {
 func TestAccComputeRouter_noRegion(t *testing.T) {
 	t.Parallel()
 
-	testId := acctest.RandString(10)
+	testId := randString(t, 10)
 	providerRegion := "us-central1"
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouterDestroy,
+		CheckDestroy: testAccCheckComputeRouterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterNoRegion(testId, providerRegion),
@@ -55,11 +54,11 @@ func TestAccComputeRouter_noRegion(t *testing.T) {
 func TestAccComputeRouter_full(t *testing.T) {
 	t.Parallel()
 
-	testId := acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
+	testId := randString(t, 10)
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouterDestroy,
+		CheckDestroy: testAccCheckComputeRouterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterFull(testId),
@@ -76,12 +75,12 @@ func TestAccComputeRouter_full(t *testing.T) {
 func TestAccComputeRouter_update(t *testing.T) {
 	t.Parallel()
 
-	testId := acctest.RandString(10)
+	testId := randString(t, 10)
 	region := getTestRegionFromEnv()
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouterDestroy,
+		CheckDestroy: testAccCheckComputeRouterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterBasic(testId, region),
@@ -114,12 +113,12 @@ func TestAccComputeRouter_update(t *testing.T) {
 func TestAccComputeRouter_updateAddRemoveBGP(t *testing.T) {
 	t.Parallel()
 
-	testId := acctest.RandString(10)
+	testId := randString(t, 10)
 	region := getTestRegionFromEnv()
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouterDestroy,
+		CheckDestroy: testAccCheckComputeRouterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterBasic(testId, region),

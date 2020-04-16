@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	compute "google.golang.org/api/compute/v1"
@@ -15,19 +14,19 @@ func TestAccComputeInstanceFromTemplate_basic(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
-	templateName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
 	resourceName := "google_compute_instance_from_template.foobar"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroy,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceFromTemplate_basic(instanceName, templateName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
 
 					// Check that fields were set based on the template
 					resource.TestCheckResourceAttr(resourceName, "machine_type", "n1-standard-1"),
@@ -43,21 +42,21 @@ func TestAccComputeInstanceFromTemplate_overrideBootDisk(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
-	templateName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
-	templateDisk := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
-	overrideDisk := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	templateDisk := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	overrideDisk := fmt.Sprintf("terraform-test-%s", randString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroy,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceFromTemplate_overrideBootDisk(templateDisk, overrideDisk, templateName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
 
 					// Check that fields were set based on the template
 					resource.TestCheckResourceAttr(resourceName, "boot_disk.#", "1"),
@@ -72,21 +71,21 @@ func TestAccComputeInstanceFromTemplate_overrideAttachedDisk(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
-	templateName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
-	templateDisk := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
-	overrideDisk := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	templateDisk := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	overrideDisk := fmt.Sprintf("terraform-test-%s", randString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroy,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceFromTemplate_overrideAttachedDisk(templateDisk, overrideDisk, templateName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
 
 					// Check that fields were set based on the template
 					resource.TestCheckResourceAttr(resourceName, "attached_disk.#", "1"),
@@ -101,21 +100,21 @@ func TestAccComputeInstanceFromTemplate_overrideScratchDisk(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
-	templateName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
-	templateDisk := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
-	overrideDisk := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	templateDisk := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	overrideDisk := fmt.Sprintf("terraform-test-%s", randString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroy,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceFromTemplate_overrideScratchDisk(templateDisk, overrideDisk, templateName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
 
 					// Check that fields were set based on the template
 					resource.TestCheckResourceAttr(resourceName, "scratch_disk.#", "1"),
@@ -130,20 +129,20 @@ func TestAccComputeInstanceFromTemplate_overrideScheduling(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	templateDisk := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	templateDisk := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroy,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceFromTemplate_overrideScheduling(templateDisk, templateName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
 				),
 			},
 		},
@@ -154,8 +153,8 @@ func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
-	templateName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
 	// First config is a basic instance from template, second tests the empty list syntax
@@ -164,15 +163,15 @@ func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 	config2 := testAccComputeInstanceFromTemplate_012_removableFieldsTpl(templateName) +
 		testAccComputeInstanceFromTemplate_012_removableFields2(instanceName)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroy,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: config1,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
 
 					resource.TestCheckResourceAttr(resourceName, "service_account.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "service_account.0.scopes.#", "3"),
@@ -181,7 +180,7 @@ func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 			{
 				Config: config2,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
 
 					// Check that fields were able to be removed
 					resource.TestCheckResourceAttr(resourceName, "scratch_disk.#", "0"),
@@ -195,19 +194,19 @@ func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 
 func TestAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(t *testing.T) {
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
-	templateName := fmt.Sprintf("terraform-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroy,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(instanceName, templateName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(resourceName, &instance),
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "metadata.startup-script", ""),
 				),
 			},
@@ -216,22 +215,24 @@ func TestAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(t *test
 
 }
 
-func testAccCheckComputeInstanceFromTemplateDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckComputeInstanceFromTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_instance_from_template" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_instance_from_template" {
+				continue
+			}
+
+			_, err := config.clientCompute.Instances.Get(
+				config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
+			if err == nil {
+				return fmt.Errorf("Instance still exists")
+			}
 		}
 
-		_, err := config.clientCompute.Instances.Get(
-			config.Project, rs.Primary.Attributes["zone"], rs.Primary.ID).Do()
-		if err == nil {
-			return fmt.Errorf("Instance still exists")
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccComputeInstanceFromTemplate_basic(instance, template string) string {

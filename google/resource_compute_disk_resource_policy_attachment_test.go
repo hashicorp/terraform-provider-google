@@ -4,18 +4,17 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccComputeDiskResourcePolicyAttachment_update(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	policyName := fmt.Sprintf("tf-test-policy-%s", acctest.RandString(10))
-	policyName2 := fmt.Sprintf("tf-test-policy-%s", acctest.RandString(10))
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	policyName := fmt.Sprintf("tf-test-policy-%s", randString(t, 10))
+	policyName2 := fmt.Sprintf("tf-test-policy-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

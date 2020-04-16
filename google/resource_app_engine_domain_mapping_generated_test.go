@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,13 +27,13 @@ func TestAccAppEngineDomainMapping_appEngineDomainMappingBasicExample(t *testing
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAppEngineDomainMappingDestroy,
+		CheckDestroy: testAccCheckAppEngineDomainMappingDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineDomainMapping_appEngineDomainMappingBasicExample(context),
@@ -61,27 +60,29 @@ resource "google_app_engine_domain_mapping" "domain_mapping" {
 `, context)
 }
 
-func testAccCheckAppEngineDomainMappingDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_app_engine_domain_mapping" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckAppEngineDomainMappingDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_app_engine_domain_mapping" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("AppEngineDomainMapping still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("AppEngineDomainMapping still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

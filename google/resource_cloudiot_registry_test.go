@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -37,12 +36,12 @@ func TestValidateCloudIoTID(t *testing.T) {
 func TestAccCloudIoTRegistry_basic(t *testing.T) {
 	t.Parallel()
 
-	registryName := fmt.Sprintf("psregistry-test-%s", acctest.RandString(10))
+	registryName := fmt.Sprintf("psregistry-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudIoTRegistryDestroy,
+		CheckDestroy: testAccCheckCloudIoTRegistryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIoTRegistry_basic(registryName),
@@ -59,15 +58,15 @@ func TestAccCloudIoTRegistry_basic(t *testing.T) {
 func TestAccCloudIoTRegistry_extended(t *testing.T) {
 	t.Parallel()
 
-	registryName := fmt.Sprintf("psregistry-test-%s", acctest.RandString(10))
+	registryName := fmt.Sprintf("psregistry-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudIoTRegistryDestroy,
+		CheckDestroy: testAccCheckCloudIoTRegistryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudIoTRegistry_extended(registryName),
+				Config: testAccCloudIoTRegistry_extended(randString(t, 10), randString(t, 10), registryName),
 			},
 			{
 				ResourceName:      "google_cloudiot_registry.foobar",
@@ -81,12 +80,12 @@ func TestAccCloudIoTRegistry_extended(t *testing.T) {
 func TestAccCloudIoTRegistry_update(t *testing.T) {
 	t.Parallel()
 
-	registryName := fmt.Sprintf("psregistry-test-%s", acctest.RandString(10))
+	registryName := fmt.Sprintf("psregistry-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudIoTRegistryDestroy,
+		CheckDestroy: testAccCheckCloudIoTRegistryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIoTRegistry_basic(registryName),
@@ -97,7 +96,7 @@ func TestAccCloudIoTRegistry_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccCloudIoTRegistry_extended(registryName),
+				Config: testAccCloudIoTRegistry_extended(randString(t, 10), randString(t, 10), registryName),
 			},
 			{
 				ResourceName:      "google_cloudiot_registry.foobar",
@@ -119,13 +118,13 @@ func TestAccCloudIoTRegistry_update(t *testing.T) {
 func TestAccCloudIoTRegistry_eventNotificationConfigsSingle(t *testing.T) {
 	t.Parallel()
 
-	registryName := fmt.Sprintf("tf-registry-test-%s", acctest.RandString(10))
-	topic := fmt.Sprintf("tf-registry-test-%s", acctest.RandString(10))
+	registryName := fmt.Sprintf("tf-registry-test-%s", randString(t, 10))
+	topic := fmt.Sprintf("tf-registry-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudIoTRegistryDestroy,
+		CheckDestroy: testAccCheckCloudIoTRegistryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIoTRegistry_singleEventNotificationConfigs(topic, registryName),
@@ -142,13 +141,13 @@ func TestAccCloudIoTRegistry_eventNotificationConfigsSingle(t *testing.T) {
 func TestAccCloudIoTRegistry_eventNotificationConfigsMultiple(t *testing.T) {
 	t.Parallel()
 
-	registryName := fmt.Sprintf("tf-registry-test-%s", acctest.RandString(10))
-	topic := fmt.Sprintf("tf-registry-test-%s", acctest.RandString(10))
+	registryName := fmt.Sprintf("tf-registry-test-%s", randString(t, 10))
+	topic := fmt.Sprintf("tf-registry-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudIoTRegistryDestroy,
+		CheckDestroy: testAccCheckCloudIoTRegistryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIoTRegistry_multipleEventNotificationConfigs(topic, registryName),
@@ -162,18 +161,20 @@ func TestAccCloudIoTRegistry_eventNotificationConfigsMultiple(t *testing.T) {
 	})
 }
 
-func testAccCheckCloudIoTRegistryDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_cloudiot_registry" {
-			continue
+func testAccCheckCloudIoTRegistryDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_cloudiot_registry" {
+				continue
+			}
+			config := googleProviderConfig(t)
+			registry, _ := config.clientCloudIoT.Projects.Locations.Registries.Get(rs.Primary.ID).Do()
+			if registry != nil {
+				return fmt.Errorf("Registry still present")
+			}
 		}
-		config := testAccProvider.Meta().(*Config)
-		registry, _ := config.clientCloudIoT.Projects.Locations.Registries.Get(rs.Primary.ID).Do()
-		if registry != nil {
-			return fmt.Errorf("Registry still present")
-		}
+		return nil
 	}
-	return nil
 }
 
 func testAccCloudIoTRegistry_basic(registryName string) string {
@@ -184,7 +185,7 @@ resource "google_cloudiot_registry" "foobar" {
 `, registryName)
 }
 
-func testAccCloudIoTRegistry_extended(registryName string) string {
+func testAccCloudIoTRegistry_extended(topicName, telemetryTopicName, registryName string) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "default-devicestatus" {
   name = "psregistry-test-devicestatus-%s"
@@ -222,7 +223,7 @@ resource "google_cloudiot_registry" "foobar" {
     }
   }
 }
-`, acctest.RandString(10), acctest.RandString(10), registryName)
+`, topicName, telemetryTopicName, registryName)
 }
 
 func testAccCloudIoTRegistry_singleEventNotificationConfigs(topic, registryName string) string {

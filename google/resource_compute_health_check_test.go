@@ -5,19 +5,18 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccComputeHealthCheck_tcp_update(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	hckName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_tcp(hckName),
@@ -42,12 +41,12 @@ func TestAccComputeHealthCheck_tcp_update(t *testing.T) {
 func TestAccComputeHealthCheck_ssl_port_spec(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	hckName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_ssl_fixed_port(hckName),
@@ -64,12 +63,12 @@ func TestAccComputeHealthCheck_ssl_port_spec(t *testing.T) {
 func TestAccComputeHealthCheck_http_port_spec(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	hckName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccComputeHealthCheck_http_port_spec(hckName),
@@ -85,12 +84,12 @@ func TestAccComputeHealthCheck_http_port_spec(t *testing.T) {
 func TestAccComputeHealthCheck_https_serving_port(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	hckName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_https_serving_port(hckName),
@@ -107,12 +106,12 @@ func TestAccComputeHealthCheck_https_serving_port(t *testing.T) {
 func TestAccComputeHealthCheck_typeTransition(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	hckName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_https(hckName),
@@ -139,12 +138,12 @@ func TestAccComputeHealthCheck_typeTransition(t *testing.T) {
 func TestAccComputeHealthCheck_tcpAndSsl_shouldFail(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	hckName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroy,
+		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccComputeHealthCheck_tcpAndSsl_shouldFail(hckName),

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/compute/v1"
@@ -18,20 +17,20 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 	t.Parallel()
 
 	var proxy compute.TargetHttpsProxy
-	resourceSuffix := acctest.RandString(10)
+	resourceSuffix := randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeTargetHttpsProxyDestroy,
+		CheckDestroy: testAccCheckComputeTargetHttpsProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeTargetHttpsProxy_basic1(resourceSuffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetHttpsProxyExists(
-						"google_compute_target_https_proxy.foobar", &proxy),
+						t, "google_compute_target_https_proxy.foobar", &proxy),
 					testAccComputeTargetHttpsProxyDescription("Resource created for Terraform acceptance testing", &proxy),
-					testAccComputeTargetHttpsProxyHasSslCertificate("httpsproxy-test-cert1-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasSslCertificate(t, "httpsproxy-test-cert1-"+resourceSuffix, &proxy),
 				),
 			},
 
@@ -39,17 +38,17 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 				Config: testAccComputeTargetHttpsProxy_basic2(resourceSuffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetHttpsProxyExists(
-						"google_compute_target_https_proxy.foobar", &proxy),
+						t, "google_compute_target_https_proxy.foobar", &proxy),
 					testAccComputeTargetHttpsProxyDescription("Resource created for Terraform acceptance testing", &proxy),
-					testAccComputeTargetHttpsProxyHasSslCertificate("httpsproxy-test-cert1-"+resourceSuffix, &proxy),
-					testAccComputeTargetHttpsProxyHasSslCertificate("httpsproxy-test-cert2-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasSslCertificate(t, "httpsproxy-test-cert1-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasSslCertificate(t, "httpsproxy-test-cert2-"+resourceSuffix, &proxy),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckComputeTargetHttpsProxyExists(n string, proxy *compute.TargetHttpsProxy) resource.TestCheckFunc {
+func testAccCheckComputeTargetHttpsProxyExists(t *testing.T, n string, proxy *compute.TargetHttpsProxy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -60,7 +59,7 @@ func testAccCheckComputeTargetHttpsProxyExists(n string, proxy *compute.TargetHt
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
 		found, err := config.clientCompute.TargetHttpsProxies.Get(
@@ -88,9 +87,9 @@ func testAccComputeTargetHttpsProxyDescription(description string, proxy *comput
 	}
 }
 
-func testAccComputeTargetHttpsProxyHasSslCertificate(cert string, proxy *compute.TargetHttpsProxy) resource.TestCheckFunc {
+func testAccComputeTargetHttpsProxyHasSslCertificate(t *testing.T, cert string, proxy *compute.TargetHttpsProxy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		certUrl := fmt.Sprintf(canonicalSslCertificateTemplate, config.Project, cert)
 
 		for _, sslCertificate := range proxy.SslCertificates {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -15,11 +14,11 @@ func TestAccComputeRouterNat_basic(t *testing.T) {
 	project := getTestProjectFromEnv()
 	region := getTestRegionFromEnv()
 
-	testId := acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
+	testId := randString(t, 10)
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouterNatDestroy,
+		CheckDestroy: testAccCheckComputeRouterNatDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterNatBasic(testId),
@@ -51,7 +50,7 @@ func TestAccComputeRouterNat_basic(t *testing.T) {
 			{
 				Config: testAccComputeRouterNatKeepRouter(testId),
 				Check: testAccCheckComputeRouterNatDelete(
-					"google_compute_router_nat.foobar"),
+					t, "google_compute_router_nat.foobar"),
 			},
 		},
 	})
@@ -60,11 +59,11 @@ func TestAccComputeRouterNat_basic(t *testing.T) {
 func TestAccComputeRouterNat_update(t *testing.T) {
 	t.Parallel()
 
-	testId := acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
+	testId := randString(t, 10)
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouterNatDestroy,
+		CheckDestroy: testAccCheckComputeRouterNatDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterNatBasicBeforeUpdate(testId),
@@ -97,11 +96,11 @@ func TestAccComputeRouterNat_update(t *testing.T) {
 func TestAccComputeRouterNat_withManualIpAndSubnetConfiguration(t *testing.T) {
 	t.Parallel()
 
-	testId := acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
+	testId := randString(t, 10)
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeRouterNatDestroy,
+		CheckDestroy: testAccCheckComputeRouterNatDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterNatWithManualIpAndSubnetConfiguration(testId),
@@ -115,41 +114,43 @@ func TestAccComputeRouterNat_withManualIpAndSubnetConfiguration(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeRouterNatDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckComputeRouterNatDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	routersService := config.clientCompute.Routers
+		routersService := config.clientCompute.Routers
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_router" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_router" {
+				continue
+			}
+
+			project, err := getTestProject(rs.Primary, config)
+			if err != nil {
+				return err
+			}
+
+			region, err := getTestRegion(rs.Primary, config)
+			if err != nil {
+				return err
+			}
+
+			routerName := rs.Primary.Attributes["router"]
+
+			_, err = routersService.Get(project, region, routerName).Do()
+
+			if err == nil {
+				return fmt.Errorf("Error, Router %s in region %s still exists", routerName, region)
+			}
 		}
 
-		project, err := getTestProject(rs.Primary, config)
-		if err != nil {
-			return err
-		}
-
-		region, err := getTestRegion(rs.Primary, config)
-		if err != nil {
-			return err
-		}
-
-		routerName := rs.Primary.Attributes["router"]
-
-		_, err = routersService.Get(project, region, routerName).Do()
-
-		if err == nil {
-			return fmt.Errorf("Error, Router %s in region %s still exists", routerName, region)
-		}
+		return nil
 	}
-
-	return nil
 }
 
-func testAccCheckComputeRouterNatDelete(n string) resource.TestCheckFunc {
+func testAccCheckComputeRouterNatDelete(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		routersService := config.clientComputeBeta.Routers
 

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -13,13 +12,13 @@ import (
 func TestAccBigtableTable_basic(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	tableName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigtableTableDestroy,
+		CheckDestroy: testAccCheckBigtableTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableTable(instanceName, tableName),
@@ -36,13 +35,13 @@ func TestAccBigtableTable_basic(t *testing.T) {
 func TestAccBigtableTable_splitKeys(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	tableName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigtableTableDestroy,
+		CheckDestroy: testAccCheckBigtableTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableTable_splitKeys(instanceName, tableName),
@@ -60,14 +59,14 @@ func TestAccBigtableTable_splitKeys(t *testing.T) {
 func TestAccBigtableTable_family(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	tableName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	family := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	family := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigtableTableDestroy,
+		CheckDestroy: testAccCheckBigtableTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableTable_family(instanceName, tableName, family),
@@ -84,14 +83,14 @@ func TestAccBigtableTable_family(t *testing.T) {
 func TestAccBigtableTable_familyMany(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	tableName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	family := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	family := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigtableTableDestroy,
+		CheckDestroy: testAccCheckBigtableTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableTable_familyMany(instanceName, tableName, family),
@@ -105,29 +104,31 @@ func TestAccBigtableTable_familyMany(t *testing.T) {
 	})
 }
 
-func testAccCheckBigtableTableDestroy(s *terraform.State) error {
-	var ctx = context.Background()
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_bigtable_table" {
-			continue
+func testAccCheckBigtableTableDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		var ctx = context.Background()
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_bigtable_table" {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+			c, err := config.bigtableClientFactory.NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
+			if err != nil {
+				// The instance is already gone
+				return nil
+			}
+
+			_, err = c.TableInfo(ctx, rs.Primary.Attributes["name"])
+			if err == nil {
+				return fmt.Errorf("Table still present. Found %s in %s.", rs.Primary.Attributes["name"], rs.Primary.Attributes["instance_name"])
+			}
+
+			c.Close()
 		}
 
-		config := testAccProvider.Meta().(*Config)
-		c, err := config.bigtableClientFactory.NewAdminClient(config.Project, rs.Primary.Attributes["instance_name"])
-		if err != nil {
-			// The instance is already gone
-			return nil
-		}
-
-		_, err = c.TableInfo(ctx, rs.Primary.Attributes["name"])
-		if err == nil {
-			return fmt.Errorf("Table still present. Found %s in %s.", rs.Primary.Attributes["name"], rs.Primary.Attributes["instance_name"])
-		}
-
-		c.Close()
+		return nil
 	}
-
-	return nil
 }
 
 func testAccBigtableTable(instanceName, tableName string) string {

@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroy,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceDnsManagedZone_basic(),
+				Config: testAccDataSourceDnsManagedZone_basic(randString(t, 10)),
 				Check: checkDataSourceStateMatchesResourceStateWithIgnores(
 					"data.google_dns_managed_zone.qa",
 					"google_dns_managed_zone.foo",
@@ -31,7 +30,7 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceDnsManagedZone_basic() string {
+func testAccDataSourceDnsManagedZone_basic(managedZoneName string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foo" {
   name        = "qa-zone-%s"
@@ -42,5 +41,5 @@ resource "google_dns_managed_zone" "foo" {
 data "google_dns_managed_zone" "qa" {
   name = google_dns_managed_zone.foo.name
 }
-`, acctest.RandString(10))
+`, managedZoneName)
 }

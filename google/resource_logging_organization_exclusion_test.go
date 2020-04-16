@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -33,13 +32,13 @@ func TestAccLoggingOrganizationExclusion(t *testing.T) {
 
 func testAccLoggingOrganizationExclusion_basic(t *testing.T) {
 	org := getTestOrgFromEnv(t)
-	exclusionName := "tf-test-exclusion-" + acctest.RandString(10)
-	description := "Description " + acctest.RandString(10)
+	exclusionName := "tf-test-exclusion-" + randString(t, 10)
+	description := "Description " + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingOrganizationExclusionDestroy,
+		CheckDestroy: testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingOrganizationExclusion_basicCfg(exclusionName, description, org),
@@ -55,14 +54,14 @@ func testAccLoggingOrganizationExclusion_basic(t *testing.T) {
 
 func testAccLoggingOrganizationExclusion_update(t *testing.T) {
 	org := getTestOrgFromEnv(t)
-	exclusionName := "tf-test-exclusion-" + acctest.RandString(10)
-	descriptionBefore := "Basic Organization Logging Exclusion" + acctest.RandString(10)
-	descriptionAfter := "Updated Basic Organization Logging Exclusion" + acctest.RandString(10)
+	exclusionName := "tf-test-exclusion-" + randString(t, 10)
+	descriptionBefore := "Basic Organization Logging Exclusion" + randString(t, 10)
+	descriptionAfter := "Updated Basic Organization Logging Exclusion" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingOrganizationExclusionDestroy,
+		CheckDestroy: testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingOrganizationExclusion_basicCfg(exclusionName, descriptionBefore, org),
@@ -87,13 +86,13 @@ func testAccLoggingOrganizationExclusion_update(t *testing.T) {
 func testAccLoggingOrganizationExclusion_multiple(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingOrganizationExclusionDestroy,
+		CheckDestroy: testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingOrganizationExclusion_multipleCfg(org),
+				Config: testAccLoggingOrganizationExclusion_multipleCfg("tf-test-exclusion-"+randString(t, 10), org),
 			},
 			{
 				ResourceName:      "google_logging_organization_exclusion.basic0",
@@ -114,23 +113,25 @@ func testAccLoggingOrganizationExclusion_multiple(t *testing.T) {
 	})
 }
 
-func testAccCheckLoggingOrganizationExclusionDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckLoggingOrganizationExclusionDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_logging_organization_exclusion" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_logging_organization_exclusion" {
+				continue
+			}
+
+			attributes := rs.Primary.Attributes
+
+			_, err := config.clientLogging.Organizations.Exclusions.Get(attributes["id"]).Do()
+			if err == nil {
+				return fmt.Errorf("organization exclusion still exists")
+			}
 		}
 
-		attributes := rs.Primary.Attributes
-
-		_, err := config.clientLogging.Organizations.Exclusions.Get(attributes["id"]).Do()
-		if err == nil {
-			return fmt.Errorf("organization exclusion still exists")
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccLoggingOrganizationExclusion_basicCfg(exclusionName, description, orgId string) string {
@@ -144,17 +145,17 @@ resource "google_logging_organization_exclusion" "basic" {
 `, exclusionName, orgId, description, getTestProjectFromEnv())
 }
 
-func testAccLoggingOrganizationExclusion_multipleCfg(orgId string) string {
+func testAccLoggingOrganizationExclusion_multipleCfg(exclusionName, orgId string) string {
 	s := ""
 	for i := 0; i < 3; i++ {
 		s += fmt.Sprintf(`
 resource "google_logging_organization_exclusion" "basic%d" {
-	name             = "%s"
+	name             = "%s%d"
 	org_id           = "%s"
 	description      = "Basic Organization Logging Exclusion"
 	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
-`, i, "tf-test-exclusion-"+acctest.RandString(10), orgId, getTestProjectFromEnv())
+`, i, exclusionName, i, orgId, getTestProjectFromEnv())
 	}
 	return s
 }

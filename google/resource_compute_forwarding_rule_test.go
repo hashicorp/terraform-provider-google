@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccComputeForwardingRule_update(t *testing.T) {
 	t.Parallel()
 
-	poolName := fmt.Sprintf("tf-%s", acctest.RandString(10))
-	ruleName := fmt.Sprintf("tf-%s", acctest.RandString(10))
+	poolName := fmt.Sprintf("tf-%s", randString(t, 10))
+	ruleName := fmt.Sprintf("tf-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
+		CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeForwardingRule_basic(poolName, ruleName),
@@ -42,14 +41,14 @@ func TestAccComputeForwardingRule_update(t *testing.T) {
 func TestAccComputeForwardingRule_ip(t *testing.T) {
 	t.Parallel()
 
-	addrName := fmt.Sprintf("tf-%s", acctest.RandString(10))
-	poolName := fmt.Sprintf("tf-%s", acctest.RandString(10))
-	ruleName := fmt.Sprintf("tf-%s", acctest.RandString(10))
+	addrName := fmt.Sprintf("tf-%s", randString(t, 10))
+	poolName := fmt.Sprintf("tf-%s", randString(t, 10))
+	ruleName := fmt.Sprintf("tf-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
+		CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeForwardingRule_ip(addrName, poolName, ruleName),
@@ -66,13 +65,13 @@ func TestAccComputeForwardingRule_ip(t *testing.T) {
 func TestAccComputeForwardingRule_networkTier(t *testing.T) {
 	t.Parallel()
 
-	poolName := fmt.Sprintf("tf-%s", acctest.RandString(10))
-	ruleName := fmt.Sprintf("tf-%s", acctest.RandString(10))
+	poolName := fmt.Sprintf("tf-%s", randString(t, 10))
+	ruleName := fmt.Sprintf("tf-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeForwardingRuleDestroy,
+		CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeForwardingRule_networkTier(poolName, ruleName),

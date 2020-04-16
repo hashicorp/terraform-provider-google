@@ -6,7 +6,6 @@ import (
 
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -15,17 +14,17 @@ func TestAccComputeBackendBucketSignedUrlKey_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketSignedUrlKeyDestroy,
+		CheckDestroy: testAccCheckComputeBackendBucketSignedUrlKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucketSignedUrlKey_basic(context),
-				Check:  testAccCheckComputeBackendBucketSignedUrlKeyCreated,
+				Check:  testAccCheckComputeBackendBucketSignedUrlKeyCreatedProducer(t),
 			},
 		},
 	})
@@ -53,29 +52,33 @@ resource "google_storage_bucket" "bucket" {
 `, context)
 }
 
-func testAccCheckComputeBackendBucketSignedUrlKeyDestroy(s *terraform.State) error {
-	exists, err := checkComputeBackendBucketSignedUrlKeyExists(s)
-	if err != nil && !isGoogleApiErrorWithCode(err, 404) {
-		return err
+func testAccCheckComputeBackendBucketSignedUrlKeyDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		exists, err := checkComputeBackendBucketSignedUrlKeyExists(t, s)
+		if err != nil && !isGoogleApiErrorWithCode(err, 404) {
+			return err
+		}
+		if exists {
+			return fmt.Errorf("ComputeBackendBucketSignedUrlKey still exists")
+		}
+		return nil
 	}
-	if exists {
-		return fmt.Errorf("ComputeBackendBucketSignedUrlKey still exists")
-	}
-	return nil
 }
 
-func testAccCheckComputeBackendBucketSignedUrlKeyCreated(s *terraform.State) error {
-	exists, err := checkComputeBackendBucketSignedUrlKeyExists(s)
-	if err != nil {
-		return err
+func testAccCheckComputeBackendBucketSignedUrlKeyCreatedProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		exists, err := checkComputeBackendBucketSignedUrlKeyExists(t, s)
+		if err != nil {
+			return err
+		}
+		if !exists {
+			return fmt.Errorf("expected ComputeBackendBucketSignedUrlKey to have been created")
+		}
+		return nil
 	}
-	if !exists {
-		return fmt.Errorf("expected ComputeBackendBucketSignedUrlKey to have been created")
-	}
-	return nil
 }
 
-func checkComputeBackendBucketSignedUrlKeyExists(s *terraform.State) (bool, error) {
+func checkComputeBackendBucketSignedUrlKeyExists(t *testing.T, s *terraform.State) (bool, error) {
 	for name, rs := range s.RootModule().Resources {
 		if rs.Type != "google_compute_backend_bucket_signed_url_key" {
 			continue
@@ -84,7 +87,7 @@ func checkComputeBackendBucketSignedUrlKeyExists(s *terraform.State) (bool, erro
 			continue
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		keyName := rs.Primary.Attributes["name"]
 
 		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{backend_bucket}}")

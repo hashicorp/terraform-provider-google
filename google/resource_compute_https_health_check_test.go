@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccComputeHttpsHealthCheck_update(t *testing.T) {
 	t.Parallel()
 
-	hhckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	hhckName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHttpsHealthCheckDestroy,
+		CheckDestroy: testAccCheckComputeHttpsHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHttpsHealthCheck_update1(hhckName),

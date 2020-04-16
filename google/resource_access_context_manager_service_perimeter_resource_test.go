@@ -17,7 +17,7 @@ func testAccAccessContextManagerServicePerimeterResource_basicTest(t *testing.T)
 	policyTitle := "my policy"
 	perimeterTitle := "perimeter"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -37,50 +37,52 @@ func testAccAccessContextManagerServicePerimeterResource_basicTest(t *testing.T)
 			// Use a separate TestStep rather than a CheckDestroy because we need the service perimeter to still exist
 			{
 				Config: testAccAccessContextManagerServicePerimeterResource_destroy(org, policyTitle, perimeterTitle),
-				Check:  testAccCheckAccessContextManagerServicePerimeterResourceDestroy,
+				Check:  testAccCheckAccessContextManagerServicePerimeterResourceDestroyProducer(t),
 			},
 		},
 	})
 }
 
-func testAccCheckAccessContextManagerServicePerimeterResourceDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_access_context_manager_service_perimeter_resource" {
-			continue
+func testAccCheckAccessContextManagerServicePerimeterResourceDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_access_context_manager_service_perimeter_resource" {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
+			if err != nil {
+				return err
+			}
+
+			res, err := sendRequest(config, "GET", "", url, nil)
+			if err != nil {
+				return err
+			}
+
+			v, ok := res["status"]
+			if !ok || v == nil {
+				return nil
+			}
+
+			res = v.(map[string]interface{})
+			v, ok = res["resources"]
+			if !ok || v == nil {
+				return nil
+			}
+
+			resources := v.([]interface{})
+			if len(resources) == 0 {
+				return nil
+			}
+
+			return fmt.Errorf("expected 0 resources in perimeter, found %d: %v", len(resources), resources)
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
-		if err != nil {
-			return err
-		}
-
-		res, err := sendRequest(config, "GET", "", url, nil)
-		if err != nil {
-			return err
-		}
-
-		v, ok := res["status"]
-		if !ok || v == nil {
-			return nil
-		}
-
-		res = v.(map[string]interface{})
-		v, ok = res["resources"]
-		if !ok || v == nil {
-			return nil
-		}
-
-		resources := v.([]interface{})
-		if len(resources) == 0 {
-			return nil
-		}
-
-		return fmt.Errorf("expected 0 resources in perimeter, found %d: %v", len(resources), resources)
+		return nil
 	}
-
-	return nil
 }
 
 func testAccAccessContextManagerServicePerimeterResource_basic(org, policyTitle, perimeterTitleName string, projectNumber1, projectNumber2 int64) string {

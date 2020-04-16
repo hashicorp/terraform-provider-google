@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,12 +11,12 @@ import (
 func TestAccProjectIamCustomRole_basic(t *testing.T) {
 	t.Parallel()
 
-	roleId := "tfIamCustomRole" + acctest.RandString(10)
+	roleId := "tfIamCustomRole" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroy,
+		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),
@@ -43,16 +42,16 @@ func TestAccProjectIamCustomRole_basic(t *testing.T) {
 func TestAccProjectIamCustomRole_undelete(t *testing.T) {
 	t.Parallel()
 
-	roleId := "tfIamCustomRole" + acctest.RandString(10)
+	roleId := "tfIamCustomRole" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroy,
+		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),
-				Check:  testAccCheckGoogleProjectIamCustomRoleDeletionStatus("google_project_iam_custom_role.foo", false),
+				Check:  testAccCheckGoogleProjectIamCustomRoleDeletionStatus(t, "google_project_iam_custom_role.foo", false),
 			},
 			{
 				ResourceName:      "google_project_iam_custom_role.foo",
@@ -62,14 +61,14 @@ func TestAccProjectIamCustomRole_undelete(t *testing.T) {
 			// Soft-delete
 			{
 				Config:  testAccCheckGoogleProjectIamCustomRole_basic(roleId),
-				Check:   testAccCheckGoogleProjectIamCustomRoleDeletionStatus("google_project_iam_custom_role.foo", true),
+				Check:   testAccCheckGoogleProjectIamCustomRoleDeletionStatus(t, "google_project_iam_custom_role.foo", true),
 				Destroy: true,
 			},
 			// Terraform doesn't have a config because of Destroy: true, so an import step would fail
 			// Undelete
 			{
 				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),
-				Check:  testAccCheckGoogleProjectIamCustomRoleDeletionStatus("google_project_iam_custom_role.foo", false),
+				Check:  testAccCheckGoogleProjectIamCustomRoleDeletionStatus(t, "google_project_iam_custom_role.foo", false),
 			},
 			{
 				ResourceName:      "google_project_iam_custom_role.foo",
@@ -83,11 +82,11 @@ func TestAccProjectIamCustomRole_undelete(t *testing.T) {
 func TestAccProjectIamCustomRole_createAfterDestroy(t *testing.T) {
 	t.Parallel()
 
-	roleId := "tfIamCustomRole" + acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
+	roleId := "tfIamCustomRole" + randString(t, 10)
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroy,
+		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),
@@ -115,30 +114,32 @@ func TestAccProjectIamCustomRole_createAfterDestroy(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleProjectIamCustomRoleDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_project_iam_custom_role" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_project_iam_custom_role" {
+				continue
+			}
+
+			role, err := config.clientIAM.Projects.Roles.Get(rs.Primary.ID).Do()
+
+			if err != nil {
+				return err
+			}
+
+			if !role.Deleted {
+				return fmt.Errorf("Iam custom role still exists")
+			}
+
 		}
 
-		role, err := config.clientIAM.Projects.Roles.Get(rs.Primary.ID).Do()
-
-		if err != nil {
-			return err
-		}
-
-		if !role.Deleted {
-			return fmt.Errorf("Iam custom role still exists")
-		}
-
+		return nil
 	}
-
-	return nil
 }
 
-func testAccCheckGoogleProjectIamCustomRoleDeletionStatus(n string, deleted bool) resource.TestCheckFunc {
+func testAccCheckGoogleProjectIamCustomRoleDeletionStatus(t *testing.T, n string, deleted bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -149,7 +150,7 @@ func testAccCheckGoogleProjectIamCustomRoleDeletionStatus(n string, deleted bool
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		role, err := config.clientIAM.Projects.Roles.Get(rs.Primary.ID).Do()
 
 		if err != nil {

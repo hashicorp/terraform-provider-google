@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,19 +11,19 @@ import (
 func TestAccComputeUrlMap_update_path_matcher(t *testing.T) {
 	t.Parallel()
 
-	bsName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
-	hcName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
-	umName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
-	resource.Test(t, resource.TestCase{
+	bsName := fmt.Sprintf("urlmap-test-%s", randString(t, 10))
+	hcName := fmt.Sprintf("urlmap-test-%s", randString(t, 10))
+	umName := fmt.Sprintf("urlmap-test-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroy,
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_basic1(bsName, hcName, umName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
-						"google_compute_url_map.foobar"),
+						t, "google_compute_url_map.foobar"),
 				),
 			},
 
@@ -32,7 +31,7 @@ func TestAccComputeUrlMap_update_path_matcher(t *testing.T) {
 				Config: testAccComputeUrlMap_basic2(bsName, hcName, umName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
-						"google_compute_url_map.foobar"),
+						t, "google_compute_url_map.foobar"),
 				),
 			},
 		},
@@ -42,24 +41,24 @@ func TestAccComputeUrlMap_update_path_matcher(t *testing.T) {
 func TestAccComputeUrlMap_advanced(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroy,
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeUrlMap_advanced1(),
+				Config: testAccComputeUrlMap_advanced1(randString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
-						"google_compute_url_map.foobar"),
+						t, "google_compute_url_map.foobar"),
 				),
 			},
 
 			{
-				Config: testAccComputeUrlMap_advanced2(),
+				Config: testAccComputeUrlMap_advanced2(randString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
-						"google_compute_url_map.foobar"),
+						t, "google_compute_url_map.foobar"),
 				),
 			},
 		},
@@ -69,33 +68,33 @@ func TestAccComputeUrlMap_advanced(t *testing.T) {
 func TestAccComputeUrlMap_noPathRulesWithUpdate(t *testing.T) {
 	t.Parallel()
 
-	bsName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
-	hcName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
-	umName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(10))
-	resource.Test(t, resource.TestCase{
+	bsName := fmt.Sprintf("urlmap-test-%s", randString(t, 10))
+	hcName := fmt.Sprintf("urlmap-test-%s", randString(t, 10))
+	umName := fmt.Sprintf("urlmap-test-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroy,
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_noPathRules(bsName, hcName, umName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
-						"google_compute_url_map.foobar"),
+						t, "google_compute_url_map.foobar"),
 				),
 			},
 			{
 				Config: testAccComputeUrlMap_basic1(bsName, hcName, umName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
-						"google_compute_url_map.foobar"),
+						t, "google_compute_url_map.foobar"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckComputeUrlMapExists(n string) resource.TestCheckFunc {
+func testAccCheckComputeUrlMapExists(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -106,7 +105,7 @@ func testAccCheckComputeUrlMapExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
 		found, err := config.clientCompute.UrlMaps.Get(
@@ -125,15 +124,15 @@ func testAccCheckComputeUrlMapExists(n string) resource.TestCheckFunc {
 func TestAccComputeUrlMap_trafficDirectorUpdate(t *testing.T) {
 	t.Parallel()
 
-	randString := acctest.RandString(10)
+	randString := randString(t, 10)
 
 	bsName := fmt.Sprintf("urlmap-test-%s", randString)
 	hcName := fmt.Sprintf("urlmap-test-%s", randString)
 	umName := fmt.Sprintf("urlmap-test-%s", randString)
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroy,
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_trafficDirector(bsName, hcName, umName),
@@ -158,15 +157,15 @@ func TestAccComputeUrlMap_trafficDirectorUpdate(t *testing.T) {
 func TestAccComputeUrlMap_trafficDirectorPathUpdate(t *testing.T) {
 	t.Parallel()
 
-	randString := acctest.RandString(10)
+	randString := randString(t, 10)
 
 	bsName := fmt.Sprintf("urlmap-test-%s", randString)
 	hcName := fmt.Sprintf("urlmap-test-%s", randString)
 	umName := fmt.Sprintf("urlmap-test-%s", randString)
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroy,
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_trafficDirectorPath(bsName, hcName, umName),
@@ -191,15 +190,15 @@ func TestAccComputeUrlMap_trafficDirectorPathUpdate(t *testing.T) {
 func TestAccComputeUrlMap_trafficDirectorRemoveRouteRule(t *testing.T) {
 	t.Parallel()
 
-	randString := acctest.RandString(10)
+	randString := randString(t, 10)
 
 	bsName := fmt.Sprintf("urlmap-test-%s", randString)
 	hcName := fmt.Sprintf("urlmap-test-%s", randString)
 	umName := fmt.Sprintf("urlmap-test-%s", randString)
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroy,
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_trafficDirector(bsName, hcName, umName),
@@ -305,7 +304,7 @@ resource "google_compute_url_map" "foobar" {
 `, bsName, hcName, umName)
 }
 
-func testAccComputeUrlMap_advanced1() string {
+func testAccComputeUrlMap_advanced1(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
   name          = "urlmap-test-%s"
@@ -353,10 +352,10 @@ resource "google_compute_url_map" "foobar" {
     }
   }
 }
-`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+`, suffix, suffix, suffix)
 }
 
-func testAccComputeUrlMap_advanced2() string {
+func testAccComputeUrlMap_advanced2(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
   name          = "urlmap-test-%s"
@@ -424,7 +423,7 @@ resource "google_compute_url_map" "foobar" {
     }
   }
 }
-`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+`, suffix, suffix, suffix)
 }
 
 func testAccComputeUrlMap_noPathRules(bsName, hcName, umName string) string {

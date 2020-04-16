@@ -6,7 +6,6 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -15,16 +14,16 @@ func TestAccBillingAccountIam(t *testing.T) {
 	t.Parallel()
 
 	billing := getTestBillingAccountFromEnv(t)
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	role := "roles/billing.viewer"
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
 				Config: testAccBillingAccountIamBinding_basic(account, billing, role),
-				Check: testAccCheckGoogleBillingAccountIamBindingExists("foo", role, []string{
+				Check: testAccCheckGoogleBillingAccountIamBindingExists(t, "foo", role, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
 			},
@@ -37,7 +36,7 @@ func TestAccBillingAccountIam(t *testing.T) {
 			{
 				// Test Iam Binding update
 				Config: testAccBillingAccountIamBinding_update(account, billing, role),
-				Check: testAccCheckGoogleBillingAccountIamBindingExists("foo", role, []string{
+				Check: testAccCheckGoogleBillingAccountIamBindingExists(t, "foo", role, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				}),
@@ -51,7 +50,7 @@ func TestAccBillingAccountIam(t *testing.T) {
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccBillingAccountIamMember_basic(account, billing, role),
-				Check: testAccCheckGoogleBillingAccountIamMemberExists("foo", "roles/billing.viewer",
+				Check: testAccCheckGoogleBillingAccountIamMemberExists(t, "foo", "roles/billing.viewer",
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
 				),
 			},
@@ -65,14 +64,14 @@ func TestAccBillingAccountIam(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleBillingAccountIamBindingExists(bindingResourceName, role string, members []string) resource.TestCheckFunc {
+func testAccCheckGoogleBillingAccountIamBindingExists(t *testing.T, bindingResourceName, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		bindingRs, ok := s.RootModule().Resources["google_billing_account_iam_binding."+bindingResourceName]
 		if !ok {
 			return fmt.Errorf("Not found: %s", bindingResourceName)
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		p, err := config.clientBilling.BillingAccounts.GetIamPolicy("billingAccounts/" + bindingRs.Primary.Attributes["billing_account_id"]).Do()
 		if err != nil {
 			return err
@@ -95,14 +94,14 @@ func testAccCheckGoogleBillingAccountIamBindingExists(bindingResourceName, role 
 	}
 }
 
-func testAccCheckGoogleBillingAccountIamMemberExists(n, role, member string) resource.TestCheckFunc {
+func testAccCheckGoogleBillingAccountIamMemberExists(t *testing.T, n, role, member string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources["google_billing_account_iam_member."+n]
 		if !ok {
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		p, err := config.clientBilling.BillingAccounts.GetIamPolicy("billingAccounts/" + rs.Primary.Attributes["billing_account_id"]).Do()
 		if err != nil {
 			return err

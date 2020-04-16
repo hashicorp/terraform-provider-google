@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -17,18 +16,18 @@ func TestAccSqlDatabase_basic(t *testing.T) {
 	var database sqladmin.Database
 
 	resourceName := "google_sql_database.database"
-	instanceName := acctest.RandomWithPrefix("sqldatabasetest")
-	dbName := acctest.RandomWithPrefix("sqldatabasetest")
+	instanceName := fmt.Sprintf("sqldatabasetest-%d", randInt(t))
+	dbName := fmt.Sprintf("sqldatabasetest-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccSqlDatabaseDestroy,
+		CheckDestroy: testAccSqlDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(testGoogleSqlDatabase_basic, instanceName, dbName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleSqlDatabaseExists(resourceName, &database),
+					testAccCheckGoogleSqlDatabaseExists(t, resourceName, &database),
 					testAccCheckGoogleSqlDatabaseEquals(resourceName, &database),
 				),
 			},
@@ -71,20 +70,20 @@ func TestAccSqlDatabase_update(t *testing.T) {
 
 	var database sqladmin.Database
 
-	instance_name := acctest.RandomWithPrefix("sqldatabasetest")
-	database_name := acctest.RandomWithPrefix("sqldatabasetest")
+	instance_name := fmt.Sprintf("sqldatabasetest-%d", randInt(t))
+	database_name := fmt.Sprintf("sqldatabasetest-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccSqlDatabaseDestroy,
+		CheckDestroy: testAccSqlDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(
 					testGoogleSqlDatabase_basic, instance_name, database_name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlDatabaseExists(
-						"google_sql_database.database", &database),
+						t, "google_sql_database.database", &database),
 					testAccCheckGoogleSqlDatabaseEquals(
 						"google_sql_database.database", &database),
 				),
@@ -94,7 +93,7 @@ func TestAccSqlDatabase_update(t *testing.T) {
 					testGoogleSqlDatabase_latin1, instance_name, database_name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlDatabaseExists(
-						"google_sql_database.database", &database),
+						t, "google_sql_database.database", &database),
 					testAccCheckGoogleSqlDatabaseEquals(
 						"google_sql_database.database", &database),
 				),
@@ -103,8 +102,7 @@ func TestAccSqlDatabase_update(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleSqlDatabaseEquals(n string,
-	database *sqladmin.Database) resource.TestCheckFunc {
+func testAccCheckGoogleSqlDatabaseEquals(n string, database *sqladmin.Database) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -136,10 +134,9 @@ func testAccCheckGoogleSqlDatabaseEquals(n string,
 	}
 }
 
-func testAccCheckGoogleSqlDatabaseExists(n string,
-	database *sqladmin.Database) resource.TestCheckFunc {
+func testAccCheckGoogleSqlDatabaseExists(t *testing.T, n string, database *sqladmin.Database) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Resource not found: %s", n)
@@ -160,24 +157,26 @@ func testAccCheckGoogleSqlDatabaseExists(n string,
 	}
 }
 
-func testAccSqlDatabaseDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		config := testAccProvider.Meta().(*Config)
-		if rs.Type != "google_sql_database" {
-			continue
+func testAccSqlDatabaseDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for _, rs := range s.RootModule().Resources {
+			config := googleProviderConfig(t)
+			if rs.Type != "google_sql_database" {
+				continue
+			}
+
+			database_name := rs.Primary.Attributes["name"]
+			instance_name := rs.Primary.Attributes["instance"]
+			_, err := config.clientSqlAdmin.Databases.Get(config.Project,
+				instance_name, database_name).Do()
+
+			if err == nil {
+				return fmt.Errorf("Database resource still exists")
+			}
 		}
 
-		database_name := rs.Primary.Attributes["name"]
-		instance_name := rs.Primary.Attributes["instance"]
-		_, err := config.clientSqlAdmin.Databases.Get(config.Project,
-			instance_name, database_name).Do()
-
-		if err == nil {
-			return fmt.Errorf("Database resource still exists")
-		}
+		return nil
 	}
-
-	return nil
 }
 
 var testGoogleSqlDatabase_basic = `

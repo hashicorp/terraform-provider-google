@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,13 +11,13 @@ import (
 func TestAccLoggingProjectSink_basic(t *testing.T) {
 	t.Parallel()
 
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectSinkDestroy,
+		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectSink_basic(sinkName, getTestProjectFromEnv(), bucketName),
@@ -35,14 +34,14 @@ func TestAccLoggingProjectSink_basic(t *testing.T) {
 func TestAccLoggingProjectSink_updatePreservesUniqueWriter(t *testing.T) {
 	t.Parallel()
 
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
-	updatedBucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	updatedBucketName := "tf-test-sink-bucket-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectSinkDestroy,
+		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectSink_uniqueWriter(sinkName, bucketName),
@@ -67,13 +66,13 @@ func TestAccLoggingProjectSink_updatePreservesUniqueWriter(t *testing.T) {
 func TestAccLoggingProjectSink_updateBigquerySink(t *testing.T) {
 	t.Parallel()
 
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bqDatasetID := "tf_test_sink_" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bqDatasetID := "tf_test_sink_" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectSinkDestroy,
+		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectSink_bigquery_before(sinkName, bqDatasetID),
@@ -98,13 +97,13 @@ func TestAccLoggingProjectSink_updateBigquerySink(t *testing.T) {
 func TestAccLoggingProjectSink_heredoc(t *testing.T) {
 	t.Parallel()
 
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectSinkDestroy,
+		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectSink_heredoc(sinkName, getTestProjectFromEnv(), bucketName),
@@ -118,23 +117,25 @@ func TestAccLoggingProjectSink_heredoc(t *testing.T) {
 	})
 }
 
-func testAccCheckLoggingProjectSinkDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckLoggingProjectSinkDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_logging_project_sink" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_logging_project_sink" {
+				continue
+			}
+
+			attributes := rs.Primary.Attributes
+
+			_, err := config.clientLogging.Projects.Sinks.Get(attributes["id"]).Do()
+			if err == nil {
+				return fmt.Errorf("project sink still exists")
+			}
 		}
 
-		attributes := rs.Primary.Attributes
-
-		_, err := config.clientLogging.Projects.Sinks.Get(attributes["id"]).Do()
-		if err == nil {
-			return fmt.Errorf("project sink still exists")
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccLoggingProjectSink_basic(name, project, bucketName string) string {
