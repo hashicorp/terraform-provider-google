@@ -548,7 +548,7 @@ golang.org/x/tools/internal/imports
 golang.org/x/tools/internal/module
 golang.org/x/tools/internal/semver
 golang.org/x/tools/internal/span
-# google.golang.org/api v0.16.0
+# google.golang.org/api v0.20.0
 google.golang.org/api/appengine/v1
 google.golang.org/api/bigquery/v2
 google.golang.org/api/bigtableadmin/v2
@@ -580,6 +580,7 @@ google.golang.org/api/internal/third_party/uritemplates
 google.golang.org/api/iterator
 google.golang.org/api/logging/v2
 google.golang.org/api/option
+google.golang.org/api/option/internaloption
 google.golang.org/api/pubsub/v1
 google.golang.org/api/runtimeconfig/v1beta1
 google.golang.org/api/servicemanagement/v1
@@ -591,6 +592,7 @@ google.golang.org/api/sqladmin/v1beta4
 google.golang.org/api/storage/v1
 google.golang.org/api/storagetransfer/v1
 google.golang.org/api/transport
+google.golang.org/api/transport/cert
 google.golang.org/api/transport/grpc
 google.golang.org/api/transport/http
 google.golang.org/api/transport/http/internal/propagation
