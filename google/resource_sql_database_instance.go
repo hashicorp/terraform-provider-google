@@ -654,7 +654,8 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, secondGen bool)
 	// 1st Generation instances don't support the disk_autoresize parameter
 	// and it defaults to true - so we shouldn't set it if this is first gen
 	if secondGen {
-		settings.StorageAutoResize = _settings["disk_autoresize"].(bool)
+		resize := _settings["disk_autoresize"].(bool)
+		settings.StorageAutoResize = &resize
 	}
 
 	return settings
