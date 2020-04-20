@@ -1,0 +1,9 @@
+```release-note:new-resource
+google_service_directory_namespace
+```
+```release-note:new-resource
+google_service_directory_service
+```
+```release-note:new-resource
+google_service_directory_endpoint
+```
