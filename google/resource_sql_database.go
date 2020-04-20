@@ -18,9 +18,12 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"google.golang.org/api/googleapi"
 )
 
 func resourceSQLDatabase() *schema.Resource {
@@ -176,6 +179,15 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	res, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
+		if gErr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error); ok {
+			if gErr.Code == 400 && strings.Contains(gErr.Message, "Invalid request since instance is not running") {
+				// This error occurs when attempting a GET after deleting the sql database and sql instance. It leads to to
+				// inconsistent behavior as handleNotFoundError(...) expects an error code of 404 when a resource does not
+				// exist. To get the desired behavior from handleNotFoundError, modify the return code to 404 so that
+				// handleNotFoundError(...) will treat this as a NotFound error
+				gErr.Code = 404
+			}
+		}
 		return handleNotFoundError(err, d, fmt.Sprintf("SQLDatabase %q", d.Id()))
 	}
 
