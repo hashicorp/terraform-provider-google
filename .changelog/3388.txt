@@ -1,0 +1,3 @@
+```release-note:bug
+resourcemanager: added a wait to `google_project` so that projects are more likely to be ready before the resource finishes creation
+```
