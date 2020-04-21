@@ -38,6 +38,7 @@ import (
 	"google.golang.org/api/dns/v1"
 	dnsBeta "google.golang.org/api/dns/v1beta2"
 	file "google.golang.org/api/file/v1beta1"
+	healthcare "google.golang.org/api/healthcare/v1beta1"
 	"google.golang.org/api/iam/v1"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 	cloudlogging "google.golang.org/api/logging/v2"
@@ -97,6 +98,7 @@ type Config struct {
 	DNSBasePath                  string
 	FilestoreBasePath            string
 	FirestoreBasePath            string
+	HealthcareBasePath           string
 	IapBasePath                  string
 	IdentityPlatformBasePath     string
 	KMSBasePath                  string
@@ -179,6 +181,8 @@ type Config struct {
 	IAMBasePath string
 	clientIAM   *iam.Service
 
+	clientHealthcare *healthcare.Service
+
 	clientServiceMan *servicemanagement.APIService
 
 	clientServiceUsage *serviceusage.Service
@@ -232,6 +236,7 @@ var DialogflowDefaultBasePath = "https://dialogflow.googleapis.com/v2/"
 var DNSDefaultBasePath = "https://www.googleapis.com/dns/v1/"
 var FilestoreDefaultBasePath = "https://file.googleapis.com/v1/"
 var FirestoreDefaultBasePath = "https://firestore.googleapis.com/v1/"
+var HealthcareDefaultBasePath = "https://healthcare.googleapis.com/v1/"
 var IapDefaultBasePath = "https://iap.googleapis.com/v1/"
 var IdentityPlatformDefaultBasePath = "https://identitytoolkit.googleapis.com/v2/"
 var KMSDefaultBasePath = "https://cloudkms.googleapis.com/v1/"
@@ -621,6 +626,16 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	c.clientStorageTransfer.UserAgent = userAgent
 	c.clientStorageTransfer.BasePath = storageTransferClientBasePath
 
+	healthcareClientBasePath := removeBasePathVersion(c.HealthcareBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Healthcare client for path %s", healthcareClientBasePath)
+
+	c.clientHealthcare, err = healthcare.NewService(ctx, option.WithHTTPClient(client))
+	if err != nil {
+		return err
+	}
+	c.clientHealthcare.UserAgent = userAgent
+	c.clientHealthcare.BasePath = healthcareClientBasePath
+
 	c.Region = GetRegionFromRegionSelfLink(c.Region)
 
 	c.requestBatcherServiceUsage = NewRequestBatcher("Service Usage", ctx, c.BatchingConfig)
@@ -733,6 +748,7 @@ func ConfigureBasePaths(c *Config) {
 	c.DNSBasePath = DNSDefaultBasePath
 	c.FilestoreBasePath = FilestoreDefaultBasePath
 	c.FirestoreBasePath = FirestoreDefaultBasePath
+	c.HealthcareBasePath = HealthcareDefaultBasePath
 	c.IapBasePath = IapDefaultBasePath
 	c.IdentityPlatformBasePath = IdentityPlatformDefaultBasePath
 	c.KMSBasePath = KMSDefaultBasePath
