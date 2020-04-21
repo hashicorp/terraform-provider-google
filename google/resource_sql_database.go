@@ -176,7 +176,7 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	res, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("SQLDatabase %q", d.Id()))
+		return handleNotFoundError(transformSQLDatabaseReadError(err), d, fmt.Sprintf("SQLDatabase %q", d.Id()))
 	}
 
 	if err := d.Set("project", project); err != nil {

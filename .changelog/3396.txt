@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed behaviour in `google_sql_database` when the parent instance is deleted, removing it from state
+```
