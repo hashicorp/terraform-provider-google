@@ -23,7 +23,7 @@ resource "google_bigtable_instance" "production-instance" {
   cluster {
     cluster_id   = "tf-instance-cluster"
     zone         = "us-central1-b"
-    num_nodes    = 3
+    num_nodes    = 1
     storage_type = "HDD"
   }
 }
@@ -73,7 +73,7 @@ cluster must have a different zone in the same region. Zones that support
 Bigtable instances are noted on the [Cloud Bigtable locations page](https://cloud.google.com/bigtable/docs/locations).
 
 * `num_nodes` - (Optional) The number of nodes in your Cloud Bigtable cluster.
-Required, with a minimum of `3` for a `PRODUCTION` instance. Must be left unset
+Required, with a minimum of `1` for a `PRODUCTION` instance. Must be left unset
 for a `DEVELOPMENT` instance.
 
 * `storage_type` - (Optional) The storage type to use. One of `"SSD"` or
