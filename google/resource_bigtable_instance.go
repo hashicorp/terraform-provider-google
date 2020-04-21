@@ -54,7 +54,7 @@ func resourceBigtableInstance() *schema.Resource {
 							// DEVELOPMENT instances could get returned with either zero or one node,
 							// so mark as computed.
 							Computed:     true,
-							ValidateFunc: validation.IntAtLeast(3),
+							ValidateFunc: validation.IntAtLeast(1),
 						},
 						"storage_type": {
 							Type:         schema.TypeString,
