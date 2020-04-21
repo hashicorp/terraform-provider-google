@@ -1,0 +1,12 @@
+```release-note:new-resource
+`google_healthcare_dataset` is now GA
+```
+```release-note:new-resource
+`google_healthcare_dicom_store` is now GA
+```
+```release-note:new-resource
+`google_healthcare_fhir_store` is now GA
+```
+```release-note:new-resource
+`google_healthcare_hl7_v2_store` is now GA
+```

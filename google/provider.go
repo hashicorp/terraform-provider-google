@@ -269,6 +269,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_FIRESTORE_CUSTOM_ENDPOINT",
 				}, FirestoreDefaultBasePath),
 			},
+			"healthcare_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_HEALTHCARE_CUSTOM_ENDPOINT",
+				}, HealthcareDefaultBasePath),
+			},
 			"iap_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -530,9 +538,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 118
+// Generated resources: 122
 // Generated IAM resources: 51
-// Total generated resources: 169
+// Total generated resources: 173
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -637,6 +645,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dns_managed_zone":                                      resourceDNSManagedZone(),
 			"google_filestore_instance":                                    resourceFilestoreInstance(),
 			"google_firestore_index":                                       resourceFirestoreIndex(),
+			"google_healthcare_dataset":                                    resourceHealthcareDataset(),
+			"google_healthcare_dicom_store":                                resourceHealthcareDicomStore(),
+			"google_healthcare_fhir_store":                                 resourceHealthcareFhirStore(),
+			"google_healthcare_hl7_v2_store":                               resourceHealthcareHl7V2Store(),
 			"google_iap_web_iam_binding":                                   ResourceIamBinding(IapWebIamSchema, IapWebIamUpdaterProducer, IapWebIdParseFunc),
 			"google_iap_web_iam_member":                                    ResourceIamMember(IapWebIamSchema, IapWebIamUpdaterProducer, IapWebIdParseFunc),
 			"google_iap_web_iam_policy":                                    ResourceIamPolicy(IapWebIamSchema, IapWebIamUpdaterProducer, IapWebIdParseFunc),
@@ -879,6 +891,7 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 	config.DNSBasePath = d.Get("dns_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
+	config.HealthcareBasePath = d.Get("healthcare_custom_endpoint").(string)
 	config.IapBasePath = d.Get("iap_custom_endpoint").(string)
 	config.IdentityPlatformBasePath = d.Get("identity_platform_custom_endpoint").(string)
 	config.KMSBasePath = d.Get("kms_custom_endpoint").(string)
