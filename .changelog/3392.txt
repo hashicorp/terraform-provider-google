@@ -1,0 +1,3 @@
+```release-note:enhancement
+Addon "Compute Engine persistent disk CSI Driver" for Google Kubernetes Engine cluster `google_container_cluster`
+```
