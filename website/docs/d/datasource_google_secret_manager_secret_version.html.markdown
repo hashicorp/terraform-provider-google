@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Platform"
+subcategory: "Secret Manager"
 layout: "google"
 page_title: "Google: google_secret_manager_secret_version"
 sidebar_current: "docs-google-datasource-secret-manager-secret-version"

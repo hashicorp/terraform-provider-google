@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Stackdriver Logging"
+subcategory: "Cloud (Stackdriver) Logging"
 layout: "google"
 page_title: "Google: google_logging_metric"
 sidebar_current: "docs-google-logging-metric"
