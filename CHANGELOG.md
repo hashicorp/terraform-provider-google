@@ -11,7 +11,6 @@ FEATURES:
 
 IMPROVEMENTS:
 * appengine: Added `iap.enabled` field to `google_app_engine_application` resource ([#6076](https://github.com/terraform-providers/terraform-provider-google/pull/6076))
-* bigtable: Reduced the minimum number of nodes for the `bigtable_instace` resource from 3 to 1. ([#6083](https://github.com/terraform-providers/terraform-provider-google/pull/6083))
 * iam: Added `name` field to `google_organization_iam_custom_role` ([#6111](https://github.com/terraform-providers/terraform-provider-google/pull/6111))
 * iam: Added `name` field to `google_project_iam_custom_role` ([#6111](https://github.com/terraform-providers/terraform-provider-google/pull/6111))
 
