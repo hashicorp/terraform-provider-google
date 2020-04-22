@@ -147,7 +147,7 @@ func TestAccComputeHealthCheck_tcpAndSsl_shouldFail(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccComputeHealthCheck_tcpAndSsl_shouldFail(hckName),
-				ExpectError: regexp.MustCompile("conflicts with tcp_health_check"),
+				ExpectError: regexp.MustCompile("only one of `http2_health_check,http_health_check,https_health_check,ssl_health_check,tcp_health_check` can be specified"),
 			},
 		},
 	})
