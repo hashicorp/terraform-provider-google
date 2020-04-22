@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Memorystore"
+subcategory: "Memorystore (Redis)"
 layout: "google"
 page_title: "Google: google_redis_instance"
 sidebar_current: "docs-google-redis-instance"

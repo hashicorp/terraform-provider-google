@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud KMS"
+subcategory: "Cloud Key Management Service"
 layout: "google"
 page_title: "Google: google_kms_key_ring"
 sidebar_current: "docs-google-datasource-kms-key-ring"

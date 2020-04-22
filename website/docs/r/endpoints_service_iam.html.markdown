@@ -12,16 +12,16 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Service Management"
+subcategory: "Cloud Endpoints"
 layout: "google"
 page_title: "Google: google_endpoints_service_iam"
 sidebar_current: "docs-google-endpoints-service-iam"
 description: |-
-  Collection of resources to manage IAM policy for Service Management Service
+  Collection of resources to manage IAM policy for Cloud Endpoints Service
 ---
 
-# IAM policy for Service Management Service
-Three different resources help you manage your IAM policy for Service Management Service. Each of these resources serves a different use case:
+# IAM policy for Cloud Endpoints Service
+Three different resources help you manage your IAM policy for Cloud Endpoints Service. Each of these resources serves a different use case:
 
 * `google_endpoints_service_iam_policy`: Authoritative. Sets the IAM policy for the service and replaces any existing policy already attached.
 * `google_endpoints_service_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the service are preserved.
@@ -111,7 +111,7 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Service Management service IAM resources can be imported using the resource identifiers, role, and member.
+Cloud Endpoints service IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
