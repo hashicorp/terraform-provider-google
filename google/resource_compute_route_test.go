@@ -28,7 +28,7 @@ func TestAccComputeRoute_defaultInternetGateway(t *testing.T) {
 }
 
 func TestAccComputeRoute_hopInstance(t *testing.T) {
-	instanceName := "tf" + randString(t, 10)
+	instanceName := "tf-test-" + randString(t, 10)
 	zone := "us-central1-b"
 
 	vcrTest(t, resource.TestCase{

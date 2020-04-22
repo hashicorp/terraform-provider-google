@@ -39,9 +39,9 @@ func TestAccComputeTargetPool_basic(t *testing.T) {
 func TestAccComputeTargetPool_update(t *testing.T) {
 	t.Parallel()
 
-	tpname := fmt.Sprintf("tptest-%s", randString(t, 10))
-	name1 := fmt.Sprintf("tptest-%s", randString(t, 10))
-	name2 := fmt.Sprintf("tptest-%s", randString(t, 10))
+	tpname := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	name1 := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	name2 := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -160,7 +160,7 @@ resource "google_compute_http_health_check" "foobar" {
 }
 
 resource "google_compute_instance" "foobar" {
-  name         = "inst-tp-test-%s"
+  name         = "tf-test-%s"
   machine_type = "n1-standard-1"
   zone         = "us-central1-a"
 
@@ -199,7 +199,7 @@ func testAccComputeTargetPool_update(tpname, instances, name1, name2 string) str
 	return fmt.Sprintf(`
 resource "google_compute_target_pool" "foo" {
   description = "Resource created for Terraform acceptance testing"
-  name        = "tpool-test-%s"
+  name        = "%s"
   instances   = [%s]
 }
 

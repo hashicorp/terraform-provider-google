@@ -156,7 +156,7 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_instance" "default" {
-  name         = "neg-instance1-%{random_suffix}"
+  name         = "tf-test-neg-%{random_suffix}"
   machine_type = "n1-standard-1"
 
   boot_disk {

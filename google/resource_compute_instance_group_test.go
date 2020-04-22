@@ -15,7 +15,7 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 
 	var instanceGroup compute.InstanceGroup
 	var resourceName = "google_compute_instance_group.basic"
-	var instanceName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
+	var instanceName = fmt.Sprintf("tf-test-%s", randString(t, 10))
 	var zone = "us-central1-c"
 
 	vcrTest(t, resource.TestCase{
@@ -50,10 +50,10 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 func TestAccComputeInstanceGroup_rename(t *testing.T) {
 	t.Parallel()
 
-	var instanceName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
-	var instanceGroupName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
-	var backendName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
-	var healthName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
+	var instanceName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var instanceGroupName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var backendName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var healthName = fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -84,7 +84,7 @@ func TestAccComputeInstanceGroup_update(t *testing.T) {
 	t.Parallel()
 
 	var instanceGroup compute.InstanceGroup
-	var instanceName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
+	var instanceName = fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -125,7 +125,7 @@ func TestAccComputeInstanceGroup_outOfOrderInstances(t *testing.T) {
 	t.Parallel()
 
 	var instanceGroup compute.InstanceGroup
-	var instanceName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
+	var instanceName = fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -147,7 +147,7 @@ func TestAccComputeInstanceGroup_network(t *testing.T) {
 	t.Parallel()
 
 	var instanceGroup compute.InstanceGroup
-	var instanceName = fmt.Sprintf("instancegroup-test-%s", randString(t, 10))
+	var instanceName = fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
