@@ -1,5 +1,28 @@
 ## 3.19.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_bigquery_job` ([#6134](https://github.com/terraform-providers/terraform-provider-google/pull/6134))
+* **New Resource:** `google_healthcare_dataset` is now GA ([#6164](https://github.com/terraform-providers/terraform-provider-google/pull/6164))
+* **New Resource:** `google_healthcare_dicom_store` is now GA ([#6164](https://github.com/terraform-providers/terraform-provider-google/pull/6164))
+* **New Resource:** `google_healthcare_fhir_store` is now GA ([#6164](https://github.com/terraform-providers/terraform-provider-google/pull/6164))
+* **New Resource:** `google_healthcare_hl7_v2_store` is now GA ([#6164](https://github.com/terraform-providers/terraform-provider-google/pull/6164))
+* **New Resource:** `google_monitoring_slo` ([#6118](https://github.com/terraform-providers/terraform-provider-google/pull/6118))
+* **New Resource:** `google_service_directory_endpoint` ([#6150](https://github.com/terraform-providers/terraform-provider-google/pull/6150))
+* **New Resource:** `google_service_directory_namespace` ([#6150](https://github.com/terraform-providers/terraform-provider-google/pull/6150))
+* **New Resource:** `google_service_directory_service` ([#6150](https://github.com/terraform-providers/terraform-provider-google/pull/6150))
+
+IMPROVEMENTS:
+* bigtable: Reduced the minimum number of nodes for the `bigtable_instace` resource from 3 to 1. ([#6159](https://github.com/terraform-providers/terraform-provider-google/pull/6159))
+* compute: Addon "Compute Engine persistent disk CSI Driver" for Google Kubernetes Engine cluster `google_container_cluster` ([#6160](https://github.com/terraform-providers/terraform-provider-google/pull/6160))
+* compute: Added support for `google_compute_instance` `resource_policies` field ([#6125](https://github.com/terraform-providers/terraform-provider-google/pull/6125))
+* compute: Added support for `google_compute_resource_policy` group placement policies ([#6125](https://github.com/terraform-providers/terraform-provider-google/pull/6125))
+
+BUG FIXES:
+* dataproc: Fixed diff when `google_dataproc_cluster` `preemptible_worker_config.0.num_instances` is sized to 0 and other `preemptible_worker_config` subfields are set ([#6123](https://github.com/terraform-providers/terraform-provider-google/pull/6123))
+* resourcemanager: Added a wait to `google_project` so that projects are more likely to be ready before the resource finishes creation ([#6161](https://github.com/terraform-providers/terraform-provider-google/pull/6161))
+* sql: Allowed `binary_log_enabled` to be disabled. ([#6163](https://github.com/terraform-providers/terraform-provider-google/pull/6163))
+* sql: Fixed behaviour in `google_sql_database` when the parent instance is deleted, removing it from state ([#6162](https://github.com/terraform-providers/terraform-provider-google/pull/6162))
+
 ## 3.18.0 (April 20, 2020)
 
 FEATURES:
