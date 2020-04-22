@@ -11,7 +11,7 @@ import (
 func TestAccDataSourceComputeInstance_basic(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("data-instance-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
