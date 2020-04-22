@@ -189,6 +189,45 @@ provider "google-beta" {
   zone   = "us-central1-a"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dns_managed_zone_service_directory&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dns Managed Zone Service Directory
+
+
+```hcl
+resource "google_dns_managed_zone" "sd-zone" {
+  provider = google-beta
+
+  name        = "peering-zone"
+  dns_name    = "services.example.com."
+  description = "Example private DNS Service Directory zone"
+
+  visibility = "private"
+
+  service_directory_config {
+    namespace {
+      namespace_url = google_service_directory_namespace.example.id
+    }
+  }
+}
+
+resource "google_service_directory_namespace" "example" {
+  provider = google-beta
+
+  namespace_id = "example"
+  location     = "us-central1"
+}
+
+resource "google_compute_network" "network" {
+  provider = google-beta
+
+  name                    = "network"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 

@@ -1,0 +1,3 @@
+```release-note:enhancement
+dns: Added `service_directory_config` field to`google_dns_managed_zone` (Beta only)
+```
