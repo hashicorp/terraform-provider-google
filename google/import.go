@@ -145,7 +145,7 @@ func getImportIdQualifiers(idRegexes []string, d TerraformResourceData, config *
 			return result, nil
 		}
 	}
-	return nil, fmt.Errorf("Import id %q doesn't match any of the accepted formats: %v", d.Id(), idRegexes)
+	return nil, fmt.Errorf("Import id %q doesn't match any of the accepted formats: %v", id, idRegexes)
 }
 
 // Returns a set of default values that are contained in a regular expression
