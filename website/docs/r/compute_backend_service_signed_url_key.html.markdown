@@ -31,10 +31,8 @@ To get more information about BackendServiceSignedUrlKey, see:
 * How-to Guides
     * [Using Signed URLs](https://cloud.google.com/cdn/docs/using-signed-urls/)
 
-~> **Warning:** All arguments including the key's value will be stored in the raw
+~> **Warning:** All arguments including `key_value` will be stored in the raw
 state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
-Because the API does not return the sensitive key value,
-we cannot confirm or reverse changes to a key outside of Terraform.
 
 ## Example Usage - Backend Service Signed Url Key
 
@@ -109,7 +107,7 @@ The following arguments are supported:
 * `key_value` -
   (Required)
   128-bit key value used for signing the URL. The key value must be a
-  valid RFC 4648 Section 5 base64url encoded string.
+  valid RFC 4648 Section 5 base64url encoded string.  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `backend_service` -
   (Required)
