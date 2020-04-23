@@ -2,10 +2,6 @@
 
 FEATURES:
 * **New Resource:** `google_bigquery_job` ([#6134](https://github.com/terraform-providers/terraform-provider-google/pull/6134))
-* **New Resource:** `google_healthcare_dataset` is now GA ([#6164](https://github.com/terraform-providers/terraform-provider-google/pull/6164))
-* **New Resource:** `google_healthcare_dicom_store` is now GA ([#6164](https://github.com/terraform-providers/terraform-provider-google/pull/6164))
-* **New Resource:** `google_healthcare_fhir_store` is now GA ([#6164](https://github.com/terraform-providers/terraform-provider-google/pull/6164))
-* **New Resource:** `google_healthcare_hl7_v2_store` is now GA ([#6164](https://github.com/terraform-providers/terraform-provider-google/pull/6164))
 * **New Resource:** `google_monitoring_slo` ([#6118](https://github.com/terraform-providers/terraform-provider-google/pull/6118))
 * **New Resource:** `google_service_directory_endpoint` ([#6150](https://github.com/terraform-providers/terraform-provider-google/pull/6150))
 * **New Resource:** `google_service_directory_namespace` ([#6150](https://github.com/terraform-providers/terraform-provider-google/pull/6150))
