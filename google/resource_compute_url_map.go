@@ -720,46 +720,47 @@ prior to sending the response back to the client.`,
 									"url_redirect": {
 										Type:     schema.TypeList,
 										Optional: true,
-										Description: `When a path pattern is matched, the request is redirected to a URL specified by
-urlRedirect. If urlRedirect is specified, service or routeAction must not be
-set.`,
+										Description: `When a path pattern is matched, the request is redirected to a URL specified
+by urlRedirect. If urlRedirect is specified, service or routeAction must not
+be set.`,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"strip_query": {
-													Type:     schema.TypeBool,
-													Required: true,
-													Description: `If set to true, any accompanying query portion of the original URL is removed
-prior to redirecting the request. If set to false, the query portion of the
-original URL is retained.`,
-												},
 												"host_redirect": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `The host that will be used in the redirect response instead of the one that was
-supplied in the request. The value must be between 1 and 255 characters.`,
+													Description: `The host that will be used in the redirect response instead of the one
+that was supplied in the request. The value must be between 1 and 255
+characters.`,
 												},
 												"https_redirect": {
 													Type:     schema.TypeBool,
 													Optional: true,
-													Description: `If set to true, the URL scheme in the redirected request is set to https. If set
-to false, the URL scheme of the redirected request will remain the same as that
-of the request. This must only be set for UrlMaps used in TargetHttpProxys.
-Setting this true for TargetHttpsProxy is not permitted. Defaults to false.`,
+													Description: `If set to true, the URL scheme in the redirected request is set to https.
+If set to false, the URL scheme of the redirected request will remain the
+same as that of the request. This must only be set for UrlMaps used in
+TargetHttpProxys. Setting this true for TargetHttpsProxy is not
+permitted. The default is set to false.`,
 													Default: false,
 												},
 												"path_redirect": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `The path that will be used in the redirect response instead of the one that was
-supplied in the request. Only one of pathRedirect or prefixRedirect must be
-specified. The value must be between 1 and 1024 characters.`,
+													Description: `The path that will be used in the redirect response instead of the one
+that was supplied in the request. pathRedirect cannot be supplied
+together with prefixRedirect. Supply one alone or neither. If neither is
+supplied, the path of the original request will be used for the redirect.
+The value must be between 1 and 1024 characters.`,
 												},
 												"prefix_redirect": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
-retaining the remaining portion of the URL before redirecting the request.`,
+													Description: `The prefix that replaces the prefixMatch specified in the
+HttpRouteRuleMatch, retaining the remaining portion of the URL before
+redirecting the request. prefixRedirect cannot be supplied together with
+pathRedirect. Supply one alone or neither. If neither is supplied, the
+path of the original request will be used for the redirect. The value
+must be between 1 and 1024 characters.`,
 												},
 												"redirect_response_code": {
 													Type:         schema.TypeString,
@@ -773,6 +774,14 @@ retaining the remaining portion of the URL before redirecting the request.`,
 will be retained.
 - PERMANENT_REDIRECT, which corresponds to 308. In this case,
 the request method will be retained.`,
+												},
+												"strip_query": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													Description: `If set to true, any accompanying query portion of the original URL is
+removed prior to redirecting the request. If set to false, the query
+portion of the original URL is retained. The default is set to false.`,
+													Default: false,
 												},
 											},
 										},
