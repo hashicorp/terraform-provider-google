@@ -104,6 +104,7 @@ you do not need to provide a key to use the disk later.`,
 							ForceNew: true,
 							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
 RFC 4648 base64 to either encrypt or decrypt this resource.`,
+							Sensitive: true,
 						},
 						"sha256": {
 							Type:     schema.TypeString,

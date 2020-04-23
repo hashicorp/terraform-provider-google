@@ -46,9 +46,8 @@ To get more information about RegionDisk, see:
 * How-to Guides
     * [Adding or Resizing Regional Persistent Disks](https://cloud.google.com/compute/docs/disks/regional-persistent-disk)
 
-~> **Warning:** All arguments including the disk encryption key will be stored in the raw
-state as plain-text.
-[Read more about sensitive data in state](/docs/state/sensitive-data.html).
+~> **Warning:** All arguments including `disk_encryption_key.raw_key` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_disk_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -180,7 +179,7 @@ The `disk_encryption_key` block supports:
 * `raw_key` -
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
-  RFC 4648 base64 to either encrypt or decrypt this resource.
+  RFC 4648 base64 to either encrypt or decrypt this resource.  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
