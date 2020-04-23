@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: `google_compute_region_url_map` mark `strip_query` as optional and default to false
+```
+```release-note:enhancement
+compute: `google_compute_url_map` mark `strip_query` as optional and default to false
+```
