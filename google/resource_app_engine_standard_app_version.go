@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -42,14 +43,9 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"runtime": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `Desired runtime. Example python27.`,
-			},
 			"deployment": {
 				Type:        schema.TypeList,
-				Optional:    true,
+				Required:    true,
 				Description: `Code and application artifacts that make up this version.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -102,6 +98,104 @@ All files must be readable using the credentials supplied with this call.`,
 						},
 					},
 				},
+			},
+			"runtime": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Desired runtime. Example python27.`,
+			},
+			"automatic_scaling": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Automatic scaling is based on request rate, response latencies, and other application metrics.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_concurrent_requests": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `Number of concurrent requests an automatic scaling instance can accept before the scheduler spawns a new instance.
+
+Defaults to a runtime-specific value.`,
+						},
+						"max_idle_instances": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Maximum number of idle instances that should be maintained for this version.`,
+						},
+						"max_pending_latency": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Maximum amount of time that a request should wait in the pending queue before starting a new instance to handle it.
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+						},
+						"min_idle_instances": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Minimum number of idle instances that should be maintained for this version. Only applicable for the default version of a service.`,
+						},
+						"min_pending_latency": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Minimum amount of time a request should wait in the pending queue before starting a new instance to handle it.
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+						},
+						"standard_scheduler_settings": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Scheduler settings for standard environment.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"max_instances": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Maximum number of instances to run for this version. Set to zero to disable maxInstances configuration.`,
+									},
+									"min_instances": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Minimum number of instances to run for this version. Set to zero to disable minInstances configuration.`,
+									},
+									"target_cpu_utilization": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: `Target CPU utilization ratio to maintain when scaling. Should be a value in the range [0.50, 0.95], zero, or a negative value.`,
+									},
+									"target_throughput_utilization": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: `Target throughput utilization ratio to maintain when scaling. Should be a value in the range [0.50, 0.95], zero, or a negative value.`,
+									},
+								},
+							},
+						},
+					},
+				},
+				ConflictsWith: []string{"basic_scaling", "manual_scaling"},
+			},
+			"basic_scaling": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Basic scaling creates instances when your application receives requests. Each instance will be shut down when the application becomes idle. Basic scaling is ideal for work that is intermittent or driven by user activity.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_instances": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `Maximum number of instances to create for this version. Must be in the range [1.0, 200.0].`,
+						},
+						"idle_timeout": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Duration of time after the last request that an instance must wait before the instance is shut down.
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s". Defaults to 900s.`,
+							Default: "900s",
+						},
+					},
+				},
+				ConflictsWith: []string{"automatic_scaling", "manual_scaling"},
 			},
 			"entrypoint": {
 				Type:        schema.TypeList,
@@ -231,10 +325,12 @@ All URLs that begin with this prefix are handled by this handler, using the port
 			},
 			"instance_class": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				Description: `Instance class that is used to run this version. Valid values are
-AutomaticScaling F1, F2, F4, F4_1G
-(Only AutomaticScaling is supported at the moment)`,
+AutomaticScaling: F1, F2, F4, F4_1G
+BasicScaling or ManualScaling: B1, B2, B4, B4_1G, B8
+Defaults to F1 for AutomaticScaling and B2 for ManualScaling and BasicScaling. If no scaling is specified, AutomaticScaling is chosen.`,
 			},
 			"libraries": {
 				Type:        schema.TypeList,
@@ -254,6 +350,25 @@ AutomaticScaling F1, F2, F4, F4_1G
 						},
 					},
 				},
+			},
+			"manual_scaling": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `A service with manual scaling runs continuously, allowing you to perform complex initialization and rely on the state of its memory over time.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"instances": {
+							Type:     schema.TypeInt,
+							Required: true,
+							Description: `Number of instances to assign to the service at the start.
+
+**Note:** When managing the number of instances at runtime through the App Engine Admin API or the (now deprecated) Python 2 
+Modules API set_num_instances() you must use 'lifecycle.ignore_changes = ["manual_scaling"[0].instances]' to prevent drift detection.`,
+						},
+					},
+				},
+				ConflictsWith: []string{"automatic_scaling", "basic_scaling"},
 			},
 			"runtime_api_version": {
 				Type:     schema.TypeString,
@@ -367,6 +482,24 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("instance_class"); !isEmptyValue(reflect.ValueOf(instanceClassProp)) && (ok || !reflect.DeepEqual(v, instanceClassProp)) {
 		obj["instanceClass"] = instanceClassProp
 	}
+	automaticScalingProp, err := expandAppEngineStandardAppVersionAutomaticScaling(d.Get("automatic_scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("automatic_scaling"); !isEmptyValue(reflect.ValueOf(automaticScalingProp)) && (ok || !reflect.DeepEqual(v, automaticScalingProp)) {
+		obj["automaticScaling"] = automaticScalingProp
+	}
+	basicScalingProp, err := expandAppEngineStandardAppVersionBasicScaling(d.Get("basic_scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("basic_scaling"); !isEmptyValue(reflect.ValueOf(basicScalingProp)) && (ok || !reflect.DeepEqual(v, basicScalingProp)) {
+		obj["basicScaling"] = basicScalingProp
+	}
+	manualScalingProp, err := expandAppEngineStandardAppVersionManualScaling(d.Get("manual_scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("manual_scaling"); !isEmptyValue(reflect.ValueOf(manualScalingProp)) && (ok || !reflect.DeepEqual(v, manualScalingProp)) {
+		obj["manualScaling"] = manualScalingProp
+	}
 
 	lockName, err := replaceVars(d, config, "apps/{{project}}")
 	if err != nil {
@@ -458,6 +591,18 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("libraries", flattenAppEngineStandardAppVersionLibraries(res["libraries"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
+	if err := d.Set("instance_class", flattenAppEngineStandardAppVersionInstanceClass(res["instanceClass"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err := d.Set("automatic_scaling", flattenAppEngineStandardAppVersionAutomaticScaling(res["automaticScaling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err := d.Set("basic_scaling", flattenAppEngineStandardAppVersionBasicScaling(res["basicScaling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err := d.Set("manual_scaling", flattenAppEngineStandardAppVersionManualScaling(res["manualScaling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
 
 	return nil
 }
@@ -530,6 +675,24 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("instance_class"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, instanceClassProp)) {
 		obj["instanceClass"] = instanceClassProp
+	}
+	automaticScalingProp, err := expandAppEngineStandardAppVersionAutomaticScaling(d.Get("automatic_scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("automatic_scaling"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, automaticScalingProp)) {
+		obj["automaticScaling"] = automaticScalingProp
+	}
+	basicScalingProp, err := expandAppEngineStandardAppVersionBasicScaling(d.Get("basic_scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("basic_scaling"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, basicScalingProp)) {
+		obj["basicScaling"] = basicScalingProp
+	}
+	manualScalingProp, err := expandAppEngineStandardAppVersionManualScaling(d.Get("manual_scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("manual_scaling"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, manualScalingProp)) {
+		obj["manualScaling"] = manualScalingProp
 	}
 
 	lockName, err := replaceVars(d, config, "apps/{{project}}")
@@ -805,6 +968,219 @@ func flattenAppEngineStandardAppVersionLibrariesName(v interface{}, d *schema.Re
 
 func flattenAppEngineStandardAppVersionLibrariesVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenAppEngineStandardAppVersionInstanceClass(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScaling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["max_concurrent_requests"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingMaxConcurrentRequests(original["maxConcurrentRequests"], d, config)
+	transformed["max_idle_instances"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingMaxIdleInstances(original["maxIdleInstances"], d, config)
+	transformed["max_pending_latency"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingMaxPendingLatency(original["maxPendingLatency"], d, config)
+	transformed["min_idle_instances"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingMinIdleInstances(original["minIdleInstances"], d, config)
+	transformed["min_pending_latency"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingMinPendingLatency(original["minPendingLatency"], d, config)
+	transformed["standard_scheduler_settings"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettings(original["standardSchedulerSettings"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAppEngineStandardAppVersionAutomaticScalingMaxConcurrentRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingMaxIdleInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingMaxPendingLatency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingMinIdleInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingMinPendingLatency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["target_cpu_utilization"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetCpuUtilization(original["targetCpuUtilization"], d, config)
+	transformed["target_throughput_utilization"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetThroughputUtilization(original["targetThroughputUtilization"], d, config)
+	transformed["min_instances"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMinInstances(original["minInstances"], d, config)
+	transformed["max_instances"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMaxInstances(original["maxInstances"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetCpuUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetThroughputUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMinInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAppEngineStandardAppVersionBasicScaling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["idle_timeout"] =
+		flattenAppEngineStandardAppVersionBasicScalingIdleTimeout(original["idleTimeout"], d, config)
+	transformed["max_instances"] =
+		flattenAppEngineStandardAppVersionBasicScalingMaxInstances(original["maxInstances"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAppEngineStandardAppVersionBasicScalingIdleTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionBasicScalingMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAppEngineStandardAppVersionManualScaling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["instances"] =
+		flattenAppEngineStandardAppVersionManualScalingInstances(original["instances"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAppEngineStandardAppVersionManualScalingInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func expandAppEngineStandardAppVersionVersionId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -1195,5 +1571,192 @@ func expandAppEngineStandardAppVersionEntrypointShell(v interface{}, d Terraform
 }
 
 func expandAppEngineStandardAppVersionInstanceClass(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScaling(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMaxConcurrentRequests, err := expandAppEngineStandardAppVersionAutomaticScalingMaxConcurrentRequests(original["max_concurrent_requests"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxConcurrentRequests); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxConcurrentRequests"] = transformedMaxConcurrentRequests
+	}
+
+	transformedMaxIdleInstances, err := expandAppEngineStandardAppVersionAutomaticScalingMaxIdleInstances(original["max_idle_instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxIdleInstances); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxIdleInstances"] = transformedMaxIdleInstances
+	}
+
+	transformedMaxPendingLatency, err := expandAppEngineStandardAppVersionAutomaticScalingMaxPendingLatency(original["max_pending_latency"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxPendingLatency); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxPendingLatency"] = transformedMaxPendingLatency
+	}
+
+	transformedMinIdleInstances, err := expandAppEngineStandardAppVersionAutomaticScalingMinIdleInstances(original["min_idle_instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinIdleInstances); val.IsValid() && !isEmptyValue(val) {
+		transformed["minIdleInstances"] = transformedMinIdleInstances
+	}
+
+	transformedMinPendingLatency, err := expandAppEngineStandardAppVersionAutomaticScalingMinPendingLatency(original["min_pending_latency"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinPendingLatency); val.IsValid() && !isEmptyValue(val) {
+		transformed["minPendingLatency"] = transformedMinPendingLatency
+	}
+
+	transformedStandardSchedulerSettings, err := expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettings(original["standard_scheduler_settings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStandardSchedulerSettings); val.IsValid() && !isEmptyValue(val) {
+		transformed["standardSchedulerSettings"] = transformedStandardSchedulerSettings
+	}
+
+	return transformed, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingMaxConcurrentRequests(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingMaxIdleInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingMaxPendingLatency(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingMinIdleInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingMinPendingLatency(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTargetCpuUtilization, err := expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetCpuUtilization(original["target_cpu_utilization"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTargetCpuUtilization); val.IsValid() && !isEmptyValue(val) {
+		transformed["targetCpuUtilization"] = transformedTargetCpuUtilization
+	}
+
+	transformedTargetThroughputUtilization, err := expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetThroughputUtilization(original["target_throughput_utilization"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTargetThroughputUtilization); val.IsValid() && !isEmptyValue(val) {
+		transformed["targetThroughputUtilization"] = transformedTargetThroughputUtilization
+	}
+
+	transformedMinInstances, err := expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMinInstances(original["min_instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinInstances); val.IsValid() && !isEmptyValue(val) {
+		transformed["minInstances"] = transformedMinInstances
+	}
+
+	transformedMaxInstances, err := expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMaxInstances(original["max_instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxInstances); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxInstances"] = transformedMaxInstances
+	}
+
+	return transformed, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetCpuUtilization(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetThroughputUtilization(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMinInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMaxInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionBasicScaling(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIdleTimeout, err := expandAppEngineStandardAppVersionBasicScalingIdleTimeout(original["idle_timeout"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdleTimeout); val.IsValid() && !isEmptyValue(val) {
+		transformed["idleTimeout"] = transformedIdleTimeout
+	}
+
+	transformedMaxInstances, err := expandAppEngineStandardAppVersionBasicScalingMaxInstances(original["max_instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxInstances); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxInstances"] = transformedMaxInstances
+	}
+
+	return transformed, nil
+}
+
+func expandAppEngineStandardAppVersionBasicScalingIdleTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionBasicScalingMaxInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionManualScaling(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInstances, err := expandAppEngineStandardAppVersionManualScalingInstances(original["instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInstances); val.IsValid() && !isEmptyValue(val) {
+		transformed["instances"] = transformedInstances
+	}
+
+	return transformed, nil
+}
+
+func expandAppEngineStandardAppVersionManualScalingInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
