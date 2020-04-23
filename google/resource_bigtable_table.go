@@ -12,12 +12,17 @@ func resourceBigtableTable() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigtableTableCreate,
 		Read:   resourceBigtableTableRead,
+		Update: resourceBigtableTableUpdate,
 		Delete: resourceBigtableTableDestroy,
 
 		Importer: &schema.ResourceImporter{
 			State: resourceBigtableTableImport,
 		},
 
+		// ----------------------------------------------------------------------
+		// IMPORTANT: Do not add any additional ForceNew fields to this resource.
+		// Destroying/recreating tables can lead to data loss for users.
+		// ----------------------------------------------------------------------
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -28,7 +33,6 @@ func resourceBigtableTable() *schema.Resource {
 			"column_family": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"family": {
@@ -151,6 +155,54 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("column_family", flattenColumnFamily(table.Families))
 
 	return nil
+}
+
+func resourceBigtableTableUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	ctx := context.Background()
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
+	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
+	if err != nil {
+		return fmt.Errorf("Error starting admin client. %s", err)
+	}
+	defer c.Close()
+
+	o, n := d.GetChange("column_family")
+	oSet := o.(*schema.Set)
+	nSet := n.(*schema.Set)
+	name := d.Get("name").(string)
+
+	// Add column families that are in new but not in old
+	for _, new := range nSet.Difference(oSet).List() {
+		column := new.(map[string]interface{})
+
+		if v, ok := column["family"]; ok {
+			log.Printf("[DEBUG] adding column family %q", v)
+			if err := c.CreateColumnFamily(ctx, name, v.(string)); err != nil {
+				return fmt.Errorf("Error creating column family %q: %s", v, err)
+			}
+		}
+	}
+
+	// Remove column families that are in old but not in new
+	for _, old := range oSet.Difference(nSet).List() {
+		column := old.(map[string]interface{})
+
+		if v, ok := column["family"]; ok {
+			log.Printf("[DEBUG] removing column family %q", v)
+			if err := c.DeleteColumnFamily(ctx, name, v.(string)); err != nil {
+				return fmt.Errorf("Error deleting column family %q: %s", v, err)
+			}
+		}
+	}
+
+	return resourceBigtableTableRead(d, meta)
 }
 
 func resourceBigtableTableDestroy(d *schema.ResourceData, meta interface{}) error {

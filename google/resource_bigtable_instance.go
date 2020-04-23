@@ -27,6 +27,10 @@ func resourceBigtableInstance() *schema.Resource {
 			resourceBigtableInstanceClusterReorderTypeList,
 		),
 
+		// ----------------------------------------------------------------------
+		// IMPORTANT: Do not add any additional ForceNew fields to this resource.
+		// Destroying/recreating instances can lead to data loss for users.
+		// ----------------------------------------------------------------------
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
