@@ -7,15 +7,15 @@ GOFLAGS=-mod=vendor
 
 default: build
 
-build: fmtcheck
+build: fmtcheck generate
 	go install
 
-test: fmtcheck
+test: fmtcheck generate
 	go test -i $(TEST) || exit 1
 	echo $(TEST) | \
 		xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4
 
-testacc: fmtcheck
+testacc: fmtcheck generate
 	TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test $(TEST) -v $(TESTARGS) -timeout 240m -ldflags="-X=github.com/terraform-providers/terraform-provider-google/version.ProviderVersion=acc"
 
 fmt:
@@ -36,6 +36,9 @@ tools:
 	go install github.com/client9/misspell/cmd/misspell
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint
 
+
+generate:
+	go generate  ./...
 
 test-compile:
 	@if [ "$(TEST)" = "./..." ]; then \
@@ -62,5 +65,5 @@ endif
 docscheck:
 	@sh -c "'$(CURDIR)/scripts/docscheck.sh'"
 
-.PHONY: build test testacc vet fmt fmtcheck lint tools errcheck test-compile website website-test docscheck
+.PHONY: build test testacc vet fmt fmtcheck lint tools errcheck test-compile website website-test docscheck generate
 
