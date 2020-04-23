@@ -552,9 +552,12 @@ Defaults to F1 for AutomaticScaling and B1 for ManualScaling.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"instances": {
-							Type:        schema.TypeInt,
-							Required:    true,
-							Description: `Number of instances to assign to the service at the start. This number can later be altered by using the Modules API set_num_instances() function.`,
+							Type:     schema.TypeInt,
+							Required: true,
+							Description: `Number of instances to assign to the service at the start.
+
+**Note:** When managing the number of instances at runtime through the App Engine Admin API or the (now deprecated) Python 2 
+Modules API set_num_instances() you must use 'lifecycle.ignore_changes = ["manual_scaling"[0].instances]' to prevent drift detection.`,
 						},
 					},
 				},

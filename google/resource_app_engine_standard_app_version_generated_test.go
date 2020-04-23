@@ -43,7 +43,7 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 				ResourceName:            "google_app_engine_standard_app_version.myapp_v1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"threadsafe", "env_variables", "deployment", "entrypoint", "instance_class", "service", "delete_service_on_destroy"},
+				ImportStateVerifyIgnore: []string{"threadsafe", "env_variables", "deployment", "entrypoint", "service", "delete_service_on_destroy"},
 			},
 		},
 	})
@@ -70,6 +70,20 @@ resource "google_app_engine_standard_app_version" "myapp_v1" {
     port = "8080"
   }
 
+  automatic_scaling {
+    max_concurrent_requests = 10
+    min_idle_instances = 1
+    max_idle_instances = 3
+    min_pending_latency = "1s"
+    max_pending_latency = "5s"
+    standard_scheduler_settings {
+      target_cpu_utilization = 0.5
+      target_throughput_utilization = 0.75
+      min_instances = 2
+      max_instances = 10
+    }
+  }
+
   delete_service_on_destroy = true
 }
 
@@ -90,6 +104,10 @@ resource "google_app_engine_standard_app_version" "myapp_v2" {
 
   env_variables = {
     port = "8080"
+  }
+
+  basic_scaling {
+    max_instances = 5
   }
 
   noop_on_destroy = true
