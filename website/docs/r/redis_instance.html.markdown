@@ -164,9 +164,12 @@ The following arguments are supported:
 
 * `connect_mode` -
   (Optional)
-  The connection mode of the Redis instance. Can be either
-  `DIRECT_PEERING` or `PRIVATE_SERVICE_ACCESS`. The default
-  connect mode if not provided is `DIRECT_PEERING`.
+  The connection mode of the Redis instance.
+
+  Default value: `DIRECT_PEERING`
+  Possible values are:
+  * `DIRECT_PEERING`
+  * `PRIVATE_SERVICE_ACCESS`
 
 * `display_name` -
   (Optional)
@@ -210,6 +213,11 @@ The following arguments are supported:
   The service tier of the instance. Must be one of these values:
   - BASIC: standalone instance
   - STANDARD_HA: highly available primary/replica instances
+
+  Default value: `BASIC`
+  Possible values are:
+  * `BASIC`
+  * `STANDARD_HA`
 
 * `region` -
   (Optional)

@@ -75,6 +75,11 @@ The following arguments are supported:
   (Optional)
   The state of the key. Can be set to one of ACTIVE, INACTIVE.
 
+  Default value: `ACTIVE`
+  Possible values are:
+  * `ACTIVE`
+  * `INACTIVE`
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

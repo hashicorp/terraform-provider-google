@@ -66,7 +66,7 @@ func resourceStorageDefaultObjectAccessControl() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"OWNER", "READER"}, false),
-				Description:  `The access permission for the entity.`,
+				Description:  `The access permission for the entity. Possible values: ["OWNER", "READER"]`,
 			},
 			"object": {
 				Type:        schema.TypeString,
@@ -109,7 +109,7 @@ func resourceStorageDefaultObjectAccessControl() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"editors", "owners", "viewers", ""}, false),
-							Description:  `The team.`,
+							Description:  `The team. Possible values: ["editors", "owners", "viewers"]`,
 						},
 					},
 				},

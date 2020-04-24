@@ -102,10 +102,8 @@ will have the same local ASN.`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"DEFAULT", "CUSTOM", ""}, false),
-							Description: `User-specified flag to indicate which mode to use for advertisement.
-
-Valid values of this enum field are: DEFAULT, CUSTOM`,
-							Default: "DEFAULT",
+							Description:  `User-specified flag to indicate which mode to use for advertisement. Default value: "DEFAULT" Possible values: ["DEFAULT", "CUSTOM"]`,
+							Default:      "DEFAULT",
 						},
 						"advertised_groups": {
 							Type:     schema.TypeList,

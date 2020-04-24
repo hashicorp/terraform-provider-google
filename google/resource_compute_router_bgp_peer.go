@@ -89,7 +89,7 @@ Only IPv4 is supported.`,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"DEFAULT", "CUSTOM", ""}, false),
 				Description: `User-specified flag to indicate which mode to use for advertisement.
-Valid values of this enum field are: 'DEFAULT', 'CUSTOM'`,
+Valid values of this enum field are: 'DEFAULT', 'CUSTOM' Default value: "DEFAULT" Possible values: ["DEFAULT", "CUSTOM"]`,
 				Default: "DEFAULT",
 			},
 			"advertised_groups": {

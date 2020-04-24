@@ -112,6 +112,11 @@ The `spec` block supports:
   (Optional)
   The mode of the certificate.
 
+  Default value: `AUTOMATIC`
+  Possible values are:
+  * `NONE`
+  * `AUTOMATIC`
+
 The `metadata` block supports:
 
 * `labels` -
@@ -208,6 +213,11 @@ The `resource_records` block supports:
 * `type` -
   (Optional)
   Resource record type. Example: `AAAA`.
+
+  Possible values are:
+  * `A`
+  * `AAAA`
+  * `CNAME`
 
 * `rrdata` -
   Data for this record. Values vary by record type, as defined in RFC 1035

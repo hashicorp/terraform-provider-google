@@ -90,6 +90,10 @@ The following arguments are supported:
   (Required)
   The access permission for the entity.
 
+  Possible values are:
+  * `OWNER`
+  * `READER`
+
 
 - - -
 
@@ -130,6 +134,11 @@ The `project_team` block contains:
 * `team` -
   (Optional)
   The team.
+
+  Possible values are:
+  * `editors`
+  * `owners`
+  * `viewers`
 
 ## Timeouts
 

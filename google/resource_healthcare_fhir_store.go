@@ -148,7 +148,7 @@ Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that s
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"DSTU2", "STU3", "R4", ""}, false),
-				Description:  `The FHIR specification version. Supported values include DSTU2, STU3 and R4. Defaults to STU3.`,
+				Description:  `The FHIR specification version. Default value: "STU3" Possible values: ["DSTU2", "STU3", "R4"]`,
 				Default:      "STU3",
 			},
 			"self_link": {

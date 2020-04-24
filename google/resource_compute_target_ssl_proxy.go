@@ -84,7 +84,7 @@ one SSL certificate must be specified.`,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "PROXY_V1", ""}, false),
 				Description: `Specifies the type of proxy header to append before sending data to
-the backend, either NONE or PROXY_V1. The default is NONE.`,
+the backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
 				Default: "NONE",
 			},
 			"ssl_policy": {

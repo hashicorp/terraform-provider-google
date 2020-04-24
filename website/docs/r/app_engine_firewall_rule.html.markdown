@@ -74,6 +74,11 @@ The following arguments are supported:
   (Required)
   The action to take if this rule matches.
 
+  Possible values are:
+  * `UNSPECIFIED_ACTION`
+  * `ALLOW`
+  * `DENY`
+
 
 - - -
 

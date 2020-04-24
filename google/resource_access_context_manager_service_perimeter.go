@@ -89,7 +89,7 @@ entirely by the regular perimeter that resource is in.
 Perimeter Bridges are typically useful when building more complex
 topologies with many independent perimeters that need to share some data
 with a common perimeter, but should not be able to share data among
-themselves.`,
+themselves. Default value: "PERIMETER_TYPE_REGULAR" Possible values: ["PERIMETER_TYPE_REGULAR", "PERIMETER_TYPE_BRIDGE"]`,
 				Default: "PERIMETER_TYPE_REGULAR",
 			},
 			"spec": {

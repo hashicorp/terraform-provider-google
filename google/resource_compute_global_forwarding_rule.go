@@ -101,9 +101,8 @@ or unnecessary diffs.`,
 				ForceNew:         true,
 				ValidateFunc:     validation.StringInSlice([]string{"TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", ""}, false),
 				DiffSuppressFunc: caseDiffSuppress,
-				Description: `The IP protocol to which this rule applies. Valid options are TCP,
-UDP, ESP, AH, SCTP or ICMP. When the load balancing scheme is
-INTERNAL_SELF_MANAGED, only TCP is valid.`,
+				Description: `The IP protocol to which this rule applies. When the load balancing scheme is
+INTERNAL_SELF_MANAGED, only TCP is valid. Possible values: ["TCP", "UDP", "ESP", "AH", "SCTP", "ICMP"]`,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -117,8 +116,7 @@ you create the resource.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
-				Description: `The IP Version that will be used by this global forwarding rule.
-Valid options are IPV4 or IPV6.`,
+				Description:  `The IP Version that will be used by this global forwarding rule. Possible values: ["IPV4", "IPV6"]`,
 			},
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
@@ -132,7 +130,7 @@ will be used for External Global Load Balancing (HTTP(S) LB,
 External TCP/UDP LB, SSL Proxy)
 
 NOTE: Currently global forwarding rules cannot be used for INTERNAL
-load balancing.`,
+load balancing. Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL_SELF_MANAGED"]`,
 				Default: "EXTERNAL",
 			},
 			"metadata_filters": {
@@ -198,7 +196,7 @@ filterLabels contribute towards the overall metadataFilter match.
 MATCH_ANY - At least one of the filterLabels must have a matching
 label in the provided metadata.
 MATCH_ALL - All filterLabels must have matching labels in the
-provided metadata.`,
+provided metadata. Possible values: ["MATCH_ANY", "MATCH_ALL"]`,
 						},
 					},
 				},

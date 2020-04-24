@@ -129,7 +129,7 @@ Format: projects/<Project ID>/agent/intents/<Intent ID>.`,
 				Description: `Indicates whether webhooks are enabled for the intent.
 * WEBHOOK_STATE_ENABLED: Webhook is enabled in the agent and in the intent.
 * WEBHOOK_STATE_ENABLED_FOR_SLOT_FILLING: Webhook is enabled in the agent and in the intent. Also, each slot
-filling prompt is forwarded to the webhook.`,
+filling prompt is forwarded to the webhook. Possible values: ["WEBHOOK_STATE_ENABLED", "WEBHOOK_STATE_ENABLED_FOR_SLOT_FILLING"]`,
 			},
 			"followup_intent_info": {
 				Type:     schema.TypeList,

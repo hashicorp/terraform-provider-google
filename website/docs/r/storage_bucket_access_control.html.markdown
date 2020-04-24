@@ -103,6 +103,11 @@ The following arguments are supported:
   (Optional)
   The access permission for the entity.
 
+  Possible values are:
+  * `OWNER`
+  * `READER`
+  * `WRITER`
+
 
 ## Attributes Reference
 

@@ -263,7 +263,11 @@ The following arguments are supported:
   (Optional)
   The zone's visibility: public zones are exposed to the Internet,
   while private zones are visible only to Virtual Private Cloud resources.
-  Must be one of: `public`, `private`.
+
+  Default value: `public`
+  Possible values are:
+  * `private`
+  * `public`
 
 * `private_visibility_config` -
   (Optional)
@@ -285,9 +289,18 @@ The `dnssec_config` block supports:
   Specifies the mechanism used to provide authenticated denial-of-existence responses.
   non_existence can only be updated when the state is `off`.
 
+  Possible values are:
+  * `nsec`
+  * `nsec3`
+
 * `state` -
   (Optional)
   Specifies whether DNSSEC is enabled, and what mode it is in
+
+  Possible values are:
+  * `off`
+  * `on`
+  * `transfer`
 
 * `default_key_specs` -
   (Optional)
@@ -303,6 +316,13 @@ The `default_key_specs` block supports:
   (Optional)
   String mnemonic specifying the DNSSEC algorithm of this key
 
+  Possible values are:
+  * `ecdsap256sha256`
+  * `ecdsap384sha384`
+  * `rsasha1`
+  * `rsasha256`
+  * `rsasha512`
+
 * `key_length` -
   (Optional)
   Length of the keys in bits
@@ -315,6 +335,10 @@ The `default_key_specs` block supports:
   resource record sets of type DNSKEY. Zone signing keys do
   not have the Secure Entry Point flag set and will be used
   to sign all other types of resource record sets.
+
+  Possible values are:
+  * `keySigning`
+  * `zoneSigning`
 
 * `kind` -
   (Optional)

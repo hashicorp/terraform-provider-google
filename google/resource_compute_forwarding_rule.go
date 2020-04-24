@@ -93,11 +93,10 @@ or unnecessary diffs.`,
 				ForceNew:         true,
 				ValidateFunc:     validation.StringInSlice([]string{"TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", ""}, false),
 				DiffSuppressFunc: caseDiffSuppress,
-				Description: `The IP protocol to which this rule applies. Valid options are TCP,
-UDP, ESP, AH, SCTP or ICMP.
+				Description: `The IP protocol to which this rule applies.
 
 When the load balancing scheme is INTERNAL, only TCP and UDP are
-valid.`,
+valid. Possible values: ["TCP", "UDP", "ESP", "AH", "SCTP", "ICMP"]`,
 			},
 			"all_ports": {
 				Type:     schema.TypeBool,
@@ -141,7 +140,7 @@ Cloud VPN gateways, protocol forwarding to VMs from an external IP address,
 and HTTP(S), SSL Proxy, TCP Proxy, and Network TCP/UDP load balancers.
 INTERNAL is used for protocol forwarding to VMs from an internal IP address,
 and internal TCP/UDP load balancers.
-INTERNAL_MANAGED is used for internal HTTP(S) load balancers.`,
+INTERNAL_MANAGED is used for internal HTTP(S) load balancers. Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL", "INTERNAL_MANAGED"]`,
 				Default: "EXTERNAL",
 			},
 			"network": {
@@ -161,9 +160,8 @@ This field is only used for INTERNAL load balancing.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD", ""}, false),
-				Description: `The networking tier used for configuring this address. This field can
-take the following values: PREMIUM or STANDARD. If this field is not
-specified, it is assumed to be PREMIUM.`,
+				Description: `The networking tier used for configuring this address. If this field is not
+specified, it is assumed to be PREMIUM. Possible values: ["PREMIUM", "STANDARD"]`,
 			},
 			"port_range": {
 				Type:             schema.TypeString,

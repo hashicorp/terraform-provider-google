@@ -264,14 +264,24 @@ The following arguments are supported:
 
 * `ip_protocol` -
   (Optional)
-  The IP protocol to which this rule applies. Valid options are TCP,
-  UDP, ESP, AH, SCTP or ICMP. When the load balancing scheme is
+  The IP protocol to which this rule applies. When the load balancing scheme is
   INTERNAL_SELF_MANAGED, only TCP is valid.
+
+  Possible values are:
+  * `TCP`
+  * `UDP`
+  * `ESP`
+  * `AH`
+  * `SCTP`
+  * `ICMP`
 
 * `ip_version` -
   (Optional)
   The IP Version that will be used by this global forwarding rule.
-  Valid options are IPV4 or IPV6.
+
+  Possible values are:
+  * `IPV4`
+  * `IPV6`
 
 * `load_balancing_scheme` -
   (Optional)
@@ -282,6 +292,11 @@ The following arguments are supported:
   External TCP/UDP LB, SSL Proxy)
   NOTE: Currently global forwarding rules cannot be used for INTERNAL
   load balancing.
+
+  Default value: `EXTERNAL`
+  Possible values are:
+  * `EXTERNAL`
+  * `INTERNAL_SELF_MANAGED`
 
 * `metadata_filters` -
   (Optional)
@@ -333,6 +348,10 @@ The `metadata_filters` block supports:
   label in the provided metadata.
   MATCH_ALL - All filterLabels must have matching labels in the
   provided metadata.
+
+  Possible values are:
+  * `MATCH_ANY`
+  * `MATCH_ALL`
 
 * `filter_labels` -
   (Required)

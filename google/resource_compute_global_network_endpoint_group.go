@@ -59,9 +59,7 @@ character, which cannot be a dash.`,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"INTERNET_IP_PORT", "INTERNET_FQDN_PORT"}, false),
-				Description: `Type of network endpoints in this network endpoint group. Supported values are:
-  * INTERNET_IP_PORT
-  * INTERNET_FQDN_PORT`,
+				Description:  `Type of network endpoints in this network endpoint group. Possible values: ["INTERNET_IP_PORT", "INTERNET_FQDN_PORT"]`,
 			},
 			"default_port": {
 				Type:     schema.TypeInt,

@@ -126,7 +126,7 @@ configuration.`,
 create and update. Valid values are 'CREATE_OR_ACQUIRE' (default) or
 'ACQUIRE'. If set to 'ACQUIRE' and resources do not already exist,
 the deployment will fail. Note that updating this field does not
-actually affect the deployment, just how it is updated.`,
+actually affect the deployment, just how it is updated. Default value: "CREATE_OR_ACQUIRE" Possible values: ["ACQUIRE", "CREATE_OR_ACQUIRE"]`,
 				Default: "CREATE_OR_ACQUIRE",
 			},
 			"delete_policy": {
@@ -139,7 +139,7 @@ Valid values are 'DELETE' (default) or 'ABANDON'. If 'DELETE',
 resource is deleted after removal from Deployment Manager. If
 'ABANDON', the resource is only removed from Deployment Manager
 and is not actually deleted. Note that updating this field does not
-actually change the deployment, just how it is updated.`,
+actually change the deployment, just how it is updated. Default value: "DELETE" Possible values: ["ABANDON", "DELETE"]`,
 				Default: "DELETE",
 			},
 			"description": {

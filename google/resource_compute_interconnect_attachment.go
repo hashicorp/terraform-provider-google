@@ -102,7 +102,7 @@ PARTNER type this will Pre-Activate the interconnect attachment`,
 For attachments of type DEDICATED, the user can set the bandwidth.
 For attachments of type PARTNER, the Google Partner that is operating the interconnect must set the bandwidth.
 Output only for PARTNER type, mutable for PARTNER_PROVIDER and DEDICATED,
-Defaults to BPS_10G`,
+Defaults to BPS_10G Possible values: ["BPS_50M", "BPS_100M", "BPS_200M", "BPS_300M", "BPS_400M", "BPS_500M", "BPS_1G", "BPS_2G", "BPS_5G", "BPS_10G", "BPS_20G", "BPS_50G"]`,
 			},
 			"candidate_subnets": {
 				Type:     schema.TypeList,
@@ -158,7 +158,7 @@ be set if type is PARTNER.`,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"DEDICATED", "PARTNER", "PARTNER_PROVIDER", ""}, false),
 				Description: `The type of InterconnectAttachment you wish to create. Defaults to
-DEDICATED.`,
+DEDICATED. Possible values: ["DEDICATED", "PARTNER", "PARTNER_PROVIDER"]`,
 			},
 			"vlan_tag8021q": {
 				Type:     schema.TypeInt,

@@ -112,7 +112,11 @@ The `bgp` block supports:
 * `advertise_mode` -
   (Optional)
   User-specified flag to indicate which mode to use for advertisement.
-  Valid values of this enum field are: DEFAULT, CUSTOM
+
+  Default value: `DEFAULT`
+  Possible values are:
+  * `DEFAULT`
+  * `CUSTOM`
 
 * `advertised_groups` -
   (Optional)

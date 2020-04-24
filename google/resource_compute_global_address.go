@@ -68,10 +68,10 @@ address or omitted to allow GCP to choose a valid one for you.`,
 				ForceNew:         true,
 				ValidateFunc:     validation.StringInSlice([]string{"EXTERNAL", "INTERNAL", ""}, false),
 				DiffSuppressFunc: emptyOrDefaultStringSuppress("EXTERNAL"),
-				Description: `The type of the address to reserve, default is EXTERNAL.
+				Description: `The type of the address to reserve.
 
 * EXTERNAL indicates public/external single IP address.
-* INTERNAL indicates internal IP ranges belonging to some network.`,
+* INTERNAL indicates internal IP ranges belonging to some network. Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL"]`,
 				Default: "EXTERNAL",
 			},
 			"description": {
@@ -86,8 +86,7 @@ address or omitted to allow GCP to choose a valid one for you.`,
 				ForceNew:         true,
 				ValidateFunc:     validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
 				DiffSuppressFunc: emptyOrDefaultStringSuppress("IPV4"),
-				Description: `The IP Version that will be used by this address. Valid options are
-'IPV4' or 'IPV6'. The default value is 'IPV4'.`,
+				Description:      `The IP Version that will be used by this address. The default value is 'IPV4'. Possible values: ["IPV4", "IPV6"]`,
 			},
 			"network": {
 				Type:             schema.TypeString,
@@ -118,7 +117,7 @@ This field is not applicable to addresses with addressType=EXTERNAL.`,
 
 * VPC_PEERING - for peer networks
 
-This should only be set when using an Internal address.`,
+This should only be set when using an Internal address. Possible values: ["VPC_PEERING"]`,
 			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,

@@ -62,7 +62,7 @@ is used to match log entries.`,
 							ValidateFunc: validation.StringInSlice([]string{"DELTA", "GAUGE", "CUMULATIVE"}, false),
 							Description: `Whether the metric records instantaneous values, changes to a value, etc.
 Some combinations of metricKind and valueType might not be supported.
-For counter metrics, set this to DELTA.`,
+For counter metrics, set this to DELTA. Possible values: ["DELTA", "GAUGE", "CUMULATIVE"]`,
 						},
 						"value_type": {
 							Type:         schema.TypeString,
@@ -70,7 +70,7 @@ For counter metrics, set this to DELTA.`,
 							ValidateFunc: validation.StringInSlice([]string{"BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"}, false),
 							Description: `Whether the measurement is an integer, a floating-point number, etc.
 Some combinations of metricKind and valueType might not be supported.
-For counter metrics, set this to INT64.`,
+For counter metrics, set this to INT64. Possible values: ["BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"]`,
 						},
 						"display_name": {
 							Type:     schema.TypeString,
@@ -252,7 +252,7 @@ func loggingMetricMetricDescriptorLabelsSchema() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"BOOL", "INT64", "STRING", ""}, false),
-				Description:  `The type of data that can be assigned to the label.`,
+				Description:  `The type of data that can be assigned to the label. Default value: "STRING" Possible values: ["BOOL", "INT64", "STRING"]`,
 				Default:      "STRING",
 			},
 		},

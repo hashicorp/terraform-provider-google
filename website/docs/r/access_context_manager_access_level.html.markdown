@@ -105,7 +105,12 @@ The `basic` block supports:
   is granted this AccessLevel. If AND is used, each Condition in
   conditions must be satisfied for the AccessLevel to be applied. If
   OR is used, at least one Condition in conditions must be satisfied
-  for the AccessLevel to be applied. Defaults to AND if unspecified.
+  for the AccessLevel to be applied.
+
+  Default value: `AND`
+  Possible values are:
+  * `AND`
+  * `OR`
 
 * `conditions` -
   (Required)
@@ -206,6 +211,13 @@ The `os_constraints` block supports:
 * `os_type` -
   (Required)
   The operating system type of the device.
+
+  Possible values are:
+  * `OS_UNSPECIFIED`
+  * `DESKTOP_MAC`
+  * `DESKTOP_WINDOWS`
+  * `DESKTOP_LINUX`
+  * `DESKTOP_CHROME_OS`
 
 ## Attributes Reference
 

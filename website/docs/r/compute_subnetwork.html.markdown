@@ -229,6 +229,15 @@ The `log_config` block supports:
   Possible values are INTERVAL_5_SEC, INTERVAL_30_SEC, INTERVAL_1_MIN,
   INTERVAL_5_MIN, INTERVAL_10_MIN, INTERVAL_15_MIN
 
+  Default value: `INTERVAL_5_SEC`
+  Possible values are:
+  * `INTERVAL_5_SEC`
+  * `INTERVAL_30_SEC`
+  * `INTERVAL_1_MIN`
+  * `INTERVAL_5_MIN`
+  * `INTERVAL_10_MIN`
+  * `INTERVAL_15_MIN`
+
 * `flow_sampling` -
   (Optional)
   Can only be specified if VPC flow logging for this subnetwork is enabled.
@@ -241,7 +250,12 @@ The `log_config` block supports:
   (Optional)
   Can only be specified if VPC flow logging for this subnetwork is enabled.
   Configures whether metadata fields should be added to the reported VPC
-  flow logs. Default is `INCLUDE_ALL_METADATA`.
+  flow logs.
+
+  Default value: `INCLUDE_ALL_METADATA`
+  Possible values are:
+  * `EXCLUDE_ALL_METADATA`
+  * `INCLUDE_ALL_METADATA`
 
 ## Attributes Reference
 

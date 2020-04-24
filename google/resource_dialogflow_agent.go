@@ -71,7 +71,7 @@ different service endpoints for different API versions. However, bots connectors
 the specified API version.
 * API_VERSION_V1: Legacy V1 API.
 * API_VERSION_V2: V2 API.
-* API_VERSION_V2_BETA_1: V2beta1 API.`,
+* API_VERSION_V2_BETA_1: V2beta1 API. Possible values: ["API_VERSION_V1", "API_VERSION_V2", "API_VERSION_V2_BETA_1"]`,
 			},
 			"avatar_uri": {
 				Type:     schema.TypeString,
@@ -109,7 +109,7 @@ default of 0.3 is used.`,
 * MATCH_MODE_HYBRID: Best for agents with a small number of examples in intents and/or wide use of templates
 syntax and composite entities.
 * MATCH_MODE_ML_ONLY: Can be used for agents with a large number of examples in intents, especially the ones
-using @sys.any or very large developer entities.`,
+using @sys.any or very large developer entities. Possible values: ["MATCH_MODE_HYBRID", "MATCH_MODE_ML_ONLY"]`,
 			},
 			"supported_language_codes": {
 				Type:        schema.TypeList,
@@ -128,7 +128,7 @@ using @sys.any or very large developer entities.`,
 * TIER_ENTERPRISE: Enterprise tier (Essentials).
 * TIER_ENTERPRISE_PLUS: Enterprise tier (Plus).
 NOTE: Due to consistency issues, the provider will not read this field from the API. Drift is possible between 
-the Terraform state and Dialogflow if the agent tier is changed outside of Terraform.`,
+the Terraform state and Dialogflow if the agent tier is changed outside of Terraform. Possible values: ["TIER_STANDARD", "TIER_ENTERPRISE", "TIER_ENTERPRISE_PLUS"]`,
 			},
 			"avatar_uri_backend": {
 				Type:     schema.TypeString,

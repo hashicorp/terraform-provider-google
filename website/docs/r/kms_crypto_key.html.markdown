@@ -111,6 +111,12 @@ The following arguments are supported:
   [purpose reference](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKeyPurpose)
   for possible inputs.
 
+  Default value: `ENCRYPT_DECRYPT`
+  Possible values are:
+  * `ENCRYPT_DECRYPT`
+  * `ASYMMETRIC_SIGN`
+  * `ASYMMETRIC_DECRYPT`
+
 * `rotation_period` -
   (Optional)
   Every time this period passes, generate a new CryptoKeyVersion and set it as the primary.
@@ -133,6 +139,11 @@ The `version_template` block supports:
 * `protection_level` -
   (Optional)
   The protection level to use when creating a version based on this template.
+
+  Default value: `SOFTWARE`
+  Possible values are:
+  * `SOFTWARE`
+  * `HSM`
 
 ## Attributes Reference
 

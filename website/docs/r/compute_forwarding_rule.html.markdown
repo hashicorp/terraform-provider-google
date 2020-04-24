@@ -394,10 +394,17 @@ The following arguments are supported:
 
 * `ip_protocol` -
   (Optional)
-  The IP protocol to which this rule applies. Valid options are TCP,
-  UDP, ESP, AH, SCTP or ICMP.
+  The IP protocol to which this rule applies.
   When the load balancing scheme is INTERNAL, only TCP and UDP are
   valid.
+
+  Possible values are:
+  * `TCP`
+  * `UDP`
+  * `ESP`
+  * `AH`
+  * `SCTP`
+  * `ICMP`
 
 * `backend_service` -
   (Optional)
@@ -413,6 +420,12 @@ The following arguments are supported:
   INTERNAL is used for protocol forwarding to VMs from an internal IP address,
   and internal TCP/UDP load balancers.
   INTERNAL_MANAGED is used for internal HTTP(S) load balancers.
+
+  Default value: `EXTERNAL`
+  Possible values are:
+  * `EXTERNAL`
+  * `INTERNAL`
+  * `INTERNAL_MANAGED`
 
 * `network` -
   (Optional)
@@ -480,9 +493,12 @@ The following arguments are supported:
 
 * `network_tier` -
   (Optional)
-  The networking tier used for configuring this address. This field can
-  take the following values: PREMIUM or STANDARD. If this field is not
+  The networking tier used for configuring this address. If this field is not
   specified, it is assumed to be PREMIUM.
+
+  Possible values are:
+  * `PREMIUM`
+  * `STANDARD`
 
 * `service_label` -
   (Optional)

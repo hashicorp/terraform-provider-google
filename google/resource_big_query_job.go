@@ -86,7 +86,7 @@ func resourceBigQueryJob() *schema.Resource {
 							Description: `Specifies whether the job is allowed to create new tables. The following values are supported:
 CREATE_IF_NEEDED: If the table does not exist, BigQuery creates the table.
 CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
-The default value is CREATE_IF_NEEDED. Creation, truncation and append actions occur as one atomic update upon job completion`,
+Creation, truncation and append actions occur as one atomic update upon job completion Default value: "CREATE_IF_NEEDED" Possible values: ["CREATE_IF_NEEDED", "CREATE_NEVER"]`,
 							Default: "CREATE_IF_NEEDED",
 						},
 						"destination_encryption_configuration": {
@@ -145,8 +145,8 @@ The BigQuery Service Account associated with your project requires access to thi
 WRITE_TRUNCATE: If the table already exists, BigQuery overwrites the table data and uses the schema from the query result.
 WRITE_APPEND: If the table already exists, BigQuery appends the data to the table.
 WRITE_EMPTY: If the table already exists and contains data, a 'duplicate' error is returned in the job result.
-The default value is WRITE_EMPTY. Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
-Creation, truncation and append actions occur as one atomic update upon job completion.`,
+Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
+Creation, truncation and append actions occur as one atomic update upon job completion. Default value: "WRITE_EMPTY" Possible values: ["WRITE_TRUNCATE", "WRITE_APPEND", "WRITE_EMPTY"]`,
 							Default: "WRITE_EMPTY",
 						},
 					},
@@ -367,7 +367,7 @@ The default value is false.`,
 							Description: `Specifies whether the job is allowed to create new tables. The following values are supported:
 CREATE_IF_NEEDED: If the table does not exist, BigQuery creates the table.
 CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
-The default value is CREATE_IF_NEEDED. Creation, truncation and append actions occur as one atomic update upon job completion`,
+Creation, truncation and append actions occur as one atomic update upon job completion Default value: "CREATE_IF_NEEDED" Possible values: ["CREATE_IF_NEEDED", "CREATE_NEVER"]`,
 							Default: "CREATE_IF_NEEDED",
 						},
 						"destination_encryption_configuration": {
@@ -538,8 +538,8 @@ A wrapper is used here because an empty string is an invalid value.`,
 WRITE_TRUNCATE: If the table already exists, BigQuery overwrites the table data and uses the schema from the query result.
 WRITE_APPEND: If the table already exists, BigQuery appends the data to the table.
 WRITE_EMPTY: If the table already exists and contains data, a 'duplicate' error is returned in the job result.
-The default value is WRITE_EMPTY. Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
-Creation, truncation and append actions occur as one atomic update upon job completion.`,
+Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
+Creation, truncation and append actions occur as one atomic update upon job completion. Default value: "WRITE_EMPTY" Possible values: ["WRITE_TRUNCATE", "WRITE_APPEND", "WRITE_EMPTY"]`,
 							Default: "WRITE_EMPTY",
 						},
 					},
@@ -576,7 +576,7 @@ However, you must still set destinationTable when result size exceeds the allowe
 							Description: `Specifies whether the job is allowed to create new tables. The following values are supported:
 CREATE_IF_NEEDED: If the table does not exist, BigQuery creates the table.
 CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
-The default value is CREATE_IF_NEEDED. Creation, truncation and append actions occur as one atomic update upon job completion`,
+Creation, truncation and append actions occur as one atomic update upon job completion Default value: "CREATE_IF_NEEDED" Possible values: ["CREATE_IF_NEEDED", "CREATE_NEVER"]`,
 							Default: "CREATE_IF_NEEDED",
 						},
 						"default_dataset": {
@@ -683,7 +683,7 @@ If unspecified, this will be set to your project default.`,
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"INTERACTIVE", "BATCH", ""}, false),
-							Description:  `Specifies a priority for the query. Possible values include INTERACTIVE and BATCH. The default value is INTERACTIVE.`,
+							Description:  `Specifies a priority for the query. Default value: "INTERACTIVE" Possible values: ["INTERACTIVE", "BATCH"]`,
 							Default:      "INTERACTIVE",
 						},
 						"schema_update_options": {
@@ -715,7 +715,7 @@ ALLOW_FIELD_RELAXATION: allow relaxing a required field in the original schema t
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"LAST", "FIRST_SELECT", ""}, false),
 										Description: `Determines which statement in the script represents the "key result",
-used to populate the schema and query results of the script job. Default is LAST.`,
+used to populate the schema and query results of the script job. Possible values: ["LAST", "FIRST_SELECT"]`,
 										AtLeastOneOf: []string{},
 									},
 									"statement_byte_budget": {
@@ -784,8 +784,8 @@ Providing a inline code resource is equivalent to providing a URI for a file con
 WRITE_TRUNCATE: If the table already exists, BigQuery overwrites the table data and uses the schema from the query result.
 WRITE_APPEND: If the table already exists, BigQuery appends the data to the table.
 WRITE_EMPTY: If the table already exists and contains data, a 'duplicate' error is returned in the job result.
-The default value is WRITE_EMPTY. Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
-Creation, truncation and append actions occur as one atomic update upon job completion.`,
+Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
+Creation, truncation and append actions occur as one atomic update upon job completion. Default value: "WRITE_EMPTY" Possible values: ["WRITE_TRUNCATE", "WRITE_APPEND", "WRITE_EMPTY"]`,
 							Default: "WRITE_EMPTY",
 						},
 					},

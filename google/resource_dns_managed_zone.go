@@ -85,7 +85,7 @@ default_key_specs can only be updated when the state is 'off'.`,
 										Type:         schema.TypeString,
 										Optional:     true,
 										ValidateFunc: validation.StringInSlice([]string{"ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512", ""}, false),
-										Description:  `String mnemonic specifying the DNSSEC algorithm of this key`,
+										Description:  `String mnemonic specifying the DNSSEC algorithm of this key Possible values: ["ecdsap256sha256", "ecdsap384sha384", "rsasha1", "rsasha256", "rsasha512"]`,
 									},
 									"key_length": {
 										Type:        schema.TypeInt,
@@ -101,7 +101,7 @@ signing key (ZSK). Key signing keys have the Secure Entry
 Point flag set and, when active, will only be used to sign
 resource record sets of type DNSKEY. Zone signing keys do
 not have the Secure Entry Point flag set and will be used
-to sign all other types of resource record sets.`,
+to sign all other types of resource record sets. Possible values: ["keySigning", "zoneSigning"]`,
 									},
 									"kind": {
 										Type:        schema.TypeString,
@@ -126,14 +126,14 @@ to sign all other types of resource record sets.`,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"nsec", "nsec3", ""}, false),
 							Description: `Specifies the mechanism used to provide authenticated denial-of-existence responses.
-non_existence can only be updated when the state is 'off'.`,
+non_existence can only be updated when the state is 'off'. Possible values: ["nsec", "nsec3"]`,
 							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
 						},
 						"state": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"off", "on", "transfer", ""}, false),
-							Description:  `Specifies whether DNSSEC is enabled, and what mode it is in`,
+							Description:  `Specifies whether DNSSEC is enabled, and what mode it is in Possible values: ["off", "on", "transfer"]`,
 							AtLeastOneOf: []string{"dnssec_config.0.kind", "dnssec_config.0.non_existence", "dnssec_config.0.state", "dnssec_config.0.default_key_specs"},
 						},
 					},
@@ -185,8 +185,7 @@ blocks in an update and then apply another update adding all of them back simult
 				ValidateFunc:     validation.StringInSlice([]string{"private", "public", ""}, false),
 				DiffSuppressFunc: caseDiffSuppress,
 				Description: `The zone's visibility: public zones are exposed to the Internet,
-while private zones are visible only to Virtual Private Cloud resources.
-Must be one of: 'public', 'private'.`,
+while private zones are visible only to Virtual Private Cloud resources. Default value: "public" Possible values: ["private", "public"]`,
 				Default: "public",
 			},
 			"name_servers": {

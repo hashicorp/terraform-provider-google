@@ -158,11 +158,24 @@ The `metric_descriptor` block supports:
   Some combinations of metricKind and valueType might not be supported.
   For counter metrics, set this to INT64.
 
+  Possible values are:
+  * `BOOL`
+  * `INT64`
+  * `DOUBLE`
+  * `STRING`
+  * `DISTRIBUTION`
+  * `MONEY`
+
 * `metric_kind` -
   (Required)
   Whether the metric records instantaneous values, changes to a value, etc.
   Some combinations of metricKind and valueType might not be supported.
   For counter metrics, set this to DELTA.
+
+  Possible values are:
+  * `DELTA`
+  * `GAUGE`
+  * `CUMULATIVE`
 
 * `labels` -
   (Optional)
@@ -191,6 +204,12 @@ The `labels` block supports:
 * `value_type` -
   (Optional)
   The type of data that can be assigned to the label.
+
+  Default value: `STRING`
+  Possible values are:
+  * `BOOL`
+  * `INT64`
+  * `STRING`
 
 - - -
 

@@ -80,10 +80,8 @@ will be used.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"DIRECT_PEERING", "PRIVATE_SERVICE_ACCESS", ""}, false),
-				Description: `The connection mode of the Redis instance. Can be either
-'DIRECT_PEERING' or 'PRIVATE_SERVICE_ACCESS'. The default
-connect mode if not provided is 'DIRECT_PEERING'.`,
-				Default: "DIRECT_PEERING",
+				Description:  `The connection mode of the Redis instance. Default value: "DIRECT_PEERING" Possible values: ["DIRECT_PEERING", "PRIVATE_SERVICE_ACCESS"]`,
+				Default:      "DIRECT_PEERING",
 			},
 			"display_name": {
 				Type:        schema.TypeString,
@@ -152,7 +150,7 @@ network.`,
 				Description: `The service tier of the instance. Must be one of these values:
 
 - BASIC: standalone instance
-- STANDARD_HA: highly available primary/replica instances`,
+- STANDARD_HA: highly available primary/replica instances Default value: "BASIC" Possible values: ["BASIC", "STANDARD_HA"]`,
 				Default: "BASIC",
 			},
 			"create_time": {

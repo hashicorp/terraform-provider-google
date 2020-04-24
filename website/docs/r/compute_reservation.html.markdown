@@ -140,8 +140,12 @@ The `local_ssds` block supports:
 
 * `interface` -
   (Optional)
-  The disk interface to use for attaching this disk, one
-  of `SCSI` or `NVME`. The default is `SCSI`.
+  The disk interface to use for attaching this disk.
+
+  Default value: `SCSI`
+  Possible values are:
+  * `SCSI`
+  * `NVME`
 
 * `disk_size_gb` -
   (Required)

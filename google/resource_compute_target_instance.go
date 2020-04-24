@@ -77,7 +77,7 @@ character, which cannot be a dash.`,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"NO_NAT", ""}, false),
 				Description: `NAT option controlling how IPs are NAT'ed to the instance.
-Currently only NO_NAT (default value) is supported.`,
+Currently only NO_NAT (default value) is supported. Default value: "NO_NAT" Possible values: ["NO_NAT"]`,
 				Default: "NO_NAT",
 			},
 			"zone": {

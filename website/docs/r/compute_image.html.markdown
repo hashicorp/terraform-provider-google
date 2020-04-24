@@ -158,6 +158,13 @@ The `guest_os_features` block supports:
   (Required)
   The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.
 
+  Possible values are:
+  * `MULTI_IP_SUBNET`
+  * `SECURE_BOOT`
+  * `UEFI_COMPATIBLE`
+  * `VIRTIO_SCSI_MULTIQUEUE`
+  * `WINDOWS`
+
 The `raw_disk` block supports:
 
 * `container_type` -
@@ -166,6 +173,10 @@ The `raw_disk` block supports:
   should be TAR. This is just a container and transmission format
   and not a runtime format. Provided by the client when the disk
   image is created.
+
+  Default value: `TAR`
+  Possible values are:
+  * `TAR`
 
 * `sha1` -
   (Optional)

@@ -94,10 +94,17 @@ The `fields` block supports:
   Indicates that this field supports ordering by the specified order or comparing using =, <, <=, >, >=.
   Only one of `order` and `arrayConfig` can be specified.
 
+  Possible values are:
+  * `ASCENDING`
+  * `DESCENDING`
+
 * `array_config` -
   (Optional)
   Indicates that this field supports operations on arrayValues. Only one of `order` and `arrayConfig` can
   be specified.
+
+  Possible values are:
+  * `CONTAINS`
 
 - - -
 
@@ -108,8 +115,12 @@ The `fields` block supports:
 
 * `query_scope` -
   (Optional)
-  The scope at which a query is run. One of `"COLLECTION"` or
-  `"COLLECTION_GROUP"`. Defaults to `"COLLECTION"`.
+  The scope at which a query is run.
+
+  Default value: `COLLECTION`
+  Possible values are:
+  * `COLLECTION`
+  * `COLLECTION_GROUP`
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

@@ -80,9 +80,11 @@ The following arguments are supported:
 
 * `network_endpoint_type` -
   (Required)
-  Type of network endpoints in this network endpoint group. Supported values are:
-    * INTERNET_IP_PORT
-    * INTERNET_FQDN_PORT
+  Type of network endpoints in this network endpoint group.
+
+  Possible values are:
+  * `INTERNET_IP_PORT`
+  * `INTERNET_FQDN_PORT`
 
 
 - - -

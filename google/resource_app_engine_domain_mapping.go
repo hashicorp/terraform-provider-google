@@ -68,7 +68,7 @@ func resourceAppEngineDomainMapping() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"STRICT", "OVERRIDE", ""}, false),
 				Description: `Whether the domain creation should override any existing mappings for this domain.
-By default, overrides are rejected.`,
+By default, overrides are rejected. Default value: "STRICT" Possible values: ["STRICT", "OVERRIDE"]`,
 				Default: "STRICT",
 			},
 			"ssl_settings": {
@@ -84,7 +84,7 @@ By default, overrides are rejected.`,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"AUTOMATIC", "MANUAL"}, false),
 							Description: `SSL management type for this domain. If 'AUTOMATIC', a managed certificate is automatically provisioned.
-If 'MANUAL', 'certificateId' must be manually specified in order to configure SSL for this domain.`,
+If 'MANUAL', 'certificateId' must be manually specified in order to configure SSL for this domain. Possible values: ["AUTOMATIC", "MANUAL"]`,
 						},
 						"certificate_id": {
 							Type:     schema.TypeString,
@@ -135,7 +135,7 @@ configuration in order to serve the application via this domain mapping.`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"A", "AAAA", "CNAME", ""}, false),
-							Description:  `Resource record type. Example: 'AAAA'.`,
+							Description:  `Resource record type. Example: 'AAAA'. Possible values: ["A", "AAAA", "CNAME"]`,
 						},
 					},
 				},

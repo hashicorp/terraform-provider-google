@@ -159,6 +159,11 @@ The `imports` block supports:
   the deployment will fail. Note that updating this field does not
   actually affect the deployment, just how it is updated.
 
+  Default value: `CREATE_OR_ACQUIRE`
+  Possible values are:
+  * `ACQUIRE`
+  * `CREATE_OR_ACQUIRE`
+
 * `delete_policy` -
   (Optional)
   Set the policy to use for deleting new resources on update/delete.
@@ -167,6 +172,11 @@ The `imports` block supports:
   `ABANDON`, the resource is only removed from Deployment Manager
   and is not actually deleted. Note that updating this field does not
   actually change the deployment, just how it is updated.
+
+  Default value: `DELETE`
+  Possible values are:
+  * `ABANDON`
+  * `DELETE`
 
 * `preview` -
   (Optional)
