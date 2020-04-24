@@ -1029,7 +1029,7 @@
                       "type": "string"
                     },
                     "topic": {
-                      "description": "The name of the topic that snapshots are attached to.\nFormat is `projects/{project}/topics/{topic}`.",
+                      "description": "Required. The name of the topic that snapshots are attached to.\nFormat is `projects/{project}/topics/{topic}`.",
                       "location": "path",
                       "pattern": "^projects/[^/]+/topics/[^/]+$",
                       "required": true,
@@ -1093,7 +1093,7 @@
       }
     }
   },
-  "revision": "20200218",
+  "revision": "20200403",
   "rootUrl": "https://pubsub.googleapis.com/",
   "schemas": {
     "AcknowledgeRequest": {
@@ -1445,7 +1445,7 @@
           "type": "integer"
         },
         "returnImmediately": {
-          "description": "If this field set to true, the system will respond immediately even if\nit there are no messages available to return in the `Pull` response.\nOtherwise, the system may wait (for a bounded amount of time) until at\nleast one message is available, rather than returning no messages.",
+          "description": "Optional. If this field set to true, the system will respond immediately even if\nit there are no messages available to return in the `Pull` response.\nOtherwise, the system may wait (for a bounded amount of time) until at\nleast one message is available, rather than returning no messages. Warning:\nsetting this field to `true` is discouraged because it adversely impacts\nthe performance of `Pull` operations. We recommend that users do not set\nthis field.",
           "type": "boolean"
         }
       },
@@ -1710,7 +1710,7 @@
           "description": "Required. The updated topic object."
         },
         "updateMask": {
-          "description": "Required. Indicates which fields in the provided topic to update. Must be specified\nand non-empty. Note that if `update_mask` contains\n\"message_storage_policy\" then the new value will be determined based on the\npolicy configured at the project or organization level. The\n`message_storage_policy` must not be set in the `topic` provided above.",
+          "description": "Required. Indicates which fields in the provided topic to update. Must be specified\nand non-empty. Note that if `update_mask` contains\n\"message_storage_policy\" but the `message_storage_policy` is not set in\nthe `topic` provided above, then the updated value is determined by the\npolicy configured at the project or organization level.",
           "format": "google-fieldmask",
           "type": "string"
         }

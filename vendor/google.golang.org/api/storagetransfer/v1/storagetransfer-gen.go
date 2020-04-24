@@ -245,6 +245,89 @@ func (s *AwsS3Data) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// AzureBlobStorageData: An AzureBlobStorageData resource can be a data
+// source, but not a data sink.
+// An AzureBlobStorageData resource represents one Azure container. The
+// storage
+// account determines the
+// [Azure
+// endpoint](https://docs.microsoft.com/en-us/azure/storage/common
+// /storage-create-storage-account#storage-account-endpoints).
+// In an AzureBlobStorageData resource, a blobs's name is the [Azure
+// Blob
+// Storage blob's
+// key
+// name](https://docs.microsoft.com/en-us/rest/api/storageservices/na
+// ming-and-referencing-containers--blobs--and-metadata#blob-names).
+type AzureBlobStorageData struct {
+	// AzureCredentials: Required. Credentials used to authenticate API
+	// requests to Azure.
+	AzureCredentials *AzureCredentials `json:"azureCredentials,omitempty"`
+
+	// Container: Required. The container to transfer from the Azure Storage
+	// account.
+	Container string `json:"container,omitempty"`
+
+	// StorageAccount: Required. The name of the Azure Storage account.
+	StorageAccount string `json:"storageAccount,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AzureCredentials") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AzureCredentials") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AzureBlobStorageData) MarshalJSON() ([]byte, error) {
+	type NoMethod AzureBlobStorageData
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// AzureCredentials: Azure credentials
+type AzureCredentials struct {
+	// SasToken: Required. Azure shared access signature. (see
+	// [Grant limited access to Azure Storage resources using shared
+	// access
+	// signatures
+	// (SAS)](https://docs.microsoft.com/en-us/azure/storag
+	// e/common/storage-sas-overview)).
+	SasToken string `json:"sasToken,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "SasToken") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "SasToken") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *AzureCredentials) MarshalJSON() ([]byte, error) {
+	type NoMethod AzureCredentials
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Date: Represents a whole or partial calendar date, e.g. a birthday.
 // The time of day
 // and time zone are either specified elsewhere or are not significant.
@@ -782,6 +865,89 @@ func (s *ListTransferJobsResponse) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// NotificationConfig: Specification to configure notifications
+// published to Cloud Pub/Sub.
+// Notifications will be published to the customer-provided topic using
+// the
+// following `PubsubMessage.attributes`:
+//
+// * "eventType": one of the EventType values
+// * "payloadFormat": one of the PayloadFormat values
+// * "projectId": the project_id of the
+// `TransferOperation`
+// * "transferJobName": the
+// transfer_job_name of the
+// `TransferOperation`
+// * "transferOperationName": the name of the
+// `TransferOperation`
+//
+// The `PubsubMessage.data` will contain a TransferOperation
+// resource
+// formatted according to the specified `PayloadFormat`.
+type NotificationConfig struct {
+	// EventTypes: Event types for which a notification is desired. If
+	// empty, send
+	// notifications for all event types.
+	//
+	// Possible values:
+	//   "EVENT_TYPE_UNSPECIFIED" - Illegal value, to avoid allowing a
+	// default.
+	//   "TRANSFER_OPERATION_SUCCESS" - `TransferOperation` completed with
+	// status
+	// SUCCESS.
+	//   "TRANSFER_OPERATION_FAILED" - `TransferOperation` completed with
+	// status
+	// FAILED.
+	//   "TRANSFER_OPERATION_ABORTED" - `TransferOperation` completed with
+	// status
+	// ABORTED.
+	EventTypes []string `json:"eventTypes,omitempty"`
+
+	// PayloadFormat: Required. The desired format of the notification
+	// message payloads.
+	//
+	// Possible values:
+	//   "PAYLOAD_FORMAT_UNSPECIFIED" - Illegal value, to avoid allowing a
+	// default.
+	//   "NONE" - No payload is included with the notification.
+	//   "JSON" - `TransferOperation` is [formatted as a
+	// JSON
+	// response](https://developers.google.com/protocol-buffers/docs/pro
+	// to3#json),
+	// in application/json.
+	PayloadFormat string `json:"payloadFormat,omitempty"`
+
+	// PubsubTopic: Required. The `Topic.name` of the Cloud Pub/Sub topic to
+	// which to publish
+	// notifications. Must be of the format:
+	// `projects/{project}/topics/{topic}`.
+	// Not matching this format will result in an
+	// INVALID_ARGUMENT error.
+	PubsubTopic string `json:"pubsubTopic,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "EventTypes") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "EventTypes") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *NotificationConfig) MarshalJSON() ([]byte, error) {
+	type NoMethod NotificationConfig
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // ObjectConditions: Conditions that determine which objects will be
 // transferred. Applies only
 // to S3 and Cloud Storage objects.
@@ -851,6 +1017,32 @@ type ObjectConditions struct {
 	//
 	// The max size of `include_prefixes` is 1000.
 	IncludePrefixes []string `json:"includePrefixes,omitempty"`
+
+	// LastModifiedBefore: If specified, only objects with a "last
+	// modification time" before this
+	// timestamp and objects that don't have a "last modification time" will
+	// be
+	// transferred.
+	LastModifiedBefore string `json:"lastModifiedBefore,omitempty"`
+
+	// LastModifiedSince: If specified, only objects with a "last
+	// modification time" on or after
+	// this timestamp and objects that don't have a "last modification time"
+	// are
+	// transferred.
+	//
+	// The `last_modified_since` and `last_modified_before` fields can be
+	// used
+	// together for chunked data processing. For example, consider a script
+	// that
+	// processes each day's worth of data at a time. For that you'd set
+	// each
+	// of the fields as follows:
+	//
+	// *  `last_modified_since` to the start of the day
+	//
+	// *  `last_modified_before` to the end of the day
+	LastModifiedSince string `json:"lastModifiedSince,omitempty"`
 
 	// MaxTimeElapsedSinceLastModification: If specified, only objects with
 	// a "last modification time" on or after
@@ -1276,27 +1468,27 @@ type TransferJob struct {
 
 	// Name: A unique name (within the transfer project) assigned when the
 	// job is
-	// created.
-	// If this field is left empty in a CreateTransferJobRequest, Storage
-	// Transfer
-	// Service will assign a unique name. Otherwise, the supplied name is
-	// used as
-	// the unique name for this job.
+	// created.  If this field is empty in a CreateTransferJobRequest,
+	// Storage
+	// Transfer Service will assign a unique name. Otherwise, the specified
+	// name
+	// is used as the unique name for this job.
+	//
+	// If the specified name is in use by a job, the creation request fails
+	// with
+	// an ALREADY_EXISTS error.
 	//
 	// This name must start with "transferJobs/" prefix and end with a
 	// letter or
 	// a number, and should be no more than 128 characters.
-	// Example of a valid format :
-	// "transferJobs/[A-Za-z0-9-._~]*[A-Za-z0-9]$"
+	// Example: "transferJobs/[A-Za-z0-9-._~]*[A-Za-z0-9]$"
 	//
-	// **Note:** If the supplied name is already in use, the creation
-	// request
-	// results in an ALREADY_EXISTS error and
-	// the transfer job will not be created.  Invalid job names will return
-	// an
-	// INVALID_ARGUMENT error and the job will
-	// not be created.
+	// Invalid job names will fail with an
+	// INVALID_ARGUMENT error.
 	Name string `json:"name,omitempty"`
+
+	// NotificationConfig: Notification configuration.
+	NotificationConfig *NotificationConfig `json:"notificationConfig,omitempty"`
 
 	// ProjectId: The ID of the Google Cloud Platform Project that owns the
 	// job.
@@ -1373,6 +1565,9 @@ type TransferOperation struct {
 
 	// Name: A globally unique ID assigned by the system.
 	Name string `json:"name,omitempty"`
+
+	// NotificationConfig: Notification configuration.
+	NotificationConfig *NotificationConfig `json:"notificationConfig,omitempty"`
 
 	// ProjectId: The ID of the Google Cloud Platform Project that owns the
 	// operation.
@@ -1479,6 +1674,9 @@ type TransferSpec struct {
 	// AwsS3DataSource: An AWS S3 data source.
 	AwsS3DataSource *AwsS3Data `json:"awsS3DataSource,omitempty"`
 
+	// AzureBlobStorageDataSource: An Azure Blob Storage data source.
+	AzureBlobStorageDataSource *AzureBlobStorageData `json:"azureBlobStorageDataSource,omitempty"`
+
 	// GcsDataSink: A Cloud Storage data sink.
 	GcsDataSink *GcsData `json:"gcsDataSink,omitempty"`
 
@@ -1536,9 +1734,9 @@ type UpdateTransferJobRequest struct {
 
 	// TransferJob: Required. The job to update. `transferJob` is expected
 	// to specify only
-	// three fields:
-	// description,
-	// transfer_spec, and
+	// four fields: description,
+	// transfer_spec,
+	// notification_config, and
 	// status.  An `UpdateTransferJobRequest` that specifies
 	// other fields will be rejected with the error
 	// INVALID_ARGUMENT.
@@ -1549,7 +1747,8 @@ type UpdateTransferJobRequest struct {
 	// this request.  Fields in `transferJob` that can be updated
 	// are:
 	// description,
-	// transfer_spec, and
+	// transfer_spec,
+	// notification_config, and
 	// status.  To update the `transfer_spec` of the job, a
 	// complete transfer specification must be provided. An
 	// incomplete
@@ -1647,7 +1846,7 @@ func (c *GoogleServiceAccountsGetCall) Header() http.Header {
 
 func (c *GoogleServiceAccountsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200302")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200410")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -1779,7 +1978,7 @@ func (c *TransferJobsCreateCall) Header() http.Header {
 
 func (c *TransferJobsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200302")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200410")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -1923,7 +2122,7 @@ func (c *TransferJobsGetCall) Header() http.Header {
 
 func (c *TransferJobsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200302")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200410")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2105,7 +2304,7 @@ func (c *TransferJobsListCall) Header() http.Header {
 
 func (c *TransferJobsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200302")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200410")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2276,7 +2475,7 @@ func (c *TransferJobsPatchCall) Header() http.Header {
 
 func (c *TransferJobsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200302")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200410")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2416,7 +2615,7 @@ func (c *TransferOperationsCancelCall) Header() http.Header {
 
 func (c *TransferOperationsCancelCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200302")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200410")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2561,7 +2760,7 @@ func (c *TransferOperationsGetCall) Header() http.Header {
 
 func (c *TransferOperationsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200302")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200410")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2736,7 +2935,7 @@ func (c *TransferOperationsListCall) Header() http.Header {
 
 func (c *TransferOperationsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200302")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200410")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2908,7 +3107,7 @@ func (c *TransferOperationsPauseCall) Header() http.Header {
 
 func (c *TransferOperationsPauseCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200302")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200410")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3048,7 +3247,7 @@ func (c *TransferOperationsResumeCall) Header() http.Header {
 
 func (c *TransferOperationsResumeCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200302")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200410")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
