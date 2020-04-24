@@ -460,7 +460,7 @@
                   ]
                 },
                 "instantiate": {
-                  "description": "Instantiates a template and begins execution.The returned Operation can be used to track execution of workflow by polling operations.get. The Operation will complete when entire workflow is finished.The running workflow can be aborted via operations.cancel. This will cause any inflight jobs to be cancelled and workflow-owned clusters to be deleted.The Operation.metadata will be WorkflowMetadata. Also see Using WorkflowMetadata.On successful completion, Operation.response will be Empty.",
+                  "description": "Instantiates a template and begins execution.The returned Operation can be used to track execution of workflow by polling operations.get. The Operation will complete when entire workflow is finished.The running workflow can be aborted via operations.cancel. This will cause any inflight jobs to be cancelled and workflow-owned clusters to be deleted.The Operation.metadata will be WorkflowMetadata (https://cloud.google.com/dataproc/docs/reference/rpc/google.cloud.dataproc.v1#workflowmetadata). Also see Using WorkflowMetadata (https://cloud.google.com/dataproc/docs/concepts/workflows/debugging#using_workflowmetadata).On successful completion, Operation.response will be Empty.",
                   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates/{workflowTemplatesId}:instantiate",
                   "httpMethod": "POST",
                   "id": "dataproc.projects.locations.workflowTemplates.instantiate",
@@ -488,7 +488,7 @@
                   ]
                 },
                 "instantiateInline": {
-                  "description": "Instantiates a template and begins execution.This method is equivalent to executing the sequence CreateWorkflowTemplate, InstantiateWorkflowTemplate, DeleteWorkflowTemplate.The returned Operation can be used to track execution of workflow by polling operations.get. The Operation will complete when entire workflow is finished.The running workflow can be aborted via operations.cancel. This will cause any inflight jobs to be cancelled and workflow-owned clusters to be deleted.The Operation.metadata will be WorkflowMetadata. Also see Using WorkflowMetadata.On successful completion, Operation.response will be Empty.",
+                  "description": "Instantiates a template and begins execution.This method is equivalent to executing the sequence CreateWorkflowTemplate, InstantiateWorkflowTemplate, DeleteWorkflowTemplate.The returned Operation can be used to track execution of workflow by polling operations.get. The Operation will complete when entire workflow is finished.The running workflow can be aborted via operations.cancel. This will cause any inflight jobs to be cancelled and workflow-owned clusters to be deleted.The Operation.metadata will be WorkflowMetadata (https://cloud.google.com/dataproc/docs/reference/rpc/google.cloud.dataproc.v1#workflowmetadata). Also see Using WorkflowMetadata (https://cloud.google.com/dataproc/docs/concepts/workflows/debugging#using_workflowmetadata).On successful completion, Operation.response will be Empty.",
                   "flatPath": "v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates:instantiateInline",
                   "httpMethod": "POST",
                   "id": "dataproc.projects.locations.workflowTemplates.instantiateInline",
@@ -879,7 +879,7 @@
             "clusters": {
               "methods": {
                 "create": {
-                  "description": "Creates a cluster in a project. The returned Operation.metadata will be ClusterOperationMetadata.",
+                  "description": "Creates a cluster in a project. The returned Operation.metadata will be ClusterOperationMetadata (https://cloud.google.com/dataproc/docs/reference/rpc/google.cloud.dataproc.v1#clusteroperationmetadata).",
                   "flatPath": "v1/projects/{projectId}/regions/{region}/clusters",
                   "httpMethod": "POST",
                   "id": "dataproc.projects.regions.clusters.create",
@@ -918,7 +918,7 @@
                   ]
                 },
                 "delete": {
-                  "description": "Deletes a cluster in a project. The returned Operation.metadata will be ClusterOperationMetadata.",
+                  "description": "Deletes a cluster in a project. The returned Operation.metadata will be ClusterOperationMetadata (https://cloud.google.com/dataproc/docs/reference/rpc/google.cloud.dataproc.v1#clusteroperationmetadata).",
                   "flatPath": "v1/projects/{projectId}/regions/{region}/clusters/{clusterName}",
                   "httpMethod": "DELETE",
                   "id": "dataproc.projects.regions.clusters.delete",
@@ -966,7 +966,7 @@
                   ]
                 },
                 "diagnose": {
-                  "description": "Gets cluster diagnostic information. The returned Operation.metadata will be ClusterOperationMetadata. After the operation completes, Operation.response contains DiagnoseClusterResults.",
+                  "description": "Gets cluster diagnostic information. The returned Operation.metadata will be ClusterOperationMetadata (https://cloud.google.com/dataproc/docs/reference/rpc/google.cloud.dataproc.v1#clusteroperationmetadata). After the operation completes, Operation.response contains DiagnoseClusterResults (https://cloud.google.com/dataproc/docs/reference/rpc/google.cloud.dataproc.v1#diagnoseclusterresults).",
                   "flatPath": "v1/projects/{projectId}/regions/{region}/clusters/{clusterName}:diagnose",
                   "httpMethod": "POST",
                   "id": "dataproc.projects.regions.clusters.diagnose",
@@ -1073,7 +1073,7 @@
                   ]
                 },
                 "list": {
-                  "description": "Lists all regions/{region}/clusters in a project.",
+                  "description": "Lists all regions/{region}/clusters in a project alphabetically.",
                   "flatPath": "v1/projects/{projectId}/regions/{region}/clusters",
                   "httpMethod": "GET",
                   "id": "dataproc.projects.regions.clusters.list",
@@ -1120,7 +1120,7 @@
                   ]
                 },
                 "patch": {
-                  "description": "Updates a cluster in a project. The returned Operation.metadata will be ClusterOperationMetadata.",
+                  "description": "Updates a cluster in a project. The returned Operation.metadata will be ClusterOperationMetadata (https://cloud.google.com/dataproc/docs/reference/rpc/google.cloud.dataproc.v1#clusteroperationmetadata).",
                   "flatPath": "v1/projects/{projectId}/regions/{region}/clusters/{clusterName}",
                   "httpMethod": "PATCH",
                   "id": "dataproc.projects.regions.clusters.patch",
@@ -1238,7 +1238,7 @@
             "jobs": {
               "methods": {
                 "cancel": {
-                  "description": "Starts a job cancellation request. To access the job resource after cancellation, call regions/{region}/jobs.list or regions/{region}/jobs.get.",
+                  "description": "Starts a job cancellation request. To access the job resource after cancellation, call regions/{region}/jobs.list (https://cloud.google.com/dataproc/docs/reference/rest/v1/projects.regions.jobs/list) or regions/{region}/jobs.get (https://cloud.google.com/dataproc/docs/reference/rest/v1/projects.regions.jobs/get).",
                   "flatPath": "v1/projects/{projectId}/regions/{region}/jobs/{jobId}:cancel",
                   "httpMethod": "POST",
                   "id": "dataproc.projects.regions.jobs.cancel",
@@ -1548,6 +1548,40 @@
                   },
                   "response": {
                     "$ref": "Job"
+                  },
+                  "scopes": [
+                    "https://www.googleapis.com/auth/cloud-platform"
+                  ]
+                },
+                "submitAsOperation": {
+                  "description": "Submits job to a cluster.",
+                  "flatPath": "v1/projects/{projectId}/regions/{region}/jobs:submitAsOperation",
+                  "httpMethod": "POST",
+                  "id": "dataproc.projects.regions.jobs.submitAsOperation",
+                  "parameterOrder": [
+                    "projectId",
+                    "region"
+                  ],
+                  "parameters": {
+                    "projectId": {
+                      "description": "Required. The ID of the Google Cloud Platform project that the job belongs to.",
+                      "location": "path",
+                      "required": true,
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "Required. The Dataproc region in which to handle the request.",
+                      "location": "path",
+                      "required": true,
+                      "type": "string"
+                    }
+                  },
+                  "path": "v1/projects/{projectId}/regions/{region}/jobs:submitAsOperation",
+                  "request": {
+                    "$ref": "SubmitJobRequest"
+                  },
+                  "response": {
+                    "$ref": "Operation"
                   },
                   "scopes": [
                     "https://www.googleapis.com/auth/cloud-platform"
@@ -1908,7 +1942,7 @@
                   ]
                 },
                 "instantiate": {
-                  "description": "Instantiates a template and begins execution.The returned Operation can be used to track execution of workflow by polling operations.get. The Operation will complete when entire workflow is finished.The running workflow can be aborted via operations.cancel. This will cause any inflight jobs to be cancelled and workflow-owned clusters to be deleted.The Operation.metadata will be WorkflowMetadata. Also see Using WorkflowMetadata.On successful completion, Operation.response will be Empty.",
+                  "description": "Instantiates a template and begins execution.The returned Operation can be used to track execution of workflow by polling operations.get. The Operation will complete when entire workflow is finished.The running workflow can be aborted via operations.cancel. This will cause any inflight jobs to be cancelled and workflow-owned clusters to be deleted.The Operation.metadata will be WorkflowMetadata (https://cloud.google.com/dataproc/docs/reference/rpc/google.cloud.dataproc.v1#workflowmetadata). Also see Using WorkflowMetadata (https://cloud.google.com/dataproc/docs/concepts/workflows/debugging#using_workflowmetadata).On successful completion, Operation.response will be Empty.",
                   "flatPath": "v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates/{workflowTemplatesId}:instantiate",
                   "httpMethod": "POST",
                   "id": "dataproc.projects.regions.workflowTemplates.instantiate",
@@ -1936,7 +1970,7 @@
                   ]
                 },
                 "instantiateInline": {
-                  "description": "Instantiates a template and begins execution.This method is equivalent to executing the sequence CreateWorkflowTemplate, InstantiateWorkflowTemplate, DeleteWorkflowTemplate.The returned Operation can be used to track execution of workflow by polling operations.get. The Operation will complete when entire workflow is finished.The running workflow can be aborted via operations.cancel. This will cause any inflight jobs to be cancelled and workflow-owned clusters to be deleted.The Operation.metadata will be WorkflowMetadata. Also see Using WorkflowMetadata.On successful completion, Operation.response will be Empty.",
+                  "description": "Instantiates a template and begins execution.This method is equivalent to executing the sequence CreateWorkflowTemplate, InstantiateWorkflowTemplate, DeleteWorkflowTemplate.The returned Operation can be used to track execution of workflow by polling operations.get. The Operation will complete when entire workflow is finished.The running workflow can be aborted via operations.cancel. This will cause any inflight jobs to be cancelled and workflow-owned clusters to be deleted.The Operation.metadata will be WorkflowMetadata (https://cloud.google.com/dataproc/docs/reference/rpc/google.cloud.dataproc.v1#workflowmetadata). Also see Using WorkflowMetadata (https://cloud.google.com/dataproc/docs/concepts/workflows/debugging#using_workflowmetadata).On successful completion, Operation.response will be Empty.",
                   "flatPath": "v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates:instantiateInline",
                   "httpMethod": "POST",
                   "id": "dataproc.projects.regions.workflowTemplates.instantiateInline",
@@ -2095,7 +2129,7 @@
       }
     }
   },
-  "revision": "20200213",
+  "revision": "20200407",
   "rootUrl": "https://dataproc.googleapis.com/",
   "schemas": {
     "AcceleratorConfig": {
@@ -2252,7 +2286,7 @@
         },
         "metrics": {
           "$ref": "ClusterMetrics",
-          "description": "Contains cluster daemon metrics such as HDFS and YARN stats.Beta Feature: This report is available for testing purposes only. It may be changed before final release."
+          "description": "Output only. Contains cluster daemon metrics such as HDFS and YARN stats.Beta Feature: This report is available for testing purposes only. It may be changed before final release."
         },
         "projectId": {
           "description": "Required. The Google Cloud Platform project ID that the cluster belongs to.",
@@ -2805,7 +2839,7 @@
           "description": "Optional. Disk option config settings."
         },
         "imageUri": {
-          "description": "Optional. The Compute Engine image resource used for cluster instances. It can be specified or may be inferred from SoftwareConfig.image_version.",
+          "description": "Optional. The Compute Engine image resource used for cluster instances.The URI can represent an image or image family.Image examples:\nhttps://www.googleapis.com/compute/beta/projects/[project_id]/global/images/[image-id]\nprojects/[project_id]/global/images/[image-id]\nimage-idImage family examples. Dataproc will use the most recent image from the family:\nhttps://www.googleapis.com/compute/beta/projects/[project_id]/global/images/family/[custom-image-family-name]\nprojects/[project_id]/global/images/family/[custom-image-family-name]If the URI is unspecified, it will be inferred from SoftwareConfig.image_version or the system default.",
           "type": "string"
         },
         "instanceNames": {
@@ -2816,7 +2850,7 @@
           "type": "array"
         },
         "isPreemptible": {
-          "description": "Optional. Specifies that this instance group contains preemptible instances.",
+          "description": "Output only. Specifies that this instance group contains preemptible instances.",
           "type": "boolean"
         },
         "machineTypeUri": {
@@ -2835,6 +2869,20 @@
           "description": "Optional. The number of VM instances in the instance group. For master instance groups, must be set to 1.",
           "format": "int32",
           "type": "integer"
+        },
+        "preemptibility": {
+          "description": "Optional. Specifies the preemptibility of the instance group.The default value for master and worker groups is NON_PREEMPTIBLE. This default cannot be changed.The default value for secondary instances is PREEMPTIBLE.",
+          "enum": [
+            "PREEMPTIBILITY_UNSPECIFIED",
+            "NON_PREEMPTIBLE",
+            "PREEMPTIBLE"
+          ],
+          "enumDescriptions": [
+            "Preemptibility is unspecified, the system will choose the appropriate setting for each instance group.",
+            "Instances are non-preemptible.This option is allowed for all instance groups and is the only valid value for Master and Worker instance groups.",
+            "Instances are preemptible.This option is allowed only for secondary worker groups."
+          ],
+          "type": "string"
         }
       },
       "type": "object"
@@ -2866,6 +2914,10 @@
       "description": "A Dataproc job resource.",
       "id": "Job",
       "properties": {
+        "done": {
+          "description": "Output only. Indicates whether the job is completed. If the value is false, the job is still in progress. If true, the job is completed, and status.state field will indicate if it was successful, failed, or cancelled.",
+          "type": "boolean"
+        },
         "driverControlFilesUri": {
           "description": "Output only. If present, the location of miscellaneous control files which may be used as part of job setup and handling. If not present, control files may be placed in the same location as driver_output_uri.",
           "type": "string"
@@ -2946,6 +2998,30 @@
             "$ref": "YarnApplication"
           },
           "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "JobMetadata": {
+      "description": "Job Operation metadata.",
+      "id": "JobMetadata",
+      "properties": {
+        "jobId": {
+          "description": "Output only. The job id.",
+          "type": "string"
+        },
+        "operationType": {
+          "description": "Output only. Operation type.",
+          "type": "string"
+        },
+        "startTime": {
+          "description": "Output only. Job submission time.",
+          "format": "google-datetime",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "JobStatus",
+          "description": "Output only. Most recent job status."
         }
       },
       "type": "object"
@@ -3073,7 +3149,7 @@
           "type": "string"
         },
         "enableKerberos": {
-          "description": "Optional. Flag to indicate whether to Kerberize the cluster.",
+          "description": "Optional. Flag to indicate whether to Kerberize the cluster (default: false). Set this field to true to enable Kerberos on a cluster.",
           "type": "boolean"
         },
         "kdcDbKeyUri": {
@@ -3377,6 +3453,10 @@
           },
           "type": "array"
         },
+        "prestoJob": {
+          "$ref": "PrestoJob",
+          "description": "Presto job"
+        },
         "pysparkJob": {
           "$ref": "PySparkJob"
         },
@@ -3386,6 +3466,10 @@
         },
         "sparkJob": {
           "$ref": "SparkJob"
+        },
+        "sparkRJob": {
+          "$ref": "SparkRJob",
+          "description": "Spark R job"
         },
         "sparkSqlJob": {
           "$ref": "SparkSqlJob"
@@ -3481,7 +3565,7 @@
       "type": "object"
     },
     "PrestoJob": {
-      "description": "A Dataproc job for running Presto (https://prestosql.io/) queries",
+      "description": "A Dataproc job for running Presto (https://prestosql.io/) queries. IMPORTANT: The Dataproc Presto Optional Component must be enabled when the cluster is created to submit a Presto job to the cluster.",
       "id": "PrestoJob",
       "properties": {
         "clientTags": {
@@ -3677,6 +3761,7 @@
             "The Anaconda python distribution.",
             "The Hive Web HCatalog (the REST service for accessing HCatalog).",
             "The Jupyter Notebook.",
+            "The Presto query engine.",
             "The Zeppelin notebook.",
             "The Zookeeper service."
           ],
@@ -3686,6 +3771,7 @@
               "ANACONDA",
               "HIVE_WEBHCAT",
               "JUPYTER",
+              "PRESTO",
               "ZEPPELIN",
               "ZOOKEEPER"
             ],
