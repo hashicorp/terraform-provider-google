@@ -524,6 +524,12 @@ The following arguments are supported:
   succeed only if all of the test cases pass. You can specify a maximum of 100
   tests per UrlMap.  Structure is documented below.
 
+* `default_url_redirect` -
+  (Optional)
+  When none of the specified hostRules match, the request is redirected to a URL specified
+  by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService or
+  defaultRouteAction must not be set.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -638,6 +644,12 @@ The `path_matcher` block supports:
   action to take effect. Within a given pathMatcher, only one of pathRules or
   routeRules must be set. routeRules are not supported in UrlMaps intended for
   External load balancers.  Structure is documented below.
+
+* `default_url_redirect` -
+  (Optional)
+  When none of the specified hostRules match, the request is redirected to a URL specified
+  by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService or
+  defaultRouteAction must not be set.  Structure is documented below.
 
 
 The `header_action` block supports:
@@ -1727,6 +1739,60 @@ The `url_redirect` block supports:
   prior to redirecting the request. If set to false, the query portion of the
   original URL is retained. Defaults to false.
 
+The `default_url_redirect` block supports:
+
+* `host_redirect` -
+  (Optional)
+  The host that will be used in the redirect response instead of the one that was
+  supplied in the request. The value must be between 1 and 255 characters.
+
+* `https_redirect` -
+  (Optional)
+  If set to true, the URL scheme in the redirected request is set to https. If set to
+  false, the URL scheme of the redirected request will remain the same as that of the
+  request. This must only be set for UrlMaps used in TargetHttpProxys. Setting this
+  true for TargetHttpsProxy is not permitted. The default is set to false.
+
+* `path_redirect` -
+  (Optional)
+  The path that will be used in the redirect response instead of the one that was
+  supplied in the request. pathRedirect cannot be supplied together with
+  prefixRedirect. Supply one alone or neither. If neither is supplied, the path of the
+  original request will be used for the redirect. The value must be between 1 and 1024
+  characters.
+
+* `prefix_redirect` -
+  (Optional)
+  The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
+  retaining the remaining portion of the URL before redirecting the request.
+  prefixRedirect cannot be supplied together with pathRedirect. Supply one alone or
+  neither. If neither is supplied, the path of the original request will be used for
+  the redirect. The value must be between 1 and 1024 characters.
+
+* `redirect_response_code` -
+  (Optional)
+  The HTTP Status code to use for this RedirectAction. Supported values are:
+  - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
+  - FOUND, which corresponds to 302.
+  - SEE_OTHER which corresponds to 303.
+  - TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request method
+  will be retained.
+  - PERMANENT_REDIRECT, which corresponds to 308. In this case,
+  the request method will be retained.
+
+  Possible values are:
+  * `FOUND`
+  * `MOVED_PERMANENTLY_DEFAULT`
+  * `PERMANENT_REDIRECT`
+  * `SEE_OTHER`
+  * `TEMPORARY_REDIRECT`
+
+* `strip_query` -
+  (Optional)
+  If set to true, any accompanying query portion of the original URL is removed prior
+  to redirecting the request. If set to false, the query portion of the original URL is
+  retained. The default is set to false.
+
 The `test` block supports:
 
 * `description` -
@@ -1744,6 +1810,60 @@ The `test` block supports:
 * `service` -
   (Required)
   The backend service or backend bucket link that should be matched by this test.
+
+The `default_url_redirect` block supports:
+
+* `host_redirect` -
+  (Optional)
+  The host that will be used in the redirect response instead of the one that was
+  supplied in the request. The value must be between 1 and 255 characters.
+
+* `https_redirect` -
+  (Optional)
+  If set to true, the URL scheme in the redirected request is set to https. If set to
+  false, the URL scheme of the redirected request will remain the same as that of the
+  request. This must only be set for UrlMaps used in TargetHttpProxys. Setting this
+  true for TargetHttpsProxy is not permitted. The default is set to false.
+
+* `path_redirect` -
+  (Optional)
+  The path that will be used in the redirect response instead of the one that was
+  supplied in the request. pathRedirect cannot be supplied together with
+  prefixRedirect. Supply one alone or neither. If neither is supplied, the path of the
+  original request will be used for the redirect. The value must be between 1 and 1024
+  characters.
+
+* `prefix_redirect` -
+  (Optional)
+  The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
+  retaining the remaining portion of the URL before redirecting the request.
+  prefixRedirect cannot be supplied together with pathRedirect. Supply one alone or
+  neither. If neither is supplied, the path of the original request will be used for
+  the redirect. The value must be between 1 and 1024 characters.
+
+* `redirect_response_code` -
+  (Optional)
+  The HTTP Status code to use for this RedirectAction. Supported values are:
+  - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
+  - FOUND, which corresponds to 302.
+  - SEE_OTHER which corresponds to 303.
+  - TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request method
+  will be retained.
+  - PERMANENT_REDIRECT, which corresponds to 308. In this case,
+  the request method will be retained.
+
+  Possible values are:
+  * `FOUND`
+  * `MOVED_PERMANENTLY_DEFAULT`
+  * `PERMANENT_REDIRECT`
+  * `SEE_OTHER`
+  * `TEMPORARY_REDIRECT`
+
+* `strip_query` -
+  (Optional)
+  If set to true, any accompanying query portion of the original URL is removed prior
+  to redirecting the request. If set to false, the query portion of the original URL is
+  retained. The default is set to false.
 
 ## Attributes Reference
 
