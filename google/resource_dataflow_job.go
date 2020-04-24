@@ -152,7 +152,7 @@ func resourceDataflowJob() *schema.Resource {
 			},
 
 			"additional_experiments": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
 				Elem: &schema.Schema{
@@ -188,7 +188,7 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 
 	params := expandStringMap(d, "parameters")
 	labels := expandStringMap(d, "labels")
-	additionalExperiments := convertStringArr(d.Get("additional_experiments").([]interface{}))
+	additionalExperiments := convertStringSet(d.Get("additional_experiments").(*schema.Set))
 
 	env := dataflow.RuntimeEnvironment{
 		MaxWorkers:            int64(d.Get("max_workers").(int)),

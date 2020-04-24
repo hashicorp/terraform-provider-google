@@ -188,7 +188,7 @@ func TestAccDataflowJobWithAdditionalExperiments(t *testing.T) {
 	randStr := randString(t, 10)
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
-	additionalExperiments := []string{"enable_stackdriver_agent_metrics"}
+	additionalExperiments := []string{"enable_stackdriver_agent_metrics", "shuffle_mode=service"}
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -661,6 +661,6 @@ resource "google_dataflow_job" "with_additional_experiments" {
   }
   on_delete = "cancel"
 }
-`, bucket, job, strings.Join(experiments, ","), testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+`, bucket, job, strings.Join(experiments, `", "`), testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
 
 }
