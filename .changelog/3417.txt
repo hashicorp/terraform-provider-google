@@ -1,0 +1,48 @@
+```release-note:new-resource
+`google_healthcare_dataset` is now GA
+```
+```release-note:new-resource
+`google_healthcare_dicom_store` is now GA
+```
+```release-note:new-resource
+`google_healthcare_fhir_store` is now GA
+```
+```release-note:new-resource
+`google_healthcare_hl7_v2_store` is now GA
+```
+```release-note:new-resource
+`google_healthcare_dataset_iam_binding` is now GA
+```
+```release-note:new-resource
+`google_healthcare_dataset_iam_member` is now GA
+```
+```release-note:new-resource
+`google_healthcare_dataset_iam_policy` is now GA
+```
+```release-note:new-resource
+`google_healthcare_dicom_store_iam_binding` is now GA
+```
+```release-note:new-resource
+`google_healthcare_dicom_store_iam_member` is now GA
+```
+```release-note:new-resource
+`google_healthcare_dicom_store_iam_policy` is now GA
+```
+```release-note:new-resource
+`google_healthcare_fhir_store_iam_binding` is now GA
+```
+```release-note:new-resource
+`google_healthcare_fhir_store_iam_member` is now GA
+```
+```release-note:new-resource
+`google_healthcare_fhir_store_iam_policy` is now GA
+```
+```release-note:new-resource
+`google_healthcare_hl7_v2_store_iam_binding` is now GA
+```
+```release-note:new-resource
+`google_healthcare_hl7_v2_store_iam_member` is now GA
+```
+```release-note:new-resource
+`google_healthcare_hl7_v2_store_iam_policy` is now GA
+```

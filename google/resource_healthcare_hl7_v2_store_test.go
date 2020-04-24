@@ -138,7 +138,7 @@ resource "google_healthcare_hl7_v2_store" "default" {
     segment_terminator = "Jw=="
   }
 
-  notification_config {
+  notification_configs {
     pubsub_topic = google_pubsub_topic.topic.id
   }
 
@@ -195,9 +195,12 @@ func testAccCheckGoogleHealthcareHl7V2StoreUpdate(t *testing.T, pubsubTopic stri
 				return fmt.Errorf("hl7_v2_store labels not updated: %s", gcpResourceUri)
 			}
 
-			topicName := path.Base(response.NotificationConfig.PubsubTopic)
-			if topicName != pubsubTopic {
-				return fmt.Errorf("hl7_v2_store 'NotificationConfig' not updated ('%s' != '%s'): %s", topicName, pubsubTopic, gcpResourceUri)
+			notifications := response.NotificationConfigs
+			if len(notifications) > 0 {
+				topicName := path.Base(notifications[0].PubsubTopic)
+				if topicName != pubsubTopic {
+					return fmt.Errorf("hl7_v2_store 'NotificationConfig' not updated ('%s' != '%s'): %s", topicName, pubsubTopic, gcpResourceUri)
+				}
 			}
 		}
 
