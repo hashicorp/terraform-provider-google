@@ -81,6 +81,7 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 			"notification_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				Removed:     "This field has been replaced by notificationConfigs",
 				Description: `A nested object resource`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -94,6 +95,44 @@ It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the
 was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
 project. cloud-healthcare@system.gserviceaccount.com must have publisher permissions on the given
 Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.`,
+						},
+					},
+				},
+			},
+			"notification_configs": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `A list of notification configs. Each configuration uses a filter to determine whether to publish a
+message (both Ingest & Create) on the corresponding notification destination. Only the message name
+is sent as part of the notification. Supplied by the client.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"pubsub_topic": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The Cloud Pub/Sub topic that notifications of changes are published on. Supplied by the client.
+PubsubMessage.Data will contain the resource name. PubsubMessage.MessageId is the ID of this message.
+It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the time at which the message
+was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
+project. cloud-healthcare@system.gserviceaccount.com must have publisher permissions on the given
+Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.
+
+If a notification cannot be published to Cloud Pub/Sub, errors will be logged to Stackdriver`,
+						},
+						"filter": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Restricts notifications sent for messages matching a filter. If this is empty, all messages
+are matched. Syntax: https://cloud.google.com/appengine/docs/standard/python/search/query_strings
+
+Fields/functions available for filtering are:
+
+* messageType, from the MSH-9.1 field. For example, NOT messageType = "ADT".
+* send_date or sendDate, the YYYY-MM-DD date the message was sent in the dataset's timeZone, from the MSH-7 segment. For example, send_date < "2017-01-02".
+* sendTime, the timestamp when the message was sent, using the RFC3339 time format for comparisons, from the MSH-7 segment. For example, sendTime < "2017-01-02T00:00:00-05:00".
+* sendFacility, the care center that the message came from, from the MSH-4 segment. For example, sendFacility = "ABC".
+* PatientId(value, type), which matches if the message lists a patient having an ID of the given value and type in the PID-2, PID-3, or PID-4 segments. For example, PatientId("123456", "MRN").
+* labels.x, a string value of the label with key x as set using the Message.labels map. For example, labels."priority"="high". The operator :* can be used to assert the existence of a label. For example, labels."priority":*.`,
 						},
 					},
 				},
@@ -162,6 +201,12 @@ func resourceHealthcareHl7V2StoreCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
+	notificationConfigsProp, err := expandHealthcareHl7V2StoreNotificationConfigs(d.Get("notification_configs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("notification_configs"); !isEmptyValue(reflect.ValueOf(notificationConfigsProp)) && (ok || !reflect.DeepEqual(v, notificationConfigsProp)) {
+		obj["notificationConfigs"] = notificationConfigsProp
+	}
 	notificationConfigProp, err := expandHealthcareHl7V2StoreNotificationConfig(d.Get("notification_config"), d, config)
 	if err != nil {
 		return err
@@ -226,6 +271,9 @@ func resourceHealthcareHl7V2StoreRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("labels", flattenHealthcareHl7V2StoreLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
 	}
+	if err := d.Set("notification_configs", flattenHealthcareHl7V2StoreNotificationConfigs(res["notificationConfigs"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
+	}
 	if err := d.Set("notification_config", flattenHealthcareHl7V2StoreNotificationConfig(res["notificationConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Hl7V2Store: %s", err)
 	}
@@ -249,6 +297,12 @@ func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
+	notificationConfigsProp, err := expandHealthcareHl7V2StoreNotificationConfigs(d.Get("notification_configs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("notification_configs"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, notificationConfigsProp)) {
+		obj["notificationConfigs"] = notificationConfigsProp
+	}
 	notificationConfigProp, err := expandHealthcareHl7V2StoreNotificationConfig(d.Get("notification_config"), d, config)
 	if err != nil {
 		return err
@@ -270,6 +324,10 @@ func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}
 
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
+	}
+
+	if d.HasChange("notification_configs") {
+		updateMask = append(updateMask, "notificationConfigs")
 	}
 
 	if d.HasChange("notification_config") {
@@ -370,6 +428,33 @@ func flattenHealthcareHl7V2StoreLabels(v interface{}, d *schema.ResourceData, co
 	return v
 }
 
+func flattenHealthcareHl7V2StoreNotificationConfigs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"pubsub_topic": flattenHealthcareHl7V2StoreNotificationConfigsPubsubTopic(original["pubsubTopic"], d, config),
+			"filter":       flattenHealthcareHl7V2StoreNotificationConfigsFilter(original["filter"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenHealthcareHl7V2StoreNotificationConfigsPubsubTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenHealthcareHl7V2StoreNotificationConfigsFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenHealthcareHl7V2StoreNotificationConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -453,6 +538,43 @@ func expandHealthcareHl7V2StoreLabels(v interface{}, d TerraformResourceData, co
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandHealthcareHl7V2StoreNotificationConfigs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedPubsubTopic, err := expandHealthcareHl7V2StoreNotificationConfigsPubsubTopic(original["pubsub_topic"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPubsubTopic); val.IsValid() && !isEmptyValue(val) {
+			transformed["pubsubTopic"] = transformedPubsubTopic
+		}
+
+		transformedFilter, err := expandHealthcareHl7V2StoreNotificationConfigsFilter(original["filter"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFilter); val.IsValid() && !isEmptyValue(val) {
+			transformed["filter"] = transformedFilter
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandHealthcareHl7V2StoreNotificationConfigsPubsubTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandHealthcareHl7V2StoreNotificationConfigsFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandHealthcareHl7V2StoreNotificationConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
