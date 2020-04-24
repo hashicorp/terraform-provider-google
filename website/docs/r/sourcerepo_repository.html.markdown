@@ -105,6 +105,10 @@ The `pubsub_configs` block supports:
   - PROTOBUF: The message payload is a serialized protocol buffer of SourceRepoEvent.
   - JSON: The message payload is a JSON string of SourceRepoEvent.
 
+  Possible values are:
+  * `PROTOBUF`
+  * `JSON`
+
 * `service_account_email` -
   (Optional)
   Email address of the service account used for publishing Cloud Pub/Sub messages. 

@@ -98,7 +98,12 @@ The following arguments are supported:
 * `proxy_header` -
   (Optional)
   Specifies the type of proxy header to append before sending data to
-  the backend, either NONE or PROXY_V1. The default is NONE.
+  the backend.
+
+  Default value: `NONE`
+  Possible values are:
+  * `NONE`
+  * `PROXY_V1`
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

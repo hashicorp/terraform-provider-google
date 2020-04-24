@@ -73,7 +73,7 @@ Examples:
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"OWNER", "READER", "WRITER", ""}, false),
-				Description:  `The access permission for the entity.`,
+				Description:  `The access permission for the entity. Possible values: ["OWNER", "READER", "WRITER"]`,
 			},
 			"domain": {
 				Type:        schema.TypeString,

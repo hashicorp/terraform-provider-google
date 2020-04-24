@@ -77,7 +77,7 @@ availability domain, they will not be put in the same low latency network`,
 							Description: `Collocation specifies whether to place VMs inside the same availability domain on the same low-latency network.
 Specify 'COLLOCATED' to enable collocation. Can only be specified with 'vm_count'. If compute instances are created
 with a COLLOCATED policy, then exactly 'vm_count' instances must be created at the same time with the resource policy
-attached.`,
+attached. Possible values: ["COLLOCATED"]`,
 						},
 						"vm_count": {
 							Type:         schema.TypeInt,
@@ -214,8 +214,7 @@ eg: 21:00`,
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"KEEP_AUTO_SNAPSHOTS", "APPLY_RETENTION_POLICY", ""}, false),
 										Description: `Specifies the behavior to apply to scheduled snapshots when
-the source disk is deleted.
-Valid options are KEEP_AUTO_SNAPSHOTS and APPLY_RETENTION_POLICY`,
+the source disk is deleted. Default value: "KEEP_AUTO_SNAPSHOTS" Possible values: ["KEEP_AUTO_SNAPSHOTS", "APPLY_RETENTION_POLICY"]`,
 										Default: "KEEP_AUTO_SNAPSHOTS",
 									},
 								},
@@ -286,7 +285,7 @@ func computeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeks
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}, false),
-				Description:  `The day of the week to create the snapshot. e.g. MONDAY`,
+				Description:  `The day of the week to create the snapshot. e.g. MONDAY Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 			},
 			"start_time": {
 				Type:     schema.TypeString,

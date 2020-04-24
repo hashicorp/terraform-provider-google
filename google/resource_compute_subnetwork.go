@@ -126,7 +126,7 @@ Toggles the aggregation interval for collecting flow logs. Increasing the
 interval time will reduce the amount of generated flow logs for long
 lasting connections. Default is an interval of 5 seconds per connection.
 Possible values are INTERVAL_5_SEC, INTERVAL_30_SEC, INTERVAL_1_MIN,
-INTERVAL_5_MIN, INTERVAL_10_MIN, INTERVAL_15_MIN`,
+INTERVAL_5_MIN, INTERVAL_10_MIN, INTERVAL_15_MIN Default value: "INTERVAL_5_SEC" Possible values: ["INTERVAL_5_SEC", "INTERVAL_30_SEC", "INTERVAL_1_MIN", "INTERVAL_5_MIN", "INTERVAL_10_MIN", "INTERVAL_15_MIN"]`,
 							Default:      "INTERVAL_5_SEC",
 							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata"},
 						},
@@ -147,7 +147,7 @@ half of all collected logs are reported.`,
 							ValidateFunc: validation.StringInSlice([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", ""}, false),
 							Description: `Can only be specified if VPC flow logging for this subnetwork is enabled.
 Configures whether metadata fields should be added to the reported VPC
-flow logs. Default is 'INCLUDE_ALL_METADATA'.`,
+flow logs. Default value: "INCLUDE_ALL_METADATA" Possible values: ["EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"]`,
 							Default:      "INCLUDE_ALL_METADATA",
 							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata"},
 						},

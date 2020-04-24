@@ -108,6 +108,12 @@ The following arguments are supported:
   A calendar period, semantically "since the start of the current
   <calendarPeriod>".
 
+  Possible values are:
+  * `DAY`
+  * `WEEK`
+  * `FORTNIGHT`
+  * `MONTH`
+
 * `slo_id` -
   (Optional)
   The id to use for this ServiceLevelObjective. If omitted, an id will be generated instead.

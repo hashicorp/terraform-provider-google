@@ -65,7 +65,7 @@ func resourceAppEngineServiceSplitTraffic() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "COOKIE", "IP", "RANDOM", ""}, false),
-							Description:  `Mechanism used to determine which version a request is sent to. The traffic selection algorithm will be stable for either type until allocations are changed.`,
+							Description:  `Mechanism used to determine which version a request is sent to. The traffic selection algorithm will be stable for either type until allocations are changed. Possible values: ["UNSPECIFIED", "COOKIE", "IP", "RANDOM"]`,
 						},
 					},
 				},

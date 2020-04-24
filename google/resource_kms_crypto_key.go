@@ -80,7 +80,7 @@ Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}''.`,
 				ValidateFunc: validation.StringInSlice([]string{"ENCRYPT_DECRYPT", "ASYMMETRIC_SIGN", "ASYMMETRIC_DECRYPT", ""}, false),
 				Description: `The immutable purpose of this CryptoKey. See the
 [purpose reference](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKeyPurpose)
-for possible inputs.`,
+for possible inputs. Default value: "ENCRYPT_DECRYPT" Possible values: ["ENCRYPT_DECRYPT", "ASYMMETRIC_SIGN", "ASYMMETRIC_DECRYPT"]`,
 				Default: "ENCRYPT_DECRYPT",
 			},
 			"rotation_period": {
@@ -111,7 +111,7 @@ See the [algorithm reference](https://cloud.google.com/kms/docs/reference/rest/v
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"SOFTWARE", "HSM", ""}, false),
-							Description:  `The protection level to use when creating a version based on this template.`,
+							Description:  `The protection level to use when creating a version based on this template. Default value: "SOFTWARE" Possible values: ["SOFTWARE", "HSM"]`,
 							Default:      "SOFTWARE",
 						},
 					},

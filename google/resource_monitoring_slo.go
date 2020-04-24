@@ -70,7 +70,7 @@ to be met. 0 < goal <= 0.999`,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"DAY", "WEEK", "FORTNIGHT", "MONTH", ""}, false),
 				Description: `A calendar period, semantically "since the start of the current
-<calendarPeriod>".`,
+<calendarPeriod>". Possible values: ["DAY", "WEEK", "FORTNIGHT", "MONTH"]`,
 				ExactlyOneOf: []string{"rolling_period_days", "calendar_period"},
 			},
 			"display_name": {

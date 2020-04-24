@@ -121,7 +121,7 @@ addresses reserved for this instance.`,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"TIER_UNSPECIFIED", "STANDARD", "PREMIUM"}, false),
-				Description:  `The service tier of the instance.`,
+				Description:  `The service tier of the instance. Possible values: ["TIER_UNSPECIFIED", "STANDARD", "PREMIUM"]`,
 			},
 			"zone": {
 				Type:        schema.TypeString,

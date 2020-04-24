@@ -78,6 +78,11 @@ The following arguments are supported:
   How to combine the results of multiple conditions to
   determine if an incident should be opened.
 
+  Possible values are:
+  * `AND`
+  * `OR`
+  * `AND_WITH_MATCHING_RESOURCE`
+
 * `conditions` -
   (Required)
   A list of conditions for the policy. The conditions are combined by
@@ -184,6 +189,27 @@ The `aggregations` block supports:
   specified; otherwise, an error is
   returned.
 
+  Possible values are:
+  * `ALIGN_NONE`
+  * `ALIGN_DELTA`
+  * `ALIGN_RATE`
+  * `ALIGN_INTERPOLATE`
+  * `ALIGN_NEXT_OLDER`
+  * `ALIGN_MIN`
+  * `ALIGN_MAX`
+  * `ALIGN_MEAN`
+  * `ALIGN_COUNT`
+  * `ALIGN_SUM`
+  * `ALIGN_STDDEV`
+  * `ALIGN_COUNT_TRUE`
+  * `ALIGN_COUNT_FALSE`
+  * `ALIGN_FRACTION_TRUE`
+  * `ALIGN_PERCENTILE_99`
+  * `ALIGN_PERCENTILE_95`
+  * `ALIGN_PERCENTILE_50`
+  * `ALIGN_PERCENTILE_05`
+  * `ALIGN_PERCENT_CHANGE`
+
 * `group_by_fields` -
   (Optional)
   The set of fields to preserve when
@@ -248,6 +274,22 @@ The `aggregations` block supports:
   and alignmentPeriod must be
   specified; otherwise, an error is
   returned.
+
+  Possible values are:
+  * `REDUCE_NONE`
+  * `REDUCE_MEAN`
+  * `REDUCE_MIN`
+  * `REDUCE_MAX`
+  * `REDUCE_SUM`
+  * `REDUCE_STDDEV`
+  * `REDUCE_COUNT`
+  * `REDUCE_COUNT_TRUE`
+  * `REDUCE_COUNT_FALSE`
+  * `REDUCE_FRACTION_TRUE`
+  * `REDUCE_PERCENTILE_99`
+  * `REDUCE_PERCENTILE_95`
+  * `REDUCE_PERCENTILE_50`
+  * `REDUCE_PERCENTILE_05`
 
 The `trigger` block supports:
 
@@ -336,6 +378,14 @@ The `condition_threshold` block supports:
   right-hand side. Only COMPARISON_LT and
   COMPARISON_GT are supported currently.
 
+  Possible values are:
+  * `COMPARISON_GT`
+  * `COMPARISON_GE`
+  * `COMPARISON_LT`
+  * `COMPARISON_LE`
+  * `COMPARISON_EQ`
+  * `COMPARISON_NE`
+
 * `trigger` -
   (Optional)
   The number/percent of time series for which
@@ -401,6 +451,27 @@ The `denominator_aggregations` block supports:
   specified; otherwise, an error is
   returned.
 
+  Possible values are:
+  * `ALIGN_NONE`
+  * `ALIGN_DELTA`
+  * `ALIGN_RATE`
+  * `ALIGN_INTERPOLATE`
+  * `ALIGN_NEXT_OLDER`
+  * `ALIGN_MIN`
+  * `ALIGN_MAX`
+  * `ALIGN_MEAN`
+  * `ALIGN_COUNT`
+  * `ALIGN_SUM`
+  * `ALIGN_STDDEV`
+  * `ALIGN_COUNT_TRUE`
+  * `ALIGN_COUNT_FALSE`
+  * `ALIGN_FRACTION_TRUE`
+  * `ALIGN_PERCENTILE_99`
+  * `ALIGN_PERCENTILE_95`
+  * `ALIGN_PERCENTILE_50`
+  * `ALIGN_PERCENTILE_05`
+  * `ALIGN_PERCENT_CHANGE`
+
 * `group_by_fields` -
   (Optional)
   The set of fields to preserve when
@@ -465,6 +536,22 @@ The `denominator_aggregations` block supports:
   and alignmentPeriod must be
   specified; otherwise, an error is
   returned.
+
+  Possible values are:
+  * `REDUCE_NONE`
+  * `REDUCE_MEAN`
+  * `REDUCE_MIN`
+  * `REDUCE_MAX`
+  * `REDUCE_SUM`
+  * `REDUCE_STDDEV`
+  * `REDUCE_COUNT`
+  * `REDUCE_COUNT_TRUE`
+  * `REDUCE_COUNT_FALSE`
+  * `REDUCE_FRACTION_TRUE`
+  * `REDUCE_PERCENTILE_99`
+  * `REDUCE_PERCENTILE_95`
+  * `REDUCE_PERCENTILE_50`
+  * `REDUCE_PERCENTILE_05`
 
 The `trigger` block supports:
 
@@ -502,6 +589,27 @@ The `aggregations` block supports:
   specified; otherwise, an error is
   returned.
 
+  Possible values are:
+  * `ALIGN_NONE`
+  * `ALIGN_DELTA`
+  * `ALIGN_RATE`
+  * `ALIGN_INTERPOLATE`
+  * `ALIGN_NEXT_OLDER`
+  * `ALIGN_MIN`
+  * `ALIGN_MAX`
+  * `ALIGN_MEAN`
+  * `ALIGN_COUNT`
+  * `ALIGN_SUM`
+  * `ALIGN_STDDEV`
+  * `ALIGN_COUNT_TRUE`
+  * `ALIGN_COUNT_FALSE`
+  * `ALIGN_FRACTION_TRUE`
+  * `ALIGN_PERCENTILE_99`
+  * `ALIGN_PERCENTILE_95`
+  * `ALIGN_PERCENTILE_50`
+  * `ALIGN_PERCENTILE_05`
+  * `ALIGN_PERCENT_CHANGE`
+
 * `group_by_fields` -
   (Optional)
   The set of fields to preserve when
@@ -566,6 +674,22 @@ The `aggregations` block supports:
   and alignmentPeriod must be
   specified; otherwise, an error is
   returned.
+
+  Possible values are:
+  * `REDUCE_NONE`
+  * `REDUCE_MEAN`
+  * `REDUCE_MIN`
+  * `REDUCE_MAX`
+  * `REDUCE_SUM`
+  * `REDUCE_STDDEV`
+  * `REDUCE_COUNT`
+  * `REDUCE_COUNT_TRUE`
+  * `REDUCE_COUNT_FALSE`
+  * `REDUCE_FRACTION_TRUE`
+  * `REDUCE_PERCENTILE_99`
+  * `REDUCE_PERCENTILE_95`
+  * `REDUCE_PERCENTILE_50`
+  * `REDUCE_PERCENTILE_05`
 
 - - -
 

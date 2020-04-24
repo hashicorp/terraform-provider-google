@@ -121,6 +121,10 @@ The following arguments are supported:
   * WEBHOOK_STATE_ENABLED_FOR_SLOT_FILLING: Webhook is enabled in the agent and in the intent. Also, each slot
   filling prompt is forwarded to the webhook.
 
+  Possible values are:
+  * `WEBHOOK_STATE_ENABLED`
+  * `WEBHOOK_STATE_ENABLED_FOR_SLOT_FILLING`
+
 * `priority` -
   (Optional)
   The priority of this intent. Higher numbers represent higher priorities.

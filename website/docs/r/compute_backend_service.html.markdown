@@ -195,8 +195,12 @@ The following arguments are supported:
   (Optional)
   Indicates whether the backend service will be used with internal or
   external load balancing. A backend service created for one type of
-  load balancing cannot be used with the other. Must be `EXTERNAL` or
-  `INTERNAL_SELF_MANAGED` for a global backend service. Defaults to `EXTERNAL`.
+  load balancing cannot be used with the other.
+
+  Default value: `EXTERNAL`
+  Possible values are:
+  * `EXTERNAL`
+  * `INTERNAL_SELF_MANAGED`
 
 * `port_name` -
   (Optional)
@@ -207,9 +211,15 @@ The following arguments are supported:
 * `protocol` -
   (Optional)
   The protocol this BackendService uses to communicate with backends.
-  Possible values are HTTP, HTTPS, HTTP2, TCP, and SSL. The default is
-  HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
+  The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
   types and may result in errors if used with the GA API.
+
+  Possible values are:
+  * `HTTP`
+  * `HTTPS`
+  * `HTTP2`
+  * `TCP`
+  * `SSL`
 
 * `security_policy` -
   (Optional)
@@ -219,6 +229,15 @@ The following arguments are supported:
   (Optional)
   Type of session affinity to use. The default is NONE. Session affinity is
   not applicable if the protocol is UDP.
+
+  Possible values are:
+  * `NONE`
+  * `CLIENT_IP`
+  * `CLIENT_IP_PORT_PROTO`
+  * `CLIENT_IP_PROTO`
+  * `GENERATED_COOKIE`
+  * `HEADER_FIELD`
+  * `HTTP_COOKIE`
 
 * `timeout_sec` -
   (Optional)
@@ -237,6 +256,12 @@ The `backend` block supports:
   For global HTTP(S) or TCP/SSL load balancing, the default is
   UTILIZATION. Valid values are UTILIZATION, RATE (for HTTP(S))
   and CONNECTION (for TCP/SSL).
+
+  Default value: `UTILIZATION`
+  Possible values are:
+  * `UTILIZATION`
+  * `RATE`
+  * `CONNECTION`
 
 * `capacity_scaler` -
   (Optional)

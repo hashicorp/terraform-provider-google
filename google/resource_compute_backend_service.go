@@ -351,8 +351,7 @@ connections, but still work to finish started).`,
 				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "INTERNAL_SELF_MANAGED", ""}, false),
 				Description: `Indicates whether the backend service will be used with internal or
 external load balancing. A backend service created for one type of
-load balancing cannot be used with the other. Must be 'EXTERNAL' or
-'INTERNAL_SELF_MANAGED' for a global backend service. Defaults to 'EXTERNAL'.`,
+load balancing cannot be used with the other. Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL_SELF_MANAGED"]`,
 				Default: "EXTERNAL",
 			},
 			"port_name": {
@@ -369,9 +368,8 @@ scheme is EXTERNAL.`,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS", "HTTP2", "TCP", "SSL", ""}, false),
 				Description: `The protocol this BackendService uses to communicate with backends.
-Possible values are HTTP, HTTPS, HTTP2, TCP, and SSL. The default is
-HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
-types and may result in errors if used with the GA API.`,
+The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
+types and may result in errors if used with the GA API. Possible values: ["HTTP", "HTTPS", "HTTP2", "TCP", "SSL"]`,
 			},
 			"security_policy": {
 				Type:             schema.TypeString,
@@ -385,7 +383,7 @@ types and may result in errors if used with the GA API.`,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", ""}, false),
 				Description: `Type of session affinity to use. The default is NONE. Session affinity is
-not applicable if the protocol is UDP.`,
+not applicable if the protocol is UDP. Possible values: ["NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE"]`,
 			},
 			"timeout_sec": {
 				Type:     schema.TypeInt,
@@ -452,7 +450,7 @@ partial URL.`,
 
 For global HTTP(S) or TCP/SSL load balancing, the default is
 UTILIZATION. Valid values are UTILIZATION, RATE (for HTTP(S))
-and CONNECTION (for TCP/SSL).`,
+and CONNECTION (for TCP/SSL). Default value: "UTILIZATION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
 				Default: "UTILIZATION",
 			},
 			"capacity_scaler": {

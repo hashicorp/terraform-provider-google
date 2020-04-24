@@ -349,7 +349,12 @@ The `query` block supports:
   Specifies whether the job is allowed to create new tables. The following values are supported:
   CREATE_IF_NEEDED: If the table does not exist, BigQuery creates the table.
   CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
-  The default value is CREATE_IF_NEEDED. Creation, truncation and append actions occur as one atomic update upon job completion
+  Creation, truncation and append actions occur as one atomic update upon job completion
+
+  Default value: `CREATE_IF_NEEDED`
+  Possible values are:
+  * `CREATE_IF_NEEDED`
+  * `CREATE_NEVER`
 
 * `write_disposition` -
   (Optional)
@@ -357,8 +362,14 @@ The `query` block supports:
   WRITE_TRUNCATE: If the table already exists, BigQuery overwrites the table data and uses the schema from the query result.
   WRITE_APPEND: If the table already exists, BigQuery appends the data to the table.
   WRITE_EMPTY: If the table already exists and contains data, a 'duplicate' error is returned in the job result.
-  The default value is WRITE_EMPTY. Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
+  Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
   Creation, truncation and append actions occur as one atomic update upon job completion.
+
+  Default value: `WRITE_EMPTY`
+  Possible values are:
+  * `WRITE_TRUNCATE`
+  * `WRITE_APPEND`
+  * `WRITE_EMPTY`
 
 * `default_dataset` -
   (Optional)
@@ -366,7 +377,12 @@ The `query` block supports:
 
 * `priority` -
   (Optional)
-  Specifies a priority for the query. Possible values include INTERACTIVE and BATCH. The default value is INTERACTIVE.
+  Specifies a priority for the query.
+
+  Default value: `INTERACTIVE`
+  Possible values are:
+  * `INTERACTIVE`
+  * `BATCH`
 
 * `allow_large_results` -
   (Optional)
@@ -478,7 +494,11 @@ The `script_options` block supports:
 * `key_result_statement` -
   (Optional)
   Determines which statement in the script represents the "key result",
-  used to populate the schema and query results of the script job. Default is LAST.
+  used to populate the schema and query results of the script job.
+
+  Possible values are:
+  * `LAST`
+  * `FIRST_SELECT`
 
 The `load` block supports:
 
@@ -500,7 +520,12 @@ The `load` block supports:
   Specifies whether the job is allowed to create new tables. The following values are supported:
   CREATE_IF_NEEDED: If the table does not exist, BigQuery creates the table.
   CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
-  The default value is CREATE_IF_NEEDED. Creation, truncation and append actions occur as one atomic update upon job completion
+  Creation, truncation and append actions occur as one atomic update upon job completion
+
+  Default value: `CREATE_IF_NEEDED`
+  Possible values are:
+  * `CREATE_IF_NEEDED`
+  * `CREATE_NEVER`
 
 * `write_disposition` -
   (Optional)
@@ -508,8 +533,14 @@ The `load` block supports:
   WRITE_TRUNCATE: If the table already exists, BigQuery overwrites the table data and uses the schema from the query result.
   WRITE_APPEND: If the table already exists, BigQuery appends the data to the table.
   WRITE_EMPTY: If the table already exists and contains data, a 'duplicate' error is returned in the job result.
-  The default value is WRITE_EMPTY. Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
+  Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
   Creation, truncation and append actions occur as one atomic update upon job completion.
+
+  Default value: `WRITE_EMPTY`
+  Possible values are:
+  * `WRITE_TRUNCATE`
+  * `WRITE_APPEND`
+  * `WRITE_EMPTY`
 
 * `null_marker` -
   (Optional)
@@ -662,7 +693,12 @@ The `copy` block supports:
   Specifies whether the job is allowed to create new tables. The following values are supported:
   CREATE_IF_NEEDED: If the table does not exist, BigQuery creates the table.
   CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
-  The default value is CREATE_IF_NEEDED. Creation, truncation and append actions occur as one atomic update upon job completion
+  Creation, truncation and append actions occur as one atomic update upon job completion
+
+  Default value: `CREATE_IF_NEEDED`
+  Possible values are:
+  * `CREATE_IF_NEEDED`
+  * `CREATE_NEVER`
 
 * `write_disposition` -
   (Optional)
@@ -670,8 +706,14 @@ The `copy` block supports:
   WRITE_TRUNCATE: If the table already exists, BigQuery overwrites the table data and uses the schema from the query result.
   WRITE_APPEND: If the table already exists, BigQuery appends the data to the table.
   WRITE_EMPTY: If the table already exists and contains data, a 'duplicate' error is returned in the job result.
-  The default value is WRITE_EMPTY. Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
+  Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
   Creation, truncation and append actions occur as one atomic update upon job completion.
+
+  Default value: `WRITE_EMPTY`
+  Possible values are:
+  * `WRITE_TRUNCATE`
+  * `WRITE_APPEND`
+  * `WRITE_EMPTY`
 
 * `destination_encryption_configuration` -
   (Optional)

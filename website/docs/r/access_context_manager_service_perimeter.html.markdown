@@ -155,6 +155,11 @@ The following arguments are supported:
   with a common perimeter, but should not be able to share data among
   themselves.
 
+  Default value: `PERIMETER_TYPE_REGULAR`
+  Possible values are:
+  * `PERIMETER_TYPE_REGULAR`
+  * `PERIMETER_TYPE_BRIDGE`
+
 * `status` -
   (Optional)
   ServicePerimeter configuration. Specifies sets of resources,

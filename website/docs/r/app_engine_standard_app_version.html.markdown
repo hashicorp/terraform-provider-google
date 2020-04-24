@@ -237,17 +237,38 @@ The `handlers` block supports:
   (Optional)
   Security (HTTPS) enforcement for this URL.
 
+  Possible values are:
+  * `SECURE_DEFAULT`
+  * `SECURE_NEVER`
+  * `SECURE_OPTIONAL`
+  * `SECURE_ALWAYS`
+
 * `login` -
   (Optional)
   Methods to restrict access to a URL based on login status.
+
+  Possible values are:
+  * `LOGIN_OPTIONAL`
+  * `LOGIN_ADMIN`
+  * `LOGIN_REQUIRED`
 
 * `auth_fail_action` -
   (Optional)
   Actions to take when the user is not logged in.
 
+  Possible values are:
+  * `AUTH_FAIL_ACTION_REDIRECT`
+  * `AUTH_FAIL_ACTION_UNAUTHORIZED`
+
 * `redirect_http_response_code` -
   (Optional)
   30x code to use when performing redirects for the secure field.
+
+  Possible values are:
+  * `REDIRECT_HTTP_RESPONSE_CODE_301`
+  * `REDIRECT_HTTP_RESPONSE_CODE_302`
+  * `REDIRECT_HTTP_RESPONSE_CODE_303`
+  * `REDIRECT_HTTP_RESPONSE_CODE_307`
 
 * `script` -
   (Optional)

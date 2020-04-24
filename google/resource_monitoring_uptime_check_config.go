@@ -192,7 +192,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER", ""}, false),
-							Description:  `The resource type of the group members.`,
+							Description:  `The resource type of the group members. Possible values: ["RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER"]`,
 							AtLeastOneOf: []string{"resource_group.0.resource_type", "resource_group.0.group_id"},
 						},
 					},

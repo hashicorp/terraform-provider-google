@@ -52,7 +52,7 @@ func resourceStorageHmacKey() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"ACTIVE", "INACTIVE", ""}, false),
-				Description:  `The state of the key. Can be set to one of ACTIVE, INACTIVE.`,
+				Description:  `The state of the key. Can be set to one of ACTIVE, INACTIVE. Default value: "ACTIVE" Possible values: ["ACTIVE", "INACTIVE"]`,
 				Default:      "ACTIVE",
 			},
 			"access_id": {

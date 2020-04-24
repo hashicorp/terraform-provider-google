@@ -85,6 +85,10 @@ The following arguments are supported:
   this network's cloud routers will advertise routes with all
   subnetworks of this network, across regions.
 
+  Possible values are:
+  * `REGIONAL`
+  * `GLOBAL`
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

@@ -83,7 +83,7 @@ recreated to modify this field.`,
 network's cloud routers will only advertise routes with subnetworks
 of this network in the same region as the router. If set to 'GLOBAL',
 this network's cloud routers will advertise routes with all
-subnetworks of this network, across regions.`,
+subnetworks of this network, across regions. Possible values: ["REGIONAL", "GLOBAL"]`,
 			},
 
 			"gateway_ipv4": {

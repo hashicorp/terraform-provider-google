@@ -72,6 +72,11 @@ The following arguments are supported:
   (Required)
   The service tier of the instance.
 
+  Possible values are:
+  * `TIER_UNSPECIFIED`
+  * `STANDARD`
+  * `PREMIUM`
+
 * `file_shares` -
   (Required)
   File system shares on the instance. For this version, only a

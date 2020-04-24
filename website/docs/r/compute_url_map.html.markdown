@@ -1070,6 +1070,13 @@ The `url_redirect` block supports:
   - PERMANENT_REDIRECT, which corresponds to 308. In this case,
   the request method will be retained.
 
+  Possible values are:
+  * `FOUND`
+  * `MOVED_PERMANENTLY_DEFAULT`
+  * `PERMANENT_REDIRECT`
+  * `SEE_OTHER`
+  * `TEMPORARY_REDIRECT`
+
 * `strip_query` -
   (Optional)
   If set to true, any accompanying query portion of the original URL is
@@ -1323,6 +1330,10 @@ The `metadata_filters` block supports:
   provided metadata.
     - MATCH_ALL: All filterLabels must have matching labels in
   the provided metadata.
+
+  Possible values are:
+  * `MATCH_ALL`
+  * `MATCH_ANY`
 
 
 The `filter_labels` block supports:
@@ -1702,6 +1713,13 @@ The `url_redirect` block supports:
   TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request method
   will be retained.  - PERMANENT_REDIRECT, which corresponds to 308. In this case,
   the request method will be retained.
+
+  Possible values are:
+  * `FOUND`
+  * `MOVED_PERMANENTLY_DEFAULT`
+  * `PERMANENT_REDIRECT`
+  * `SEE_OTHER`
+  * `TEMPORARY_REDIRECT`
 
 * `strip_query` -
   (Optional)

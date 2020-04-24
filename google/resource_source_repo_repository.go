@@ -68,7 +68,7 @@ Keyed by the topic names.`,
 							ValidateFunc: validation.StringInSlice([]string{"PROTOBUF", "JSON"}, false),
 							Description: `The format of the Cloud Pub/Sub messages. 
 - PROTOBUF: The message payload is a serialized protocol buffer of SourceRepoEvent.
-- JSON: The message payload is a JSON string of SourceRepoEvent.`,
+- JSON: The message payload is a JSON string of SourceRepoEvent. Possible values: ["PROTOBUF", "JSON"]`,
 						},
 						"service_account_email": {
 							Type:     schema.TypeString,

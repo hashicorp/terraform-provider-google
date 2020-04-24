@@ -91,7 +91,13 @@ The following arguments are supported:
 
 * `version` -
   (Optional)
-  The FHIR specification version. Supported values include DSTU2, STU3 and R4. Defaults to STU3.
+  The FHIR specification version.
+
+  Default value: `STU3`
+  Possible values are:
+  * `DSTU2`
+  * `STU3`
+  * `R4`
 
 * `enable_update_create` -
   (Optional)

@@ -72,13 +72,13 @@ rule.`,
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ENFORCED_BLOCK_AND_AUDIT_LOG", "DRYRUN_AUDIT_LOG_ONLY"}, false),
-							Description:  `The action when a pod creation is denied by the admission rule.`,
+							Description:  `The action when a pod creation is denied by the admission rule. Possible values: ["ENFORCED_BLOCK_AND_AUDIT_LOG", "DRYRUN_AUDIT_LOG_ONLY"]`,
 						},
 						"evaluation_mode": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ALWAYS_ALLOW", "REQUIRE_ATTESTATION", "ALWAYS_DENY"}, false),
-							Description:  `How this admission rule will be evaluated.`,
+							Description:  `How this admission rule will be evaluated. Possible values: ["ALWAYS_ALLOW", "REQUIRE_ATTESTATION", "ALWAYS_DENY"]`,
 						},
 						"require_attestations_by": {
 							Type:             schema.TypeSet,
@@ -143,13 +143,13 @@ A location is either a compute zone (e.g. 'us-central1-a') or a region
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ENFORCED_BLOCK_AND_AUDIT_LOG", "DRYRUN_AUDIT_LOG_ONLY"}, false),
-							Description:  `The action when a pod creation is denied by the admission rule.`,
+							Description:  `The action when a pod creation is denied by the admission rule. Possible values: ["ENFORCED_BLOCK_AND_AUDIT_LOG", "DRYRUN_AUDIT_LOG_ONLY"]`,
 						},
 						"evaluation_mode": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ALWAYS_ALLOW", "REQUIRE_ATTESTATION", "ALWAYS_DENY"}, false),
-							Description:  `How this admission rule will be evaluated.`,
+							Description:  `How this admission rule will be evaluated. Possible values: ["ALWAYS_ALLOW", "REQUIRE_ATTESTATION", "ALWAYS_DENY"]`,
 						},
 						"require_attestations_by": {
 							Type:             schema.TypeSet,
@@ -207,7 +207,7 @@ specifies REQUIRE_ATTESTATION, otherwise it must be empty.`,
 				ValidateFunc: validation.StringInSlice([]string{"ENABLE", "DISABLE", ""}, false),
 				Description: `Controls the evaluation of a Google-maintained global admission policy
 for common system-level images. Images not covered by the global
-policy will be subject to the project admission policy.`,
+policy will be subject to the project admission policy. Possible values: ["ENABLE", "DISABLE"]`,
 			},
 			"project": {
 				Type:     schema.TypeString,

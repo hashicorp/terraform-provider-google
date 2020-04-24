@@ -128,6 +128,10 @@ The following arguments are supported:
   `AUTO_ONLY` for only allowing NAT IPs allocated by Google Cloud
   Platform, or `MANUAL_ONLY` for only user-allocated NAT IP addresses.
 
+  Possible values are:
+  * `MANUAL_ONLY`
+  * `AUTO_ONLY`
+
 * `source_subnetwork_ip_ranges_to_nat` -
   (Required)
   How NAT should be configured per Subnetwork.
@@ -140,6 +144,11 @@ The following arguments are supported:
   contains ALL_SUBNETWORKS_ALL_IP_RANGES or
   ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES, then there should not be any
   other RouterNat section in any Router for this network in this region.
+
+  Possible values are:
+  * `ALL_SUBNETWORKS_ALL_IP_RANGES`
+  * `ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES`
+  * `LIST_OF_SUBNETWORKS`
 
 * `router` -
   (Required)
@@ -226,8 +235,12 @@ The `log_config` block supports:
 
 * `filter` -
   (Required)
-  Specifies the desired filtering of logs on this NAT. Valid
-  values are: `"ERRORS_ONLY"`, `"TRANSLATIONS_ONLY"`, `"ALL"`
+  Specifies the desired filtering of logs on this NAT.
+
+  Possible values are:
+  * `ERRORS_ONLY`
+  * `TRANSLATIONS_ONLY`
+  * `ALL`
 
 ## Attributes Reference
 

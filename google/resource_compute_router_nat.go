@@ -137,7 +137,7 @@ comply with RFC1035.`,
 				ValidateFunc: validation.StringInSlice([]string{"MANUAL_ONLY", "AUTO_ONLY"}, false),
 				Description: `How external IPs should be allocated for this NAT. Valid values are
 'AUTO_ONLY' for only allowing NAT IPs allocated by Google Cloud
-Platform, or 'MANUAL_ONLY' for only user-allocated NAT IP addresses.`,
+Platform, or 'MANUAL_ONLY' for only user-allocated NAT IP addresses. Possible values: ["MANUAL_ONLY", "AUTO_ONLY"]`,
 			},
 			"router": {
 				Type:             schema.TypeString,
@@ -159,7 +159,7 @@ ranges in every Subnetwork are allowed to Nat.
 (specified in the field subnetwork below). Note that if this field
 contains ALL_SUBNETWORKS_ALL_IP_RANGES or
 ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES, then there should not be any
-other RouterNat section in any Router for this network in this region.`,
+other RouterNat section in any Router for this network in this region. Possible values: ["ALL_SUBNETWORKS_ALL_IP_RANGES", "ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES", "LIST_OF_SUBNETWORKS"]`,
 			},
 			"drain_nat_ips": {
 				Type:     schema.TypeSet,
@@ -194,8 +194,7 @@ valid static external IPs that have been assigned to the NAT.`,
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"}, false),
-							Description: `Specifies the desired filtering of logs on this NAT. Valid
-values are: '"ERRORS_ONLY"', '"TRANSLATIONS_ONLY"', '"ALL"'`,
+							Description:  `Specifies the desired filtering of logs on this NAT. Possible values: ["ERRORS_ONLY", "TRANSLATIONS_ONLY", "ALL"]`,
 						},
 					},
 				},

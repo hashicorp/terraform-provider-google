@@ -208,6 +208,15 @@ The `day_of_weeks` block supports:
   (Required)
   The day of the week to create the snapshot. e.g. MONDAY
 
+  Possible values are:
+  * `MONDAY`
+  * `TUESDAY`
+  * `WEDNESDAY`
+  * `THURSDAY`
+  * `FRIDAY`
+  * `SATURDAY`
+  * `SUNDAY`
+
 The `retention_policy` block supports:
 
 * `max_retention_days` -
@@ -218,7 +227,11 @@ The `retention_policy` block supports:
   (Optional)
   Specifies the behavior to apply to scheduled snapshots when
   the source disk is deleted.
-  Valid options are KEEP_AUTO_SNAPSHOTS and APPLY_RETENTION_POLICY
+
+  Default value: `KEEP_AUTO_SNAPSHOTS`
+  Possible values are:
+  * `KEEP_AUTO_SNAPSHOTS`
+  * `APPLY_RETENTION_POLICY`
 
 The `snapshot_properties` block supports:
 
@@ -252,6 +265,9 @@ The `group_placement_policy` block supports:
   Specify `COLLOCATED` to enable collocation. Can only be specified with `vm_count`. If compute instances are created
   with a COLLOCATED policy, then exactly `vm_count` instances must be created at the same time with the resource policy
   attached.
+
+  Possible values are:
+  * `COLLOCATED`
 
 ## Attributes Reference
 

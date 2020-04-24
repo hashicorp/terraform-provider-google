@@ -117,6 +117,11 @@ The `default_admission_rule` block supports:
   (Required)
   How this admission rule will be evaluated.
 
+  Possible values are:
+  * `ALWAYS_ALLOW`
+  * `REQUIRE_ATTESTATION`
+  * `ALWAYS_DENY`
+
 * `require_attestations_by` -
   (Optional)
   The resource names of the attestors that must attest to a
@@ -132,6 +137,10 @@ The `default_admission_rule` block supports:
   (Required)
   The action when a pod creation is denied by the admission rule.
 
+  Possible values are:
+  * `ENFORCED_BLOCK_AND_AUDIT_LOG`
+  * `DRYRUN_AUDIT_LOG_ONLY`
+
 - - -
 
 
@@ -144,6 +153,10 @@ The `default_admission_rule` block supports:
   Controls the evaluation of a Google-maintained global admission policy
   for common system-level images. Images not covered by the global
   policy will be subject to the project admission policy.
+
+  Possible values are:
+  * `ENABLE`
+  * `DISABLE`
 
 * `admission_whitelist_patterns` -
   (Optional)
@@ -184,6 +197,11 @@ The `cluster_admission_rules` block supports:
   (Required)
   How this admission rule will be evaluated.
 
+  Possible values are:
+  * `ALWAYS_ALLOW`
+  * `REQUIRE_ATTESTATION`
+  * `ALWAYS_DENY`
+
 * `require_attestations_by` -
   (Optional)
   The resource names of the attestors that must attest to a
@@ -198,6 +216,10 @@ The `cluster_admission_rules` block supports:
 * `enforcement_mode` -
   (Required)
   The action when a pod creation is denied by the admission rule.
+
+  Possible values are:
+  * `ENFORCED_BLOCK_AND_AUDIT_LOG`
+  * `DRYRUN_AUDIT_LOG_ONLY`
 
 ## Attributes Reference
 

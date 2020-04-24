@@ -125,6 +125,10 @@ The following arguments are supported:
   destinationRanges; For EGRESS traffic, it is NOT supported to specify
   sourceRanges OR sourceTags.
 
+  Possible values are:
+  * `INGRESS`
+  * `EGRESS`
+
 * `disabled` -
   (Optional)
   Denotes whether the firewall rule is disabled, i.e not applied to the

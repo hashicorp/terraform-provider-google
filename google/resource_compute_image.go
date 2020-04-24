@@ -130,7 +130,7 @@ but not both.`,
 							Description: `The format used to encode and transmit the block device, which
 should be TAR. This is just a container and transmission format
 and not a runtime format. Provided by the client when the disk
-image is created.`,
+image is created. Default value: "TAR" Possible values: ["TAR"]`,
 							Default: "TAR",
 						},
 						"sha1": {
@@ -191,7 +191,7 @@ func computeImageGuestOsFeaturesSchema() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"MULTI_IP_SUBNET", "SECURE_BOOT", "UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS"}, false),
-				Description:  `The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.`,
+				Description:  `The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options. Possible values: ["MULTI_IP_SUBNET", "SECURE_BOOT", "UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS"]`,
 			},
 		},
 	}

@@ -67,9 +67,8 @@ if any.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"INTERNAL", "EXTERNAL", ""}, false),
-				Description: `The type of address to reserve, either INTERNAL or EXTERNAL.
-If unspecified, defaults to EXTERNAL.`,
-				Default: "EXTERNAL",
+				Description:  `The type of address to reserve. Default value: "EXTERNAL" Possible values: ["INTERNAL", "EXTERNAL"]`,
+				Default:      "EXTERNAL",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -83,9 +82,8 @@ If unspecified, defaults to EXTERNAL.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD", ""}, false),
-				Description: `The networking tier used for configuring this address. This field can
-take the following values: PREMIUM or STANDARD. If this field is not
-specified, it is assumed to be PREMIUM.`,
+				Description: `The networking tier used for configuring this address. If this field is not
+specified, it is assumed to be PREMIUM. Possible values: ["PREMIUM", "STANDARD"]`,
 			},
 			"purpose": {
 				Type:         schema.TypeString,
@@ -97,7 +95,7 @@ specified, it is assumed to be PREMIUM.`,
 
 - GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
 
-This should only be set when using an Internal address.`,
+This should only be set when using an Internal address. Possible values: ["GCE_ENDPOINT"]`,
 			},
 			"region": {
 				Type:             schema.TypeString,
