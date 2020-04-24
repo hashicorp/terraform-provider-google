@@ -220,6 +220,28 @@ func TestAccComputeUrlMap_trafficDirectorRemoveRouteRule(t *testing.T) {
 	})
 }
 
+func TestAccComputeUrlMap_defaultUrlRedirect(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeUrlMap_defaultUrlRedirectConfig(randomSuffix),
+			},
+			{
+				ResourceName:      "google_compute_url_map.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeUrlMap_basic1(bsName, hcName, umName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
@@ -939,4 +961,15 @@ resource "google_compute_health_check" "default" {
   }
 }
 `, umName, bsName, bsName, hcName)
+}
+
+func testAccComputeUrlMap_defaultUrlRedirectConfig(randomSuffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_url_map" "foobar" {
+  name            = "urlmap-test-%s"
+  default_url_redirect {
+    https_redirect = true
+  }
+}
+`, randomSuffix)
 }

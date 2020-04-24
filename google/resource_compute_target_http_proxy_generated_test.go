@@ -92,6 +92,46 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
+func TestAccComputeTargetHttpProxy_targetHttpProxyHttpsRedirectExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeTargetHttpProxyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeTargetHttpProxy_targetHttpProxyHttpsRedirectExample(context),
+			},
+			{
+				ResourceName:      "google_compute_target_http_proxy.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeTargetHttpProxy_targetHttpProxyHttpsRedirectExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_target_http_proxy" "default" {
+  name    = "tf-test-test-https-redirect-proxy%{random_suffix}"
+  url_map = google_compute_url_map.default.self_link
+}
+
+resource "google_compute_url_map" "default" {
+  name            = "tf-test-url-map%{random_suffix}"
+  default_url_redirect {
+    https_redirect = true
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeTargetHttpProxyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
