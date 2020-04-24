@@ -18,6 +18,7 @@ import (
 	"context"
 	"log"
 	"strings"
+	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
@@ -46,13 +47,17 @@ func testSweepComputeNodeTemplate(region string) error {
 		return err
 	}
 
+	t := &testing.T{}
+	billingId := getTestBillingAccountFromEnv(t)
+
 	// Setup variables to replace in list template
 	d := &ResourceDataMock{
 		FieldsInSchema: map[string]interface{}{
-			"project":  config.Project,
-			"region":   region,
-			"location": region,
-			"zone":     "-",
+			"project":         config.Project,
+			"region":          region,
+			"location":        region,
+			"zone":            "-",
+			"billing_account": billingId,
 		},
 	}
 
