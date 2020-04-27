@@ -151,6 +151,15 @@ func resourceDataflowJob() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"WORKER_IP_PUBLIC", "WORKER_IP_PRIVATE", ""}, false),
 			},
 
+			"additional_experiments": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+
 			"job_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -179,17 +188,19 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 
 	params := expandStringMap(d, "parameters")
 	labels := expandStringMap(d, "labels")
+	additionalExperiments := convertStringSet(d.Get("additional_experiments").(*schema.Set))
 
 	env := dataflow.RuntimeEnvironment{
-		MaxWorkers:           int64(d.Get("max_workers").(int)),
-		Network:              d.Get("network").(string),
-		ServiceAccountEmail:  d.Get("service_account_email").(string),
-		Subnetwork:           d.Get("subnetwork").(string),
-		TempLocation:         d.Get("temp_gcs_location").(string),
-		MachineType:          d.Get("machine_type").(string),
-		IpConfiguration:      d.Get("ip_configuration").(string),
-		AdditionalUserLabels: labels,
-		Zone:                 zone,
+		MaxWorkers:            int64(d.Get("max_workers").(int)),
+		Network:               d.Get("network").(string),
+		ServiceAccountEmail:   d.Get("service_account_email").(string),
+		Subnetwork:            d.Get("subnetwork").(string),
+		TempLocation:          d.Get("temp_gcs_location").(string),
+		MachineType:           d.Get("machine_type").(string),
+		IpConfiguration:       d.Get("ip_configuration").(string),
+		AdditionalUserLabels:  labels,
+		Zone:                  zone,
+		AdditionalExperiments: additionalExperiments,
 	}
 
 	request := dataflow.CreateJobFromTemplateRequest{
