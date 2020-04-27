@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Getting Started with the Google provider"
-sidebar_current: "docs-google-provider-getting-started"
+sidebar_current: "docs-google-provider-guides-getting-started"
 description: |-
   Getting started with the Google Cloud Platform provider
 ---

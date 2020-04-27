@@ -9,6 +9,9 @@ description: |-
 
 # google\_container\_node\_pool
 
+-> See the [Using GKE with Terraform](/docs/providers/google/guides/using_gke_with_terraform.html)
+guide for more information about using GKE with Terraform.
+
 Manages a node pool in a Google Kubernetes Engine (GKE) cluster separately from
 the cluster control plane. For more information see [the official documentation](https://cloud.google.com/container-engine/docs/node-pools)
 and [the API reference](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters.nodePools).
