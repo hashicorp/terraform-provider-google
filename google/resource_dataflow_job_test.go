@@ -182,6 +182,30 @@ func TestAccDataflowJob_withIpConfig(t *testing.T) {
 	})
 }
 
+func TestAccDataflowJobWithAdditionalExperiments(t *testing.T) {
+	t.Parallel()
+
+	randStr := randString(t, 10)
+	bucket := "tf-test-dataflow-gcs-" + randStr
+	job := "tf-test-dataflow-job-" + randStr
+	additionalExperiments := []string{"enable_stackdriver_agent_metrics", "shuffle_mode=service"}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataflowJob_additionalExperiments(bucket, job, additionalExperiments),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataflowJobExists(t, "google_dataflow_job.with_additional_experiments"),
+					testAccDataflowJobHasExperiments(t, "google_dataflow_job.with_additional_experiments", additionalExperiments),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDataflowJobDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {
@@ -378,6 +402,39 @@ func testAccDataflowJobHasLabels(t *testing.T, res, key string) resource.TestChe
 
 		if job.Labels[key] != rs.Primary.Attributes["labels."+key] {
 			return fmt.Errorf("Labels do not match what is stored in state.")
+		}
+
+		return nil
+	}
+}
+
+func testAccDataflowJobHasExperiments(t *testing.T, res string, experiments []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[res]
+		if !ok {
+			return fmt.Errorf("resource %q not found in state", res)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+		config := googleProviderConfig(t)
+
+		job, err := config.clientDataflow.Projects.Jobs.Get(config.Project, rs.Primary.ID).View("JOB_VIEW_ALL").Do()
+		if err != nil {
+			return fmt.Errorf("dataflow job does not exist")
+		}
+
+		for _, expectedExperiment := range experiments {
+			var contains = false
+			for _, actualExperiment := range job.Environment.Experiments {
+				if actualExperiment == expectedExperiment {
+					contains = true
+				}
+			}
+			if contains != true {
+				return fmt.Errorf("Expected experiment '%s' not found in experiments", expectedExperiment)
+			}
 		}
 
 		return nil
@@ -581,5 +638,29 @@ resource "google_dataflow_job" "with_labels" {
   on_delete = "cancel"
 }
 `, bucket, job, labelKey, labelVal, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+
+}
+
+func testAccDataflowJob_additionalExperiments(bucket string, job string, experiments []string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "temp" {
+  name = "%s"
+  force_destroy = true
+}
+
+resource "google_dataflow_job" "with_additional_experiments" {
+  name = "%s"
+
+  additional_experiments = ["%s"]
+
+  template_gcs_path = "%s"
+  temp_gcs_location = google_storage_bucket.temp.url
+  parameters = {
+    inputFile = "%s"
+    output    = "${google_storage_bucket.temp.url}/output"
+  }
+  on_delete = "cancel"
+}
+`, bucket, job, strings.Join(experiments, `", "`), testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
 
 }
