@@ -61,7 +61,7 @@ func testSweepBigqueryDataTransferConfig(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://bigquerydatatransfer.googleapis.com/v1/projects/{{project}}/locations/{{location}}/transferConfigs", "?")[0]
+	listTemplate := strings.Split("https://bigquerydatatransfer.googleapis.com/v1/projects/{{project}}/locations/{{location}}/transferConfigs?serviceAccountName={{service_account_name}}", "?")[0]
 	listUrl, err := replaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)

@@ -13,9 +13,10 @@ import (
 // but it will get deleted by parallel tests, so they need to be ran serially.
 func TestAccBigqueryDataTransferConfig(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"basic":        testAccBigqueryDataTransferConfig_scheduledQuery_basic,
-		"update":       testAccBigqueryDataTransferConfig_scheduledQuery_update,
-		"booleanParam": testAccBigqueryDataTransferConfig_copy_booleanParam,
+		"basic":           testAccBigqueryDataTransferConfig_scheduledQuery_basic,
+		"update":          testAccBigqueryDataTransferConfig_scheduledQuery_update,
+		"service_account": testAccBigqueryDataTransferConfig_scheduledQuery_with_service_account,
+		"booleanParam":    testAccBigqueryDataTransferConfig_copy_booleanParam,
 	}
 
 	for name, tc := range testCases {
@@ -70,6 +71,27 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryDataTransferConfig_scheduledQuery_with_service_account(t *testing.T) {
+	random_suffix := randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDataTransferConfig_scheduledQuery_service_account(random_suffix),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.query_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "service_account_name"},
 			},
 		},
 	})
@@ -157,6 +179,44 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   }
 }
 `, random_suffix, random_suffix, schedule, letter)
+}
+
+func testAccBigqueryDataTransferConfig_scheduledQuery_service_account(random_suffix string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "bqwriter" {
+  account_id = "bqwriter%s"
+}
+
+resource "google_project_iam_member" "data_editor" {
+  role   = "roles/bigquery.dataEditor"
+  member = "serviceAccount:${google_service_account.bqwriter.email}"
+}
+
+resource "google_bigquery_dataset" "my_dataset" {
+  dataset_id    = "my_dataset%s"
+  friendly_name = "foo"
+  description   = "bar"
+  location      = "asia-northeast1"
+}
+
+resource "google_bigquery_data_transfer_config" "query_config" {
+  depends_on = [google_project_iam_member.data_editor]
+
+  display_name           = "my-query-%s"
+  location               = "asia-northeast1"
+  data_source_id         = "scheduled_query"
+  schedule               = "every day 00:00"
+  destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
+  service_account_name   = google_service_account.bqwriter.email
+  params = {
+    destination_table_name_template = "my-table"
+    write_disposition               = "WRITE_APPEND"
+    query                           = "SELECT 1 AS a"
+  }
+}
+`, random_suffix, random_suffix, random_suffix)
 }
 
 func testAccBigqueryDataTransferConfig_booleanParam(random_suffix string) string {

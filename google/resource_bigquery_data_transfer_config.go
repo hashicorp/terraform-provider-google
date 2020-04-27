@@ -100,6 +100,15 @@ about the format here:
 https://cloud.google.com/appengine/docs/flexible/python/scheduling-jobs-with-cron-yaml#the_schedule_format
 NOTE: the granularity should be at least 8 hours, or less frequent.`,
 			},
+			"service_account_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Optional service account name. If this field is set, transfer config will
+be created with this service account credentials. It requires that
+requesting user calling this API has permissions to act as this service account.`,
+				Default: "",
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -165,7 +174,7 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 		obj["params"] = paramsProp
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}projects/{{project}}/locations/{{location}}/transferConfigs")
+	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}projects/{{project}}/locations/{{location}}/transferConfigs?serviceAccountName={{service_account_name}}")
 	if err != nil {
 		return err
 	}
