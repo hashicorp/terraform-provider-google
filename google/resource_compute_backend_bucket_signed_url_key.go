@@ -121,7 +121,7 @@ func resourceComputeBackendBucketSignedUrlKeyCreate(d *schema.ResourceData, meta
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating BackendBucketSignedUrlKey",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -204,7 +204,7 @@ func resourceComputeBackendBucketSignedUrlKeyDelete(d *schema.ResourceData, meta
 
 	err = computeOperationWaitTime(
 		config, res, project, "Deleting BackendBucketSignedUrlKey",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

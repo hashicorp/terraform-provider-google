@@ -16,6 +16,7 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 type SpannerOperationWaiter struct {
@@ -49,23 +50,23 @@ func createSpannerWaiter(config *Config, op map[string]interface{}, project, act
 }
 
 // nolint: deadcode,unused
-func spannerOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity string, timeoutMinutes int) error {
+func spannerOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity string, timeout time.Duration) error {
 	w, err := createSpannerWaiter(config, op, project, activity)
 	if err != nil || w == nil {
 		// If w is nil, the op was synchronous.
 		return err
 	}
-	if err := OperationWait(w, activity, timeoutMinutes, config.PollInterval); err != nil {
+	if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
 		return err
 	}
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func spannerOperationWaitTime(config *Config, op map[string]interface{}, project, activity string, timeoutMinutes int) error {
+func spannerOperationWaitTime(config *Config, op map[string]interface{}, project, activity string, timeout time.Duration) error {
 	w, err := createSpannerWaiter(config, op, project, activity)
 	if err != nil || w == nil {
 		// If w is nil, the op was synchronous.
 		return err
 	}
-	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }

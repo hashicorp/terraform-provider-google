@@ -221,7 +221,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating Address",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -315,7 +315,7 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 
 	err = computeOperationWaitTime(
 		config, res, project, "Deleting Address",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

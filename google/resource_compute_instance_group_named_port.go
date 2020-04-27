@@ -137,7 +137,7 @@ func resourceComputeInstanceGroupNamedPortCreate(d *schema.ResourceData, meta in
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating InstanceGroupNamedPort",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -228,7 +228,7 @@ func resourceComputeInstanceGroupNamedPortDelete(d *schema.ResourceData, meta in
 
 	err = computeOperationWaitTime(
 		config, res, project, "Deleting InstanceGroupNamedPort",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

@@ -3,10 +3,11 @@ package google
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 )
 
 func resourceGoogleFolder() *schema.Resource {
@@ -80,7 +81,7 @@ func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	err = resourceManagerOperationWaitTime(config, opAsMap, "creating folder", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	err = resourceManagerOperationWaitTime(config, opAsMap, "creating folder", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating folder '%s' in '%s': %s", displayName, parent, err)
 	}
@@ -160,7 +161,7 @@ func resourceGoogleFolderUpdate(d *schema.ResourceData, meta interface{}) error 
 			return err
 		}
 
-		err = resourceManagerOperationWaitTime(config, opAsMap, "move folder", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		err = resourceManagerOperationWaitTime(config, opAsMap, "move folder", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error moving folder '%s' to '%s': %s", displayName, newParent, err)
 		}

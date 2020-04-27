@@ -3,6 +3,7 @@ package google
 import (
 	"bytes"
 	"fmt"
+	"time"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -79,10 +80,10 @@ func (w *ComputeOperationWaiter) TargetStates() []string {
 }
 
 func computeOperationWait(config *Config, res interface{}, project, activity string) error {
-	return computeOperationWaitTime(config, res, project, activity, 4)
+	return computeOperationWaitTime(config, res, project, activity, 4*time.Minute)
 }
 
-func computeOperationWaitTime(config *Config, res interface{}, project, activity string, timeoutMinutes int) error {
+func computeOperationWaitTime(config *Config, res interface{}, project, activity string, timeout time.Duration) error {
 	op := &compute.Operation{}
 	err := Convert(res, op)
 	if err != nil {
@@ -98,7 +99,7 @@ func computeOperationWaitTime(config *Config, res interface{}, project, activity
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }
 
 // ComputeOperationError wraps compute.OperationError and implements the

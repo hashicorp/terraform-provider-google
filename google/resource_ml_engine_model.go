@@ -252,7 +252,7 @@ func resourceMLEngineModelDelete(d *schema.ResourceData, meta interface{}) error
 
 	err = mLEngineOperationWaitTime(
 		config, res, project, "Deleting Model",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

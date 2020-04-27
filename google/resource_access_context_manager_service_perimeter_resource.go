@@ -109,7 +109,7 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 	var opRes map[string]interface{}
 	err = accessContextManagerOperationWaitTimeWithResponse(
 		config, res, &opRes, "Creating ServicePerimeterResource",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -208,7 +208,7 @@ func resourceAccessContextManagerServicePerimeterResourceDelete(d *schema.Resour
 
 	err = accessContextManagerOperationWaitTime(
 		config, res, "Deleting ServicePerimeterResource",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

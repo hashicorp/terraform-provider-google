@@ -223,7 +223,7 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	var opRes map[string]interface{}
 	err = filestoreOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating Instance",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -349,7 +349,7 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	err = filestoreOperationWaitTime(
 		config, res, project, "Updating Instance",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return err
@@ -381,7 +381,7 @@ func resourceFilestoreInstanceDelete(d *schema.ResourceData, meta interface{}) e
 
 	err = filestoreOperationWaitTime(
 		config, res, project, "Deleting Instance",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

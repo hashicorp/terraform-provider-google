@@ -16,6 +16,7 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 type ResourceManagerOperationWaiter struct {
@@ -47,23 +48,23 @@ func createResourceManagerWaiter(config *Config, op map[string]interface{}, acti
 }
 
 // nolint: deadcode,unused
-func resourceManagerOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, activity string, timeoutMinutes int) error {
+func resourceManagerOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, activity string, timeout time.Duration) error {
 	w, err := createResourceManagerWaiter(config, op, activity)
 	if err != nil || w == nil {
 		// If w is nil, the op was synchronous.
 		return err
 	}
-	if err := OperationWait(w, activity, timeoutMinutes, config.PollInterval); err != nil {
+	if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
 		return err
 	}
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func resourceManagerOperationWaitTime(config *Config, op map[string]interface{}, activity string, timeoutMinutes int) error {
+func resourceManagerOperationWaitTime(config *Config, op map[string]interface{}, activity string, timeout time.Duration) error {
 	w, err := createResourceManagerWaiter(config, op, activity)
 	if err != nil || w == nil {
 		// If w is nil, the op was synchronous.
 		return err
 	}
-	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }

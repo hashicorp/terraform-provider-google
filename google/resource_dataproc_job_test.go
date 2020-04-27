@@ -6,6 +6,7 @@ import (
 	"log"
 	"strings"
 	"testing"
+	"time"
 
 	// "regexp"
 
@@ -314,9 +315,9 @@ func testAccCheckDataprocJobCompletesSuccessfully(t *testing.T, n string, job *d
 			return err
 		}
 
-		jobCompleteTimeoutMins := 5
+		jobCompleteTimeoutMins := 5 * time.Minute
 		waitErr := dataprocJobOperationWait(config, region, project, job.Reference.JobId,
-			"Awaiting Dataproc job completion", jobCompleteTimeoutMins, 1)
+			"Awaiting Dataproc job completion", jobCompleteTimeoutMins)
 		if waitErr != nil {
 			return waitErr
 		}

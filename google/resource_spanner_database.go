@@ -136,7 +136,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	var opRes map[string]interface{}
 	err = spannerOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating Database",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")

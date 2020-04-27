@@ -241,9 +241,8 @@ func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(fmt.Sprintf("projects/%s/regions/%s/jobs/%s", project, region, job.Reference.JobId))
 
-	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
 	waitErr := dataprocJobOperationWait(config, region, project, job.Reference.JobId,
-		"Creating Dataproc job", timeoutInMinutes, 1)
+		"Creating Dataproc job", d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		return waitErr
 	}
@@ -310,7 +309,6 @@ func resourceDataprocJobDelete(d *schema.ResourceData, meta interface{}) error {
 
 	region := d.Get("region").(string)
 	forceDelete := d.Get("force_delete").(bool)
-	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
 	parts := strings.Split(d.Id(), "/")
 	jobId := parts[len(parts)-1]
@@ -323,7 +321,7 @@ func resourceDataprocJobDelete(d *schema.ResourceData, meta interface{}) error {
 		_, _ = config.clientDataproc.Projects.Regions.Jobs.Cancel(project, region, jobId, &dataproc.CancelJobRequest{}).Do()
 
 		waitErr := dataprocJobOperationWait(config, region, project, jobId,
-			"Cancelling Dataproc job", timeoutInMinutes, 1)
+			"Cancelling Dataproc job", d.Timeout(schema.TimeoutDelete))
 		if waitErr != nil {
 			return waitErr
 		}
@@ -338,7 +336,7 @@ func resourceDataprocJobDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	waitErr := dataprocDeleteOperationWait(config, region, project, jobId,
-		"Deleting Dataproc job", timeoutInMinutes, 1)
+		"Deleting Dataproc job", d.Timeout(schema.TimeoutDelete))
 	if waitErr != nil {
 		return waitErr
 	}

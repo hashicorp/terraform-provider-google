@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"google.golang.org/api/dataproc/v1"
 )
@@ -65,14 +66,14 @@ func (w *DataprocJobOperationWaiter) TargetStates() []string {
 	return []string{"CANCELLED", "DONE", "ATTEMPT_FAILURE", "ERROR"}
 }
 
-func dataprocJobOperationWait(config *Config, region, projectId, jobId string, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+func dataprocJobOperationWait(config *Config, region, projectId, jobId string, activity string, timeout time.Duration) error {
 	w := &DataprocJobOperationWaiter{
 		Service:   config.clientDataproc,
 		Region:    region,
 		ProjectId: projectId,
 		JobId:     jobId,
 	}
-	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }
 
 type DataprocDeleteJobOperationWaiter struct {
@@ -103,7 +104,7 @@ func (w *DataprocDeleteJobOperationWaiter) QueryOp() (interface{}, error) {
 	return job, err
 }
 
-func dataprocDeleteOperationWait(config *Config, region, projectId, jobId string, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+func dataprocDeleteOperationWait(config *Config, region, projectId, jobId string, activity string, timeout time.Duration) error {
 	w := &DataprocDeleteJobOperationWaiter{
 		DataprocJobOperationWaiter{
 			Service:   config.clientDataproc,
@@ -112,5 +113,5 @@ func dataprocDeleteOperationWait(config *Config, region, projectId, jobId string
 			JobId:     jobId,
 		},
 	}
-	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }

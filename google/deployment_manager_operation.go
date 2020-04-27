@@ -3,6 +3,8 @@ package google
 import (
 	"bytes"
 	"fmt"
+	"time"
+
 	"google.golang.org/api/compute/v1"
 )
 
@@ -32,7 +34,7 @@ func (w *DeploymentManagerOperationWaiter) QueryOp() (interface{}, error) {
 	return op, nil
 }
 
-func deploymentManagerOperationWaitTime(config *Config, resp interface{}, project, activity string, timeoutMinutes int) error {
+func deploymentManagerOperationWaitTime(config *Config, resp interface{}, project, activity string, timeout time.Duration) error {
 	op := &compute.Operation{}
 	err := Convert(resp, op)
 	if err != nil {
@@ -50,7 +52,7 @@ func deploymentManagerOperationWaitTime(config *Config, resp interface{}, projec
 		return err
 	}
 
-	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }
 
 func (w *DeploymentManagerOperationWaiter) Error() error {

@@ -263,7 +263,7 @@ func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta inte
 
 	err = deploymentManagerOperationWaitTime(
 		config, res, project, "Creating Deployment",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		resourceDeploymentManagerDeploymentPostCreateFailure(d, meta)
@@ -355,7 +355,7 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 
 		err = deploymentManagerOperationWaitTime(
 			config, res, project, "Updating Deployment",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -406,7 +406,7 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 
 		err = deploymentManagerOperationWaitTime(
 			config, res, project, "Updating Deployment",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -444,7 +444,7 @@ func resourceDeploymentManagerDeploymentDelete(d *schema.ResourceData, meta inte
 
 	err = deploymentManagerOperationWaitTime(
 		config, res, project, "Deleting Deployment",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

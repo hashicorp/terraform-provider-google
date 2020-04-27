@@ -281,7 +281,7 @@ func resourceComputeAutoscalerCreate(d *schema.ResourceData, meta interface{}) e
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating Autoscaler",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -394,7 +394,7 @@ func resourceComputeAutoscalerUpdate(d *schema.ResourceData, meta interface{}) e
 
 	err = computeOperationWaitTime(
 		config, res, project, "Updating Autoscaler",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return err
@@ -426,7 +426,7 @@ func resourceComputeAutoscalerDelete(d *schema.ResourceData, meta interface{}) e
 
 	err = computeOperationWaitTime(
 		config, res, project, "Deleting Autoscaler",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

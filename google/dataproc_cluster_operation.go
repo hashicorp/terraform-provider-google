@@ -2,8 +2,9 @@ package google
 
 import (
 	"fmt"
+	"time"
 
-	"google.golang.org/api/dataproc/v1beta2"
+	dataproc "google.golang.org/api/dataproc/v1beta2"
 )
 
 type DataprocClusterOperationWaiter struct {
@@ -18,12 +19,12 @@ func (w *DataprocClusterOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Projects.Regions.Operations.Get(w.Op.Name).Do()
 }
 
-func dataprocClusterOperationWait(config *Config, op *dataproc.Operation, activity string, timeoutMinutes int) error {
+func dataprocClusterOperationWait(config *Config, op *dataproc.Operation, activity string, timeout time.Duration) error {
 	w := &DataprocClusterOperationWaiter{
 		Service: config.clientDataprocBeta,
 	}
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }
