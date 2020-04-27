@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	container "google.golang.org/api/container/v1beta1"
 )
@@ -96,7 +97,7 @@ func (w *ContainerOperationWaiter) TargetStates() []string {
 	return []string{"DONE"}
 }
 
-func containerOperationWait(config *Config, op *container.Operation, project, location, activity string, timeoutMinutes int) error {
+func containerOperationWait(config *Config, op *container.Operation, project, location, activity string, timeout time.Duration) error {
 	w := &ContainerOperationWaiter{
 		Service:  config.clientContainerBeta,
 		Context:  config.context,
@@ -109,5 +110,5 @@ func containerOperationWait(config *Config, op *container.Operation, project, lo
 		return err
 	}
 
-	return OperationWait(w, activity, timeoutMinutes, config.PollInterval)
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }

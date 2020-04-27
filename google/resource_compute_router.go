@@ -244,7 +244,7 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating Router",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -346,7 +346,7 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 
 	err = computeOperationWaitTime(
 		config, res, project, "Updating Router",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return err
@@ -385,7 +385,7 @@ func resourceComputeRouterDelete(d *schema.ResourceData, meta interface{}) error
 
 	err = computeOperationWaitTime(
 		config, res, project, "Deleting Router",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

@@ -113,7 +113,7 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	var opRes map[string]interface{}
 	err = accessContextManagerOperationWaitTimeWithResponse(
 		config, res, &opRes, "Creating AccessPolicy",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -214,7 +214,7 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 
 	err = accessContextManagerOperationWaitTime(
 		config, res, "Updating AccessPolicy",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return err
@@ -241,7 +241,7 @@ func resourceAccessContextManagerAccessPolicyDelete(d *schema.ResourceData, meta
 
 	err = accessContextManagerOperationWaitTime(
 		config, res, "Deleting AccessPolicy",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

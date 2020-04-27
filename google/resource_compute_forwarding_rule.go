@@ -412,7 +412,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating ForwardingRule",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -538,7 +538,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 
 		err = computeOperationWaitTime(
 			config, res, project, "Updating ForwardingRule",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -566,7 +566,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 
 		err = computeOperationWaitTime(
 			config, res, project, "Updating ForwardingRule",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -602,7 +602,7 @@ func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{
 
 	err = computeOperationWaitTime(
 		config, res, project, "Deleting ForwardingRule",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

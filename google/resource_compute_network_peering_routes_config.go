@@ -131,7 +131,7 @@ func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, met
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating NetworkPeeringRoutesConfig",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -244,7 +244,7 @@ func resourceComputeNetworkPeeringRoutesConfigUpdate(d *schema.ResourceData, met
 
 	err = computeOperationWaitTime(
 		config, res, project, "Updating NetworkPeeringRoutesConfig",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return err

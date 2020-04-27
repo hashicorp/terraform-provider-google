@@ -532,7 +532,7 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 
 	err = appEngineOperationWaitTime(
 		config, res, project, "Creating StandardAppVersion",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -716,7 +716,7 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 
 	err = appEngineOperationWaitTime(
 		config, res, project, "Updating StandardAppVersion",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return err
@@ -758,7 +758,7 @@ func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta inte
 		}
 		err = appEngineOperationWaitTime(
 			config, res, project, "Deleting Service",
-			int(d.Timeout(schema.TimeoutDelete).Minutes()))
+			d.Timeout(schema.TimeoutDelete))
 
 		if err != nil {
 			return err
@@ -778,7 +778,7 @@ func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta inte
 		}
 		err = appEngineOperationWaitTime(
 			config, res, project, "Deleting AppVersion",
-			int(d.Timeout(schema.TimeoutDelete).Minutes()))
+			d.Timeout(schema.TimeoutDelete))
 
 		if err != nil {
 			return err

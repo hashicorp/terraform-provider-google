@@ -37,7 +37,7 @@ func resourceComputeSharedVpcHostProjectCreate(d *schema.ResourceData, meta inte
 
 	d.SetId(hostProject)
 
-	err = computeOperationWaitTime(config, op, hostProject, "Enabling Shared VPC Host", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	err = computeOperationWait(config, op, hostProject, "Enabling Shared VPC Host")
 	if err != nil {
 		d.SetId("")
 		return err
@@ -75,7 +75,7 @@ func resourceComputeSharedVpcHostProjectDelete(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error disabling Shared VPC Host %q: %s", hostProject, err)
 	}
 
-	err = computeOperationWaitTime(config, op, hostProject, "Disabling Shared VPC Host", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	err = computeOperationWait(config, op, hostProject, "Disabling Shared VPC Host")
 	if err != nil {
 		return err
 	}

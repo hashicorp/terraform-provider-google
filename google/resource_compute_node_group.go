@@ -152,7 +152,7 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating NodeGroup",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -242,7 +242,7 @@ func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) er
 
 		err = computeOperationWaitTime(
 			config, res, project, "Updating NodeGroup",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -278,7 +278,7 @@ func resourceComputeNodeGroupDelete(d *schema.ResourceData, meta interface{}) er
 
 	err = computeOperationWaitTime(
 		config, res, project, "Deleting NodeGroup",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

@@ -689,8 +689,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	d.SetId(fmt.Sprintf("projects/%s/regions/%s/clusters/%s", project, region, cluster.ClusterName))
 
 	// Wait until it's created
-	timeoutInMinutes := int(d.Timeout(schema.TimeoutCreate).Minutes())
-	waitErr := dataprocClusterOperationWait(config, op, "creating Dataproc cluster", timeoutInMinutes)
+	waitErr := dataprocClusterOperationWait(config, op, "creating Dataproc cluster", d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		// The resource didn't actually create
 		// Note that we do not remove the ID here - this resource tends to leave
@@ -1023,7 +1022,6 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 
 	region := d.Get("region").(string)
 	clusterName := d.Get("name").(string)
-	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
 
 	cluster := &dataproc.Cluster{
 		ClusterName: clusterName,
@@ -1071,7 +1069,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		// Wait until it's updated
-		waitErr := dataprocClusterOperationWait(config, op, "updating Dataproc cluster ", timeoutInMinutes)
+		waitErr := dataprocClusterOperationWait(config, op, "updating Dataproc cluster ", d.Timeout(schema.TimeoutUpdate))
 		if waitErr != nil {
 			return waitErr
 		}
@@ -1343,7 +1341,6 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 
 	region := d.Get("region").(string)
 	clusterName := d.Get("name").(string)
-	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
 
 	log.Printf("[DEBUG] Deleting Dataproc cluster %s", clusterName)
 	op, err := config.clientDataprocBeta.Projects.Regions.Clusters.Delete(
@@ -1353,7 +1350,7 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Wait until it's deleted
-	waitErr := dataprocClusterOperationWait(config, op, "deleting Dataproc cluster", timeoutInMinutes)
+	waitErr := dataprocClusterOperationWait(config, op, "deleting Dataproc cluster", d.Timeout(schema.TimeoutDelete))
 	if waitErr != nil {
 		return waitErr
 	}

@@ -275,7 +275,7 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 	var opRes map[string]interface{}
 	err = tpuOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating Node",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -384,7 +384,7 @@ func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		err = tpuOperationWaitTime(
 			config, res, project, "Updating Node",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -420,7 +420,7 @@ func resourceTPUNodeDelete(d *schema.ResourceData, meta interface{}) error {
 
 	err = tpuOperationWaitTime(
 		config, res, project, "Deleting Node",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

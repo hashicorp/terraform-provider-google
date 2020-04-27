@@ -2,6 +2,7 @@ package google
 
 import (
 	"encoding/json"
+	"time"
 
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/serviceusage/v1"
@@ -18,7 +19,7 @@ func serviceUsageOperationWait(config *Config, op *serviceusage.Operation, proje
 	if err := json.Unmarshal(b, &m); err != nil {
 		return err
 	}
-	return serviceUsageOperationWaitTime(config, m, project, activity, 10)
+	return serviceUsageOperationWaitTime(config, m, project, activity, 10*time.Minute)
 }
 
 func handleServiceUsageRetryableError(err error) error {

@@ -170,7 +170,7 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	var opRes map[string]interface{}
 	err = spannerOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating Instance",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -314,7 +314,7 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	err = spannerOperationWaitTime(
 		config, res, project, "Updating Instance",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return err

@@ -201,7 +201,7 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	var opRes map[string]interface{}
 	err = appEngineOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating DomainMapping",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -309,7 +309,7 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 
 	err = appEngineOperationWaitTime(
 		config, res, project, "Updating DomainMapping",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return err
@@ -348,7 +348,7 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 
 	err = appEngineOperationWaitTime(
 		config, res, project, "Deleting DomainMapping",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

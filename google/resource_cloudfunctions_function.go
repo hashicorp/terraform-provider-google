@@ -391,7 +391,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	d.SetId(cloudFuncId.cloudFunctionId())
 
 	err = cloudFunctionsOperationWait(config, op, "Creating CloudFunctions Function",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -556,7 +556,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		err = cloudFunctionsOperationWait(config, op, "Updating CloudFunctions Function",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -579,7 +579,7 @@ func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 	err = cloudFunctionsOperationWait(config, op, "Deleting CloudFunctions Function",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

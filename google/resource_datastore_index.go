@@ -143,7 +143,7 @@ func resourceDatastoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	var opRes map[string]interface{}
 	err = datastoreOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating Index",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -226,7 +226,7 @@ func resourceDatastoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 
 	err = datastoreOperationWaitTime(
 		config, res, project, "Deleting Index",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

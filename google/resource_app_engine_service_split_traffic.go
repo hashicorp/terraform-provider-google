@@ -133,7 +133,7 @@ func resourceAppEngineServiceSplitTrafficCreate(d *schema.ResourceData, meta int
 
 	err = appEngineOperationWaitTime(
 		config, res, project, "Creating ServiceSplitTraffic",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -232,7 +232,7 @@ func resourceAppEngineServiceSplitTrafficUpdate(d *schema.ResourceData, meta int
 
 	err = appEngineOperationWaitTime(
 		config, res, project, "Updating ServiceSplitTraffic",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return err

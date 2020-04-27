@@ -168,7 +168,7 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 	var opRes map[string]interface{}
 	err = vpcAccessOperationWaitTimeWithResponse(
 		config, res, &opRes, project, "Creating Connector",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -282,7 +282,7 @@ func resourceVPCAccessConnectorDelete(d *schema.ResourceData, meta interface{}) 
 
 	err = vpcAccessOperationWaitTime(
 		config, res, project, "Deleting Connector",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err

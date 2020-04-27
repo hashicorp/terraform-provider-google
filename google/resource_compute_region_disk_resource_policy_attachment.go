@@ -111,7 +111,7 @@ func resourceComputeRegionDiskResourcePolicyAttachmentCreate(d *schema.ResourceD
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating RegionDiskResourcePolicyAttachment",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -215,7 +215,7 @@ func resourceComputeRegionDiskResourcePolicyAttachmentDelete(d *schema.ResourceD
 
 	err = computeOperationWaitTime(
 		config, res, project, "Deleting RegionDiskResourcePolicyAttachment",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
