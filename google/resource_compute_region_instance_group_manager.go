@@ -1,3 +1,4 @@
+//
 package google
 
 import (
@@ -400,7 +401,6 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	if err := d.Set("update_policy", flattenRegionUpdatePolicy(manager.UpdatePolicy)); err != nil {
 		return fmt.Errorf("Error setting update_policy in state: %s", err.Error())
 	}
-
 	if d.Get("wait_for_instances").(bool) {
 		conf := resource.StateChangeConf{
 			Pending: []string{"creating", "error"},
