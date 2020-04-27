@@ -259,7 +259,7 @@ func resourceAppEngineApplicationUpdate(d *schema.ResourceData, meta interface{}
 	defer mutexKV.Unlock(lockName)
 
 	log.Printf("[DEBUG] Updating App Engine App")
-	op, err := config.clientAppEngine.Apps.Patch(pid, app).UpdateMask("authDomain,servingStatus,featureSettings.splitHealthChecks").Do()
+	op, err := config.clientAppEngine.Apps.Patch(pid, app).UpdateMask("authDomain,servingStatus,featureSettings.splitHealthChecks,iap").Do()
 	if err != nil {
 		return fmt.Errorf("Error updating App Engine application: %s", err.Error())
 	}
