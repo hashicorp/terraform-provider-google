@@ -1,4 +1,4 @@
-## 3.19.0 (Unreleased)
+## 3.19.0 (April 27, 2020)
 
 FEATURES:
 * **New Resource:** `google_bigquery_job` ([#6134](https://github.com/terraform-providers/terraform-provider-google/pull/6134))
