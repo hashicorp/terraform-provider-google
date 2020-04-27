@@ -122,6 +122,12 @@ The following arguments are supported:
   The geographic location where the transfer config should reside.
   Examples: US, EU, asia-northeast1. The default value is US.
 
+* `service_account_name` -
+  (Optional)
+  Optional service account name. If this field is set, transfer config will
+  be created with this service account credentials. It requires that
+  requesting user calling this API has permissions to act as this service account.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
