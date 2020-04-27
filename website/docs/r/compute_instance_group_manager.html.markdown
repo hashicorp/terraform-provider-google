@@ -134,7 +134,10 @@ The following arguments are supported:
 * `auto_healing_policies` - (Optional) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 
+* `stateful_disk` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Disks created on the instances that will be preserved on instance delete, update, etc. Structure is documented below. For more information see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/configuring-stateful-disks-in-migs).
+
 * `update_policy` - (Optional) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/beta/instanceGroupManagers/patch)
+
 - - -
 
 The `update_policy` block supports:
@@ -219,6 +222,13 @@ The `target_size` block supports:
 * `percent` - (Optional), The number of instances (calculated as percentage) which are managed for this version. Conflicts with `fixed`.
 Note that when using `percent`, rounding will be in favor of explicitly set `target_size` values; a managed instance group with 2 instances and 2 `version`s,
 one of which has a `target_size.percent` of `60` will create 2 instances of that `version`.
+
+The `stateful_disk` block supports: (Include a `stateful_disk` block for each stateful disk required).
+
+* `device_name` - (Required), The device name of the disk to be attached.
+
+* `delete_rule` - (Optional), A value that prescribes what should happen to the stateful disk when the VM instance is deleted. The available options are `NEVER` and `ON_PERMANENT_INSTANCE_DELETION`. `NEVER` detatch the disk when the VM is deleted, but not delete the disk. `ON_PERMANENT_INSTANCE_DELETION` will delete the stateful disk when the VM is permanently deleted from the instance group. The default is `NEVER`.
+
 
 ## Attributes Reference
 
