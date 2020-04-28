@@ -1,6 +1,8 @@
 package google
 
 import (
+	"regexp"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/api/cloudfunctions/v1"
@@ -48,6 +50,23 @@ type cloudFunctionId struct {
 
 func (s *cloudFunctionId) cloudFunctionId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/functions/%s", s.Project, s.Region, s.Name)
+}
+
+// matches all international lower case letters, number, underscores and dashes.
+var labelKeyRegex = regexp.MustCompile(`^[\p{Ll}0-9_-]+$`)
+
+func labelKeyValidator(val interface{}, key string) (warns []string, errs []error) {
+	if val == nil {
+		return
+	}
+
+	m := val.(map[string]interface{})
+	for k := range m {
+		if !labelKeyRegex.MatchString(k) {
+			errs = append(errs, fmt.Errorf("%q is an invalid label key. See https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements", k))
+		}
+	}
+	return
 }
 
 func (s *cloudFunctionId) locationId() string {
@@ -193,8 +212,9 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
+				Type:         schema.TypeMap,
+				ValidateFunc: labelKeyValidator,
+				Optional:     true,
 			},
 
 			"runtime": {
