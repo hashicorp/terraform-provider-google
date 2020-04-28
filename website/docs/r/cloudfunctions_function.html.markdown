@@ -125,7 +125,7 @@ Eg. `"nodejs8"`, `"nodejs10"`, `"python37"`, `"go111"`.
 
 * `ingress_settings` - (Optional) String value that controls what traffic can reach the function. Allowed values are ALLOW_ALL and ALLOW_INTERNAL_ONLY. Changes to this field will recreate the cloud function.
 
-* `labels` - (Optional) A set of key/value label pairs to assign to the function.
+* `labels` - (Optional) A set of key/value label pairs to assign to the function. Label keys must follow the requirements at https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements.
 
 * `service_account_email` - (Optional) If provided, the self-provided service account to run the function with.
 
@@ -147,7 +147,7 @@ Eg. `"nodejs8"`, `"nodejs10"`, `"python37"`, `"go111"`.
 The `event_trigger` block supports:
 
 * `event_type` - (Required) The type of event to observe. For example: `"google.storage.object.finalize"`.
-See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/) for a 
+See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/) for a
 full reference of accepted triggers.
 
 * `resource` - (Required) Required. The name or partial URI of the resource from
