@@ -877,8 +877,8 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 				return fmt.Errorf("Error detaching disk %s from instance %s/%s/%s: %s", call.deviceName, call.project,
 					call.zone, call.instance, err.Error())
 			}
-			err = computeOperationWait(config, op, call.project,
-				fmt.Sprintf("Detaching disk from %s/%s/%s", call.project, call.zone, call.instance))
+			err = computeOperationWaitTime(config, op, call.project,
+				fmt.Sprintf("Detaching disk from %s/%s/%s", call.project, call.zone, call.instance), d.Timeout(schema.TimeoutDelete))
 			if err != nil {
 				if opErr, ok := err.(ComputeOperationError); ok && len(opErr.Errors) == 1 && opErr.Errors[0].Code == "RESOURCE_NOT_FOUND" {
 					log.Printf("[WARN] instance %q was deleted while awaiting detach", call.instance)

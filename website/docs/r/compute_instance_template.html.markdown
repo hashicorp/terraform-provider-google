@@ -422,6 +422,14 @@ exported:
 [1]: /docs/providers/google/r/compute_instance_group_manager.html
 [2]: /docs/configuration/resources.html#lifecycle
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
+
 ## Import
 
 Instance templates can be imported using any of these accepted formats:

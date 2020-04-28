@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 
@@ -19,6 +20,11 @@ func resourceComputeSharedVpcServiceProject() *schema.Resource {
 		Delete: resourceComputeSharedVpcServiceProjectDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -52,7 +58,7 @@ func resourceComputeSharedVpcServiceProjectCreate(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
-	err = computeOperationWait(config, op, hostProject, "Enabling Shared VPC Resource")
+	err = computeOperationWaitTime(config, op, hostProject, "Enabling Shared VPC Resource", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -118,7 +124,7 @@ func disableXpnResource(d *schema.ResourceData, config *Config, hostProject, pro
 	if err != nil {
 		return err
 	}
-	err = computeOperationWait(config, op, hostProject, "Disabling Shared VPC Resource")
+	err = computeOperationWaitTime(config, op, hostProject, "Disabling Shared VPC Resource", d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

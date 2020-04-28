@@ -83,6 +83,15 @@ exported:
 
 * `self_link` - The URI of the created resource.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
+
 ## Import
 
 Target pools can be imported using any of the following formats:

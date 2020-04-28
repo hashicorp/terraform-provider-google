@@ -2,8 +2,10 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -17,6 +19,10 @@ func resourceComputeProjectDefaultNetworkTier() *schema.Resource {
 		Delete: resourceComputeProjectDefaultNetworkTierDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		SchemaVersion: 0,
@@ -55,7 +61,7 @@ func resourceComputeProjectDefaultNetworkTierCreateOrUpdate(d *schema.ResourceDa
 	}
 
 	log.Printf("[DEBUG] SetDefaultNetworkTier: %d (%s)", op.Id, op.SelfLink)
-	err = computeOperationWait(config, op, projectID, "SetDefaultNetworkTier")
+	err = computeOperationWaitTime(config, op, projectID, "SetDefaultNetworkTier", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("SetDefaultNetworkTier failed: %s", err)
 	}

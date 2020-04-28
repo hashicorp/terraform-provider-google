@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/servicemanagement/v1"
@@ -20,6 +21,12 @@ func resourceEndpointsService() *schema.Resource {
 		// Migrates protoc_output -> protoc_output_base64.
 		SchemaVersion: 1,
 		MigrateState:  migrateEndpointsService,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"service_name": {
@@ -181,7 +188,7 @@ func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 
-		_, err = serviceManagementOperationWait(config, op, "Creating new ManagedService.")
+		_, err = serviceManagementOperationWaitTime(config, op, "Creating new ManagedService.", d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return err
 		}
@@ -246,7 +253,7 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	s, err := serviceManagementOperationWait(config, op, "Submitting service config.")
+	s, err := serviceManagementOperationWaitTime(config, op, "Submitting service config.", d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
@@ -268,7 +275,7 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	_, err = serviceManagementOperationWait(config, op, "Performing service rollout.")
+	_, err = serviceManagementOperationWaitTime(config, op, "Performing service rollout.", d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
@@ -285,7 +292,7 @@ func resourceEndpointsServiceDelete(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	_, err = serviceManagementOperationWait(config, op, "Deleting service.")
+	_, err = serviceManagementOperationWaitTime(config, op, "Deleting service.", d.Timeout(schema.TimeoutDelete))
 	d.SetId("")
 	return err
 }

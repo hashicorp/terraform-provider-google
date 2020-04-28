@@ -46,6 +46,14 @@ The following arguments are supported:
 
 Only the arguments listed above are exposed as attributes.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes (also used for update).
+- `delete` - Default is 4 minutes.
+
 ## Import
 
 This resource can be imported using the project ID:

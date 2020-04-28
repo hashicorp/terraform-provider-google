@@ -44,6 +44,14 @@ The following arguments are expected:
 
 * `project` - (Required) The ID of the project that will serve as a Shared VPC host project
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
+
 ## Import
 
 Google Compute Engine Shared VPC host project feature can be imported using the `project`, e.g.

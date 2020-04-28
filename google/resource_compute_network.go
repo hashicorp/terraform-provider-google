@@ -197,7 +197,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 				if err != nil {
 					return fmt.Errorf("Error deleting route: %s", err)
 				}
-				err = computeOperationWait(config, op, project, "Deleting Route")
+				err = computeOperationWaitTime(config, op, project, "Deleting Route", d.Timeout(schema.TimeoutCreate))
 				if err != nil {
 					return err
 				}

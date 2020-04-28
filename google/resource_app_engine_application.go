@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -19,6 +20,11 @@ func resourceAppEngineApplication() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -188,7 +194,7 @@ func resourceAppEngineApplicationCreate(d *schema.ResourceData, meta interface{}
 	d.SetId(project)
 
 	// Wait for the operation to complete
-	waitErr := appEngineOperationWait(config, op, project, "App Engine app to create")
+	waitErr := appEngineOperationWaitTime(config, op, project, "App Engine app to create", d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		d.SetId("")
 		return waitErr
@@ -265,7 +271,7 @@ func resourceAppEngineApplicationUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	// Wait for the operation to complete
-	waitErr := appEngineOperationWait(config, op, pid, "App Engine app to update")
+	waitErr := appEngineOperationWaitTime(config, op, pid, "App Engine app to update", d.Timeout(schema.TimeoutUpdate))
 	if waitErr != nil {
 		return waitErr
 	}

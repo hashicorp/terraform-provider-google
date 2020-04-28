@@ -5,6 +5,7 @@ import (
 	"log"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -20,6 +21,11 @@ func resourceComputeNetworkPeering() *schema.Resource {
 		Delete: resourceComputeNetworkPeeringDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceComputeNetworkPeeringImport,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -107,7 +113,7 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error adding network peering: %s", err)
 	}
 
-	err = computeOperationWait(config, addOp, networkFieldValue.Project, "Adding Network Peering")
+	err = computeOperationWaitTime(config, addOp, networkFieldValue.Project, "Adding Network Peering", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -182,7 +188,7 @@ func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error removing peering `%s` from network `%s`: %s", name, networkFieldValue.Name, err)
 		}
 	} else {
-		err = computeOperationWait(config, removeOp, networkFieldValue.Project, "Removing Network Peering")
+		err = computeOperationWaitTime(config, removeOp, networkFieldValue.Project, "Removing Network Peering", d.Timeout(schema.TimeoutDelete))
 		if err != nil {
 			return err
 		}

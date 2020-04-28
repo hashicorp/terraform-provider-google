@@ -72,6 +72,14 @@ exported:
 
 * `state_details` - Details about the current state of the peering.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
+
 ## Import
 
 VPC network peerings can be imported using the name and project of the primary network the peering exists in and the name of the network peering

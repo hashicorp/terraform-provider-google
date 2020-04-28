@@ -72,6 +72,14 @@ exported:
 
 * `gcr_domain` - The GCR domain used for storing managed Docker images for this app.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
+
 ## Import
 
 Applications can be imported using the ID of the project the application belongs to, e.g.

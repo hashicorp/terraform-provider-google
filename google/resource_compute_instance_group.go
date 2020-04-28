@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
@@ -19,6 +20,12 @@ func resourceComputeInstanceGroup() *schema.Resource {
 		Delete: resourceComputeInstanceGroupDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceComputeInstanceGroupImportState,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(6 * time.Minute),
+			Update: schema.DefaultTimeout(6 * time.Minute),
+			Delete: schema.DefaultTimeout(6 * time.Minute),
 		},
 
 		SchemaVersion: 2,
@@ -159,7 +166,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instanceGroups/%s", project, zone, name))
 
 	// Wait for the operation to complete
-	err = computeOperationWait(config, op, project, "Creating InstanceGroup")
+	err = computeOperationWaitTime(config, op, project, "Creating InstanceGroup", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return err
@@ -183,7 +190,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 		}
 
 		// Wait for the operation to complete
-		err = computeOperationWait(config, op, project, "Adding instances to InstanceGroup")
+		err = computeOperationWaitTime(config, op, project, "Adding instances to InstanceGroup", d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return err
 		}
@@ -295,7 +302,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 				}
 			} else {
 				// Wait for the operation to complete
-				err = computeOperationWait(config, removeOp, project, "Updating InstanceGroup")
+				err = computeOperationWaitTime(config, removeOp, project, "Updating InstanceGroup", d.Timeout(schema.TimeoutUpdate))
 				if err != nil {
 					return err
 				}
@@ -316,7 +323,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			}
 
 			// Wait for the operation to complete
-			err = computeOperationWait(config, addOp, project, "Updating InstanceGroup")
+			err = computeOperationWaitTime(config, addOp, project, "Updating InstanceGroup", d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return err
 			}
@@ -339,7 +346,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			return fmt.Errorf("Error updating named ports for InstanceGroup: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating InstanceGroup")
+		err = computeOperationWaitTime(config, op, project, "Updating InstanceGroup", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -369,7 +376,7 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error deleting InstanceGroup: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting InstanceGroup")
+	err = computeOperationWaitTime(config, op, project, "Deleting InstanceGroup", d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}
