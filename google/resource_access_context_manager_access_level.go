@@ -541,7 +541,7 @@ func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicy(v interfa
 	}
 	transformed := make(map[string]interface{})
 	transformed["require_screen_lock"] =
-		flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireScreenLock(original["requireScreenLock"], d, config)
+		flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireScreenLock(original["requireScreenlock"], d, config)
 	transformed["allowed_encryption_statuses"] =
 		flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyAllowedEncryptionStatuses(original["allowedEncryptionStatuses"], d, config)
 	transformed["allowed_device_management_levels"] =
@@ -733,7 +733,7 @@ func expandAccessContextManagerAccessLevelBasicConditionsDevicePolicy(v interfac
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedRequireScreenLock); val.IsValid() && !isEmptyValue(val) {
-		transformed["requireScreenLock"] = transformedRequireScreenLock
+		transformed["requireScreenlock"] = transformedRequireScreenLock
 	}
 
 	transformedAllowedEncryptionStatuses, err := expandAccessContextManagerAccessLevelBasicConditionsDevicePolicyAllowedEncryptionStatuses(original["allowed_encryption_statuses"], d, config)

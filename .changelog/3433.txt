@@ -1,0 +1,3 @@
+```release-note:bug
+accesscontextmanager: Fixed setting `require_screen_lock` to true for `google_access_context_manager_access_level`
+```
