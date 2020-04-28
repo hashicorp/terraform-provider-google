@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"strings"
 
@@ -18,6 +19,11 @@ func resourceComputeRouterInterface() *schema.Resource {
 		Delete: resourceComputeRouterInterfaceDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceComputeRouterInterfaceImportState,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -146,7 +152,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 	d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, ifaceName))
-	err = computeOperationWait(config, op, project, "Patching router")
+	err = computeOperationWaitTime(config, op, project, "Patching router", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
@@ -271,7 +277,7 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 
-	err = computeOperationWait(config, op, project, "Patching router")
+	err = computeOperationWaitTime(config, op, project, "Patching router", d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
 	}

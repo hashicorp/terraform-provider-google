@@ -30,10 +30,6 @@ func (w *AppEngineOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Apps.Operations.Get(w.AppId, matches[1]).Do()
 }
 
-func appEngineOperationWait(config *Config, res interface{}, appId, activity string) error {
-	return appEngineOperationWaitTime(config, res, appId, activity, 4*time.Minute)
-}
-
 func appEngineOperationWaitTimeWithResponse(config *Config, res interface{}, response *map[string]interface{}, appId, activity string, timeout time.Duration) error {
 	op := &appengine.Operation{}
 	err := Convert(res, op)

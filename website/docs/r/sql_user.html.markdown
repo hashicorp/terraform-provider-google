@@ -66,6 +66,15 @@ The following arguments are supported:
 
 Only the arguments listed above are exposed as attributes.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 10 minutes.
+- `update` - Default is 10 minutes.
+- `delete` - Default is 10 minutes.
+
 ## Import
 
 SQL users for MySQL databases can be imported using the `project`, `instance`, `host` and `name`, e.g.

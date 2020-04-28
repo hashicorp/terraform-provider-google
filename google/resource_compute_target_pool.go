@@ -5,6 +5,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -21,6 +22,12 @@ func resourceComputeTargetPool() *schema.Resource {
 		Update: resourceComputeTargetPoolUpdate,
 		Importer: &schema.ResourceImporter{
 			State: resourceTargetPoolStateImporter,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -213,7 +220,7 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
-	err = computeOperationWait(config, op, project, "Creating Target Pool")
+	err = computeOperationWaitTime(config, op, project, "Creating Target Pool", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -262,7 +269,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("Error updating health_check: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating Target Pool")
+		err = computeOperationWaitTime(config, op, project, "Updating Target Pool", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -278,7 +285,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("Error updating health_check: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating Target Pool")
+		err = computeOperationWaitTime(config, op, project, "Updating Target Pool", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -312,7 +319,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("Error updating instances: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating Target Pool")
+		err = computeOperationWaitTime(config, op, project, "Updating Target Pool", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -327,7 +334,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return fmt.Errorf("Error updating instances: %s", err)
 		}
-		err = computeOperationWait(config, op, project, "Updating Target Pool")
+		err = computeOperationWaitTime(config, op, project, "Updating Target Pool", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -345,7 +352,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("Error updating backup_pool: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating Target Pool")
+		err = computeOperationWaitTime(config, op, project, "Updating Target Pool", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -423,7 +430,7 @@ func resourceComputeTargetPoolDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error deleting TargetPool: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Target Pool")
+	err = computeOperationWaitTime(config, op, project, "Deleting Target Pool", d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

@@ -65,6 +65,14 @@ or both.
 
 Only the arguments listed above are exposed as attributes.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
+
 ## Import
 
 Router interfaces can be imported using the `region`, `router`, and `name`, e.g.

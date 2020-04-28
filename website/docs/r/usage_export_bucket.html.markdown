@@ -39,6 +39,14 @@ resource "google_project_usage_export_bucket" "usage_export" {
 
 * `project`: (Optional) The project to set the export bucket on. If it is not provided, the provider project is used.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
+
 ## Import
 
 A project's Usage Export Bucket can be imported using this format:

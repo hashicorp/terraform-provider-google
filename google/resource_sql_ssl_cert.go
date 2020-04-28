@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
@@ -15,6 +16,11 @@ func resourceSqlSslCert() *schema.Resource {
 		Delete: resourceSqlSslCertDelete,
 
 		SchemaVersion: 1,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"common_name": {
@@ -98,7 +104,7 @@ func resourceSqlSslCertCreate(d *schema.ResourceData, meta interface{}) error {
 			"ssl cert %s into instance %s: %s", commonName, instance, err)
 	}
 
-	err = sqlAdminOperationWait(config, resp.Operation, project, "Create Ssl Cert")
+	err = sqlAdminOperationWaitTime(config, resp.Operation, project, "Create Ssl Cert", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for creation of %q "+
 			"in %q: %s", commonName, instance, err)
@@ -174,7 +180,7 @@ func resourceSqlSslCertDelete(d *schema.ResourceData, meta interface{}) error {
 			instance, err)
 	}
 
-	err = sqlAdminOperationWait(config, op, project, "Delete Ssl Cert")
+	err = sqlAdminOperationWaitTime(config, op, project, "Delete Ssl Cert", d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for deletion of ssl cert %q "+

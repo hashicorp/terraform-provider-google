@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
@@ -44,6 +45,11 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			resourceComputeInstanceTemplateBootDiskCustomizeDiff,
 		),
 		MigrateState: resourceComputeInstanceTemplateMigrateState,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
+		},
 
 		// A compute instance template is more or less a subset of a compute
 		// instance. Please attempt to maintain consistency with the
@@ -785,7 +791,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	// Store the ID now
 	d.SetId(fmt.Sprintf("projects/%s/global/instanceTemplates/%s", project, instanceTemplate.Name))
 
-	err = computeOperationWait(config, op, project, "Creating Instance Template")
+	err = computeOperationWaitTime(config, op, project, "Creating Instance Template", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -1146,7 +1152,7 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error deleting instance template: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Instance Template")
+	err = computeOperationWaitTime(config, op, project, "Deleting Instance Template", d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

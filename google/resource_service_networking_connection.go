@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -21,6 +22,12 @@ func resourceServiceNetworkingConnection() *schema.Resource {
 		Delete: resourceServiceNetworkingConnectionDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceServiceNetworkingConnectionImportState,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -88,7 +95,7 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	if err := serviceNetworkingOperationWait(config, op, "Create Service Networking Connection"); err != nil {
+	if err := serviceNetworkingOperationWaitTime(config, op, "Create Service Networking Connection", d.Timeout(schema.TimeoutCreate)); err != nil {
 		return err
 	}
 
@@ -170,7 +177,7 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		if err := serviceNetworkingOperationWait(config, op, "Update Service Networking Connection"); err != nil {
+		if err := serviceNetworkingOperationWaitTime(config, op, "Update Service Networking Connection", d.Timeout(schema.TimeoutUpdate)); err != nil {
 			return err
 		}
 	}
@@ -197,7 +204,7 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 	}
 
 	project := networkFieldValue.Project
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ServiceNetworkingConnection %q", d.Id()))
 	}
@@ -208,8 +215,8 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	err = computeOperationWait(
-		config, op, project, "Updating Network")
+	err = computeOperationWaitTime(
+		config, op, project, "Updating Network", d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

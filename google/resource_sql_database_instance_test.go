@@ -6,6 +6,7 @@ import (
 	"log"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -103,7 +104,7 @@ func testSweepDatabases(region string) error {
 				return nil
 			}
 
-			err = sqlAdminOperationWait(config, op, config.Project, "Stop Replica")
+			err = sqlAdminOperationWaitTime(config, op, config.Project, "Stop Replica", 10*time.Minute)
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("Replication operation not found")
@@ -135,7 +136,7 @@ func testSweepDatabases(region string) error {
 				return nil
 			}
 
-			err = sqlAdminOperationWait(config, op, config.Project, "Delete Instance")
+			err = sqlAdminOperationWaitTime(config, op, config.Project, "Delete Instance", 10*time.Minute)
 			if err != nil {
 				if strings.Contains(err.Error(), "does not exist") {
 					log.Printf("SQL instance not found")
@@ -230,7 +231,7 @@ func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 						t.Errorf("Error while inserting root@%% user: %s", err)
 						return
 					}
-					err = sqlAdminOperationWait(config, op, config.Project, "Waiting for user to insert")
+					err = sqlAdminOperationWaitTime(config, op, config.Project, "Waiting for user to insert", 10*time.Minute)
 					if err != nil {
 						t.Errorf("Error while waiting for user insert operation to complete: %s", err.Error())
 					}

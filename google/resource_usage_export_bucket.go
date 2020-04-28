@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -15,6 +16,11 @@ func resourceProjectUsageBucket() *schema.Resource {
 		Delete: resourceProjectUsageBucketDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceProjectUsageBucketImportState,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -79,7 +85,7 @@ func resourceProjectUsageBucketCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 	d.SetId(project)
-	err = computeOperationWait(config, op, project, "Setting usage export bucket.")
+	err = computeOperationWaitTime(config, op, project, "Setting usage export bucket.", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return err
@@ -103,8 +109,8 @@ func resourceProjectUsageBucketDelete(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	err = computeOperationWait(config, op, project,
-		"Setting usage export bucket to nil, automatically disabling usage export.")
+	err = computeOperationWaitTime(config, op, project,
+		"Setting usage export bucket to nil, automatically disabling usage export.", d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

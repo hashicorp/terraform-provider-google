@@ -66,6 +66,14 @@ exported:
 * `expiration_time` - The time when the certificate expires in RFC 3339 format,
     for example 2012-11-15T16:19:00.094Z.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 10 minutes.
+- `delete` - Default is 10 minutes.
+
 ## Import
 
 Since the contents of the certificate cannot be accessed after its creation, this resource cannot be imported.

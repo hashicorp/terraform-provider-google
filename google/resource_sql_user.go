@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
@@ -17,6 +18,12 @@ func resourceSqlUser() *schema.Resource {
 		Delete: resourceSqlUserDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceSqlUserImporter,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		SchemaVersion: 1,
@@ -96,7 +103,7 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 	// for which user.Host is an empty string.  That's okay.
 	d.SetId(fmt.Sprintf("%s/%s/%s", user.Name, user.Host, user.Instance))
 
-	err = sqlAdminOperationWait(config, op, project, "Insert User")
+	err = sqlAdminOperationWaitTime(config, op, project, "Insert User", d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for insertion of %s "+
@@ -189,7 +196,7 @@ func resourceSqlUserUpdate(d *schema.ResourceData, meta interface{}) error {
 				"user %s into user %s: %s", name, instance, err)
 		}
 
-		err = sqlAdminOperationWait(config, op, project, "Insert User")
+		err = sqlAdminOperationWaitTime(config, op, project, "Insert User", d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
 			return fmt.Errorf("Error, failure waiting for update of %s "+
@@ -229,7 +236,7 @@ func resourceSqlUserDelete(d *schema.ResourceData, meta interface{}) error {
 			instance, err)
 	}
 
-	err = sqlAdminOperationWait(config, op, project, "Delete User")
+	err = sqlAdminOperationWaitTime(config, op, project, "Delete User", d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return fmt.Errorf("Error, failure waiting for deletion of %s "+

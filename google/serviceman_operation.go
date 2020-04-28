@@ -20,10 +20,6 @@ func (w *ServiceManagementOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 
-func serviceManagementOperationWait(config *Config, op *servicemanagement.Operation, activity string) (googleapi.RawMessage, error) {
-	return serviceManagementOperationWaitTime(config, op, activity, 10*time.Minute)
-}
-
 func serviceManagementOperationWaitTime(config *Config, op *servicemanagement.Operation, activity string, timeout time.Duration) (googleapi.RawMessage, error) {
 	w := &ServiceManagementOperationWaiter{
 		Service: config.clientServiceMan,
