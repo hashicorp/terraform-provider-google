@@ -1,0 +1,15 @@
+```release-note:new-resource
+`google_compute_region_url_map` is now GA
+```
+```release-note:new-resource
+`google_compute_region_target_http_proxy` is now GA
+```
+```release-note:new-resource
+`google_compute_region_target_https_proxy` is now GA
+```
+```release-note:enhancement
+compute: Promoted the following `google_compute_backend_service` fields to GA: `circuit_breakers`, `consistent_hash`, `custom_request_headers`, `locality_lb_policy`, `outlier_detection`
+```
+```release-note:enhancement
+compute: Promoted the following `google_compute_region_backend_service` fields to GA: `affinity_cookie_ttl_sec`,`circuit_breakers`, `consistent_hash`, `failover_policy`, `locality_lb_policy`, `outlier_detection`, `log_config`, `failover`
+```

@@ -42,7 +42,7 @@ affordable storage with consistent performance characteristics.
 
 To get more information about RegionDisk, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/regionDisks)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/regionDisks)
 * How-to Guides
     * [Adding or Resizing Regional Persistent Disks](https://cloud.google.com/compute/docs/disks/regional-persistent-disk)
 

@@ -119,6 +119,103 @@ resource "random_id" "certificate" {
 `, context)
 }
 
+func TestAccComputeRegionSslCertificate_regionSslCertificateTargetHttpsProxiesExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRegionSslCertificateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionSslCertificate_regionSslCertificateTargetHttpsProxiesExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_ssl_certificate.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"private_key", "name_prefix"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionSslCertificate_regionSslCertificateTargetHttpsProxiesExample(context map[string]interface{}) string {
+	return Nprintf(`
+// Using with Region Target HTTPS Proxies
+//
+// SSL certificates cannot be updated after creation. In order to apply
+// the specified configuration, Terraform will destroy the existing
+// resource and create a replacement. To effectively use an SSL
+// certificate resource with a Target HTTPS Proxy resource, it's
+// recommended to specify create_before_destroy in a lifecycle block.
+// Either omit the Instance Template name attribute, specify a partial
+// name with name_prefix, or use random_id resource. Example:
+
+resource "google_compute_region_ssl_certificate" "default" {
+  region      = "us-central1"
+  name_prefix = "my-certificate-"
+  private_key = file("test-fixtures/ssl_cert/test.key")
+  certificate = file("test-fixtures/ssl_cert/test.crt")
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "google_compute_region_target_https_proxy" "default" {
+  region           = "us-central1"
+  name             = "tf-test-test-proxy%{random_suffix}"
+  url_map          = google_compute_region_url_map.default.self_link
+  ssl_certificates = [google_compute_region_ssl_certificate.default.self_link]
+}
+
+resource "google_compute_region_url_map" "default" {
+  region      = "us-central1"
+  name        = "tf-test-url-map%{random_suffix}"
+  description = "a description"
+
+  default_service = google_compute_region_backend_service.default.self_link
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_region_backend_service.default.self_link
+
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_region_backend_service.default.self_link
+    }
+  }
+}
+
+resource "google_compute_region_backend_service" "default" {
+  region      = "us-central1"
+  name        = "tf-test-backend-service%{random_suffix}"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_region_health_check.default.self_link]
+}
+
+resource "google_compute_region_health_check" "default" {
+  region   = "us-central1"
+  name     = "tf-test-http-health-check%{random_suffix}"
+  http_health_check {
+    port = 80
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeRegionSslCertificateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

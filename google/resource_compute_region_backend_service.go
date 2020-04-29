@@ -160,12 +160,75 @@ first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.`,
 			},
+			"affinity_cookie_ttl_sec": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Description: `Lifetime of cookies in seconds if session_affinity is
+GENERATED_COOKIE. If set to 0, the cookie is non-persistent and lasts
+only until the end of the browser session (or equivalent). The
+maximum allowed value for TTL is one day.
+
+When the load balancing scheme is INTERNAL, this field is not used.`,
+			},
 			"backend": {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Description: `The set of backends that serve this RegionBackendService.`,
 				Elem:        computeRegionBackendServiceBackendSchema(),
 				Set:         resourceGoogleComputeBackendServiceBackendHash,
+			},
+			"circuit_breakers": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Settings controlling the volume of connections to a backend service. This field
+is applicable only when the 'load_balancing_scheme' is set to INTERNAL_MANAGED
+and the 'protocol' is set to HTTP, HTTPS, or HTTP2.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_connections": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The maximum number of connections to the backend cluster.
+Defaults to 1024.`,
+							Default:      1024,
+							AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
+						},
+						"max_pending_requests": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The maximum number of pending requests to the backend cluster.
+Defaults to 1024.`,
+							Default:      1024,
+							AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
+						},
+						"max_requests": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The maximum number of parallel requests to the backend cluster.
+Defaults to 1024.`,
+							Default:      1024,
+							AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
+						},
+						"max_requests_per_connection": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `Maximum requests for a single backend connection. This parameter
+is respected by both the HTTP/1.1 and HTTP/2 implementations. If
+not specified, there is no limit. Setting this parameter to 1
+will effectively disable keep alive.`,
+							AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
+						},
+						"max_retries": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The maximum number of parallel retries to the backend cluster.
+Defaults to 3.`,
+							Default:      3,
+							AtLeastOneOf: []string{"circuit_breakers.0.max_requests_per_connection", "circuit_breakers.0.max_connections", "circuit_breakers.0.max_pending_requests", "circuit_breakers.0.max_requests", "circuit_breakers.0.max_retries"},
+						},
+					},
+				},
 			},
 			"connection_draining_timeout_sec": {
 				Type:     schema.TypeInt,
@@ -175,10 +238,144 @@ connections, but still work to finish started).`,
 				Default: 0,
 			},
 
+			"consistent_hash": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Consistent Hash-based load balancing can be used to provide soft session
+affinity based on HTTP headers, cookies or other properties. This load balancing
+policy is applicable only for HTTP connections. The affinity to a particular
+destination host will be lost when one or more hosts are added/removed from the
+destination service. This field specifies parameters that control consistent
+hashing.
+This field only applies when all of the following are true -
+  * 'load_balancing_scheme' is set to INTERNAL_MANAGED
+  * 'protocol' is set to HTTP, HTTPS, or HTTP2
+  * 'locality_lb_policy' is set to MAGLEV or RING_HASH`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"http_cookie": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Hash is based on HTTP Cookie. This field describes a HTTP cookie
+that will be used as the hash key for the consistent hash load
+balancer. If the cookie is not present, it will be generated.
+This field is applicable if the sessionAffinity is set to HTTP_COOKIE.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `Name of the cookie.`,
+										AtLeastOneOf: []string{"consistent_hash.0.http_cookie.0.ttl", "consistent_hash.0.http_cookie.0.name", "consistent_hash.0.http_cookie.0.path"},
+									},
+									"path": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `Path to set for the cookie.`,
+										AtLeastOneOf: []string{"consistent_hash.0.http_cookie.0.ttl", "consistent_hash.0.http_cookie.0.name", "consistent_hash.0.http_cookie.0.path"},
+									},
+									"ttl": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Lifetime of the cookie.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"seconds": {
+													Type:     schema.TypeInt,
+													Required: true,
+													Description: `Span of time at a resolution of a second.
+Must be from 0 to 315,576,000,000 inclusive.`,
+												},
+												"nanos": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `Span of time that's a fraction of a second at nanosecond
+resolution. Durations less than one second are represented
+with a 0 seconds field and a positive nanos field. Must
+be from 0 to 999,999,999 inclusive.`,
+												},
+											},
+										},
+										AtLeastOneOf: []string{"consistent_hash.0.http_cookie.0.ttl", "consistent_hash.0.http_cookie.0.name", "consistent_hash.0.http_cookie.0.path"},
+									},
+								},
+							},
+							AtLeastOneOf: []string{"consistent_hash.0.http_cookie", "consistent_hash.0.http_header_name", "consistent_hash.0.minimum_ring_size"},
+						},
+						"http_header_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The hash based on the value of the specified header field.
+This field is applicable if the sessionAffinity is set to HEADER_FIELD.`,
+							AtLeastOneOf: []string{"consistent_hash.0.http_cookie", "consistent_hash.0.http_header_name", "consistent_hash.0.minimum_ring_size"},
+						},
+						"minimum_ring_size": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The minimum number of virtual nodes to use for the hash ring.
+Larger ring sizes result in more granular load
+distributions. If the number of hosts in the load balancing pool
+is larger than the ring size, each host will be assigned a single
+virtual node.
+Defaults to 1024.`,
+							Default:      1024,
+							AtLeastOneOf: []string{"consistent_hash.0.http_cookie", "consistent_hash.0.http_header_name", "consistent_hash.0.minimum_ring_size"},
+						},
+					},
+				},
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `An optional description of this resource.`,
+			},
+			"failover_policy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Policy for failovers.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disable_connection_drain_on_failover": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `On failover or failback, this field indicates whether connection drain
+will be honored. Setting this to true has the following effect: connections
+to the old active pool are not drained. Connections to the new active pool
+use the timeout of 10 min (currently fixed). Setting to false has the
+following effect: both old and new connections will have a drain timeout
+of 10 min.
+This can be set to true only if the protocol is TCP.
+The default is false.`,
+							AtLeastOneOf: []string{"failover_policy.0.disable_connection_drain_on_failover", "failover_policy.0.drop_traffic_if_unhealthy", "failover_policy.0.failover_ratio"},
+						},
+						"drop_traffic_if_unhealthy": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `This option is used only when no healthy VMs are detected in the primary
+and backup instance groups. When set to true, traffic is dropped. When
+set to false, new connections are sent across all VMs in the primary group.
+The default is false.`,
+							AtLeastOneOf: []string{"failover_policy.0.disable_connection_drain_on_failover", "failover_policy.0.drop_traffic_if_unhealthy", "failover_policy.0.failover_ratio"},
+						},
+						"failover_ratio": {
+							Type:     schema.TypeFloat,
+							Optional: true,
+							Description: `The value of the field must be in [0, 1]. If the ratio of the healthy
+VMs in the primary backend is at or below this number, traffic arriving
+at the load-balanced IP will be directed to the failover backend.
+In case where 'failoverRatio' is not set or all the VMs in the backup
+backend are unhealthy, the traffic will be directed back to the primary
+backend in the "force" mode, where traffic will be spread to the healthy
+VMs with the best effort, or to all VMs when no VM is healthy.
+This field is only used with l4 load balancing.`,
+							AtLeastOneOf: []string{"failover_policy.0.disable_connection_drain_on_failover", "failover_policy.0.drop_traffic_if_unhealthy", "failover_policy.0.failover_ratio"},
+						},
+					},
+				},
 			},
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
@@ -190,12 +387,221 @@ will be used for. A backend service created for one type of load
 balancing cannot be used with the other(s). Default value: "INTERNAL" Possible values: ["INTERNAL", "INTERNAL_MANAGED"]`,
 				Default: "INTERNAL",
 			},
+			"locality_lb_policy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV", ""}, false),
+				Description: `The load balancing algorithm used within the scope of the locality.
+The possible values are -
+
+ROUND_ROBIN - This is a simple policy in which each healthy backend
+              is selected in round robin order.
+
+LEAST_REQUEST - An O(1) algorithm which selects two random healthy
+                hosts and picks the host which has fewer active requests.
+
+RING_HASH - The ring/modulo hash load balancer implements consistent
+            hashing to backends. The algorithm has the property that the
+            addition/removal of a host from a set of N hosts only affects
+            1/N of the requests.
+
+RANDOM - The load balancer selects a random healthy host.
+
+ORIGINAL_DESTINATION - Backend host is selected based on the client
+                       connection metadata, i.e., connections are opened
+                       to the same address as the destination address of
+                       the incoming connection before the connection
+                       was redirected to the load balancer.
+
+MAGLEV - used as a drop in replacement for the ring hash load balancer.
+         Maglev is not as stable as ring hash but has faster table lookup
+         build times and host selection times. For more information about
+         Maglev, refer to https://ai.google/research/pubs/pub44824
+
+This field is applicable only when the 'load_balancing_scheme' is set to
+INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, or HTTP2. Possible values: ["ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV"]`,
+			},
+			"log_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `This field denotes the logging options for the load balancer traffic served by this backend service.
+If logging is enabled, logs will be exported to Stackdriver.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable": {
+							Type:         schema.TypeBool,
+							Optional:     true,
+							Description:  `Whether to enable logging for the load balancer traffic served by this backend service.`,
+							AtLeastOneOf: []string{"log_config.0.enable", "log_config.0.sample_rate"},
+						},
+						"sample_rate": {
+							Type:     schema.TypeFloat,
+							Optional: true,
+							Description: `This field can only be specified if logging is enabled for this backend service. The value of
+the field must be in [0, 1]. This configures the sampling rate of requests to the load balancer
+where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported.
+The default value is 1.0.`,
+							AtLeastOneOf: []string{"log_config.0.enable", "log_config.0.sample_rate"},
+						},
+					},
+				},
+			},
 			"network": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description: `The URL of the network to which this backend service belongs.
 This field can only be specified when the load balancing scheme is set to INTERNAL.`,
+			},
+			"outlier_detection": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Settings controlling eviction of unhealthy hosts from the load balancing pool.
+This field is applicable only when the 'load_balancing_scheme' is set
+to INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, or HTTP2.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"base_ejection_time": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The base time that a host is ejected for. The real time is equal to the base
+time multiplied by the number of times the host has been ejected. Defaults to
+30000ms or 30s.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"seconds": {
+										Type:     schema.TypeInt,
+										Required: true,
+										Description: `Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+inclusive.`,
+									},
+									"nanos": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `Span of time that's a fraction of a second at nanosecond resolution. Durations
+less than one second are represented with a 0 'seconds' field and a positive
+'nanos' field. Must be from 0 to 999,999,999 inclusive.`,
+									},
+								},
+							},
+							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+						},
+						"consecutive_errors": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `Number of errors before a host is ejected from the connection pool. When the
+backend host is accessed over HTTP, a 5xx return code qualifies as an error.
+Defaults to 5.`,
+							Default:      5,
+							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+						},
+						"consecutive_gateway_failure": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The number of consecutive gateway failures (502, 503, 504 status or connection
+errors that are mapped to one of those status codes) before a consecutive
+gateway failure ejection occurs. Defaults to 5.`,
+							Default:      5,
+							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+						},
+						"enforcing_consecutive_errors": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The percentage chance that a host will be actually ejected when an outlier
+status is detected through consecutive 5xx. This setting can be used to disable
+ejection or to ramp it up slowly. Defaults to 100.`,
+							Default:      100,
+							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+						},
+						"enforcing_consecutive_gateway_failure": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The percentage chance that a host will be actually ejected when an outlier
+status is detected through consecutive gateway failures. This setting can be
+used to disable ejection or to ramp it up slowly. Defaults to 0.`,
+							Default:      0,
+							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+						},
+						"enforcing_success_rate": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The percentage chance that a host will be actually ejected when an outlier
+status is detected through success rate statistics. This setting can be used to
+disable ejection or to ramp it up slowly. Defaults to 100.`,
+							Default:      100,
+							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+						},
+						"interval": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Time interval between ejection sweep analysis. This can result in both new
+ejections as well as hosts being returned to service. Defaults to 10 seconds.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"seconds": {
+										Type:     schema.TypeInt,
+										Required: true,
+										Description: `Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+inclusive.`,
+									},
+									"nanos": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `Span of time that's a fraction of a second at nanosecond resolution. Durations
+less than one second are represented with a 0 'seconds' field and a positive
+'nanos' field. Must be from 0 to 999,999,999 inclusive.`,
+									},
+								},
+							},
+							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+						},
+						"max_ejection_percent": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `Maximum percentage of hosts in the load balancing pool for the backend service
+that can be ejected. Defaults to 10%.`,
+							Default:      10,
+							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+						},
+						"success_rate_minimum_hosts": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The number of hosts in a cluster that must have enough request volume to detect
+success rate outliers. If the number of hosts is less than this setting, outlier
+detection via success rate statistics is not performed for any host in the
+cluster. Defaults to 5.`,
+							Default:      5,
+							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+						},
+						"success_rate_request_volume": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The minimum number of total requests that must be collected in one interval (as
+defined by the interval duration above) to include this host in success rate
+based outlier detection. If the volume is lower than this setting, outlier
+detection via success rate statistics is not performed for that host. Defaults
+to 100.`,
+							Default:      100,
+							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+						},
+						"success_rate_stdev_factor": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `This factor is used to determine the ejection threshold for success rate outlier
+ejection. The ejection threshold is the difference between the mean success
+rate, and the product of this factor and the standard deviation of the mean
+success rate: mean - (stdev * success_rate_stdev_factor). This factor is divided
+by a thousand to get a double. That is, if the desired factor is 1.9, the
+runtime value should be 1900. Defaults to 1900.`,
+							Default:      1900,
+							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
+						},
+					},
+				},
 			},
 			"protocol": {
 				Type:         schema.TypeString,
@@ -309,6 +715,13 @@ A setting of 0 means the group is completely drained, offering
 				Description: `An optional description of this resource.
 Provide this property when you create the resource.`,
 			},
+			"failover": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				Description: `This field designates whether this is a failover backend. More
+than one failover backend can be configured for a given RegionBackendService.`,
+			},
 			"max_connections": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -388,11 +801,29 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
+	affinityCookieTtlSecProp, err := expandComputeRegionBackendServiceAffinityCookieTtlSec(d.Get("affinity_cookie_ttl_sec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("affinity_cookie_ttl_sec"); !isEmptyValue(reflect.ValueOf(affinityCookieTtlSecProp)) && (ok || !reflect.DeepEqual(v, affinityCookieTtlSecProp)) {
+		obj["affinityCookieTtlSec"] = affinityCookieTtlSecProp
+	}
 	backendsProp, err := expandComputeRegionBackendServiceBackend(d.Get("backend"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("backend"); !isEmptyValue(reflect.ValueOf(backendsProp)) && (ok || !reflect.DeepEqual(v, backendsProp)) {
 		obj["backends"] = backendsProp
+	}
+	circuitBreakersProp, err := expandComputeRegionBackendServiceCircuitBreakers(d.Get("circuit_breakers"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("circuit_breakers"); !isEmptyValue(reflect.ValueOf(circuitBreakersProp)) && (ok || !reflect.DeepEqual(v, circuitBreakersProp)) {
+		obj["circuitBreakers"] = circuitBreakersProp
+	}
+	consistentHashProp, err := expandComputeRegionBackendServiceConsistentHash(d.Get("consistent_hash"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("consistent_hash"); !isEmptyValue(reflect.ValueOf(consistentHashProp)) && (ok || !reflect.DeepEqual(v, consistentHashProp)) {
+		obj["consistentHash"] = consistentHashProp
 	}
 	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
 	if err != nil {
@@ -405,6 +836,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	failoverPolicyProp, err := expandComputeRegionBackendServiceFailoverPolicy(d.Get("failover_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("failover_policy"); !isEmptyValue(reflect.ValueOf(failoverPolicyProp)) && (ok || !reflect.DeepEqual(v, failoverPolicyProp)) {
+		obj["failoverPolicy"] = failoverPolicyProp
 	}
 	fingerprintProp, err := expandComputeRegionBackendServiceFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
@@ -424,11 +861,23 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !isEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
 		obj["loadBalancingScheme"] = loadBalancingSchemeProp
 	}
+	localityLbPolicyProp, err := expandComputeRegionBackendServiceLocalityLbPolicy(d.Get("locality_lb_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("locality_lb_policy"); !isEmptyValue(reflect.ValueOf(localityLbPolicyProp)) && (ok || !reflect.DeepEqual(v, localityLbPolicyProp)) {
+		obj["localityLbPolicy"] = localityLbPolicyProp
+	}
 	nameProp, err := expandComputeRegionBackendServiceName(d.Get("name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
+	}
+	outlierDetectionProp, err := expandComputeRegionBackendServiceOutlierDetection(d.Get("outlier_detection"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("outlier_detection"); !isEmptyValue(reflect.ValueOf(outlierDetectionProp)) && (ok || !reflect.DeepEqual(v, outlierDetectionProp)) {
+		obj["outlierDetection"] = outlierDetectionProp
 	}
 	protocolProp, err := expandComputeRegionBackendServiceProtocol(d.Get("protocol"), d, config)
 	if err != nil {
@@ -447,6 +896,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("timeout_sec"); !isEmptyValue(reflect.ValueOf(timeoutSecProp)) && (ok || !reflect.DeepEqual(v, timeoutSecProp)) {
 		obj["timeoutSec"] = timeoutSecProp
+	}
+	logConfigProp, err := expandComputeRegionBackendServiceLogConfig(d.Get("log_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(logConfigProp)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
+		obj["logConfig"] = logConfigProp
 	}
 	networkProp, err := expandComputeRegionBackendServiceNetwork(d.Get("network"), d, config)
 	if err != nil {
@@ -524,7 +979,16 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 
+	if err := d.Set("affinity_cookie_ttl_sec", flattenComputeRegionBackendServiceAffinityCookieTtlSec(res["affinityCookieTtlSec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	if err := d.Set("backend", flattenComputeRegionBackendServiceBackend(res["backends"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("circuit_breakers", flattenComputeRegionBackendServiceCircuitBreakers(res["circuitBreakers"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("consistent_hash", flattenComputeRegionBackendServiceConsistentHash(res["consistentHash"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 	// Terraform must set the top level schema field, but since this object contains collapsed properties
@@ -546,6 +1010,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	if err := d.Set("description", flattenComputeRegionBackendServiceDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
+	if err := d.Set("failover_policy", flattenComputeRegionBackendServiceFailoverPolicy(res["failoverPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	if err := d.Set("fingerprint", flattenComputeRegionBackendServiceFingerprint(res["fingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
@@ -555,7 +1022,13 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	if err := d.Set("load_balancing_scheme", flattenComputeRegionBackendServiceLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
+	if err := d.Set("locality_lb_policy", flattenComputeRegionBackendServiceLocalityLbPolicy(res["localityLbPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	if err := d.Set("name", flattenComputeRegionBackendServiceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("outlier_detection", flattenComputeRegionBackendServiceOutlierDetection(res["outlierDetection"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 	if err := d.Set("protocol", flattenComputeRegionBackendServiceProtocol(res["protocol"], d, config)); err != nil {
@@ -565,6 +1038,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 	if err := d.Set("timeout_sec", flattenComputeRegionBackendServiceTimeoutSec(res["timeoutSec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("log_config", flattenComputeRegionBackendServiceLogConfig(res["logConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 	if err := d.Set("network", flattenComputeRegionBackendServiceNetwork(res["network"], d, config)); err != nil {
@@ -589,11 +1065,29 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	}
 
 	obj := make(map[string]interface{})
+	affinityCookieTtlSecProp, err := expandComputeRegionBackendServiceAffinityCookieTtlSec(d.Get("affinity_cookie_ttl_sec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("affinity_cookie_ttl_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, affinityCookieTtlSecProp)) {
+		obj["affinityCookieTtlSec"] = affinityCookieTtlSecProp
+	}
 	backendsProp, err := expandComputeRegionBackendServiceBackend(d.Get("backend"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("backend"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backendsProp)) {
 		obj["backends"] = backendsProp
+	}
+	circuitBreakersProp, err := expandComputeRegionBackendServiceCircuitBreakers(d.Get("circuit_breakers"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("circuit_breakers"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, circuitBreakersProp)) {
+		obj["circuitBreakers"] = circuitBreakersProp
+	}
+	consistentHashProp, err := expandComputeRegionBackendServiceConsistentHash(d.Get("consistent_hash"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("consistent_hash"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, consistentHashProp)) {
+		obj["consistentHash"] = consistentHashProp
 	}
 	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
 	if err != nil {
@@ -606,6 +1100,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	failoverPolicyProp, err := expandComputeRegionBackendServiceFailoverPolicy(d.Get("failover_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("failover_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, failoverPolicyProp)) {
+		obj["failoverPolicy"] = failoverPolicyProp
 	}
 	fingerprintProp, err := expandComputeRegionBackendServiceFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
@@ -625,11 +1125,23 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
 		obj["loadBalancingScheme"] = loadBalancingSchemeProp
 	}
+	localityLbPolicyProp, err := expandComputeRegionBackendServiceLocalityLbPolicy(d.Get("locality_lb_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("locality_lb_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, localityLbPolicyProp)) {
+		obj["localityLbPolicy"] = localityLbPolicyProp
+	}
 	nameProp, err := expandComputeRegionBackendServiceName(d.Get("name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
+	}
+	outlierDetectionProp, err := expandComputeRegionBackendServiceOutlierDetection(d.Get("outlier_detection"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("outlier_detection"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, outlierDetectionProp)) {
+		obj["outlierDetection"] = outlierDetectionProp
 	}
 	protocolProp, err := expandComputeRegionBackendServiceProtocol(d.Get("protocol"), d, config)
 	if err != nil {
@@ -648,6 +1160,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeoutSecProp)) {
 		obj["timeoutSec"] = timeoutSecProp
+	}
+	logConfigProp, err := expandComputeRegionBackendServiceLogConfig(d.Get("log_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
+		obj["logConfig"] = logConfigProp
 	}
 	networkProp, err := expandComputeRegionBackendServiceNetwork(d.Get("network"), d, config)
 	if err != nil {
@@ -744,6 +1262,23 @@ func resourceComputeRegionBackendServiceImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
+func flattenComputeRegionBackendServiceAffinityCookieTtlSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeRegionBackendServiceBackend(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -760,6 +1295,7 @@ func flattenComputeRegionBackendServiceBackend(v interface{}, d *schema.Resource
 			"balancing_mode":               flattenComputeRegionBackendServiceBackendBalancingMode(original["balancingMode"], d, config),
 			"capacity_scaler":              flattenComputeRegionBackendServiceBackendCapacityScaler(original["capacityScaler"], d, config),
 			"description":                  flattenComputeRegionBackendServiceBackendDescription(original["description"], d, config),
+			"failover":                     flattenComputeRegionBackendServiceBackendFailover(original["failover"], d, config),
 			"group":                        flattenComputeRegionBackendServiceBackendGroup(original["group"], d, config),
 			"max_connections":              flattenComputeRegionBackendServiceBackendMaxConnections(original["maxConnections"], d, config),
 			"max_connections_per_instance": flattenComputeRegionBackendServiceBackendMaxConnectionsPerInstance(original["maxConnectionsPerInstance"], d, config),
@@ -781,6 +1317,10 @@ func flattenComputeRegionBackendServiceBackendCapacityScaler(v interface{}, d *s
 }
 
 func flattenComputeRegionBackendServiceBackendDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceBackendFailover(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -871,6 +1411,224 @@ func flattenComputeRegionBackendServiceBackendMaxUtilization(v interface{}, d *s
 	return v
 }
 
+func flattenComputeRegionBackendServiceCircuitBreakers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["max_requests_per_connection"] =
+		flattenComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(original["maxRequestsPerConnection"], d, config)
+	transformed["max_connections"] =
+		flattenComputeRegionBackendServiceCircuitBreakersMaxConnections(original["maxConnections"], d, config)
+	transformed["max_pending_requests"] =
+		flattenComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(original["maxPendingRequests"], d, config)
+	transformed["max_requests"] =
+		flattenComputeRegionBackendServiceCircuitBreakersMaxRequests(original["maxRequests"], d, config)
+	transformed["max_retries"] =
+		flattenComputeRegionBackendServiceCircuitBreakersMaxRetries(original["maxRetries"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceCircuitBreakersMaxConnections(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceCircuitBreakersMaxRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceCircuitBreakersMaxRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceConsistentHash(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["http_cookie"] =
+		flattenComputeRegionBackendServiceConsistentHashHttpCookie(original["httpCookie"], d, config)
+	transformed["http_header_name"] =
+		flattenComputeRegionBackendServiceConsistentHashHttpHeaderName(original["httpHeaderName"], d, config)
+	transformed["minimum_ring_size"] =
+		flattenComputeRegionBackendServiceConsistentHashMinimumRingSize(original["minimumRingSize"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceConsistentHashHttpCookie(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ttl"] =
+		flattenComputeRegionBackendServiceConsistentHashHttpCookieTtl(original["ttl"], d, config)
+	transformed["name"] =
+		flattenComputeRegionBackendServiceConsistentHashHttpCookieName(original["name"], d, config)
+	transformed["path"] =
+		flattenComputeRegionBackendServiceConsistentHashHttpCookiePath(original["path"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["seconds"] =
+		flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(original["seconds"], d, config)
+	transformed["nanos"] =
+		flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlNanos(original["nanos"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceConsistentHashHttpCookieTtlNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceConsistentHashHttpCookieName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceConsistentHashHttpCookiePath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceConsistentHashHttpHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceConsistentHashMinimumRingSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeRegionBackendServiceConnectionDraining(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -909,6 +1667,35 @@ func flattenComputeRegionBackendServiceDescription(v interface{}, d *schema.Reso
 	return v
 }
 
+func flattenComputeRegionBackendServiceFailoverPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["disable_connection_drain_on_failover"] =
+		flattenComputeRegionBackendServiceFailoverPolicyDisableConnectionDrainOnFailover(original["disableConnectionDrainOnFailover"], d, config)
+	transformed["drop_traffic_if_unhealthy"] =
+		flattenComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(original["dropTrafficIfUnhealthy"], d, config)
+	transformed["failover_ratio"] =
+		flattenComputeRegionBackendServiceFailoverPolicyFailoverRatio(original["failoverRatio"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceFailoverPolicyDisableConnectionDrainOnFailover(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceFailoverPolicyFailoverRatio(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionBackendServiceFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -924,8 +1711,296 @@ func flattenComputeRegionBackendServiceLoadBalancingScheme(v interface{}, d *sch
 	return v
 }
 
+func flattenComputeRegionBackendServiceLocalityLbPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionBackendServiceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenComputeRegionBackendServiceOutlierDetection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["base_ejection_time"] =
+		flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTime(original["baseEjectionTime"], d, config)
+	transformed["consecutive_errors"] =
+		flattenComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(original["consecutiveErrors"], d, config)
+	transformed["consecutive_gateway_failure"] =
+		flattenComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure(original["consecutiveGatewayFailure"], d, config)
+	transformed["enforcing_consecutive_errors"] =
+		flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveErrors(original["enforcingConsecutiveErrors"], d, config)
+	transformed["enforcing_consecutive_gateway_failure"] =
+		flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFailure(original["enforcingConsecutiveGatewayFailure"], d, config)
+	transformed["enforcing_success_rate"] =
+		flattenComputeRegionBackendServiceOutlierDetectionEnforcingSuccessRate(original["enforcingSuccessRate"], d, config)
+	transformed["interval"] =
+		flattenComputeRegionBackendServiceOutlierDetectionInterval(original["interval"], d, config)
+	transformed["max_ejection_percent"] =
+		flattenComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(original["maxEjectionPercent"], d, config)
+	transformed["success_rate_minimum_hosts"] =
+		flattenComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(original["successRateMinimumHosts"], d, config)
+	transformed["success_rate_request_volume"] =
+		flattenComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(original["successRateRequestVolume"], d, config)
+	transformed["success_rate_stdev_factor"] =
+		flattenComputeRegionBackendServiceOutlierDetectionSuccessRateStdevFactor(original["successRateStdevFactor"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["seconds"] =
+		flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(original["seconds"], d, config)
+	transformed["nanos"] =
+		flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(original["nanos"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveErrors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFailure(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceOutlierDetectionEnforcingSuccessRate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceOutlierDetectionInterval(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["seconds"] =
+		flattenComputeRegionBackendServiceOutlierDetectionIntervalSeconds(original["seconds"], d, config)
+	transformed["nanos"] =
+		flattenComputeRegionBackendServiceOutlierDetectionIntervalNanos(original["nanos"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceOutlierDetectionIntervalSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceOutlierDetectionIntervalNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceOutlierDetectionSuccessRateStdevFactor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeRegionBackendServiceProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -953,6 +2028,29 @@ func flattenComputeRegionBackendServiceTimeoutSec(v interface{}, d *schema.Resou
 	return v // let terraform core handle it otherwise
 }
 
+func flattenComputeRegionBackendServiceLogConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable"] =
+		flattenComputeRegionBackendServiceLogConfigEnable(original["enable"], d, config)
+	transformed["sample_rate"] =
+		flattenComputeRegionBackendServiceLogConfigSampleRate(original["sampleRate"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceLogConfigEnable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceLogConfigSampleRate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionBackendServiceNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -965,6 +2063,10 @@ func flattenComputeRegionBackendServiceRegion(v interface{}, d *schema.ResourceD
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
+}
+
+func expandComputeRegionBackendServiceAffinityCookieTtlSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeRegionBackendServiceBackend(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -997,6 +2099,13 @@ func expandComputeRegionBackendServiceBackend(v interface{}, d TerraformResource
 			return nil, err
 		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
 			transformed["description"] = transformedDescription
+		}
+
+		transformedFailover, err := expandComputeRegionBackendServiceBackendFailover(original["failover"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFailover); val.IsValid() && !isEmptyValue(val) {
+			transformed["failover"] = transformedFailover
 		}
 
 		transformedGroup, err := expandComputeRegionBackendServiceBackendGroup(original["group"], d, config)
@@ -1072,6 +2181,10 @@ func expandComputeRegionBackendServiceBackendDescription(v interface{}, d Terraf
 	return v, nil
 }
 
+func expandComputeRegionBackendServiceBackendFailover(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeRegionBackendServiceBackendGroup(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1104,6 +2217,189 @@ func expandComputeRegionBackendServiceBackendMaxUtilization(v interface{}, d Ter
 	return v, nil
 }
 
+func expandComputeRegionBackendServiceCircuitBreakers(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMaxRequestsPerConnection, err := expandComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(original["max_requests_per_connection"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxRequestsPerConnection); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxRequestsPerConnection"] = transformedMaxRequestsPerConnection
+	}
+
+	transformedMaxConnections, err := expandComputeRegionBackendServiceCircuitBreakersMaxConnections(original["max_connections"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxConnections); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxConnections"] = transformedMaxConnections
+	}
+
+	transformedMaxPendingRequests, err := expandComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(original["max_pending_requests"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxPendingRequests); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxPendingRequests"] = transformedMaxPendingRequests
+	}
+
+	transformedMaxRequests, err := expandComputeRegionBackendServiceCircuitBreakersMaxRequests(original["max_requests"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxRequests); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxRequests"] = transformedMaxRequests
+	}
+
+	transformedMaxRetries, err := expandComputeRegionBackendServiceCircuitBreakersMaxRetries(original["max_retries"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxRetries); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxRetries"] = transformedMaxRetries
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceCircuitBreakersMaxRequestsPerConnection(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCircuitBreakersMaxConnections(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCircuitBreakersMaxPendingRequests(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCircuitBreakersMaxRequests(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCircuitBreakersMaxRetries(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceConsistentHash(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHttpCookie, err := expandComputeRegionBackendServiceConsistentHashHttpCookie(original["http_cookie"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHttpCookie); val.IsValid() && !isEmptyValue(val) {
+		transformed["httpCookie"] = transformedHttpCookie
+	}
+
+	transformedHttpHeaderName, err := expandComputeRegionBackendServiceConsistentHashHttpHeaderName(original["http_header_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHttpHeaderName); val.IsValid() && !isEmptyValue(val) {
+		transformed["httpHeaderName"] = transformedHttpHeaderName
+	}
+
+	transformedMinimumRingSize, err := expandComputeRegionBackendServiceConsistentHashMinimumRingSize(original["minimum_ring_size"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinimumRingSize); val.IsValid() && !isEmptyValue(val) {
+		transformed["minimumRingSize"] = transformedMinimumRingSize
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceConsistentHashHttpCookie(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTtl, err := expandComputeRegionBackendServiceConsistentHashHttpCookieTtl(original["ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTtl); val.IsValid() && !isEmptyValue(val) {
+		transformed["ttl"] = transformedTtl
+	}
+
+	transformedName, err := expandComputeRegionBackendServiceConsistentHashHttpCookieName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedPath, err := expandComputeRegionBackendServiceConsistentHashHttpCookiePath(original["path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !isEmptyValue(val) {
+		transformed["path"] = transformedPath
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceConsistentHashHttpCookieTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSeconds, err := expandComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	transformedNanos, err := expandComputeRegionBackendServiceConsistentHashHttpCookieTtlNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceConsistentHashHttpCookieTtlSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceConsistentHashHttpCookieTtlNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceConsistentHashHttpCookieName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceConsistentHashHttpCookiePath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceConsistentHashHttpHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceConsistentHashMinimumRingSize(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeRegionBackendServiceConnectionDraining(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
 	transformedConnectionDrainingTimeoutSec, err := expandComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(d.Get("connection_draining_timeout_sec"), d, config)
@@ -1124,6 +2420,51 @@ func expandComputeRegionBackendServiceDescription(v interface{}, d TerraformReso
 	return v, nil
 }
 
+func expandComputeRegionBackendServiceFailoverPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDisableConnectionDrainOnFailover, err := expandComputeRegionBackendServiceFailoverPolicyDisableConnectionDrainOnFailover(original["disable_connection_drain_on_failover"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisableConnectionDrainOnFailover); val.IsValid() && !isEmptyValue(val) {
+		transformed["disableConnectionDrainOnFailover"] = transformedDisableConnectionDrainOnFailover
+	}
+
+	transformedDropTrafficIfUnhealthy, err := expandComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(original["drop_traffic_if_unhealthy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDropTrafficIfUnhealthy); val.IsValid() && !isEmptyValue(val) {
+		transformed["dropTrafficIfUnhealthy"] = transformedDropTrafficIfUnhealthy
+	}
+
+	transformedFailoverRatio, err := expandComputeRegionBackendServiceFailoverPolicyFailoverRatio(original["failover_ratio"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFailoverRatio); val.IsValid() && !isEmptyValue(val) {
+		transformed["failoverRatio"] = transformedFailoverRatio
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceFailoverPolicyDisableConnectionDrainOnFailover(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceFailoverPolicyFailoverRatio(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeRegionBackendServiceFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1137,7 +2478,204 @@ func expandComputeRegionBackendServiceLoadBalancingScheme(v interface{}, d Terra
 	return v, nil
 }
 
+func expandComputeRegionBackendServiceLocalityLbPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeRegionBackendServiceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetection(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBaseEjectionTime, err := expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTime(original["base_ejection_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBaseEjectionTime); val.IsValid() && !isEmptyValue(val) {
+		transformed["baseEjectionTime"] = transformedBaseEjectionTime
+	}
+
+	transformedConsecutiveErrors, err := expandComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(original["consecutive_errors"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConsecutiveErrors); val.IsValid() && !isEmptyValue(val) {
+		transformed["consecutiveErrors"] = transformedConsecutiveErrors
+	}
+
+	transformedConsecutiveGatewayFailure, err := expandComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure(original["consecutive_gateway_failure"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConsecutiveGatewayFailure); val.IsValid() && !isEmptyValue(val) {
+		transformed["consecutiveGatewayFailure"] = transformedConsecutiveGatewayFailure
+	}
+
+	transformedEnforcingConsecutiveErrors, err := expandComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveErrors(original["enforcing_consecutive_errors"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnforcingConsecutiveErrors); val.IsValid() && !isEmptyValue(val) {
+		transformed["enforcingConsecutiveErrors"] = transformedEnforcingConsecutiveErrors
+	}
+
+	transformedEnforcingConsecutiveGatewayFailure, err := expandComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFailure(original["enforcing_consecutive_gateway_failure"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnforcingConsecutiveGatewayFailure); val.IsValid() && !isEmptyValue(val) {
+		transformed["enforcingConsecutiveGatewayFailure"] = transformedEnforcingConsecutiveGatewayFailure
+	}
+
+	transformedEnforcingSuccessRate, err := expandComputeRegionBackendServiceOutlierDetectionEnforcingSuccessRate(original["enforcing_success_rate"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnforcingSuccessRate); val.IsValid() && !isEmptyValue(val) {
+		transformed["enforcingSuccessRate"] = transformedEnforcingSuccessRate
+	}
+
+	transformedInterval, err := expandComputeRegionBackendServiceOutlierDetectionInterval(original["interval"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInterval); val.IsValid() && !isEmptyValue(val) {
+		transformed["interval"] = transformedInterval
+	}
+
+	transformedMaxEjectionPercent, err := expandComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(original["max_ejection_percent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxEjectionPercent); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxEjectionPercent"] = transformedMaxEjectionPercent
+	}
+
+	transformedSuccessRateMinimumHosts, err := expandComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(original["success_rate_minimum_hosts"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSuccessRateMinimumHosts); val.IsValid() && !isEmptyValue(val) {
+		transformed["successRateMinimumHosts"] = transformedSuccessRateMinimumHosts
+	}
+
+	transformedSuccessRateRequestVolume, err := expandComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(original["success_rate_request_volume"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSuccessRateRequestVolume); val.IsValid() && !isEmptyValue(val) {
+		transformed["successRateRequestVolume"] = transformedSuccessRateRequestVolume
+	}
+
+	transformedSuccessRateStdevFactor, err := expandComputeRegionBackendServiceOutlierDetectionSuccessRateStdevFactor(original["success_rate_stdev_factor"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSuccessRateStdevFactor); val.IsValid() && !isEmptyValue(val) {
+		transformed["successRateStdevFactor"] = transformedSuccessRateStdevFactor
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSeconds, err := expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	transformedNanos, err := expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionBaseEjectionTimeNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionConsecutiveErrors(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionConsecutiveGatewayFailure(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveErrors(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionEnforcingConsecutiveGatewayFailure(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionEnforcingSuccessRate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionInterval(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSeconds, err := expandComputeRegionBackendServiceOutlierDetectionIntervalSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !isEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	transformedNanos, err := expandComputeRegionBackendServiceOutlierDetectionIntervalNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !isEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionIntervalSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionIntervalNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionMaxEjectionPercent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionSuccessRateMinimumHosts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionSuccessRateRequestVolume(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceOutlierDetectionSuccessRateStdevFactor(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1150,6 +2688,40 @@ func expandComputeRegionBackendServiceSessionAffinity(v interface{}, d Terraform
 }
 
 func expandComputeRegionBackendServiceTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceLogConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnable, err := expandComputeRegionBackendServiceLogConfigEnable(original["enable"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnable); val.IsValid() && !isEmptyValue(val) {
+		transformed["enable"] = transformedEnable
+	}
+
+	transformedSampleRate, err := expandComputeRegionBackendServiceLogConfigSampleRate(original["sample_rate"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSampleRate); val.IsValid() && !isEmptyValue(val) {
+		transformed["sampleRate"] = transformedSampleRate
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceLogConfigEnable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceLogConfigSampleRate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
