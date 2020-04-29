@@ -280,7 +280,7 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 		}
 
 		log.Printf("[DEBUG] Waiting for network creation to finish")
-		err = computeOperationWaitTime(config, res, project, "Error bootstrapping shared test network", 4)
+		err = computeOperationWaitTime(config, res, project, "Error bootstrapping shared test network", 4*time.Minute)
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared test network %q: %s", networkName, err)
 		}
