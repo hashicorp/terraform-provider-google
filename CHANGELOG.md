@@ -1,4 +1,42 @@
 ## 3.20.0 (Unreleased)
+
+FEATURES:
+* **New Resource:** `google_healthcare_dataset_iam_binding` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
+* **New Resource:** `google_healthcare_dataset_iam_member` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
+* **New Resource:** `google_healthcare_dataset_iam_policy` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
+* **New Resource:** `google_healthcare_dataset` is now GA ([#6164](https://github.com/terraform-providers/terraform-provider-google/pull/6164))
+* **New Resource:** `google_healthcare_dicom_store_iam_binding` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
+* **New Resource:** `google_healthcare_dicom_store_iam_member` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
+* **New Resource:** `google_healthcare_dicom_store_iam_policy` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
+* **New Resource:** `google_healthcare_dicom_store` is now GA ([#6164](https://github.com/terraform-providers/terraform-provider-google/pull/6164))
+* **New Resource:** `google_healthcare_fhir_store_iam_binding` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
+* **New Resource:** `google_healthcare_fhir_store_iam_member` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
+* **New Resource:** `google_healthcare_fhir_store_iam_policy` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
+* **New Resource:** `google_healthcare_fhir_store` is now GA ([#6164](https://github.com/terraform-providers/terraform-provider-google/pull/6164))
+* **New Resource:** `google_healthcare_hl7_v2_store_iam_binding` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
+* **New Resource:** `google_healthcare_hl7_v2_store_iam_member` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
+* **New Resource:** `google_healthcare_hl7_v2_store_iam_policy` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
+* **New Resource:** `google_healthcare_hl7_v2_store` is now GA ([#6164](https://github.com/terraform-providers/terraform-provider-google/pull/6164))
+* **New Resource:** `google_logging_billing_account_bucket_config` ([#6227](https://github.com/terraform-providers/terraform-provider-google/pull/6227))
+* **New Resource:** `google_logging_folder_bucket_config` ([#6227](https://github.com/terraform-providers/terraform-provider-google/pull/6227))
+* **New Resource:** `google_logging_organization_bucket_config` ([#6227](https://github.com/terraform-providers/terraform-provider-google/pull/6227))
+* **New Resource:** `google_logging_project_bucket_config` ([#6227](https://github.com/terraform-providers/terraform-provider-google/pull/6227))
+
+IMPROVEMENTS:
+* appengine: Added `automatic_scaling`, `basic_scaling`, and `manual_scaling` to `google_app_engine_standard_app_version` ([#6183](https://github.com/terraform-providers/terraform-provider-google/pull/6183))
+* bigquery: added `service_account_name` field to `google_bigquery_data_transfer_config` resource ([#6221](https://github.com/terraform-providers/terraform-provider-google/pull/6221))
+* bigtable: added ability to add/remove column families in `google_bigtable_table` ([#6188](https://github.com/terraform-providers/terraform-provider-google/pull/6188))
+* cloudfunctions: Added validation to label keys for `google_cloudfunctions_function` as API errors aren't useful. ([#6228](https://github.com/terraform-providers/terraform-provider-google/pull/6228))
+* compute: Added support for default URL redirects to `google_compute_url_map` and `google_compute_region_url_map` ([#6203](https://github.com/terraform-providers/terraform-provider-google/pull/6203))
+* compute: Made `google_compute_region_url_map` and `google_compute_url_map` field `strip_query` optional and default false ([#6186](https://github.com/terraform-providers/terraform-provider-google/pull/6186))
+* dataflow: Add support for `additional_experiments` to `google_dataflow_job` ([#6196](https://github.com/terraform-providers/terraform-provider-google/pull/6196))
+
+BUG FIXES:
+* accesscontextmanager: Fixed setting `require_screen_lock` to true for `google_access_context_manager_access_level` ([#6234](https://github.com/terraform-providers/terraform-provider-google/pull/6234))
+* appengine: Changed `google_app_engine_application` to respect updates in `iap` ([#6216](https://github.com/terraform-providers/terraform-provider-google/pull/6216))
+* sql: Allowed `binary_log_enabled` to be disabled. ([#6163](https://github.com/terraform-providers/terraform-provider-google/pull/6163))
+* storage: Added retries for `google_storage_bucket_iam_*` on 412 (precondition not met) errors for eventually consistent bucket creation. ([#6235](https://github.com/terraform-providers/terraform-provider-google/pull/6235))
+
 ## 3.19.0 (April 27, 2020)
 
 FEATURES:
