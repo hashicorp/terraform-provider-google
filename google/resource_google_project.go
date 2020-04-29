@@ -497,7 +497,7 @@ func deleteComputeNetwork(project, network string, config *Config) error {
 		return errwrap.Wrapf("Error deleting network: {{err}}", err)
 	}
 
-	err = computeOperationWaitTime(config, op, project, "Deleting Network", 10)
+	err = computeOperationWaitTime(config, op, project, "Deleting Network", 10*time.Minute)
 	if err != nil {
 		return err
 	}
