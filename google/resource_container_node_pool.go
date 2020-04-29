@@ -541,6 +541,7 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 	// instance groups instead. They should all have the same size, but in case a resize
 	// failed or something else strange happened, we'll just use the average size.
 	size := 0
+	igmUrls := []string{}
 	for _, url := range np.InstanceGroupUrls {
 		// retrieve instance group manager (InstanceGroupUrls are actually URLs for InstanceGroupManagers)
 		matches := instanceGroupManagerURL.FindStringSubmatch(url)
@@ -548,18 +549,27 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 			return nil, fmt.Errorf("Error reading instance group manage URL '%q'", url)
 		}
 		igm, err := config.clientComputeBeta.InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
+		if isGoogleApiErrorWithCode(err, 404) {
+			// The IGM URL in is stale; don't include it
+			continue
+		}
 		if err != nil {
 			return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %q", err)
 		}
 		size += int(igm.TargetSize)
+		igmUrls = append(igmUrls, url)
+	}
+	nodeCount := 0
+	if len(igmUrls) > 0 {
+		nodeCount = size / len(igmUrls)
 	}
 	nodePool := map[string]interface{}{
 		"name":                np.Name,
 		"name_prefix":         d.Get(prefix + "name_prefix"),
 		"initial_node_count":  np.InitialNodeCount,
-		"node_count":          size / len(np.InstanceGroupUrls),
+		"node_count":          nodeCount,
 		"node_config":         flattenNodeConfig(np.Config),
-		"instance_group_urls": np.InstanceGroupUrls,
+		"instance_group_urls": igmUrls,
 		"version":             np.Version,
 	}
 
