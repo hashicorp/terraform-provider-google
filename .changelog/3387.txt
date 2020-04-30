@@ -1,0 +1,6 @@
+```release-note:enhancement
+dataflow: Added support for update-by-replacement to `google_dataflow_job`
+```
+```release-note:enhancement
+dataflow: Added drift detection for `google_dataflow_job` `template_gcs_path` and `temp_gcs_location` fields
+```
