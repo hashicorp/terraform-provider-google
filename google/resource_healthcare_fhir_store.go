@@ -59,6 +59,13 @@ func resourceHealthcareFhirStore() *schema.Resource {
 
 ** Changing this property may recreate the FHIR store (removing all data) **`,
 			},
+			"version": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"DSTU2", "STU3", "R4"}, false),
+				Description:  `The FHIR specification version. Possible values: ["DSTU2", "STU3", "R4"]`,
+			},
 			"disable_referential_integrity": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -142,14 +149,6 @@ Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that s
 						},
 					},
 				},
-			},
-			"version": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"DSTU2", "STU3", "R4", ""}, false),
-				Description:  `The FHIR specification version. Default value: "STU3" Possible values: ["DSTU2", "STU3", "R4"]`,
-				Default:      "STU3",
 			},
 			"self_link": {
 				Type:        schema.TypeString,
