@@ -240,7 +240,7 @@ The required `settings` block supports:
     for information on how to upgrade to Second Generation instances.
     A list of Google App Engine (GAE) project names that are allowed to access this instance.
 
-* `availability_type` - (Optional) This specifies whether a PostgreSQL instance
+* `availability_type` - (Optional) This specifies whether a Cloud SQL instance
     should be set up for high availability (`REGIONAL`) or single zone (`ZONAL`).
 
 * `crash_safe_replication` - (Optional, Deprecated) This property is only applicable to First Generation instances.
