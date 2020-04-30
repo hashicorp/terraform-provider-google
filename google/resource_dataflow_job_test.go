@@ -15,6 +15,7 @@ import (
 const (
 	testDataflowJobTemplateWordCountUrl = "gs://dataflow-templates/latest/Word_Count"
 	testDataflowJobSampleFileUrl        = "gs://dataflow-samples/shakespeare/various.txt"
+	testDataflowJobTemplateTextToPubsub = "gs://dataflow-templates/latest/Stream_GCS_Text_to_Cloud_PubSub"
 )
 
 func TestAccDataflowJob_basic(t *testing.T) {
@@ -200,6 +201,31 @@ func TestAccDataflowJobWithAdditionalExperiments(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataflowJobExists(t, "google_dataflow_job.with_additional_experiments"),
 					testAccDataflowJobHasExperiments(t, "google_dataflow_job.with_additional_experiments", additionalExperiments),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataflowJob_streamUpdate(t *testing.T) {
+	t.Parallel()
+
+	suffix := randString(t, 10)
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataflowJob_updateStream(suffix, "google_storage_bucket.bucket1.url"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataflowJobExists(t, "google_dataflow_job.pubsub_stream"),
+				),
+			},
+			{
+				Config: testAccDataflowJob_updateStream(suffix, "google_storage_bucket.bucket2.url"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataflowJobHasTempLocation(t, "google_dataflow_job.pubsub_stream", "gs://tf-test-bucket2-"+suffix),
 				),
 			},
 		},
@@ -441,6 +467,36 @@ func testAccDataflowJobHasExperiments(t *testing.T, res string, experiments []st
 	}
 }
 
+func testAccDataflowJobHasTempLocation(t *testing.T, res, targetLocation string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[res]
+		if !ok {
+			return fmt.Errorf("resource %q not found in state", res)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+		config := googleProviderConfig(t)
+
+		job, err := config.clientDataflow.Projects.Jobs.Get(config.Project, rs.Primary.ID).View("JOB_VIEW_ALL").Do()
+		if err != nil {
+			return fmt.Errorf("dataflow job does not exist")
+		}
+		sdkPipelineOptions, err := ConvertToMap(job.Environment.SdkPipelineOptions)
+		if err != nil {
+			return err
+		}
+		optionsMap := sdkPipelineOptions["options"].(map[string]interface{})
+
+		if optionsMap["tempLocation"] != targetLocation {
+			return fmt.Errorf("Temp locations do not match. Got %s while expecting %s", optionsMap["tempLocation"], targetLocation)
+		}
+
+		return nil
+	}
+}
+
 func testAccDataflowJob_zone(bucket, job, zone string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "temp" {
@@ -662,5 +718,30 @@ resource "google_dataflow_job" "with_additional_experiments" {
   on_delete = "cancel"
 }
 `, bucket, job, strings.Join(experiments, `", "`), testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+}
 
+func testAccDataflowJob_updateStream(suffix, tempLocation string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "topic" {
+	name     = "tf-test-dataflow-job-%s"
+}
+resource "google_storage_bucket" "bucket1" {
+	name = "tf-test-bucket1-%s"
+	force_destroy = true
+}
+resource "google_storage_bucket" "bucket2" {
+	name = "tf-test-bucket2-%s"
+	force_destroy = true
+}
+resource "google_dataflow_job" "pubsub_stream" {
+	name = "tf-test-dataflow-job-%s"
+	template_gcs_path = "%s"
+	temp_gcs_location = %s
+	parameters = {
+	  inputFilePattern = "${google_storage_bucket.bucket1.url}/*.json"
+	  outputTopic    = google_pubsub_topic.topic.id
+	}
+	on_delete = "cancel"
+}
+  `, suffix, suffix, suffix, suffix, testDataflowJobTemplateTextToPubsub, tempLocation)
 }

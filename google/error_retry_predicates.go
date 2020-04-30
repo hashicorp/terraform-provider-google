@@ -222,3 +222,12 @@ func isStoragePreconditionError(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+func isDataflowJobUpdateRetryableError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 404 && strings.Contains(gerr.Body, "in RUNNING OR DRAINING state") {
+			return true, "Waiting for job to be in a valid state"
+		}
+	}
+	return false, ""
+}
