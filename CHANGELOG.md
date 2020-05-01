@@ -28,7 +28,6 @@ IMPROVEMENTS:
 * bigtable: added ability to add/remove column families in `google_bigtable_table` ([#6188](https://github.com/terraform-providers/terraform-provider-google/pull/6188))
 * cloudfunctions: Added validation to label keys for `google_cloudfunctions_function` as API errors aren't useful. ([#6228](https://github.com/terraform-providers/terraform-provider-google/pull/6228))
 * compute: Added support for default URL redirects to `google_compute_url_map` and `google_compute_region_url_map` ([#6203](https://github.com/terraform-providers/terraform-provider-google/pull/6203))
-* compute: Made `google_compute_region_url_map` and `google_compute_url_map` field `strip_query` optional and default false ([#6186](https://github.com/terraform-providers/terraform-provider-google/pull/6186))
 * dataflow: Add support for `additional_experiments` to `google_dataflow_job` ([#6196](https://github.com/terraform-providers/terraform-provider-google/pull/6196))
 
 BUG FIXES:
