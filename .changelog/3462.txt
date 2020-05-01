@@ -1,0 +1,3 @@
+```release-note:bug
+storage: Marked the credentials field in `google_storage_object_signed_url` as sensitive so it doesn't expose private credentials.
+```
