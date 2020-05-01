@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed issue where the default value for the attribute `advertise_mode` on `google_compte_router_peer` was not populated on import
+```

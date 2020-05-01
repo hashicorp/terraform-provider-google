@@ -525,6 +525,10 @@ func flattenNestedComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d *
 }
 
 func flattenNestedComputeRouterBgpPeerAdvertiseMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return "DEFAULT"
+	}
+
 	return v
 }
 
