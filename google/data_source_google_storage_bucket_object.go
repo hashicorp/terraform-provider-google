@@ -49,6 +49,7 @@ func dataSourceGoogleStorageBucketObjectRead(d *schema.ResourceData, meta interf
 	d.Set("self_link", res["selfLink"])
 	d.Set("storage_class", res["storageClass"])
 	d.Set("md5hash", res["md5Hash"])
+	d.Set("metadata", res["metadata"])
 
 	d.SetId(bucket + "-" + name)
 
