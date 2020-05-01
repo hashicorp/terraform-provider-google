@@ -70,6 +70,14 @@ defaultRouteAction must not be set.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"strip_query": {
+							Type:     schema.TypeBool,
+							Required: true,
+							Description: `If set to true, any accompanying query portion of the original URL is removed prior
+to redirecting the request. If set to false, the query portion of the original URL is
+retained. The default is set to false.
+ This field is required to ensure an empty block is not set. The normal default value is false.`,
+						},
 						"host_redirect": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -115,14 +123,6 @@ the redirect. The value must be between 1 and 1024 characters.`,
 will be retained.
 - PERMANENT_REDIRECT, which corresponds to 308. In this case,
 the request method will be retained. Possible values: ["FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT"]`,
-						},
-						"strip_query": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Description: `If set to true, any accompanying query portion of the original URL is removed prior
-to redirecting the request. If set to false, the query portion of the original URL is
-retained. The default is set to false.`,
-							Default: false,
 						},
 					},
 				},
@@ -255,6 +255,14 @@ defaultRouteAction must not be set.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"strip_query": {
+										Type:     schema.TypeBool,
+										Required: true,
+										Description: `If set to true, any accompanying query portion of the original URL is removed prior
+to redirecting the request. If set to false, the query portion of the original URL is
+retained.
+ This field is required to ensure an empty block is not set. The normal default value is false.`,
+									},
 									"host_redirect": {
 										Type:     schema.TypeString,
 										Optional: true,
@@ -300,14 +308,6 @@ the redirect. The value must be between 1 and 1024 characters.`,
 will be retained.
 - PERMANENT_REDIRECT, which corresponds to 308. In this case,
 the request method will be retained. Possible values: ["FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT"]`,
-									},
-									"strip_query": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Description: `If set to true, any accompanying query portion of the original URL is removed prior
-to redirecting the request. If set to false, the query portion of the original URL is
-retained. The default is set to false.`,
-										Default: false,
 									},
 								},
 							},
@@ -862,6 +862,14 @@ be set.`,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"strip_query": {
+													Type:     schema.TypeBool,
+													Required: true,
+													Description: `If set to true, any accompanying query portion of the original URL is
+removed prior to redirecting the request. If set to false, the query
+portion of the original URL is retained.
+ This field is required to ensure an empty block is not set. The normal default value is false.`,
+												},
 												"host_redirect": {
 													Type:     schema.TypeString,
 													Optional: true,
@@ -910,14 +918,6 @@ must be between 1 and 1024 characters.`,
 will be retained.
 - PERMANENT_REDIRECT, which corresponds to 308. In this case,
 the request method will be retained. Possible values: ["FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT"]`,
-												},
-												"strip_query": {
-													Type:     schema.TypeBool,
-													Optional: true,
-													Description: `If set to true, any accompanying query portion of the original URL is
-removed prior to redirecting the request. If set to false, the query
-portion of the original URL is retained. The default is set to false.`,
-													Default: false,
 												},
 											},
 										},

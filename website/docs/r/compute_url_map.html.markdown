@@ -1090,10 +1090,11 @@ The `url_redirect` block supports:
   * `TEMPORARY_REDIRECT`
 
 * `strip_query` -
-  (Optional)
+  (Required)
   If set to true, any accompanying query portion of the original URL is
   removed prior to redirecting the request. If set to false, the query
-  portion of the original URL is retained. The default is set to false.
+  portion of the original URL is retained.
+   This field is required to ensure an empty block is not set. The normal default value is false.
 
 The `route_rules` block supports:
 
@@ -1788,10 +1789,11 @@ The `default_url_redirect` block supports:
   * `TEMPORARY_REDIRECT`
 
 * `strip_query` -
-  (Optional)
+  (Required)
   If set to true, any accompanying query portion of the original URL is removed prior
   to redirecting the request. If set to false, the query portion of the original URL is
-  retained. The default is set to false.
+  retained.
+   This field is required to ensure an empty block is not set. The normal default value is false.
 
 The `test` block supports:
 
@@ -1860,10 +1862,11 @@ The `default_url_redirect` block supports:
   * `TEMPORARY_REDIRECT`
 
 * `strip_query` -
-  (Optional)
+  (Required)
   If set to true, any accompanying query portion of the original URL is removed prior
   to redirecting the request. If set to false, the query portion of the original URL is
   retained. The default is set to false.
+   This field is required to ensure an empty block is not set. The normal default value is false.
 
 ## Attributes Reference
 
