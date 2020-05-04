@@ -101,6 +101,7 @@ resource "google_compute_url_map" "default" {
   name            = "url-map"
   default_url_redirect {
     https_redirect = true
+    strip_query    = false
   }
 }
 ```

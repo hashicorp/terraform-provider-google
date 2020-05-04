@@ -127,6 +127,7 @@ resource "google_compute_url_map" "default" {
   name            = "tf-test-url-map%{random_suffix}"
   default_url_redirect {
     https_redirect = true
+    strip_query    = false
   }
 }
 `, context)

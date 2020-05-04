@@ -848,6 +848,7 @@ resource "google_compute_region_url_map" "foobar" {
   name            = "urlmap-test-%s"
   default_url_redirect {
     https_redirect = true
+    strip_query    = false
   }
 }
 `, randomSuffix)
