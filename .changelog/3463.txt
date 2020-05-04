@@ -1,0 +1,3 @@
+```release-note:bug
+cloudscheduler: Fixed permadiff for `google_cloud_scheduler_job.retry_config.*` block when API provides default values
+```
