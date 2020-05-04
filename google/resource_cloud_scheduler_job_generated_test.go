@@ -102,6 +102,10 @@ resource "google_cloud_scheduler_job" "job" {
   time_zone        = "America/New_York"
   attempt_deadline = "320s"
 
+  retry_config {
+    retry_count = 1
+  }
+
   http_target {
     http_method = "POST"
     uri         = "https://example.com/ping"
@@ -143,6 +147,13 @@ resource "google_cloud_scheduler_job" "job" {
   description      = "test app engine job"
   time_zone        = "Europe/London"
   attempt_deadline = "320s"
+
+  retry_config {
+    min_backoff_duration = "1s"
+    max_retry_duration = "10s"
+    max_doublings = 2
+    retry_count = 3
+  }
 
   app_engine_http_target {
     http_method = "POST"

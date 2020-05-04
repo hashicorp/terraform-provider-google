@@ -357,6 +357,7 @@ then it will be retried with exponential backoff according to the settings`,
 					Schema: map[string]*schema.Schema{
 						"max_backoff_duration": {
 							Type:     schema.TypeString,
+							Computed: true,
 							Optional: true,
 							ForceNew: true,
 							Description: `The maximum amount of time to wait before retrying a job after it fails.
@@ -365,6 +366,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 						},
 						"max_doublings": {
 							Type:     schema.TypeInt,
+							Computed: true,
 							Optional: true,
 							ForceNew: true,
 							Description: `The time between retries will double maxDoublings times.
@@ -375,6 +377,7 @@ and finally retries retries at intervals of maxBackoffDuration up to retryCount 
 						},
 						"max_retry_duration": {
 							Type:     schema.TypeString,
+							Computed: true,
 							Optional: true,
 							ForceNew: true,
 							Description: `The time limit for retrying a failed job, measured from time when an execution was first attempted. 
@@ -384,6 +387,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 						},
 						"min_backoff_duration": {
 							Type:     schema.TypeString,
+							Computed: true,
 							Optional: true,
 							ForceNew: true,
 							Description: `The minimum amount of time to wait before retrying a job after it fails.
@@ -392,6 +396,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 						},
 						"retry_count": {
 							Type:     schema.TypeInt,
+							Computed: true,
 							Optional: true,
 							ForceNew: true,
 							Description: `The number of attempts that the system will make to run a 
