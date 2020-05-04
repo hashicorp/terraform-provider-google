@@ -123,6 +123,7 @@ resource "google_healthcare_fhir_store" "default" {
   disable_referential_integrity = false
   disable_resource_versioning   = false
   enable_history_import         = false
+  version                       = "R4"
 }
 
 resource "google_healthcare_dataset" "dataset" {
@@ -139,6 +140,8 @@ resource "google_healthcare_fhir_store" "default" {
   dataset  = google_healthcare_dataset.dataset.id
 
   enable_update_create = true
+  version              = "R4"
+
 
   notification_config {
     pubsub_topic = google_pubsub_topic.topic.id
