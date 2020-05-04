@@ -54,16 +54,16 @@ resource "google_compute_forwarding_rule" "default" {
   name                  = "tf-test-website-forwarding-rule%{random_suffix}"
   region                = "us-central1"
   load_balancing_scheme = "INTERNAL"
-  backend_service       = "${google_compute_region_backend_service.backend.self_link}"
+  backend_service       = google_compute_region_backend_service.backend.id
   all_ports             = true
   allow_global_access   = true
-  network               = "${google_compute_network.default.name}"
-  subnetwork            = "${google_compute_subnetwork.default.name}"
+  network               = google_compute_network.default.name
+  subnetwork            = google_compute_subnetwork.default.name
 }
 resource "google_compute_region_backend_service" "backend" {
   name                  = "tf-test-website-backend%{random_suffix}"
   region                = "us-central1"
-  health_checks         = ["${google_compute_health_check.hc.self_link}"]
+  health_checks         = [google_compute_health_check.hc.id]
 }
 resource "google_compute_health_check" "hc" {
   name               = "check-tf-test-website-backend%{random_suffix}"
@@ -81,7 +81,7 @@ resource "google_compute_subnetwork" "default" {
   name          = "tf-test-website-net%{random_suffix}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = "${google_compute_network.default.self_link}"
+  network       = google_compute_network.default.id
 }
 `, context)
 }
@@ -114,7 +114,7 @@ func testAccComputeForwardingRule_forwardingRuleBasicExample(context map[string]
 	return Nprintf(`
 resource "google_compute_forwarding_rule" "default" {
   name       = "tf-test-website-forwarding-rule%{random_suffix}"
-  target     = google_compute_target_pool.default.self_link
+  target     = google_compute_target_pool.default.id
   port_range = "80"
 }
 
@@ -156,7 +156,7 @@ resource "google_compute_forwarding_rule" "default" {
   region = "us-central1"
 
   load_balancing_scheme = "INTERNAL"
-  backend_service       = google_compute_region_backend_service.backend.self_link
+  backend_service       = google_compute_region_backend_service.backend.id
   all_ports             = true
   network               = google_compute_network.default.name
   subnetwork            = google_compute_subnetwork.default.name
@@ -165,7 +165,7 @@ resource "google_compute_forwarding_rule" "default" {
 resource "google_compute_region_backend_service" "backend" {
   name          = "tf-test-website-backend%{random_suffix}"
   region        = "us-central1"
-  health_checks = [google_compute_health_check.hc.self_link]
+  health_checks = [google_compute_health_check.hc.id]
 }
 
 resource "google_compute_health_check" "hc" {
@@ -187,7 +187,7 @@ resource "google_compute_subnetwork" "default" {
   name          = "tf-test-website-net%{random_suffix}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.default.self_link
+  network       = google_compute_network.default.id
 }
 `, context)
 }
