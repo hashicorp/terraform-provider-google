@@ -15,7 +15,7 @@ require (
 	github.com/hashicorp/go-cleanhttp v0.5.1
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/hashicorp/go-version v1.2.0
-	github.com/hashicorp/terraform-plugin-sdk v1.4.0
+	github.com/hashicorp/terraform-plugin-sdk v1.11.0
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/sirupsen/logrus v1.2.0 // indirect
 	github.com/stoewer/go-strcase v1.0.2
