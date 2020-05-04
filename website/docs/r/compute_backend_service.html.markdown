@@ -51,7 +51,7 @@ state as plain-text. [Read more about sensitive data in state](/docs/state/sensi
 ```hcl
 resource "google_compute_backend_service" "default" {
   name          = "backend-service"
-  health_checks = [google_compute_http_health_check.default.self_link]
+  health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
@@ -74,7 +74,7 @@ resource "google_compute_backend_service" "default" {
   provider = google-beta
 
   name                  = "backend-service"
-  health_checks         = [google_compute_health_check.health_check.self_link]
+  health_checks         = [google_compute_health_check.health_check.id]
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
   locality_lb_policy    = "ROUND_ROBIN"
 }
@@ -101,7 +101,7 @@ resource "google_compute_backend_service" "default" {
   provider = google-beta
 
   name                  = "backend-service"
-  health_checks         = [google_compute_health_check.health_check.self_link]
+  health_checks         = [google_compute_health_check.health_check.id]
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
   locality_lb_policy    = "RING_HASH"
   session_affinity      = "HTTP_COOKIE"

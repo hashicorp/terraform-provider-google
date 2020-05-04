@@ -56,14 +56,14 @@ resource "google_compute_backend_service" "example_backend" {
     group = google_compute_instance_group_manager.webservers.instance_group
   }
 
-  health_checks = [google_compute_http_health_check.default.self_link]
+  health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_instance_group_manager" "webservers" {
   name               = "my-webservers"
 
   version {
-    instance_template  = google_compute_instance_template.webserver.self_link
+    instance_template  = google_compute_instance_template.webserver.id
     name               = "primary"
   }
 
