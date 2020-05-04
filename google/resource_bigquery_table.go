@@ -162,16 +162,22 @@ func resourceBigQueryTable() *schema.Resource {
 									// Range: [Optional] Range of a sheet to query from. Only used when non-empty.
 									// Typical format: !:
 									"range": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										AtLeastOneOf: []string{"external_data_configuration.0.google_sheets_options.0.range"},
+										Type:     schema.TypeString,
+										Optional: true,
+										AtLeastOneOf: []string{
+											"external_data_configuration.0.google_sheets_options.0.skip_leading_rows",
+											"external_data_configuration.0.google_sheets_options.0.range",
+										},
 									},
 									// SkipLeadingRows: [Optional] The number of rows at the top
 									// of the sheet that BigQuery will skip when reading the data.
 									"skip_leading_rows": {
-										Type:         schema.TypeInt,
-										Optional:     true,
-										AtLeastOneOf: []string{"external_data_configuration.0.google_sheets_options.0.skip_leading_rows"},
+										Type:     schema.TypeInt,
+										Optional: true,
+										AtLeastOneOf: []string{
+											"external_data_configuration.0.google_sheets_options.0.skip_leading_rows",
+											"external_data_configuration.0.google_sheets_options.0.range",
+										},
 									},
 								},
 							},

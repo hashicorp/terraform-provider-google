@@ -144,6 +144,30 @@ func TestAccBigQueryExternalDataTable_CSV(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDataTable_sheet(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableFromSheet(context),
+			},
+			{
+				ResourceName:      "google_bigquery_table.table",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckBigQueryExtData(t *testing.T, expectedQuoteChar string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {
@@ -449,6 +473,58 @@ resource "google_bigquery_table" "test" {
 	}
 }
 `, datasetID, bucketName, objectName, content, tableID, format, quoteChar)
+}
+
+func testAccBigQueryTableFromSheet(context map[string]interface{}) string {
+	return Nprintf(`
+	resource "google_bigquery_table" "table" {
+		dataset_id = google_bigquery_dataset.dataset.dataset_id
+		table_id   = "tf_test_sheet_%{random_suffix}"
+
+		external_data_configuration {
+		  autodetect            = true
+		  source_format         = "GOOGLE_SHEETS"
+		  ignore_unknown_values = true
+
+		  google_sheets_options {
+			skip_leading_rows = 1
+		  }
+
+		  source_uris = [
+			"https://drive.google.com/open?id=xxxx",
+		  ]
+		}
+
+		schema = <<EOF
+	  [
+		{
+		  "name": "permalink",
+		  "type": "STRING",
+		  "mode": "NULLABLE",
+		  "description": "The Permalink"
+		},
+		{
+		  "name": "state",
+		  "type": "STRING",
+		  "mode": "NULLABLE",
+		  "description": "State where the head office is located"
+		}
+	  ]
+	  EOF
+	  }
+
+	  resource "google_bigquery_dataset" "dataset" {
+		dataset_id                  = "tf_test_ds_%{random_suffix}"
+		friendly_name               = "test"
+		description                 = "This is a test description"
+		location                    = "EU"
+		default_table_expiration_ms = 3600000
+
+		labels = {
+		  env = "default"
+		}
+	  }
+`, context)
 }
 
 var TEST_CSV = `lifelock,LifeLock,,web,Tempe,AZ,1-May-07,6850000,USD,b
