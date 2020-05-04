@@ -1,4 +1,4 @@
-## 3.20.0 (Unreleased)
+## 3.20.0 (May 04, 2020)
 
 FEATURES:
 * **New Resource:** `google_healthcare_dataset_iam_binding` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
