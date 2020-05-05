@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: Moved `google_container_cluster.addons_config.cloudrun_config` from beta to GA.
+```
