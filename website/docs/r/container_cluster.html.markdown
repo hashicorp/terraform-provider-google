@@ -321,12 +321,12 @@ The `addons_config` block supports:
     It can only be disabled if the nodes already do not have network policies enabled.
     Defaults to disabled; set `disabled = false` to enable.
 
+* `cloudrun_config` - (Optional).
+    The status of the CloudRun addon. It is disabled by default.
+    Set `disabled = false` to enable.
+
 * `istio_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
     Structure is documented below.
-
-* `cloudrun_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
-    The status of the CloudRun addon. It requires `istio_config` enabled. It is disabled by default.
-    Set `disabled = false` to enable. This addon can only be enabled at cluster creation time.
 
 * `dns_cache_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
     The status of the NodeLocal DNSCache addon. It is disabled by default.

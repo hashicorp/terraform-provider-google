@@ -53,6 +53,7 @@ var (
 		"addons_config.0.http_load_balancing",
 		"addons_config.0.horizontal_pod_autoscaling",
 		"addons_config.0.network_policy_config",
+		"addons_config.0.cloudrun_config",
 	}
 )
 
@@ -217,6 +218,21 @@ func resourceContainerCluster() *schema.Resource {
 							},
 						},
 						"network_policy_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"disabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+								},
+							},
+						},
+						"cloudrun_config": {
 							Type:         schema.TypeList,
 							Optional:     true,
 							Computed:     true,
@@ -1925,6 +1941,14 @@ func expandClusterAddonsConfig(configured interface{}) *containerBeta.AddonsConf
 		}
 	}
 
+	if v, ok := config["cloudrun_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.CloudRunConfig = &containerBeta.CloudRunConfig{
+			Disabled:        addon["disabled"].(bool),
+			ForceSendFields: []string{"Disabled"},
+		}
+	}
+
 	return ac
 }
 
@@ -2259,6 +2283,14 @@ func flattenClusterAddonsConfig(c *containerBeta.AddonsConfig) []map[string]inte
 		result["network_policy_config"] = []map[string]interface{}{
 			{
 				"disabled": c.NetworkPolicyConfig.Disabled,
+			},
+		}
+	}
+
+	if c.CloudRunConfig != nil {
+		result["cloudrun_config"] = []map[string]interface{}{
+			{
+				"disabled": c.CloudRunConfig.Disabled,
 			},
 		}
 	}

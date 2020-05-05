@@ -1550,6 +1550,9 @@ resource "google_container_cluster" "primary" {
     network_policy_config {
       disabled = true
     }
+    cloudrun_config {
+      disabled = true
+    }
   }
 }
 `, clusterName)
@@ -1572,6 +1575,9 @@ resource "google_container_cluster" "primary" {
       disabled = false
     }
     network_policy_config {
+      disabled = false
+    }
+    cloudrun_config {
       disabled = false
     }
   }
