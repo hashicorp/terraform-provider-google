@@ -146,6 +146,7 @@ The `cluster_config` block supports:
         # You can define multiple initialization_action blocks
         initialization_action     { ... }
         encryption_config         { ... }
+        endpoint_config           { ... }
     }
 ```
 
@@ -186,6 +187,8 @@ The `cluster_config` block supports:
 * `lifecycle_config` (Optional, Beta) The settings for auto deletion cluster schedule.
    Structure defined below.
 
+* `endpoint_config` (Optional, Beta) The config settings for port access on the cluster.
+   Structure defined below.
 - - -
 
 The `cluster_config.gce_cluster_config` block supports:
@@ -583,6 +586,21 @@ cluster_config {
   A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds.
   Example: "2014-10-02T15:01:23.045123456Z".
 
+- - -
+
+The `endpoint_config` block (Optional, Computed, Beta) supports:
+
+```hcl
+cluster_config {
+  endpoint_config {
+    enable_http_port_access = "true"
+  }
+}
+```
+
+* `enable_http_port_access` - (Optional) The flag to enable http access to specific ports
+  on the cluster from external sources (aka Component Gateway). Defaults to false.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -606,6 +624,9 @@ exported:
 
 * `cluster_config.0.lifecycle_config.0.idle_start_time` - Time when the cluster became idle
   (most recent job finished) and became eligible for deletion due to idleness.
+
+* `cluster_config.0.endpoint_config.0.http_ports` - The map of port descriptions to URLs. Will only be populated if
+  `enable_http_port_access` is true.
 
 ## Timeouts
 
