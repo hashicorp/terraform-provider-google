@@ -1149,6 +1149,36 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaults(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withShieldedNodes(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withShieldedNodes(clusterName, true),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_shielded_nodes",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withShieldedNodes(clusterName, false),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_shielded_nodes",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
 	t.Parallel()
 
@@ -2657,6 +2687,18 @@ resource "google_container_cluster" "with_private_cluster" {
   }
 }
 `, containerNetName, clusterName)
+}
+
+func testAccContainerCluster_withShieldedNodes(clusterName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_shielded_nodes" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  enable_shielded_nodes = %v
+}
+`, clusterName, enabled)
 }
 
 func testAccContainerCluster_withInitialCIDR(containerNetName string, clusterName string) string {

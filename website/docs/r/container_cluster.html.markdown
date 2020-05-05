@@ -172,7 +172,7 @@ for more information.
     will have statically granted permissions beyond those provided by the RBAC configuration or IAM.
     Defaults to `false`
 
-* `enable_shielded_nodes` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Enable Shielded Nodes features on all nodes in this cluster.  Defaults to `false`.
+* `enable_shielded_nodes` - (Optional) Enable Shielded Nodes features on all nodes in this cluster.  Defaults to `false`.
 
 * `initial_node_count` - (Optional) The number of nodes to create in this
 cluster's default node pool. In regional or multi-zonal clusters, this is the

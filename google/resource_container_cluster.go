@@ -336,6 +336,12 @@ func resourceContainerCluster() *schema.Resource {
 				Default:  false,
 			},
 
+			"enable_shielded_nodes": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
 			"authenticator_groups_config": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -887,6 +893,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			Enabled:         d.Get("enable_binary_authorization").(bool),
 			ForceSendFields: []string{"Enabled"},
 		},
+		ShieldedNodes: &containerBeta.ShieldedNodes{
+			Enabled:         d.Get("enable_shielded_nodes").(bool),
+			ForceSendFields: []string{"Enabled"},
+		},
 		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
 		ResourceLabels: expandStringMap(d, "resource_labels"),
 	}
@@ -1130,6 +1140,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	d.Set("enable_binary_authorization", cluster.BinaryAuthorization != nil && cluster.BinaryAuthorization.Enabled)
+	if cluster.ShieldedNodes != nil {
+		d.Set("enable_shielded_nodes", cluster.ShieldedNodes.Enabled)
+	}
 	if err := d.Set("authenticator_groups_config", flattenAuthenticatorGroupsConfig(cluster.AuthenticatorGroupsConfig)); err != nil {
 		return err
 	}
@@ -1293,6 +1306,28 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s's binary authorization has been updated to %v", d.Id(), enabled)
 
 		d.SetPartial("enable_binary_authorization")
+	}
+
+	if d.HasChange("enable_shielded_nodes") {
+		enabled := d.Get("enable_shielded_nodes").(bool)
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredShieldedNodes: &containerBeta.ShieldedNodes{
+					Enabled:         enabled,
+					ForceSendFields: []string{"Enabled"},
+				},
+			},
+		}
+
+		updateF := updateFunc(req, "updating GKE shielded nodes")
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's shielded nodes has been updated to %v", d.Id(), enabled)
+
+		d.SetPartial("enable_shielded_nodes")
 	}
 
 	if d.HasChange("maintenance_policy") {
