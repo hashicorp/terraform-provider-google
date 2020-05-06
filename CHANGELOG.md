@@ -1,8 +1,4 @@
 ## 3.21.0 (Unreleased)
-UNKNOWN CHANGELOG TYPE:
-* Add support for providing additional experiments to Dataflow job ([#6196](https://github.com/terraform-providers/terraform-provider-google/pull/6196))
-* Release 3.19.0 ([#6217](https://github.com/terraform-providers/terraform-provider-google/pull/6217))
-* update SDK to v1.11 ([#6286](https://github.com/terraform-providers/terraform-provider-google/pull/6286))
 
 FEATURES:
 * **New Resource:** `google_bigquery_connection` ([#6237](https://github.com/terraform-providers/terraform-provider-google/pull/6237))
@@ -16,8 +12,7 @@ FEATURES:
 * **New Resource:** `google_logging_project_bucket_config` ([#6227](https://github.com/terraform-providers/terraform-provider-google/pull/6227))
 
 IMPROVEMENTS:
-* [beta-only]dataproc: added component gateway support to `google_dataproc_cluster` ([#6299](https://github.com/terraform-providers/terraform-provider-google/pull/6299))
-* all: add configurable timeouts to several resources that did not previously have them ([#6226](https://github.com/terraform-providers/terraform-provider-google/pull/6226))
+* all: added configurable timeouts to several resources that did not previously have them ([#6226](https://github.com/terraform-providers/terraform-provider-google/pull/6226))
 * bigquery: added `service_account_name` field to `google_bigquery_data_transfer_config` resource ([#6221](https://github.com/terraform-providers/terraform-provider-google/pull/6221))
 * cloudfunctions: Added validation to label keys for `google_cloudfunctions_function` as API errors aren't useful. ([#6228](https://github.com/terraform-providers/terraform-provider-google/pull/6228))
 * compute: Added support for `stateful_disk` to both `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager`. (Beta) ([#6225](https://github.com/terraform-providers/terraform-provider-google/pull/6225))
@@ -29,6 +24,7 @@ IMPROVEMENTS:
 * container: added `node_locations` to `google_container_node_pool` and `google_container_cluster.node_pool` (now available in GA) ([#6253](https://github.com/terraform-providers/terraform-provider-google/pull/6253))
 * dataflow: Added drift detection for `google_dataflow_job` `template_gcs_path` and `temp_gcs_location` fields ([#6257](https://github.com/terraform-providers/terraform-provider-google/pull/6257))
 * dataflow: Added support for update-by-replacement to `google_dataflow_job` ([#6257](https://github.com/terraform-providers/terraform-provider-google/pull/6257))
+* dataflow: Added support for providing additional experiments to Dataflow job ([#6196](https://github.com/terraform-providers/terraform-provider-google/pull/6196))
 * storage: Added retries for `google_storage_bucket_iam_*` on 412 (precondition not met) errors for eventually consistent bucket creation. ([#6235](https://github.com/terraform-providers/terraform-provider-google/pull/6235))
 
 BUG FIXES:
