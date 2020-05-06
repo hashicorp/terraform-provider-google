@@ -106,6 +106,37 @@ func TestAccBigQueryDatasetAccess_multiple(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDatasetAccess_predefinedRole(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	expected1 := map[string]interface{}{
+		"role":   "WRITER",
+		"domain": "google.com",
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDatasetAccess_predefinedRole(datasetID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBigQueryDatasetAccessPresent(t, "google_bigquery_dataset.dataset", expected1),
+				),
+			},
+			{
+				// Destroy step instead of CheckDestroy so we can check the access is removed without deleting the dataset
+				Config: testAccBigQueryDatasetAccess_destroy(datasetID, "dataset"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBigQueryDatasetAccessAbsent(t, "google_bigquery_dataset.dataset", expected1),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckBigQueryDatasetAccessPresent(t *testing.T, n string, expected map[string]interface{}) resource.TestCheckFunc {
 	return testAccCheckBigQueryDatasetAccess(t, n, expected, true)
 }
@@ -217,6 +248,20 @@ resource "google_bigquery_dataset_access" "access2" {
   dataset_id    = google_bigquery_dataset.dataset.dataset_id
   role          = "READER"
   special_group = "projectWriters"
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "%s"
+}
+`, datasetID)
+}
+
+func testAccBigQueryDatasetAccess_predefinedRole(datasetID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset_access" "access" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role       = "roles/bigquery.dataEditor"
+  domain     = "google.com"
 }
 
 resource "google_bigquery_dataset" "dataset" {
