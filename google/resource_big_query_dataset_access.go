@@ -24,6 +24,19 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+var bigqueryAccessRoleToPrimitiveMap = map[string]string{
+	"roles/bigquery.dataOwner":  "OWNER",
+	"roles/bigquery.dataEditor": "WRITER",
+	"roles/bigquery.dataViewer": "VIEWER",
+}
+
+func resourceBigQueryDatasetAccessRoleDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if primitiveRole, ok := bigqueryAccessRoleToPrimitiveMap[new]; ok {
+		return primitiveRole == old
+	}
+	return false
+}
+
 func resourceBigQueryDatasetAccess() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigQueryDatasetAccessCreate,
@@ -68,9 +81,10 @@ group, domain, or special group. For example: 'allUsers'`,
 				ExactlyOneOf: []string{"user_by_email", "group_by_email", "domain", "special_group", "iam_member", "view"},
 			},
 			"role": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: resourceBigQueryDatasetAccessRoleDiffSuppress,
 				Description: `Describes the rights granted to the user specified by the other
 member of the access object. Primitive, Predefined and custom
 roles are supported. Predefined roles that have equivalent
@@ -396,6 +410,13 @@ func expandNestedBigQueryDatasetAccessDatasetId(v interface{}, d TerraformResour
 }
 
 func expandNestedBigQueryDatasetAccessRole(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	if primitiveRole, ok := bigqueryAccessRoleToPrimitiveMap[v.(string)]; ok {
+		return primitiveRole, nil
+	}
 	return v, nil
 }
 

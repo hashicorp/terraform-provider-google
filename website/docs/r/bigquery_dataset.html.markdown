@@ -206,7 +206,7 @@ The `access` block supports:
   member of the access object. Primitive, Predefined and custom
   roles are supported. Predefined roles that have equivalent
   primitive roles are swapped by the API to their Primitive
-  counterparts, and will show a diff post-create. See
+  counterparts. See
   [official docs](https://cloud.google.com/bigquery/docs/access-control).
 
 * `special_group` -
