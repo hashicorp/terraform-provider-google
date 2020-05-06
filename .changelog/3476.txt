@@ -1,0 +1,3 @@
+```release-note:bug
+container: Fix occasional error with `container_node_pool` partially-successful creations not being recorded if an error occurs on the GCP side.
+```

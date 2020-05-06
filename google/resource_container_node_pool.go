@@ -267,6 +267,11 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	timeout := d.Timeout(schema.TimeoutCreate)
 	startTime := time.Now()
 
+	// Set the ID before we attempt to create - that way, if we receive an error but
+	// the resource is created anyway, it will be refreshed on the next call to
+	// apply.
+	d.SetId(fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s", nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name))
+
 	var operation *containerBeta.Operation
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		operation, err = config.clientContainerBeta.
@@ -286,8 +291,6 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("error creating NodePool: %s", err)
 	}
 	timeout -= time.Since(startTime)
-
-	d.SetId(fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s", nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name))
 
 	waitErr := containerOperationWait(config,
 		operation, nodePoolInfo.project,
