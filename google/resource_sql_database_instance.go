@@ -899,17 +899,18 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	var op *sqladmin.Operation
 	err = retryTimeDuration(func() (rerr error) {
 		op, rerr = config.clientSqlAdmin.Instances.Delete(project, d.Get("name").(string)).Do()
-		return rerr
-	}, d.Timeout(schema.TimeoutDelete))
+		if rerr != nil {
+			return rerr
+		}
+		err = sqlAdminOperationWaitTime(config, op, project, "Delete Instance", d.Timeout(schema.TimeoutDelete))
+		if err != nil {
+			return err
+		}
+		return nil
+	}, d.Timeout(schema.TimeoutDelete), isSqlOperationInProgressError, isSqlInternalError)
 	if err != nil {
 		return fmt.Errorf("Error, failed to delete instance %s: %s", d.Get("name").(string), err)
 	}
-
-	err = sqlAdminOperationWaitTime(config, op, project, "Delete Instance", d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 

@@ -227,20 +227,20 @@ func resourceSqlUserDelete(d *schema.ResourceData, meta interface{}) error {
 	var op *sqladmin.Operation
 	err = retryTimeDuration(func() error {
 		op, err = config.clientSqlAdmin.Users.Delete(project, instance).Host(host).Name(name).Do()
-		return err
-	}, d.Timeout(schema.TimeoutDelete))
+		if err != nil {
+			return err
+		}
+
+		if err := sqlAdminOperationWaitTime(config, op, project, "Delete User", d.Timeout(schema.TimeoutDelete)); err != nil {
+			return err
+		}
+		return nil
+	}, d.Timeout(schema.TimeoutDelete), isSqlOperationInProgressError, isSqlInternalError)
 
 	if err != nil {
 		return fmt.Errorf("Error, failed to delete"+
 			"user %s in instance %s: %s", name,
 			instance, err)
-	}
-
-	err = sqlAdminOperationWaitTime(config, op, project, "Delete User", d.Timeout(schema.TimeoutDelete))
-
-	if err != nil {
-		return fmt.Errorf("Error, failure waiting for deletion of %s "+
-			"in %s: %s", name, instance, err)
 	}
 
 	return nil
