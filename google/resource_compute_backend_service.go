@@ -3144,5 +3144,18 @@ func resourceComputeBackendServiceDecoder(d *schema.ResourceData, meta interface
 		delete(res, "iap")
 	}
 
+	// Requests with consistentHash will error for specific values of
+	// localityLbPolicy. However, the API will not remove it if the backend
+	// service is updated to from supporting to non-supporting localityLbPolicy
+	// (e.g. RING_HASH to RANDOM), which causes an error on subsequent update.
+	// In order to prevent errors, we ignore any consistentHash returned
+	// from the API when the localityLbPolicy doesn't support it.
+	if v, ok := res["localityLbPolicy"]; ok {
+		lbPolicy := v.(string)
+		if lbPolicy != "MAGLEV" && lbPolicy != "RING_HASH" {
+			delete(res, "consistentHash")
+		}
+	}
+
 	return res, nil
 }
