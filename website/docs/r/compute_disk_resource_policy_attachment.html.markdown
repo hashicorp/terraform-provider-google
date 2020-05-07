@@ -25,7 +25,7 @@ description: |-
 Adds existing resource policies to a disk. You can only add one policy
 which will be applied to this disk for scheduling snapshot creation.
 
-~> **Note:** This resource does not support regional disks (`google_compute_region_disk`).
+~> **Note:** This resource does not support regional disks (`google_compute_region_disk`). For regional disks, please refer to [`google_compute_region_disk_resource_policy_attachment`](https://www.terraform.io/docs/providers/google/r/compute_region_disk_resource_policy_attachment.html)
 
 
 
