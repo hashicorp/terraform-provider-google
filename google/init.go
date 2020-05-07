@@ -1,4 +1,4 @@
-package aws
+package google
 
 import (
 	"io/ioutil"
