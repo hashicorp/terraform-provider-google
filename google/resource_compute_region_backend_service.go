@@ -975,6 +975,18 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRegionBackendService %q", d.Id()))
 	}
 
+	res, err = resourceComputeRegionBackendServiceDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing ComputeRegionBackendService because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
@@ -2777,4 +2789,21 @@ func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta int
 
 	obj["backends"] = backends
 	return obj, nil
+}
+
+func resourceComputeRegionBackendServiceDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	// Requests with consistentHash will error for specific values of
+	// localityLbPolicy. However, the API will not remove it if the backend
+	// service is updated to from supporting to non-supporting localityLbPolicy
+	// (e.g. RING_HASH to RANDOM), which causes an error on subsequent update.
+	// In order to prevent errors, we ignore any consistentHash returned
+	// from the API when the localityLbPolicy doesn't support it.
+	if v, ok := res["localityLbPolicy"]; ok {
+		lbPolicy := v.(string)
+		if lbPolicy != "MAGLEV" && lbPolicy != "RING_HASH" {
+			delete(res, "consistentHash")
+		}
+	}
+
+	return res, nil
 }
