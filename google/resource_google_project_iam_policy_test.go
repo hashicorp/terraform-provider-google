@@ -24,7 +24,7 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 			// Apply an IAM policy from a data source. The application
@@ -91,7 +91,7 @@ func TestAccProjectIamPolicy_basicAuditConfig(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 			// Apply an IAM policy from a data source. The application
@@ -184,9 +184,9 @@ func testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid string)
 }
 
 // Confirm that a project has an IAM policy with at least 1 binding
-func testAccProjectExistingPolicy(pid string) resource.TestCheckFunc {
+func testAccProjectExistingPolicy(t *testing.T, pid string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		c := testAccProvider.Meta().(*Config)
+		c := googleProviderConfig(t)
 		var err error
 		originalPolicy, err = getProjectIamPolicy(pid, c)
 		if err != nil {

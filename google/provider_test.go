@@ -2,6 +2,7 @@ package google
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -10,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -134,21 +136,48 @@ func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.Resour
 	// Defines how VCR will match requests to responses.
 	rec.SetMatcher(func(r *http.Request, i cassette.Request) bool {
 		// Default matcher compares method and URL only
-		defaultMatch := cassette.DefaultMatcher(r, i)
-		if r.Body == nil {
-			return defaultMatch
+		if !cassette.DefaultMatcher(r, i) {
+			return false
 		}
+		if r.Body == nil {
+			return true
+		}
+		contentType := r.Header.Get("Content-Type")
+		// If body contains media, don't try to compare
+		if strings.Contains(contentType, "multipart/related") {
+			return true
+		}
+
 		var b bytes.Buffer
 		if _, err := b.ReadFrom(r.Body); err != nil {
 			log.Printf("[DEBUG] Failed to read request body from cassette: %v", err)
 			return false
 		}
 		r.Body = ioutil.NopCloser(&b)
-		// body must match recorded body
-		return defaultMatch && b.String() == i.Body
+		reqBody := b.String()
+		// If body matches identically, we are done
+		if reqBody == i.Body {
+			return true
+		}
+
+		// JSON might be the same, but reordered. Try parsing json and comparing
+		if strings.Contains(contentType, "application/json") {
+			var reqJson, cassetteJson interface{}
+			if err := json.Unmarshal([]byte(reqBody), &reqJson); err != nil {
+				log.Printf("[DEBUG] Failed to unmarshall request json: %v", err)
+				return false
+			}
+			if err := json.Unmarshal([]byte(i.Body), &cassetteJson); err != nil {
+				log.Printf("[DEBUG] Failed to unmarshall cassette json: %v", err)
+				return false
+			}
+			return reflect.DeepEqual(reqJson, cassetteJson)
+		}
+		return false
 	})
 	config.client.Transport = rec
 	config.wrappedPubsubClient.Transport = rec
+	config.wrappedBigQueryClient.Transport = rec
 	configs[testName] = config
 	return config, err
 }

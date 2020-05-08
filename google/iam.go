@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"sort"
 	"strings"
 	"time"
 
@@ -265,7 +266,17 @@ func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[iamBindi
 // Return list of Bindings for a map of role to member sets
 func listFromIamBindingMap(bm map[iamBindingKey]map[string]struct{}) []*cloudresourcemanager.Binding {
 	rb := make([]*cloudresourcemanager.Binding, 0, len(bm))
-	for key, members := range bm {
+	var keys []iamBindingKey
+	for k := range bm {
+		keys = append(keys, k)
+	}
+	sort.Slice(keys, func(i, j int) bool {
+		keyI := keys[i]
+		keyJ := keys[j]
+		return fmt.Sprintf("%s%s", keyI.Role, keyI.Condition.String()) < fmt.Sprintf("%s%s", keyJ.Role, keyJ.Condition.String())
+	})
+	for _, key := range keys {
+		members := bm[key]
 		if len(members) == 0 {
 			continue
 		}

@@ -70,7 +70,7 @@ func testAccCheckStorageHmacKeyDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			config := testAccProvider.Meta().(*Config)
+			config := googleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
 			if err != nil {

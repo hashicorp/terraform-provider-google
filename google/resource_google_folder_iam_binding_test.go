@@ -26,7 +26,7 @@ func TestAccFolderIamBinding_basic(t *testing.T) {
 			{
 				Config: testAccFolderIamBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccFolderExistingPolicy(org, fname),
+					testAccFolderExistingPolicy(t, org, fname),
 				),
 			},
 			// Apply an IAM binding
@@ -57,7 +57,7 @@ func TestAccFolderIamBinding_multiple(t *testing.T) {
 			{
 				Config: testAccFolderIamBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccFolderExistingPolicy(org, fname),
+					testAccFolderExistingPolicy(t, org, fname),
 				),
 			},
 			// Apply an IAM binding
@@ -102,7 +102,7 @@ func TestAccFolderIamBinding_multipleAtOnce(t *testing.T) {
 			{
 				Config: testAccFolderIamBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccFolderExistingPolicy(org, fname),
+					testAccFolderExistingPolicy(t, org, fname),
 				),
 			},
 			// Apply an IAM binding
@@ -137,7 +137,7 @@ func TestAccFolderIamBinding_update(t *testing.T) {
 			{
 				Config: testAccFolderIamBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccFolderExistingPolicy(org, fname),
+					testAccFolderExistingPolicy(t, org, fname),
 				),
 			},
 			// Apply an IAM binding
@@ -188,7 +188,7 @@ func TestAccFolderIamBinding_remove(t *testing.T) {
 			{
 				Config: testAccFolderIamBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccFolderExistingPolicy(org, fname),
+					testAccFolderExistingPolicy(t, org, fname),
 				),
 			},
 			// Apply multiple IAM bindings
@@ -209,7 +209,7 @@ func TestAccFolderIamBinding_remove(t *testing.T) {
 			{
 				Config: testAccFolderIamBasic(org, fname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccFolderExistingPolicy(org, fname),
+					testAccFolderExistingPolicy(t, org, fname),
 				),
 			},
 		},

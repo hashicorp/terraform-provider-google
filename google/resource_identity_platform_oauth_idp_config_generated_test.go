@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,7 +27,7 @@ func TestAccIdentityPlatformOauthIdpConfig_identityPlatformOauthIdpConfigBasicEx
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"name":          "oidc.oauth-idp-config-" + acctest.RandString(10),
+		"name":          "oidc.oauth-idp-config-" + randString(t, 10),
 		"random_suffix": randString(t, 10),
 	}
 

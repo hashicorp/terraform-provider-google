@@ -31,7 +31,7 @@ func TestAccProjectIamBinding_basic(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 			// Apply an IAM binding
@@ -60,7 +60,7 @@ func TestAccProjectIamBinding_multiple(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 			// Apply an IAM binding
@@ -94,7 +94,7 @@ func TestAccProjectIamBinding_multipleAtOnce(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 			// Apply an IAM binding
@@ -123,7 +123,7 @@ func TestAccProjectIamBinding_update(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 			// Apply an IAM binding
@@ -164,7 +164,7 @@ func TestAccProjectIamBinding_remove(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 			// Apply multiple IAM bindings
@@ -178,7 +178,7 @@ func TestAccProjectIamBinding_remove(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 		},
@@ -200,7 +200,7 @@ func TestAccProjectIamBinding_noMembers(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 			// Apply an IAM binding

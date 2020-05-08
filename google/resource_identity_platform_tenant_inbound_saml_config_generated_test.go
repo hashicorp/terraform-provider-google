@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,7 +27,7 @@ func TestAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboun
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"name":          "saml.tf-config-" + acctest.RandString(10),
+		"name":          "saml.tf-config-" + randString(t, 10),
 		"random_suffix": randString(t, 10),
 	}
 
