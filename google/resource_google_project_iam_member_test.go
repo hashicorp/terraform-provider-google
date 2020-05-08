@@ -33,7 +33,7 @@ func TestAccProjectIamMember_basic(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 			// Apply an IAM binding
@@ -67,7 +67,7 @@ func TestAccProjectIamMember_multiple(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 			// Apply an IAM binding
@@ -107,7 +107,7 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 
@@ -122,7 +122,7 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(pid),
+					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 		},

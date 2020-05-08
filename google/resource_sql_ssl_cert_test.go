@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,7 +11,7 @@ import (
 func TestAccSqlClientCert_mysql(t *testing.T) {
 	t.Parallel()
 
-	instance := acctest.RandomWithPrefix("i")
+	instance := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -32,7 +31,7 @@ func TestAccSqlClientCert_mysql(t *testing.T) {
 func TestAccSqlClientCert_postgres(t *testing.T) {
 	t.Parallel()
 
-	instance := acctest.RandomWithPrefix("i")
+	instance := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,

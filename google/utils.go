@@ -5,6 +5,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strings"
 
 	"github.com/hashicorp/errwrap"
@@ -204,6 +205,8 @@ func convertStringSet(set *schema.Set) []string {
 	for _, v := range set.List() {
 		s = append(s, v.(string))
 	}
+	sort.Strings(s)
+
 	return s
 }
 
@@ -221,6 +224,7 @@ func stringSliceFromGolangSet(sset map[string]struct{}) []string {
 	for s := range sset {
 		ls = append(ls, s)
 	}
+	sort.Strings(ls)
 
 	return ls
 }

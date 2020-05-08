@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sort"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
@@ -144,10 +145,15 @@ func resourceInstanceMetadata(d TerraformResourceData) (*computeBeta.Metadata, e
 	}
 	if len(mdMap) > 0 {
 		m.Items = make([]*computeBeta.MetadataItems, 0, len(mdMap))
-		for key, val := range mdMap {
-			v := val.(string)
+		var keys []string
+		for k := range mdMap {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			v := mdMap[k].(string)
 			m.Items = append(m.Items, &computeBeta.MetadataItems{
-				Key:   key,
+				Key:   k,
 				Value: &v,
 			})
 		}

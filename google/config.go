@@ -70,11 +70,12 @@ type Config struct {
 	// It controls the interval at which we poll for successful operations
 	PollInterval time.Duration
 
-	client              *http.Client
-	wrappedPubsubClient *http.Client
-	context             context.Context
-	terraformVersion    string
-	userAgent           string
+	client                *http.Client
+	wrappedBigQueryClient *http.Client
+	wrappedPubsubClient   *http.Client
+	context               context.Context
+	terraformVersion      string
+	userAgent             string
 
 	tokenSource oauth2.TokenSource
 
@@ -504,6 +505,7 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	bigQueryClientBasePath := c.BigQueryBasePath
 	log.Printf("[INFO] Instantiating Google Cloud BigQuery client for path %s", bigQueryClientBasePath)
 	wrappedBigQueryClient := ClientWithAdditionalRetries(client, retryTransport, iamMemberMissing)
+	c.wrappedBigQueryClient = wrappedBigQueryClient
 	c.clientBigQuery, err = bigquery.NewService(ctx, option.WithHTTPClient(wrappedBigQueryClient))
 	if err != nil {
 		return err
