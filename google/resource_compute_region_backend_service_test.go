@@ -205,6 +205,7 @@ func testAccComputeRegionBackendService_ilbBasic(serviceName, checkName string) 
 resource "google_compute_region_backend_service" "foobar" {
   name                  = "%s"
   health_checks         = [google_compute_health_check.health_check.self_link]
+  port_name             = "http"
   protocol              = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
   locality_lb_policy    = "RING_HASH"
@@ -239,6 +240,7 @@ func testAccComputeRegionBackendService_ilbUpdateBasic(serviceName, checkName st
 resource "google_compute_region_backend_service" "foobar" {
   name                  = "%s"
   health_checks         = [google_compute_health_check.health_check.self_link]
+  port_name             = "https"
   protocol              = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
   locality_lb_policy    = "RANDOM"
@@ -265,6 +267,7 @@ resource "google_compute_region_backend_service" "foobar" {
   name          = "%s"
   health_checks = [google_compute_health_check.zero.self_link]
   region        = "us-central1"
+  port_name     = "http"
 }
 
 resource "google_compute_health_check" "zero" {
@@ -285,6 +288,7 @@ resource "google_compute_region_backend_service" "foobar" {
   name          = "%s"
   health_checks = [google_compute_health_check.one.self_link]
   region        = "us-central1"
+  port_name     = "http"
 }
 
 resource "google_compute_health_check" "zero" {
@@ -320,6 +324,7 @@ data "google_compute_image" "my_image" {
 resource "google_compute_region_backend_service" "lipsum" {
   name        = "%s"
   description = "Hello World 1234"
+  port_name   = "http"
   protocol    = "TCP"
   region      = "us-central1"
   timeout_sec = %v
@@ -380,6 +385,7 @@ data "google_compute_image" "my_image" {
 resource "google_compute_region_backend_service" "lipsum" {
   name        = "%s"
   description = "Hello World 1234"
+  port_name   = "http"
   protocol    = "TCP"
   region      = "us-central1"
   timeout_sec = %v
@@ -472,6 +478,7 @@ data "google_compute_image" "my_image" {
 resource "google_compute_region_backend_service" "lipsum" {
   name        = "%s"
   description = "Hello World 1234"
+  port_name   = "http"
   protocol    = "TCP"
   region      = "us-central1"
 
@@ -534,6 +541,7 @@ resource "google_compute_region_backend_service" "default" {
   }
 
   region      = "us-central1"
+  port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
 
@@ -601,6 +609,7 @@ resource "google_compute_region_backend_service" "default" {
   }
 
   region      = "us-central1"
+  port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
 
@@ -678,6 +687,7 @@ resource "google_compute_region_backend_service" "default" {
   }
 
   region      = "us-central1"
+  port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
 
