@@ -22,13 +22,15 @@ resource "google_folder" "sales" {
 }
 ```
 
+Note that the identity whose credentials are used for authentication needs to have `roles/resourcemanager.organizationViewer` role to be able to read that info.
+
 ## Argument Reference
 
 The arguments of this data source act as filters for querying the available Organizations.
 The given filters must match exactly one Organizations whose data will be exported as attributes.
 The following arguments are supported:
 
-* `organization` (Optional) - The name of the Organization in the form `{organization_id}` or `organizations/{organization_id}`.
+* `organization` (Optional) - The numeric ID of the Organization in the form `{organization_id}` or `organizations/{organization_id}`.
 * `domain` (Optional) - The domain name of the Organization.
 
 ~> **NOTE:** One of `organization` or `domain` must be specified.
