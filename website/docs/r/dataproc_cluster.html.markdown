@@ -438,10 +438,13 @@ cluster_config {
     Accepted values are:
     * ANACONDA
     * DRUID
+    * HBASE
     * HIVE_WEBHCAT
     * JUPYTER
     * KERBEROS
     * PRESTO
+    * RANGER
+    * SOLR
     * ZEPPELIN
     * ZOOKEEPER
 
