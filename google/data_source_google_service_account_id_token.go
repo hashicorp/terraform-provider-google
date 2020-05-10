@@ -4,24 +4,18 @@ import (
 	"log"
 	"time"
 
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/json"
-	"encoding/pem"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"net/url"
 	"reflect"
 	"strings"
 
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
+	"google.golang.org/api/idtoken"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	"golang.org/x/oauth2/jws"
 )
 
 const (
@@ -187,101 +181,29 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 	}
 
 	if creds.JSON != nil {
-		conf, err := google.JWTConfigFromJSON(creds.JSON, "")
+		ctx := context.Background()
+		ts, err := idtoken.NewTokenSource(ctx, targetAudience, idtoken.WithCredentialsJSON(creds.JSON))
 		if err != nil {
-			return fmt.Errorf("data_source_google_service_account_id_token: JSON Credential cannot be parsed.  Initialize ServiceAccount Credentials instead: %v", err)
+			return fmt.Errorf("data_source_google_service_account Unable to init idTokenSource%v", err)
 		}
-
-		// now construct the JWT to exchange
-		header := &jws.Header{
-			Algorithm: "RS256",
-			Typ:       "JWT",
-			KeyID:     conf.PrivateKeyID,
-		}
-
-		privateClaims := map[string]interface{}{"target_audience": targetAudience}
-		iat := time.Now()
-		exp := iat.Add(time.Hour)
-
-		payload := &jws.ClaimSet{
-			Iss:           conf.Email,
-			Iat:           iat.Unix(),
-			Exp:           exp.Unix(),
-			Aud:           "https://www.googleapis.com/oauth2/v4/token",
-			PrivateClaims: privateClaims,
-		}
-
-		// sign it with the private key inside the JSON file
-		key := conf.PrivateKey
-		block, _ := pem.Decode(key)
-		if block != nil {
-			key = block.Bytes
-		}
-		parsedKey, err := x509.ParsePKCS8PrivateKey(key)
+		tok, err := ts.Token()
 		if err != nil {
-			parsedKey, err = x509.ParsePKCS1PrivateKey(key)
-			if err != nil {
-				return err
-			}
+			return fmt.Errorf("unable to retrieve Token: %v", err)
 		}
-		parsed, ok := parsedKey.(*rsa.PrivateKey)
-		if !ok {
-			return fmt.Errorf("Private key is invalid")
-		}
-
-		token, err := jws.Encode(header, payload, parsed)
-		if err != nil {
-			return err
-		}
-
-		d := url.Values{}
-		d.Set("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-		d.Add("assertion", token)
-
-		// do the exchange
-		client := &http.Client{}
-		req, err := http.NewRequest(http.MethodPost, tokenEndpoint, strings.NewReader(d.Encode()))
-		if err != nil {
-			return err
-		}
-		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-		resp, err := client.Do(req)
-		if err != nil {
-			return err
-		}
-		defer resp.Body.Close()
-
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-
-		// extract the id_token from the response
-		var y map[string]interface{}
-		err = json.Unmarshal([]byte(body), &y)
-		if err != nil {
-			return err
-		}
-
-		idToken = y["id_token"].(string)
+		idToken = tok.AccessToken
 
 	} else if tok.RefreshToken == "" {
 		// if the token isn't a json cert, it should be a ReuseTokenSource from MetadataServer
-		client := &http.Client{}
-		req, err := http.NewRequest("GET", metadataIdentityDocURL+"?audience="+targetAudience, nil)
-		req.Header.Add("Metadata-Flavor", "Google")
-		resp, err := client.Do(req)
+		ctx := context.Background()
+		ts, err := idtoken.NewTokenSource(ctx, targetAudience)
 		if err != nil {
-			return fmt.Errorf("data_source_google_service_account_id_token: Unable to get Id  Token from Metadata server: %v", err)
+			return fmt.Errorf("data_source_google_service_account Unable to init idTokenSource%v", err)
 		}
-		defer resp.Body.Close()
-
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		tok, err := ts.Token()
 		if err != nil {
-			return fmt.Errorf("data_source_google_service_account_id_token:  Unable to parse Id  Token from Metadata server:: %v", err)
+			return fmt.Errorf("unable to retrieve Token: %v", err)
 		}
-		idToken = string(bodyBytes)
+		idToken = tok.AccessToken
 	} else {
 		// bail, this shoudn't happen
 		return fmt.Errorf("data_source_google_service_account_id_token: Unsupported Credential Type supplied: got %v", reflect.TypeOf(creds.TokenSource))
