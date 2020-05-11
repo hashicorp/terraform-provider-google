@@ -235,6 +235,8 @@ The `stateful_disk` block supports: (Include a `stateful_disk` block for each st
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{name}}`
+
 * `fingerprint` - The fingerprint of the instance group manager.
 
 * `instance_group` - The full URL of the instance group created by the manager.

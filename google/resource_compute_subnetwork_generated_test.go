@@ -53,7 +53,7 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
   name          = "tf-test-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.custom-test.self_link
+  network       = google_compute_network.custom-test.id
   secondary_ip_range {
     range_name    = "tf-test-secondary-range-update1"
     ip_cidr_range = "192.168.10.0/24"
@@ -97,7 +97,7 @@ resource "google_compute_subnetwork" "subnet-with-logging" {
   name          = "tf-test-log-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.custom-test.self_link
+  network       = google_compute_network.custom-test.id
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"

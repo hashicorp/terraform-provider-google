@@ -45,7 +45,7 @@ To get more information about RegionBackendService, see:
 resource "google_compute_region_backend_service" "default" {
   name                            = "region-service"
   region                          = "us-central1"
-  health_checks                   = [google_compute_health_check.default.self_link]
+  health_checks                   = [google_compute_health_check.default.id]
   connection_draining_timeout_sec = 10
   session_affinity                = "CLIENT_IP"
 }
@@ -72,7 +72,7 @@ resource "google_compute_health_check" "default" {
 resource "google_compute_region_backend_service" "default" {
   region = "us-central1"
   name = "region-service"
-  health_checks = ["${google_compute_health_check.health_check.self_link}"]
+  health_checks = [google_compute_health_check.health_check.id]
   protocol = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
   locality_lb_policy = "ROUND_ROBIN"
@@ -97,7 +97,7 @@ resource "google_compute_health_check" "health_check" {
 resource "google_compute_region_backend_service" "default" {
   region = "us-central1"
   name = "region-service"
-  health_checks = ["${google_compute_health_check.health_check.self_link}"]
+  health_checks = [google_compute_health_check.health_check.id]
   load_balancing_scheme = "INTERNAL_MANAGED"
   locality_lb_policy = "RING_HASH"
   session_affinity = "HTTP_COOKIE"
@@ -149,7 +149,7 @@ resource "google_compute_region_backend_service" "default" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_region_health_check.default.self_link]
+  health_checks = [google_compute_region_health_check.default.id]
 }
 
 data "google_compute_image" "debian_image" {
@@ -173,8 +173,8 @@ resource "google_compute_instance_template" "instance_template" {
   machine_type = "n1-standard-1"
 
   network_interface {
-    network    = google_compute_network.default.self_link
-    subnetwork = google_compute_subnetwork.default.self_link
+    network    = google_compute_network.default.id
+    subnetwork = google_compute_subnetwork.default.id
   }
 
   disk {
@@ -204,7 +204,7 @@ resource "google_compute_subnetwork" "default" {
   name          = "rbs-net-default"
   ip_cidr_range = "10.1.2.0/24"
   region        = "us-central1"
-  network       = google_compute_network.default.self_link
+  network       = google_compute_network.default.id
 }
 ```
 

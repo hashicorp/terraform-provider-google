@@ -52,13 +52,13 @@ func testAccComputeRegionTargetHttpProxy_regionTargetHttpProxyBasicExample(conte
 resource "google_compute_region_target_http_proxy" "default" {
   region  = "us-central1"
   name    = "tf-test-test-proxy%{random_suffix}"
-  url_map = google_compute_region_url_map.default.self_link
+  url_map = google_compute_region_url_map.default.id
 }
 
 resource "google_compute_region_url_map" "default" {
   region          = "us-central1"
   name            = "tf-test-url-map%{random_suffix}"
-  default_service = google_compute_region_backend_service.default.self_link
+  default_service = google_compute_region_backend_service.default.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -67,11 +67,11 @@ resource "google_compute_region_url_map" "default" {
 
   path_matcher {
     name            = "allpaths"
-    default_service = google_compute_region_backend_service.default.self_link
+    default_service = google_compute_region_backend_service.default.id
 
     path_rule {
       paths   = ["/*"]
-      service = google_compute_region_backend_service.default.self_link
+      service = google_compute_region_backend_service.default.id
     }
   }
 }
@@ -82,7 +82,7 @@ resource "google_compute_region_backend_service" "default" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_region_health_check.default.self_link]
+  health_checks = [google_compute_region_health_check.default.id]
 }
 
 resource "google_compute_region_health_check" "default" {

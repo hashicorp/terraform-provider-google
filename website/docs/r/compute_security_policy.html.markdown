@@ -111,6 +111,8 @@ The `expr` block supports:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/securityPolicies/{{name}}`
+
 * `fingerprint` - Fingerprint of this resource.
 
 * `self_link` - The URI of the created resource.

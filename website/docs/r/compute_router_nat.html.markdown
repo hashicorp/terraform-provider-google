@@ -41,7 +41,7 @@ resource "google_compute_network" "net" {
 
 resource "google_compute_subnetwork" "subnet" {
   name          = "my-subnetwork"
-  network       = google_compute_network.net.self_link
+  network       = google_compute_network.net.id
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
@@ -49,7 +49,7 @@ resource "google_compute_subnetwork" "subnet" {
 resource "google_compute_router" "router" {
   name    = "my-router"
   region  = google_compute_subnetwork.subnet.region
-  network = google_compute_network.net.self_link
+  network = google_compute_network.net.id
 
   bgp {
     asn = 64514
@@ -79,7 +79,7 @@ resource "google_compute_network" "net" {
 
 resource "google_compute_subnetwork" "subnet" {
   name          = "my-subnetwork"
-  network       = google_compute_network.net.self_link
+  network       = google_compute_network.net.id
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
@@ -87,7 +87,7 @@ resource "google_compute_subnetwork" "subnet" {
 resource "google_compute_router" "router" {
   name    = "my-router"
   region  = google_compute_subnetwork.subnet.region
-  network = google_compute_network.net.self_link
+  network = google_compute_network.net.id
 }
 
 resource "google_compute_address" "address" {
@@ -102,11 +102,11 @@ resource "google_compute_router_nat" "nat_manual" {
   region = google_compute_router.router.region
 
   nat_ip_allocate_option = "MANUAL_ONLY"
-  nat_ips                = google_compute_address.address.*.self_link
+  nat_ips                = google_compute_address.address.*.id
 
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
   subnetwork {
-    name                    = google_compute_subnetwork.default.self_link
+    name                    = google_compute_subnetwork.default.id
     source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
   }
 }

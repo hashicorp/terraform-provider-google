@@ -60,7 +60,7 @@ state as plain-text. [Read more about sensitive data in state](/docs/state/sensi
 ```hcl
 resource "google_compute_region_disk" "regiondisk" {
   name                      = "my-region-disk"
-  snapshot                  = google_compute_snapshot.snapdisk.self_link
+  snapshot                  = google_compute_snapshot.snapdisk.id
   type                      = "pd-ssd"
   region                    = "us-central1"
   physical_block_size_bytes = 4096

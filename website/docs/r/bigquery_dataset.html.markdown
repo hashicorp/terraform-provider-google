@@ -78,13 +78,13 @@ resource "google_bigquery_dataset" "dataset" {
   default_table_expiration_ms = 3600000
 
   default_encryption_configuration {
-    kms_key_name = google_kms_crypto_key.crypto_key.self_link
+    kms_key_name = google_kms_crypto_key.crypto_key.id
   }
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
   name     = "example-key"
-  key_ring = google_kms_key_ring.key_ring.self_link
+  key_ring = google_kms_key_ring.key_ring.id
 }
 
 resource "google_kms_key_ring" "key_ring" {

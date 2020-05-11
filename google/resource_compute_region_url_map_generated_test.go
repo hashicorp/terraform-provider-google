@@ -55,7 +55,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
   name        = "regionurlmap%{random_suffix}"
   description = "a description"
 
-  default_service = google_compute_region_backend_service.home.self_link
+  default_service = google_compute_region_backend_service.home.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -64,21 +64,21 @@ resource "google_compute_region_url_map" "regionurlmap" {
 
   path_matcher {
     name            = "allpaths"
-    default_service = google_compute_region_backend_service.home.self_link
+    default_service = google_compute_region_backend_service.home.id
 
     path_rule {
       paths   = ["/home"]
-      service = google_compute_region_backend_service.home.self_link
+      service = google_compute_region_backend_service.home.id
     }
 
     path_rule {
       paths   = ["/login"]
-      service = google_compute_region_backend_service.login.self_link
+      service = google_compute_region_backend_service.login.id
     }
   }
 
   test {
-    service = google_compute_region_backend_service.home.self_link
+    service = google_compute_region_backend_service.home.id
     host    = "hi.com"
     path    = "/home"
   }
@@ -91,7 +91,7 @@ resource "google_compute_region_backend_service" "login" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_region_health_check.default.self_link]
+  health_checks = [google_compute_region_health_check.default.id]
 }
 
 resource "google_compute_region_backend_service" "home" {
@@ -101,7 +101,7 @@ resource "google_compute_region_backend_service" "home" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_region_health_check.default.self_link]
+  health_checks = [google_compute_region_health_check.default.id]
 }
 
 resource "google_compute_region_health_check" "default" {
@@ -147,7 +147,7 @@ func testAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(context map[string]
 resource "google_compute_region_url_map" "regionurlmap" {
   name        = "regionurlmap%{random_suffix}"
   description = "a description"
-  default_service = google_compute_region_backend_service.home.self_link
+  default_service = google_compute_region_backend_service.home.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -156,7 +156,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
 
   path_matcher {
     name = "allpaths"
-    default_service = google_compute_region_backend_service.home.self_link
+    default_service = google_compute_region_backend_service.home.id
 
     path_rule {
       paths   = ["/home"]
@@ -184,7 +184,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
           }
         }
         request_mirror_policy {
-          backend_service = google_compute_region_backend_service.home.self_link
+          backend_service = google_compute_region_backend_service.home.id
         }
         retry_policy {
           num_retries = 4
@@ -202,7 +202,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
           path_prefix_rewrite = "A replacement path"
         }
         weighted_backend_services {
-          backend_service = google_compute_region_backend_service.home.self_link
+          backend_service = google_compute_region_backend_service.home.id
           weight = 400
           header_action {
             request_headers_to_remove = ["RemoveMe"]
@@ -224,7 +224,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
   }
 
   test {
-    service = google_compute_region_backend_service.home.self_link
+    service = google_compute_region_backend_service.home.id
     host    = "hi.com"
     path    = "/home"
   }
@@ -235,7 +235,7 @@ resource "google_compute_region_backend_service" "home" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_region_health_check.default.self_link]
+  health_checks = [google_compute_region_health_check.default.id]
   load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
@@ -277,7 +277,7 @@ func testAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(context map[
 resource "google_compute_region_url_map" "regionurlmap" {
   name        = "regionurlmap%{random_suffix}"
   description = "a description"
-  default_service = google_compute_region_backend_service.home.self_link
+  default_service = google_compute_region_backend_service.home.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -286,7 +286,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
 
   path_matcher {
     name = "allpaths"
-    default_service = google_compute_region_backend_service.home.self_link
+    default_service = google_compute_region_backend_service.home.id
 
     path_rule {
       paths   = ["/home"]
@@ -307,7 +307,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
           path_prefix_rewrite = "A replacement path"
         }
         weighted_backend_services {
-          backend_service = google_compute_region_backend_service.home.self_link
+          backend_service = google_compute_region_backend_service.home.id
           weight = 400
           header_action {
             response_headers_to_add {
@@ -322,7 +322,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
   }
 
   test {
-    service = google_compute_region_backend_service.home.self_link
+    service = google_compute_region_backend_service.home.id
     host    = "hi.com"
     path    = "/home"
   }
@@ -333,7 +333,7 @@ resource "google_compute_region_backend_service" "home" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_region_health_check.default.self_link]
+  health_checks = [google_compute_region_health_check.default.id]
   load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
@@ -375,7 +375,7 @@ func testAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(context map[string
 resource "google_compute_region_url_map" "regionurlmap" {
   name            = "regionurlmap%{random_suffix}"
   description     = "a description"
-  default_service = google_compute_region_backend_service.home.self_link
+  default_service = google_compute_region_backend_service.home.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -384,7 +384,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
 
   path_matcher {
     name = "allpaths"
-    default_service = google_compute_region_backend_service.home.self_link
+    default_service = google_compute_region_backend_service.home.id
 
     route_rules {
       priority = 1
@@ -433,7 +433,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
   }
 
   test {
-    service = google_compute_region_backend_service.home.self_link
+    service = google_compute_region_backend_service.home.id
     host    = "hi.com"
     path    = "/home"
   }
@@ -444,7 +444,7 @@ resource "google_compute_region_backend_service" "home" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_region_health_check.default.self_link]
+  health_checks = [google_compute_region_health_check.default.id]
   load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
@@ -486,7 +486,7 @@ func testAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(context map
 resource "google_compute_region_url_map" "regionurlmap" {
   name        = "regionurlmap%{random_suffix}"
   description = "a description"
-  default_service = google_compute_region_backend_service.home.self_link
+  default_service = google_compute_region_backend_service.home.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -495,11 +495,11 @@ resource "google_compute_region_url_map" "regionurlmap" {
 
   path_matcher {
     name = "allpaths"
-    default_service = google_compute_region_backend_service.home.self_link
+    default_service = google_compute_region_backend_service.home.id
 
     route_rules {
       priority = 1
-      service = google_compute_region_backend_service.home.self_link
+      service = google_compute_region_backend_service.home.id
       header_action {
         request_headers_to_remove = ["RemoveMe2"]
       }
@@ -519,7 +519,7 @@ resource "google_compute_region_url_map" "regionurlmap" {
   }
 
   test {
-    service = google_compute_region_backend_service.home.self_link
+    service = google_compute_region_backend_service.home.id
     host    = "hi.com"
     path    = "/home"
   }
@@ -530,7 +530,7 @@ resource "google_compute_region_backend_service" "home" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_region_health_check.default.self_link]
+  health_checks = [google_compute_region_health_check.default.id]
   load_balancing_scheme = "INTERNAL_MANAGED"
 }
 

@@ -259,6 +259,8 @@ The `encryption_configuration` block supports the following arguments:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/datasets/{{dataset}}/tables/{{name}}`
+
 * `creation_time` - The time when this table was created, in milliseconds since the epoch.
 
 * `etag` - A hash of the resource.

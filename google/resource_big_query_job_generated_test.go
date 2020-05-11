@@ -239,7 +239,7 @@ resource "google_bigquery_table" "dest" {
 EOF
 
   encryption_configuration {
-    kms_key_name = google_kms_crypto_key.crypto_key.self_link
+    kms_key_name = google_kms_crypto_key.crypto_key.id
   }
 
   depends_on = ["google_project_iam_member.encrypt_role"]
@@ -254,7 +254,7 @@ resource "google_bigquery_dataset" "dest" {
 
 resource "google_kms_crypto_key" "crypto_key" {
   name     = "tf-test-example-key%{random_suffix}"
-  key_ring = google_kms_key_ring.key_ring.self_link
+  key_ring = google_kms_key_ring.key_ring.id
 }
 
 resource "google_kms_key_ring" "key_ring" {
@@ -294,7 +294,7 @@ resource "google_bigquery_job" "job" {
     }
 
     destination_encryption_configuration {
-      kms_key_name = google_kms_crypto_key.crypto_key.self_link
+      kms_key_name = google_kms_crypto_key.crypto_key.id
     }
   }
 

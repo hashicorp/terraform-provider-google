@@ -91,7 +91,7 @@ resource "google_compute_subnetwork" "default" {
   name          = "compute-subnet"
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-central1"
-  network       = google_compute_network.default.self_link
+  network       = google_compute_network.default.id
 }
 
 resource "google_compute_health_check" "hc" {
@@ -107,7 +107,7 @@ resource "google_compute_health_check" "hc" {
 resource "google_compute_region_backend_service" "backend" {
   name          = "compute-backend"
   region        = "us-central1"
-  health_checks = [google_compute_health_check.hc.self_link]
+  health_checks = [google_compute_health_check.hc.id]
 }
 
 resource "google_compute_forwarding_rule" "default" {
@@ -115,7 +115,7 @@ resource "google_compute_forwarding_rule" "default" {
   region   = "us-central1"
 
   load_balancing_scheme = "INTERNAL"
-  backend_service       = google_compute_region_backend_service.backend.self_link
+  backend_service       = google_compute_region_backend_service.backend.id
   all_ports             = true
   network               = google_compute_network.default.name
   subnetwork            = google_compute_subnetwork.default.name
@@ -125,7 +125,7 @@ resource "google_compute_route" "route-ilb" {
   name         = "route-ilb"
   dest_range   = "0.0.0.0/0"
   network      = google_compute_network.default.name
-  next_hop_ilb = google_compute_forwarding_rule.default.self_link
+  next_hop_ilb = google_compute_forwarding_rule.default.id
   priority     = 2000
 }
 ```
