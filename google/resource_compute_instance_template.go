@@ -294,6 +294,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 										Type:         schema.TypeString,
 										Optional:     true,
 										Computed:     true,
+										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
 									},
 									// Possibly configurable- this was added so we don't break if it's inadvertently set
