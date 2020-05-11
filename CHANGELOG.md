@@ -1,4 +1,4 @@
-## 3.21.0 (Unreleased)
+## 3.21.0 (May 11, 2020)
 
 FEATURES:
 * **New Resource:** `google_compute_region_target_http_proxy` is now GA ([#6245](https://github.com/terraform-providers/terraform-provider-google/pull/6245))
