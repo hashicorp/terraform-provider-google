@@ -16,6 +16,9 @@ Allows creation and management of an App Engine application.
    successfully deleted; this is a limitation of Terraform, and will go away in the future.
    Terraform is not able to delete App Engine applications.
 
+~> **Warning:** All arguments including `iap.oauth2_client_secret` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+
 ## Example Usage
 
 ```hcl
@@ -51,6 +54,13 @@ The following arguments are supported:
   * `split_health_checks` - (Required) Set to false to use the legacy health check instead of the readiness
     and liveness checks.
 
+* `iap` - (Optional) Settings for enabling Cloud Identity Aware Proxy
+
+  * `oauth2_client_id` - (Required) OAuth2 client ID to use for the authentication flow.
+
+  * `oauth2_client_secret` - (Required) OAuth2 client secret to use for the authentication flow.
+    The SHA-256 hash of the value is returned in the oauth2ClientSecretSha256 field.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -71,6 +81,10 @@ exported:
 * `default_bucket` - The GCS bucket content is being stored in for this app.
 
 * `gcr_domain` - The GCR domain used for storing managed Docker images for this app.
+
+* `iap` - Settings for enabling Cloud Identity Aware Proxy
+
+  * `oauth2_client_secret_sha256` - Hex-encoded SHA-256 hash of the client secret.
 
 ## Timeouts
 
