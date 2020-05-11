@@ -51,7 +51,7 @@ func testAccComputeRegionDisk_regionDiskBasicExample(context map[string]interfac
 	return Nprintf(`
 resource "google_compute_region_disk" "regiondisk" {
   name                      = "tf-test-my-region-disk%{random_suffix}"
-  snapshot                  = google_compute_snapshot.snapdisk.self_link
+  snapshot                  = google_compute_snapshot.snapdisk.id
   type                      = "pd-ssd"
   region                    = "us-central1"
   physical_block_size_bytes = 4096

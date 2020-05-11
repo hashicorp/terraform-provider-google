@@ -51,7 +51,7 @@ func testAccComputeTargetTcpProxy_targetTcpProxyBasicExample(context map[string]
 	return Nprintf(`
 resource "google_compute_target_tcp_proxy" "default" {
   name            = "tf-test-test-proxy%{random_suffix}"
-  backend_service = google_compute_backend_service.default.self_link
+  backend_service = google_compute_backend_service.default.id
 }
 
 resource "google_compute_backend_service" "default" {
@@ -59,7 +59,7 @@ resource "google_compute_backend_service" "default" {
   protocol    = "TCP"
   timeout_sec = 10
 
-  health_checks = [google_compute_health_check.default.self_link]
+  health_checks = [google_compute_health_check.default.id]
 }
 
 resource "google_compute_health_check" "default" {

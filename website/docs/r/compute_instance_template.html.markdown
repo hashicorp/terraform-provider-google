@@ -413,6 +413,8 @@ The `shielded_instance_config` block supports:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/instanceTemplates/{{name}}`
+
 * `metadata_fingerprint` - The unique fingerprint of the metadata.
 
 * `self_link` - The URI of the created resource.

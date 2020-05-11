@@ -38,7 +38,9 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-Only the arguments listed above are exposed as attributes.
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{project}}`
 
 ## Timeouts
 

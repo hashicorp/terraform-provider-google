@@ -73,7 +73,7 @@ resource "google_compute_snapshot" "snapdisk" {
 resource "google_compute_region_disk" "ssd" {
   name  = "tf-test-my-disk%{random_suffix}"
   replica_zones = ["us-central1-a", "us-central1-f"]
-  snapshot = google_compute_snapshot.snapdisk.self_link
+  snapshot = google_compute_snapshot.snapdisk.id
   size  = 50
   type  = "pd-ssd"
   region  = "us-central1"

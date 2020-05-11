@@ -38,6 +38,12 @@ The following arguments are expected:
 
 * `service_project` - (Required) The ID of the project that will serve as a Shared VPC service project.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{host_project}}/{{service_project}}`
+
 ## Timeouts
 
 This resource provides the following

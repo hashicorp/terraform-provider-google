@@ -67,7 +67,7 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
   name          = "test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.custom-test.self_link
+  network       = google_compute_network.custom-test.id
   secondary_ip_range {
     range_name    = "tf-test-secondary-range-update1"
     ip_cidr_range = "192.168.10.0/24"
@@ -92,7 +92,7 @@ resource "google_compute_subnetwork" "subnet-with-logging" {
   name          = "log-test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.custom-test.self_link
+  network       = google_compute_network.custom-test.id
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
@@ -123,7 +123,7 @@ resource "google_compute_subnetwork" "network-for-l7lb" {
   region        = "us-central1"
   purpose       = "INTERNAL_HTTPS_LOAD_BALANCER"
   role          = "ACTIVE"
-  network       = google_compute_network.custom-test.self_link
+  network       = google_compute_network.custom-test.id
 }
 
 resource "google_compute_network" "custom-test" {

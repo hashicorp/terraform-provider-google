@@ -190,6 +190,8 @@ The `upgrade_settings` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{project}}/{{zone}}/{{cluster}}/{{name}}`
+
 * `instance_group_urls` - The resource URLs of the managed instance groups associated with this node pool.
 
 <a id="timeouts"></a>

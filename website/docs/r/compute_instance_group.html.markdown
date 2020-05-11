@@ -161,6 +161,8 @@ The `named_port` block supports:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}/zones/{{zone}}/instanceGroups/{{name}}`
+
 * `self_link` - The URI of the created resource.
 
 * `size` - The number of instances in the group.

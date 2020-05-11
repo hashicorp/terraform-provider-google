@@ -67,6 +67,8 @@ Whether to export the custom routes from the peer network. Defaults to `false`.
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `{{network}}/{{name}}`
+
 * `state` - State for the peering, either `ACTIVE` or `INACTIVE`. The peering is
 `ACTIVE` when there's a matching configuration in the peer network.
 

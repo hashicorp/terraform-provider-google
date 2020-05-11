@@ -730,6 +730,8 @@ The `vertical_pod_autoscaling` block supports:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{zone}}/clusters/{{name}}`
+
 * `endpoint` - The IP address of this cluster's Kubernetes master.
 
 * `instance_group_urls` - List of instance group URLs which have been assigned
