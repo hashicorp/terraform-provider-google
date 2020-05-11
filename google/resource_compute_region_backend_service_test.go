@@ -267,7 +267,6 @@ resource "google_compute_region_backend_service" "foobar" {
   name          = "%s"
   health_checks = [google_compute_health_check.zero.self_link]
   region        = "us-central1"
-  port_name     = "http"
 }
 
 resource "google_compute_health_check" "zero" {
@@ -288,7 +287,6 @@ resource "google_compute_region_backend_service" "foobar" {
   name          = "%s"
   health_checks = [google_compute_health_check.one.self_link]
   region        = "us-central1"
-  port_name     = "http"
 }
 
 resource "google_compute_health_check" "zero" {
@@ -324,7 +322,6 @@ data "google_compute_image" "my_image" {
 resource "google_compute_region_backend_service" "lipsum" {
   name        = "%s"
   description = "Hello World 1234"
-  port_name   = "http"
   protocol    = "TCP"
   region      = "us-central1"
   timeout_sec = %v
@@ -385,7 +382,6 @@ data "google_compute_image" "my_image" {
 resource "google_compute_region_backend_service" "lipsum" {
   name        = "%s"
   description = "Hello World 1234"
-  port_name   = "http"
   protocol    = "TCP"
   region      = "us-central1"
   timeout_sec = %v
