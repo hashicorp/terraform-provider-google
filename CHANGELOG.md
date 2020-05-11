@@ -57,10 +57,7 @@ FEATURES:
 * **New Resource:** `google_healthcare_hl7_v2_store_iam_member` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
 * **New Resource:** `google_healthcare_hl7_v2_store_iam_policy` is now GA ([#6193](https://github.com/terraform-providers/terraform-provider-google/pull/6193))
 * **New Resource:** `google_healthcare_hl7_v2_store` is now GA ([#6164](https://github.com/terraform-providers/terraform-provider-google/pull/6164))
-* **New Resource:** `google_logging_billing_account_bucket_config` ([#6227](https://github.com/terraform-providers/terraform-provider-google/pull/6227))
-* **New Resource:** `google_logging_folder_bucket_config` ([#6227](https://github.com/terraform-providers/terraform-provider-google/pull/6227))
-* **New Resource:** `google_logging_organization_bucket_config` ([#6227](https://github.com/terraform-providers/terraform-provider-google/pull/6227))
-* **New Resource:** `google_logging_project_bucket_config` ([#6227](https://github.com/terraform-providers/terraform-provider-google/pull/6227))
+
 
 IMPROVEMENTS:
 * appengine: Added `automatic_scaling`, `basic_scaling`, and `manual_scaling` to `google_app_engine_standard_app_version` ([#6183](https://github.com/terraform-providers/terraform-provider-google/pull/6183))
