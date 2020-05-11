@@ -51,8 +51,8 @@ func testAccComputeNetworkEndpointGroup_networkEndpointGroupExample(context map[
 	return Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
   name         = "tf-test-my-lb-neg%{random_suffix}"
-  network      = google_compute_network.default.self_link
-  subnetwork   = google_compute_subnetwork.default.self_link
+  network      = google_compute_network.default.id
+  subnetwork   = google_compute_subnetwork.default.id
   default_port = "90"
   zone         = "us-central1-a"
 }
@@ -66,7 +66,7 @@ resource "google_compute_subnetwork" "default" {
   name          = "tf-test-neg-subnetwork%{random_suffix}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.default.self_link
+  network       = google_compute_network.default.id
 }
 `, context)
 }

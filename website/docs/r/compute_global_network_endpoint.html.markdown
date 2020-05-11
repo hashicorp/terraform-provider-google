@@ -47,7 +47,7 @@ resource "google_compute_global_network_endpoint" "default-endpoint" {
 
 resource "google_compute_global_network_endpoint_group" "group" {
   name         = "my-lb-neg"
-  network      = google_compute_network.default.self_link
+  network      = google_compute_network.default.id
   default_port = "90"
 }
 
