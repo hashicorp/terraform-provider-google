@@ -62,7 +62,7 @@ resource "google_redis_instance" "cache" {
   location_id             = "us-central1-a"
   alternative_location_id = "us-central1-f"
 
-  authorized_network = data.google_compute_network.redis-network.self_link
+  authorized_network = data.google_compute_network.redis-network.id
 
   redis_version     = "REDIS_3_2"
   display_name      = "Terraform Test Instance"
@@ -104,11 +104,11 @@ resource "google_compute_global_address" "service_range" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = google_compute_network.network.self_link
+  network       = google_compute_network.network.id
 }
 
 resource "google_service_networking_connection" "private_service_connection" {
-  network                 = google_compute_network.network.self_link
+  network                 = google_compute_network.network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }
@@ -121,7 +121,7 @@ resource "google_redis_instance" "cache" {
   location_id             = "us-central1-a"
   alternative_location_id = "us-central1-f"
 
-  authorized_network = google_compute_network.network.self_link
+  authorized_network = google_compute_network.network.id
   connect_mode       = "PRIVATE_SERVICE_ACCESS"
 
   redis_version     = "REDIS_3_2"
