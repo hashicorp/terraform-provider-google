@@ -27,6 +27,15 @@ func resourceBigtableInstance() *schema.Resource {
 			resourceBigtableInstanceClusterReorderTypeList,
 		),
 
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceBigtableInstanceResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceBigtableInstanceUpgradeV0,
+				Version: 0,
+			},
+		},
+
 		// ----------------------------------------------------------------------
 		// IMPORTANT: Do not add any additional ForceNew fields to this resource.
 		// Destroying/recreating instances can lead to data loss for users.
@@ -80,6 +89,12 @@ func resourceBigtableInstance() *schema.Resource {
 				Optional:     true,
 				Default:      "PRODUCTION",
 				ValidateFunc: validation.StringInSlice([]string{"DEVELOPMENT", "PRODUCTION"}, false),
+			},
+
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
 			},
 
 			"project": {
@@ -235,6 +250,9 @@ func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("cannot destroy instance without setting deletion_protection=false and running `terraform apply`")
+	}
 	config := meta.(*Config)
 	ctx := context.Background()
 
