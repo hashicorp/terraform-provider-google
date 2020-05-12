@@ -68,6 +68,43 @@ resource "google_monitoring_slo" "appeng_slo" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=monitoring_slo_request_based&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Monitoring Slo Request Based
+
+
+```hcl
+resource "google_monitoring_custom_service" "customsrv" {
+  service_id = "custom-srv"
+  display_name = "My Custom Service"
+}
+
+resource "google_monitoring_slo" "request_based_slo" {
+  service = google_monitoring_custom_service.customsrv.service_id
+  slo_id = "consumed-api-slo"
+  display_name = "Terraform Test SLO with request based SLI (good total ratio)"
+
+  goal = 0.9
+  rolling_period_days = 30
+
+  request_based_sli {
+    distribution_cut {
+      distribution_filter = join(" AND ", [
+        "metric.type=\"serviceruntime.googleapis.com/api/request_latencies\"",
+        "resource.type=\"consumed_api\"",
+        "resource.label.\"project_id\"=\"my-project-name\"",
+      ])
+
+      range {
+        max = 10
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -78,13 +115,6 @@ The following arguments are supported:
   (Required)
   The fraction of service that must be good in order for this objective
   to be met. 0 < goal <= 0.999
-
-* `basic_sli` -
-  (Required)
-  Basic Service-Level Indicator (SLI) on a well-known service type.
-  Performance will be computed on the basis of pre-defined metrics.
-  SLIs are used to measure and calculate the quality of the Service's
-  performance with respect to a single aspect of service quality.  Structure is documented below.
 
 * `service` -
   (Required)
@@ -113,6 +143,25 @@ The following arguments are supported:
   * `WEEK`
   * `FORTNIGHT`
   * `MONTH`
+
+* `basic_sli` -
+  (Optional)
+  Basic Service-Level Indicator (SLI) on a well-known service type.
+  Performance will be computed on the basis of pre-defined metrics.
+  SLIs are used to measure and calculate the quality of the Service's
+  performance with respect to a single aspect of service quality.
+  Exactly one of the following must be set:
+  `basic_sli`, `request_based_sli`  Structure is documented below.
+
+* `request_based_sli` -
+  (Optional)
+  A request-based SLI defines a SLI for which atomic units of
+  service are counted directly.
+  A SLI describes a good service.
+  It is used to measure and calculate the quality of the Service's
+  performance with respect to a single aspect of service quality.
+  Exactly one of the following must be set:
+  `basic_sli`, `request_based_sli`  Structure is documented below.
 
 * `slo_id` -
   (Optional)
@@ -164,6 +213,90 @@ The `latency` block supports:
   A duration string, e.g. 10s.
   Good service is defined to be the count of requests made to
   this service that return in no more than threshold.
+
+The `request_based_sli` block supports:
+
+* `good_total_ratio` -
+  (Optional)
+  A means to compute a ratio of `good_service` to `total_service`.
+  Defines computing this ratio with two TimeSeries [monitoring filters](https://cloud.google.com/monitoring/api/v3/filters)
+  Must specify exactly two of good, bad, and total service filters.
+  The relationship good_service + bad_service = total_service
+  will be assumed.
+  Exactly one of `distribution_cut` or `good_total_ratio` can be set.  Structure is documented below.
+
+* `distribution_cut` -
+  (Optional)
+  Used when good_service is defined by a count of values aggregated in a
+  Distribution that fall into a good range. The total_service is the
+  total count of all values aggregated in the Distribution.
+  Defines a distribution TimeSeries filter and thresholds used for
+  measuring good service and total service.
+  Exactly one of `distribution_cut` or `good_total_ratio` can be set.  Structure is documented below.
+
+
+The `good_total_ratio` block supports:
+
+* `good_service_filter` -
+  (Optional)
+  A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+  quantifying good service provided.
+  Must have ValueType = DOUBLE or ValueType = INT64 and
+  must have MetricKind = DELTA or MetricKind = CUMULATIVE.
+  Exactly two of `good_service_filter`,`bad_service_filter`,`total_service_filter`
+  must be set (good + bad = total is assumed).
+
+* `bad_service_filter` -
+  (Optional)
+  A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+  quantifying bad service provided, either demanded service that
+  was not provided or demanded service that was of inadequate
+  quality.
+  Must have ValueType = DOUBLE or ValueType = INT64 and
+  must have MetricKind = DELTA or MetricKind = CUMULATIVE.
+  Exactly two of `good_service_filter`,`bad_service_filter`,`total_service_filter`
+  must be set (good + bad = total is assumed).
+
+* `total_service_filter` -
+  (Optional)
+  A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+  quantifying total demanded service.
+  Must have ValueType = DOUBLE or ValueType = INT64 and
+  must have MetricKind = DELTA or MetricKind = CUMULATIVE.
+  Exactly two of `good_service_filter`,`bad_service_filter`,`total_service_filter`
+  must be set (good + bad = total is assumed).
+
+The `distribution_cut` block supports:
+
+* `distribution_filter` -
+  (Required)
+  A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+  aggregating values to quantify the good service provided.
+  Must have ValueType = DISTRIBUTION and
+  MetricKind = DELTA or MetricKind = CUMULATIVE.
+
+* `range` -
+  (Required)
+  Range of numerical values. The computed good_service
+  will be the count of values x in the Distribution such
+  that range.min <= x < range.max. inclusive of min and
+  exclusive of max. Open ranges can be defined by setting
+  just one of min or max.  Structure is documented below.
+
+
+The `range` block supports:
+
+* `min` -
+  (Optional)
+  Min value for the range (inclusive). If not given,
+  will be set to "-infinity", defining an open range
+  "< range.max"
+
+* `max` -
+  (Optional)
+  max value for the range (inclusive). If not given,
+  will be set to "infinity", defining an open range
+  ">= range.min"
 
 ## Attributes Reference
 

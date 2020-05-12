@@ -69,7 +69,7 @@ func getTestResourceMonitoringSloId(res string, s *terraform.State) (string, err
 	return "", fmt.Errorf("slo_id not set on resource %s", res)
 }
 
-func TestAccMonitoringSlo_update(t *testing.T) {
+func TestAccMonitoringSlo_basic(t *testing.T) {
 	t.Parallel()
 
 	var generatedId string
@@ -90,11 +90,58 @@ func TestAccMonitoringSlo_update(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"service"},
 			},
 			{
-				Config: testAccMonitoringSlo_update(),
+				Config: testAccMonitoringSlo_basicUpdate(),
 				Check:  testCheckMonitoringSloIdAfterUpdate("google_monitoring_slo.primary", &generatedId),
 			},
 			{
 				ResourceName:      "google_monitoring_slo.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+		},
+	})
+}
+
+func TestAccMonitoringSlo_requestBased(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       getTestProjectFromEnv(),
+		"random_suffix": randString(t, 10),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringSlo_requestBasedDistribution(context),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.request_based_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+			{
+				Config: testAccMonitoringSlo_requestBasedGoodBadRatio(context),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.request_based_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+			{
+				Config: testAccMonitoringSlo_requestBasedGoodTotalRatio(context),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.request_based_slo",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Ignore input-only field for import
@@ -125,7 +172,7 @@ resource "google_monitoring_slo" "primary" {
 `
 }
 
-func testAccMonitoringSlo_update() string {
+func testAccMonitoringSlo_basicUpdate() string {
 	return `
 data "google_monitoring_app_engine_service" "ae" {
   module_id = "default"
@@ -145,4 +192,105 @@ resource "google_monitoring_slo" "primary" {
   }
 }
 `
+}
+
+func testAccMonitoringSlo_requestBasedDistribution(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_monitoring_custom_service" "srv" {
+  service_id = "tf-test-custom-srv%{random_suffix}"
+  display_name = "My Custom Service"
+}
+
+resource "google_monitoring_slo" "request_based_slo" {
+  service = google_monitoring_custom_service.srv.service_id
+  slo_id = "tf-test-consumed-api-slo%{random_suffix}"
+  display_name = "Terraform Test SLO with request based SLI"
+
+  goal = 0.9
+  rolling_period_days = 30
+
+  request_based_sli {
+    distribution_cut {
+      distribution_filter = join(" AND ", [
+        "metric.type=\"serviceruntime.googleapis.com/api/request_latencies\"",
+        "resource.type=\"consumed_api\"",
+        "resource.label.\"project_id\"=\"%{project}\"",
+      ])
+
+      range {
+        max = 10
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccMonitoringSlo_requestBasedGoodTotalRatio(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_monitoring_custom_service" "srv" {
+  service_id = "tf-test-custom-srv%{random_suffix}"
+  display_name = "My Custom Service"
+}
+
+resource "google_monitoring_slo" "request_based_slo" {
+  service = google_monitoring_custom_service.srv.service_id
+  slo_id = "tf-test-consumed-api-slo%{random_suffix}"
+  display_name = "Terraform Test SLO with request based SLI (good total ratio)"
+
+  goal = 0.9
+  rolling_period_days = 30
+
+  request_based_sli {
+    good_total_ratio {
+      good_service_filter = join(" AND ", [
+        "metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
+        "resource.type=\"consumed_api\"",
+        "resource.label.\"project_id\"=\"%{project}\"",
+        "metric.label.\"response_code\"=\"200\"",
+      ])
+      total_service_filter = join(" AND ", [
+        "metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
+        "resource.type=\"consumed_api\"",
+        "resource.label.\"project_id\"=\"%{project}\"",
+      ])
+    }
+  }
+}
+`, context)
+}
+
+func testAccMonitoringSlo_requestBasedGoodBadRatio(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_monitoring_custom_service" "srv" {
+  service_id = "tf-test-custom-srv%{random_suffix}"
+  display_name = "My Custom Service"
+}
+
+resource "google_monitoring_slo" "request_based_slo" {
+  service = google_monitoring_custom_service.srv.service_id
+  slo_id = "tf-test-consumed-api-slo%{random_suffix}"
+  display_name = "Terraform Test SLO with request based SLI (good total ratio)"
+
+  goal = 0.9
+  rolling_period_days = 30
+
+  request_based_sli {
+    good_total_ratio {
+      good_service_filter = join(" AND ", [
+        "metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
+        "resource.type=\"consumed_api\"",
+        "resource.label.\"project_id\"=\"%{project}\"",
+        "metric.label.\"response_code\"=\"200\"",
+      ])
+      bad_service_filter = join(" AND ", [
+        "metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
+        "resource.type=\"consumed_api\"",
+        "resource.label.\"project_id\"=\"%{project}\"",
+				"metric.label.\"response_code\"=\"400\"",
+      ])
+    }
+  }
+}
+`, context)
 }
