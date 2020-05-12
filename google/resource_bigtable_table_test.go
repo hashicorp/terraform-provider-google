@@ -172,6 +172,8 @@ resource "google_bigtable_instance" "instance" {
     cluster_id = "%s"
     zone       = "us-central1-b"
   }
+
+  deletion_protection = false
 }
 
 resource "google_bigtable_table" "table" {
@@ -190,6 +192,8 @@ resource "google_bigtable_instance" "instance" {
     cluster_id = "%s"
     zone       = "us-central1-b"
   }
+
+  deletion_protection = false
 }
 
 resource "google_bigtable_table" "table" {
@@ -211,6 +215,7 @@ resource "google_bigtable_instance" "instance" {
   }
 
   instance_type = "DEVELOPMENT"
+  deletion_protection = false
 }
 
 resource "google_bigtable_table" "table" {
@@ -235,6 +240,7 @@ resource "google_bigtable_instance" "instance" {
   }
 
   instance_type = "DEVELOPMENT"
+  deletion_protection = false
 }
 
 resource "google_bigtable_table" "table" {
@@ -263,6 +269,7 @@ resource "google_bigtable_instance" "instance" {
   }
 
   instance_type = "DEVELOPMENT"
+  deletion_protection = false
 }
 
 resource "google_bigtable_table" "table" {

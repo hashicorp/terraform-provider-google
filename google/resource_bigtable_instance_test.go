@@ -31,7 +31,7 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance(instanceName, 4),
@@ -40,7 +40,7 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
 			},
 		},
 	})
@@ -67,7 +67,7 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterReordered(instanceName, 5),
@@ -76,7 +76,7 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterModified(instanceName, 5),
@@ -85,7 +85,7 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterReordered(instanceName, 5),
@@ -94,7 +94,7 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
 			},
 		},
 	})
@@ -117,7 +117,38 @@ func TestAccBigtableInstance_development(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
+		},
+	})
+}
+
+func TestAccBigtableInstance_allowDestroy(t *testing.T) {
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigtableInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableInstance_noAllowDestroy(instanceName, 3),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
+			{
+				Config:      testAccBigtableInstance_noAllowDestroy(instanceName, 3),
+				Destroy:     true,
+				ExpectError: regexp.MustCompile("deletion_protection"),
+			},
+			{
+				Config: testAccBigtableInstance(instanceName, 3),
 			},
 		},
 	})
@@ -159,6 +190,8 @@ resource "google_bigtable_instance" "instance" {
     num_nodes    = %d
     storage_type = "HDD"
   }
+
+  deletion_protection = false
 }
 `, instanceName, instanceName, numNodes)
 }
@@ -199,6 +232,8 @@ resource "google_bigtable_instance" "instance" {
     num_nodes    = %d
     storage_type = "HDD"
   }
+
+  deletion_protection = false
 }
 `, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
 }
@@ -237,6 +272,8 @@ resource "google_bigtable_instance" "instance" {
     num_nodes    = 3
     storage_type = "HDD"
   }
+
+  deletion_protection = false
 }
 `, instanceName, instanceName, instanceName, instanceName, instanceName, instanceName)
 }
@@ -269,6 +306,8 @@ resource "google_bigtable_instance" "instance" {
     num_nodes    = %d
     storage_type = "HDD"
   }
+
+  deletion_protection = false
 }
 `, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
 }
@@ -295,6 +334,8 @@ resource "google_bigtable_instance" "instance" {
     num_nodes    = %d
     storage_type = "HDD"
   }
+
+  deletion_protection = false
 }
 `, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
 }
@@ -308,6 +349,22 @@ resource "google_bigtable_instance" "instance" {
     zone       = "us-central1-b"
   }
   instance_type = "DEVELOPMENT"
+
+  deletion_protection = false
 }
 `, instanceName, instanceName)
+}
+
+func testAccBigtableInstance_noAllowDestroy(instanceName string, numNodes int) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "%s"
+  cluster {
+    cluster_id   = "%s"
+    zone         = "us-central1-b"
+    num_nodes    = %d
+    storage_type = "HDD"
+  }
+}
+`, instanceName, instanceName, numNodes)
 }

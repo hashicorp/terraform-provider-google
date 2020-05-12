@@ -18,6 +18,10 @@ on instances in order to prevent accidental data loss. See
 [Terraform docs](https://www.terraform.io/docs/configuration/resources.html#prevent_destroy)
 for more information on lifecycle parameters.
 
+-> **Note**: On newer versions of the provider, you must explicitly set `deletion_protection=false`
+(and run `terraform apply` to write the field to state) in order to destroy an instance.
+It is recommended to not set this field (or set it to true) until you're ready to destroy.
+
 
 ## Example Usage - Production Instance
 
@@ -50,10 +54,6 @@ resource "google_bigtable_instance" "development-instance" {
     zone         = "us-central1-b"
     storage_type = "HDD"
   }
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 ```
 
@@ -73,6 +73,9 @@ The following arguments are supported:
 * `instance_type` - (Optional) The instance type to create. One of `"DEVELOPMENT"` or `"PRODUCTION"`. Defaults to `"PRODUCTION"`.
 
 * `display_name` - (Optional) The human-readable display name of the Bigtable instance. Defaults to the instance `name`.
+
+* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
+in Terraform state, a `terraform destroy` or `terraform apply` that would delete the instance will fail.
 
 
 -----

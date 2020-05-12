@@ -27,7 +27,8 @@ func TestAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(t *testing.
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -58,6 +59,8 @@ resource "google_bigtable_instance" "instance" {
     num_nodes    = 3
     storage_type = "HDD"
   }
+
+  deletion_protection  = "%{deletion_protection}"
 }
 
 resource "google_bigtable_app_profile" "ap" {
@@ -74,7 +77,8 @@ func TestAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(t *testing
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -105,6 +109,8 @@ resource "google_bigtable_instance" "instance" {
     num_nodes    = 3
     storage_type = "HDD"
   }
+
+  deletion_protection  = "%{deletion_protection}"
 }
 
 resource "google_bigtable_app_profile" "ap" {
