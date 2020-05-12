@@ -293,7 +293,8 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 	updateMask := []string{}
 
 	if d.HasChange("ssl_settings") {
-		updateMask = append(updateMask, "ssl_settings.certificate_id,ssl_settings.ssl_management_type")
+		updateMask = append(updateMask, "ssl_settings.certificate_id",
+			"ssl_settings.ssl_management_type")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it

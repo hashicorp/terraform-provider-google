@@ -272,7 +272,8 @@ func resourceKMSCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if d.HasChange("rotation_period") {
-		updateMask = append(updateMask, "rotationPeriod,nextRotationTime")
+		updateMask = append(updateMask, "rotationPeriod",
+			"nextRotationTime")
 	}
 
 	if d.HasChange("version_template") {

@@ -72,6 +72,64 @@ resource "google_monitoring_slo" "appeng_slo" {
 `, context)
 }
 
+func TestAccMonitoringSlo_monitoringSloRequestBasedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       getTestProjectFromEnv(),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringSlo_monitoringSloRequestBasedExample(context),
+			},
+			{
+				ResourceName:            "google_monitoring_slo.request_based_slo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+		},
+	})
+}
+
+func testAccMonitoringSlo_monitoringSloRequestBasedExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_monitoring_custom_service" "customsrv" {
+  service_id = "tf-test-custom-srv%{random_suffix}"
+  display_name = "My Custom Service"
+}
+
+resource "google_monitoring_slo" "request_based_slo" {
+  service = google_monitoring_custom_service.customsrv.service_id
+  slo_id = "tf-test-consumed-api-slo%{random_suffix}"
+  display_name = "Terraform Test SLO with request based SLI (good total ratio)"
+
+  goal = 0.9
+  rolling_period_days = 30
+
+  request_based_sli {
+    distribution_cut {
+      distribution_filter = join(" AND ", [
+        "metric.type=\"serviceruntime.googleapis.com/api/request_latencies\"",
+        "resource.type=\"consumed_api\"",
+        "resource.label.\"project_id\"=\"%{project}\"",
+      ])
+
+      range {
+        max = 10
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckMonitoringSloDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

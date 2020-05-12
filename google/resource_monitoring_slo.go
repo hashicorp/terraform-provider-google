@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -88,12 +89,15 @@ Must be between 1 to 30 days, inclusive.`,
 			},
 			"basic_sli": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
 				Description: `Basic Service-Level Indicator (SLI) on a well-known service type.
 Performance will be computed on the basis of pre-defined metrics.
 
 SLIs are used to measure and calculate the quality of the Service's
-performance with respect to a single aspect of service quality.`,
+performance with respect to a single aspect of service quality.
+
+Exactly one of the following must be set:
+'basic_sli', 'request_based_sli'`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -158,6 +162,138 @@ field will result in an error.`,
 						},
 					},
 				},
+				ExactlyOneOf: []string{"basic_sli", "request_based_sli"},
+			},
+			"request_based_sli": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `A request-based SLI defines a SLI for which atomic units of
+service are counted directly.
+
+A SLI describes a good service.
+It is used to measure and calculate the quality of the Service's
+performance with respect to a single aspect of service quality.
+Exactly one of the following must be set:
+'basic_sli', 'request_based_sli'`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"distribution_cut": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Used when good_service is defined by a count of values aggregated in a
+Distribution that fall into a good range. The total_service is the
+total count of all values aggregated in the Distribution.
+Defines a distribution TimeSeries filter and thresholds used for
+measuring good service and total service.
+
+Exactly one of 'distribution_cut' or 'good_total_ratio' can be set.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"distribution_filter": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+aggregating values to quantify the good service provided.
+
+Must have ValueType = DISTRIBUTION and
+MetricKind = DELTA or MetricKind = CUMULATIVE.`,
+									},
+									"range": {
+										Type:     schema.TypeList,
+										Required: true,
+										Description: `Range of numerical values. The computed good_service
+will be the count of values x in the Distribution such
+that range.min <= x < range.max. inclusive of min and
+exclusive of max. Open ranges can be defined by setting
+just one of min or max.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"max": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `max value for the range (inclusive). If not given,
+will be set to "infinity", defining an open range
+">= range.min"`,
+													AtLeastOneOf: []string{"request_based_sli.0.distribution_cut.0.range.0.min", "request_based_sli.0.distribution_cut.0.range.0.max"},
+												},
+												"min": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `Min value for the range (inclusive). If not given,
+will be set to "-infinity", defining an open range
+"< range.max"`,
+													AtLeastOneOf: []string{"request_based_sli.0.distribution_cut.0.range.0.min", "request_based_sli.0.distribution_cut.0.range.0.max"},
+												},
+											},
+										},
+									},
+								},
+							},
+							ExactlyOneOf: []string{"request_based_sli.0.good_total_ratio", "request_based_sli.0.distribution_cut"},
+						},
+						"good_total_ratio": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `A means to compute a ratio of 'good_service' to 'total_service'.
+Defines computing this ratio with two TimeSeries [monitoring filters](https://cloud.google.com/monitoring/api/v3/filters)
+Must specify exactly two of good, bad, and total service filters.
+The relationship good_service + bad_service = total_service
+will be assumed.
+
+Exactly one of 'distribution_cut' or 'good_total_ratio' can be set.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bad_service_filter": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+quantifying bad service provided, either demanded service that
+was not provided or demanded service that was of inadequate
+quality.
+
+Must have ValueType = DOUBLE or ValueType = INT64 and
+must have MetricKind = DELTA or MetricKind = CUMULATIVE.
+
+Exactly two of 'good_service_filter','bad_service_filter','total_service_filter'
+must be set (good + bad = total is assumed).`,
+										AtLeastOneOf: []string{"request_based_sli.0.good_total_ratio.0.good_service_filter", "request_based_sli.0.good_total_ratio.0.bad_service_filter", "request_based_sli.0.good_total_ratio.0.total_service_filter"},
+									},
+									"good_service_filter": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+quantifying good service provided.
+Must have ValueType = DOUBLE or ValueType = INT64 and
+must have MetricKind = DELTA or MetricKind = CUMULATIVE.
+
+Exactly two of 'good_service_filter','bad_service_filter','total_service_filter'
+must be set (good + bad = total is assumed).`,
+										AtLeastOneOf: []string{"request_based_sli.0.good_total_ratio.0.good_service_filter", "request_based_sli.0.good_total_ratio.0.bad_service_filter", "request_based_sli.0.good_total_ratio.0.total_service_filter"},
+									},
+									"total_service_filter": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+quantifying total demanded service.
+
+Must have ValueType = DOUBLE or ValueType = INT64 and
+must have MetricKind = DELTA or MetricKind = CUMULATIVE.
+
+Exactly two of 'good_service_filter','bad_service_filter','total_service_filter'
+must be set (good + bad = total is assumed).`,
+										AtLeastOneOf: []string{"request_based_sli.0.good_total_ratio.0.good_service_filter", "request_based_sli.0.good_total_ratio.0.bad_service_filter", "request_based_sli.0.good_total_ratio.0.total_service_filter"},
+									},
+								},
+							},
+							ExactlyOneOf: []string{"request_based_sli.0.good_total_ratio", "request_based_sli.0.distribution_cut"},
+						},
+					},
+				},
+				ExactlyOneOf: []string{"basic_sli", "request_based_sli"},
 			},
 
 			"slo_id": {
@@ -400,7 +536,16 @@ func resourceMonitoringSloUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.HasChange("basic_sli") {
-		updateMask = append(updateMask, "serviceLevelIndicator")
+		updateMask = append(updateMask, "serviceLevelIndicator.basicSli")
+	}
+
+	if d.HasChange("request_based_sli") {
+		updateMask = append(updateMask, "serviceLevelIndicator.requestBased.goodTotalRatio.badServiceFilter",
+			"serviceLevelIndicator.requestBased.goodTotalRatio.goodServiceFilter",
+			"serviceLevelIndicator.requestBased.goodTotalRatio.totalServiceFilter",
+			"serviceLevelIndicator.requestBased.distributionCut.range.min",
+			"serviceLevelIndicator.requestBased.distributionCut.range.max",
+			"serviceLevelIndicator.requestBased.distributionCut.distributionFilter")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -503,6 +648,8 @@ func flattenMonitoringSloServiceLevelIndicator(v interface{}, d *schema.Resource
 	transformed := make(map[string]interface{})
 	transformed["basic_sli"] =
 		flattenMonitoringSloServiceLevelIndicatorBasicSli(original["basicSli"], d, config)
+	transformed["request_based_sli"] =
+		flattenMonitoringSloServiceLevelIndicatorRequestBasedSli(original["requestBased"], d, config)
 	return []interface{}{transformed}
 }
 func flattenMonitoringSloServiceLevelIndicatorBasicSli(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -562,6 +709,118 @@ func flattenMonitoringSloServiceLevelIndicatorBasicSliLatencyThreshold(v interfa
 	return v
 }
 
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSli(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["good_total_ratio"] =
+		flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatio(original["goodTotalRatio"], d, config)
+	transformed["distribution_cut"] =
+		flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCut(original["distributionCut"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatio(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["good_service_filter"] =
+		flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioGoodServiceFilter(original["goodServiceFilter"], d, config)
+	transformed["bad_service_filter"] =
+		flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioBadServiceFilter(original["badServiceFilter"], d, config)
+	transformed["total_service_filter"] =
+		flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioTotalServiceFilter(original["totalServiceFilter"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioGoodServiceFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioBadServiceFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioTotalServiceFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCut(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["distribution_filter"] =
+		flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutDistributionFilter(original["distributionFilter"], d, config)
+	transformed["range"] =
+		flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRange(original["range"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutDistributionFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["min"] =
+		flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMin(original["min"], d, config)
+	transformed["max"] =
+		flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMax(original["max"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMax(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenMonitoringSloSloId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -602,6 +861,13 @@ func expandMonitoringSloServiceLevelIndicator(v interface{}, d TerraformResource
 		return nil, err
 	} else if val := reflect.ValueOf(transformedBasicSli); val.IsValid() && !isEmptyValue(val) {
 		transformed["basicSli"] = transformedBasicSli
+	}
+
+	transformedRequestBasedSli, err := expandMonitoringSloServiceLevelIndicatorRequestBasedSli(d.Get("request_based_sli"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequestBasedSli); val.IsValid() && !isEmptyValue(val) {
+		transformed["requestBased"] = transformedRequestBasedSli
 	}
 
 	return transformed, nil
@@ -682,6 +948,141 @@ func expandMonitoringSloServiceLevelIndicatorBasicSliLatency(v interface{}, d Te
 }
 
 func expandMonitoringSloServiceLevelIndicatorBasicSliLatencyThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSli(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedGoodTotalRatio, err := expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatio(original["good_total_ratio"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGoodTotalRatio); val.IsValid() && !isEmptyValue(val) {
+		transformed["goodTotalRatio"] = transformedGoodTotalRatio
+	}
+
+	transformedDistributionCut, err := expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCut(original["distribution_cut"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDistributionCut); val.IsValid() && !isEmptyValue(val) {
+		transformed["distributionCut"] = transformedDistributionCut
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatio(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedGoodServiceFilter, err := expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioGoodServiceFilter(original["good_service_filter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGoodServiceFilter); val.IsValid() && !isEmptyValue(val) {
+		transformed["goodServiceFilter"] = transformedGoodServiceFilter
+	}
+
+	transformedBadServiceFilter, err := expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioBadServiceFilter(original["bad_service_filter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBadServiceFilter); val.IsValid() && !isEmptyValue(val) {
+		transformed["badServiceFilter"] = transformedBadServiceFilter
+	}
+
+	transformedTotalServiceFilter, err := expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioTotalServiceFilter(original["total_service_filter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTotalServiceFilter); val.IsValid() && !isEmptyValue(val) {
+		transformed["totalServiceFilter"] = transformedTotalServiceFilter
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioGoodServiceFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioBadServiceFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioTotalServiceFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCut(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDistributionFilter, err := expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutDistributionFilter(original["distribution_filter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDistributionFilter); val.IsValid() && !isEmptyValue(val) {
+		transformed["distributionFilter"] = transformedDistributionFilter
+	}
+
+	transformedRange, err := expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRange(original["range"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRange); val.IsValid() && !isEmptyValue(val) {
+		transformed["range"] = transformedRange
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutDistributionFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMin, err := expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMin(original["min"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMin); val.IsValid() && !isEmptyValue(val) {
+		transformed["min"] = transformedMin
+	}
+
+	transformedMax, err := expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMax(original["max"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMax); val.IsValid() && !isEmptyValue(val) {
+		transformed["max"] = transformedMax
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMax(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
