@@ -23,6 +23,34 @@ For more details on Magic Modules please visit [the readme](https://github.com/G
 
 Fields that are only available in beta versions of the Google Cloud Platform API will need to be added only to the `google-beta` provider and excluded from the `google` provider. When adding beta features or resources you will need to use templating to exclude them from generating into the ga version. Look for `*.erb` files in [resources](https://github.com/GoogleCloudPlatform/magic-modules/tree/master/third_party/terraform/resources) for examples.
 
+## Vendoring Libraries
+
+When adding support for just-released GCP features, you'll often need to vendor a new version of the Google API client.
+The Google provider uses Go Modules; use the commands listed below and the new dependencies will be included in your PR.
+
+```bash
+GO111MODULE=on go get {{dependency}}
+GO111MODULE=on go mod tidy
+GO111MODULE=on go mod vendor
+```
+
+If you're developing against Magic Modules, vendoring changes needs to be done against each of the providers Magic Modules builds. At time of writing, that's this provider (`google`) and [`google-beta`](https://github.com/terraform-providers/terraform-provider-google-beta).
+
+### Adding a new package
+
+While `go get` / `go.mod` specify dependencies at the repo level, `go mod vendor` works at the package level. It will only vendor packages that are currently being used in the codebase. Google's API client libs use a separate package per GCP product, making adding new products a little awkward.
+
+In order to create a separate vendoring PR including a new library:
+
+1. Stage your changes in the provider repo
+    * If using Magic Modules, generate into the provider repo and temporarily commit your changes there in a feature branch
+    * If developing directly in the repo, commit all your staged changes to your feature branch
+1. Run the normal vendoring commands above and commit the changes to a new commit
+1. Create a vendoring branch (off `master`) to stage your vendoring PR from
+1. Cherry-pick the vendoring commit from your feature branch into the vendoring branch
+1. Make the vendoring PR
+1. Revert the vendoring changes in your feature branch
+
 ## Tests
 
 ### Running Tests
