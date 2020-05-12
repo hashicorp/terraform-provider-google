@@ -1,6 +1,5 @@
 run:
   deadline: 2m30s
-  modules-download-mode: vendor
 
 issues:
   max-per-linter: 0
