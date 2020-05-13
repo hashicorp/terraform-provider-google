@@ -28,9 +28,8 @@ lint:
 
 tools:
 	@echo "==> installing required tooling..."
-	go install github.com/client9/misspell/cmd/misspell
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint
-
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.18.0
+	curl -L https://git.io/misspell | BINDIR=$(shell go env GOPATH)/bin bash
 
 generate:
 	go generate  ./...
