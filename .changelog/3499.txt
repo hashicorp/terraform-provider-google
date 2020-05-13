@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed error where plan would error if `google_compute_region_disk_resource_policy_attachment` had been deleted outside of terraform.
+```
