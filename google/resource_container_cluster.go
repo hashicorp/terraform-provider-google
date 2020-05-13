@@ -1345,7 +1345,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 		d.SetPartial("enable_shielded_nodes")
 	}
-
 	if d.HasChange("maintenance_policy") {
 		req := &containerBeta.SetMaintenancePolicyRequest{
 			MaintenancePolicy: expandMaintenancePolicy(d, meta),
@@ -1530,13 +1529,14 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// The master must be updated before the nodes
-	if d.HasChange("min_master_version") {
-		desiredMasterVersion := d.Get("min_master_version").(string)
-		currentMasterVersion := d.Get("master_version").(string)
-		des, err := version.NewVersion(desiredMasterVersion)
+	// If set to "", skip this step- any master version satisfies that minimum.
+	if ver := d.Get("min_master_version").(string); d.HasChange("min_master_version") && ver != "" {
+		des, err := version.NewVersion(ver)
 		if err != nil {
 			return err
 		}
+
+		currentMasterVersion := d.Get("master_version").(string)
 		cur, err := version.NewVersion(currentMasterVersion)
 		if err != nil {
 			return err
@@ -1546,7 +1546,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		if cur.LessThan(des) {
 			req := &containerBeta.UpdateClusterRequest{
 				Update: &containerBeta.ClusterUpdate{
-					DesiredMasterVersion: desiredMasterVersion,
+					DesiredMasterVersion: ver,
 				},
 			}
 
@@ -1555,7 +1555,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			if err := lockedCall(lockKey, updateF); err != nil {
 				return err
 			}
-			log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(), desiredMasterVersion)
+			log.Printf("[INFO] GKE cluster %s: master has been updated to %s", d.Id(), ver)
 		}
 		d.SetPartial("min_master_version")
 	}
