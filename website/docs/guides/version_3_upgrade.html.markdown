@@ -427,7 +427,7 @@ resource "google_cloud_run_service" "default" {
     metadata {
       annotations = {
         "autoscaling.knative.dev/maxScale"      = "1000"
-        "run.googleapis.com/client-name"        = "cloud-console"
+        "run.googleapis.com/client-name"        = "terraform"
       }
       name = "revision-name"
     }
