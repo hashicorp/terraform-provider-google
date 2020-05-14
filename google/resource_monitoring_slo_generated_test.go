@@ -101,7 +101,7 @@ func TestAccMonitoringSlo_monitoringSloRequestBasedExample(t *testing.T) {
 func testAccMonitoringSlo_monitoringSloRequestBasedExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
-  service_id = "tf-test-custom-srv%{random_suffix}"
+  service_id = "tf-test-custom-srv-request-slos%{random_suffix}"
   display_name = "My Custom Service"
 }
 
@@ -123,6 +123,231 @@ resource "google_monitoring_slo" "request_based_slo" {
 
       range {
         max = 10
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(context),
+			},
+			{
+				ResourceName:            "google_monitoring_slo.windows_based",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+		},
+	})
+}
+
+func testAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_monitoring_custom_service" "customsrv" {
+  service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
+  display_name = "My Custom Service"
+}
+
+resource "google_monitoring_slo" "windows_based" {
+  service = google_monitoring_custom_service.customsrv.service_id
+  display_name = "Terraform Test SLO with window based SLI"
+
+  goal = 0.95
+  calendar_period = "FORTNIGHT"
+
+  windows_based_sli {
+    window_period = "400s"
+    good_bad_metric_filter =  join(" AND ", [
+      "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\"",
+      "resource.type=\"uptime_url\"",
+    ])
+  }
+}
+`, context)
+}
+
+func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(context),
+			},
+			{
+				ResourceName:            "google_monitoring_slo.windows_based",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+		},
+	})
+}
+
+func testAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_monitoring_custom_service" "customsrv" {
+  service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
+  display_name = "My Custom Service"
+}
+
+resource "google_monitoring_slo" "windows_based" {
+  service = google_monitoring_custom_service.customsrv.service_id
+  display_name = "Terraform Test SLO with window based SLI"
+
+  goal = 0.9
+  rolling_period_days = 20
+
+  windows_based_sli {
+    window_period = "600s"
+    metric_mean_in_range {
+      time_series = join(" AND ", [
+        "metric.type=\"agent.googleapis.com/cassandra/client_request/latency/95p\"",
+        "resource.type=\"gce_instance\"",
+      ])
+
+      range {
+        max = 5
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(context),
+			},
+			{
+				ResourceName:            "google_monitoring_slo.windows_based",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+		},
+	})
+}
+
+func testAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_monitoring_custom_service" "customsrv" {
+  service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
+  display_name = "My Custom Service"
+}
+
+resource "google_monitoring_slo" "windows_based" {
+  service = google_monitoring_custom_service.customsrv.service_id
+  display_name = "Terraform Test SLO with window based SLI"
+
+  goal = 0.9
+  rolling_period_days = 20
+
+  windows_based_sli {
+    window_period = "400s"
+    metric_sum_in_range {
+      time_series = join(" AND ", [
+        "metric.type=\"monitoring.googleapis.com/uptime_check/request_latency\"",
+        "resource.type=\"uptime_url\"",
+      ])
+
+      range {
+        max = 5000
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(context),
+			},
+			{
+				ResourceName:            "google_monitoring_slo.windows_based",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+		},
+	})
+}
+
+func testAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_monitoring_custom_service" "customsrv" {
+  service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
+  display_name = "My Custom Service"
+}
+
+resource "google_monitoring_slo" "windows_based" {
+  service = google_monitoring_custom_service.customsrv.service_id
+  display_name = "Terraform Test SLO with window based SLI"
+
+  goal = 0.9
+  rolling_period_days = 20
+
+  windows_based_sli {
+    window_period = "100s"
+
+    good_total_ratio_threshold {
+      threshold = 0.1
+      performance {
+        distribution_cut {
+          distribution_filter = join(" AND ", [
+            "metric.type=\"serviceruntime.googleapis.com/api/request_latencies\"",
+            "resource.type=\"consumed_api\"",
+          ])
+
+          range {
+            min = 1
+            max = 9
+          }
+        }
       }
     }
   }

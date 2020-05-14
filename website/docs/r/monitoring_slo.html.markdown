@@ -78,7 +78,7 @@ resource "google_monitoring_slo" "appeng_slo" {
 
 ```hcl
 resource "google_monitoring_custom_service" "customsrv" {
-  service_id = "custom-srv"
+  service_id = "custom-srv-request-slos"
   display_name = "My Custom Service"
 }
 
@@ -100,6 +100,151 @@ resource "google_monitoring_slo" "request_based_slo" {
 
       range {
         max = 10
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=monitoring_slo_windows_based_good_bad_metric_filter&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Monitoring Slo Windows Based Good Bad Metric Filter
+
+
+```hcl
+resource "google_monitoring_custom_service" "customsrv" {
+  service_id = "custom-srv-windows-slos"
+  display_name = "My Custom Service"
+}
+
+resource "google_monitoring_slo" "windows_based" {
+  service = google_monitoring_custom_service.customsrv.service_id
+  display_name = "Terraform Test SLO with window based SLI"
+
+  goal = 0.95
+  calendar_period = "FORTNIGHT"
+
+  windows_based_sli {
+    window_period = "400s"
+    good_bad_metric_filter =  join(" AND ", [
+      "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\"",
+      "resource.type=\"uptime_url\"",
+    ])
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=monitoring_slo_windows_based_metric_mean&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Monitoring Slo Windows Based Metric Mean
+
+
+```hcl
+resource "google_monitoring_custom_service" "customsrv" {
+  service_id = "custom-srv-windows-slos"
+  display_name = "My Custom Service"
+}
+
+resource "google_monitoring_slo" "windows_based" {
+  service = google_monitoring_custom_service.customsrv.service_id
+  display_name = "Terraform Test SLO with window based SLI"
+
+  goal = 0.9
+  rolling_period_days = 20
+
+  windows_based_sli {
+    window_period = "600s"
+    metric_mean_in_range {
+      time_series = join(" AND ", [
+        "metric.type=\"agent.googleapis.com/cassandra/client_request/latency/95p\"",
+        "resource.type=\"gce_instance\"",
+      ])
+
+      range {
+        max = 5
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=monitoring_slo_windows_based_metric_sum&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Monitoring Slo Windows Based Metric Sum
+
+
+```hcl
+resource "google_monitoring_custom_service" "customsrv" {
+  service_id = "custom-srv-windows-slos"
+  display_name = "My Custom Service"
+}
+
+resource "google_monitoring_slo" "windows_based" {
+  service = google_monitoring_custom_service.customsrv.service_id
+  display_name = "Terraform Test SLO with window based SLI"
+
+  goal = 0.9
+  rolling_period_days = 20
+
+  windows_based_sli {
+    window_period = "400s"
+    metric_sum_in_range {
+      time_series = join(" AND ", [
+        "metric.type=\"monitoring.googleapis.com/uptime_check/request_latency\"",
+        "resource.type=\"uptime_url\"",
+      ])
+
+      range {
+        max = 5000
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=monitoring_slo_windows_based_ratio_threshold&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Monitoring Slo Windows Based Ratio Threshold
+
+
+```hcl
+resource "google_monitoring_custom_service" "customsrv" {
+  service_id = "custom-srv-windows-slos"
+  display_name = "My Custom Service"
+}
+
+resource "google_monitoring_slo" "windows_based" {
+  service = google_monitoring_custom_service.customsrv.service_id
+  display_name = "Terraform Test SLO with window based SLI"
+
+  goal = 0.9
+  rolling_period_days = 20
+
+  windows_based_sli {
+    window_period = "100s"
+
+    good_total_ratio_threshold {
+      threshold = 0.1
+      performance {
+        distribution_cut {
+          distribution_filter = join(" AND ", [
+            "metric.type=\"serviceruntime.googleapis.com/api/request_latencies\"",
+            "resource.type=\"consumed_api\"",
+          ])
+
+          range {
+            min = 1
+            max = 9
+          }
+        }
       }
     }
   }
@@ -151,7 +296,7 @@ The following arguments are supported:
   SLIs are used to measure and calculate the quality of the Service's
   performance with respect to a single aspect of service quality.
   Exactly one of the following must be set:
-  `basic_sli`, `request_based_sli`  Structure is documented below.
+  `basic_sli`, `request_based_sli`, `windows_based_sli`  Structure is documented below.
 
 * `request_based_sli` -
   (Optional)
@@ -161,7 +306,18 @@ The following arguments are supported:
   It is used to measure and calculate the quality of the Service's
   performance with respect to a single aspect of service quality.
   Exactly one of the following must be set:
-  `basic_sli`, `request_based_sli`  Structure is documented below.
+  `basic_sli`, `request_based_sli`, `windows_based_sli`  Structure is documented below.
+
+* `windows_based_sli` -
+  (Optional)
+  A windows-based SLI defines the criteria for time windows.
+  good_service is defined based off the count of these time windows
+  for which the provided service was of good quality.
+  A SLI describes a good service. It is used to measure and calculate
+  the quality of the Service's performance with respect to a single
+  aspect of service quality.
+  Exactly one of the following must be set:
+  `basic_sli`, `request_based_sli`, `windows_based_sli`  Structure is documented below.
 
 * `slo_id` -
   (Optional)
@@ -282,6 +438,262 @@ The `distribution_cut` block supports:
   that range.min <= x < range.max. inclusive of min and
   exclusive of max. Open ranges can be defined by setting
   just one of min or max.  Structure is documented below.
+
+
+The `range` block supports:
+
+* `min` -
+  (Optional)
+  Min value for the range (inclusive). If not given,
+  will be set to "-infinity", defining an open range
+  "< range.max"
+
+* `max` -
+  (Optional)
+  max value for the range (inclusive). If not given,
+  will be set to "infinity", defining an open range
+  ">= range.min"
+
+The `windows_based_sli` block supports:
+
+* `window_period` -
+  (Optional)
+  Duration over which window quality is evaluated, given as a
+  duration string "{X}s" representing X seconds. Must be an
+  integer fraction of a day and at least 60s.
+
+* `good_bad_metric_filter` -
+  (Optional)
+  A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+  with ValueType = BOOL. The window is good if any true values
+  appear in the window. One of `good_bad_metric_filter`,
+  `good_total_ratio_threshold`, `metric_mean_in_range`,
+  `metric_sum_in_range` must be set for `windows_based_sli`.
+
+* `good_total_ratio_threshold` -
+  (Optional)
+  Criterion that describes a window as good if its performance is
+  high enough. One of `good_bad_metric_filter`,
+  `good_total_ratio_threshold`, `metric_mean_in_range`,
+  `metric_sum_in_range` must be set for `windows_based_sli`.  Structure is documented below.
+
+* `metric_mean_in_range` -
+  (Optional)
+  Criterion that describes a window as good if the metric's value
+  is in a good range, *averaged* across returned streams.
+  One of `good_bad_metric_filter`,
+  `good_total_ratio_threshold`, `metric_mean_in_range`,
+  `metric_sum_in_range` must be set for `windows_based_sli`.
+  Average value X of `time_series` should satisfy
+  `range.min <= X < range.max` for a good window.  Structure is documented below.
+
+* `metric_sum_in_range` -
+  (Optional)
+  Criterion that describes a window as good if the metric's value
+  is in a good range, *summed* across returned streams.
+  Summed value `X` of `time_series` should satisfy
+  `range.min <= X < range.max` for a good window.
+  One of `good_bad_metric_filter`,
+  `good_total_ratio_threshold`, `metric_mean_in_range`,
+  `metric_sum_in_range` must be set for `windows_based_sli`.  Structure is documented below.
+
+
+The `good_total_ratio_threshold` block supports:
+
+* `threshold` -
+  (Optional)
+  If window performance >= threshold, the window is counted
+  as good.
+
+* `performance` -
+  (Optional)
+  Request-based SLI to evaluate to judge window quality.  Structure is documented below.
+
+* `basic_sli_performance` -
+  (Optional)
+  Basic SLI to evaluate to judge window quality.  Structure is documented below.
+
+
+The `performance` block supports:
+
+* `good_total_ratio` -
+  (Optional)
+  A means to compute a ratio of `good_service` to `total_service`.
+  Defines computing this ratio with two TimeSeries [monitoring filters](https://cloud.google.com/monitoring/api/v3/filters)
+  Must specify exactly two of good, bad, and total service filters.
+  The relationship good_service + bad_service = total_service
+  will be assumed.  Structure is documented below.
+
+* `distribution_cut` -
+  (Optional)
+  Used when good_service is defined by a count of values aggregated in a
+  Distribution that fall into a good range. The total_service is the
+  total count of all values aggregated in the Distribution.
+  Defines a distribution TimeSeries filter and thresholds used for
+  measuring good service and total service.  Structure is documented below.
+
+
+The `good_total_ratio` block supports:
+
+* `good_service_filter` -
+  (Optional)
+  A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+  quantifying good service provided. Exactly two of
+  good, bad, or total service filter must be defined (where
+  good + bad = total is assumed)
+  Must have ValueType = DOUBLE or ValueType = INT64 and
+  must have MetricKind = DELTA or MetricKind = CUMULATIVE.
+
+* `bad_service_filter` -
+  (Optional)
+  A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+  quantifying bad service provided, either demanded service that
+  was not provided or demanded service that was of inadequate
+  quality. Exactly two of
+  good, bad, or total service filter must be defined (where
+  good + bad = total is assumed)
+  Must have ValueType = DOUBLE or ValueType = INT64 and
+  must have MetricKind = DELTA or MetricKind = CUMULATIVE.
+
+* `total_service_filter` -
+  (Optional)
+  A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+  quantifying total demanded service. Exactly two of
+  good, bad, or total service filter must be defined (where
+  good + bad = total is assumed)
+  Must have ValueType = DOUBLE or ValueType = INT64 and
+  must have MetricKind = DELTA or MetricKind = CUMULATIVE.
+
+The `distribution_cut` block supports:
+
+* `distribution_filter` -
+  (Required)
+  A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+  aggregating values to quantify the good service provided.
+  Must have ValueType = DISTRIBUTION and
+  MetricKind = DELTA or MetricKind = CUMULATIVE.
+
+* `range` -
+  (Required)
+  Range of numerical values. The computed good_service
+  will be the count of values x in the Distribution such
+  that range.min <= x < range.max. inclusive of min and
+  exclusive of max. Open ranges can be defined by setting
+  just one of min or max.  Structure is documented below.
+
+
+The `range` block supports:
+
+* `min` -
+  (Optional)
+  Min value for the range (inclusive). If not given,
+  will be set to "-infinity", defining an open range
+  "< range.max"
+
+* `max` -
+  (Optional)
+  max value for the range (inclusive). If not given,
+  will be set to "infinity", defining an open range
+  ">= range.min"
+
+The `basic_sli_performance` block supports:
+
+* `method` -
+  (Optional)
+  An optional set of RPCs to which this SLI is relevant.
+  Telemetry from other methods will not be used to calculate
+  performance for this SLI. If omitted, this SLI applies to all
+  the Service's methods. For service types that don't support
+  breaking down by method, setting this field will result in an
+  error.
+
+* `location` -
+  (Optional)
+  An optional set of locations to which this SLI is relevant.
+  Telemetry from other locations will not be used to calculate
+  performance for this SLI. If omitted, this SLI applies to all
+  locations in which the Service has activity. For service types
+  that don't support breaking down by location, setting this
+  field will result in an error.
+
+* `version` -
+  (Optional)
+  The set of API versions to which this SLI is relevant.
+  Telemetry from other API versions will not be used to
+  calculate performance for this SLI. If omitted,
+  this SLI applies to all API versions. For service types
+  that don't support breaking down by version, setting this
+  field will result in an error.
+
+* `latency` -
+  (Required)
+  Parameters for a latency threshold SLI.  Structure is documented below.
+
+
+The `latency` block supports:
+
+* `threshold` -
+  (Required)
+  A duration string, e.g. 10s.
+  Good service is defined to be the count of requests made to
+  this service that return in no more than threshold.
+
+The `metric_mean_in_range` block supports:
+
+* `time_series` -
+  (Required)
+  A [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+  specifying the TimeSeries to use for evaluating window
+  The provided TimeSeries must have ValueType = INT64 or
+  ValueType = DOUBLE and MetricKind = GAUGE. Mean value `X`
+  should satisfy `range.min <= X < range.max`
+  under good service.
+
+* `range` -
+  (Required)
+  Range of numerical values. The computed good_service
+  will be the count of values x in the Distribution such
+  that range.min <= x < range.max. inclusive of min and
+  exclusive of max. Open ranges can be defined by setting
+  just one of min or max. Mean value `X` of `time_series`
+  values should satisfy `range.min <= X < range.max` for a
+  good service.  Structure is documented below.
+
+
+The `range` block supports:
+
+* `min` -
+  (Optional)
+  Min value for the range (inclusive). If not given,
+  will be set to "-infinity", defining an open range
+  "< range.max"
+
+* `max` -
+  (Optional)
+  max value for the range (inclusive). If not given,
+  will be set to "infinity", defining an open range
+  ">= range.min"
+
+The `metric_sum_in_range` block supports:
+
+* `time_series` -
+  (Required)
+  A [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+  specifying the TimeSeries to use for evaluating window
+  quality. The provided TimeSeries must have
+  ValueType = INT64 or ValueType = DOUBLE and
+  MetricKind = GAUGE.
+  Summed value `X` should satisfy
+  `range.min <= X < range.max` for a good window.
+
+* `range` -
+  (Required)
+  Range of numerical values. The computed good_service
+  will be the count of values x in the Distribution such
+  that range.min <= x < range.max. inclusive of min and
+  exclusive of max. Open ranges can be defined by setting
+  just one of min or max. Summed value `X` should satisfy
+  `range.min <= X < range.max` for a good window.  Structure is documented below.
 
 
 The `range` block supports:
