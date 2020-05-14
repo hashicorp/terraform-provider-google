@@ -152,6 +152,8 @@ func testSweepDatabases(region string) error {
 }
 
 func TestAccSqlDatabaseInstance_basicInferredName(t *testing.T) {
+	// Randomness
+	skipIfVcr(t)
 	t.Parallel()
 
 	vcrTest(t, resource.TestCase{

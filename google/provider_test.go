@@ -81,11 +81,18 @@ var billingAccountEnvVars = []string{
 }
 
 var configs map[string]*Config
-var sources map[string]rand.Source
+
+// A source for a given VCR test with the value that seeded it
+type VcrSource struct {
+	seed   int64
+	source rand.Source
+}
+
+var sources map[string]VcrSource
 
 func init() {
 	configs = make(map[string]*Config)
-	sources = make(map[string]rand.Source)
+	sources = make(map[string]VcrSource)
 	testAccProvider = Provider().(*schema.Provider)
 	testAccRandomProvider = random.Provider().(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
@@ -127,7 +134,7 @@ func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.Resour
 		log.Print("[DEBUG] No environment var set for VCR_PATH, skipping VCR")
 		return config, nil
 	}
-	path := filepath.Join(envPath, testName)
+	path := filepath.Join(envPath, vcrFileName(testName))
 
 	rec, err := recorder.NewAsMode(path, vcrMode, config.client.Transport)
 	if err != nil {
@@ -186,9 +193,19 @@ func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.Resour
 func closeRecorder(t *testing.T) {
 	if config, ok := configs[t.Name()]; ok {
 		// We did not cache the config if it does not use VCR
-		err := config.client.Transport.(*recorder.Recorder).Stop()
-		if err != nil {
-			t.Error(err)
+		if !t.Failed() && isVcrEnabled() {
+			// If a test succeeds, write new seed/yaml to files
+			err := config.client.Transport.(*recorder.Recorder).Stop()
+			if err != nil {
+				t.Error(err)
+			}
+			envPath := os.Getenv("VCR_PATH")
+			if vcrSource, ok := sources[t.Name()]; ok {
+				err = writeSeedToFile(vcrSource.seed, vcrSeedFile(envPath, t.Name()))
+				if err != nil {
+					t.Error(err)
+				}
+			}
 		}
 		// Clean up test config
 		delete(configs, t.Name())
@@ -239,32 +256,40 @@ func vcrTest(t *testing.T, c resource.TestCase) {
 	resource.Test(t, c)
 }
 
+// Retrieves a unique test name used for writing files
+// replaces all `/` characters that would cause filepath issues
+// This matters during tests that dispatch multiple tests, for example TestAccLoggingFolderExclusion
+func vcrSeedFile(path, name string) string {
+	return filepath.Join(path, fmt.Sprintf("%s.seed", vcrFileName(name)))
+}
+
+func vcrFileName(name string) string {
+	return strings.ReplaceAll(name, "/", "_")
+}
+
 // Produces a rand.Source for VCR testing based on the given mode.
 // In RECORDING mode, generates a new seed and saves it to a file, using the seed for the source
 // In REPLAYING mode, reads a seed from a file and creates a source from it
-func vcrSource(t *testing.T, path, mode string) (rand.Source, error) {
+func vcrSource(t *testing.T, path, mode string) (*VcrSource, error) {
 	if s, ok := sources[t.Name()]; ok {
-		return s, nil
+		return &s, nil
 	}
-	fileName := filepath.Join(path, fmt.Sprintf("%s.seed", t.Name()))
 	switch mode {
 	case "RECORDING":
 		seed := rand.Int63()
 		s := rand.NewSource(seed)
-		err := writeSeedToFile(seed, fileName)
-		if err != nil {
-			return nil, err
-		}
-		sources[t.Name()] = s
-		return s, nil
+		vcrSource := VcrSource{seed: seed, source: s}
+		sources[t.Name()] = vcrSource
+		return &vcrSource, nil
 	case "REPLAYING":
-		seed, err := readSeedFromFile(fileName)
+		seed, err := readSeedFromFile(vcrSeedFile(path, t.Name()))
 		if err != nil {
 			return nil, err
 		}
 		s := rand.NewSource(seed)
-		sources[t.Name()] = s
-		return s, nil
+		vcrSource := VcrSource{seed: seed, source: s}
+		sources[t.Name()] = vcrSource
+		return &vcrSource, nil
 	default:
 		log.Printf("[DEBUG] No valid environment var set for VCR_MODE, expected RECORDING or REPLAYING, skipping VCR. VCR_MODE: %s", mode)
 		return nil, errors.New("No valid VCR_MODE set")
@@ -314,7 +339,7 @@ func randString(t *testing.T, length int) string {
 		t.Fatal(err)
 	}
 
-	r := rand.New(s)
+	r := rand.New(s.source)
 	result := make([]byte, length)
 	set := "abcdefghijklmnopqrstuvwxyz012346789"
 	for i := 0; i < length; i++ {
@@ -335,7 +360,7 @@ func randInt(t *testing.T) int {
 		t.Fatal(err)
 	}
 
-	return rand.New(s).Int()
+	return rand.New(s.source).Int()
 }
 
 func TestProvider(t *testing.T) {
@@ -422,7 +447,7 @@ func TestAccProviderBasePath_setBasePath(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProviderBasePath_setBasePath("https://www.googleapis.com/compute/beta/", acctest.RandString(10)),
+				Config: testAccProviderBasePath_setBasePath("https://www.googleapis.com/compute/beta/", randString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_address.default",
@@ -442,7 +467,7 @@ func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", acctest.RandString(10)),
+				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", randString(t, 10)),
 				ExpectError: regexp.MustCompile("got HTTP response code 404 with body"),
 			},
 		},
@@ -454,9 +479,9 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billing := getTestBillingAccountFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
-	sa := acctest.RandomWithPrefix("tf-test")
-	topicName := "tf-test-topic-" + acctest.RandString(10)
+	pid := "tf-test-" + randString(t, 10)
+	sa := "tf-test-" + randString(t, 10)
+	topicName := "tf-test-topic-" + randString(t, 10)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -498,8 +523,8 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 
 	org := getTestOrgFromEnv(t)
 	billing := getTestBillingAccountFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
-	sa := acctest.RandomWithPrefix("tf-test")
+	pid := "tf-test-" + randString(t, 10)
+	sa := "tf-test-" + randString(t, 10)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -838,4 +863,13 @@ func multiEnvSearch(ks []string) string {
 		}
 	}
 	return ""
+}
+
+// Some tests fail during VCR. One common case is race conditions when creating resources.
+// If a test config adds two fine-grained resources with the same parent it is undefined
+// which will be created first, causing VCR to fail ~50% of the time
+func skipIfVcr(t *testing.T) {
+	if isVcrEnabled() {
+		t.Skipf("VCR enabled, skipping test: %s", t.Name())
+	}
 }

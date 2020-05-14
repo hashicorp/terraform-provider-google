@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"google.golang.org/api/cloudkms/v1"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/iam/v1"
@@ -329,7 +328,7 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 
 	projects := res.Projects
 	for len(projects) < desiredProjects {
-		pid := SharedServicePerimeterProjectPrefix + acctest.RandString(10)
+		pid := SharedServicePerimeterProjectPrefix + randString(t, 10)
 		project := &cloudresourcemanager.Project{
 			ProjectId: pid,
 			Name:      "TF Service Perimeter Test",

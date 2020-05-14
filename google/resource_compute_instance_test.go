@@ -903,6 +903,8 @@ func TestAccComputeInstance_subnet_custom(t *testing.T) {
 }
 
 func TestAccComputeInstance_subnet_xpn(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 	t.Parallel()
 
 	var instance compute.Instance

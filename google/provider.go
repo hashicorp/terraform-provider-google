@@ -773,7 +773,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dns_record_set":                        resourceDnsRecordSet(),
 			"google_endpoints_service":                     resourceEndpointsService(),
 			"google_folder":                                resourceGoogleFolder(),
-			"google_folder_iam_binding":                    ResourceIamBindingWithBatching(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc, IamBatchingEnabled),
+			"google_folder_iam_binding":                    ResourceIamBinding(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
 			"google_folder_iam_member":                     ResourceIamMember(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
 			"google_folder_iam_policy":                     ResourceIamPolicy(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
 			"google_folder_organization_policy":            resourceGoogleFolderOrganizationPolicy(),

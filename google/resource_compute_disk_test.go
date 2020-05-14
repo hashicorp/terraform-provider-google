@@ -204,6 +204,8 @@ func TestAccComputeDisk_imageDiffSuppressPublicVendorsFamilyNames(t *testing.T) 
 }
 
 func TestAccComputeDisk_timeout(t *testing.T) {
+	// Vcr speeds up test, so it doesn't time out
+	skipIfVcr(t)
 	t.Parallel()
 
 	diskName := fmt.Sprintf("tf-test-disk-%d", randInt(t))
@@ -374,6 +376,8 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 }
 
 func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
+	// Randomness in instance template
+	skipIfVcr(t)
 	t.Parallel()
 
 	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))

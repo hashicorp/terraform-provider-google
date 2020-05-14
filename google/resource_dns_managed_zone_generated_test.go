@@ -24,6 +24,7 @@ import (
 )
 
 func TestAccDNSManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{

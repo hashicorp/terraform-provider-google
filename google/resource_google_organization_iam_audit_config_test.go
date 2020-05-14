@@ -69,6 +69,8 @@ func TestAccOrganizationIamAuditConfig_multiple(t *testing.T) {
 
 // Test that multiple IAM audit configs can be applied to an organization all at once
 func TestAccOrganizationIamAuditConfig_multipleAtOnce(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 	if os.Getenv(runOrgIamAuditConfigTestEnvVar) != "true" {
 		t.Skipf("Environment variable %s is not set, skipping.", runOrgIamAuditConfigTestEnvVar)
 	}
@@ -125,6 +127,8 @@ func TestAccOrganizationIamAuditConfig_update(t *testing.T) {
 
 // Test that an IAM audit config can be removed from an organization
 func TestAccOrganizationIamAuditConfig_remove(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 	if os.Getenv(runOrgIamAuditConfigTestEnvVar) != "true" {
 		t.Skipf("Environment variable %s is not set, skipping.", runOrgIamAuditConfigTestEnvVar)
 	}

@@ -24,6 +24,7 @@ import (
 )
 
 func TestAccSpannerDatabase_spannerDatabaseBasicExample(t *testing.T) {
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{

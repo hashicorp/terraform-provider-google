@@ -79,6 +79,8 @@ func TestAccProjectIamBinding_multiple(t *testing.T) {
 
 // Test that multiple IAM bindings can be applied to a project all at once
 func TestAccProjectIamBinding_multipleAtOnce(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -149,6 +151,8 @@ func TestAccProjectIamBinding_update(t *testing.T) {
 
 // Test that an IAM binding can be removed from a project
 func TestAccProjectIamBinding_remove(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)

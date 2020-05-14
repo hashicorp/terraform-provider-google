@@ -97,6 +97,8 @@ func TestAccRegionInstanceGroupManager_update(t *testing.T) {
 }
 
 func TestAccRegionInstanceGroupManager_updateLifecycle(t *testing.T) {
+	// Randomness in instance template
+	skipIfVcr(t)
 	t.Parallel()
 
 	tag1 := "tag1"
@@ -129,6 +131,8 @@ func TestAccRegionInstanceGroupManager_updateLifecycle(t *testing.T) {
 }
 
 func TestAccRegionInstanceGroupManager_rollingUpdatePolicy(t *testing.T) {
+	// Randomness in instance template
+	skipIfVcr(t)
 	t.Parallel()
 
 	igm := fmt.Sprintf("igm-test-%s", randString(t, 10))
@@ -164,6 +168,8 @@ func TestAccRegionInstanceGroupManager_rollingUpdatePolicy(t *testing.T) {
 }
 
 func TestAccRegionInstanceGroupManager_separateRegions(t *testing.T) {
+	// Randomness in instance template
+	skipIfVcr(t)
 	t.Parallel()
 
 	igm1 := fmt.Sprintf("igm-test-%s", randString(t, 10))

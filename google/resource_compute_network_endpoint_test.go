@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
