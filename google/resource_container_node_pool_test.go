@@ -81,6 +81,8 @@ func TestAccContainerNodePool_maxPodsPerNode(t *testing.T) {
 }
 
 func TestAccContainerNodePool_namePrefix(t *testing.T) {
+	// Randomness
+	skipIfVcr(t)
 	t.Parallel()
 
 	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
@@ -104,6 +106,8 @@ func TestAccContainerNodePool_namePrefix(t *testing.T) {
 }
 
 func TestAccContainerNodePool_noName(t *testing.T) {
+	// Randomness
+	skipIfVcr(t)
 	t.Parallel()
 
 	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))

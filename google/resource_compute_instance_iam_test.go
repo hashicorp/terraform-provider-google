@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -16,7 +15,7 @@ func TestAccComputeInstanceIamPolicy(t *testing.T) {
 	project := getTestProjectFromEnv()
 	role := "roles/compute.osLogin"
 	zone := getTestZoneFromEnv()
-	instanceName := fmt.Sprintf("tf-test-instance-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("tf-test-instance-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

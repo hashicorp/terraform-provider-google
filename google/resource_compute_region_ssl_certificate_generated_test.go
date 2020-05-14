@@ -24,6 +24,7 @@ import (
 )
 
 func TestAccComputeRegionSslCertificate_regionSslCertificateBasicExample(t *testing.T) {
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -65,6 +66,7 @@ resource "google_compute_region_ssl_certificate" "default" {
 }
 
 func TestAccComputeRegionSslCertificate_regionSslCertificateRandomProviderExample(t *testing.T) {
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -120,6 +122,7 @@ resource "random_id" "certificate" {
 }
 
 func TestAccComputeRegionSslCertificate_regionSslCertificateTargetHttpsProxiesExample(t *testing.T) {
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{

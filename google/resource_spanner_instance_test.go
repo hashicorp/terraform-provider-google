@@ -72,6 +72,8 @@ func TestAccSpannerInstance_basic(t *testing.T) {
 }
 
 func TestAccSpannerInstance_basicWithAutogenName(t *testing.T) {
+	// Randomness
+	skipIfVcr(t)
 	t.Parallel()
 
 	displayName := fmt.Sprintf("spanner-test-%s-dname", randString(t, 10))
@@ -96,6 +98,8 @@ func TestAccSpannerInstance_basicWithAutogenName(t *testing.T) {
 }
 
 func TestAccSpannerInstance_update(t *testing.T) {
+	// Randomness
+	skipIfVcr(t)
 	t.Parallel()
 
 	dName1 := fmt.Sprintf("spanner-dname1-%s", randString(t, 10))

@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSqlUser_mysql(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 	t.Parallel()
 
 	instance := fmt.Sprintf("i-%d", randInt(t))

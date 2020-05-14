@@ -8,6 +8,8 @@ import (
 )
 
 func TestAccDataSourceRegionInstanceGroup(t *testing.T) {
+	// Randomness in instance template
+	skipIfVcr(t)
 	t.Parallel()
 	name := "acctest-" + randString(t, 6)
 	vcrTest(t, resource.TestCase{
