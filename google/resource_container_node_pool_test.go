@@ -463,6 +463,10 @@ func TestAccContainerNodePool_resize(t *testing.T) {
 func TestAccContainerNodePool_version(t *testing.T) {
 	t.Parallel()
 
+	// Re-enable this test when there is more than one acceptable node pool version
+	// for the current master version
+	t.Skip()
+
 	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
 	np := fmt.Sprintf("tf-test-nodepool-%s", randString(t, 10))
 
@@ -1096,7 +1100,6 @@ resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1-c"
   initial_node_count = 1
-  node_version       = data.google_container_engine_versions.central1c.latest_node_version
   min_master_version = data.google_container_engine_versions.central1c.latest_master_version
 }
 
