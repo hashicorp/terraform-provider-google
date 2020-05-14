@@ -1,0 +1,3 @@
+```release-note:new-datasource
+Add google_iam_testable_permissions data source
+```
