@@ -107,10 +107,7 @@ func TestAccMonitoringSlo_basic(t *testing.T) {
 func TestAccMonitoringSlo_requestBased(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
-	}
+	randomSuffix := randString(t, 10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -118,30 +115,248 @@ func TestAccMonitoringSlo_requestBased(t *testing.T) {
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringSlo_requestBasedDistribution(context),
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_requestBasedDistributionMaxOnly()),
 			},
 			{
-				ResourceName:      "google_monitoring_slo.request_based_slo",
+				ResourceName:      "google_monitoring_slo.test_slo",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Ignore input-only field for import
 				ImportStateVerifyIgnore: []string{"service"},
 			},
 			{
-				Config: testAccMonitoringSlo_requestBasedGoodBadRatio(context),
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_requestBasedGoodTotalRatio_goodAndTotal()),
 			},
 			{
-				ResourceName:      "google_monitoring_slo.request_based_slo",
+				ResourceName:      "google_monitoring_slo.test_slo",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Ignore input-only field for import
 				ImportStateVerifyIgnore: []string{"service"},
 			},
 			{
-				Config: testAccMonitoringSlo_requestBasedGoodTotalRatio(context),
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_requestBasedGoodTotalRatio_goodAndBad()),
 			},
 			{
-				ResourceName:      "google_monitoring_slo.request_based_slo",
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+		},
+	})
+}
+
+func TestAccMonitoringSlo_windowBased_updateSlis(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := randString(t, 10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_windowBasedSliGoodBadMetricFilter(),
+				),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+			{
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_windowBasedSliGoodTotalRatioThreshold_goodBad(),
+				),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+			{
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_windowBasedSliMetricMeanRange(),
+				),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+			{
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_windowBasedSliMetricSumRange(),
+				),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+		},
+	})
+}
+
+func TestAccMonitoringSlo_windowBasedGoodTotalRatioThresholdSlis(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := randString(t, 10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_windowBasedSliGoodTotalRatioThreshold_distributionCut(),
+				),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+			{
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_windowBasedSliGoodTotalRatioThreshold_distributionCutMaxOnly(),
+				),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+			{
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_windowBasedSliGoodTotalRatioThreshold_goodTotal(),
+				),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+			{
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_windowBasedSliGoodBadMetricFilter(),
+				),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+		},
+	})
+}
+
+func TestAccMonitoringSlo_windowBasedMetricMeanRangeSlis(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := randString(t, 10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_windowBasedSliMetricMeanRange(),
+				),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+			{
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_windowBasedSliMetricMeanRangeUpdate(),
+				),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+		},
+	})
+}
+
+func TestAccMonitoringSlo_windowBasedMetricSumRangeSlis(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := randString(t, 10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_windowBasedSliMetricSumRange(),
+				),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+			{
+				Config: testAccMonitoringSloForSli(
+					randomSuffix,
+					testAccMonitoringSloSli_windowBasedSliMetricSumRangeUpdate(),
+				),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Ignore input-only field for import
@@ -194,103 +409,258 @@ resource "google_monitoring_slo" "primary" {
 `
 }
 
-func testAccMonitoringSlo_requestBasedDistribution(context map[string]interface{}) string {
-	return Nprintf(`
+func testAccMonitoringSloForSli(randSuffix, sliConfig string) string {
+	return fmt.Sprintf(`
 resource "google_monitoring_custom_service" "srv" {
-  service_id = "tf-test-custom-srv%{random_suffix}"
+  service_id = "tf-test-custom-srv-%s"
   display_name = "My Custom Service"
 }
 
-resource "google_monitoring_slo" "request_based_slo" {
+resource "google_monitoring_slo" "test_slo" {
   service = google_monitoring_custom_service.srv.service_id
-  slo_id = "tf-test-consumed-api-slo%{random_suffix}"
-  display_name = "Terraform Test SLO with request based SLI"
+  display_name = "Terraform Test SLO"
 
   goal = 0.9
   rolling_period_days = 30
 
-  request_based_sli {
-    distribution_cut {
-      distribution_filter = join(" AND ", [
-        "metric.type=\"serviceruntime.googleapis.com/api/request_latencies\"",
-        "resource.type=\"consumed_api\"",
-        "resource.label.\"project_id\"=\"%{project}\"",
-      ])
+  %s
 
-      range {
-        max = 10
-      }
-    }
-  }
+
 }
-`, context)
+`, randSuffix, sliConfig)
 }
 
-func testAccMonitoringSlo_requestBasedGoodTotalRatio(context map[string]interface{}) string {
-	return Nprintf(`
-resource "google_monitoring_custom_service" "srv" {
-  service_id = "tf-test-custom-srv%{random_suffix}"
-  display_name = "My Custom Service"
+func testAccMonitoringSloSli_requestBasedDistributionMaxOnly() string {
+	return `
+request_based_sli {
+	distribution_cut {
+		distribution_filter = join(" AND ", [
+			"metric.type=\"serviceruntime.googleapis.com/api/request_latencies\"",
+			"resource.type=\"consumed_api\"",
+		])
+		range {
+			max = 10
+		}
+	}
+}
+`
 }
 
-resource "google_monitoring_slo" "request_based_slo" {
-  service = google_monitoring_custom_service.srv.service_id
-  slo_id = "tf-test-consumed-api-slo%{random_suffix}"
-  display_name = "Terraform Test SLO with request based SLI (good total ratio)"
-
-  goal = 0.9
-  rolling_period_days = 30
-
-  request_based_sli {
-    good_total_ratio {
-      good_service_filter = join(" AND ", [
-        "metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
-        "resource.type=\"consumed_api\"",
-        "resource.label.\"project_id\"=\"%{project}\"",
-        "metric.label.\"response_code\"=\"200\"",
-      ])
-      total_service_filter = join(" AND ", [
-        "metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
-        "resource.type=\"consumed_api\"",
-        "resource.label.\"project_id\"=\"%{project}\"",
-      ])
-    }
-  }
+func testAccMonitoringSloSli_requestBasedGoodTotalRatio_goodAndTotal() string {
+	return `
+request_based_sli {
+	good_total_ratio {
+		good_service_filter = join(" AND ", [
+			"metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
+			"resource.type=\"consumed_api\"",
+			"metric.label.\"response_code\"=\"200\"",
+		])
+		total_service_filter = join(" AND ", [
+			"metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
+			"resource.type=\"consumed_api\"",
+		])
+	}
 }
-`, context)
+`
 }
 
-func testAccMonitoringSlo_requestBasedGoodBadRatio(context map[string]interface{}) string {
-	return Nprintf(`
-resource "google_monitoring_custom_service" "srv" {
-  service_id = "tf-test-custom-srv%{random_suffix}"
-  display_name = "My Custom Service"
+func testAccMonitoringSloSli_requestBasedGoodTotalRatio_goodAndBad() string {
+	return `
+request_based_sli {
+	good_total_ratio {
+		good_service_filter = join(" AND ", [
+			"metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
+			"resource.type=\"consumed_api\"",
+			"metric.label.\"response_code\"=\"200\"",
+		])
+		bad_service_filter = join(" AND ", [
+			"metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
+			"resource.type=\"consumed_api\"",
+			"metric.label.\"response_code\"=\"400\"",
+		])
+	}
+}
+`
 }
 
-resource "google_monitoring_slo" "request_based_slo" {
-  service = google_monitoring_custom_service.srv.service_id
-  slo_id = "tf-test-consumed-api-slo%{random_suffix}"
-  display_name = "Terraform Test SLO with request based SLI (good total ratio)"
+func testAccMonitoringSloSli_windowBasedSliGoodBadMetricFilter() string {
+	return fmt.Sprintf(`
+windows_based_sli {
+  window_period = "1200s"
+  good_bad_metric_filter =  join(" AND ", [
+    "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\"",
+    "resource.type=\"uptime_url\"",
+  ])
+}
+`)
+}
 
-  goal = 0.9
-  rolling_period_days = 30
+func testAccMonitoringSloSli_windowBasedSliGoodTotalRatioThreshold_distributionCut() string {
+	return fmt.Sprintf(`
+windows_based_sli {
+  window_period = "400s"
+	good_total_ratio_threshold {
+		threshold = 0.1
+		performance {
+			distribution_cut {
+				distribution_filter = join(" AND ", [
+					"metric.type=\"serviceruntime.googleapis.com/api/request_latencies\"",
+					"resource.type=\"consumed_api\"",
+				])
+	
+				range {
+					min = 1
+					max = 9
+				}
+			}
+		}
+	}
+}
+`)
+}
 
-  request_based_sli {
-    good_total_ratio {
-      good_service_filter = join(" AND ", [
-        "metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
-        "resource.type=\"consumed_api\"",
-        "resource.label.\"project_id\"=\"%{project}\"",
-        "metric.label.\"response_code\"=\"200\"",
-      ])
-      bad_service_filter = join(" AND ", [
-        "metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
-        "resource.type=\"consumed_api\"",
-        "resource.label.\"project_id\"=\"%{project}\"",
+func testAccMonitoringSloSli_windowBasedSliGoodTotalRatioThreshold_distributionCutMaxOnly() string {
+	return fmt.Sprintf(`
+windows_based_sli {
+  window_period = "2400s"
+	good_total_ratio_threshold {
+		threshold = 0.1
+		performance {
+			distribution_cut {
+				distribution_filter = join(" AND ", [
+					"metric.type=\"serviceruntime.googleapis.com/api/request_latencies\"",
+					"resource.type=\"consumed_api\"",
+				])
+	
+				range {
+					max = 9
+				}
+			}
+		}
+	}
+}
+`)
+}
+
+func testAccMonitoringSloSli_windowBasedSliGoodTotalRatioThreshold_goodTotal() string {
+	return fmt.Sprintf(`
+windows_based_sli {
+  window_period = "2400s"
+	good_total_ratio_threshold {
+		threshold = 0.1
+		performance {
+			good_total_ratio {
+				good_service_filter = join(" AND ", [
+					"metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
+					"resource.type=\"consumed_api\"",
+					"metric.label.\"response_code\"=\"200\"",
+				])
+				total_service_filter = join(" AND ", [
+					"metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
+					"resource.type=\"consumed_api\"",
+				])
+			}
+		}
+	}
+}
+`)
+}
+
+func testAccMonitoringSloSli_windowBasedSliGoodTotalRatioThreshold_goodBad() string {
+	return fmt.Sprintf(`
+windows_based_sli {
+  window_period = "2400s"
+	good_total_ratio_threshold {
+		threshold = 0.1
+		performance {
+			good_total_ratio {
+				good_service_filter = join(" AND ", [
+					"metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
+					"resource.type=\"consumed_api\"",
+					"metric.label.\"response_code\"=\"200\"",
+				])
+				bad_service_filter = join(" AND ", [
+				"metric.type=\"serviceruntime.googleapis.com/api/request_count\"",
+				"resource.type=\"consumed_api\"",
 				"metric.label.\"response_code\"=\"400\"",
-      ])
-    }
-  }
+			])
+			}
+		}
+	}
 }
-`, context)
+`)
+}
+
+func testAccMonitoringSloSli_windowBasedSliMetricMeanRange() string {
+	return fmt.Sprintf(`
+windows_based_sli {
+	window_period = "600s"
+	metric_mean_in_range {
+		time_series = join(" AND ", [
+			"metric.type=\"agent.googleapis.com/cassandra/client_request/latency/95p\"",
+			"resource.type=\"gce_instance\"",
+			])
+		
+		range {
+			max = 50000000
+		}
+	}
+}
+`)
+}
+
+func testAccMonitoringSloSli_windowBasedSliMetricMeanRangeUpdate() string {
+	return `
+windows_based_sli {
+	window_period = "600s"
+	metric_mean_in_range {
+		time_series = join(" AND ", [
+			"metric.type=\"agent.googleapis.com/cassandra/client_request/latency/99p\"",
+			"resource.type=\"gce_instance\"",
+			])
+		
+		range {
+			min = 1
+			max = 70000000
+		}
+	}
+}
+`
+}
+
+func testAccMonitoringSloSli_windowBasedSliMetricSumRange() string {
+	return fmt.Sprintf(`
+windows_based_sli {
+	window_period = "600s"
+	metric_sum_in_range {
+		time_series = join(" AND ", [
+			"metric.type=\"monitoring.googleapis.com/uptime_check/request_latency\"",
+			"resource.type=\"uptime_url\"",
+		])
+
+		range {
+			max = 5000
+		}
+	}
+}
+`)
+}
+
+func testAccMonitoringSloSli_windowBasedSliMetricSumRangeUpdate() string {
+	return `
+windows_based_sli {
+	window_period = "600s"
+	metric_sum_in_range {
+		time_series = join(" AND ", [
+			"metric.type=\"monitoring.googleapis.com/uptime_check/request_latency\"",
+			"resource.type=\"gce_instance\"",
+		])
+
+		range {
+			min = 10
+			max = 6000
+		}
+	}
+}
+`
 }

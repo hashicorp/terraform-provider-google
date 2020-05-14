@@ -97,7 +97,7 @@ SLIs are used to measure and calculate the quality of the Service's
 performance with respect to a single aspect of service quality.
 
 Exactly one of the following must be set:
-'basic_sli', 'request_based_sli'`,
+'basic_sli', 'request_based_sli', 'windows_based_sli'`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -162,7 +162,7 @@ field will result in an error.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"basic_sli", "request_based_sli"},
+				ExactlyOneOf: []string{"basic_sli", "request_based_sli", "windows_based_sli"},
 			},
 			"request_based_sli": {
 				Type:     schema.TypeList,
@@ -174,7 +174,7 @@ A SLI describes a good service.
 It is used to measure and calculate the quality of the Service's
 performance with respect to a single aspect of service quality.
 Exactly one of the following must be set:
-'basic_sli', 'request_based_sli'`,
+'basic_sli', 'request_based_sli', 'windows_based_sli'`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -293,7 +293,373 @@ must be set (good + bad = total is assumed).`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"basic_sli", "request_based_sli"},
+				ExactlyOneOf: []string{"basic_sli", "request_based_sli", "windows_based_sli"},
+			},
+			"windows_based_sli": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `A windows-based SLI defines the criteria for time windows.
+good_service is defined based off the count of these time windows
+for which the provided service was of good quality.
+
+A SLI describes a good service. It is used to measure and calculate
+the quality of the Service's performance with respect to a single
+aspect of service quality.
+
+Exactly one of the following must be set:
+'basic_sli', 'request_based_sli', 'windows_based_sli'`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"good_bad_metric_filter": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+with ValueType = BOOL. The window is good if any true values
+appear in the window. One of 'good_bad_metric_filter',
+'good_total_ratio_threshold', 'metric_mean_in_range',
+'metric_sum_in_range' must be set for 'windows_based_sli'.`,
+							ExactlyOneOf: []string{"windows_based_sli.0.good_bad_metric_filter", "windows_based_sli.0.good_total_ratio_threshold", "windows_based_sli.0.metric_mean_in_range", "windows_based_sli.0.metric_sum_in_range"},
+						},
+						"good_total_ratio_threshold": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Criterion that describes a window as good if its performance is
+high enough. One of 'good_bad_metric_filter',
+'good_total_ratio_threshold', 'metric_mean_in_range',
+'metric_sum_in_range' must be set for 'windows_based_sli'.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"basic_sli_performance": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Basic SLI to evaluate to judge window quality.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"latency": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: `Parameters for a latency threshold SLI.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"threshold": {
+																Type:     schema.TypeString,
+																Required: true,
+																Description: `A duration string, e.g. 10s.
+Good service is defined to be the count of requests made to
+this service that return in no more than threshold.`,
+															},
+														},
+													},
+												},
+												"location": {
+													Type:     schema.TypeSet,
+													Optional: true,
+													Description: `An optional set of locations to which this SLI is relevant.
+Telemetry from other locations will not be used to calculate
+performance for this SLI. If omitted, this SLI applies to all
+locations in which the Service has activity. For service types
+that don't support breaking down by location, setting this
+field will result in an error.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+													Set: schema.HashString,
+												},
+												"method": {
+													Type:     schema.TypeSet,
+													Optional: true,
+													Description: `An optional set of RPCs to which this SLI is relevant.
+Telemetry from other methods will not be used to calculate
+performance for this SLI. If omitted, this SLI applies to all
+the Service's methods. For service types that don't support
+breaking down by method, setting this field will result in an
+error.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+													Set: schema.HashString,
+												},
+												"version": {
+													Type:     schema.TypeSet,
+													Optional: true,
+													Description: `The set of API versions to which this SLI is relevant.
+Telemetry from other API versions will not be used to
+calculate performance for this SLI. If omitted,
+this SLI applies to all API versions. For service types
+that don't support breaking down by version, setting this
+field will result in an error.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+													Set: schema.HashString,
+												},
+											},
+										},
+										ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance", "windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance"},
+									},
+									"performance": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Request-based SLI to evaluate to judge window quality.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"distribution_cut": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `Used when good_service is defined by a count of values aggregated in a
+Distribution that fall into a good range. The total_service is the
+total count of all values aggregated in the Distribution.
+Defines a distribution TimeSeries filter and thresholds used for
+measuring good service and total service.`,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"distribution_filter": {
+																Type:     schema.TypeString,
+																Required: true,
+																Description: `A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+aggregating values to quantify the good service provided.
+
+Must have ValueType = DISTRIBUTION and
+MetricKind = DELTA or MetricKind = CUMULATIVE.`,
+															},
+															"range": {
+																Type:     schema.TypeList,
+																Required: true,
+																Description: `Range of numerical values. The computed good_service
+will be the count of values x in the Distribution such
+that range.min <= x < range.max. inclusive of min and
+exclusive of max. Open ranges can be defined by setting
+just one of min or max.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"max": {
+																			Type:     schema.TypeInt,
+																			Optional: true,
+																			Description: `max value for the range (inclusive). If not given,
+will be set to "infinity", defining an open range
+">= range.min"`,
+																			AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.min", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.max"},
+																		},
+																		"min": {
+																			Type:     schema.TypeInt,
+																			Optional: true,
+																			Description: `Min value for the range (inclusive). If not given,
+will be set to "-infinity", defining an open range
+"< range.max"`,
+																			AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.min", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.max"},
+																		},
+																	},
+																},
+															},
+														},
+													},
+													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut"},
+												},
+												"good_total_ratio": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A means to compute a ratio of 'good_service' to 'total_service'.
+Defines computing this ratio with two TimeSeries [monitoring filters](https://cloud.google.com/monitoring/api/v3/filters)
+Must specify exactly two of good, bad, and total service filters.
+The relationship good_service + bad_service = total_service
+will be assumed.`,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"bad_service_filter": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+quantifying bad service provided, either demanded service that
+was not provided or demanded service that was of inadequate
+quality. Exactly two of
+good, bad, or total service filter must be defined (where
+good + bad = total is assumed)
+
+Must have ValueType = DOUBLE or ValueType = INT64 and
+must have MetricKind = DELTA or MetricKind = CUMULATIVE.`,
+																AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.good_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.bad_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.total_service_filter"},
+															},
+															"good_service_filter": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+quantifying good service provided. Exactly two of
+good, bad, or total service filter must be defined (where
+good + bad = total is assumed)
+
+Must have ValueType = DOUBLE or ValueType = INT64 and
+must have MetricKind = DELTA or MetricKind = CUMULATIVE.`,
+																AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.good_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.bad_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.total_service_filter"},
+															},
+															"total_service_filter": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `A TimeSeries [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+quantifying total demanded service. Exactly two of
+good, bad, or total service filter must be defined (where
+good + bad = total is assumed)
+
+Must have ValueType = DOUBLE or ValueType = INT64 and
+must have MetricKind = DELTA or MetricKind = CUMULATIVE.`,
+																AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.good_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.bad_service_filter", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio.0.total_service_filter"},
+															},
+														},
+													},
+													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.good_total_ratio", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut"},
+												},
+											},
+										},
+										ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance", "windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance"},
+									},
+									"threshold": {
+										Type:     schema.TypeFloat,
+										Optional: true,
+										Description: `If window performance >= threshold, the window is counted
+as good.`,
+									},
+								},
+							},
+							ExactlyOneOf: []string{"windows_based_sli.0.good_bad_metric_filter", "windows_based_sli.0.good_total_ratio_threshold", "windows_based_sli.0.metric_mean_in_range", "windows_based_sli.0.metric_sum_in_range"},
+						},
+						"metric_mean_in_range": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Criterion that describes a window as good if the metric's value
+is in a good range, *averaged* across returned streams.
+One of 'good_bad_metric_filter',
+
+'good_total_ratio_threshold', 'metric_mean_in_range',
+'metric_sum_in_range' must be set for 'windows_based_sli'.
+Average value X of 'time_series' should satisfy
+'range.min <= X < range.max' for a good window.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"range": {
+										Type:     schema.TypeList,
+										Required: true,
+										Description: `Range of numerical values. The computed good_service
+will be the count of values x in the Distribution such
+that range.min <= x < range.max. inclusive of min and
+exclusive of max. Open ranges can be defined by setting
+just one of min or max. Mean value 'X' of 'time_series'
+values should satisfy 'range.min <= X < range.max' for a
+good service.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"max": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `max value for the range (inclusive). If not given,
+will be set to "infinity", defining an open range
+">= range.min"`,
+													AtLeastOneOf: []string{"windows_based_sli.0.metric_mean_in_range.0.range.0.min", "windows_based_sli.0.metric_mean_in_range.0.range.0.max"},
+												},
+												"min": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `Min value for the range (inclusive). If not given,
+will be set to "-infinity", defining an open range
+"< range.max"`,
+													AtLeastOneOf: []string{"windows_based_sli.0.metric_mean_in_range.0.range.0.min", "windows_based_sli.0.metric_mean_in_range.0.range.0.max"},
+												},
+											},
+										},
+									},
+									"time_series": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `A [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+specifying the TimeSeries to use for evaluating window
+The provided TimeSeries must have ValueType = INT64 or
+ValueType = DOUBLE and MetricKind = GAUGE. Mean value 'X'
+should satisfy 'range.min <= X < range.max'
+under good service.`,
+									},
+								},
+							},
+							ExactlyOneOf: []string{"windows_based_sli.0.good_bad_metric_filter", "windows_based_sli.0.good_total_ratio_threshold", "windows_based_sli.0.metric_mean_in_range", "windows_based_sli.0.metric_sum_in_range"},
+						},
+						"metric_sum_in_range": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Criterion that describes a window as good if the metric's value
+is in a good range, *summed* across returned streams.
+Summed value 'X' of 'time_series' should satisfy
+'range.min <= X < range.max' for a good window.
+
+One of 'good_bad_metric_filter',
+'good_total_ratio_threshold', 'metric_mean_in_range',
+'metric_sum_in_range' must be set for 'windows_based_sli'.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"range": {
+										Type:     schema.TypeList,
+										Required: true,
+										Description: `Range of numerical values. The computed good_service
+will be the count of values x in the Distribution such
+that range.min <= x < range.max. inclusive of min and
+exclusive of max. Open ranges can be defined by setting
+just one of min or max. Summed value 'X' should satisfy
+'range.min <= X < range.max' for a good window.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"max": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `max value for the range (inclusive). If not given,
+will be set to "infinity", defining an open range
+">= range.min"`,
+													AtLeastOneOf: []string{"windows_based_sli.0.metric_mean_in_range.0.range.0.min", "windows_based_sli.0.metric_mean_in_range.0.range.0.max"},
+												},
+												"min": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `Min value for the range (inclusive). If not given,
+will be set to "-infinity", defining an open range
+"< range.max"`,
+													AtLeastOneOf: []string{"windows_based_sli.0.metric_sum_in_range.0.range.0.min", "windows_based_sli.0.metric_sum_in_range.0.range.0.max"},
+												},
+											},
+										},
+									},
+									"time_series": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `A [monitoring filter](https://cloud.google.com/monitoring/api/v3/filters)
+specifying the TimeSeries to use for evaluating window
+quality. The provided TimeSeries must have
+ValueType = INT64 or ValueType = DOUBLE and
+MetricKind = GAUGE.
+
+Summed value 'X' should satisfy
+'range.min <= X < range.max' for a good window.`,
+									},
+								},
+							},
+							ExactlyOneOf: []string{"windows_based_sli.0.good_bad_metric_filter", "windows_based_sli.0.good_total_ratio_threshold", "windows_based_sli.0.metric_mean_in_range", "windows_based_sli.0.metric_sum_in_range"},
+						},
+						"window_period": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Duration over which window quality is evaluated, given as a
+duration string "{X}s" representing X seconds. Must be an
+integer fraction of a day and at least 60s.`,
+						},
+					},
+				},
+				ExactlyOneOf: []string{"basic_sli", "request_based_sli", "windows_based_sli"},
 			},
 
 			"slo_id": {
@@ -543,9 +909,24 @@ func resourceMonitoringSloUpdate(d *schema.ResourceData, meta interface{}) error
 		updateMask = append(updateMask, "serviceLevelIndicator.requestBased.goodTotalRatio.badServiceFilter",
 			"serviceLevelIndicator.requestBased.goodTotalRatio.goodServiceFilter",
 			"serviceLevelIndicator.requestBased.goodTotalRatio.totalServiceFilter",
-			"serviceLevelIndicator.requestBased.distributionCut.range.min",
-			"serviceLevelIndicator.requestBased.distributionCut.range.max",
+			"serviceLevelIndicator.requestBased.distributionCut.range",
 			"serviceLevelIndicator.requestBased.distributionCut.distributionFilter")
+	}
+
+	if d.HasChange("windows_based_sli") {
+		updateMask = append(updateMask, "serviceLevelIndicator.windowsBased.windowPeriod",
+			"serviceLevelIndicator.windowsBased.goodBadMetricFilter",
+			"serviceLevelIndicator.windowsBased.goodTotalRatioThreshold.threshold",
+			"serviceLevelIndicator.windowsBased.goodTotalRatioThreshold.performance.goodTotalRatio.badServiceFilter",
+			"serviceLevelIndicator.windowsBased.goodTotalRatioThreshold.performance.goodTotalRatio.goodServiceFilter",
+			"serviceLevelIndicator.windowsBased.goodTotalRatioThreshold.performance.goodTotalRatio.totalServiceFilter",
+			"serviceLevelIndicator.windowsBased.goodTotalRatioThreshold.performance.distributionCut.range",
+			"serviceLevelIndicator.windowsBased.goodTotalRatioThreshold.performance.distributionCut.distributionFilter",
+			"serviceLevelIndicator.windowsBased.goodTotalRatioThreshold.basicSliPerformance",
+			"serviceLevelIndicator.windowsBased.metricMeanInRange.timeSeries",
+			"serviceLevelIndicator.windowsBased.metricMeanInRange.range",
+			"serviceLevelIndicator.windowsBased.metricSumInRange.timeSeries",
+			"serviceLevelIndicator.windowsBased.metricSumInRange.range")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -650,6 +1031,8 @@ func flattenMonitoringSloServiceLevelIndicator(v interface{}, d *schema.Resource
 		flattenMonitoringSloServiceLevelIndicatorBasicSli(original["basicSli"], d, config)
 	transformed["request_based_sli"] =
 		flattenMonitoringSloServiceLevelIndicatorRequestBasedSli(original["requestBased"], d, config)
+	transformed["windows_based_sli"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSli(original["windowsBased"], d, config)
 	return []interface{}{transformed}
 }
 func flattenMonitoringSloServiceLevelIndicatorBasicSli(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -821,6 +1204,361 @@ func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRang
 	return v // let terraform core handle it otherwise
 }
 
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSli(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["window_period"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliWindowPeriod(original["windowPeriod"], d, config)
+	transformed["good_bad_metric_filter"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodBadMetricFilter(original["goodBadMetricFilter"], d, config)
+	transformed["good_total_ratio_threshold"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThreshold(original["goodTotalRatioThreshold"], d, config)
+	transformed["metric_mean_in_range"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRange(original["metricMeanInRange"], d, config)
+	transformed["metric_sum_in_range"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRange(original["metricSumInRange"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliWindowPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodBadMetricFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["threshold"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdThreshold(original["threshold"], d, config)
+	transformed["performance"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformance(original["performance"], d, config)
+	transformed["basic_sli_performance"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformance(original["basicSliPerformance"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["good_total_ratio"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatio(original["goodTotalRatio"], d, config)
+	transformed["distribution_cut"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCut(original["distributionCut"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatio(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["good_service_filter"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioGoodServiceFilter(original["goodServiceFilter"], d, config)
+	transformed["bad_service_filter"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioBadServiceFilter(original["badServiceFilter"], d, config)
+	transformed["total_service_filter"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioTotalServiceFilter(original["totalServiceFilter"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioGoodServiceFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioBadServiceFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioTotalServiceFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCut(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["distribution_filter"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutDistributionFilter(original["distributionFilter"], d, config)
+	transformed["range"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRange(original["range"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutDistributionFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["min"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMin(original["min"], d, config)
+	transformed["max"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMax(original["max"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMax(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["method"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceMethod(original["method"], d, config)
+	transformed["location"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLocation(original["location"], d, config)
+	transformed["version"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceVersion(original["version"], d, config)
+	transformed["latency"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatency(original["latency"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["threshold"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatencyThreshold(original["threshold"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatencyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["time_series"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeTimeSeries(original["timeSeries"], d, config)
+	transformed["range"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRange(original["range"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeTimeSeries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["min"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMin(original["min"], d, config)
+	transformed["max"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMax(original["max"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMax(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["time_series"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeTimeSeries(original["timeSeries"], d, config)
+	transformed["range"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRange(original["range"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeTimeSeries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["min"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMin(original["min"], d, config)
+	transformed["max"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMax(original["max"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMax(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenMonitoringSloSloId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -868,6 +1606,13 @@ func expandMonitoringSloServiceLevelIndicator(v interface{}, d TerraformResource
 		return nil, err
 	} else if val := reflect.ValueOf(transformedRequestBasedSli); val.IsValid() && !isEmptyValue(val) {
 		transformed["requestBased"] = transformedRequestBasedSli
+	}
+
+	transformedWindowsBasedSli, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSli(d.Get("windows_based_sli"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWindowsBasedSli); val.IsValid() && !isEmptyValue(val) {
+		transformed["windowsBased"] = transformedWindowsBasedSli
 	}
 
 	return transformed, nil
@@ -1083,6 +1828,439 @@ func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRange
 }
 
 func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMax(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSli(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWindowPeriod, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliWindowPeriod(original["window_period"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWindowPeriod); val.IsValid() && !isEmptyValue(val) {
+		transformed["windowPeriod"] = transformedWindowPeriod
+	}
+
+	transformedGoodBadMetricFilter, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodBadMetricFilter(original["good_bad_metric_filter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGoodBadMetricFilter); val.IsValid() && !isEmptyValue(val) {
+		transformed["goodBadMetricFilter"] = transformedGoodBadMetricFilter
+	}
+
+	transformedGoodTotalRatioThreshold, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThreshold(original["good_total_ratio_threshold"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGoodTotalRatioThreshold); val.IsValid() && !isEmptyValue(val) {
+		transformed["goodTotalRatioThreshold"] = transformedGoodTotalRatioThreshold
+	}
+
+	transformedMetricMeanInRange, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRange(original["metric_mean_in_range"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMetricMeanInRange); val.IsValid() && !isEmptyValue(val) {
+		transformed["metricMeanInRange"] = transformedMetricMeanInRange
+	}
+
+	transformedMetricSumInRange, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRange(original["metric_sum_in_range"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMetricSumInRange); val.IsValid() && !isEmptyValue(val) {
+		transformed["metricSumInRange"] = transformedMetricSumInRange
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliWindowPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodBadMetricFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedThreshold, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdThreshold(original["threshold"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedThreshold); val.IsValid() && !isEmptyValue(val) {
+		transformed["threshold"] = transformedThreshold
+	}
+
+	transformedPerformance, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformance(original["performance"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPerformance); val.IsValid() && !isEmptyValue(val) {
+		transformed["performance"] = transformedPerformance
+	}
+
+	transformedBasicSliPerformance, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformance(original["basic_sli_performance"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBasicSliPerformance); val.IsValid() && !isEmptyValue(val) {
+		transformed["basicSliPerformance"] = transformedBasicSliPerformance
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedGoodTotalRatio, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatio(original["good_total_ratio"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGoodTotalRatio); val.IsValid() && !isEmptyValue(val) {
+		transformed["goodTotalRatio"] = transformedGoodTotalRatio
+	}
+
+	transformedDistributionCut, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCut(original["distribution_cut"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDistributionCut); val.IsValid() && !isEmptyValue(val) {
+		transformed["distributionCut"] = transformedDistributionCut
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatio(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedGoodServiceFilter, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioGoodServiceFilter(original["good_service_filter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGoodServiceFilter); val.IsValid() && !isEmptyValue(val) {
+		transformed["goodServiceFilter"] = transformedGoodServiceFilter
+	}
+
+	transformedBadServiceFilter, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioBadServiceFilter(original["bad_service_filter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBadServiceFilter); val.IsValid() && !isEmptyValue(val) {
+		transformed["badServiceFilter"] = transformedBadServiceFilter
+	}
+
+	transformedTotalServiceFilter, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioTotalServiceFilter(original["total_service_filter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTotalServiceFilter); val.IsValid() && !isEmptyValue(val) {
+		transformed["totalServiceFilter"] = transformedTotalServiceFilter
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioGoodServiceFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioBadServiceFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioTotalServiceFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCut(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDistributionFilter, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutDistributionFilter(original["distribution_filter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDistributionFilter); val.IsValid() && !isEmptyValue(val) {
+		transformed["distributionFilter"] = transformedDistributionFilter
+	}
+
+	transformedRange, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRange(original["range"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRange); val.IsValid() && !isEmptyValue(val) {
+		transformed["range"] = transformedRange
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutDistributionFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMin, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMin(original["min"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMin); val.IsValid() && !isEmptyValue(val) {
+		transformed["min"] = transformedMin
+	}
+
+	transformedMax, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMax(original["max"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMax); val.IsValid() && !isEmptyValue(val) {
+		transformed["max"] = transformedMax
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMax(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMethod, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceMethod(original["method"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMethod); val.IsValid() && !isEmptyValue(val) {
+		transformed["method"] = transformedMethod
+	}
+
+	transformedLocation, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLocation(original["location"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLocation); val.IsValid() && !isEmptyValue(val) {
+		transformed["location"] = transformedLocation
+	}
+
+	transformedVersion, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
+	transformedLatency, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatency(original["latency"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLatency); val.IsValid() && !isEmptyValue(val) {
+		transformed["latency"] = transformedLatency
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatency(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedThreshold, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatencyThreshold(original["threshold"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedThreshold); val.IsValid() && !isEmptyValue(val) {
+		transformed["threshold"] = transformedThreshold
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatencyThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTimeSeries, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeTimeSeries(original["time_series"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeSeries); val.IsValid() && !isEmptyValue(val) {
+		transformed["timeSeries"] = transformedTimeSeries
+	}
+
+	transformedRange, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRange(original["range"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRange); val.IsValid() && !isEmptyValue(val) {
+		transformed["range"] = transformedRange
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeTimeSeries(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMin, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMin(original["min"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMin); val.IsValid() && !isEmptyValue(val) {
+		transformed["min"] = transformedMin
+	}
+
+	transformedMax, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMax(original["max"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMax); val.IsValid() && !isEmptyValue(val) {
+		transformed["max"] = transformedMax
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMax(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTimeSeries, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeTimeSeries(original["time_series"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeSeries); val.IsValid() && !isEmptyValue(val) {
+		transformed["timeSeries"] = transformedTimeSeries
+	}
+
+	transformedRange, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRange(original["range"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRange); val.IsValid() && !isEmptyValue(val) {
+		transformed["range"] = transformedRange
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeTimeSeries(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMin, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMin(original["min"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMin); val.IsValid() && !isEmptyValue(val) {
+		transformed["min"] = transformedMin
+	}
+
+	transformedMax, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMax(original["max"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMax); val.IsValid() && !isEmptyValue(val) {
+		transformed["max"] = transformedMax
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMax(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
