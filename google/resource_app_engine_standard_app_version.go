@@ -326,6 +326,14 @@ All URLs that begin with this prefix are handled by this handler, using the port
 					},
 				},
 			},
+			"inbound_services": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Before an application can receive email or XMPP messages, the application must be configured to enable the service.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"instance_class": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -479,6 +487,12 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("entrypoint"); !isEmptyValue(reflect.ValueOf(entrypointProp)) && (ok || !reflect.DeepEqual(v, entrypointProp)) {
 		obj["entrypoint"] = entrypointProp
 	}
+	inboundServicesProp, err := expandAppEngineFlexibleAppVersionInboundServices(d.Get("inbound_services"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("inbound_services"); !isEmptyValue(reflect.ValueOf(inboundServicesProp)) && (ok || !reflect.DeepEqual(v, inboundServicesProp)) {
+		obj["inboundServices"] = inboundServicesProp
+	}
 	instanceClassProp, err := expandAppEngineStandardAppVersionInstanceClass(d.Get("instance_class"), d, config)
 	if err != nil {
 		return err
@@ -594,6 +608,9 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("libraries", flattenAppEngineStandardAppVersionLibraries(res["libraries"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
+	if err := d.Set("inbound_services", flattenAppEngineFlexibleAppVersionInboundServices(res["inboundServices"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
 	if err := d.Set("instance_class", flattenAppEngineStandardAppVersionInstanceClass(res["instanceClass"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
@@ -672,6 +689,12 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("entrypoint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, entrypointProp)) {
 		obj["entrypoint"] = entrypointProp
+	}
+	inboundServicesProp, err := expandAppEngineFlexibleAppVersionInboundServices(d.Get("inbound_services"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("inbound_services"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, inboundServicesProp)) {
+		obj["inboundServices"] = inboundServicesProp
 	}
 	instanceClassProp, err := expandAppEngineStandardAppVersionInstanceClass(d.Get("instance_class"), d, config)
 	if err != nil {
