@@ -82,7 +82,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 													Type:     schema.TypeSet,
 													Required: true,
 													MinItems: 1,
-													MaxItems: 5,
+													MaxItems: 10,
 													Elem:     &schema.Schema{Type: schema.TypeString},
 												},
 											},
