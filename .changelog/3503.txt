@@ -1,0 +1,9 @@
+```release-note:enhancement
+composer: Added support for `google_composer_environment` `web_server_network_access_control` for private environments (Beta only)
+```
+```release-note:enhancement
+composer: Added support for `google_composer_environment` `config.private_environment_config.cloud_sql_ipv4_cidr_block`
+```
+```release-note:enhancement
+composer: Added support for `google_composer_environment` `config.private_environment_config.web_server_ipv4_cidr_block`
+```
