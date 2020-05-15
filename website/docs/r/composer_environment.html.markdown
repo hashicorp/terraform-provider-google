@@ -169,6 +169,10 @@ The `config` block supports:
   (Optional)
   The configuration used for the Private IP Cloud Composer environment. Structure is documented below.
 
+* `web_server_network_access_control` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The network-level access control policy for the Airflow web server. If unspecified, no network-level access restrictions will be applied.
+
 
 The `node_config` block supports:
 
@@ -289,7 +293,7 @@ The `software_config` block supports:
   The major version of Python used to run the Apache Airflow scheduler, worker, and webserver processes.
   Can be set to '2' or '3'. If not specified, the default is '2'. Cannot be updated.
 
-The `private_environment_config` block supports:
+See [documentation](https://cloud.google.com/composer/docs/how-to/managing/configuring-private-ip) for seting up private environments. The `private_environment_config` block supports:
 
 * `enable_private_endpoint` -
   If true, access to the public endpoint of the GKE cluster is denied.
@@ -301,6 +305,32 @@ The `private_environment_config` block supports:
   internal load balancer virtual IP. This range must not overlap with any other ranges
   in use within the cluster's network.
   If left blank, the default value of '172.16.0.0/28' is used.
+
+* `cloud_sql_ipv4_cidr_block` -
+  (Optional)
+  The CIDR block from which IP range in tenant project will be reserved for Cloud SQL. Needs to be disjoint from `web_server_ipv4_cidr_block`
+
+* `web_server_ipv4_cidr_block` -
+  (Optional)
+  The CIDR block from which IP range for web server will be reserved. Needs to be disjoint from `master_ipv4_cidr_block` and `cloud_sql_ipv4_cidr_block`.
+
+The `web_server_network_access_control` supports:
+
+* `allowed_ip_range` -
+  A collection of allowed IP ranges with descriptions. Structure is documented below.
+
+The `allowed_ip_range` supports:
+
+* `value` -
+  (Required)
+  IP address or range, defined using CIDR notation, of requests that this rule applies to.
+  Examples: `192.168.1.1` or `192.168.0.0/16` or `2001:db8::/32` or `2001:0db8:0000:0042:0000:8a2e:0370:7334`.
+  IP range prefixes should be properly truncated. For example,
+  `1.2.3.4/24` should be truncated to `1.2.3.0/24`. Similarly, for IPv6, `2001:db8::1/32` should be truncated to `2001:db8::/32`.
+
+* `description` -
+  (Optional)
+  A description of this ip range.
 
 The `ip_allocation_policy` block supports:
 
