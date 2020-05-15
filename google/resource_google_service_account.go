@@ -19,6 +19,9 @@ func resourceGoogleServiceAccount() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceGoogleServiceAccountImport,
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(5 * time.Minute),
+		},
 		Schema: map[string]*schema.Schema{
 			"email": {
 				Type:     schema.TypeString,
@@ -83,10 +86,15 @@ func resourceGoogleServiceAccountCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	d.SetId(sa.Name)
-	// This API is meant to be synchronous, but in practice it shows the old value for
-	// a few milliseconds after the update goes through.  A second is more than enough
-	// time to ensure following reads are correct.
-	time.Sleep(time.Second)
+
+	err = retryTimeDuration(func() (operr error) {
+		_, saerr := config.clientIAM.Projects.ServiceAccounts.Get(d.Id()).Do()
+		return saerr
+	}, d.Timeout(schema.TimeoutCreate), isNotFoundRetryableError("service account creation"))
+
+	if err != nil {
+		return fmt.Errorf("Error reading service account after creation: %s", err)
+	}
 
 	return resourceGoogleServiceAccountRead(d, meta)
 }
@@ -146,7 +154,7 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	// See comment in Create.
+	// API tends to be asynchronous
 	time.Sleep(time.Second)
 
 	return nil

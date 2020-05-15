@@ -58,6 +58,13 @@ exported:
 
 * `unique_id` - The unique id of the service account.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 5 minutes.
+
 ## Import
 
 Service accounts can be imported using their URI, e.g.

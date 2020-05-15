@@ -1,0 +1,3 @@
+```release-note:bug
+iam: Fixed an issue where `google_service_account` shows an error after creating the resource
+```
