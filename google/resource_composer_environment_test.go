@@ -15,8 +15,8 @@ import (
 	"google.golang.org/api/storage/v1"
 )
 
-const testComposerEnvironmentPrefix = "tf-cc-testenv"
-const testComposerNetworkPrefix = "tf-cc-testnet"
+const testComposerEnvironmentPrefix = "tf-test-composer-env"
+const testComposerNetworkPrefix = "tf-test-composer-net"
 
 func init() {
 	resource.AddTestSweepers("gcp_composer_environment", &resource.Sweeper{
