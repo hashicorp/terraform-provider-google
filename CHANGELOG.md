@@ -7,13 +7,13 @@ FEATURES:
 
 IMPROVEMENTS:
 * bigtable: added `deletion_protection` field to `google_bigtable_instance` to make deleting them require an explicit intent. ([#6357](https://github.com/terraform-providers/terraform-provider-google/pull/6357))
-* compute: Added `google_compute_region_backend_service` `portName` parameter ([#6327](https://github.com/terraform-providers/terraform-provider-google/pull/6327))
+* compute: Added `google_compute_region_backend_service` `port_name` parameter ([#6327](https://github.com/terraform-providers/terraform-provider-google/pull/6327))
 * dataproc: Updated `google_dataproc_cluster.software_config.optional_components` to include new options. ([#6330](https://github.com/terraform-providers/terraform-provider-google/pull/6330))
 * monitoring: Added `request_based` SLI support to `google_monitoring_slo` ([#6353](https://github.com/terraform-providers/terraform-provider-google/pull/6353))
 * storage: added `google_storage_bucket` bucket name to the error message when the bucket can't be deleted because it's not empty ([#6355](https://github.com/terraform-providers/terraform-provider-google/pull/6355))
 
 BUG FIXES:
-* bigquery: Fixed error where `google_bigquery_dataset_access` resources could not be found post-creation if role was set to a predefined IAM role with an equivalent primative role (e.g. `roles/bigquery.dataOwner` and `OWNER`) ([#6307](https://github.com/terraform-providers/terraform-provider-google/pull/6307))
+* bigquery: Fixed error where `google_bigquery_dataset_access` resources could not be found post-creation if role was set to a predefined IAM role with an equivalent primitive role (e.g. `roles/bigquery.dataOwner` and `OWNER`) ([#6307](https://github.com/terraform-providers/terraform-provider-google/pull/6307))
 * compute: Fixed permadiff in `google_compute_instance_template`'s `network_tier`. ([#6344](https://github.com/terraform-providers/terraform-provider-google/pull/6344))
 * compute: Removed permadiff or errors on update for `google_compute_backend_service` and `google_compute_region_backend_service` when `consistent_hash` values were previously set on  backend service but are not supported by updated value of `locality_lb_policy` ([#6316](https://github.com/terraform-providers/terraform-provider-google/pull/6316))
 * sql: Fixed occasional failure to delete `google_sql_database_instance` and `google_sql_user`. ([#6318](https://github.com/terraform-providers/terraform-provider-google/pull/6318))
