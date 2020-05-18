@@ -542,6 +542,8 @@ func TestAccContainerCluster_withVersion(t *testing.T) {
 }
 
 func TestAccContainerCluster_updateVersion(t *testing.T) {
+	// TODO re-enable this test when GKE supports multiple versions concurrently
+	t.Skip("Only a single GKE version is supported currently by the API, this test cannot pass")
 	t.Parallel()
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
@@ -721,6 +723,8 @@ func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolUpdateVersion(t *testing.T) {
+	// TODO re-enable this test when GKE supports multiple versions concurrently
+	t.Skip("Only a single GKE version is supported currently by the API, this test cannot pass")
 	t.Parallel()
 
 	clusterName := fmt.Sprintf("tf-test-cluster-nodepool-%s", randString(t, 10))
