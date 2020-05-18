@@ -248,3 +248,12 @@ func isDataflowJobUpdateRetryableError(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+func isPeeringOperationInProgress(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(gerr.Body, "There is a peering operation in progress") {
+			return true, "Waiting peering operation to complete"
+		}
+	}
+	return false, ""
+}

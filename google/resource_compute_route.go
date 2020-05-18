@@ -264,7 +264,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isPeeringOperationInProgress)
 	if err != nil {
 		return fmt.Errorf("Error creating Route: %s", err)
 	}
@@ -303,7 +303,7 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	res, err := sendRequest(config, "GET", project, url, nil, isPeeringOperationInProgress)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRoute %q", d.Id()))
 	}
@@ -390,7 +390,7 @@ func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Route %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isPeeringOperationInProgress)
 	if err != nil {
 		return handleNotFoundError(err, d, "Route")
 	}
