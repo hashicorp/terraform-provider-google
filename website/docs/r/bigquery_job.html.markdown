@@ -74,6 +74,54 @@ resource "google_bigquery_job" "job" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_job_query_table_reference&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Job Query Table Reference
+
+
+```hcl
+resource "google_bigquery_table" "foo" {
+  dataset_id = google_bigquery_dataset.bar.dataset_id
+  table_id   = "job_query_table"
+}
+
+resource "google_bigquery_dataset" "bar" {
+  dataset_id                  = "job_query_dataset"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "US"
+}
+
+resource "google_bigquery_job" "job" {
+  job_id     = "job_query"
+
+  labels = {
+    "example-label" ="example-value"
+  }
+
+  query {
+    query = "SELECT state FROM [lookerdata:cdc.project_tycho_reports]"
+
+    destination_table {
+      table_id = google_bigquery_table.foo.id
+    }
+
+    default_dataset {
+      dataset_id = google_bigquery_dataset.bar.id
+    }
+
+    allow_large_results = true
+    flatten_results = true
+
+    script_options {
+      key_result_statement = "LAST"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_job_load&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -442,16 +490,17 @@ The `query` block supports:
 The `destination_table` block supports:
 
 * `project_id` -
-  (Required)
+  (Optional)
   The ID of the project containing this table.
 
 * `dataset_id` -
-  (Required)
+  (Optional)
   The ID of the dataset containing this table.
 
 * `table_id` -
   (Required)
-  The ID of the table.
+  The table. Can be specified `{{table_id}}` if `project_id` and `dataset_id` are also set,
+  or of the form `projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}` if not.
 
 The `user_defined_function_resources` block supports:
 
@@ -468,7 +517,8 @@ The `default_dataset` block supports:
 
 * `dataset_id` -
   (Required)
-  A unique ID for this dataset, without the project name.
+  The dataset. Can be specified `{{dataset_id}}` if `project_id` is also set,
+  or of the form `projects/{{project}}/datasets/{{dataset_id}}` if not.
 
 * `project_id` -
   (Optional)
@@ -643,16 +693,17 @@ The `load` block supports:
 The `destination_table` block supports:
 
 * `project_id` -
-  (Required)
+  (Optional)
   The ID of the project containing this table.
 
 * `dataset_id` -
-  (Required)
+  (Optional)
   The ID of the dataset containing this table.
 
 * `table_id` -
   (Required)
-  The ID of the table.
+  The table. Can be specified `{{table_id}}` if `project_id` and `dataset_id` are also set,
+  or of the form `projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}` if not.
 
 The `time_partitioning` block supports:
 
@@ -723,30 +774,32 @@ The `copy` block supports:
 The `source_tables` block supports:
 
 * `project_id` -
-  (Required)
+  (Optional)
   The ID of the project containing this table.
 
 * `dataset_id` -
-  (Required)
+  (Optional)
   The ID of the dataset containing this table.
 
 * `table_id` -
   (Required)
-  The ID of the table.
+  The table. Can be specified `{{table_id}}` if `project_id` and `dataset_id` are also set,
+  or of the form `projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}` if not.
 
 The `destination_table` block supports:
 
 * `project_id` -
-  (Required)
+  (Optional)
   The ID of the project containing this table.
 
 * `dataset_id` -
-  (Required)
+  (Optional)
   The ID of the dataset containing this table.
 
 * `table_id` -
   (Required)
-  The ID of the table.
+  The table. Can be specified `{{table_id}}` if `project_id` and `dataset_id` are also set,
+  or of the form `projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}` if not.
 
 The `destination_encryption_configuration` block supports:
 
@@ -797,16 +850,17 @@ The `extract` block supports:
 The `source_table` block supports:
 
 * `project_id` -
-  (Required)
+  (Optional)
   The ID of the project containing this table.
 
 * `dataset_id` -
-  (Required)
+  (Optional)
   The ID of the dataset containing this table.
 
 * `table_id` -
   (Required)
-  The ID of the table.
+  The table. Can be specified `{{table_id}}` if `project_id` and `dataset_id` are also set,
+  or of the form `projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}` if not.
 
 The `source_model` block supports:
 

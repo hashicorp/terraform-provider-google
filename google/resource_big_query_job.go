@@ -18,12 +18,18 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/api/googleapi"
+)
+
+var (
+	bigqueryDatasetRegexp = regexp.MustCompile("projects/(.+)/datasets/(.+)")
+	bigqueryTableRegexp   = regexp.MustCompile("projects/(.+)/datasets/(.+)/tables/(.+)")
 )
 
 func resourceBigQueryJob() *schema.Resource {
@@ -57,23 +63,26 @@ func resourceBigQueryJob() *schema.Resource {
 							Description: `Source tables to copy.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"table_id": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
+or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
+									},
 									"dataset_id": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
+										Optional:    true,
 										ForceNew:    true,
 										Description: `The ID of the dataset containing this table.`,
 									},
 									"project_id": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
+										Optional:    true,
 										ForceNew:    true,
 										Description: `The ID of the project containing this table.`,
-									},
-									"table_id": {
-										Type:        schema.TypeString,
-										Required:    true,
-										ForceNew:    true,
-										Description: `The ID of the table.`,
 									},
 								},
 							},
@@ -115,23 +124,26 @@ The BigQuery Service Account associated with your project requires access to thi
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"table_id": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
+or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
+									},
 									"dataset_id": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
+										Optional:    true,
 										ForceNew:    true,
 										Description: `The ID of the dataset containing this table.`,
 									},
 									"project_id": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
+										Optional:    true,
 										ForceNew:    true,
 										Description: `The ID of the project containing this table.`,
-									},
-									"table_id": {
-										Type:        schema.TypeString,
-										Required:    true,
-										ForceNew:    true,
-										Description: `The ID of the table.`,
 									},
 								},
 							},
@@ -240,23 +252,26 @@ Default is ','`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"table_id": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
+or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
+									},
 									"dataset_id": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
+										Optional:    true,
 										ForceNew:    true,
 										Description: `The ID of the dataset containing this table.`,
 									},
 									"project_id": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
+										Optional:    true,
 										ForceNew:    true,
 										Description: `The ID of the project containing this table.`,
-									},
-									"table_id": {
-										Type:        schema.TypeString,
-										Required:    true,
-										ForceNew:    true,
-										Description: `The ID of the table.`,
 									},
 								},
 							},
@@ -301,23 +316,26 @@ Default is ','`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"table_id": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
+or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
+									},
 									"dataset_id": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
+										Optional:    true,
 										ForceNew:    true,
 										Description: `The ID of the dataset containing this table.`,
 									},
 									"project_id": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
+										Optional:    true,
 										ForceNew:    true,
 										Description: `The ID of the project containing this table.`,
-									},
-									"table_id": {
-										Type:        schema.TypeString,
-										Required:    true,
-										ForceNew:    true,
-										Description: `The ID of the table.`,
 									},
 								},
 							},
@@ -588,13 +606,15 @@ Creation, truncation and append actions occur as one atomic update upon job comp
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"dataset_id": {
-										Type:        schema.TypeString,
-										Required:    true,
-										ForceNew:    true,
-										Description: `A unique ID for this dataset, without the project name.`,
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The dataset. Can be specified '{{dataset_id}}' if 'project_id' is also set,
+or of the form 'projects/{{project}}/datasets/{{dataset_id}}' if not.`,
 									},
 									"project_id": {
 										Type:        schema.TypeString,
+										Computed:    true,
 										Optional:    true,
 										ForceNew:    true,
 										Description: `The ID of the project containing this table.`,
@@ -630,23 +650,26 @@ For queries that produce anonymous (cached) results, this field will be populate
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"table_id": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
+or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
+									},
 									"dataset_id": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
+										Optional:    true,
 										ForceNew:    true,
 										Description: `The ID of the dataset containing this table.`,
 									},
 									"project_id": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Computed:    true,
+										Optional:    true,
 										ForceNew:    true,
 										Description: `The ID of the project containing this table.`,
-									},
-									"table_id": {
-										Type:        schema.TypeString,
-										Required:    true,
-										ForceNew:    true,
-										Description: `The ID of the table.`,
 									},
 								},
 							},
@@ -1058,24 +1081,15 @@ func flattenBigQueryJobConfigurationQueryDestinationTable(v interface{}, d *sche
 		return nil
 	}
 	transformed := make(map[string]interface{})
-	transformed["project_id"] =
-		flattenBigQueryJobConfigurationQueryDestinationTableProjectId(original["projectId"], d, config)
-	transformed["dataset_id"] =
-		flattenBigQueryJobConfigurationQueryDestinationTableDatasetId(original["datasetId"], d, config)
-	transformed["table_id"] =
-		flattenBigQueryJobConfigurationQueryDestinationTableTableId(original["tableId"], d, config)
+	transformed["project_id"] = original["projectId"]
+	transformed["dataset_id"] = original["datasetId"]
+	transformed["table_id"] = original["tableId"]
+
+	if bigqueryTableRegexp.MatchString(d.Get("query.0.destination_table.0.table_id").(string)) {
+		// The user specified the table_id as a URL, so store it in state that way
+		transformed["table_id"] = fmt.Sprintf("projects/%s/datasets/%s/tables/%s", transformed["project_id"], transformed["dataset_id"], transformed["table_id"])
+	}
 	return []interface{}{transformed}
-}
-func flattenBigQueryJobConfigurationQueryDestinationTableProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenBigQueryJobConfigurationQueryDestinationTableDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenBigQueryJobConfigurationQueryDestinationTableTableId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
 }
 
 func flattenBigQueryJobConfigurationQueryUserDefinedFunctionResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1122,18 +1136,14 @@ func flattenBigQueryJobConfigurationQueryDefaultDataset(v interface{}, d *schema
 		return nil
 	}
 	transformed := make(map[string]interface{})
-	transformed["dataset_id"] =
-		flattenBigQueryJobConfigurationQueryDefaultDatasetDatasetId(original["datasetId"], d, config)
-	transformed["project_id"] =
-		flattenBigQueryJobConfigurationQueryDefaultDatasetProjectId(original["projectId"], d, config)
-	return []interface{}{transformed}
-}
-func flattenBigQueryJobConfigurationQueryDefaultDatasetDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
+	transformed["project_id"] = original["projectId"]
+	transformed["dataset_id"] = original["datasetId"]
 
-func flattenBigQueryJobConfigurationQueryDefaultDatasetProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	if bigqueryDatasetRegexp.MatchString(d.Get("query.0.default_dataset.0.dataset_id").(string)) {
+		// The user specified the dataset_id as a URL, so store it in state that way
+		transformed["dataset_id"] = fmt.Sprintf("projects/%s/datasets/%s", transformed["project_id"], transformed["dataset_id"])
+	}
+	return []interface{}{transformed}
 }
 
 func flattenBigQueryJobConfigurationQueryPriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1293,24 +1303,15 @@ func flattenBigQueryJobConfigurationLoadDestinationTable(v interface{}, d *schem
 		return nil
 	}
 	transformed := make(map[string]interface{})
-	transformed["project_id"] =
-		flattenBigQueryJobConfigurationLoadDestinationTableProjectId(original["projectId"], d, config)
-	transformed["dataset_id"] =
-		flattenBigQueryJobConfigurationLoadDestinationTableDatasetId(original["datasetId"], d, config)
-	transformed["table_id"] =
-		flattenBigQueryJobConfigurationLoadDestinationTableTableId(original["tableId"], d, config)
+	transformed["project_id"] = original["projectId"]
+	transformed["dataset_id"] = original["datasetId"]
+	transformed["table_id"] = original["tableId"]
+
+	if bigqueryTableRegexp.MatchString(d.Get("load.0.destination_table.0.table_id").(string)) {
+		// The user specified the table_id as a URL, so store it in state that way
+		transformed["table_id"] = fmt.Sprintf("projects/%s/datasets/%s/tables/%s", transformed["project_id"], transformed["dataset_id"], transformed["table_id"])
+	}
 	return []interface{}{transformed}
-}
-func flattenBigQueryJobConfigurationLoadDestinationTableProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenBigQueryJobConfigurationLoadDestinationTableDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenBigQueryJobConfigurationLoadDestinationTableTableId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
 }
 
 func flattenBigQueryJobConfigurationLoadCreateDisposition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1472,30 +1473,26 @@ func flattenBigQueryJobConfigurationCopySourceTables(v interface{}, d *schema.Re
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
-			"project_id": flattenBigQueryJobConfigurationCopySourceTablesProjectId(original["projectId"], d, config),
-			"dataset_id": flattenBigQueryJobConfigurationCopySourceTablesDatasetId(original["datasetId"], d, config),
-			"table_id":   flattenBigQueryJobConfigurationCopySourceTablesTableId(original["tableId"], d, config),
-		})
+		t := map[string]interface{}{
+			"project_id": original["projectId"],
+			"dataset_id": original["datasetId"],
+			"table_id":   original["tableId"],
+		}
+
+		if bigqueryTableRegexp.MatchString(d.Get(fmt.Sprintf("copy.0.source_tables.%d.table_id", i)).(string)) {
+			// The user specified the table_id as a URL, so store it in state that way
+			t["table_id"] = fmt.Sprintf("projects/%s/datasets/%s/tables/%s", t["project_id"], t["dataset_id"], t["table_id"])
+		}
+		transformed = append(transformed, t)
 	}
+
 	return transformed
-}
-func flattenBigQueryJobConfigurationCopySourceTablesProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenBigQueryJobConfigurationCopySourceTablesDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenBigQueryJobConfigurationCopySourceTablesTableId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
 }
 
 func flattenBigQueryJobConfigurationCopyDestinationTable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1507,24 +1504,15 @@ func flattenBigQueryJobConfigurationCopyDestinationTable(v interface{}, d *schem
 		return nil
 	}
 	transformed := make(map[string]interface{})
-	transformed["project_id"] =
-		flattenBigQueryJobConfigurationCopyDestinationTableProjectId(original["projectId"], d, config)
-	transformed["dataset_id"] =
-		flattenBigQueryJobConfigurationCopyDestinationTableDatasetId(original["datasetId"], d, config)
-	transformed["table_id"] =
-		flattenBigQueryJobConfigurationCopyDestinationTableTableId(original["tableId"], d, config)
+	transformed["project_id"] = original["projectId"]
+	transformed["dataset_id"] = original["datasetId"]
+	transformed["table_id"] = original["tableId"]
+
+	if bigqueryTableRegexp.MatchString(d.Get("copy.0.destination_table.0.table_id").(string)) {
+		// The user specified the table_id as a URL, so store it in state that way
+		transformed["table_id"] = fmt.Sprintf("projects/%s/datasets/%s/tables/%s", transformed["project_id"], transformed["dataset_id"], transformed["table_id"])
+	}
 	return []interface{}{transformed}
-}
-func flattenBigQueryJobConfigurationCopyDestinationTableProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenBigQueryJobConfigurationCopyDestinationTableDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenBigQueryJobConfigurationCopyDestinationTableTableId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
 }
 
 func flattenBigQueryJobConfigurationCopyCreateDisposition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1612,24 +1600,15 @@ func flattenBigQueryJobConfigurationExtractSourceTable(v interface{}, d *schema.
 		return nil
 	}
 	transformed := make(map[string]interface{})
-	transformed["project_id"] =
-		flattenBigQueryJobConfigurationExtractSourceTableProjectId(original["projectId"], d, config)
-	transformed["dataset_id"] =
-		flattenBigQueryJobConfigurationExtractSourceTableDatasetId(original["datasetId"], d, config)
-	transformed["table_id"] =
-		flattenBigQueryJobConfigurationExtractSourceTableTableId(original["tableId"], d, config)
+	transformed["project_id"] = original["projectId"]
+	transformed["dataset_id"] = original["datasetId"]
+	transformed["table_id"] = original["tableId"]
+
+	if bigqueryTableRegexp.MatchString(d.Get("extract.0.source_table.0.table_id").(string)) {
+		// The user specified the table_id as a URL, so store it in state that way
+		transformed["table_id"] = fmt.Sprintf("projects/%s/datasets/%s/tables/%s", transformed["project_id"], transformed["dataset_id"], transformed["table_id"])
+	}
 	return []interface{}{transformed}
-}
-func flattenBigQueryJobConfigurationExtractSourceTableProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenBigQueryJobConfigurationExtractSourceTableDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenBigQueryJobConfigurationExtractSourceTableTableId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
 }
 
 func flattenBigQueryJobConfigurationExtractSourceModel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1901,40 +1880,28 @@ func expandBigQueryJobConfigurationQueryDestinationTable(v interface{}, d Terraf
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedProjectId, err := expandBigQueryJobConfigurationQueryDestinationTableProjectId(original["project_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+	transformedProjectId := original["project_id"]
+	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
 		transformed["projectId"] = transformedProjectId
 	}
 
-	transformedDatasetId, err := expandBigQueryJobConfigurationQueryDestinationTableDatasetId(original["dataset_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+	transformedDatasetId := original["dataset_id"]
+	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
 		transformed["datasetId"] = transformedDatasetId
 	}
 
-	transformedTableId, err := expandBigQueryJobConfigurationQueryDestinationTableTableId(original["table_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
+	transformedTableId := original["table_id"]
+	if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
 		transformed["tableId"] = transformedTableId
 	}
 
+	if parts := bigqueryTableRegexp.FindStringSubmatch(transformedTableId.(string)); parts != nil {
+		transformed["projectId"] = parts[1]
+		transformed["datasetId"] = parts[2]
+		transformed["tableId"] = parts[3]
+	}
+
 	return transformed, nil
-}
-
-func expandBigQueryJobConfigurationQueryDestinationTableProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandBigQueryJobConfigurationQueryDestinationTableDatasetId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandBigQueryJobConfigurationQueryDestinationTableTableId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandBigQueryJobConfigurationQueryUserDefinedFunctionResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -1991,29 +1958,22 @@ func expandBigQueryJobConfigurationQueryDefaultDataset(v interface{}, d Terrafor
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedDatasetId, err := expandBigQueryJobConfigurationQueryDefaultDatasetDatasetId(original["dataset_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
-		transformed["datasetId"] = transformedDatasetId
-	}
-
-	transformedProjectId, err := expandBigQueryJobConfigurationQueryDefaultDatasetProjectId(original["project_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+	transformedProjectId := original["project_id"]
+	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
 		transformed["projectId"] = transformedProjectId
 	}
 
+	transformedDatasetId := original["dataset_id"]
+	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+		transformed["datasetId"] = transformedDatasetId
+	}
+
+	if parts := bigqueryDatasetRegexp.FindStringSubmatch(transformedDatasetId.(string)); parts != nil {
+		transformed["projectId"] = parts[1]
+		transformed["datasetId"] = parts[2]
+	}
+
 	return transformed, nil
-}
-
-func expandBigQueryJobConfigurationQueryDefaultDatasetDatasetId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandBigQueryJobConfigurationQueryDefaultDatasetProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandBigQueryJobConfigurationQueryPriority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -2278,40 +2238,28 @@ func expandBigQueryJobConfigurationLoadDestinationTable(v interface{}, d Terrafo
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedProjectId, err := expandBigQueryJobConfigurationLoadDestinationTableProjectId(original["project_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+	transformedProjectId := original["project_id"]
+	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
 		transformed["projectId"] = transformedProjectId
 	}
 
-	transformedDatasetId, err := expandBigQueryJobConfigurationLoadDestinationTableDatasetId(original["dataset_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+	transformedDatasetId := original["dataset_id"]
+	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
 		transformed["datasetId"] = transformedDatasetId
 	}
 
-	transformedTableId, err := expandBigQueryJobConfigurationLoadDestinationTableTableId(original["table_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
+	transformedTableId := original["table_id"]
+	if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
 		transformed["tableId"] = transformedTableId
 	}
 
+	if parts := bigqueryTableRegexp.FindStringSubmatch(transformedTableId.(string)); parts != nil {
+		transformed["projectId"] = parts[1]
+		transformed["datasetId"] = parts[2]
+		transformed["tableId"] = parts[3]
+	}
+
 	return transformed, nil
-}
-
-func expandBigQueryJobConfigurationLoadDestinationTableProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandBigQueryJobConfigurationLoadDestinationTableDatasetId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandBigQueryJobConfigurationLoadDestinationTableTableId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandBigQueryJobConfigurationLoadCreateDisposition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -2499,42 +2447,31 @@ func expandBigQueryJobConfigurationCopySourceTables(v interface{}, d TerraformRe
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedProjectId, err := expandBigQueryJobConfigurationCopySourceTablesProjectId(original["project_id"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+		transformedProjectId := original["project_id"]
+		if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
 			transformed["projectId"] = transformedProjectId
 		}
 
-		transformedDatasetId, err := expandBigQueryJobConfigurationCopySourceTablesDatasetId(original["dataset_id"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+		transformedDatasetId := original["dataset_id"]
+		if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
 			transformed["datasetId"] = transformedDatasetId
 		}
 
-		transformedTableId, err := expandBigQueryJobConfigurationCopySourceTablesTableId(original["table_id"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
+		transformedTableId := original["table_id"]
+		if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
 			transformed["tableId"] = transformedTableId
+		}
+
+		tableRef := regexp.MustCompile("projects/(.+)/datasets/(.+)/tables/(.+)")
+		if parts := tableRef.FindStringSubmatch(transformedTableId.(string)); parts != nil {
+			transformed["projectId"] = parts[1]
+			transformed["datasetId"] = parts[2]
+			transformed["tableId"] = parts[3]
 		}
 
 		req = append(req, transformed)
 	}
 	return req, nil
-}
-
-func expandBigQueryJobConfigurationCopySourceTablesProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandBigQueryJobConfigurationCopySourceTablesDatasetId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandBigQueryJobConfigurationCopySourceTablesTableId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandBigQueryJobConfigurationCopyDestinationTable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -2546,40 +2483,28 @@ func expandBigQueryJobConfigurationCopyDestinationTable(v interface{}, d Terrafo
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedProjectId, err := expandBigQueryJobConfigurationCopyDestinationTableProjectId(original["project_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+	transformedProjectId := original["project_id"]
+	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
 		transformed["projectId"] = transformedProjectId
 	}
 
-	transformedDatasetId, err := expandBigQueryJobConfigurationCopyDestinationTableDatasetId(original["dataset_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+	transformedDatasetId := original["dataset_id"]
+	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
 		transformed["datasetId"] = transformedDatasetId
 	}
 
-	transformedTableId, err := expandBigQueryJobConfigurationCopyDestinationTableTableId(original["table_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
+	transformedTableId := original["table_id"]
+	if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
 		transformed["tableId"] = transformedTableId
 	}
 
+	if parts := bigqueryTableRegexp.FindStringSubmatch(transformedTableId.(string)); parts != nil {
+		transformed["projectId"] = parts[1]
+		transformed["datasetId"] = parts[2]
+		transformed["tableId"] = parts[3]
+	}
+
 	return transformed, nil
-}
-
-func expandBigQueryJobConfigurationCopyDestinationTableProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandBigQueryJobConfigurationCopyDestinationTableDatasetId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandBigQueryJobConfigurationCopyDestinationTableTableId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandBigQueryJobConfigurationCopyCreateDisposition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -2714,40 +2639,28 @@ func expandBigQueryJobConfigurationExtractSourceTable(v interface{}, d Terraform
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedProjectId, err := expandBigQueryJobConfigurationExtractSourceTableProjectId(original["project_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+	transformedProjectId := original["project_id"]
+	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
 		transformed["projectId"] = transformedProjectId
 	}
 
-	transformedDatasetId, err := expandBigQueryJobConfigurationExtractSourceTableDatasetId(original["dataset_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+	transformedDatasetId := original["dataset_id"]
+	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
 		transformed["datasetId"] = transformedDatasetId
 	}
 
-	transformedTableId, err := expandBigQueryJobConfigurationExtractSourceTableTableId(original["table_id"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
+	transformedTableId := original["table_id"]
+	if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
 		transformed["tableId"] = transformedTableId
 	}
 
+	if parts := bigqueryTableRegexp.FindStringSubmatch(transformedTableId.(string)); parts != nil {
+		transformed["projectId"] = parts[1]
+		transformed["datasetId"] = parts[2]
+		transformed["tableId"] = parts[3]
+	}
+
 	return transformed, nil
-}
-
-func expandBigQueryJobConfigurationExtractSourceTableProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandBigQueryJobConfigurationExtractSourceTableDatasetId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandBigQueryJobConfigurationExtractSourceTableTableId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandBigQueryJobConfigurationExtractSourceModel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
