@@ -541,7 +541,9 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			d.SetPartial("config")
 		}
 
-		if d.HasChange("config.0.web_server_network_access_control") {
+		// If web_server_network_access_control has more fields added it may require changes here.
+		// This is scoped specifically to allowed_ip_range due to https://github.com/hashicorp/terraform-plugin-sdk/issues/98
+		if d.HasChange("config.0.web_server_network_access_control.0.allowed_ip_range") {
 			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
 			if config != nil {
 				patchObj.Config.WebServerNetworkAccessControl = config.WebServerNetworkAccessControl
