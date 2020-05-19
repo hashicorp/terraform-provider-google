@@ -70,10 +70,20 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 		}
 
 		if len(resp.Organizations) > 1 {
-			return fmt.Errorf("More than one matching organization found")
+			// Attempt to find an exact domain match
+			for _, org := range resp.Organizations {
+				if org.DisplayName == v.(string) {
+					organization = org
+					break
+				}
+			}
+			if organization == nil {
+				return fmt.Errorf("Received multiple organizations in the response, but could not find an exact domain match.")
+			}
+		} else {
+			organization = resp.Organizations[0]
 		}
 
-		organization = resp.Organizations[0]
 	} else if v, ok := d.GetOk("organization"); ok {
 		var resp *cloudresourcemanager.Organization
 		err := retryTimeDuration(func() (err error) {
