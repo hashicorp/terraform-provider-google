@@ -2087,10 +2087,12 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 	}
 	config := l[0].(map[string]interface{})
 
-	return &containerBeta.AutoprovisioningNodePoolDefaults{
+	npd := &containerBeta.AutoprovisioningNodePoolDefaults{
 		OauthScopes:    convertStringArr(config["oauth_scopes"].([]interface{})),
 		ServiceAccount: config["service_account"].(string),
 	}
+
+	return npd
 }
 
 func expandAuthenticatorGroupsConfig(configured interface{}) *containerBeta.AuthenticatorGroupsConfig {
