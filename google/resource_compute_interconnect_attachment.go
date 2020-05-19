@@ -126,6 +126,7 @@ Google will randomly select an unused /29 from all of link-local space.`,
 			},
 			"edge_availability_domain": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 				Description: `Desired availability domain for the attachment. Only available for type
