@@ -140,7 +140,7 @@ in this cluster in CIDR notation (e.g. `10.96.0.0/14`). Leave blank to have one
 automatically chosen or specify a `/14` block in `10.0.0.0/8`. This field will
 only work for routes-based clusters, where `ip_allocation_policy` is not defined.
 
-* `cluster_autoscaling` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `cluster_autoscaling` - (Optional)
 Per-cluster configuration of Node Auto-Provisioning with Cluster Autoscaler to
 automatically adjust the size of the cluster and create/delete node pools based
 on the current needs of the cluster's workload. See the
@@ -407,6 +407,11 @@ for a list of types.
 * `maximum` - (Optional) Maximum amount of the resource in the cluster.
 
 The `auto_provisioning_defaults` block supports:
+
+* `min_cpu_platform` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+Minimum CPU platform to be used for NAP created node pools. The instance may be scheduled on the
+specified or newer CPU platform. Applicable values are the friendly names of CPU platforms, such
+as "Intel Haswell" or "Intel Sandy Bridge".
 
 * `oauth_scopes` - (Optional) Scopes that are used by NAP when creating node pools.
 
