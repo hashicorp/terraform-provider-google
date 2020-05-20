@@ -1,4 +1,35 @@
-## 3.23.0 (Unreleased)
+## 3.24.0 (Unreleased)
+## 3.23.0 (May 26, 2020)
+
+BREAKING CHANGES:
+* The base url for the `monitoring` endpoint no longer includes the API version (previously "v3/"). If you use a `monitoring_custom_endpoint`, remove the trailing "v3/". ([#6424](https://github.com/terraform-providers/terraform-provider-google/pull/6424))
+
+FEATURES:
+* **New Data Source:** Add google_iam_testable_permissions data source ([#6382](https://github.com/terraform-providers/terraform-provider-google/pull/6382))
+* **New Resource:** `google_monitoring_dashboard` ([#6424](https://github.com/terraform-providers/terraform-provider-google/pull/6424))
+
+IMPROVEMENTS:
+
+(TODO does this belong in improvements?)
+* remove vendor directory, update makefile etc ([#6368](https://github.com/terraform-providers/terraform-provider-google/pull/6368))
+
+* bigquery: added ability for various `table_id` fields (and one `dataset_id` field) in `google_bigquery_job` to specify a relative path instead of just the table id ([#6404](https://github.com/terraform-providers/terraform-provider-google/pull/6404))
+* composer: Added support for `google_composer_environment` `config.private_environment_config.cloud_sql_ipv4_cidr_block` ([#6392](https://github.com/terraform-providers/terraform-provider-google/pull/6392))
+* composer: Added support for `google_composer_environment` `config.private_environment_config.web_server_ipv4_cidr_block` ([#6392](https://github.com/terraform-providers/terraform-provider-google/pull/6392))
+* container: Added update support for `node_config.workload_metadata_config` to `google_container_node_pool` ([#6430](https://github.com/terraform-providers/terraform-provider-google/pull/6430))
+* container: added the ability to unspecify `google_container_cluster`'s `min_master_version` field ([#6373](https://github.com/terraform-providers/terraform-provider-google/pull/6373))
+* container: added configConnector GKE addon config to cluster resource ([#6365](https://github.com/terraform-providers/terraform-provider-google/pull/6365))
+* monitoring: Added window-based SLI to `google_monitoring_slo` ([#6381](https://github.com/terraform-providers/terraform-provider-google/pull/6381))
+
+
+BUG FIXES:
+* Fixed an issue where `google_compute_route` creation failed while VPC peering was in progress. ([#6410](https://github.com/terraform-providers/terraform-provider-google/pull/6410))
+* Fixed an issue where data source `google_organization` would ignore exact domain matches if multiple domains were found ([#6420](https://github.com/terraform-providers/terraform-provider-google/pull/6420))
+* compute: Fixed `google_compute_interconnect_attachment` `edge_availability_domain` diff when the field is unspecified ([#6419](https://github.com/terraform-providers/terraform-provider-google/pull/6419))
+* compute: fixed error where plan would error if `google_compute_region_disk_resource_policy_attachment` had been deleted outside of terraform. ([#6367](https://github.com/terraform-providers/terraform-provider-google/pull/6367))
+* google_compute_security_policy: raise limit on number of srcIpRange values to supported 10 ([#6394](https://github.com/terraform-providers/terraform-provider-google/pull/6394))
+* iam: Fixed an issue where `google_service_account` shows an error after creating the resource ([#6391](https://github.com/terraform-providers/terraform-provider-google/pull/6391))
+
 ## 3.22.0 (May 18, 2020)
 BREAKING CHANGE:
 * `google_bigtable_instance` resources now cannot be destroyed unless `deletion_protection = false` is set in state for the resource. ([#6357](https://github.com/terraform-providers/terraform-provider-google/pull/6357))
