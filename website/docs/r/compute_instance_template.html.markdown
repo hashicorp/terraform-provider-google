@@ -112,7 +112,7 @@ resource "google_compute_instance_template" "instance_template" {
 
 resource "google_compute_instance_group_manager" "instance_group_manager" {
   name               = "instance-group-manager"
-  instance_template  = google_compute_instance_template.instance_template.self_link
+  instance_template  = google_compute_instance_template.instance_template.id
   base_instance_name = "instance-group-manager"
   zone               = "us-central1-f"
   target_size        = "1"

@@ -69,6 +69,8 @@ Valid values are listed at
 
 The following attributes are exported in addition to the arguments listed above:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/serviceAccounts/{{account}}/keys/{{key}}`
+
 * `name` - The name used for this key pair
 
 * `public_key` - The public key, base64 encoded
