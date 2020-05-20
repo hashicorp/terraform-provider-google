@@ -118,14 +118,26 @@ func TestAccBigQueryDatasetAccess_predefinedRole(t *testing.T) {
 		"domain": "google.com",
 	}
 
+	expected2 := map[string]interface{}{
+		"role":   "READER",
+		"domain": "google.com",
+	}
+
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigQueryDatasetAccess_predefinedRole(datasetID),
+				Config: testAccBigQueryDatasetAccess_predefinedRole("roles/bigquery.dataEditor", datasetID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckBigQueryDatasetAccessPresent(t, "google_bigquery_dataset.dataset", expected1),
+				),
+			},
+			{
+				// Update role
+				Config: testAccBigQueryDatasetAccess_predefinedRole("roles/bigquery.dataViewer", datasetID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBigQueryDatasetAccessPresent(t, "google_bigquery_dataset.dataset", expected2),
 				),
 			},
 			{
@@ -258,16 +270,16 @@ resource "google_bigquery_dataset" "dataset" {
 `, datasetID)
 }
 
-func testAccBigQueryDatasetAccess_predefinedRole(datasetID string) string {
+func testAccBigQueryDatasetAccess_predefinedRole(role, datasetID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset_access" "access" {
   dataset_id = google_bigquery_dataset.dataset.dataset_id
-  role       = "roles/bigquery.dataEditor"
+  role       = "%s"
   domain     = "google.com"
 }
 
 resource "google_bigquery_dataset" "dataset" {
   dataset_id = "%s"
 }
-`, datasetID)
+`, role, datasetID)
 }
