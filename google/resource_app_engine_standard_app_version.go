@@ -548,7 +548,7 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}/versions/{{version_id}}")
+	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}/versions/{{version_id}}?view=FULL")
 	if err != nil {
 		return err
 	}
