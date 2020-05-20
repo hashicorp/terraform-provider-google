@@ -218,7 +218,10 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	d.Set("project_id", pid)
+	// after importing by project number, the id will be a project number, change to project-id so the rest of the logic
+	// in this file can be consistent
+	d.SetId(fmt.Sprintf("projects/%v", p.ProjectId))
+	d.Set("project_id", p.ProjectId)
 	d.Set("number", strconv.FormatInt(p.ProjectNumber, 10))
 	d.Set("name", p.Name)
 	d.Set("labels", p.Labels)
@@ -396,18 +399,19 @@ func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error
 func resourceProjectImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	pid := parts[len(parts)-1]
-	// Prevent importing via project number, this will cause issues later
 	matched, err := regexp.MatchString("^\\d+$", pid)
 	if err != nil {
 		return nil, fmt.Errorf("Error matching project %q: %s", pid, err)
 	}
-
 	if matched {
-		return nil, fmt.Errorf("Error importing project %q, please use project_id", pid)
+		// this is actually a project number not a project id
+		d.Set("number", pid)
+	} else {
+		d.Set("project_id", pid)
 	}
-
 	// Ensure the id format includes projects/
-	d.SetId(fmt.Sprintf("projects/%s", pid))
+	fullProjectId := fmt.Sprintf("projects/%s", pid)
+	d.SetId(fullProjectId)
 
 	// Explicitly set to default as a workaround for `ImportStateVerify` tests, and so that users
 	// don't see a diff immediately after import.
