@@ -9,13 +9,12 @@ description: |-
 
 # google\_secret\_manager\_secret\_version
 
-Get a Secret Manager secret's version. For more information see the [official documentation](https://cloud.google.com/secret-manager/docs/) and [API](https://cloud.google.com/secret-manager/docs/reference/rest/v1beta1/projects.secrets.versions).
+Get a Secret Manager secret's version. For more information see the [official documentation](https://cloud.google.com/secret-manager/docs/) and [API](https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions).
 
 ## Example Usage
 
 ```hcl
 data "google_secret_manager_secret_version" "basic" {
-  provider = google-beta
   secret = "my-secret"
 }
 ```
