@@ -10,15 +10,11 @@ FEATURES:
 
 IMPROVEMENTS:
 
-(TODO does this belong in improvements?)
-* remove vendor directory, update makefile etc ([#6368](https://github.com/terraform-providers/terraform-provider-google/pull/6368))
-
 * bigquery: added ability for various `table_id` fields (and one `dataset_id` field) in `google_bigquery_job` to specify a relative path instead of just the table id ([#6404](https://github.com/terraform-providers/terraform-provider-google/pull/6404))
 * composer: Added support for `google_composer_environment` `config.private_environment_config.cloud_sql_ipv4_cidr_block` ([#6392](https://github.com/terraform-providers/terraform-provider-google/pull/6392))
 * composer: Added support for `google_composer_environment` `config.private_environment_config.web_server_ipv4_cidr_block` ([#6392](https://github.com/terraform-providers/terraform-provider-google/pull/6392))
 * container: Added update support for `node_config.workload_metadata_config` to `google_container_node_pool` ([#6430](https://github.com/terraform-providers/terraform-provider-google/pull/6430))
 * container: added the ability to unspecify `google_container_cluster`'s `min_master_version` field ([#6373](https://github.com/terraform-providers/terraform-provider-google/pull/6373))
-* container: added configConnector GKE addon config to cluster resource ([#6365](https://github.com/terraform-providers/terraform-provider-google/pull/6365))
 * monitoring: Added window-based SLI to `google_monitoring_slo` ([#6381](https://github.com/terraform-providers/terraform-provider-google/pull/6381))
 
 
