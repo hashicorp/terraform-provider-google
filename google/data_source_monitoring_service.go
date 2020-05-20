@@ -2,8 +2,9 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	neturl "net/url"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 type monitoringServiceTypeStateSetter func(map[string]interface{}, *schema.ResourceData, interface{}) error
@@ -47,7 +48,7 @@ func dataSourceMonitoringServiceTypeReadFromList(listFilter string, typeStateSet
 			return err
 		}
 
-		listUrlTmpl := "{{MonitoringBasePath}}projects/{{project}}/services?filter=" + neturl.QueryEscape(filters)
+		listUrlTmpl := "{{MonitoringBasePath}}v3/projects/{{project}}/services?filter=" + neturl.QueryEscape(filters)
 		url, err := replaceVars(d, config, listUrlTmpl)
 		if err != nil {
 			return err
