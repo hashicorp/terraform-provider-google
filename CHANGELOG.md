@@ -5,7 +5,7 @@ BREAKING CHANGES:
 * The base url for the `monitoring` endpoint no longer includes the API version (previously "v3/"). If you use a `monitoring_custom_endpoint`, remove the trailing "v3/". ([#6424](https://github.com/terraform-providers/terraform-provider-google/pull/6424))
 
 FEATURES:
-* **New Data Source:** Add google_iam_testable_permissions data source ([#6382](https://github.com/terraform-providers/terraform-provider-google/pull/6382))
+* **New Data Source:** `google_iam_testable_permissions` ([#6382](https://github.com/terraform-providers/terraform-provider-google/pull/6382))
 * **New Resource:** `google_monitoring_dashboard` ([#6424](https://github.com/terraform-providers/terraform-provider-google/pull/6424))
 
 IMPROVEMENTS:
@@ -23,11 +23,11 @@ IMPROVEMENTS:
 
 
 BUG FIXES:
-* Fixed an issue where `google_compute_route` creation failed while VPC peering was in progress. ([#6410](https://github.com/terraform-providers/terraform-provider-google/pull/6410))
+* compute: Fixed an issue where `google_compute_route` creation failed while VPC peering was in progress. ([#6410](https://github.com/terraform-providers/terraform-provider-google/pull/6410))
 * Fixed an issue where data source `google_organization` would ignore exact domain matches if multiple domains were found ([#6420](https://github.com/terraform-providers/terraform-provider-google/pull/6420))
 * compute: Fixed `google_compute_interconnect_attachment` `edge_availability_domain` diff when the field is unspecified ([#6419](https://github.com/terraform-providers/terraform-provider-google/pull/6419))
 * compute: fixed error where plan would error if `google_compute_region_disk_resource_policy_attachment` had been deleted outside of terraform. ([#6367](https://github.com/terraform-providers/terraform-provider-google/pull/6367))
-* google_compute_security_policy: raise limit on number of srcIpRange values to supported 10 ([#6394](https://github.com/terraform-providers/terraform-provider-google/pull/6394))
+*compute: raise limit on number of `src_ip_ranges` values in `google_compute_security_policy` to supported 10 ([#6394](https://github.com/terraform-providers/terraform-provider-google/pull/6394))
 * iam: Fixed an issue where `google_service_account` shows an error after creating the resource ([#6391](https://github.com/terraform-providers/terraform-provider-google/pull/6391))
 
 ## 3.22.0 (May 18, 2020)
