@@ -45,6 +45,7 @@ func resourceOSLoginSSHPublicKey() *schema.Resource {
 			"key": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `Public key text in SSH format, defined by RFC4253 section 6.6.`,
 			},
 			"user": {
@@ -158,12 +159,6 @@ func resourceOSLoginSSHPublicKeyUpdate(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 
 	obj := make(map[string]interface{})
-	keyProp, err := expandOSLoginSSHPublicKeyKey(d.Get("key"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("key"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, keyProp)) {
-		obj["key"] = keyProp
-	}
 	expirationTimeUsecProp, err := expandOSLoginSSHPublicKeyExpirationTimeUsec(d.Get("expiration_time_usec"), d, config)
 	if err != nil {
 		return err
@@ -178,10 +173,6 @@ func resourceOSLoginSSHPublicKeyUpdate(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Updating SSHPublicKey %q: %#v", d.Id(), obj)
 	updateMask := []string{}
-
-	if d.HasChange("key") {
-		updateMask = append(updateMask, "key")
-	}
 
 	if d.HasChange("expiration_time_usec") {
 		updateMask = append(updateMask, "expirationTimeUsec")
