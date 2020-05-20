@@ -348,7 +348,7 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 		obj["monitoredResource"] = monitoredResourceProp
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}projects/{{project}}/uptimeCheckConfigs")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/uptimeCheckConfigs")
 	if err != nil {
 		return err
 	}
@@ -389,7 +389,7 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -490,7 +490,7 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 		obj["tcpCheck"] = tcpCheckProp
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -544,7 +544,7 @@ func resourceMonitoringUptimeCheckConfigDelete(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}

@@ -72,7 +72,7 @@ func testAccCheckMonitoringNotificationChannelDestroyProducer(t *testing.T) func
 
 			config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}{{name}}")
+			url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v3/{{name}}")
 			if err != nil {
 				return err
 			}

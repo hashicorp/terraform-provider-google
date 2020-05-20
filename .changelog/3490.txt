@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_monitoring_dashboard`
+```
+```release-note:breaking-change
+The base url for the `monitoring` endpoint no longer includes the API version (previously "v3/"). If you use a `monitoring_custom_endpoint`, remove the trailing "v3/".
+```
