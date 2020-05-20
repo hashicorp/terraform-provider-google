@@ -50,6 +50,8 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/serviceAccounts/{{email}}`
+
 * `email` - The e-mail address of the service account. This value
     should be referenced from any `google_iam_policy` data sources
     that would grant the service account privileges.

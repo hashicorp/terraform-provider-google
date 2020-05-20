@@ -40,10 +40,10 @@ resource "google_compute_region_instance_group_manager" "appserver" {
   distribution_policy_zones  = ["us-central1-a", "us-central1-f"]
 
   version {
-    instance_template = google_compute_instance_template.appserver.self_link
+    instance_template = google_compute_instance_template.appserver.id
   }
 
-  target_pools = [google_compute_target_pool.appserver.self_link]
+  target_pools = [google_compute_target_pool.appserver.id]
   target_size  = 2
 
   named_port {
@@ -52,7 +52,7 @@ resource "google_compute_region_instance_group_manager" "appserver" {
   }
 
   auto_healing_policies {
-    health_check      = google_compute_health_check.autohealing.self_link
+    health_check      = google_compute_health_check.autohealing.id
     initial_delay_sec = 300
   }
 }
@@ -69,11 +69,11 @@ resource "google_compute_region_instance_group_manager" "appserver" {
   target_size = 5
 
   version {
-    instance_template = google_compute_instance_template.appserver.self_link
+    instance_template = google_compute_instance_template.appserver.id
   }
 
   version {
-    instance_template = google_compute_instance_template.appserver-canary.self_link
+    instance_template = google_compute_instance_template.appserver-canary.id
     target_size {
       fixed = 1
     }
@@ -191,7 +191,7 @@ The `version` block supports:
 ```hcl
 version {
   name              = "appserver-canary"
-  instance_template = google_compute_instance_template.appserver-canary.self_link
+  instance_template = google_compute_instance_template.appserver-canary.id
 
   target_size {
     fixed = 1
@@ -202,7 +202,7 @@ version {
 ```hcl
 version {
   name              = "appserver-canary"
-  instance_template = google_compute_instance_template.appserver-canary.self_link
+  instance_template = google_compute_instance_template.appserver-canary.id
 
   target_size {
     percent = 20

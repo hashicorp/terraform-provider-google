@@ -24,7 +24,7 @@ resource "google_compute_instance_group" "test" {
   name        = "terraform-test"
   description = "Terraform test instance group"
   zone        = "us-central1-a"
-  network     = google_compute_network.default.self_link
+  network     = google_compute_network.default.id
 }
 ```
 
@@ -36,8 +36,8 @@ resource "google_compute_instance_group" "webservers" {
   description = "Terraform test instance group"
 
   instances = [
-    google_compute_instance.test.self_link,
-    google_compute_instance.test2.self_link,
+    google_compute_instance.test.id,
+    google_compute_instance.test2.id,
   ]
 
   named_port {
@@ -63,7 +63,7 @@ as shown in this example to avoid this type of error.
 resource "google_compute_instance_group" "staging_group" {
   name      = "staging-instance-group"
   zone      = "us-central1-c"
-  instances = [google_compute_instance.staging_vm.self_link]
+  instances = [google_compute_instance.staging_vm.id]
   named_port {
     name = "http"
     port = "8080"
@@ -105,11 +105,11 @@ resource "google_compute_backend_service" "staging_service" {
   protocol  = "HTTPS"
 
   backend {
-    group = google_compute_instance_group.staging_group.self_link
+    group = google_compute_instance_group.staging_group.id
   }
 
   health_checks = [
-    google_compute_https_health_check.staging_health.self_link,
+    google_compute_https_health_check.staging_health.id,
   ]
 }
 

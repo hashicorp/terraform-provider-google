@@ -38,6 +38,12 @@ If `false` or unset, an error will be generated if any enabled services depend o
 
 * `disable_on_destroy` - (Optional) If true, disable the service when the terraform resource is destroyed.  Defaults to true.  May be useful in the event that a project is long-lived but the infrastructure running in that project changes frequently.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{project}}/{{service}}`
+
 ## Import
 
 Project services can be imported using the `project_id` and `service`, e.g.
