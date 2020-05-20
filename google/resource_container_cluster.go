@@ -55,7 +55,22 @@ var (
 		"addons_config.0.network_policy_config",
 		"addons_config.0.cloudrun_config",
 	}
+
+	forceNewClusterNodeConfigFields = []string{}
 )
+
+// This uses the node pool nodeConfig schema but sets
+// node-pool-only updatable fields to ForceNew
+func clusterSchemaNodeConfig() *schema.Schema {
+	nodeConfigSch := schemaNodeConfig()
+	schemaMap := nodeConfigSch.Elem.(*schema.Resource).Schema
+	for _, k := range forceNewClusterNodeConfigFields {
+		if sch, ok := schemaMap[k]; ok {
+			changeFieldSchemaToForceNew(sch)
+		}
+	}
+	return nodeConfigSch
+}
 
 func rfc5545RecurrenceDiffSuppress(k, o, n string, d *schema.ResourceData) bool {
 	// This diff gets applied in the cloud console if you specify
@@ -559,7 +574,7 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
-			"node_config": schemaNodeConfig,
+			"node_config": clusterSchemaNodeConfig(),
 
 			"node_pool": {
 				Type:     schema.TypeList,

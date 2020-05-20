@@ -426,3 +426,16 @@ func migrateStateNoop(v int, is *terraform.InstanceState, meta interface{}) (*te
 func expandString(v interface{}, d TerraformResourceData, config *Config) (string, error) {
 	return v.(string), nil
 }
+
+func changeFieldSchemaToForceNew(sch *schema.Schema) {
+	sch.ForceNew = true
+	switch sch.Type {
+	case schema.TypeList:
+	case schema.TypeSet:
+		if nestedR, ok := sch.Elem.(*schema.Resource); ok {
+			for _, nestedSch := range nestedR.Schema {
+				changeFieldSchemaToForceNew(nestedSch)
+			}
+		}
+	}
+}
