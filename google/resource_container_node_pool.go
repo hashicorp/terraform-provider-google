@@ -181,7 +181,7 @@ var schemaNodePool = map[string]*schema.Schema{
 		ForceNew: true,
 	},
 
-	"node_config": schemaNodeConfig,
+	"node_config": schemaNodeConfig(),
 
 	"node_count": {
 		Type:         schema.TypeInt,
@@ -711,7 +711,6 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 
 			log.Printf("[INFO] Updated image type in Node Pool %s", d.Id())
 		}
-
 		if prefix == "" {
 			d.SetPartial("node_config")
 		}
