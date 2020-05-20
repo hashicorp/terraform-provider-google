@@ -1,0 +1,12 @@
+```release-note:new-resource
+google_secret_manager_secret
+```
+```release-note:new-resource
+google_secret_manager_secret_version
+```
+```release-note:new-resource
+google_secret_manager_secret_iam_*
+```
+```release-note:new-datasource
+google_secret_manager_secret_version
+```

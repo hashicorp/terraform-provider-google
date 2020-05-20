@@ -365,6 +365,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_RUNTIME_CONFIG_CUSTOM_ENDPOINT",
 				}, RuntimeConfigDefaultBasePath),
 			},
+			"secret_manager_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_SECRET_MANAGER_CUSTOM_ENDPOINT",
+				}, SecretManagerDefaultBasePath),
+			},
 			"security_center_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -512,6 +520,7 @@ func Provider() terraform.ResourceProvider {
 			"google_project":                                  dataSourceGoogleProject(),
 			"google_projects":                                 dataSourceGoogleProjects(),
 			"google_project_organization_policy":              dataSourceGoogleProjectOrganizationPolicy(),
+			"google_secret_manager_secret_version":            dataSourceSecretManagerSecretVersion(),
 			"google_service_account":                          dataSourceGoogleServiceAccount(),
 			"google_service_account_access_token":             dataSourceGoogleServiceAccountAccessToken(),
 			"google_service_account_key":                      dataSourceGoogleServiceAccountKey(),
@@ -539,9 +548,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 126
-// Generated IAM resources: 51
-// Total generated resources: 177
+// Generated resources: 128
+// Generated IAM resources: 54
+// Total generated resources: 182
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -706,6 +715,11 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_runtimeconfig_config_iam_binding":                      ResourceIamBinding(RuntimeConfigConfigIamSchema, RuntimeConfigConfigIamUpdaterProducer, RuntimeConfigConfigIdParseFunc),
 			"google_runtimeconfig_config_iam_member":                       ResourceIamMember(RuntimeConfigConfigIamSchema, RuntimeConfigConfigIamUpdaterProducer, RuntimeConfigConfigIdParseFunc),
 			"google_runtimeconfig_config_iam_policy":                       ResourceIamPolicy(RuntimeConfigConfigIamSchema, RuntimeConfigConfigIamUpdaterProducer, RuntimeConfigConfigIdParseFunc),
+			"google_secret_manager_secret":                                 resourceSecretManagerSecret(),
+			"google_secret_manager_secret_iam_binding":                     ResourceIamBinding(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer, SecretManagerSecretIdParseFunc),
+			"google_secret_manager_secret_iam_member":                      ResourceIamMember(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer, SecretManagerSecretIdParseFunc),
+			"google_secret_manager_secret_iam_policy":                      ResourceIamPolicy(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer, SecretManagerSecretIdParseFunc),
+			"google_secret_manager_secret_version":                         resourceSecretManagerSecretVersion(),
 			"google_scc_source":                                            resourceSecurityCenterSource(),
 			"google_endpoints_service_iam_binding":                         ResourceIamBinding(ServiceManagementServiceIamSchema, ServiceManagementServiceIamUpdaterProducer, ServiceManagementServiceIdParseFunc),
 			"google_endpoints_service_iam_member":                          ResourceIamMember(ServiceManagementServiceIamSchema, ServiceManagementServiceIamUpdaterProducer, ServiceManagementServiceIdParseFunc),
@@ -925,6 +939,7 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 	config.RedisBasePath = d.Get("redis_custom_endpoint").(string)
 	config.ResourceManagerBasePath = d.Get("resource_manager_custom_endpoint").(string)
 	config.RuntimeConfigBasePath = d.Get("runtime_config_custom_endpoint").(string)
+	config.SecretManagerBasePath = d.Get("secret_manager_custom_endpoint").(string)
 	config.SecurityCenterBasePath = d.Get("security_center_custom_endpoint").(string)
 	config.ServiceManagementBasePath = d.Get("service_management_custom_endpoint").(string)
 	config.ServiceUsageBasePath = d.Get("service_usage_custom_endpoint").(string)
