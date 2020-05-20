@@ -117,7 +117,7 @@ func resourceMonitoringServiceCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}projects/{{project}}/services?serviceId={{service_id}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services?serviceId={{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -150,7 +150,7 @@ func resourceMonitoringServiceCreate(d *schema.ResourceData, meta interface{}) e
 func resourceMonitoringServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -211,7 +211,7 @@ func resourceMonitoringServiceUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -249,7 +249,7 @@ func resourceMonitoringServiceDelete(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}

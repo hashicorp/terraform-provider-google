@@ -739,7 +739,7 @@ func resourceMonitoringSloCreate(d *schema.ResourceData, meta interface{}) error
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}projects/{{project}}/services/{{service}}/serviceLevelObjectives?serviceLevelObjectiveId={{slo_id}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service}}/serviceLevelObjectives?serviceLevelObjectiveId={{slo_id}}")
 	if err != nil {
 		return err
 	}
@@ -772,7 +772,7 @@ func resourceMonitoringSloCreate(d *schema.ResourceData, meta interface{}) error
 func resourceMonitoringSloRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -877,7 +877,7 @@ func resourceMonitoringSloUpdate(d *schema.ResourceData, meta interface{}) error
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -958,7 +958,7 @@ func resourceMonitoringSloDelete(d *schema.ResourceData, meta interface{}) error
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
