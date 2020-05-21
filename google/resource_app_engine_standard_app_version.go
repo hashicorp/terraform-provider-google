@@ -220,8 +220,9 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 			},
 			"handlers": {
 				Type:     schema.TypeList,
+				Computed: true,
 				Optional: true,
-				Description: `An ordered list of URL-matching patterns that should be applied to incoming requests. 
+				Description: `An ordered list of URL-matching patterns that should be applied to incoming requests.
 The first matching URL handles the request and other request handlers are not attempted.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -246,7 +247,7 @@ The first matching URL handles the request and other request handlers are not at
 						"script": {
 							Type:     schema.TypeList,
 							Optional: true,
-							Description: `Executes a script to handle the requests that match this URL pattern. 
+							Description: `Executes a script to handle the requests that match this URL pattern.
 Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
@@ -273,9 +274,11 @@ Only the auto value is supported for Node.js in the App Engine standard environm
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"application_readable": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: `Whether files should also be uploaded as code data. By default, files declared in static file handlers are uploaded as static data and are only served to end users; they cannot be read by the application. If enabled, uploads are charged against both your code and static data storage resource quotas.`,
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Whether files should also be uploaded as code data. By default, files declared in static file handlers are uploaded as
+static data and are only served to end users; they cannot be read by the application. If enabled, uploads are charged
+against both your code and static data storage resource quotas.`,
 									},
 									"expiration": {
 										Type:     schema.TypeString,
@@ -317,7 +320,7 @@ Defaults to file-specific MIME types, which are derived from each file's filenam
 						"url_regex": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `URL prefix. Uses regular expression syntax, which means regexp special characters must be escaped, but should not contain groupings. 
+							Description: `URL prefix. Uses regular expression syntax, which means regexp special characters must be escaped, but should not contain groupings.
 All URLs that begin with this prefix are handled by this handler, using the portion of the URL after the prefix as part of the file path.`,
 						},
 					},
@@ -373,7 +376,7 @@ Modules API set_num_instances() you must use 'lifecycle.ignore_changes = ["manua
 			"runtime_api_version": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Description: `The version of the API in the given runtime environment. 
+				Description: `The version of the API in the given runtime environment.
 Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref`,
 			},
 			"service": {
