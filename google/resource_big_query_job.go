@@ -64,9 +64,10 @@ func resourceBigQueryJob() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"table_id": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: compareSelfLinkRelativePaths,
 										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
 or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
 									},
@@ -125,9 +126,10 @@ The BigQuery Service Account associated with your project requires access to thi
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"table_id": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: compareSelfLinkRelativePaths,
 										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
 or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
 									},
@@ -253,9 +255,10 @@ Default is ','`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"table_id": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: compareSelfLinkRelativePaths,
 										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
 or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
 									},
@@ -317,9 +320,10 @@ or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"table_id": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: compareSelfLinkRelativePaths,
 										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
 or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
 									},
@@ -606,9 +610,10 @@ Creation, truncation and append actions occur as one atomic update upon job comp
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"dataset_id": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: compareSelfLinkRelativePaths,
 										Description: `The dataset. Can be specified '{{dataset_id}}' if 'project_id' is also set,
 or of the form 'projects/{{project}}/datasets/{{dataset_id}}' if not.`,
 									},
@@ -651,9 +656,10 @@ For queries that produce anonymous (cached) results, this field will be populate
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"table_id": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: compareSelfLinkRelativePaths,
 										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
 or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
 									},
