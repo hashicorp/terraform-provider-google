@@ -118,7 +118,7 @@ Cloud Storage bucket IAM resources can be imported using the resource identifier
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_storage_bucket_iam_member.editor "b/{{bucket}}?projection=full roles/storage.objectViewer jane@example.com"
+$ terraform import google_storage_bucket_iam_member.editor "b/{{bucket}} roles/storage.objectViewer jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
