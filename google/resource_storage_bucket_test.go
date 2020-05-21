@@ -749,6 +749,8 @@ func TestAccStorageBucket_defaultEventBasedHold(t *testing.T) {
 }
 
 func TestAccStorageBucket_encryption(t *testing.T) {
+	// when rotation is set, next rotation time is set using time.Now
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{

@@ -73,7 +73,7 @@ func TestAccMonitoringSlo_basic(t *testing.T) {
 	t.Parallel()
 
 	var generatedId string
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
@@ -109,7 +109,7 @@ func TestAccMonitoringSlo_requestBased(t *testing.T) {
 
 	randomSuffix := randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
@@ -159,7 +159,7 @@ func TestAccMonitoringSlo_windowBased_updateSlis(t *testing.T) {
 
 	randomSuffix := randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
@@ -225,7 +225,7 @@ func TestAccMonitoringSlo_windowBasedGoodTotalRatioThresholdSlis(t *testing.T) {
 
 	randomSuffix := randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
@@ -291,7 +291,7 @@ func TestAccMonitoringSlo_windowBasedMetricMeanRangeSlis(t *testing.T) {
 
 	randomSuffix := randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
@@ -331,7 +331,7 @@ func TestAccMonitoringSlo_windowBasedMetricSumRangeSlis(t *testing.T) {
 
 	randomSuffix := randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),

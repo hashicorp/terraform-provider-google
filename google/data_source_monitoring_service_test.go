@@ -8,7 +8,7 @@ import (
 )
 
 func TestAccDataSourceMonitoringService_AppEngine(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

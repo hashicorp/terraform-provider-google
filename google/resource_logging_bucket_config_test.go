@@ -16,7 +16,7 @@ func TestAccLoggingBucketConfigFolder_basic(t *testing.T) {
 		"org_id":        getTestOrgFromEnv(t),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -51,7 +51,7 @@ func TestAccLoggingBucketConfigProject_basic(t *testing.T) {
 		"org_id":        getTestOrgFromEnv(t),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -86,7 +86,7 @@ func TestAccLoggingBucketConfigBillingAccount_basic(t *testing.T) {
 		"org_id":               getTestOrgFromEnv(t),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -120,7 +120,7 @@ func TestAccLoggingBucketConfigOrganization_basic(t *testing.T) {
 		"org_id":        getTestOrgFromEnv(t),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
