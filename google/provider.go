@@ -556,9 +556,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 129
+// Generated resources: 130
 // Generated IAM resources: 57
-// Total generated resources: 186
+// Total generated resources: 187
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -669,6 +669,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dialogflow_intent":                                     resourceDialogflowIntent(),
 			"google_dialogflow_entity_type":                                resourceDialogflowEntityType(),
 			"google_dns_managed_zone":                                      resourceDNSManagedZone(),
+			"google_dns_policy":                                            resourceDNSPolicy(),
 			"google_filestore_instance":                                    resourceFilestoreInstance(),
 			"google_firestore_index":                                       resourceFirestoreIndex(),
 			"google_healthcare_dataset":                                    resourceHealthcareDataset(),

@@ -100,7 +100,6 @@ resource "google_compute_network" "network-2" {
 
 ```hcl
 resource "google_dns_managed_zone" "private-zone" {
-  provider    = google-beta
   name        = "private-zone"
   dns_name    = "private.example.com."
   description = "Example private DNS zone"
@@ -149,8 +148,6 @@ resource "google_compute_network" "network-2" {
 
 ```hcl
 resource "google_dns_managed_zone" "peering-zone" {
-  provider = google-beta
-
   name        = "peering-zone"
   dns_name    = "peering.example.com."
   description = "Example private DNS peering zone"
@@ -171,22 +168,13 @@ resource "google_dns_managed_zone" "peering-zone" {
 }
 
 resource "google_compute_network" "network-source" {
-  provider = google-beta
-
   name                    = "network-source"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "network-target" {
-  provider = google-beta
-
   name                    = "network-target"
   auto_create_subnetworks = false
-}
-
-provider "google-beta" {
-  region = "us-central1"
-  zone   = "us-central1-a"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -274,6 +262,17 @@ The following arguments are supported:
   For privately visible zones, the set of Virtual Private Cloud
   resources that the zone is visible from.  Structure is documented below.
 
+* `forwarding_config` -
+  (Optional)
+  The presence for this field indicates that outbound forwarding is enabled
+  for this zone. The value of this field contains the set of destinations
+  to forward to.  Structure is documented below.
+
+* `peering_config` -
+  (Optional)
+  The presence of this field indicates that DNS Peering is enabled for this
+  zone. The value of this field contains the network to peer with.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -360,6 +359,46 @@ The `networks` block supports:
 * `network_url` -
   (Required)
   The fully qualified URL of the VPC network to bind to.
+  This should be formatted like
+  `https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`
+
+The `forwarding_config` block supports:
+
+* `target_name_servers` -
+  (Required)
+  List of target name servers to forward to. Cloud DNS will
+  select the best available name server if more than
+  one target is given.  Structure is documented below.
+
+
+The `target_name_servers` block supports:
+
+* `ipv4_address` -
+  (Required)
+  IPv4 address of a target name server.
+
+* `forwarding_path` -
+  (Optional)
+  Forwarding path for this TargetNameServer. If unset or `default` Cloud DNS will make forwarding
+  decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
+  to the Internet. When set to `private`, Cloud DNS will always send queries through VPC for this target
+
+  Possible values are:
+  * `default`
+  * `private`
+
+The `peering_config` block supports:
+
+* `target_network` -
+  (Required)
+  The network with which to peer.  Structure is documented below.
+
+
+The `target_network` block supports:
+
+* `network_url` -
+  (Required)
+  The fully qualified URL of the VPC network to forward queries to.
   This should be formatted like
   `https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`
 

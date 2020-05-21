@@ -119,6 +119,36 @@ func TestAccDNSManagedZone_dnssec_empty(t *testing.T) {
 	})
 }
 
+func TestAccDNSManagedZone_privateForwardingUpdate(t *testing.T) {
+	t.Parallel()
+
+	zoneSuffix := randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsManagedZone_privateForwardingUpdate(zoneSuffix, "172.16.1.10", "172.16.1.20", "default", "private"),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.private",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDnsManagedZone_privateForwardingUpdate(zoneSuffix, "172.16.1.10", "192.168.1.1", "private", "default"),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.private",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccDnsManagedZone_basic(suffix, description string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
@@ -229,6 +259,38 @@ resource "google_compute_network" "network-3" {
   auto_create_subnetworks = false
 }
 `, suffix, first_network, second_network, suffix, suffix, suffix)
+}
+
+func testAccDnsManagedZone_privateForwardingUpdate(suffix, first_nameserver, second_nameserver, first_forwarding_path, second_forwarding_path string) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "private" {
+  name        = "private-zone-%s"
+  dns_name    = "private.example.com."
+  description = "Example private DNS zone"
+  visibility  = "private"
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.network-1.self_link
+    }
+  }
+
+  forwarding_config {
+    target_name_servers {
+      ipv4_address = "%s"
+      forwarding_path = "%s"
+    }
+    target_name_servers {
+      ipv4_address = "%s"
+      forwarding_path = "%s"
+    }
+  }
+}
+
+resource "google_compute_network" "network-1" {
+  name                    = "network-1-%s"
+  auto_create_subnetworks = false
+}
+`, suffix, first_nameserver, first_forwarding_path, second_nameserver, second_forwarding_path, suffix)
 }
 
 func TestDnsManagedZoneImport_parseImportId(t *testing.T) {

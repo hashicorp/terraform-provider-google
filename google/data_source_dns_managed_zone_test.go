@@ -23,6 +23,8 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 					map[string]struct{}{
 						"dnssec_config.#":             {},
 						"private_visibility_config.#": {},
+						"peering_config.#":            {},
+						"forwarding_config.#":         {},
 					},
 				),
 			},
