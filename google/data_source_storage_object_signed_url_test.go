@@ -117,6 +117,8 @@ func TestAccStorageSignedUrl_basic(t *testing.T) {
 }
 
 func TestAccStorageSignedUrl_accTest(t *testing.T) {
+	// URL includes an expires time
+	skipIfVcr(t)
 	t.Parallel()
 
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", randInt(t))

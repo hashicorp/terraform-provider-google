@@ -475,6 +475,8 @@ func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 }
 
 func TestAccProviderUserProjectOverride(t *testing.T) {
+	// Parallel fine-grained resource creation
+	skipIfVcr(t)
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
@@ -519,6 +521,8 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 // Do the same thing as TestAccProviderUserProjectOverride, but using a resource that gets its project via
 // a reference to a different resource instead of a project field.
 func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
+	// Parallel fine-grained resource creation
+	skipIfVcr(t)
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)

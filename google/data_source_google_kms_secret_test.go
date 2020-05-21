@@ -12,6 +12,8 @@ import (
 )
 
 func TestAccKmsSecret_basic(t *testing.T) {
+	// Nested tests confuse VCR
+	skipIfVcr(t)
 	t.Parallel()
 
 	projectOrg := getTestOrgFromEnv(t)

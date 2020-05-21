@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"testing"
@@ -1849,7 +1850,7 @@ func TestAccComputeInstance_resourcePolicyCollocate(t *testing.T) {
 
 	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
@@ -2866,6 +2867,7 @@ func testAccComputeInstance_disks_encryption(bootEncryptionKey string, diskNameT
 	for k := range diskNameToEncryptionKey {
 		diskNames = append(diskNames, k)
 	}
+	sort.Strings(diskNames)
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"

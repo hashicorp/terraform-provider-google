@@ -200,6 +200,8 @@ func TestAccKmsCryptoKey_basic(t *testing.T) {
 }
 
 func TestAccKmsCryptoKey_rotation(t *testing.T) {
+	// when rotation is set, next rotation time is set using time.Now
+	skipIfVcr(t)
 	t.Parallel()
 
 	projectId := fmt.Sprintf("tf-test-%d", randInt(t))

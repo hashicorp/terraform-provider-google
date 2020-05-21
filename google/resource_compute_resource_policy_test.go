@@ -10,7 +10,7 @@ import (
 func TestAccComputeResourcePolicy_attached(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeResourcePolicyDestroyProducer(t),
