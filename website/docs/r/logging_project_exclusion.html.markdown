@@ -47,6 +47,12 @@ The following arguments are supported:
 * `project` - (Optional) The project to create the exclusion in. If omitted, the project associated with the provider is
     used.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/exclusions/{{name}}`
+
 ## Import
 
 Project-level logging exclusions can be imported using their URI, e.g.
