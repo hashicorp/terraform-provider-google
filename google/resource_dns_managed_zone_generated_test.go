@@ -123,6 +123,64 @@ resource "google_compute_network" "network-2" {
 `, context)
 }
 
+func TestAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(context),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.peering-zone",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_dns_managed_zone" "peering-zone" {
+  name        = "tf-test-peering-zone%{random_suffix}"
+  dns_name    = "peering.example.com."
+  description = "Example private DNS peering zone"
+
+  visibility = "private"
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.network-source.self_link
+    }
+  }
+
+  peering_config {
+    target_network {
+      network_url = google_compute_network.network-target.self_link
+    }
+  }
+}
+
+resource "google_compute_network" "network-source" {
+  name                    = "tf-test-network-source%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network" "network-target" {
+  name                    = "tf-test-network-target%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
 func testAccCheckDNSManagedZoneDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
