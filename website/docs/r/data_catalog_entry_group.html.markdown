@@ -115,9 +115,6 @@ This resource provides the following
 EntryGroup can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_data_catalog_entry_group.default projects/{{project}}/locations/{{region}}/entryGroups/{{name}}
-$ terraform import google_data_catalog_entry_group.default {{project}}/{{region}}/{{name}}
-$ terraform import google_data_catalog_entry_group.default {{region}}/{{name}}
 $ terraform import google_data_catalog_entry_group.default {{name}}
 ```
 

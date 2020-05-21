@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -249,14 +250,23 @@ func resourceDataCatalogEntryGroupDelete(d *schema.ResourceData, meta interface{
 }
 
 func resourceDataCatalogEntryGroupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
+	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 
+	name := d.Get("name").(string)
+	egRegex := regexp.MustCompile("projects/(.+)/locations/(.+)/entryGroups/(.+)")
+
+	parts := egRegex.FindStringSubmatch(name)
+	if len(parts) != 4 {
+		return nil, fmt.Errorf("entry group name does not fit the format %s", egRegex)
+	}
+	d.Set("project", parts[1])
+	d.Set("region", parts[2])
+	d.Set("entry_group_id", parts[3])
 	return []*schema.ResourceData{d}, nil
 }
 

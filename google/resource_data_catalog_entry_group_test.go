@@ -22,28 +22,25 @@ func TestAccDataCatalogEntryGroup_update(t *testing.T) {
 				Config: testAccDataCatalogEntryGroup_dataCatalogEntryGroupBasicExample(context),
 			},
 			{
-				ResourceName:            "google_data_catalog_entry_group.basic_entry_group",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "entry_group_id"},
+				ResourceName:      "google_data_catalog_entry_group.basic_entry_group",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccDataCatalogEntryGroup_dataCatalogEntryGroupFullExample(context),
 			},
 			{
-				ResourceName:            "google_data_catalog_entry_group.basic_entry_group",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "entry_group_id"},
+				ResourceName:      "google_data_catalog_entry_group.basic_entry_group",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccDataCatalogEntryGroup_dataCatalogEntryGroupBasicExample(context),
 			},
 			{
-				ResourceName:            "google_data_catalog_entry_group.basic_entry_group",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "entry_group_id"},
+				ResourceName:      "google_data_catalog_entry_group.basic_entry_group",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
