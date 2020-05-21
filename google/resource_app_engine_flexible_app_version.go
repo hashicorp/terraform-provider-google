@@ -528,6 +528,118 @@ the configuration ID. In this case, configId must be omitted.`,
 				Description: `Environment variables available to the application.  As these are not returned in the API request, Terraform will not detect any changes made outside of the Terraform config.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"handlers": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				Description: `An ordered list of URL-matching patterns that should be applied to incoming requests.
+The first matching URL handles the request and other request handlers are not attempted.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"auth_fail_action": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED", ""}, false),
+							Description:  `Actions to take when the user is not logged in. Possible values: ["AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED"]`,
+						},
+						"login": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED", ""}, false),
+							Description:  `Methods to restrict access to a URL based on login status. Possible values: ["LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED"]`,
+						},
+						"redirect_http_response_code": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307", ""}, false),
+							Description:  `30x code to use when performing redirects for the secure field. Possible values: ["REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307"]`,
+						},
+						"script": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Executes a script to handle the requests that match this URL pattern.
+Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"script_path": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Path to the script from the application root directory.`,
+									},
+								},
+							},
+						},
+						"security_level": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS", ""}, false),
+							Description:  `Security (HTTPS) enforcement for this URL. Possible values: ["SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS"]`,
+						},
+						"static_files": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Files served directly to the user for a given URL, such as images, CSS stylesheets, or JavaScript source files.
+Static file handlers describe which files in the application directory are static files, and which URLs serve them.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"application_readable": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Whether files should also be uploaded as code data. By default, files declared in static file handlers are
+uploaded as static data and are only served to end users; they cannot be read by the application. If enabled,
+uploads are charged against both your code and static data storage resource quotas.`,
+									},
+									"expiration": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Time a static file served by this handler should be cached by web proxies and browsers.
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example "3.5s".
+Default is '0s'`,
+										Default: "0s",
+									},
+									"http_headers": {
+										Type:     schema.TypeMap,
+										Optional: true,
+										Description: `HTTP headers to use for all responses from these URLs.
+An object containing a list of "key:value" value pairs.".`,
+										Elem: &schema.Schema{Type: schema.TypeString},
+									},
+									"mime_type": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `MIME type used to serve all files served by this handler.
+Defaults to file-specific MIME types, which are derived from each file's filename extension.`,
+									},
+									"path": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Path to the static files matched by the URL pattern, from the application root directory.
+The path can refer to text matched in groupings in the URL pattern.`,
+									},
+									"require_matching_file": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Whether this handler should match the request if the file referenced by the handler does not exist.`,
+									},
+									"upload_path_regex": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Regular expression that matches the file paths for all files that should be referenced by this handler.`,
+									},
+								},
+							},
+						},
+						"url_regex": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `URL prefix. Uses regular expression syntax, which means regexp special characters must be escaped, but should not contain groupings.
+All URLs that begin with this prefix are handled by this handler, using the portion of the URL after the prefix as part of the file path.`,
+						},
+					},
+				},
+			},
 			"inbound_services": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -556,7 +668,7 @@ Defaults to F1 for AutomaticScaling and B1 for ManualScaling.`,
 							Required: true,
 							Description: `Number of instances to assign to the service at the start.
 
-**Note:** When managing the number of instances at runtime through the App Engine Admin API or the (now deprecated) Python 2 
+**Note:** When managing the number of instances at runtime through the App Engine Admin API or the (now deprecated) Python 2
 Modules API set_num_instances() you must use 'lifecycle.ignore_changes = ["manual_scaling"[0].instances]' to prevent drift detection.`,
 						},
 					},
@@ -668,7 +780,7 @@ If specified, the subnetwork must exist in the same region as the App Engine fle
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				Description: `The version of the API in the given runtime environment. 
+				Description: `The version of the API in the given runtime environment.
 Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref`,
 			},
 			"runtime_channel": {
@@ -805,6 +917,12 @@ func resourceAppEngineFlexibleAppVersionCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("runtime_api_version"); !isEmptyValue(reflect.ValueOf(runtimeApiVersionProp)) && (ok || !reflect.DeepEqual(v, runtimeApiVersionProp)) {
 		obj["runtimeApiVersion"] = runtimeApiVersionProp
 	}
+	handlersProp, err := expandAppEngineFlexibleAppVersionHandlers(d.Get("handlers"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("handlers"); !isEmptyValue(reflect.ValueOf(handlersProp)) && (ok || !reflect.DeepEqual(v, handlersProp)) {
+		obj["handlers"] = handlersProp
+	}
 	runtimeMainExecutablePathProp, err := expandAppEngineFlexibleAppVersionRuntimeMainExecutablePath(d.Get("runtime_main_executable_path"), d, config)
 	if err != nil {
 		return err
@@ -936,7 +1054,7 @@ func resourceAppEngineFlexibleAppVersionCreate(d *schema.ResourceData, meta inte
 func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}/versions/{{version_id}}")
+	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}/versions/{{version_id}}?view=FULL")
 	if err != nil {
 		return err
 	}
@@ -989,6 +1107,9 @@ func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
 	}
 	if err := d.Set("runtime_api_version", flattenAppEngineFlexibleAppVersionRuntimeApiVersion(res["runtimeApiVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
+	}
+	if err := d.Set("handlers", flattenAppEngineFlexibleAppVersionHandlers(res["handlers"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
 	}
 	if err := d.Set("runtime_main_executable_path", flattenAppEngineFlexibleAppVersionRuntimeMainExecutablePath(res["runtimeMainExecutablePath"], d, config)); err != nil {
@@ -1093,6 +1214,12 @@ func resourceAppEngineFlexibleAppVersionUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("runtime_api_version"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, runtimeApiVersionProp)) {
 		obj["runtimeApiVersion"] = runtimeApiVersionProp
+	}
+	handlersProp, err := expandAppEngineFlexibleAppVersionHandlers(d.Get("handlers"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("handlers"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, handlersProp)) {
+		obj["handlers"] = handlersProp
 	}
 	runtimeMainExecutablePathProp, err := expandAppEngineFlexibleAppVersionRuntimeMainExecutablePath(d.Get("runtime_main_executable_path"), d, config)
 	if err != nil {
@@ -1468,6 +1595,120 @@ func flattenAppEngineFlexibleAppVersionServingStatus(v interface{}, d *schema.Re
 }
 
 func flattenAppEngineFlexibleAppVersionRuntimeApiVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionHandlers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"url_regex":                   flattenAppEngineFlexibleAppVersionHandlersUrlRegex(original["urlRegex"], d, config),
+			"security_level":              flattenAppEngineFlexibleAppVersionHandlersSecurityLevel(original["securityLevel"], d, config),
+			"login":                       flattenAppEngineFlexibleAppVersionHandlersLogin(original["login"], d, config),
+			"auth_fail_action":            flattenAppEngineFlexibleAppVersionHandlersAuthFailAction(original["authFailAction"], d, config),
+			"redirect_http_response_code": flattenAppEngineFlexibleAppVersionHandlersRedirectHttpResponseCode(original["redirectHttpResponseCode"], d, config),
+			"script":                      flattenAppEngineFlexibleAppVersionHandlersScript(original["script"], d, config),
+			"static_files":                flattenAppEngineFlexibleAppVersionHandlersStaticFiles(original["staticFiles"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenAppEngineFlexibleAppVersionHandlersUrlRegex(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionHandlersSecurityLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionHandlersLogin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionHandlersAuthFailAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionHandlersRedirectHttpResponseCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionHandlersScript(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["script_path"] =
+		flattenAppEngineFlexibleAppVersionHandlersScriptScriptPath(original["scriptPath"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAppEngineFlexibleAppVersionHandlersScriptScriptPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionHandlersStaticFiles(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["path"] =
+		flattenAppEngineFlexibleAppVersionHandlersStaticFilesPath(original["path"], d, config)
+	transformed["upload_path_regex"] =
+		flattenAppEngineFlexibleAppVersionHandlersStaticFilesUploadPathRegex(original["uploadPathRegex"], d, config)
+	transformed["http_headers"] =
+		flattenAppEngineFlexibleAppVersionHandlersStaticFilesHttpHeaders(original["httpHeaders"], d, config)
+	transformed["mime_type"] =
+		flattenAppEngineFlexibleAppVersionHandlersStaticFilesMimeType(original["mimeType"], d, config)
+	transformed["expiration"] =
+		flattenAppEngineFlexibleAppVersionHandlersStaticFilesExpiration(original["expiration"], d, config)
+	transformed["require_matching_file"] =
+		flattenAppEngineFlexibleAppVersionHandlersStaticFilesRequireMatchingFile(original["requireMatchingFile"], d, config)
+	transformed["application_readable"] =
+		flattenAppEngineFlexibleAppVersionHandlersStaticFilesApplicationReadable(original["applicationReadable"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAppEngineFlexibleAppVersionHandlersStaticFilesPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionHandlersStaticFilesUploadPathRegex(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionHandlersStaticFilesHttpHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionHandlersStaticFilesMimeType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionHandlersStaticFilesExpiration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionHandlersStaticFilesRequireMatchingFile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineFlexibleAppVersionHandlersStaticFilesApplicationReadable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2267,6 +2508,209 @@ func expandAppEngineFlexibleAppVersionServingStatus(v interface{}, d TerraformRe
 }
 
 func expandAppEngineFlexibleAppVersionRuntimeApiVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlers(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedUrlRegex, err := expandAppEngineFlexibleAppVersionHandlersUrlRegex(original["url_regex"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedUrlRegex); val.IsValid() && !isEmptyValue(val) {
+			transformed["urlRegex"] = transformedUrlRegex
+		}
+
+		transformedSecurityLevel, err := expandAppEngineFlexibleAppVersionHandlersSecurityLevel(original["security_level"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSecurityLevel); val.IsValid() && !isEmptyValue(val) {
+			transformed["securityLevel"] = transformedSecurityLevel
+		}
+
+		transformedLogin, err := expandAppEngineFlexibleAppVersionHandlersLogin(original["login"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLogin); val.IsValid() && !isEmptyValue(val) {
+			transformed["login"] = transformedLogin
+		}
+
+		transformedAuthFailAction, err := expandAppEngineFlexibleAppVersionHandlersAuthFailAction(original["auth_fail_action"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAuthFailAction); val.IsValid() && !isEmptyValue(val) {
+			transformed["authFailAction"] = transformedAuthFailAction
+		}
+
+		transformedRedirectHttpResponseCode, err := expandAppEngineFlexibleAppVersionHandlersRedirectHttpResponseCode(original["redirect_http_response_code"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRedirectHttpResponseCode); val.IsValid() && !isEmptyValue(val) {
+			transformed["redirectHttpResponseCode"] = transformedRedirectHttpResponseCode
+		}
+
+		transformedScript, err := expandAppEngineFlexibleAppVersionHandlersScript(original["script"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedScript); val.IsValid() && !isEmptyValue(val) {
+			transformed["script"] = transformedScript
+		}
+
+		transformedStaticFiles, err := expandAppEngineFlexibleAppVersionHandlersStaticFiles(original["static_files"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStaticFiles); val.IsValid() && !isEmptyValue(val) {
+			transformed["staticFiles"] = transformedStaticFiles
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersUrlRegex(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersSecurityLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersLogin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersAuthFailAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersRedirectHttpResponseCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersScript(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScriptPath, err := expandAppEngineFlexibleAppVersionHandlersScriptScriptPath(original["script_path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScriptPath); val.IsValid() && !isEmptyValue(val) {
+		transformed["scriptPath"] = transformedScriptPath
+	}
+
+	return transformed, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersScriptScriptPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersStaticFiles(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPath, err := expandAppEngineFlexibleAppVersionHandlersStaticFilesPath(original["path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !isEmptyValue(val) {
+		transformed["path"] = transformedPath
+	}
+
+	transformedUploadPathRegex, err := expandAppEngineFlexibleAppVersionHandlersStaticFilesUploadPathRegex(original["upload_path_regex"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUploadPathRegex); val.IsValid() && !isEmptyValue(val) {
+		transformed["uploadPathRegex"] = transformedUploadPathRegex
+	}
+
+	transformedHttpHeaders, err := expandAppEngineFlexibleAppVersionHandlersStaticFilesHttpHeaders(original["http_headers"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHttpHeaders); val.IsValid() && !isEmptyValue(val) {
+		transformed["httpHeaders"] = transformedHttpHeaders
+	}
+
+	transformedMimeType, err := expandAppEngineFlexibleAppVersionHandlersStaticFilesMimeType(original["mime_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMimeType); val.IsValid() && !isEmptyValue(val) {
+		transformed["mimeType"] = transformedMimeType
+	}
+
+	transformedExpiration, err := expandAppEngineFlexibleAppVersionHandlersStaticFilesExpiration(original["expiration"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExpiration); val.IsValid() && !isEmptyValue(val) {
+		transformed["expiration"] = transformedExpiration
+	}
+
+	transformedRequireMatchingFile, err := expandAppEngineFlexibleAppVersionHandlersStaticFilesRequireMatchingFile(original["require_matching_file"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequireMatchingFile); val.IsValid() && !isEmptyValue(val) {
+		transformed["requireMatchingFile"] = transformedRequireMatchingFile
+	}
+
+	transformedApplicationReadable, err := expandAppEngineFlexibleAppVersionHandlersStaticFilesApplicationReadable(original["application_readable"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedApplicationReadable); val.IsValid() && !isEmptyValue(val) {
+		transformed["applicationReadable"] = transformedApplicationReadable
+	}
+
+	return transformed, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersStaticFilesPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersStaticFilesUploadPathRegex(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersStaticFilesHttpHeaders(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersStaticFilesMimeType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersStaticFilesExpiration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersStaticFilesRequireMatchingFile(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineFlexibleAppVersionHandlersStaticFilesApplicationReadable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

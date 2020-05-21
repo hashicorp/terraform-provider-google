@@ -105,6 +105,18 @@ resource "google_app_engine_flexible_app_version" "myapp_v1" {
     port = "8080"
   }
 
+  handlers {
+    url_regex        = ".*\\/my-path\\/*"
+    security_level   = "SECURE_ALWAYS"
+    login            = "LOGIN_REQUIRED"
+    auth_fail_action = "AUTH_FAIL_ACTION_REDIRECT"
+
+    static_files {
+      path = "my-other-path"
+      upload_path_regex = ".*\\/my-path\\/*"
+    }
+  }
+
   automatic_scaling {
     cool_down_period = "120s"
     cpu_utilization {

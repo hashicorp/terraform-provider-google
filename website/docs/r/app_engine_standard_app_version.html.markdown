@@ -177,12 +177,12 @@ The `files` block supports:
 
 * `runtime_api_version` -
   (Optional)
-  The version of the API in the given runtime environment. 
+  The version of the API in the given runtime environment.
   Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref
 
 * `handlers` -
   (Optional)
-  An ordered list of URL-matching patterns that should be applied to incoming requests. 
+  An ordered list of URL-matching patterns that should be applied to incoming requests.
   The first matching URL handles the request and other request handlers are not attempted.  Structure is documented below.
 
 * `libraries` -
@@ -230,7 +230,7 @@ The `handlers` block supports:
 
 * `url_regex` -
   (Optional)
-  URL prefix. Uses regular expression syntax, which means regexp special characters must be escaped, but should not contain groupings. 
+  URL prefix. Uses regular expression syntax, which means regexp special characters must be escaped, but should not contain groupings.
   All URLs that begin with this prefix are handled by this handler, using the portion of the URL after the prefix as part of the file path.
 
 * `security_level` -
@@ -272,7 +272,7 @@ The `handlers` block supports:
 
 * `script` -
   (Optional)
-  Executes a script to handle the requests that match this URL pattern. 
+  Executes a script to handle the requests that match this URL pattern.
   Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".  Structure is documented below.
 
 * `static_files` -
@@ -317,7 +317,9 @@ The `static_files` block supports:
 
 * `application_readable` -
   (Optional)
-  Whether files should also be uploaded as code data. By default, files declared in static file handlers are uploaded as static data and are only served to end users; they cannot be read by the application. If enabled, uploads are charged against both your code and static data storage resource quotas.
+  Whether files should also be uploaded as code data. By default, files declared in static file handlers are uploaded as
+  static data and are only served to end users; they cannot be read by the application. If enabled, uploads are charged
+  against both your code and static data storage resource quotas.
 
 The `libraries` block supports:
 

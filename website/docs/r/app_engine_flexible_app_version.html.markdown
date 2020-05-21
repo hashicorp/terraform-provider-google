@@ -99,6 +99,18 @@ resource "google_app_engine_flexible_app_version" "myapp_v1" {
     port = "8080"
   }
 
+  handlers {
+    url_regex        = ".*\\/my-path\\/*"
+    security_level   = "SECURE_ALWAYS"
+    login            = "LOGIN_REQUIRED"
+    auth_fail_action = "AUTH_FAIL_ACTION_REDIRECT"
+
+    static_files {
+      path = "my-other-path"
+      upload_path_regex = ".*\\/my-path\\/*"
+    }
+  }
+
   automatic_scaling {
     cool_down_period = "120s"
     cpu_utilization {
@@ -246,8 +258,13 @@ The `liveness_check` block supports:
 
 * `runtime_api_version` -
   (Optional)
-  The version of the API in the given runtime environment. 
+  The version of the API in the given runtime environment.
   Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref
+
+* `handlers` -
+  (Optional)
+  An ordered list of URL-matching patterns that should be applied to incoming requests.
+  The first matching URL handles the request and other request handlers are not attempted.  Structure is documented below.
 
 * `runtime_main_executable_path` -
   (Optional)
@@ -362,6 +379,104 @@ The `volumes` block supports:
 * `size_gb` -
   (Required)
   Volume size in gigabytes.
+
+The `handlers` block supports:
+
+* `url_regex` -
+  (Optional)
+  URL prefix. Uses regular expression syntax, which means regexp special characters must be escaped, but should not contain groupings.
+  All URLs that begin with this prefix are handled by this handler, using the portion of the URL after the prefix as part of the file path.
+
+* `security_level` -
+  (Optional)
+  Security (HTTPS) enforcement for this URL.
+
+  Possible values are:
+  * `SECURE_DEFAULT`
+  * `SECURE_NEVER`
+  * `SECURE_OPTIONAL`
+  * `SECURE_ALWAYS`
+
+* `login` -
+  (Optional)
+  Methods to restrict access to a URL based on login status.
+
+  Possible values are:
+  * `LOGIN_OPTIONAL`
+  * `LOGIN_ADMIN`
+  * `LOGIN_REQUIRED`
+
+* `auth_fail_action` -
+  (Optional)
+  Actions to take when the user is not logged in.
+
+  Possible values are:
+  * `AUTH_FAIL_ACTION_REDIRECT`
+  * `AUTH_FAIL_ACTION_UNAUTHORIZED`
+
+* `redirect_http_response_code` -
+  (Optional)
+  30x code to use when performing redirects for the secure field.
+
+  Possible values are:
+  * `REDIRECT_HTTP_RESPONSE_CODE_301`
+  * `REDIRECT_HTTP_RESPONSE_CODE_302`
+  * `REDIRECT_HTTP_RESPONSE_CODE_303`
+  * `REDIRECT_HTTP_RESPONSE_CODE_307`
+
+* `script` -
+  (Optional)
+  Executes a script to handle the requests that match this URL pattern.
+  Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".  Structure is documented below.
+
+* `static_files` -
+  (Optional)
+  Files served directly to the user for a given URL, such as images, CSS stylesheets, or JavaScript source files.
+  Static file handlers describe which files in the application directory are static files, and which URLs serve them.  Structure is documented below.
+
+
+The `script` block supports:
+
+* `script_path` -
+  (Required)
+  Path to the script from the application root directory.
+
+The `static_files` block supports:
+
+* `path` -
+  (Optional)
+  Path to the static files matched by the URL pattern, from the application root directory.
+  The path can refer to text matched in groupings in the URL pattern.
+
+* `upload_path_regex` -
+  (Optional)
+  Regular expression that matches the file paths for all files that should be referenced by this handler.
+
+* `http_headers` -
+  (Optional)
+  HTTP headers to use for all responses from these URLs.
+  An object containing a list of "key:value" value pairs.".
+
+* `mime_type` -
+  (Optional)
+  MIME type used to serve all files served by this handler.
+  Defaults to file-specific MIME types, which are derived from each file's filename extension.
+
+* `expiration` -
+  (Optional)
+  Time a static file served by this handler should be cached by web proxies and browsers.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example "3.5s".
+  Default is '0s'
+
+* `require_matching_file` -
+  (Optional)
+  Whether this handler should match the request if the file referenced by the handler does not exist.
+
+* `application_readable` -
+  (Optional)
+  Whether files should also be uploaded as code data. By default, files declared in static file handlers are
+  uploaded as static data and are only served to end users; they cannot be read by the application. If enabled,
+  uploads are charged against both your code and static data storage resource quotas.
 
 The `api_config` block supports:
 
@@ -618,7 +733,7 @@ The `manual_scaling` block supports:
 * `instances` -
   (Required)
   Number of instances to assign to the service at the start.
-  **Note:** When managing the number of instances at runtime through the App Engine Admin API or the (now deprecated) Python 2 
+  **Note:** When managing the number of instances at runtime through the App Engine Admin API or the (now deprecated) Python 2
   Modules API set_num_instances() you must use `lifecycle.ignore_changes = ["manual_scaling"[0].instances]` to prevent drift detection.
 
 ## Attributes Reference
