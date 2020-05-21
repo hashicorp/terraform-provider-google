@@ -87,6 +87,7 @@ type Config struct {
 	BinaryAuthorizationBasePath  string
 	CloudBuildBasePath           string
 	CloudFunctionsBasePath       string
+	CloudIotBasePath             string
 	CloudRunBasePath             string
 	CloudSchedulerBasePath       string
 	CloudTasksBasePath           string
@@ -227,6 +228,7 @@ var BigtableDefaultBasePath = "https://bigtableadmin.googleapis.com/v2/"
 var BinaryAuthorizationDefaultBasePath = "https://binaryauthorization.googleapis.com/v1/"
 var CloudBuildDefaultBasePath = "https://cloudbuild.googleapis.com/v1/"
 var CloudFunctionsDefaultBasePath = "https://cloudfunctions.googleapis.com/v1/"
+var CloudIotDefaultBasePath = "https://cloudiot.googleapis.com/v1/"
 var CloudRunDefaultBasePath = "https://{{location}}-run.googleapis.com/"
 var CloudSchedulerDefaultBasePath = "https://cloudscheduler.googleapis.com/v1/"
 var CloudTasksDefaultBasePath = "https://cloudtasks.googleapis.com/v2/"
@@ -742,6 +744,7 @@ func ConfigureBasePaths(c *Config) {
 	c.BinaryAuthorizationBasePath = BinaryAuthorizationDefaultBasePath
 	c.CloudBuildBasePath = CloudBuildDefaultBasePath
 	c.CloudFunctionsBasePath = CloudFunctionsDefaultBasePath
+	c.CloudIotBasePath = CloudIotDefaultBasePath
 	c.CloudRunBasePath = CloudRunDefaultBasePath
 	c.CloudSchedulerBasePath = CloudSchedulerDefaultBasePath
 	c.CloudTasksBasePath = CloudTasksDefaultBasePath
@@ -792,7 +795,6 @@ func ConfigureBasePaths(c *Config) {
 	c.IAMBasePath = IAMDefaultBasePath
 	c.ServiceNetworkingBasePath = ServiceNetworkingDefaultBasePath
 	c.BigQueryBasePath = BigQueryDefaultBasePath
-	c.CloudIoTBasePath = CloudIoTDefaultBasePath
 	c.StorageTransferBasePath = StorageTransferDefaultBasePath
 	c.BigtableAdminBasePath = BigtableAdminDefaultBasePath
 }

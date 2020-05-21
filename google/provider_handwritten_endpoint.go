@@ -19,17 +19,6 @@ var CloudBillingCustomEndpointEntry = &schema.Schema{
 	}, CloudBillingDefaultBasePath),
 }
 
-var CloudIoTDefaultBasePath = "https://cloudiot.googleapis.com/v1/"
-var CloudIoTCustomEndpointEntryKey = "cloud_iot_custom_endpoint"
-var CloudIoTCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_CLOUD_IOT_CUSTOM_ENDPOINT",
-	}, CloudIoTDefaultBasePath),
-}
-
 var ComposerDefaultBasePath = "https://composer.googleapis.com/v1beta1/"
 var ComposerCustomEndpointEntryKey = "composer_custom_endpoint"
 var ComposerCustomEndpointEntry = &schema.Schema{
