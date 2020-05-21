@@ -74,6 +74,8 @@ is specified, it must be base64 encoded and less than 4096 bytes in length.
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/configs/{{config}}/variables/{{name}}`
+
 * `update_time` - (Computed) The timestamp in RFC3339 UTC "Zulu" format,
 accurate to nanoseconds, representing when the variable was last updated.
 Example: "2016-10-09T12:33:37.578138407Z".

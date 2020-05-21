@@ -87,6 +87,8 @@ The `bigquery_options` block supports:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `folders/{{folder_id}}/sinks/{{name}}`
+
 * `writer_identity` - The identity associated with this sink. This identity must be granted write access to the
     configured `destination`.
 
@@ -95,5 +97,5 @@ exported:
 Folder-level logging sinks can be imported using this format:
 
 ```
-$ terraform import google_logging_folder_sink.my_sink folders/{{folder_id}}/sinks/{{sink_id}}
+$ terraform import google_logging_folder_sink.my_sink folders/{{folder_id}}/sinks/{{name}}
 ```

@@ -53,6 +53,12 @@ The following arguments are supported:
     See [Advanced Log Filters](https://cloud.google.com/logging/docs/view/advanced-filters) for information on how to
     write a filter.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `folders/{{folder}}/exclusions/{{name}}`
+
 ## Import
 
 Folder-level logging exclusions can be imported using their URI, e.g.

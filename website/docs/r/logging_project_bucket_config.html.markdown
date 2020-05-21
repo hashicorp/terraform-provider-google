@@ -51,6 +51,8 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/buckets/{{bucket_id}}`
+
 * `name` -  The resource name of the bucket. For example: "projects/my-project-id/locations/my-location/buckets/my-bucket-id"
 
 * `lifecycle_state` -  The bucket's lifecycle such as active or deleted. See [LifecycleState](https://cloud.google.com/logging/docs/reference/v2/rest/v2/billingAccounts.buckets#LogBucket.LifecycleState).

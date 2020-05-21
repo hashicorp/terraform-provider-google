@@ -39,6 +39,12 @@ is not provided, the provider project is used.
 * `description` - (Optional) The description to associate with the runtime
 config.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/configs/{{name}}`
+
 ## Import
 
 Runtime Configs can be imported using the `name` or full config name, e.g.
