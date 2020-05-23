@@ -517,34 +517,6 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 
 	d.Partial(true)
 
-	if d.HasChange("target") {
-		obj := make(map[string]interface{})
-
-		targetProp, err := expandComputeForwardingRuleTarget(d.Get("target"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("target"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetProp)) {
-			obj["target"] = targetProp
-		}
-
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setTarget")
-		if err != nil {
-			return err
-		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating ForwardingRule %q: %s", d.Id(), err)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating ForwardingRule",
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("target")
-	}
 	if d.HasChange("allow_global_access") {
 		obj := make(map[string]interface{})
 
@@ -572,6 +544,34 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		}
 
 		d.SetPartial("allow_global_access")
+	}
+	if d.HasChange("target") {
+		obj := make(map[string]interface{})
+
+		targetProp, err := expandComputeForwardingRuleTarget(d.Get("target"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("target"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetProp)) {
+			obj["target"] = targetProp
+		}
+
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setTarget")
+		if err != nil {
+			return err
+		}
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating ForwardingRule %q: %s", d.Id(), err)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating ForwardingRule",
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("target")
 	}
 
 	d.Partial(false)

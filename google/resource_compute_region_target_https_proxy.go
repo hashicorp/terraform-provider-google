@@ -242,34 +242,6 @@ func resourceComputeRegionTargetHttpsProxyUpdate(d *schema.ResourceData, meta in
 
 	d.Partial(true)
 
-	if d.HasChange("ssl_certificates") {
-		obj := make(map[string]interface{})
-
-		sslCertificatesProp, err := expandComputeRegionTargetHttpsProxySslCertificates(d.Get("ssl_certificates"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("ssl_certificates"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslCertificatesProp)) {
-			obj["sslCertificates"] = sslCertificatesProp
-		}
-
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetHttpsProxies/{{name}}/setSslCertificates")
-		if err != nil {
-			return err
-		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating RegionTargetHttpsProxy %q: %s", d.Id(), err)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating RegionTargetHttpsProxy",
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("ssl_certificates")
-	}
 	if d.HasChange("url_map") {
 		obj := make(map[string]interface{})
 
@@ -297,6 +269,34 @@ func resourceComputeRegionTargetHttpsProxyUpdate(d *schema.ResourceData, meta in
 		}
 
 		d.SetPartial("url_map")
+	}
+	if d.HasChange("ssl_certificates") {
+		obj := make(map[string]interface{})
+
+		sslCertificatesProp, err := expandComputeRegionTargetHttpsProxySslCertificates(d.Get("ssl_certificates"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("ssl_certificates"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslCertificatesProp)) {
+			obj["sslCertificates"] = sslCertificatesProp
+		}
+
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetHttpsProxies/{{name}}/setSslCertificates")
+		if err != nil {
+			return err
+		}
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating RegionTargetHttpsProxy %q: %s", d.Id(), err)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating RegionTargetHttpsProxy",
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("ssl_certificates")
 	}
 
 	d.Partial(false)

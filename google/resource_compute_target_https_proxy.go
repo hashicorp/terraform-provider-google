@@ -262,34 +262,6 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 
 	d.Partial(true)
 
-	if d.HasChange("quic_override") {
-		obj := make(map[string]interface{})
-
-		quicOverrideProp, err := expandComputeTargetHttpsProxyQuicOverride(d.Get("quic_override"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("quic_override"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, quicOverrideProp)) {
-			obj["quicOverride"] = quicOverrideProp
-		}
-
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}/setQuicOverride")
-		if err != nil {
-			return err
-		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating TargetHttpsProxy",
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("quic_override")
-	}
 	if d.HasChange("ssl_certificates") {
 		obj := make(map[string]interface{})
 
@@ -373,6 +345,34 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		}
 
 		d.SetPartial("url_map")
+	}
+	if d.HasChange("quic_override") {
+		obj := make(map[string]interface{})
+
+		quicOverrideProp, err := expandComputeTargetHttpsProxyQuicOverride(d.Get("quic_override"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("quic_override"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, quicOverrideProp)) {
+			obj["quicOverride"] = quicOverrideProp
+		}
+
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}/setQuicOverride")
+		if err != nil {
+			return err
+		}
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating TargetHttpsProxy",
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("quic_override")
 	}
 
 	d.Partial(false)

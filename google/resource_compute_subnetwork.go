@@ -442,34 +442,6 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 
 	d.Partial(true)
 
-	if d.HasChange("ip_cidr_range") {
-		obj := make(map[string]interface{})
-
-		ipCidrRangeProp, err := expandComputeSubnetworkIpCidrRange(d.Get("ip_cidr_range"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("ip_cidr_range"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ipCidrRangeProp)) {
-			obj["ipCidrRange"] = ipCidrRangeProp
-		}
-
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}/expandIpCidrRange")
-		if err != nil {
-			return err
-		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating Subnetwork",
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("ip_cidr_range")
-	}
 	if d.HasChange("private_ip_google_access") {
 		obj := make(map[string]interface{})
 
@@ -497,6 +469,34 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		d.SetPartial("private_ip_google_access")
+	}
+	if d.HasChange("ip_cidr_range") {
+		obj := make(map[string]interface{})
+
+		ipCidrRangeProp, err := expandComputeSubnetworkIpCidrRange(d.Get("ip_cidr_range"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("ip_cidr_range"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ipCidrRangeProp)) {
+			obj["ipCidrRange"] = ipCidrRangeProp
+		}
+
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}/expandIpCidrRange")
+		if err != nil {
+			return err
+		}
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating Subnetwork",
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("ip_cidr_range")
 	}
 	if d.HasChange("log_config") {
 		obj := make(map[string]interface{})

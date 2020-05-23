@@ -751,6 +751,34 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	d.Partial(true)
 
+	if d.HasChange("size") {
+		obj := make(map[string]interface{})
+
+		sizeGbProp, err := expandComputeDiskSize(d.Get("size"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("size"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sizeGbProp)) {
+			obj["sizeGb"] = sizeGbProp
+		}
+
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/resize")
+		if err != nil {
+			return err
+		}
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating Disk",
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("size")
+	}
 	if d.HasChange("label_fingerprint") || d.HasChange("labels") {
 		obj := make(map[string]interface{})
 
@@ -785,34 +813,6 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		d.SetPartial("label_fingerprint")
 		d.SetPartial("labels")
-	}
-	if d.HasChange("size") {
-		obj := make(map[string]interface{})
-
-		sizeGbProp, err := expandComputeDiskSize(d.Get("size"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("size"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sizeGbProp)) {
-			obj["sizeGb"] = sizeGbProp
-		}
-
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/resize")
-		if err != nil {
-			return err
-		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating Disk",
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("size")
 	}
 
 	d.Partial(false)

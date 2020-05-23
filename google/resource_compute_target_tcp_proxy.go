@@ -221,34 +221,6 @@ func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{
 
 	d.Partial(true)
 
-	if d.HasChange("proxy_header") {
-		obj := make(map[string]interface{})
-
-		proxyHeaderProp, err := expandComputeTargetTcpProxyProxyHeader(d.Get("proxy_header"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("proxy_header"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, proxyHeaderProp)) {
-			obj["proxyHeader"] = proxyHeaderProp
-		}
-
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}/setProxyHeader")
-		if err != nil {
-			return err
-		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error updating TargetTcpProxy %q: %s", d.Id(), err)
-		}
-
-		err = computeOperationWaitTime(
-			config, res, project, "Updating TargetTcpProxy",
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-
-		d.SetPartial("proxy_header")
-	}
 	if d.HasChange("backend_service") {
 		obj := make(map[string]interface{})
 
@@ -276,6 +248,34 @@ func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{
 		}
 
 		d.SetPartial("backend_service")
+	}
+	if d.HasChange("proxy_header") {
+		obj := make(map[string]interface{})
+
+		proxyHeaderProp, err := expandComputeTargetTcpProxyProxyHeader(d.Get("proxy_header"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("proxy_header"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, proxyHeaderProp)) {
+			obj["proxyHeader"] = proxyHeaderProp
+		}
+
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}/setProxyHeader")
+		if err != nil {
+			return err
+		}
+		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating TargetTcpProxy %q: %s", d.Id(), err)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating TargetTcpProxy",
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("proxy_header")
 	}
 
 	d.Partial(false)
