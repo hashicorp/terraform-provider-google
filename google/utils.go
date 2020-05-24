@@ -145,11 +145,6 @@ func expandLabels(d TerraformResourceData) map[string]string {
 	return expandStringMap(d, "labels")
 }
 
-// expandEnvironmentVariables pulls the value of "environment_variables" out of a schema.ResourceData as a map[string]string.
-func expandEnvironmentVariables(d *schema.ResourceData) map[string]string {
-	return expandStringMap(d, "environment_variables")
-}
-
 // expandStringMap pulls the value of key out of a TerraformResourceData as a map[string]string.
 func expandStringMap(d TerraformResourceData, key string) map[string]string {
 	v, ok := d.GetOk(key)

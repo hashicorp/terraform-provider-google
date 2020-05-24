@@ -17,15 +17,15 @@ layout: "google"
 page_title: "Google: google_cloudfunctions_function_iam"
 sidebar_current: "docs-google-cloudfunctions-function-iam"
 description: |-
-  Collection of resources to manage IAM policy for Cloud Functions CloudFunction
+  Collection of resources to manage IAM policy for Cloud Functions Function
 ---
 
-# IAM policy for Cloud Functions CloudFunction
-Three different resources help you manage your IAM policy for Cloud Functions CloudFunction. Each of these resources serves a different use case:
+# IAM policy for Cloud Functions Function
+Three different resources help you manage your IAM policy for Cloud Functions Function. Each of these resources serves a different use case:
 
-* `google_cloudfunctions_function_iam_policy`: Authoritative. Sets the IAM policy for the cloudfunction and replaces any existing policy already attached.
-* `google_cloudfunctions_function_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the cloudfunction are preserved.
-* `google_cloudfunctions_function_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the cloudfunction are preserved.
+* `google_cloudfunctions_function_iam_policy`: Authoritative. Sets the IAM policy for the function and replaces any existing policy already attached.
+* `google_cloudfunctions_function_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the function are preserved.
+* `google_cloudfunctions_function_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the function are preserved.
 
 ~> **Note:** `google_cloudfunctions_function_iam_policy` **cannot** be used in conjunction with `google_cloudfunctions_function_iam_binding` and `google_cloudfunctions_function_iam_member` or they will fight over what your policy should be.
 
@@ -47,8 +47,8 @@ data "google_iam_policy" "admin" {
 
 resource "google_cloudfunctions_function_iam_policy" "policy" {
   project = google_cloudfunctions_function.function.project
-  region = google_cloudfunctions_function.function.region
-  cloud_function = google_cloudfunctions_function.function.name
+  location = google_cloudfunctions_function.function.location
+  function = google_cloudfunctions_function.function.name
   policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
@@ -58,8 +58,8 @@ resource "google_cloudfunctions_function_iam_policy" "policy" {
 ```hcl
 resource "google_cloudfunctions_function_iam_binding" "binding" {
   project = google_cloudfunctions_function.function.project
-  region = google_cloudfunctions_function.function.region
-  cloud_function = google_cloudfunctions_function.function.name
+  location = google_cloudfunctions_function.function.location
+  function = google_cloudfunctions_function.function.name
   role = "roles/viewer"
   members = [
     "user:jane@example.com",
@@ -72,8 +72,8 @@ resource "google_cloudfunctions_function_iam_binding" "binding" {
 ```hcl
 resource "google_cloudfunctions_function_iam_member" "member" {
   project = google_cloudfunctions_function.function.project
-  region = google_cloudfunctions_function.function.region
-  cloud_function = google_cloudfunctions_function.function.name
+  location = google_cloudfunctions_function.function.location
+  function = google_cloudfunctions_function.function.name
   role = "roles/viewer"
   member = "user:jane@example.com"
 }
@@ -83,10 +83,7 @@ resource "google_cloudfunctions_function_iam_member" "member" {
 
 The following arguments are supported:
 
-* `cloud_function` - (Required) Used to find the parent resource to bind the IAM policy to
-* `region` - (Optional) The location of this cloud function. Used to find the parent resource to bind the IAM policy to. If not specified,
-  the value will be parsed from the identifier of the parent resource. If no region is provided in the parent identifier and no
-  region is specified, it is taken from the provider configuration.
+* `function` - (Required) Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.
@@ -118,28 +115,27 @@ exported:
 
 For all import syntaxes, the "resource in question" can take any of the following forms:
 
-* projects/{{project}}/locations/{{region}}/functions/{{cloud_function}}
-* {{project}}/{{region}}/{{cloud_function}}
-* {{region}}/{{cloud_function}}
-* {{cloud_function}}
+* projects/{{project}}/locations/{{location}}/functions/{{name}}
+* {{project}}/{{location}}/{{name}}
+* {{location}}/{{name}}
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Cloud Functions cloudfunction IAM resources can be imported using the resource identifiers, role, and member.
+Cloud Functions function IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_cloudfunctions_function_iam_member.editor "projects/{{project}}/locations/{{region}}/functions/{{cloud_function}} roles/viewer jane@example.com"
+$ terraform import google_cloudfunctions_function_iam_member.editor "projects/{{project}}/locations/{{location}}/functions/{{function}} roles/viewer jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
 ```
-$ terraform import google_cloudfunctions_function_iam_binding.editor "projects/{{project}}/locations/{{region}}/functions/{{cloud_function}} roles/viewer"
+$ terraform import google_cloudfunctions_function_iam_binding.editor "projects/{{project}}/locations/{{location}}/functions/{{function}} roles/viewer"
 ```
 
 IAM policy imports use the identifier of the resource in question, e.g.
 ```
-$ terraform import google_cloudfunctions_function_iam_policy.editor projects/{{project}}/locations/{{region}}/functions/{{cloud_function}}
+$ terraform import google_cloudfunctions_function_iam_policy.editor projects/{{project}}/locations/{{location}}/functions/{{function}}
 ```
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`

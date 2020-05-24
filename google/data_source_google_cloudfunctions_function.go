@@ -41,7 +41,7 @@ func dataSourceGoogleCloudFunctionsFunctionRead(d *schema.ResourceData, meta int
 
 	d.SetId(cloudFuncId.cloudFunctionId())
 
-	err = resourceCloudFunctionsRead(d, meta)
+	err = resourceCloudFunctionsFunctionRead(d, meta)
 	if err != nil {
 		return err
 	}

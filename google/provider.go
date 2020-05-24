@@ -563,9 +563,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 132
+// Generated resources: 133
 // Generated IAM resources: 57
-// Total generated resources: 189
+// Total generated resources: 190
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -595,9 +595,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_binary_authorization_attestor_iam_policy":              ResourceIamPolicy(BinaryAuthorizationAttestorIamSchema, BinaryAuthorizationAttestorIamUpdaterProducer, BinaryAuthorizationAttestorIdParseFunc),
 			"google_binary_authorization_policy":                           resourceBinaryAuthorizationPolicy(),
 			"google_cloudbuild_trigger":                                    resourceCloudBuildTrigger(),
-			"google_cloudfunctions_function_iam_binding":                   ResourceIamBinding(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
-			"google_cloudfunctions_function_iam_member":                    ResourceIamMember(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
-			"google_cloudfunctions_function_iam_policy":                    ResourceIamPolicy(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
+			"google_cloudfunctions_function":                               resourceCloudFunctionsFunction(),
+			"google_cloudfunctions_function_iam_binding":                   ResourceIamBinding(CloudFunctionsFunctionIamSchema, CloudFunctionsFunctionIamUpdaterProducer, CloudFunctionsFunctionIdParseFunc),
+			"google_cloudfunctions_function_iam_member":                    ResourceIamMember(CloudFunctionsFunctionIamSchema, CloudFunctionsFunctionIamUpdaterProducer, CloudFunctionsFunctionIdParseFunc),
+			"google_cloudfunctions_function_iam_policy":                    ResourceIamPolicy(CloudFunctionsFunctionIamSchema, CloudFunctionsFunctionIamUpdaterProducer, CloudFunctionsFunctionIdParseFunc),
 			"google_cloudiot_registry":                                     resourceCloudIotDeviceRegistry(),
 			"google_cloud_run_domain_mapping":                              resourceCloudRunDomainMapping(),
 			"google_cloud_run_service":                                     resourceCloudRunService(),
@@ -776,7 +777,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_billing_account_iam_binding":           ResourceIamBinding(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
 			"google_billing_account_iam_member":            ResourceIamMember(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
 			"google_billing_account_iam_policy":            ResourceIamPolicy(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
-			"google_cloudfunctions_function":               resourceCloudFunctionsFunction(),
 			"google_composer_environment":                  resourceComposerEnvironment(),
 			"google_compute_attached_disk":                 resourceComputeAttachedDisk(),
 			"google_compute_instance":                      resourceComputeInstance(),

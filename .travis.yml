@@ -20,10 +20,6 @@ script:
 - make test
 - make website-test
 
-branches:
-  only:
-  - master
-
 matrix:
   fast_finish: true
   allow_failures:

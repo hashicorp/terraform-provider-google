@@ -71,51 +71,6 @@ func TestCloudFunctionsFunction_nameValidator(t *testing.T) {
 	}
 }
 
-func TestValidLabelKeys(t *testing.T) {
-	testCases := []struct {
-		labelKey string
-		valid    bool
-	}{
-		{
-			"test-label", true,
-		},
-		{
-			"test_label", true,
-		},
-		{
-			"MixedCase", false,
-		},
-		{
-			"number-09-dash", true,
-		},
-		{
-			"", false,
-		},
-		{
-			"test-label", true,
-		},
-		{
-			"mixed*symbol", false,
-		},
-		{
-			"intérnätional", true,
-		},
-	}
-
-	for _, tc := range testCases {
-		labels := make(map[string]interface{})
-		labels[tc.labelKey] = "test value"
-
-		_, errs := labelKeyValidator(labels, "")
-		if tc.valid && len(errs) > 0 {
-			t.Errorf("Validation failure, key: '%s' should be valid but actual errors were %q", tc.labelKey, errs)
-		}
-		if !tc.valid && len(errs) < 1 {
-			t.Errorf("Validation failure, key: '%s' should fail but actual errors were %q", tc.labelKey, errs)
-		}
-	}
-}
-
 func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	t.Parallel()
 
@@ -403,34 +358,6 @@ func TestAccCloudFunctionsFunction_vpcConnector(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckCloudFunctionsFunctionDestroyProducer(t *testing.T) func(s *terraform.State) error {
-	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
-
-		for _, rs := range s.RootModule().Resources {
-			if rs.Type != "google_cloudfunctions_function" {
-				continue
-			}
-
-			name := rs.Primary.Attributes["name"]
-			project := rs.Primary.Attributes["project"]
-			region := rs.Primary.Attributes["region"]
-			cloudFuncId := &cloudFunctionId{
-				Project: project,
-				Region:  region,
-				Name:    name,
-			}
-			_, err := config.clientCloudFunctions.Projects.Locations.Functions.Get(cloudFuncId.cloudFunctionId()).Do()
-			if err == nil {
-				return fmt.Errorf("Function still exists")
-			}
-
-		}
-
-		return nil
-	}
 }
 
 func testAccCloudFunctionsFunctionExists(t *testing.T, n string, function *cloudfunctions.CloudFunction) resource.TestCheckFunc {

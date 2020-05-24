@@ -21,7 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-func TestAccCloudFunctionsCloudFunctionIamBindingGenerated(t *testing.T) {
+func TestAccCloudFunctionsFunctionIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -35,7 +35,7 @@ func TestAccCloudFunctionsCloudFunctionIamBindingGenerated(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsCloudFunctionIamBinding_basicGenerated(context),
+				Config: testAccCloudFunctionsFunctionIamBinding_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_binding.foo",
@@ -45,7 +45,7 @@ func TestAccCloudFunctionsCloudFunctionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				// Test Iam Binding update
-				Config: testAccCloudFunctionsCloudFunctionIamBinding_updateGenerated(context),
+				Config: testAccCloudFunctionsFunctionIamBinding_updateGenerated(context),
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_binding.foo",
@@ -57,7 +57,7 @@ func TestAccCloudFunctionsCloudFunctionIamBindingGenerated(t *testing.T) {
 	})
 }
 
-func TestAccCloudFunctionsCloudFunctionIamMemberGenerated(t *testing.T) {
+func TestAccCloudFunctionsFunctionIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -72,7 +72,7 @@ func TestAccCloudFunctionsCloudFunctionIamMemberGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
-				Config: testAccCloudFunctionsCloudFunctionIamMember_basicGenerated(context),
+				Config: testAccCloudFunctionsFunctionIamMember_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_member.foo",
@@ -84,7 +84,7 @@ func TestAccCloudFunctionsCloudFunctionIamMemberGenerated(t *testing.T) {
 	})
 }
 
-func TestAccCloudFunctionsCloudFunctionIamPolicyGenerated(t *testing.T) {
+func TestAccCloudFunctionsFunctionIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -98,7 +98,7 @@ func TestAccCloudFunctionsCloudFunctionIamPolicyGenerated(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsCloudFunctionIamPolicy_basicGenerated(context),
+				Config: testAccCloudFunctionsFunctionIamPolicy_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_policy.foo",
@@ -107,7 +107,7 @@ func TestAccCloudFunctionsCloudFunctionIamPolicyGenerated(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccCloudFunctionsCloudFunctionIamPolicy_emptyBinding(context),
+				Config: testAccCloudFunctionsFunctionIamPolicy_emptyBinding(context),
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_policy.foo",
@@ -119,10 +119,10 @@ func TestAccCloudFunctionsCloudFunctionIamPolicyGenerated(t *testing.T) {
 	})
 }
 
-func testAccCloudFunctionsCloudFunctionIamMember_basicGenerated(context map[string]interface{}) string {
+func testAccCloudFunctionsFunctionIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "tf-test-cloudfunctions-function-example-bucket%{random_suffix}"
+  name = "tf-test-test-bucket%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -132,7 +132,7 @@ resource "google_storage_bucket_object" "archive" {
 }
 
 resource "google_cloudfunctions_function" "function" {
-  name        = "tf-test-my-function%{random_suffix}"
+  name        = "tf-test-function-test%{random_suffix}"
   description = "My function"
   runtime     = "nodejs10"
 
@@ -140,24 +140,33 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
   trigger_http          = true
-  timeout               = 60
   entry_point           = "helloGET"
+}
+
+# IAM entry for all users to invoke the function
+resource "google_cloudfunctions_function_iam_member" "invoker" {
+  project        = google_cloudfunctions_function.function.project
+  region         = google_cloudfunctions_function.function.region
+  cloud_function = google_cloudfunctions_function.function.name
+
+  role   = "roles/cloudfunctions.invoker"
+  member = "allUsers"
 }
 
 resource "google_cloudfunctions_function_iam_member" "foo" {
   project = google_cloudfunctions_function.function.project
-  region = google_cloudfunctions_function.function.region
-  cloud_function = google_cloudfunctions_function.function.name
+  location = google_cloudfunctions_function.function.location
+  function = google_cloudfunctions_function.function.name
   role = "%{role}"
   member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
 
-func testAccCloudFunctionsCloudFunctionIamPolicy_basicGenerated(context map[string]interface{}) string {
+func testAccCloudFunctionsFunctionIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "tf-test-cloudfunctions-function-example-bucket%{random_suffix}"
+  name = "tf-test-test-bucket%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -167,7 +176,7 @@ resource "google_storage_bucket_object" "archive" {
 }
 
 resource "google_cloudfunctions_function" "function" {
-  name        = "tf-test-my-function%{random_suffix}"
+  name        = "tf-test-function-test%{random_suffix}"
   description = "My function"
   runtime     = "nodejs10"
 
@@ -175,8 +184,17 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
   trigger_http          = true
-  timeout               = 60
   entry_point           = "helloGET"
+}
+
+# IAM entry for all users to invoke the function
+resource "google_cloudfunctions_function_iam_member" "invoker" {
+  project        = google_cloudfunctions_function.function.project
+  region         = google_cloudfunctions_function.function.region
+  cloud_function = google_cloudfunctions_function.function.name
+
+  role   = "roles/cloudfunctions.invoker"
+  member = "allUsers"
 }
 
 data "google_iam_policy" "foo" {
@@ -188,17 +206,17 @@ data "google_iam_policy" "foo" {
 
 resource "google_cloudfunctions_function_iam_policy" "foo" {
   project = google_cloudfunctions_function.function.project
-  region = google_cloudfunctions_function.function.region
-  cloud_function = google_cloudfunctions_function.function.name
+  location = google_cloudfunctions_function.function.location
+  function = google_cloudfunctions_function.function.name
   policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
 
-func testAccCloudFunctionsCloudFunctionIamPolicy_emptyBinding(context map[string]interface{}) string {
+func testAccCloudFunctionsFunctionIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "tf-test-cloudfunctions-function-example-bucket%{random_suffix}"
+  name = "tf-test-test-bucket%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -208,7 +226,7 @@ resource "google_storage_bucket_object" "archive" {
 }
 
 resource "google_cloudfunctions_function" "function" {
-  name        = "tf-test-my-function%{random_suffix}"
+  name        = "tf-test-function-test%{random_suffix}"
   description = "My function"
   runtime     = "nodejs10"
 
@@ -216,8 +234,17 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
   trigger_http          = true
-  timeout               = 60
   entry_point           = "helloGET"
+}
+
+# IAM entry for all users to invoke the function
+resource "google_cloudfunctions_function_iam_member" "invoker" {
+  project        = google_cloudfunctions_function.function.project
+  region         = google_cloudfunctions_function.function.region
+  cloud_function = google_cloudfunctions_function.function.name
+
+  role   = "roles/cloudfunctions.invoker"
+  member = "allUsers"
 }
 
 data "google_iam_policy" "foo" {
@@ -225,17 +252,17 @@ data "google_iam_policy" "foo" {
 
 resource "google_cloudfunctions_function_iam_policy" "foo" {
   project = google_cloudfunctions_function.function.project
-  region = google_cloudfunctions_function.function.region
-  cloud_function = google_cloudfunctions_function.function.name
+  location = google_cloudfunctions_function.function.location
+  function = google_cloudfunctions_function.function.name
   policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
 
-func testAccCloudFunctionsCloudFunctionIamBinding_basicGenerated(context map[string]interface{}) string {
+func testAccCloudFunctionsFunctionIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "tf-test-cloudfunctions-function-example-bucket%{random_suffix}"
+  name = "tf-test-test-bucket%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -245,7 +272,7 @@ resource "google_storage_bucket_object" "archive" {
 }
 
 resource "google_cloudfunctions_function" "function" {
-  name        = "tf-test-my-function%{random_suffix}"
+  name        = "tf-test-function-test%{random_suffix}"
   description = "My function"
   runtime     = "nodejs10"
 
@@ -253,24 +280,33 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
   trigger_http          = true
-  timeout               = 60
   entry_point           = "helloGET"
+}
+
+# IAM entry for all users to invoke the function
+resource "google_cloudfunctions_function_iam_member" "invoker" {
+  project        = google_cloudfunctions_function.function.project
+  region         = google_cloudfunctions_function.function.region
+  cloud_function = google_cloudfunctions_function.function.name
+
+  role   = "roles/cloudfunctions.invoker"
+  member = "allUsers"
 }
 
 resource "google_cloudfunctions_function_iam_binding" "foo" {
   project = google_cloudfunctions_function.function.project
-  region = google_cloudfunctions_function.function.region
-  cloud_function = google_cloudfunctions_function.function.name
+  location = google_cloudfunctions_function.function.location
+  function = google_cloudfunctions_function.function.name
   role = "%{role}"
   members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
 
-func testAccCloudFunctionsCloudFunctionIamBinding_updateGenerated(context map[string]interface{}) string {
+func testAccCloudFunctionsFunctionIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "tf-test-cloudfunctions-function-example-bucket%{random_suffix}"
+  name = "tf-test-test-bucket%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -280,7 +316,7 @@ resource "google_storage_bucket_object" "archive" {
 }
 
 resource "google_cloudfunctions_function" "function" {
-  name        = "tf-test-my-function%{random_suffix}"
+  name        = "tf-test-function-test%{random_suffix}"
   description = "My function"
   runtime     = "nodejs10"
 
@@ -288,14 +324,23 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
   trigger_http          = true
-  timeout               = 60
   entry_point           = "helloGET"
+}
+
+# IAM entry for all users to invoke the function
+resource "google_cloudfunctions_function_iam_member" "invoker" {
+  project        = google_cloudfunctions_function.function.project
+  region         = google_cloudfunctions_function.function.region
+  cloud_function = google_cloudfunctions_function.function.name
+
+  role   = "roles/cloudfunctions.invoker"
+  member = "allUsers"
 }
 
 resource "google_cloudfunctions_function_iam_binding" "foo" {
   project = google_cloudfunctions_function.function.project
-  region = google_cloudfunctions_function.function.region
-  cloud_function = google_cloudfunctions_function.function.name
+  location = google_cloudfunctions_function.function.location
+  function = google_cloudfunctions_function.function.name
   role = "%{role}"
   members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
