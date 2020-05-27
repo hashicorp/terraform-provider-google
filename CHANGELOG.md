@@ -1,4 +1,30 @@
 ## 3.24.0 (Unreleased)
+
+FEATURES:
+* **New Data Source:** `google_secret_manager_secret_version` ([#6432](https://github.com/terraform-providers/terraform-provider-google/pull/6432))
+* **New Resource:** `google_data_catalog_entry_group_iam_binding` ([#6438](https://github.com/terraform-providers/terraform-provider-google/pull/6438))
+* **New Resource:** `google_data_catalog_entry_group_iam_member` ([#6438](https://github.com/terraform-providers/terraform-provider-google/pull/6438))
+* **New Resource:** `google_data_catalog_entry_group_iam_policy` ([#6438](https://github.com/terraform-providers/terraform-provider-google/pull/6438))
+* **New Resource:** `google_data_catalog_entry_group` ([#6438](https://github.com/terraform-providers/terraform-provider-google/pull/6438))
+* **New Resource:** `google_data_catalog_entry` ([#6444](https://github.com/terraform-providers/terraform-provider-google/pull/6444))
+* **New Resource:** `google_dns_policy` is now GA ([#6439](https://github.com/terraform-providers/terraform-provider-google/pull/6439))
+* **New Resource:** `google_secret_manager_secret` ([#6432](https://github.com/terraform-providers/terraform-provider-google/pull/6432))
+* **New Resource:** `google_secret_manager_secret_iam_*` ([#6432](https://github.com/terraform-providers/terraform-provider-google/pull/6432))
+* **New Resource:** `google_secret_manager_secret_version` ([#6432](https://github.com/terraform-providers/terraform-provider-google/pull/6432))
+
+IMPROVEMENTS:
+* appengine: added `handlers` to `google_flexible_app_version` ([#6449](https://github.com/terraform-providers/terraform-provider-google/pull/6449))
+* bigquery: suppressed diffs between fully qualified URLs and relative paths that reference the same table or dataset in `google_bigquery_job` ([#6451](https://github.com/terraform-providers/terraform-provider-google/pull/6451))
+* container: Added update support for `node_config.workload_metadata_config` to `google_container_node_pool` ([#6430](https://github.com/terraform-providers/terraform-provider-google/pull/6430))
+* dns: Promoted the following `google_dns_managed_zone ` fields to GA: `forwarding_config`, `peering_config` ([#6439](https://github.com/terraform-providers/terraform-provider-google/pull/6439))
+
+BUG FIXES:
+* appengine: added ability to fully sync `StandardAppVersion` resources ([#6435](https://github.com/terraform-providers/terraform-provider-google/pull/6435))
+* bigquery: Fixed an issue with `google_bigquery_dataset_access` failing for primitive role `roles/bigquery.dataViewer` ([#6431](https://github.com/terraform-providers/terraform-provider-google/pull/6431))
+* dataflow: fixed an issue where `google_dataflow_job` would try to update `max_workers` ([#6468](https://github.com/terraform-providers/terraform-provider-google/pull/6468))
+* dataflow: fixed an issue where updating `on_delete` in `google_dataflow_job` would cause the job to be replaced ([#6468](https://github.com/terraform-providers/terraform-provider-google/pull/6468))
+* os_login: Fixed `google_os_login_ssh_public_key` `key` field attempting to update in-place ([#6433](https://github.com/terraform-providers/terraform-provider-google/pull/6433))
+
 ## 3.23.0 (May 26, 2020)
 
 BREAKING CHANGES:
