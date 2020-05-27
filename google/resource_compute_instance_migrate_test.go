@@ -930,6 +930,8 @@ func cleanUpDisk(config *Config, diskName, zone string) {
 }
 
 func getInitializedConfig(t *testing.T) *Config {
+	// Migrate tests are non standard and handle the config directly
+	skipIfVcr(t)
 	// Check that all required environment variables are set
 	testAccPreCheck(t)
 
