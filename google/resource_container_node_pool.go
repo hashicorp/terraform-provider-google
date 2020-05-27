@@ -395,20 +395,23 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	mutexKV.Lock(nodePoolInfo.lockKey())
 	defer mutexKV.Unlock(nodePoolInfo.lockKey())
 
-	var op = &containerBeta.Operation{}
-	var count = 0
-	err = resource.Retry(30*time.Second, func() *resource.RetryError {
-		count++
-		op, err = config.clientContainerBeta.Projects.Locations.
-			Clusters.NodePools.Delete(nodePoolInfo.fullyQualifiedName(name)).Do()
+	timeout := d.Timeout(schema.TimeoutDelete)
+	startTime := time.Now()
+
+	var operation *containerBeta.Operation
+	err = resource.Retry(timeout, func() *resource.RetryError {
+		operation, err = config.clientContainerBeta.
+			Projects.Locations.Clusters.NodePools.Delete(nodePoolInfo.fullyQualifiedName(name)).Do()
 
 		if err != nil {
-			return resource.RetryableError(err)
+			if isFailedPreconditionError(err) {
+				// We get failed precondition errors if the cluster is updating
+				// while we try to delete the node pool.
+				return resource.RetryableError(err)
+			}
+			return resource.NonRetryableError(err)
 		}
 
-		if count == 15 {
-			return resource.NonRetryableError(fmt.Errorf("Error retrying to delete node pool %s", name))
-		}
 		return nil
 	})
 
@@ -416,8 +419,10 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error deleting NodePool: %s", err)
 	}
 
+	timeout -= time.Since(startTime)
+
 	// Wait until it's deleted
-	waitErr := containerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "deleting GKE NodePool", d.Timeout(schema.TimeoutDelete))
+	waitErr := containerOperationWait(config, operation, nodePoolInfo.project, nodePoolInfo.location, "deleting GKE NodePool", timeout)
 	if waitErr != nil {
 		return waitErr
 	}
