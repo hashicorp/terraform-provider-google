@@ -712,7 +712,7 @@ func (c *Config) getTokenSource(clientScopes []string) (oauth2.TokenSource, erro
 
 		creds, err := googleoauth.CredentialsFromJSON(context.Background(), []byte(contents), clientScopes...)
 		if err != nil {
-			return nil, fmt.Errorf("Unable to parse credentials from '%s': %s", contents, err)
+			return nil, fmt.Errorf("Unable to parse credentials: %s", err)
 		}
 
 		log.Printf("[INFO] Authenticating using configured Google JSON 'credentials'...")
