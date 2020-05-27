@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccBigtableTable_basic(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
@@ -33,6 +35,8 @@ func TestAccBigtableTable_basic(t *testing.T) {
 }
 
 func TestAccBigtableTable_splitKeys(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
@@ -57,6 +61,8 @@ func TestAccBigtableTable_splitKeys(t *testing.T) {
 }
 
 func TestAccBigtableTable_family(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
@@ -81,6 +87,8 @@ func TestAccBigtableTable_family(t *testing.T) {
 }
 
 func TestAccBigtableTable_familyMany(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
@@ -105,6 +113,8 @@ func TestAccBigtableTable_familyMany(t *testing.T) {
 }
 
 func TestAccBigtableTable_familyUpdate(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
