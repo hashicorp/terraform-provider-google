@@ -259,6 +259,39 @@ func TestAccDataflowJob_streamUpdate(t *testing.T) {
 	})
 }
 
+func TestAccDataflowJob_virtualUpdate(t *testing.T) {
+	// Dataflow responses include serialized java classes and bash commands
+	// This makes body comparison infeasible
+	skipIfVcr(t)
+	t.Parallel()
+
+	suffix := randString(t, 10)
+
+	// If the update is virtual-only, the ID should remain the same after updating.
+	var id string
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataflowJob_virtualUpdate(suffix, "drain"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataflowJobExists(t, "google_dataflow_job.pubsub_stream"),
+					testAccDataflowSetId(t, "google_dataflow_job.pubsub_stream", &id),
+				),
+			},
+			{
+				Config: testAccDataflowJob_virtualUpdate(suffix, "cancel"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataflowCheckId(t, "google_dataflow_job.pubsub_stream", &id),
+					resource.TestCheckResourceAttr("google_dataflow_job.pubsub_stream", "on_delete", "cancel"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDataflowJobDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {
@@ -319,6 +352,32 @@ func testAccDataflowJobExists(t *testing.T, resource string) resource.TestCheckF
 			return fmt.Errorf("could not confirm Dataflow Job %q exists: %v", rs.Primary.ID, err)
 		}
 
+		return nil
+	}
+}
+
+func testAccDataflowSetId(t *testing.T, resource string, id *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resource]
+		if !ok {
+			return fmt.Errorf("resource %q not in state", resource)
+		}
+
+		*id = rs.Primary.ID
+		return nil
+	}
+}
+
+func testAccDataflowCheckId(t *testing.T, resource string, id *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resource]
+		if !ok {
+			return fmt.Errorf("resource %q not in state", resource)
+		}
+
+		if rs.Primary.ID != *id {
+			return fmt.Errorf("ID did not match. Expected %s, received %s", *id, rs.Primary.ID)
+		}
 		return nil
 	}
 }
@@ -771,4 +830,26 @@ resource "google_dataflow_job" "pubsub_stream" {
 	on_delete = "cancel"
 }
   `, suffix, suffix, suffix, suffix, testDataflowJobTemplateTextToPubsub, tempLocation)
+}
+
+func testAccDataflowJob_virtualUpdate(suffix, onDelete string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "topic" {
+	name     = "tf-test-dataflow-job-%s"
+}
+resource "google_storage_bucket" "bucket" {
+	name = "tf-test-bucket-%s"
+	force_destroy = true
+}
+resource "google_dataflow_job" "pubsub_stream" {
+	name = "tf-test-dataflow-job-%s"
+	template_gcs_path = "%s"
+	temp_gcs_location = google_storage_bucket.bucket.url
+	parameters = {
+	  inputFilePattern = "${google_storage_bucket.bucket.url}/*.json"
+	  outputTopic    = google_pubsub_topic.topic.id
+	}
+	on_delete = "%s"
+}
+  `, suffix, suffix, suffix, testDataflowJobTemplateTextToPubsub, onDelete)
 }
