@@ -17,12 +17,14 @@ layout: "google"
 page_title: "Google: google_container_analysis_note"
 sidebar_current: "docs-google-container-analysis-note"
 description: |-
-  Provides a detailed description of a Note.
+  A Container Analysis note is a high-level piece of metadata that
+  describes a type of analysis that can be done for a resource.
 ---
 
 # google\_container\_analysis\_note
 
-Provides a detailed description of a Note.
+A Container Analysis note is a high-level piece of metadata that
+describes a type of analysis that can be done for a resource.
 
 
 To get more information about Note, see:
@@ -30,6 +32,7 @@ To get more information about Note, see:
 * [API documentation](https://cloud.google.com/container-analysis/api/reference/rest/)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/container-analysis/)
+    * [Creating Attestations (Occurrences)](https://cloud.google.com/binary-authorization/docs/making-attestations)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=container_analysis_note_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -41,7 +44,39 @@ To get more information about Note, see:
 
 ```hcl
 resource "google_container_analysis_note" "note" {
-  name = "test-attestor-note"
+  name = "attestor-note"
+  attestation_authority {
+    hint {
+      human_readable_name = "Attestor Note"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=container_analysis_note_attestation_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Container Analysis Note Attestation Full
+
+
+```hcl
+resource "google_container_analysis_note" "note" {
+  name = "attestor-note"
+
+  short_description = "test note"
+  long_description = "a longer description of test note"
+  expiration_time = "2120-10-02T15:01:23.045123456Z"
+
+  related_url {
+    url = "some.url"
+    label = "foo"
+  }
+
+  related_url {
+    url = "google.com"
+  }
+
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -96,15 +131,54 @@ The `hint` block supports:
 - - -
 
 
+* `short_description` -
+  (Optional)
+  A one sentence description of the note.
+
+* `long_description` -
+  (Optional)
+  A detailed description of the note
+
+* `related_url` -
+  (Optional)
+  URLs associated with this note and related metadata.  Structure is documented below.
+
+* `expiration_time` -
+  (Optional)
+  Time of expiration for this note. Leave empty if note does not expire.
+
+* `related_note_names` -
+  (Optional)
+  Names of other notes related to this note.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `related_url` block supports:
+
+* `url` -
+  (Required)
+  Specific URL associated with the resource.
+
+* `label` -
+  (Optional)
+  Label to describe usage of the URL
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/notes/{{name}}`
+
+* `kind` -
+  The type of analysis this note describes
+
+* `create_time` -
+  The time this note was created.
+
+* `update_time` -
+  The time this note was last updated.
 
 
 ## Timeouts

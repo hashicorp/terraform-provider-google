@@ -1,0 +1,6 @@
+```release-note:enhancement
+container_analysis: Added top-level generic note fields to `google_container_analysis_note`
+```
+```release-note:new-resource
+`google_container_analysis_occurence`
+```
