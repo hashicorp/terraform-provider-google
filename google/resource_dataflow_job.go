@@ -85,6 +85,8 @@ func resourceDataflowJob() *schema.Resource {
 			"max_workers": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				// ForceNew applies to both stream and batch jobs
+				ForceNew: true,
 			},
 
 			"parameters": {
@@ -166,12 +168,15 @@ func resourceDataflowJob() *schema.Resource {
 }
 
 func resourceDataflowJobTypeCustomizeDiff(d *schema.ResourceDiff, meta interface{}) error {
-	// All changes are ForceNew for batch jobs
+	// All non-virtual fields are ForceNew for batch jobs
 	if d.Get("type") == "JOB_TYPE_BATCH" {
 		resourceSchema := resourceDataflowJob().Schema
-		for field, fieldSchema := range resourceSchema {
-			// Each key within a map must be checked for a change
-			if fieldSchema.Type == schema.TypeMap {
+		for field := range resourceSchema {
+			if field == "on_delete" {
+				continue
+			}
+			// Labels map will likely have suppressed changes, so we check each key instead of the parent field
+			if field == "labels" {
 				resourceDataflowJobIterateMapForceNew(field, d)
 			} else if d.HasChange(field) {
 				d.ForceNew(field)
@@ -265,6 +270,11 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 
 // Stream update method. Batch job changes should have been set to ForceNew via custom diff
 func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interface{}) error {
+	// Don't send an update request if only virtual fields have changes
+	if resourceDataflowJobIsVirtualUpdate(d) {
+		return nil
+	}
+
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -455,4 +465,37 @@ func resourceDataflowJobIterateMapForceNew(mapKey string, d *schema.ResourceDiff
 			break
 		}
 	}
+}
+
+func resourceDataflowJobIterateMapHasChange(mapKey string, d *schema.ResourceData) bool {
+	obj := d.Get(mapKey).(map[string]interface{})
+	for k := range obj {
+		entrySchemaKey := mapKey + "." + k
+		if d.HasChange(entrySchemaKey) {
+			return true
+		}
+	}
+	return false
+}
+
+func resourceDataflowJobIsVirtualUpdate(d *schema.ResourceData) bool {
+	// on_delete is the only virtual field
+	if d.HasChange("on_delete") {
+		// Check if other fields have changes, which would require an actual update request
+		resourceSchema := resourceDataflowJob().Schema
+		for field := range resourceSchema {
+			if field == "on_delete" {
+				continue
+			}
+			// Labels map will likely have suppressed changes, so we check each key instead of the parent field
+			if (field == "labels" && resourceDataflowJobIterateMapHasChange(field, d)) ||
+				(field != "labels" && d.HasChange(field)) {
+				return false
+			}
+		}
+		// on_delete is changing, but nothing else
+		return true
+	}
+
+	return false
 }
